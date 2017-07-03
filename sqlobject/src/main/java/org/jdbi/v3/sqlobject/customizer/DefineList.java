@@ -25,9 +25,10 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.internal.DefineListFactory;
 
 /**
- * Defines a named attribute as a comma-separated {@link String} from the elements of the annotated array or
- * {@link List} argument. Attributes are stored on the {@link StatementContext}, and may be used by
- * statement customizers such as the statement rewriter. For example:
+ * Defines a named attribute as a comma-separated {@link String} from the
+ * elements of the annotated array or {@link List} argument. Attributes are
+ * stored on the {@link StatementContext}, and may be used by the template
+ * engine. For example:
  *
  * <pre>
  * &#64;SqlUpdate("insert into &lt;table&gt; (&lt;columns&gt;) values (&lt;values&gt;)")
@@ -38,14 +39,18 @@ import org.jdbi.v3.sqlobject.customizer.internal.DefineListFactory;
  * </pre>
  *
  * <p>
- * An array or {@code List} argument passed to {@code @DefineList} will be converted to a comma-separated String and set
- * as a whole as a single specified attribute. Duplicate members in the {@code List} may cause SQL exceptions. An empty
- * {@code List} or {@code null} members in the {@code List} will result in an {@link IllegalArgumentException}.
+ * An array or {@code List} argument passed to {@code @DefineList} will be
+ * converted to a comma-separated String and set as a whole as a single
+ * specified attribute. Duplicate members in the {@code List} may cause SQL
+ * exceptions. An empty {@code List} or {@code null} members in the
+ * {@code List} will result in an {@link IllegalArgumentException}.
  * </p>
  *
  * <p>
- * Be aware of the list members you're binding with @DefineList, as there is no input sanitization! <b>Blindly passing
- * Strings through <code>@DefineList</code> may make your application vulnerable to SQL Injection.</b>
+ * Be aware of the list members you're binding with @DefineList, as there is no
+ * input sanitization! <b>Blindly passing Strings through
+ * <code>@DefineList</code> may make your application vulnerable to SQL
+ * Injection.</b>
  * </p>
  *
  * @see Define
@@ -56,8 +61,9 @@ import org.jdbi.v3.sqlobject.customizer.internal.DefineListFactory;
 public @interface DefineList
 {
     /**
-     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
-     * the name when there is no parameter naming information in your class files.
+     * The attribute name to define. If omitted, the name of the annotated
+     * parameter is used. It is an error to omit the name when there is no
+     * parameter naming information in your class files.
      *
      * @return the attribute key
      */

@@ -26,69 +26,69 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestHashPrefixStatementParser
+public class TestHashPrefixSqlParser
 {
-    private StatementRewriter rewriter;
-    private StatementParser parser;
+    private TemplateEngine templateEngine;
+    private SqlParser parser;
 
     @Before
     public void setUp() throws Exception
     {
-        this.rewriter = new DefinedAttributeRewriter();
-        this.parser = new HashPrefixStatementParser();
+        this.templateEngine = new DefinedAttributeTemplateEngine();
+        this.parser = new HashPrefixSqlParser();
     }
 
-    private String rewrite(String sql)
+    private String render(String sql)
     {
-        return rewrite(sql, Collections.emptyMap());
+        return render(sql, Collections.emptyMap());
     }
 
-    private String rewrite(String sql, Map<String, Object> attributes) {
+    private String render(String sql, Map<String, Object> attributes) {
         StatementContext ctx = StatementContextAccess.createContext();
         attributes.forEach(ctx::define);
 
-        return rewriter.rewrite(sql, ctx);
+        return templateEngine.render(sql, ctx);
     }
 
     @Test
     public void testNewlinesOkay() throws Exception
     {
-        ParsedStatement parsed = parser.parse("select * from something\n where id = #id");
+        ParsedSql parsed = parser.parse("select * from something\n where id = #id");
         assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
-        ParsedStatement parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id");
+        ParsedSql parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id");
         assertThat(parsed.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
-        ParsedStatement parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id");
+        ParsedSql parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id");
         assertThat(parsed.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
-        ParsedStatement parsed = parser.parse("select * from v$session");
+        ParsedSql parsed = parser.parse("select * from v$session");
         assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testColonIsLiteral() throws Exception
     {
-        ParsedStatement parsed = parser.parse("select * from foo where id = :id");
+        ParsedSql parsed = parser.parse("select * from foo where id = :id");
         assertThat(parsed.getSql()).isEqualTo("select * from foo where id = :id");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
-        ParsedStatement parsed = parser.parse("select * from `v$session");
+        ParsedSql parsed = parser.parse("select * from `v$session");
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
@@ -104,29 +104,29 @@ public class TestHashPrefixStatementParser
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
-        String rewritten = rewrite("select <column> from <table> where <column> = #someValue", attributes);
-        ParsedStatement parsed = parser.parse(rewritten);
+        String rewritten = render("select <column> from <table> where <column> = #someValue", attributes);
+        ParsedSql parsed = parser.parse(rewritten);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
     public void testUndefinedAttribute() throws Exception
     {
-        rewrite("select * from <table>", Collections.emptyMap());
+        render("select * from <table>", Collections.emptyMap());
     }
 
     @Test
     public void testLeaveEnquotedTokensIntact() throws Exception
     {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertThat(rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
+        assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
     }
 
     @Test
     public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
     {
         String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertThat(rewrite(sql)).isEqualTo(sql);
+        assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test

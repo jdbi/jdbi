@@ -11,16 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.stringtemplate4;
 
+import org.jdbi.v3.core.rewriter.TemplateEngine;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.stringtemplate.v4.ST;
 
 /**
- * A statement rewriter which does not, in fact, rewrite anything.
+ * Rewrites a StringTemplate template, using the attributes on the {@link StatementContext} as template parameters.
  */
-public class NoOpStatementRewriter implements StatementRewriter {
+public class StringTemplateEngine implements TemplateEngine {
     @Override
-    public String rewrite(String sql, StatementContext ctx) {
-        return sql;
+    public String render(String sql, StatementContext ctx) {
+        ST template = new ST(sql);
+
+        ctx.getAttributes().forEach(template::add);
+
+        return template.render();
     }
 }

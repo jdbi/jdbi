@@ -46,7 +46,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.rewriter.ParsedParameters;
-import org.jdbi.v3.core.rewriter.ParsedStatement;
+import org.jdbi.v3.core.rewriter.ParsedSql;
 import org.jdbi.v3.core.transaction.TransactionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1356,24 +1356,24 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement internalExecute()
     {
-        String rewrittenSql = getConfig(SqlStatements.class)
-                .getStatementRewriter()
-                .rewrite(sql, getContext());
-        getContext().setRewrittenSql(rewrittenSql);
+        String renderedSql = getConfig(SqlStatements.class)
+                .getTemplateEngine()
+                .render(sql, getContext());
+        getContext().setRenderedSql(renderedSql);
 
-        ParsedStatement parsed = getConfig(SqlStatements.class)
-                .getStatementParser()
-                .parse(rewrittenSql);
-        String parsedSql = parsed.getSql();
-        ParsedParameters parsedParameters = parsed.getParameters();
-        getContext().setParsedSql(parsedSql);
+        ParsedSql parsedSql = getConfig(SqlStatements.class)
+                .getSqlParser()
+                .parse(renderedSql);
+        String sql = parsedSql.getSql();
+        ParsedParameters parsedParameters = parsedSql.getParameters();
+        getContext().setParsedSql(sql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), parsedSql, getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, getContext());
             }
             else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), parsedSql, getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
             }
         }
         catch (SQLException e) {
@@ -1394,7 +1394,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             final long start = System.nanoTime();
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
-            LOG.trace("Execute SQL \"{}\" in {}ms", parsedSql, elapsedTime / 1000000L);
+            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
                     .collect(elapsedTime, getContext());

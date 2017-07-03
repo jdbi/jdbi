@@ -19,14 +19,15 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jdbi.v3.core.rewriter.ParsedStatement;
-import org.jdbi.v3.core.rewriter.StatementParser;
+
+import org.jdbi.v3.core.rewriter.ColonPrefixSqlParser;
+import org.jdbi.v3.core.rewriter.ParsedSql;
+import org.jdbi.v3.core.rewriter.SqlParser;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementParser;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.AfterClass;
@@ -98,7 +99,7 @@ public class BindListNullTest
     public void testSomethingByIterableHandleVoidWithNull()
     {
         final List<String> log = new ArrayList<>();
-        handle.setStatementParser(new LoggingParser(log));
+        handle.setSqlParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
         final List<Something> out = s.get(null);
@@ -111,7 +112,7 @@ public class BindListNullTest
     public void testSomethingByIterableHandleVoidWithEmptyList()
     {
         final List<String> log = new ArrayList<>();
-        handle.setStatementParser(new LoggingParser(log));
+        handle.setSqlParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
         final List<Something> out = s.get(new ArrayList<>());
@@ -126,7 +127,7 @@ public class BindListNullTest
         List<Something> get(@BindList(onEmpty = VOID) Iterable<Object> ids);
     }
 
-    public static class LoggingParser implements StatementParser {
+    public static class LoggingParser implements SqlParser {
         private final List<String> log;
 
         public LoggingParser(List<String> log) {
@@ -134,9 +135,9 @@ public class BindListNullTest
         }
 
         @Override
-        public ParsedStatement parse(String sql) {
+        public ParsedSql parse(String sql) {
             log.add(sql);
-            return new ColonPrefixStatementParser().parse(sql);
+            return new ColonPrefixSqlParser().parse(sql);
         }
     }
 }

@@ -61,7 +61,7 @@ public abstract class StatementException extends JdbiException
             return String.format("%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]",
                                  base,
                                  ctx.getRawSql(),
-                                 ctx.getRewrittenSql(),
+                                 ctx.getRenderedSql(),
                                  ctx.getParsedSql(),
                                  ctx.getBinding());
         }

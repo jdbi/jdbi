@@ -69,7 +69,7 @@ public class TestConditionalStringTemplateLocator {
         List<Integer> findLocated(@Define("sort") boolean sort, @Define("sortBy") String sortBy);
 
         @SqlQuery("select id from something order by <if(sort)> <sortBy>, <endif> id")
-        @UseStringTemplateStatementRewriter
+        @UseStringTemplateEngine
         List<Integer> findInline(@Define("sort") boolean sort, @Define("sortBy") String sortBy);
     }
 }

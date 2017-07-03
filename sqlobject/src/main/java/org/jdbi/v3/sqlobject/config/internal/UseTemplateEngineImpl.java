@@ -16,21 +16,22 @@ package org.jdbi.v3.sqlobject.config.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rewriter.StatementParser;
+import org.jdbi.v3.core.rewriter.TemplateEngine;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.UseStatementParser;
+import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
-public class UseStatementParserImpl implements Configurer
+public class UseTemplateEngineImpl implements Configurer
 {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
     {
-        UseStatementParser anno = (UseStatementParser) annotation;
+        UseTemplateEngine anno = (UseTemplateEngine) annotation;
         try {
-            final StatementParser parser = instantiate(anno.value(), sqlObjectType, method);
-            registry.get(SqlStatements.class).setStatementParser(parser);
+            final TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, method);
+            registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
         }
         catch (Exception e) {
             throw new IllegalStateException(e);
@@ -40,32 +41,32 @@ public class UseStatementParserImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        UseStatementParser anno = (UseStatementParser) annotation;
+        UseTemplateEngine anno = (UseTemplateEngine) annotation;
         try {
-            final StatementParser parser = instantiate(anno.value(), sqlObjectType, null);
-            registry.get(SqlStatements.class).setStatementParser(parser);
+            final TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, null);
+            registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
         }
         catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private StatementParser instantiate(Class<? extends StatementParser> value,
-                                          Class<?> sqlObjectType,
-                                          Method m) throws Exception
+    private TemplateEngine instantiate(Class<? extends TemplateEngine> value,
+                                       Class<?> sqlObjectType,
+                                       Method m) throws Exception
     {
         try {
-            Constructor<? extends StatementParser> no_arg = value.getConstructor();
+            Constructor<? extends TemplateEngine> no_arg = value.getConstructor();
             return no_arg.newInstance();
         }
         catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends StatementParser> class_arg = value.getConstructor(Class.class);
+                Constructor<? extends TemplateEngine> class_arg = value.getConstructor(Class.class);
                 return class_arg.newInstance(sqlObjectType);
             }
             catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends StatementParser> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends TemplateEngine> c_m_arg = value.getConstructor(Class.class,
                                                                                             Method.class);
                     return c_m_arg.newInstance(sqlObjectType, m);
                 }

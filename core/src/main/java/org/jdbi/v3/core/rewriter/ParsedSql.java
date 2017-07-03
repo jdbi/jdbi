@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.Objects;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 
-public class ParsedStatement {
+public class ParsedSql {
     private static final String POSITIONAL_PARAM = "?";
 
     private final String sql;
     private final ParsedParameters parameters;
 
-    private ParsedStatement(String sql, ParsedParameters parameters) {
+    private ParsedSql(String sql, ParsedParameters parameters) {
         this.sql = sql;
         this.parameters = parameters;
     }
@@ -45,7 +45,7 @@ public class ParsedStatement {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ParsedStatement that = (ParsedStatement) o;
+        ParsedSql that = (ParsedSql) o;
         return Objects.equals(sql, that.sql) &&
                 Objects.equals(parameters, that.parameters);
     }
@@ -57,7 +57,7 @@ public class ParsedStatement {
 
     @Override
     public String toString() {
-        return "ParsedStatement{" +
+        return "ParsedSql{" +
                 "sql='" + sql + '\'' +
                 ", parameters=" + parameters +
                 '}';
@@ -93,7 +93,7 @@ public class ParsedStatement {
             return append("?");
         }
 
-        public ParsedStatement build() {
+        public ParsedSql build() {
             if (positional && named) {
                 throw new UnableToExecuteStatementException(
                         "Cannot mix named and positional parameters in a SQL statement: " + parameterNames);
@@ -101,7 +101,7 @@ public class ParsedStatement {
 
             ParsedParameters parameters = new ParsedParameters(positional, parameterNames);
 
-            return new ParsedStatement(sql.toString(), parameters);
+            return new ParsedSql(sql.toString(), parameters);
         }
     }
 }

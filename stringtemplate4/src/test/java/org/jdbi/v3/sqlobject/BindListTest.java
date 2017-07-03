@@ -29,7 +29,7 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.stringtemplate4.UseStringTemplateStatementRewriter;
+import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -79,7 +79,7 @@ public class BindListTest
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingWithExplicitAttributeName
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -98,7 +98,7 @@ public class BindListTest
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByVarargsHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -137,7 +137,7 @@ public class BindListTest
         assertThat(out).isEmpty();
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByArrayHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -162,7 +162,7 @@ public class BindListTest
         s.get(new int[]{});
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     private interface SomethingByArrayHandleThrow
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -196,7 +196,7 @@ public class BindListTest
         assertThat(out).isEmpty();
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByIterableHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -213,7 +213,7 @@ public class BindListTest
         s.get(new ArrayList<>());
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     private interface SomethingByIterableHandleThrow
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
@@ -230,7 +230,7 @@ public class BindListTest
         s.get(Arrays.asList(1, 2).iterator());
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     private interface SomethingByIteratorHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")

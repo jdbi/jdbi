@@ -27,11 +27,11 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
-public class DefinedAttributeRewriter implements StatementRewriter {
+public class DefinedAttributeTemplateEngine implements TemplateEngine {
     @Override
-    public String rewrite(String sql, StatementContext ctx) {
+    public String render(String template, StatementContext ctx) {
         StringBuilder b = new StringBuilder();
-        DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
+        DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(template));
         try {
             Token t = lexer.nextToken();
             while (t.getType() != EOF) {
@@ -62,7 +62,7 @@ public class DefinedAttributeRewriter implements StatementRewriter {
             return b.toString();
         }
         catch (RuntimeException e) {
-            throw new UnableToCreateStatementException("Error parsing SQL template: '" + sql + "'", e, ctx);
+            throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
         }
     }
 }

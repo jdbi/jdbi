@@ -16,7 +16,7 @@ package org.jdbi.v3.core.config;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.rewriter.StatementParser;
+import org.jdbi.v3.core.rewriter.SqlParser;
 import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
@@ -34,7 +34,7 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
+import org.jdbi.v3.core.rewriter.TemplateEngine;
 import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
@@ -76,27 +76,27 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setStatementRewriter(rewriter)}
+     * Convenience method for {@code getConfig(SqlStatements.class).setTemplateEngine(rewriter)}
      *
-     * @param rewriter statement rewriter
+     * @param templateEngine the template engine
      * @return this
      */
-    default This setStatementRewriter(StatementRewriter rewriter) {
-        return configure(SqlStatements.class, c -> c.setStatementRewriter(rewriter));
+    default This setTemplateEngine(TemplateEngine templateEngine) {
+        return configure(SqlStatements.class, c -> c.setTemplateEngine(templateEngine));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setStatementParser(rewriter)}
+     * Convenience method for {@code getConfig(SqlStatements.class).setSqlParser(rewriter)}
      *
-     * @param parser statement rewriter
+     * @param parser SQL parser
      * @return this
      */
-    default This setStatementParser(StatementParser parser) {
-        return configure(SqlStatements.class, c -> c.setStatementParser(parser));
+    default This setSqlParser(SqlParser parser) {
+        return configure(SqlStatements.class, c -> c.setSqlParser(parser));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setStatementRewriter(collector)}
+     * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
      *
      * @param collector timing collector
      * @return this

@@ -17,29 +17,29 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementParser;
-import org.jdbi.v3.core.rewriter.DefinedAttributeRewriter;
-import org.jdbi.v3.core.rewriter.StatementParser;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
+import org.jdbi.v3.core.rewriter.ColonPrefixSqlParser;
+import org.jdbi.v3.core.rewriter.DefinedAttributeTemplateEngine;
+import org.jdbi.v3.core.rewriter.SqlParser;
+import org.jdbi.v3.core.rewriter.TemplateEngine;
 
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
-    private StatementRewriter statementRewriter;
-    private StatementParser statementParser;
+    private TemplateEngine templateEngine;
+    private SqlParser sqlParser;
     private TimingCollector timingCollector;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
-        statementRewriter = new DefinedAttributeRewriter();
-        statementParser = new ColonPrefixStatementParser();
+        templateEngine = new DefinedAttributeTemplateEngine();
+        sqlParser = new ColonPrefixSqlParser();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
 
     private SqlStatements(SqlStatements that) {
         this.attributes = new ConcurrentHashMap<>(that.attributes);
-        this.statementRewriter = that.statementRewriter;
-        this.statementParser = that.statementParser;
+        this.templateEngine = that.templateEngine;
+        this.sqlParser = that.sqlParser;
         this.timingCollector = that.timingCollector;
     }
 
@@ -87,39 +87,39 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return attributes;
     }
 
-    public StatementRewriter getStatementRewriter() {
-        return statementRewriter;
+    public TemplateEngine getTemplateEngine() {
+        return templateEngine;
     }
 
     /**
-     * Sets the {@link StatementRewriter} used to rewrite SQL for all
+     * Sets the {@link TemplateEngine} used to render SQL for all
      * {@link SqlStatement SQL statements} executed by Jdbi. The default
-     * statement rewriter replaces <code>&lt;name&gt;</code>-style tokens
+     * engine replaces <code>&lt;name&gt;</code>-style tokens
      * with attributes {@link StatementContext#define(String, Object) defined}
      * on the statement context.
      *
-     * @param rewriter the new statement rewriter.
+     * @param templateEngine the new template engine.
      * @return this
      */
-    public SqlStatements setStatementRewriter(StatementRewriter rewriter) {
-        this.statementRewriter = rewriter;
+    public SqlStatements setTemplateEngine(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
         return this;
     }
 
-    public StatementParser getStatementParser() {
-        return statementParser;
+    public SqlParser getSqlParser() {
+        return sqlParser;
     }
 
     /**
-     * Sets the {@link StatementParser} used to parse parameters in SQL
-     * statements executed by Jdbi. The default parser colon prefixed named
-     * parameter tokens, e.g. <code>:name</code>.
+     * Sets the {@link SqlParser} used to parse parameters in SQL statements
+     * executed by Jdbi. The default parses colon-prefixed named parameter
+     * tokens, e.g. <code>:name</code>.
      *
-     * @param statementParser the new statement parser.
+     * @param sqlParser the new SQL parser.
      * @return this
      */
-    public SqlStatements setStatementParser(StatementParser statementParser) {
-        this.statementParser = statementParser;
+    public SqlStatements setSqlParser(SqlParser sqlParser) {
+        this.sqlParser = sqlParser;
         return this;
     }
 

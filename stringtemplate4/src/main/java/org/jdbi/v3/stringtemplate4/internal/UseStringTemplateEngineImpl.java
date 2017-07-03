@@ -18,12 +18,12 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.stringtemplate4.StringTemplateStatementRewriter;
+import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
 
-public class UseStringTemplateStatementRewriterImpl implements Configurer {
+public class UseStringTemplateEngineImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlStatements.class).setStatementRewriter(new StringTemplateStatementRewriter());
+        registry.get(SqlStatements.class).setTemplateEngine(new StringTemplateEngine());
     }
 
     @Override

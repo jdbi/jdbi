@@ -20,15 +20,15 @@ import java.lang.annotation.Target;
 
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.Define;
-import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateStatementRewriterImpl;
+import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateEngineImpl;
 
 /**
  * Configures a SQL object class or method to rewrite SQL statements using StringTemplate. Method parameters annotated
  * with {@link Define @Define} are passed to the StringTemplate as template
  * attributes.
  */
-@ConfiguringAnnotation(UseStringTemplateStatementRewriterImpl.class)
+@ConfiguringAnnotation(UseStringTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UseStringTemplateStatementRewriter {
+public @interface UseStringTemplateEngine {
 }

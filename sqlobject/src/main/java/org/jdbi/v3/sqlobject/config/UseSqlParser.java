@@ -17,12 +17,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.jdbi.v3.core.rewriter.StatementParser;
-import org.jdbi.v3.sqlobject.config.internal.UseStatementParserImpl;
+
+import org.jdbi.v3.core.rewriter.SqlParser;
+import org.jdbi.v3.sqlobject.config.internal.UseSqlParserImpl;
 
 /**
- * Use the specified {@link StatementParser} class to parse SQL for the annotated SQL object class or method. The
- * given {@link StatementParser} class must have a public constructor with any of the following signatures:
+ * Use the specified {@link SqlParser} class to parse SQL for the annotated SQL object class or method. The
+ * given {@link SqlParser} class must have a public constructor with any of the following signatures:
  * <ul>
  * <li>RewriterClass() // no arguments</li>
  * <li>RewriterClass(Class)</li>
@@ -30,13 +31,13 @@ import org.jdbi.v3.sqlobject.config.internal.UseStatementParserImpl;
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseStatementParserImpl.class)
+@ConfiguringAnnotation(UseSqlParserImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseStatementParser
+public @interface UseSqlParser
 {
     /**
-     * Specify the StatementParser class to use.
-     * @return the StatementParser class to use.
+     * Specify the SqlParser class to use.
+     * @return the SqlParser class to use.
      */
-    Class<? extends StatementParser> value();
+    Class<? extends SqlParser> value();
 }

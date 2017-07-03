@@ -31,7 +31,7 @@ import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.rewriter.ParsedParameters;
-import org.jdbi.v3.core.rewriter.ParsedStatement;
+import org.jdbi.v3.core.rewriter.ParsedSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,23 +144,23 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             throw new IllegalStateException("No batch parts to execute");
         }
 
-        String rewrittenSql = getConfig(SqlStatements.class)
-                .getStatementRewriter()
-                .rewrite(getSql(), getContext());
+        String renderedSql = getConfig(SqlStatements.class)
+                .getTemplateEngine()
+                .render(getSql(), getContext());
 
-        ParsedStatement parsedStatement = getConfig(SqlStatements.class)
-                .getStatementParser()
-                .parse(rewrittenSql);
-        String parsedSql = parsedStatement.getSql();
-        ParsedParameters parsedParameters = parsedStatement.getParameters();
+        ParsedSql parsedSql = getConfig(SqlStatements.class)
+                .getSqlParser()
+                .parse(renderedSql);
+        String sql = parsedSql.getSql();
+        ParsedParameters parsedParameters = parsedSql.getParameters();
 
         try {
             final PreparedStatement stmt;
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 Connection connection = getHandle().getConnection();
-                stmt = statementBuilder.create(connection, parsedSql, getContext());
-                addCleanable(() -> statementBuilder.close(connection, parsedSql, stmt));
+                stmt = statementBuilder.create(connection, sql, getContext());
+                addCleanable(() -> statementBuilder.close(connection, sql, stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());

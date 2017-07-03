@@ -16,22 +16,21 @@ package org.jdbi.v3.sqlobject.config.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
+import org.jdbi.v3.core.rewriter.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.UseStatementRewriter;
+import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
-public class UseStatementRewriterImpl implements Configurer
+public class UseSqlParserImpl implements Configurer
 {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
     {
-        UseStatementRewriter anno = (UseStatementRewriter) annotation;
+        UseSqlParser anno = (UseSqlParser) annotation;
         try {
-            final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-            registry.get(SqlStatements.class).setStatementRewriter(rw);
+            final SqlParser parser = instantiate(anno.value(), sqlObjectType, method);
+            registry.get(SqlStatements.class).setSqlParser(parser);
         }
         catch (Exception e) {
             throw new IllegalStateException(e);
@@ -41,32 +40,32 @@ public class UseStatementRewriterImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        UseStatementRewriter anno = (UseStatementRewriter) annotation;
+        UseSqlParser anno = (UseSqlParser) annotation;
         try {
-            final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-            registry.get(SqlStatements.class).setStatementRewriter(rw);
+            final SqlParser parser = instantiate(anno.value(), sqlObjectType, null);
+            registry.get(SqlStatements.class).setSqlParser(parser);
         }
         catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private StatementRewriter instantiate(Class<? extends StatementRewriter> value,
-                                          Class<?> sqlObjectType,
-                                          Method m) throws Exception
+    private SqlParser instantiate(Class<? extends SqlParser> value,
+                                  Class<?> sqlObjectType,
+                                  Method m) throws Exception
     {
         try {
-            Constructor<? extends StatementRewriter> no_arg = value.getConstructor();
+            Constructor<? extends SqlParser> no_arg = value.getConstructor();
             return no_arg.newInstance();
         }
         catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends StatementRewriter> class_arg = value.getConstructor(Class.class);
+                Constructor<? extends SqlParser> class_arg = value.getConstructor(Class.class);
                 return class_arg.newInstance(sqlObjectType);
             }
             catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends StatementRewriter> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends SqlParser> c_m_arg = value.getConstructor(Class.class,
                                                                                             Method.class);
                     return c_m_arg.newInstance(sqlObjectType, m);
                 }

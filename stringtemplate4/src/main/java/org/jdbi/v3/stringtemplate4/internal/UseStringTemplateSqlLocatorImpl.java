@@ -18,7 +18,7 @@ import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTem
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
+import org.jdbi.v3.core.rewriter.TemplateEngine;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
@@ -39,14 +39,14 @@ public class UseStringTemplateSqlLocatorImpl implements Configurer {
 
             return templateName;
         };
-        StatementRewriter locatingRewriter = (templateName, ctx) -> {
+        TemplateEngine templateEngine = (templateName, ctx) -> {
             STGroup group = findStringTemplateGroup(sqlObjectType);
             ST template = group.getInstanceOf(templateName);
             ctx.getAttributes().forEach(template::add);
             return template.render();
         };
         registry.get(SqlObjects.class).setSqlLocator(locator);
-        registry.get(SqlStatements.class).setStatementRewriter(locatingRewriter);
+        registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 
     @Override

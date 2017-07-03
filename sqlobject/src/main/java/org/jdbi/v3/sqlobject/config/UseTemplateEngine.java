@@ -18,26 +18,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.config.internal.UseStatementRewriterImpl;
+import org.jdbi.v3.core.rewriter.TemplateEngine;
+import org.jdbi.v3.sqlobject.config.internal.UseTemplateEngineImpl;
 
 /**
- * Use the specified {@link StatementRewriter} class to rewrite SQL for the annotated SQL object class or method. The
- * given {@link StatementRewriter} class must have a public constructor with any of the following signatures:
+ * Use the specified {@link TemplateEngine} class to render SQL for the
+ * annotated SQL object class or method. The given {@link TemplateEngine} class
+ * must have a public constructor with any of the following signatures:
  * <ul>
- * <li>RewriterClass() // no arguments</li>
- * <li>RewriterClass(Class)</li>
- * <li>RewriterClass(Class,Method)</li>
+ * <li>MyTemplateEngine() // no arguments</li>
+ * <li>MyTemplateEngine(Class)</li>
+ * <li>MyTemplateEngine(Class,Method)</li>
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseStatementRewriterImpl.class)
+@ConfiguringAnnotation(UseTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseStatementRewriter
+public @interface UseTemplateEngine
 {
     /**
-     * Specify the StatementRewriter class to use.
-     * @return the StatementRewriter class to use.
+     * Specify the TemplateEngine class to use.
+     * @return the TemplateEngine class to use.
      */
-    Class<? extends StatementRewriter> value();
+    Class<? extends TemplateEngine> value();
 }

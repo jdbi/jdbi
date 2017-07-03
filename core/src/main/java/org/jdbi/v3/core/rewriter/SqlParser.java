@@ -14,15 +14,19 @@
 package org.jdbi.v3.core.rewriter;
 
 /**
- * Use to provide arbitrary statement rewriting.
+ * Parses the named parameters out of an SQL statement, and returns the
+ * {@link ParsedSql} containing the JDBC-ready SQL statement, along with the
+ * type of parameters used (named or positional), the number, and the parameter
+ * name for each position (if applicable).
  */
-public interface StatementParser
-{
+public interface SqlParser {
     /**
-     * Munge up the SQL as desired. Responsible for figuring out how to bind any
-     * arguments in to the resultant prepared statement.
+     * Parses the given SQL statement, and returns the {@link ParsedSql}
+     * for the statement.
      *
      * @param sql The SQL statement to parse
+     * @return the parsed SQL representing the SQL statement itself along with
+     * information about the parameters which should be bound (number and names)
      */
-    ParsedStatement parse(String sql);
+    ParsedSql parse(String sql);
 }

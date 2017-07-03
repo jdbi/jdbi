@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEscapedCharacters
 {
-    private final ColonPrefixStatementParser rewriter = new ColonPrefixStatementParser();
+    private final ColonPrefixSqlParser rewriter = new ColonPrefixSqlParser();
 
     private String parseString(final String src)
     {

@@ -22,8 +22,9 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.internal.DefineFactory;
 
 /**
- * Defines a named attribute as the argument passed to the annotated parameter. Attributes are stored on the
- * {@link StatementContext}, and may be used by statement customizers such as the statement rewriter.
+ * Defines a named attribute as the argument passed to the annotated parameter.
+ * Attributes are stored on the {@link StatementContext}, and may be used by
+ * statement customizers such as the template engine.
  */
 @SqlStatementCustomizingAnnotation(DefineFactory.class)
 @Target(ElementType.PARAMETER)

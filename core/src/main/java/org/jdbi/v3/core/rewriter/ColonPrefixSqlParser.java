@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
 
 import java.util.Collections;
 import java.util.Map;
@@ -22,16 +22,27 @@ import java.util.WeakHashMap;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
+import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 
 /**
- * Statement rewriter which replaces named parameter tokens of the form #tokenName
+ * SQL parser which replaces named parameter tokens of the form <code>:tokenName</code>
+ * <p>
+ * This is the default SQL parser
+ * </p>
  */
-public class HashPrefixStatementParser implements StatementParser {
-    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
+public class ColonPrefixSqlParser implements SqlParser {
+    private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
+    /**
+     * Munge up the SQL as desired. Responsible for figuring out ow to bind any
+     * arguments in to the resultant prepared statement.
+     *
+     * @param sql    The SQL to rewrite
+     * @return something which can provide the actual SQL to prepare a statement from
+     * and which can bind the correct arguments to that prepared statement
+     */
     @Override
-    public ParsedStatement parse(String sql) {
+    public ParsedSql parse(String sql) {
         try {
             return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {
@@ -39,9 +50,9 @@ public class HashPrefixStatementParser implements StatementParser {
         }
     }
 
-    ParsedStatement internalParse(final String sql) {
-        ParsedStatement.Builder stmt = ParsedStatement.builder();
-        HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
+    ParsedSql internalParse(String sql) throws IllegalArgumentException {
+        ParsedSql.Builder parsedSql = ParsedSql.builder();
+        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
             switch (t.getType()) {
@@ -49,22 +60,22 @@ public class HashPrefixStatementParser implements StatementParser {
                 case LITERAL:
                 case QUOTED_TEXT:
                 case DOUBLE_QUOTED_TEXT:
-                    stmt.append(t.getText());
+                    parsedSql.append(t.getText());
                     break;
                 case NAMED_PARAM:
-                    stmt.appendNamedParameter(t.getText().substring(1));
+                    parsedSql.appendNamedParameter(t.getText().substring(1));
                     break;
                 case POSITIONAL_PARAM:
-                    stmt.appendPositionalParameter();
+                    parsedSql.appendPositionalParameter();
                     break;
                 case ESCAPED_TEXT:
-                    stmt.append(t.getText().substring(1));
+                    parsedSql.append(t.getText().substring(1));
                     break;
                 default:
                     break;
             }
             t = lexer.nextToken();
         }
-        return stmt.build();
+        return parsedSql.build();
     }
 }

@@ -1971,8 +1971,8 @@ To use module plugin, add a Maven dependency:
 </dependency>
 ----
 
-To use StringTemplate format in SQL statements, set the statement rewriter
-to `StringTemplateStatementRewriter`.
+To use StringTemplate format in SQL statements, set the template engine
+to `StringTemplateEngine`.
 
 Defined attributes are provided to the StringTemplate engine to render the SQL:
 
@@ -1984,7 +1984,7 @@ String sql = "select id, name " +
              "order by <if(sort)> <sortBy>, <endif> id";
 
 List<Account> accounts = handle.createQuery(sql)
-      .setStatementRewriter(new StringTemplateStatementRewriter())
+      .setTemplateEngine(new StringTemplateEngine())
       .define("sort", true)
       .define("sortBy", sortColumn)
       .mapTo(Account.class)
@@ -2016,7 +2016,7 @@ String sql = template.add("sort", true)
                      .render();
 ----
 
-In SQL Objects, the `@UseStringTemplateStatementRewriter` annotation sets the
+In SQL Objects, the `@UseStringTemplateEngine` annotation sets the
 statement locator, similar to first example above.
 
 [source,java]
@@ -2027,7 +2027,7 @@ public interface AccountDao {
   @SqlQuery("select id, name " +
             "from account " +
             "order by <if(sort)> <sortBy>, <endif> id")
-  @UseStringTemplateStatementRewriter
+  @UseStringTemplateEngine
   List<Account> selectAll(@Define boolean sort,
                           @Define String sortBy);
 }
@@ -2241,15 +2241,34 @@ TODO:
 ** `insert into <table> (<columns>) values (<values>)`
 ** `select <columns> from <table> where <conditions> order by <order>`
 
-=== StatementRewriter
+=== TemplateEngine
 
 TODO:
 
-* This is what parses your SQL statements, extracts named parameters, and
-  inlines defined attributes.
+* Template engines take an SQL template, and produce a parseable SQL statement.
+* Out of the box, Jdbi processes `<name>`-style by substituting in the string
+  value of the named attribute. This is accomplished by
+  `DefinedAttributeTemplateEngine`.
+* Other template engines can be configured, e.g. `StringTemplateEngine`, which
+  uses String Template v4.
+* Configure a different template engine by calling `setTemplateEngine()` on a
+  `Jdbi`, `Handle`, or on a SQL statement like `Update` or `Query`.
+
+=== SqlParser
+
+TODO:
+
+* Parses a SQL string and produces a `ParsedSql` object, which includes the
+  final SQL string (using positional-only parameters) and the parameters parsed
+  out of the input string.
 * Depending on your database vendor (Oracle?), you can use hash prefix named
-  parameters. Configure HashPrefixStatementRewriter as the default
-  StatementRewriter.
+  parameters. Configure HashPrefixSqlParser as the default
+  SqlParser.
+* Out of the box, the default parser (`ColonPrefixSqlParser`) looks for named
+  parameters using a colon prefix, e.g. `:name`.
+* Configure a different parser (e.g. `HashPrefixSqlParser`) by calling
+  `setSqlParser()` on a `Jdbi`, `Handle`, or SQL statement such as `Update` or
+  `Query`.
 
 === TimingCollector
 

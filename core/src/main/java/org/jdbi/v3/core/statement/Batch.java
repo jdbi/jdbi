@@ -79,7 +79,7 @@ public class Batch extends BaseStatement<Batch>
             {
                 for (String part : parts)
                 {
-                    final String sql = getConfig(SqlStatements.class).getStatementRewriter().rewrite(part, getContext());
+                    final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }

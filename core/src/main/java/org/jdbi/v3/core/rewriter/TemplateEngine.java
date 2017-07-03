@@ -16,18 +16,19 @@ package org.jdbi.v3.core.rewriter;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Use to provide arbitrary statement rewriting.
+ * Renders an SQL statement from a template.
+ *
+ * @see DefinedAttributeTemplateEngine
  */
-public interface StatementRewriter
-{
+public interface TemplateEngine {
     /**
-     * Munge up the SQL as desired. Responsible for figuring out how to bind any
-     * arguments in to the resultant prepared statement.
+     * Renders an SQL statement from the given template, using the statement
+     * context as needed.
      *
-     * @param sql The SQL to rewrite
-     * @param ctx The statement context for the statement being executed
+     * @param template The SQL to rewrite
+     * @param ctx      The statement context for the statement being executed
      * @return something which can provide the actual SQL to prepare a statement from
-     *         and which can bind the correct arguments to that prepared statement
+     * and which can bind the correct arguments to that prepared statement
      */
-    String rewrite(String sql, StatementContext ctx);
+    String render(String template, StatementContext ctx);
 }
