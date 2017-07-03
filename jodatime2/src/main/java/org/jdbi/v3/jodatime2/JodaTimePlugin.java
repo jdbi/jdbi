@@ -16,6 +16,9 @@ package org.jdbi.v3.jodatime2;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
+/**
+ * Register date and time providers to integrate with {@code joda-time}.
+ */
 public class JodaTimePlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi db) {

@@ -17,10 +17,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.joda.time.DateTime;
 
+/**
+ * Map a {@link Timestamp} to a {@link DateTime}.
+ */
 public class DateTimeMapper implements ColumnMapper<DateTime> {
     @Override
     public DateTime map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {

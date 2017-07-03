@@ -15,6 +15,9 @@ package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when constructing a SqlObject fails.
+ */
 public class UnableToCreateSqlObjectException extends JdbiException {
     private static final long serialVersionUID = 1L;
 

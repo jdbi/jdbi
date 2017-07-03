@@ -16,6 +16,9 @@ package org.jdbi.v3.guava;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
+/**
+ * Plugin to enable all {@code Guava} functionality.
+ */
 public class GuavaPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi db) {
