@@ -21,11 +21,13 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 
 /**
- * SQL parser which replaces named parameter tokens of the form <code>:tokenName</code>
+ * SQL parser which recognizes named parameter tokens of the form
+ * <code>:tokenName</code>
  * <p>
  * This is the default SQL parser
  * </p>
@@ -33,16 +35,8 @@ import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 public class ColonPrefixSqlParser implements SqlParser {
     private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
-    /**
-     * Munge up the SQL as desired. Responsible for figuring out ow to bind any
-     * arguments in to the resultant prepared statement.
-     *
-     * @param sql    The SQL to rewrite
-     * @return something which can provide the actual SQL to prepare a statement from
-     * and which can bind the correct arguments to that prepared statement
-     */
     @Override
-    public ParsedSql parse(String sql) {
+    public ParsedSql parse(String sql, StatementContext ctx) {
         try {
             return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {

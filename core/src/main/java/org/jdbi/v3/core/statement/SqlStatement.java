@@ -1363,7 +1363,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
-                .parse(renderedSql);
+                .parse(renderedSql, getContext());
         String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
         getContext().setParsedSql(sql);

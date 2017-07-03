@@ -29,17 +29,18 @@ import java.util.WeakHashMap;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
- * SQL parser recognizes named parameter tokens of the form
+ * SQL parser which recognizes named parameter tokens of the form
  * <code>#tokenName</code>.
  */
 public class HashPrefixSqlParser implements SqlParser {
     private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     @Override
-    public ParsedSql parse(String sql) {
+    public ParsedSql parse(String sql, StatementContext ctx) {
         try {
             return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {

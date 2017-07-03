@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.rewriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -26,18 +27,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-import org.mockito.Mockito;
 
 public class TestColonPrefixTemplateEngine
 {
     private TemplateEngine templateEngine;
     private SqlParser parser;
+    private StatementContext ctx;
 
     @Before
     public void setUp() throws Exception
     {
         templateEngine = new DefinedAttributeTemplateEngine();
         parser = new ColonPrefixSqlParser();
+        ctx = mock(StatementContext.class);
     }
 
     private String render(String sql)
@@ -46,7 +48,6 @@ public class TestColonPrefixTemplateEngine
     }
 
     private String render(String sql, Map<String, Object> attributes) {
-        StatementContext ctx = Mockito.mock(StatementContext.class);
         attributes.forEach((key, value) -> when(ctx.getAttribute(key)).thenReturn(value));
 
         return templateEngine.render(sql, ctx);
@@ -55,42 +56,42 @@ public class TestColonPrefixTemplateEngine
     @Test
     public void testNewlinesOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from something\n where id = :id");
+        ParsedSql parsed = parser.parse("select * from something\n where id = :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
-        ParsedSql parsed = parser.parse("~* :boo ':nope' _%&^& *@ :id");
+        ParsedSql parsed = parser.parse("~* :boo ':nope' _%&^& *@ :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("~* ? ':nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
-        ParsedSql parsed = parser.parse(":bo0 ':nope' _%&^& *@ :id");
+        ParsedSql parsed = parser.parse(":bo0 ':nope' _%&^& *@ :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("? ':nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from v$session");
+        ParsedSql parsed = parser.parse("select * from v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testHashInColumnNameOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select column# from thetable where id = :id");
+        ParsedSql parsed = parser.parse("select column# from thetable where id = :id", ctx);
        assertThat(parsed.getSql()).isEqualTo("select column# from thetable where id = ?");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from `v$session");
+        ParsedSql parsed = parser.parse("select * from `v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
@@ -98,7 +99,7 @@ public class TestColonPrefixTemplateEngine
     public void testDoubleColon() throws Exception
     {
         final String doubleColon = "select 1::int";
-        ParsedSql parsed = parser.parse(doubleColon);
+        ParsedSql parsed = parser.parse(doubleColon, ctx);
         assertThat(parsed.getSql()).isEqualTo(doubleColon);
     }
 
@@ -114,8 +115,8 @@ public class TestColonPrefixTemplateEngine
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
-        String rewritten = render("select <column> from <table> where <column> = :someValue", attributes);
-        ParsedSql parsed = parser.parse(rewritten);
+        String rendered = render("select <column> from <table> where <column> = :someValue", attributes);
+        ParsedSql parsed = parser.parse(rendered, ctx);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
@@ -145,8 +146,8 @@ public class TestColonPrefixTemplateEngine
         parser = spy(parser);
 
         String sql = "insert into something (id, name) values (:id, :name)";
-        ParsedSql parsed = parser.parse(sql);
-        assertThat(parsed).isSameAs(parser.parse(sql));
+        ParsedSql parsed = parser.parse(sql, ctx);
+        assertThat(parsed).isSameAs(parser.parse(sql, ctx));
     }
 
     @Test

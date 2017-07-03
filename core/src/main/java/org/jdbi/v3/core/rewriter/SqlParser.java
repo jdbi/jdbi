@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.rewriter;
 
+import org.jdbi.v3.core.statement.StatementContext;
+
 /**
  * Parses the named parameters out of an SQL statement, and returns the
  * {@link ParsedSql} containing the JDBC-ready SQL statement, along with the
@@ -25,8 +27,9 @@ public interface SqlParser {
      * for the statement.
      *
      * @param sql The SQL statement to parse
+     * @param ctx The statement context for the statement being executed
      * @return the parsed SQL representing the SQL statement itself along with
      * information about the parameters which should be bound (number and names)
      */
-    ParsedSql parse(String sql);
+    ParsedSql parse(String sql, StatementContext ctx);
 }

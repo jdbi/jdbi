@@ -28,6 +28,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.AfterClass;
@@ -135,9 +136,9 @@ public class BindListNullTest
         }
 
         @Override
-        public ParsedSql parse(String sql) {
+        public ParsedSql parse(String sql, StatementContext ctx) {
             log.add(sql);
-            return new ColonPrefixSqlParser().parse(sql);
+            return new ColonPrefixSqlParser().parse(sql, ctx);
         }
     }
 }

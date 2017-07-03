@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.rewriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Map;
@@ -30,12 +31,14 @@ public class TestHashPrefixSqlParser
 {
     private TemplateEngine templateEngine;
     private SqlParser parser;
+    private StatementContext ctx;
 
     @Before
     public void setUp() throws Exception
     {
         this.templateEngine = new DefinedAttributeTemplateEngine();
         this.parser = new HashPrefixSqlParser();
+        ctx = mock(StatementContext.class);
     }
 
     private String render(String sql)
@@ -53,49 +56,49 @@ public class TestHashPrefixSqlParser
     @Test
     public void testNewlinesOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from something\n where id = #id");
+        ParsedSql parsed = parser.parse("select * from something\n where id = #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
-        ParsedSql parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id");
+        ParsedSql parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
-        ParsedSql parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id");
+        ParsedSql parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from v$session");
+        ParsedSql parsed = parser.parse("select * from v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testColonIsLiteral() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from foo where id = :id");
+        ParsedSql parsed = parser.parse("select * from foo where id = :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from foo where id = :id");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
-        ParsedSql parsed = parser.parse("select * from `v$session");
+        ParsedSql parsed = parser.parse("select * from `v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
     public void testBailsOutOnInvalidInput() throws Exception
     {
-        parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c");
+        parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", ctx);
     }
 
     @Test
@@ -104,8 +107,8 @@ public class TestHashPrefixSqlParser
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
-        String rewritten = render("select <column> from <table> where <column> = #someValue", attributes);
-        ParsedSql parsed = parser.parse(rewritten);
+        String rendered = render("select <column> from <table> where <column> = #someValue", attributes);
+        ParsedSql parsed = parser.parse(rendered, ctx);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
@@ -133,6 +136,6 @@ public class TestHashPrefixSqlParser
     public void testCommentQuote() throws Exception
     {
         String sql = "select 1 /* ' \" <foo> */";
-        assertThat(parser.parse(sql).getSql()).isEqualTo(sql);
+        assertThat(parser.parse(sql, ctx).getSql()).isEqualTo(sql);
     }
 }
