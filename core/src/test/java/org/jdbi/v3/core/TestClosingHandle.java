@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
-import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,7 +64,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .list();
 
@@ -92,7 +92,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -107,7 +107,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -131,7 +131,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
