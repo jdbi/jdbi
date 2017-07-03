@@ -22,10 +22,10 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
+import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form #tokenName
@@ -33,16 +33,6 @@ import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 public class HashPrefixStatementRewriter implements StatementRewriter {
     private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
-    /**
-     * Munge up the SQL as desired. Responsible for figuring out ow to bind any
-     * arguments in to the resultant prepared statement.
-     *
-     * @param sql    The SQL to rewrite
-     * @param params contains the arguments which have been bound to this statement.
-     * @param ctx    The statement context for the statement being executed
-     * @return something which can provide the actual SQL to prepare a statement from
-     * and which can bind the correct arguments to that prepared statement
-     */
     @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx) {
         try {

@@ -65,7 +65,7 @@ public class DefaultStatementBuilder implements StatementBuilder
 
     /**
      * Called to close an individual prepared statement created from this builder.
-     * In this case, it closes immediately
+     * In this case, it closes immediately.
      *
      * @param sql  the translated SQL which was prepared
      * @param stmt the statement
@@ -81,7 +81,7 @@ public class DefaultStatementBuilder implements StatementBuilder
     }
 
     /**
-     * In this case, a NOOP
+     * No need to do anything on connection close.
      */
     @Override
     public void close(Connection conn)

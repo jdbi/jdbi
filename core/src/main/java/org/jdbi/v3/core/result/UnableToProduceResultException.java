@@ -16,6 +16,9 @@ package org.jdbi.v3.core.result;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementException;
 
+/**
+ * Wraps exceptions thrown while producing Java result types.
+ */
 public class UnableToProduceResultException extends StatementException
 {
     private static final long serialVersionUID = 1L;

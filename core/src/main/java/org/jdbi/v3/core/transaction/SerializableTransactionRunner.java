@@ -22,7 +22,7 @@ import org.jdbi.v3.core.HandleCallback;
  * A TransactionHandler that automatically retries transactions that fail due to
  * serialization failures, which can generally be resolved by automatically
  * retrying the transaction.  Any HandleCallback used under this runner
- * should be aware that it may be invoked multiple times.
+ * should be aware that it may be invoked multiple times and should be idempotent.
  */
 public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler
 {
@@ -102,6 +102,9 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         return false;
     }
 
+    /**
+     * Configuration for serializable transaction runner
+     */
     public static class Configuration
     {
         private final int maxRetries;
@@ -118,11 +121,19 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             this.serializationFailureSqlState = serializationFailureSqlState;
         }
 
+        /**
+         * @param maxRetries number of retry attempts before aborting
+         * @return this
+         */
         public Configuration withMaxRetries(int maxRetries)
         {
             return new Configuration(maxRetries, serializationFailureSqlState);
         }
 
+        /**
+         * @param serializationFailureSqlState the SQL state to consider as a serialization failure
+         * @return this
+         */
         public Configuration withSerializationFailureSqlState(String serializationFailureSqlState)
         {
             return new Configuration(maxRetries, serializationFailureSqlState);

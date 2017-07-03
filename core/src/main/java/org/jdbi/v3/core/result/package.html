@@ -15,10 +15,8 @@
 -->
 <html><body>
 <p>
-The <code>transaction</code> package implements the strategy
-<code>jdbi</code> uses to open and close transactions.  The default
-instance simply sets the transaction property on the connection.
-There is also a runner that runs <code>SERIALIZATBLE</code> transactions
-repeatedly until they succeed without transient serialization failures.
+<code>result</code> provides the streaming interface that reads rows from JDBC
+and drives the <code>mapper</code> and <code>collector</code> processes to
+produce results.
 </p>
 </body></html>

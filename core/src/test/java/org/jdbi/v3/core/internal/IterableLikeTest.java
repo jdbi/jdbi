@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-public class ReflectionArrayIteratorTest {
+public class IterableLikeTest {
     @Test
     public void testIntArray() {
         final Iterator<Object> it = IterableLike.of(new int[]{1, 2, 3});

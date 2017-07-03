@@ -25,6 +25,14 @@ import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 
+/**
+ * Bind a Java array or {@link Collection} to a SQL array using the
+ * {@link SqlArrayTypeFactory} for the given type information.  Note
+ * that due to type erasure, binding {@code Collection} arguments with
+ * {@link org.jdbi.v3.core.statement.SqlStatement#bind(int, Object)} may
+ * fail to determine the array component type.  Provide explicit information with
+ * {@link org.jdbi.v3.core.statement.SqlStatement#bindByType(int, Object, org.jdbi.v3.core.generic.GenericType)}.
+ */
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {

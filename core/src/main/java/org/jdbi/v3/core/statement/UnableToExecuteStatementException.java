@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core.statement;
 
+/**
+ * Thrown when statement execution fails.
+ */
 public class UnableToExecuteStatementException extends StatementException
 {
     private static final long serialVersionUID = 1L;

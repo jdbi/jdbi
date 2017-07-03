@@ -25,6 +25,11 @@ import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 
+/**
+ * Contains {@link ArgumentFactory} instances that take a given
+ * type and instance and determine the {@link Argument}
+ * that binds values to a prepared statement.
+ */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
     private ConfigRegistry registry;
@@ -45,6 +50,10 @@ public class Arguments implements JdbiConfig<Arguments> {
         untypedNullArgument = that.untypedNullArgument;
     }
 
+    /**
+     * @param factory the factory to add
+     * @return this
+     */
     public Arguments register(ArgumentFactory factory) {
         argumentFactories.add(0, factory);
         return this;

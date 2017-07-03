@@ -84,6 +84,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return getContext().getBinding();
     }
 
+    /**
+     * Set the fetch direction.
+     * @param value the direction to fetch
+     * @return this
+     * @see PreparedStatement#setFetchDirection(int)
+     */
     public This setFetchDirection(final int value)
     {
         addCustomizer(StatementCustomizers.fetchDirection(value));
@@ -121,11 +127,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Force transaction state when the statement is cleaned up.
-     *
-     * @param state the transaction state to enforce.
-     *
-     * @return the same Query instance
+     * When the statement is closed, roll it back then close the owning Handle.
+     * @return this
      */
     public This cleanupHandle(final TransactionState state)
     {

@@ -13,83 +13,12 @@
     limitations under the License.
 
 -->
-<html>
-<body>
-<h1>Start with <code>Jdbi</code> and <code>Handle</code></h1>
-
+<html><body>
 <p>
-    The main entry point to functionality is the <code>Jdbi</code> class. This class
-    provides access to <code>Handle</code> instances, which are the primary means of
-    interacting with database connections.
+The 'core' package hosts the top level interface into jdbi core.
+Jdbi takes a JDBC DataSource or equivalent and provides a configurable
+fluent interface.  It provides the Handle type for executing JDBC
+operations and transforming the returned result sets into reasonable Java
+types.
 </p>
-
-<p>
-    The <code>Handle</code> is, generally, used to wrap a JDBC <code>Connection</code>
-    instance. This connection will be used for all database operations by the handle,
-    and will be closed when the handle is closed.
-</p>
-
-<h1>Idioms and Practices</h1>
-
-<p>
-    Jdbi tries to use common Java practices, and standard interfaces as much as possible.
-    This means that results are returned as <code>java.util.List</code> and <code>
-    java.util.Iterator</code> instances, that working with JavaBeans (tm) is favored, etc.
-</p>
-
-<h3>Named Parameters</h3>
-
-<p>
-    You can use named parameters in SQL executed through Jdbi. That means that statements
-    such as <code>select id, name from profiles where age > :age</code> is valid. When
-    executed it will be transformed to the traditional form,
-    <code>select id, name from profiles where age > ?</code>. When binding arguments to
-    a statement you may bind them either positionally or via the name, <code>age</code>
-    in the example here. You may also mix positional and named argument binding and it
-    should do the right thing.
-</p>
-
-<h3>Externalized SQL</h3>
-
-<p>
-    Jdbi supports externalizing SQL via named queries. The default named query resolver
-    looks for files on the classpath. The exact lookup rules for this locator can be
-    found on the javadocs for <code>ClasspathStatementLocator</code>, but the gist is
-    that you can do things like <code>handle.createQuery("queries/profile-by-id");</code> to
-    fetch the SQL from the file <code>queries/profile-by-id.sql</code>. The locator
-    can be replaced to find named statements by other means, and can be cached if desired.
-</p>
-
-<h1>Version Numbering</h1>
-
-<p>
-    Jdbi uses the Apache APR versioning guidelines.
-</p>
-
-<h1>Caveats and Random Bits</h1>
-
-<p>
-    Most SQL in Jdbi uses prepared statements. Non-prepared batch operations and scripts are
-    the only places where regular statements are used. Prepared Statements are cached for the
-    duration of an open handle, and will be reused on that handle. They are not cached on the
-    <code>Connection</code>, but rather on the actual <code>Handle</code>, so if connection
-    pooling is in use and you want to cache prepared statements between handle instances on
-    the same connection you should do this at the data source level.
-</p>
-
-<p>
-    The unit system tests are most often run against Apache Derby. If you encounter any issue
-    against a different database, please consider running the tests against that database.
-    Please <a href="mailto:dev@jdbi.codehaus.org">contact the dev mailing list</a> about these,
-    or for help running the tests in a given environment. Thank you!
-</p>
-
-<h1>Design Principles</h1>
-<ol>
-    <li>Do the right thing for clients</li>
-    <li>Do the right thing for extenders</li>
-    <li>No configuration required</li>
-    <li>Optimize the common cases</li>
-</ol>
-</body>
-</html>
+</body></html>

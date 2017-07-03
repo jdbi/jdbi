@@ -34,6 +34,9 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 
+/**
+ * Built in {@link ColumnMapper}s for {@link List}, {@link Set}, and common subclasses.
+ */
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
     private final Map<Class<?>, Supplier<Collection<?>>> suppliers = new HashMap<>();
 

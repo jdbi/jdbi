@@ -20,7 +20,7 @@ import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Return value from {@link StatementRewriter#rewrite(String, Binding, StatementContext)} calls
+ * Return value from {@link StatementRewriter#rewrite(String, Binding, StatementContext)} calls.
  */
 public interface RewrittenStatement
 {

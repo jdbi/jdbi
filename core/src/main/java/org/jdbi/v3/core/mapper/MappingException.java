@@ -15,6 +15,9 @@ package org.jdbi.v3.core.mapper;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when a mapper fails to map the row to a result type.
+ */
 @SuppressWarnings("serial")
 public class MappingException extends JdbiException {
     public MappingException(String string, Throwable throwable) {

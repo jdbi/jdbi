@@ -26,6 +26,9 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 
+/**
+ * Configuration registry for {@link ColumnMapperFactory} instances.
+ */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ColumnMapper<?>> cache = new ConcurrentHashMap<>();

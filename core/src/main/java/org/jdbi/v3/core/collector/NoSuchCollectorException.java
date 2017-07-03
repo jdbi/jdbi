@@ -15,6 +15,10 @@ package org.jdbi.v3.core.collector;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when jdbi tries to produce a result Collector
+ * but doesn't have a factory to produce it with.
+ */
 @SuppressWarnings("serial")
 public class NoSuchCollectorException extends JdbiException {
     public NoSuchCollectorException(String string, Throwable throwable) {

@@ -20,6 +20,9 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 
+/**
+ * Configuration holder for {@link SqlStatement}s.
+ */
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
@@ -82,6 +85,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return attributes;
     }
 
+    /**
+     * @return the statement rewriter
+     */
     public StatementRewriter getStatementRewriter() {
         return statementRewriter;
     }
@@ -98,6 +104,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
+    /**
+     * @return the timing collector
+     */
     public TimingCollector getTimingCollector() {
         return timingCollector;
     }

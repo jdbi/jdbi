@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+
 import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
 import org.jdbi.v3.core.collector.NoSuchCollectorException;
 import org.jdbi.v3.core.config.Configurable;
@@ -34,7 +35,7 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Provides access to the contents of a {@link ResultSet}
+ * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
  */
 public interface ResultBearing {
     /**

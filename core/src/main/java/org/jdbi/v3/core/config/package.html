@@ -15,10 +15,12 @@
 -->
 <html><body>
 <p>
-The <code>transaction</code> package implements the strategy
-<code>jdbi</code> uses to open and close transactions.  The default
-instance simply sets the transaction property on the connection.
-There is also a runner that runs <code>SERIALIZATBLE</code> transactions
-repeatedly until they succeed without transient serialization failures.
+The <code>config</code> classes define a configuration registry starting from
+each <code>Jdbi</code> instance.  When a <code>Handle</code> or other configurable
+object is created, it clones the parent's configuration at time of creation.
+Modifying configuration will affect future created children but not existing
+ones.  In general, it is preferable to configure <code>Jdbi</code> during
+application initialization and then only configure specific statements
+further individually if necessary.
 </p>
 </body></html>

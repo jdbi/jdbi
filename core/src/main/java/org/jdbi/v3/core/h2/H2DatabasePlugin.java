@@ -19,6 +19,9 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
+/**
+ * Configure vendor supported types for the H2 Java database implementation
+ */
 public class H2DatabasePlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi db) {

@@ -18,13 +18,27 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * Column mapper for Java {@code enum} types.
+ * @param <E> the enum type mapped
+ */
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
 
+    /**
+     * @param <E> the enum type to map
+     * @param type the enum type to map
+     * @return an enum mapper that matches on {@link Enum#name()}
+     */
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
         return new ByName<>(type);
     }
 
+    /**
+     * @param <E> the enum type to map
+     * @param type the enum type to map
+     * @return an enum mapper that matches on {@link Enum#ordinal()}
+     */
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
         return new ByOrdinal<>(type);
     }

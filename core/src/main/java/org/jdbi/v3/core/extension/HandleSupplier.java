@@ -31,5 +31,15 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
      */
     Handle getHandle();
 
+    /**
+     * Bind an extension method to the Handle, invoke the given task,
+     * then reset the Handle's extension state.
+     * @param <V> the result type of the task
+     * @param extensionMethod the method invoked
+     * @param config the configuration registry
+     * @param task the code to execute in an extension context
+     * @return the callable's result
+     * @throws Exception if any exception is thrown
+     */
     <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception;
 }

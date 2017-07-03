@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core.statement;
 
+/**
+ * Thrown when {@code jdbi} couldn't create a statement.
+ */
 public class UnableToCreateStatementException extends StatementException
 {
     private static final long serialVersionUID = 1L;

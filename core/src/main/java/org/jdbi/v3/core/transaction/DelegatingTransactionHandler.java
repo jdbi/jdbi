@@ -16,6 +16,9 @@ package org.jdbi.v3.core.transaction;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 
+/**
+ * Simple delegating subclass that just invokes its delegate.
+ */
 public class DelegatingTransactionHandler implements TransactionHandler
 {
     private final TransactionHandler delegate;

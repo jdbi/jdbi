@@ -20,10 +20,17 @@ import java.util.List;
 
 import org.jdbi.v3.core.config.JdbiConfig;
 
+/**
+ * Configuration class for reflective mappers.
+ */
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
 
+    /**
+     * Create a default configuration that attempts case insensitive and
+     * snake_case matching for names.
+     */
     public ReflectionMappers() {
         columnNameMatchers = Arrays.asList(
                 new CaseInsensitiveColumnNameMatcher(),
@@ -34,15 +41,26 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
         columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
     }
 
+    /**
+     * @return the registered column name mappers
+     */
     public List<ColumnNameMatcher> getColumnNameMatchers() {
         return Collections.unmodifiableList(columnNameMatchers);
     }
 
+    /**
+     * Replace all column name matchers with the given list.
+     * @param columnNameMatchers the column name matchers to use
+     * @return this
+     */
     public ReflectionMappers setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
         this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
         return this;
     }
 
+    /**
+     * @return if strict column name matching is checked
+     */
     public boolean isStrictMatching() {
         return this.strictMatching;
     }

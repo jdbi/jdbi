@@ -14,13 +14,14 @@
 package org.jdbi.v3.core;
 
 /**
- * Callback for use with {@link Jdbi#useHandle(HandleConsumer)}
+ * Callback that accepts a {@link Handle} and returns no result.  The provided
+ * Handle may not remain valid past return from the consumer.
  */
 @FunctionalInterface
 public interface HandleConsumer<X extends Exception>
 {
     /**
-     * Will be invoked with an open Handle. The handle will be closed when this callback returns.
+     * Will be invoked with an open Handle. The handle may be closed when this callback returns.
      *
      * @param handle Handle to be used only within scope of this callback
      * @throws X optional exception thrown by the callback
