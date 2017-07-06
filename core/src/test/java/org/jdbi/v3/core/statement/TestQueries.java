@@ -20,12 +20,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
 import com.google.common.collect.Maps;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -379,5 +381,19 @@ public class TestQueries
         expectedException.expect(NoResultsException.class);
 
         h.select("insert into something (id, name) values (?, ?)", 1, "hello").mapToMap().list();
+    }
+
+    @Test
+    public void testMapMapperOrdering() throws Exception
+    {
+        h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
+        h.execute("insert into something (id, name) values (?, ?)", 2, "world");
+
+        List<Map<String, Object>> rs = h.createQuery("select id, name from something")
+                              .mapToMap()
+                              .list();
+
+        assertThat(rs).hasSize(2);
+        assertThat(rs).hasOnlyElementsOfType(LinkedHashMap.class);
     }
 }

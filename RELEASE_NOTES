@@ -10,6 +10,7 @@
     array attributes.
   - [breaking] Moved and renamed MapEntryMapper.Config to top-level class
     MapEntryMappers
+  - MapMapper preserves column ordering, #848
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
