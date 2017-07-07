@@ -2292,6 +2292,25 @@ TODO:
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
 
+=== Replicator
+
+The link:{jdbidocs}/core/replicator/ReplicatorPlugin[ReplicatorPlugin^] registers
+an automagic row mapper for each link:{jdbidocs}/core/replicator/Replicated[Replicated^]
+interface type.  The interface should have a number of zero-parameter getter methods, following
+bean naming conventions, and each will map to a column from the result set.  Column names
+may be specified with the `@ColumnName` annotation.
+
+[source,java]
+---
+@Replicated
+public interface SimpleResult {
+    String getName();
+    int getValue();
+    @ColumnName("something")
+    UUID getUuid();
+}
+---
+
 === SQL Object custom annotations
 
 TODO:

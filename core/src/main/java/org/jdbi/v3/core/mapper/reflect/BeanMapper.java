@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -117,12 +117,12 @@ public class BeanMapper<T> implements RowMapper<T>
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        List<Integer> columnNumbers = new ArrayList<>();
-        List<ColumnMapper<?>> mappers = new ArrayList<>();
-        List<PropertyDescriptor> properties = new ArrayList<>();
+        final List<Integer> columnNumbers = new ArrayList<>();
+        final List<ColumnMapper<?>> mappers = new ArrayList<>();
+        final List<PropertyDescriptor> properties = new ArrayList<>();
 
-        ResultSetMetaData metadata = rs.getMetaData();
-        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
+        final ResultSetMetaData metadata = rs.getMetaData();
+        final ReflectionMappers rm = ctx.getConfig(ReflectionMappers.class);
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i);
@@ -138,7 +138,7 @@ public class BeanMapper<T> implements RowMapper<T>
             }
 
             final Optional<PropertyDescriptor> maybeDescriptor =
-                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, columnNameMatchers));
+                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, rm));
 
             if (!maybeDescriptor.isPresent()) {
                 continue;
@@ -204,14 +204,12 @@ public class BeanMapper<T> implements RowMapper<T>
     }
 
     private Optional<PropertyDescriptor> descriptorForColumn(String columnName,
-                                                             List<ColumnNameMatcher> columnNameMatchers)
+                                                             ReflectionMappers config)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             String paramName = paramName(descriptor);
-            for (ColumnNameMatcher strategy : columnNameMatchers) {
-                if (strategy.columnNameMatches(columnName, paramName)) {
-                    return Optional.of(descriptor);
-                }
+            if (config.columnNameMatches(columnName, paramName)) {
+                return Optional.of(descriptor);
             }
         }
         return Optional.empty();

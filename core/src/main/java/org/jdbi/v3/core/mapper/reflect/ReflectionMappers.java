@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.JdbiConfig;
 
@@ -75,6 +78,35 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     public ReflectionMappers setStrictMatching(boolean strictMatching) {
         this.strictMatching = strictMatching;
         return this;
+    }
+
+    /**
+     * Determine whether any column name matcher thinks the given property and column names are the same.
+     * @param columnName the column name to compare
+     * @param javaName the Java name to compare
+     * @return if they are the same property
+     */
+    public boolean columnNameMatches(String columnName, String javaName) {
+        return columnNameMatchers.stream()
+                .map(m -> m.columnNameMatches(columnName, javaName))
+                .filter(matches -> matches)
+                .findAny()
+                .orElse(false);
+    }
+
+    /**
+     * Determine the parameter name to be used for a bean property.
+     * @param descriptor the property
+     * @return the preferred name to match to columns
+     */
+    public String paramName(PropertyDescriptor descriptor) {
+        return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+                .filter(Objects::nonNull)
+                .map(method -> method.getAnnotation(ColumnName.class))
+                .filter(Objects::nonNull)
+                .map(ColumnName::value)
+                .findFirst()
+                .orElseGet(descriptor::getName);
     }
 
     @Override
