@@ -21,6 +21,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * type of parameters used (named or positional), the number, and the parameter
  * name for each position (if applicable).
  */
+@FunctionalInterface
 public interface SqlParser {
     /**
      * Parses the given SQL statement, and returns the {@link ParsedSql}

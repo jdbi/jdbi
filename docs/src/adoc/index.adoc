@@ -2243,32 +2243,96 @@ TODO:
 
 === TemplateEngine
 
-TODO:
+Jdbi uses a link:{jdbidocs}/core/rewriter/TemplateEngine.html[TemplateEngine^]
+implementation to render templates into SQL. Template engines take a SQL
+template string and the `StatementContext` as input, and produce a parseable
+SQL string as output.
 
-* Template engines take an SQL template, and produce a parseable SQL statement.
-* Out of the box, Jdbi processes `<name>`-style by substituting in the string
-  value of the named attribute. This is accomplished by
-  `DefinedAttributeTemplateEngine`.
-* Other template engines can be configured, e.g. `StringTemplateEngine`, which
-  uses String Template v4.
-* Configure a different template engine by calling `setTemplateEngine()` on a
-  `Jdbi`, `Handle`, or on a SQL statement like `Update` or `Query`.
+Out of the box, Jdbi is configured to use `DefinedAttributeTemplateEngine`,
+which replaces angle-bracked tokens like `<name>` in your SQL statements with
+the string value of the named attribute:
+
+[source,java]
+----
+String tableName = "customers";
+Class<?> entityClass = Customer.class;
+
+handle.createQuery("select <columns> from <table>")
+      .define("table", "customers")
+      .defineList("columns", "id", "name")
+      .mapToMap()
+      .list() // => "select id, name from customers"
+----
+
+[NOTE]
+The `defineList` method defines a list of elements as the comma-separated
+splice of String values of the individual elements. In the above example,
+the `columns` attribute is defined as `"id, name"`.
+
+Any custom template engine can be used. Simply implement the `TemplateEngine`
+interface, then call `setTemplateEngine()` on the `Jdbi`, `Handle`, or on a SQL
+statement like `Update` or `Query`:
+
+[source,java]
+----
+TemplateEngine templateEngine = (template, ctx) -> {
+  ...
+};
+
+jdbi.setTemplateEngine(templateEngine);
+----
+
+[TIP]
+Jdbi also provides `StringTemplateEngine`,
+which renders templates using the StringTemplate library. See
+<<StringTemplate 4>>.
 
 === SqlParser
 
-TODO:
+After the SQL template has been rendered, Jdbi uses a
+link:{jdbidocs}/core/rewriter/SqlParser.html[SqlParser^] to parse out any named
+parameters from the SQL statement. This Produces a `ParsedSql` object, which
+contains all the information Jdbi needs to bind parameters and execute your SQL
+statement.
 
-* Parses a SQL string and produces a `ParsedSql` object, which includes the
-  final SQL string (using positional-only parameters) and the parameters parsed
-  out of the input string.
-* Depending on your database vendor (Oracle?), you can use hash prefix named
-  parameters. Configure HashPrefixSqlParser as the default
-  SqlParser.
-* Out of the box, the default parser (`ColonPrefixSqlParser`) looks for named
-  parameters using a colon prefix, e.g. `:name`.
-* Configure a different parser (e.g. `HashPrefixSqlParser`) by calling
-  `setSqlParser()` on a `Jdbi`, `Handle`, or SQL statement such as `Update` or
-  `Query`.
+Out of the box, Jdbi is configured to use `ColonPrefixSqlParser`, which
+recognizes colon-prefixed named parameters, e.g. `:name`.
+
+[source,java]
+----
+handle.createUpdate("insert into characters (id, name) values (:id, :name)")
+      .bind("id", 1)
+      .bind("name", "Dolores Abernathy")
+      .execute();
+----
+
+Jdbi also provides `HashPrefixSqlParser`, which recognizes hash-prefixed
+parameters, e.g. `#hashtag`. Use this parser by calling `setSqlParser()` on the
+`Jdbi`, `Handle`, or any SQL statement such as `Query` or `Update`.
+
+[source,java]
+----
+handle.setSqlParser(new HashPrefixSqlParser());
+handle.createUpdate("insert into characters (id, name) values (#id, #name)")
+      .bind("id", 2)
+      .bind("name", "Teddy Flood")
+      .execute();
+----
+
+
+For you fearless adventurers who have read the
+link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
+any custom SQL parser can be used. Simply implement the `SqlParser` interface,
+then set it on the Jdbi, Handle, or SQL statement:
+
+[source,java]
+----
+SqlParser parser = (sql, ctx) -> {
+  ...
+};
+
+jdbi.setParser(parser);
+----
 
 === TimingCollector
 

@@ -20,6 +20,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * @see DefinedAttributeTemplateEngine
  */
+@FunctionalInterface
 public interface TemplateEngine {
     /**
      * Renders an SQL statement from the given template, using the statement
