@@ -58,68 +58,82 @@ public class TestTimingCollector
     }
 
     @Test
-    public void testStatement() throws Exception
-    {
-        int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        assertThat(rows).isEqualTo(1);
-    }
-
-    @Test
-    public void testSimpleInsert() throws Exception
+    public void testInsert() throws Exception
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
         assertThat(c).isEqualTo(1);
 
-        final List<String> statements = tc.getStatements();
-        assertThat(statements).containsExactly(statement);
+        assertThat(tc.getRawStatements()).containsExactly(statement);
+        assertThat(tc.getRewrittenStatements()).containsExactly(statement);
     }
 
     @Test
     public void testUpdate() throws Exception
     {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
-        String stmt2 = "update something set name = 'ERIC' where id = 1";
-        String stmt3 = "select * from something where id = 1";
+        String stmt2 = "update something set name = :name where id = :id";
+        String stmt3 = "select * from something where id = :id";
 
         h.execute(stmt1);
-        h.createUpdate(stmt2).execute();
-        Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
+
+        h.createUpdate(stmt2)
+                .bind("id", 1)
+                .bind("name", "ERIC")
+                .execute();
+
+        Something eric = h.createQuery(stmt3)
+                .bind("id", 1)
+                .mapToBean(Something.class)
+                .list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
 
-        final List<String> statements = tc.getStatements();
-        assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
+        assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
+        assertThat(tc.getRewrittenStatements()).containsExactly(
+                stmt1,
+                "update something set name = ? where id = ?",
+                "select * from something where id = ?");
     }
 
     @Test
-    public void testSimpleUpdate() throws Exception
+    public void testBatch()
     {
-        String stmt1 = "insert into something (id, name) values (1, 'eric')";
-        String stmt2 = "update something set name = 'cire' where id = 1";
-        String stmt3 = "select * from something where id = 1";
+        String insert = "insert into something (id, name) values (:id, :name)";
+        h.prepareBatch(insert)
+                .bind("id", 1).bind("name", "Eric").add()
+                .bind("id", 2).bind("name", "Brian").add()
+                .execute();
 
-        h.execute(stmt1);
-        h.execute(stmt2);
-        Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
-        assertThat(eric.getName()).isEqualTo("cire");
+        String select = "select * from something order by id";
+        List<Something> r = h.createQuery(select).mapToBean(Something.class).list();
+        assertThat(r.stream().map(Something::getName)).containsExactly("Eric", "Brian");
 
-        final List<String> statements = tc.getStatements();
-        assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
+        assertThat(tc.getRawStatements()).containsExactly(insert, select);
+        assertThat(tc.getRewrittenStatements()).containsExactly(
+                "insert into something (id, name) values (?, ?)",
+                select);
     }
 
     private static class TTC implements TimingCollector
     {
-        private final List<String> statements = new ArrayList<>();
+        private final List<String> rawStatements = new ArrayList<>();
+        private final List<String> rewrittenStatements = new ArrayList<>();
 
         @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
-            statements.add(ctx.getRawSql());
+            rawStatements.add(ctx.getRawSql());
+            rewrittenStatements.add(ctx.getRewrittenSql());
         }
 
-        public synchronized List<String> getStatements()
+        public synchronized List<String> getRawStatements()
         {
-            return statements;
+            return rawStatements;
+        }
+
+        public synchronized List<String> getRewrittenStatements()
+        {
+            return rewrittenStatements;
         }
     }
 }
