@@ -150,6 +150,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         try {
             final PreparedStatement stmt;
             String sql = rewritten.getSql();
+            getContext().setRewrittenSql(sql);
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 Connection connection = getHandle().getConnection();
