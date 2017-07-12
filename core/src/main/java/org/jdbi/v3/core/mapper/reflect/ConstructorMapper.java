@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -132,10 +133,12 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     private final Constructor<T> constructor;
     private final String prefix;
+    private final ConstructorProperties constructorProperties;
 
     private ConstructorMapper(Constructor<T> constructor, String prefix) {
         this.constructor = constructor;
         this.prefix = prefix;
+        this.constructorProperties = constructor.getAnnotation(ConstructorProperties.class);
     }
 
     @Override
@@ -167,7 +170,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
         for (int i = 0; i < columns; i++) {
             final Type type = constructor.getGenericParameterTypes()[i];
-            final String paramName = paramName(constructor.getParameters()[i]);
+            final String paramName = paramName(constructor.getParameters(), i, constructorProperties);
             final int columnIndex = columnIndexForParameter(columnNames, paramName, columnNameMatchers);
 
             mappers[i] = ctx.findColumnMapperFor(type)
@@ -238,10 +241,14 @@ public class ConstructorMapper<T> implements RowMapper<T>
                 "or annotate the parameter names explicitly with @ColumnName");
     }
 
-    private static String paramName(Parameter parameter) {
+    private static String paramName(Parameter[] parameters, int position, ConstructorProperties parameterNames) {
+        final Parameter parameter = parameters[position];
         ColumnName dbName = parameter.getAnnotation(ColumnName.class);
         if (dbName != null) {
             return dbName.value();
+        }
+        if (parameterNames != null) {
+            return parameterNames.value()[position];
         }
         return parameter.getName();
     }
