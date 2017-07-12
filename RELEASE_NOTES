@@ -11,6 +11,7 @@
   - [breaking] Moved and renamed MapEntryMapper.Config to top-level class
     MapEntryMappers
   - MapMapper preserves column ordering, #848
+  - array binder now guesses type based on first element of untyped collections, rather than passing
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
