@@ -58,14 +58,7 @@ public class TestTimingCollector
     }
 
     @Test
-    public void testStatement() throws Exception
-    {
-        int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        assertThat(rows).isEqualTo(1);
-    }
-
-    @Test
-    public void testSimpleInsert() throws Exception
+    public void testInsert() throws Exception
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
@@ -86,22 +79,6 @@ public class TestTimingCollector
         h.createUpdate(stmt2).execute();
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
-
-        final List<String> statements = tc.getStatements();
-        assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
-    }
-
-    @Test
-    public void testSimpleUpdate() throws Exception
-    {
-        String stmt1 = "insert into something (id, name) values (1, 'eric')";
-        String stmt2 = "update something set name = 'cire' where id = 1";
-        String stmt3 = "select * from something where id = 1";
-
-        h.execute(stmt1);
-        h.execute(stmt2);
-        Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
-        assertThat(eric.getName()).isEqualTo("cire");
 
         final List<String> statements = tc.getStatements();
         assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
