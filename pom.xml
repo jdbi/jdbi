@@ -444,5 +444,6 @@
         <module>docs</module>
         <module>kotlin</module>
         <module>kotlin-sqlobject</module>
+        <module>bom</module>
     </modules>
 </project>

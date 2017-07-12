@@ -109,7 +109,7 @@ you can just include the relevant artifacts in your POM:
   <dependencies>
     <dependency>
       <groupId>org.jdbi</groupId>
-      <artifactId>jdbi3-parent</artifactId>
+      <artifactId>jdbi3-bom</artifactId>
       <type>pom</type>
       <version>{project_version}</version>
       <scope>import</scope>
@@ -1916,7 +1916,7 @@ To use this feature, add a Maven dependency:
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-oracle12</artifactId>
+  <artifactId>jdbi3-postgres</artifactId>
 </dependency>
 ----
 

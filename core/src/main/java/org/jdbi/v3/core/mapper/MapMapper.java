@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class MapMapper implements RowMapper<Map<String, Object>>
         }
 
         return (r, c) -> {
-            Map<String, Object> row = new HashMap<>(columnCount);
+            Map<String, Object> row = new LinkedHashMap<>(columnCount);
 
             for (int i = 1; i <= columnCount; i++) {
                 row.put(columnNames[i], rs.getObject(i));
