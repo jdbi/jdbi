@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Optional;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -32,11 +33,11 @@ public class BindFactory implements SqlStatementCustomizerFactory {
                                                               Type type) {
         Bind b = (Bind) annotation;
         String nameFromAnnotation = b == null ? Bind.NO_VALUE : b.value();
-        final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
+        Optional<String> name = ParameterUtil.findParameterName(nameFromAnnotation, param);
 
         return (stmt, arg) -> {
             stmt.bindByType(index, arg, type);
-            stmt.bindByType(name, arg, type);
+            name.ifPresent(n -> stmt.bindByType(n, arg, type));
         };
     }
 }

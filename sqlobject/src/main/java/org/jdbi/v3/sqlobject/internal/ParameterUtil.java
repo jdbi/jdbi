@@ -13,22 +13,17 @@
  */
 package org.jdbi.v3.sqlobject.internal;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 public class ParameterUtil {
-    public static String getParameterName(Annotation annotation,
-                                          String nameFromAnnotation,
-                                          Parameter parameter) {
+    public static Optional<String> findParameterName(String nameFromAnnotation,
+                                                     Parameter parameter) {
         if (!nameFromAnnotation.isEmpty()) {
-            return nameFromAnnotation;
+            return Optional.of(nameFromAnnotation);
         }
-        if (parameter.isNamePresent()) {
-            return parameter.getName();
-        }
-        String annotationTypeName = annotation == null ? "" : "@" + annotation.annotationType().getSimpleName() + " ";
-        throw new UnsupportedOperationException("A " + annotationTypeName + "parameter was not given a name, "
-                + "and parameter name data is not present in the class file, for: "
-                + parameter.getDeclaringExecutable() + " :: " + parameter);
+        return parameter.isNamePresent()
+                ? Optional.of(parameter.getName())
+                : Optional.empty();
     }
 }

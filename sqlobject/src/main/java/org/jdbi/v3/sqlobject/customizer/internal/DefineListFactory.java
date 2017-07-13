@@ -37,7 +37,10 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory
                                                               Type type)
     {
         final DefineList d = (DefineList) annotation;
-        final String name = ParameterUtil.getParameterName(d, d.value(), param);
+        final String name = ParameterUtil.findParameterName(d.value(), param)
+                .orElseThrow(() -> new UnsupportedOperationException("A @DefineList parameter was not given a name, " +
+                        "and parameter name data is not present in the class file, for: " +
+                        param.getDeclaringExecutable() + "::" + param));
 
         return (stmt, arg) -> {
             List<?> argsList;
