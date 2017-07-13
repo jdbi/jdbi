@@ -14,10 +14,19 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import java.sql.Types;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ValueTypeMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
+import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -67,5 +76,60 @@ public class TestBindBean {
 
         @SqlQuery("select name from something where id = :id")
         String getName(long id);
+    }
+
+    @Test
+    public void testNoArgumentFactoryRegisteredForProperty() {
+        handle.execute("create table beans (id integer, value_type varchar)");
+
+        assertThatThrownBy(() -> handle.attach(BeanDao.class).insert(new Bean(1, ValueType.valueOf("foo"))))
+                .hasMessageContaining("No argument factory registered");
+
+        handle.registerArgument(new ValueTypeArgumentFactory());
+
+        BeanDao dao = handle.attach(BeanDao.class);
+
+        dao.insert(new Bean(1, ValueType.valueOf("foo")));
+        assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType)
+                .containsExactly(1, ValueType.valueOf("foo"));
+    }
+
+    public static class Bean {
+        private int id;
+        private ValueType valueType;
+
+        public Bean(int id, ValueType valueType) {
+            this.id = id;
+            this.valueType = valueType;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public ValueType getValueType() {
+            return valueType;
+        }
+    }
+
+    public static class ValueTypeArgumentFactory extends AbstractArgumentFactory<ValueType> {
+        public ValueTypeArgumentFactory() {
+            super(Types.VARCHAR);
+        }
+
+        @Override
+        protected Argument build(ValueType value, ConfigRegistry config) {
+            return (pos, stmt, ctx) -> stmt.setString(pos, value.getValue());
+        }
+    }
+
+    public interface BeanDao {
+        @SqlUpdate("insert into beans (id, value_type) values (:id, :valueType)")
+        void insert(@BindBean Bean bean);
+
+        @SqlQuery("select * from beans where id = :id")
+        @RegisterConstructorMapper(Bean.class)
+        @RegisterColumnMapper(ValueTypeMapper.class)
+        Bean getById(int id);
     }
 }
