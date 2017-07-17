@@ -32,8 +32,12 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
     Handle getHandle();
 
     /**
-     * Bind an extension method to the Handle, invoke the given task,
-     * then reset the Handle's extension state.
+     * Bind an extension method and configuration registry to the Handle,
+     * invoke the given task, then reset the Handle's extension state.
+     *
+     * Note that the binding is done by a thread local, so the binding
+     * will not propagate to other threads you may call out to.
+     *
      * @param <V> the result type of the task
      * @param extensionMethod the method invoked
      * @param config the configuration registry

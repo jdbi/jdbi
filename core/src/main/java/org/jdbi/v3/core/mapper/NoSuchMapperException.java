@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import org.jdbi.v3.core.JdbiException;
 
 /**
- * Thrown when you attempt to map a type that {@code jdbi} doesn't have a
+ * Thrown when you attempt to map a type that {@code Jdbi} doesn't have a
  * registered mapper factory for.
  */
 @SuppressWarnings("serial")

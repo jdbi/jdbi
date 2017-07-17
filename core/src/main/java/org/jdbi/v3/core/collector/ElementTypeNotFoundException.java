@@ -16,7 +16,7 @@ package org.jdbi.v3.core.collector;
 import org.jdbi.v3.core.JdbiException;
 
 /**
- * Thrown when jdbi tries to build a Collector, but cannot determine the element
+ * Thrown when Jdbi tries to build a Collector, but cannot determine the element
  * type intended for it.
  */
 @SuppressWarnings("serial")

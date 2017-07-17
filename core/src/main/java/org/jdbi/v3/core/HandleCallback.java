@@ -15,8 +15,8 @@ package org.jdbi.v3.core;
 
 /**
  * Callback that accepts a Handle that remains open for the duration
- * of the callback.  The Handle is not guaranteed to remain valid past
- * the return from the callback.
+ * of the callback invocation.  The Handle is not guaranteed to remain
+ * valid past the return from the callback.
  */
 @FunctionalInterface
 public interface HandleCallback<T, X extends Exception>

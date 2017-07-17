@@ -17,6 +17,7 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to
@@ -29,24 +30,22 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     /* http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html */
     private static final String SQLSTATE_TXN_SERIALIZATION_FAILED = "40001";
 
-    private final Configuration configuration;
-
     public SerializableTransactionRunner()
     {
-        this(new Configuration(), new LocalTransactionHandler());
+        this(new LocalTransactionHandler());
     }
 
-    public SerializableTransactionRunner(Configuration configuration, TransactionHandler delegate)
+    public SerializableTransactionRunner(TransactionHandler delegate)
     {
         super(delegate);
-        this.configuration = configuration;
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X
     {
-        int retriesRemaining = configuration.maxRetries;
+        final Configuration config = handle.getConfig(Configuration.class);
+        int retriesRemaining = config.maxRetries;
 
         while (true) {
             try
@@ -54,7 +53,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                 return getDelegate().inTransaction(handle, callback);
             } catch (Exception e)
             {
-                if (!isSqlState(configuration.serializationFailureSqlState, e) || --retriesRemaining <= 0)
+                if (!isSqlState(config.serializationFailureSqlState, e) || --retriesRemaining <= 0)
                 {
                     throw e;
                 }
@@ -105,38 +104,36 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     /**
      * Configuration for serializable transaction runner
      */
-    public static class Configuration
+    public static class Configuration implements JdbiConfig<Configuration>
     {
-        private final int maxRetries;
-        private final String serializationFailureSqlState;
-
-        public Configuration()
-        {
-            this(5, SQLSTATE_TXN_SERIALIZATION_FAILED);
-        }
-
-        private Configuration(int maxRetries, String serializationFailureSqlState)
-        {
-            this.maxRetries = maxRetries;
-            this.serializationFailureSqlState = serializationFailureSqlState;
-        }
+        private int maxRetries = 5;
+        private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
 
         /**
          * @param maxRetries number of retry attempts before aborting
          * @return this
          */
-        public Configuration withMaxRetries(int maxRetries)
+        public Configuration setMaxRetries(int maxRetries)
         {
-            return new Configuration(maxRetries, serializationFailureSqlState);
+            this.maxRetries = maxRetries;
+            return this;
         }
 
         /**
          * @param serializationFailureSqlState the SQL state to consider as a serialization failure
          * @return this
          */
-        public Configuration withSerializationFailureSqlState(String serializationFailureSqlState)
+        public Configuration setSerializationFailureSqlState(String serializationFailureSqlState)
         {
-            return new Configuration(maxRetries, serializationFailureSqlState);
+            this.serializationFailureSqlState = serializationFailureSqlState;
+            return this;
+        }
+
+        @Override
+        public Configuration createCopy() {
+            return new Configuration()
+                    .setMaxRetries(maxRetries)
+                    .setSerializationFailureSqlState(serializationFailureSqlState);
         }
     }
 }

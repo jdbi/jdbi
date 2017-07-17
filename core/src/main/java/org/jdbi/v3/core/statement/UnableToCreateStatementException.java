@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.statement;
 
 /**
- * Thrown when {@code jdbi} couldn't create a statement.
+ * Thrown when {@code Jdbi} couldn't create a statement.
  */
 public class UnableToCreateStatementException extends StatementException
 {

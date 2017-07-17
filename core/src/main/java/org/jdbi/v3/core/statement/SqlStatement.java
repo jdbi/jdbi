@@ -89,6 +89,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param value the direction to fetch
      * @return this
      * @see PreparedStatement#setFetchDirection(int)
+     * @see java.sql.ResultSet#FETCH_FORWARD
+     * @see java.sql.ResultSet#FETCH_REVERSE
      */
     public This setFetchDirection(final int value)
     {
@@ -117,7 +119,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * When the statement is closed, commit it and then close the owning Handle.
+     * Transfer ownership of the handle to the statement: when the statement is closed,
+     * commit the handle's transaction (if one exists) and close the handle.
      * @return this
      */
     public This cleanupHandleCommit()

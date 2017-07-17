@@ -32,6 +32,11 @@ import org.jdbi.v3.core.generic.GenericTypes;
  * {@link org.jdbi.v3.core.statement.SqlStatement#bind(int, Object)} may
  * fail to determine the array component type.  Provide explicit information with
  * {@link org.jdbi.v3.core.statement.SqlStatement#bindByType(int, Object, org.jdbi.v3.core.generic.GenericType)}.
+ *
+ * This factory is registered by default.
+ * @see SqlArrayType
+ * @see SqlArrayTypes
+ * @see org.jdbi.v3.core.config.Configurable#registerArrayType(SqlArrayType)
  */
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
@@ -57,6 +62,6 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
 
         return GenericTypes.findGenericParameter(type, Collection.class)
                 .flatMap(lookup)
-                .map(arrayType -> new SqlArrayArgument<>(arrayType, (Collection<?>) value));
+                .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
     }
 }

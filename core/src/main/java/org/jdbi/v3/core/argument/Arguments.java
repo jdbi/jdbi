@@ -26,9 +26,11 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
- * Contains {@link ArgumentFactory} instances that take a given
- * type and instance and determine the {@link Argument}
- * that binds values to a prepared statement.
+ * A registry for ArgumentFactory instances.
+ * When a statement with bound parameters is executed, Jdbi consults the
+ * Arguments registry to obtain an Argument instance for each bound parameter
+ * (see #findFor(...)).
+ * The factories are consulted in reverse order of registration (i.e. last-registered wins).
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
@@ -51,6 +53,8 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     /**
+     * Registers the given argument factory.
+     * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
      * @param factory the factory to add
      * @return this
      */

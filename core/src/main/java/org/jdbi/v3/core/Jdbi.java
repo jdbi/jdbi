@@ -295,6 +295,8 @@ public class Jdbi implements Configurable<Jdbi>
      * risk leaks.  Using a {@code try-with-resources} block is recommended.
      *
      * @return an open Handle instance
+     * @see #useHandle(HandleConsumer)
+     * @see #withHandle(HandleCallback)
      */
     public Handle open()
     {

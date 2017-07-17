@@ -25,6 +25,7 @@ import org.jdbi.v3.core.Jdbi;
 public interface JdbiPlugin {
     /**
      * Configure customizations global to any object managed by this Jdbi.
+     * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
      */
     default void customizeJdbi(Jdbi jdbi) {}
