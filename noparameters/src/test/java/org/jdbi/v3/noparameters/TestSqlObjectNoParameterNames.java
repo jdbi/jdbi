@@ -17,13 +17,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeFalse;
 
+import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.customizer.Define;
+import org.jdbi.v3.sqlobject.customizer.DefineList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,31 +44,122 @@ public class TestSqlObjectNoParameterNames {
 
     @Before
     public void setUp() throws Exception {
-        assumeFalse(Dao.class.getMethod("getByPositionalId", int.class).getParameters()[0].isNamePresent());
+        assumeFalse(BindDao.class.getMethod("getByIdImplicitBindPositional", int.class).getParameters()[0].isNamePresent());
 
         h = dbRule.getSharedHandle();
+        h.registerRowMapper(BeanMapper.factory(Something.class));
 
         h.execute("insert into something (id, name) values (1, 'Elsie Hughes')");
     }
 
     @Test
-    public void positionalParameterWithParameterNamesCompiled() throws Exception {
-        assertThat(h.attach(Dao.class).getByPositionalId(1)).isEqualTo(new Something(1, "Elsie Hughes"));
+    public void implicitBindPositional() throws Exception {
+        assertThat(h.attach(BindDao.class).getByIdImplicitBindPositional(1)).isEqualTo(new Something(1, "Elsie Hughes"));
     }
 
     @Test
-    public void namedParameterWithNoParameterNamesCompiledOrSupplied() throws Exception {
-        assertThatThrownBy(() -> h.attach(Dao.class).getByNamedId(1))
+    public void explicitBindPositional() throws Exception {
+        assertThat(h.attach(BindDao.class).getByIdExplicitBindPositional(1)).isEqualTo(new Something(1, "Elsie Hughes"));
+    }
+
+    @Test
+    public void implicitBindNamed() throws Exception {
+        assertThatThrownBy(() -> h.attach(BindDao.class).getByIdImplicitBindNamed(1))
                 .isInstanceOf(UnableToExecuteStatementException.class)
                 .hasMessageContaining("no named parameter matches 'id'");
     }
 
-    @RegisterBeanMapper(Something.class)
-    public interface Dao {
+    @Test
+    public void explicitBindNamed() throws Exception {
+        assertThatThrownBy(() -> h.attach(BindDao.class).getByIdExplicitBindNamed(1))
+                .isInstanceOf(UnableToExecuteStatementException.class)
+                .hasMessageContaining("no named parameter matches 'id'");
+    }
+
+    public interface BindDao {
         @SqlQuery("select * from something where id = ?")
-        Something getByPositionalId(int id);
+        Something getByIdImplicitBindPositional(int id);
+
+        @SqlQuery("select * from something where id = ?")
+        Something getByIdExplicitBindPositional(@Bind int id);
 
         @SqlQuery("select * from something where id = :id")
-        Something getByNamedId(int id);
+        Something getByIdImplicitBindNamed(@Bind int id);
+
+        @SqlQuery("select * from something where id = :id")
+        Something getByIdExplicitBindNamed(@Bind int id);
+    }
+
+    @Test
+    public void bindListMissingName() throws Exception {
+        assertThatThrownBy(() -> h.attach(BindListWithoutNameDao.class).listByIds(1))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("parameter was not given a name");
+    }
+
+    public interface BindListWithoutNameDao {
+        @SqlQuery("select * from something where id in (<ids>)")
+        List<Something> listByIds(@BindList int... ids);
+    }
+
+    @Test
+    public void bindListWithName() throws Exception {
+        assertThat(h.attach(BindListWithNameDao.class).listByIds(1))
+                .contains(new Something(1, "Elsie Hughes"));
+    }
+
+    public interface BindListWithNameDao {
+        @SqlQuery("select * from something where id in (<ids>)")
+        List<Something> listByIds(@BindList("ids") int... ids);
+    }
+
+    @Test
+    public void defineMissingName() throws Exception {
+        assertThatThrownBy(() -> h.attach(DefineWithoutNameDao.class).getById(1))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("parameter was not given a name");
+    }
+
+    public interface DefineWithoutNameDao {
+        // DON'T DO THIS IN PRODUCTION CODE, IT'S JUST A LAZY TEST
+        @SqlQuery("select * from something where id = <id>")
+        Something getById(@Define int id);
+    }
+
+    @Test
+    public void defineWithName() throws Exception {
+        assertThat(h.attach(DefineWithNameDao.class).getById(1))
+                .isEqualTo(new Something(1, "Elsie Hughes"));
+    }
+
+    public interface DefineWithNameDao {
+        // DON'T DO THIS IN PRODUCTION CODE, IT'S JUST A LAZY TEST
+        @SqlQuery("select * from something where id = <id>")
+        Something getById(@Define("id") int id);
+    }
+
+    @Test
+    public void defineListWithoutName() throws Exception {
+        assertThatThrownBy(() -> h.attach(DefineListWithoutNameDao.class).listByIds("1"))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("parameter was not given a name");
+    }
+
+    public interface DefineListWithoutNameDao {
+        // DON'T DO THIS IN PRODUCTION CODE, IT'S JUST A LAZY TEST
+        @SqlQuery("select * from something where id in (<ids>)")
+        List<Something> listByIds(@DefineList String... ids);
+    }
+
+    @Test
+    public void defineListWithName() throws Exception {
+        assertThat(h.attach(DefineListWithNameDao.class).listByIds("1"))
+                .containsExactly(new Something(1, "Elsie Hughes"));
+    }
+
+    public interface DefineListWithNameDao {
+        // DON'T DO THIS IN PRODUCTION CODE, IT'S JUST A LAZY TEST
+        @SqlQuery("select * from something where id in (<ids>)")
+        List<Something> listByIds(@DefineList("ids") String... ids);
     }
 }
