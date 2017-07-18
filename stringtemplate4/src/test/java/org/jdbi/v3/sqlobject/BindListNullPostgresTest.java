@@ -23,7 +23,7 @@ import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator.SomethingMapper;
-import org.jdbi.v3.stringtemplate4.UseStringTemplateStatementRewriter;
+import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class BindListNullPostgresTest {
         Assert.assertEquals(0, out.size());
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingByIterableHandleNull {
         @SqlQuery("select id, name from something where name in (<names>)")

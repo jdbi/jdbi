@@ -27,7 +27,7 @@ import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindBeanList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.stringtemplate4.UseStringTemplateStatementRewriter;
+import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -79,7 +79,7 @@ public class BindBeanListTest
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingWithExplicitAttributeName {
         @SqlQuery("select id, name from something where (id, name) in (<keys>)")
         List<Something> get(@BindBeanList(value = "keys", propertyNames = {"id", "name"})
@@ -108,7 +108,7 @@ public class BindBeanListTest
         final List<Something> out = s.get();
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByVarargs
     {
         @SqlQuery("select id, name from something where (id, name) in (<keys>)")
@@ -145,7 +145,7 @@ public class BindBeanListTest
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     private interface SomethingByArray
     {
         @SqlQuery("select id, name from something where (id, name) in (<keys>)")
@@ -176,7 +176,7 @@ public class BindBeanListTest
         assertThat(out).isEmpty();
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByIterable
     {
         @SqlQuery("select id, name from something where (id, name) in (<keys>)")
@@ -196,7 +196,7 @@ public class BindBeanListTest
         assertThat(results).hasSameElementsAs(expectedSomethings);
     }
 
-    @UseStringTemplateStatementRewriter
+    @UseStringTemplateEngine
     public interface SomethingByIterator
     {
         @SqlQuery("select id, name from something where (id, name) in (<keys>)")

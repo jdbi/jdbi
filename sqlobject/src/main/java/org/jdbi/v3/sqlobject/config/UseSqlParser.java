@@ -18,12 +18,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.config.internal.UseStatementRewriterImpl;
+import org.jdbi.v3.core.statement.SqlParser;
+import org.jdbi.v3.sqlobject.config.internal.UseSqlParserImpl;
 
 /**
- * Use the specified {@link StatementRewriter} class to rewrite SQL for the annotated SQL object class or method. The
- * given {@link StatementRewriter} class must have a public constructor with any of the following signatures:
+ * Use the specified {@link SqlParser} class to parse SQL for the annotated SQL object class or method. The
+ * given {@link SqlParser} class must have a public constructor with any of the following signatures:
  * <ul>
  * <li>RewriterClass() // no arguments</li>
  * <li>RewriterClass(Class)</li>
@@ -31,13 +31,13 @@ import org.jdbi.v3.sqlobject.config.internal.UseStatementRewriterImpl;
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseStatementRewriterImpl.class)
+@ConfiguringAnnotation(UseSqlParserImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseStatementRewriter
+public @interface UseSqlParser
 {
     /**
-     * Specify the StatementRewriter class to use.
-     * @return the StatementRewriter class to use.
+     * Specify the SqlParser class to use.
+     * @return the SqlParser class to use.
      */
-    Class<? extends StatementRewriter> value();
+    Class<? extends SqlParser> value();
 }

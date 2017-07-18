@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -26,18 +24,21 @@ import org.jdbi.v3.core.rewriter.StatementRewriter;
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
-    private StatementRewriter statementRewriter;
+    private TemplateEngine templateEngine;
+    private SqlParser sqlParser;
     private TimingCollector timingCollector;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
-        statementRewriter = new ColonPrefixStatementRewriter();
+        templateEngine = new DefinedAttributeTemplateEngine();
+        sqlParser = new ColonPrefixSqlParser();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
 
     private SqlStatements(SqlStatements that) {
         this.attributes = new ConcurrentHashMap<>(that.attributes);
-        this.statementRewriter = that.statementRewriter;
+        this.templateEngine = that.templateEngine;
+        this.sqlParser = that.sqlParser;
         this.timingCollector = that.timingCollector;
     }
 
@@ -86,21 +87,42 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * @return the statement rewriter
+     * @return the template engine which renders the SQL template prior to
+     * parsing parameters.
      */
-    public StatementRewriter getStatementRewriter() {
-        return statementRewriter;
+    public TemplateEngine getTemplateEngine() {
+        return templateEngine;
     }
 
     /**
-     * Sets the {@link StatementRewriter} used to transform SQL for all {@link SqlStatement SQL satements} executed by
-     * Jdbi. The default statement rewriter handles named parameter interpolation.
+     * Sets the {@link TemplateEngine} used to render SQL for all
+     * {@link SqlStatement SQL statements} executed by Jdbi. The default
+     * engine replaces <code>&lt;name&gt;</code>-style tokens
+     * with attributes {@link StatementContext#define(String, Object) defined}
+     * on the statement context.
      *
-     * @param rewriter the new statement rewriter.
+     * @param templateEngine the new template engine.
      * @return this
      */
-    public SqlStatements setStatementRewriter(StatementRewriter rewriter) {
-        this.statementRewriter = rewriter;
+    public SqlStatements setTemplateEngine(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+        return this;
+    }
+
+    public SqlParser getSqlParser() {
+        return sqlParser;
+    }
+
+    /**
+     * Sets the {@link SqlParser} used to parse parameters in SQL statements
+     * executed by Jdbi. The default parses colon-prefixed named parameter
+     * tokens, e.g. <code>:name</code>.
+     *
+     * @param sqlParser the new SQL parser.
+     * @return this
+     */
+    public SqlStatements setSqlParser(SqlParser sqlParser) {
+        this.sqlParser = sqlParser;
         return this;
     }
 

@@ -30,7 +30,6 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,14 +142,20 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             throw new IllegalStateException("No batch parts to execute");
         }
 
-        RewrittenStatement rewritten = getConfig(SqlStatements.class)
-                .getStatementRewriter()
-                .rewrite(getSql(), bindings.get(0), getContext());
+        String renderedSql = getConfig(SqlStatements.class)
+                .getTemplateEngine()
+                .render(getSql(), getContext());
+        getContext().setRenderedSql(renderedSql);
+
+        ParsedSql parsedSql = getConfig(SqlStatements.class)
+                .getSqlParser()
+                .parse(renderedSql, getContext());
+        String sql = parsedSql.getSql();
+        ParsedParameters parsedParameters = parsedSql.getParameters();
+        getContext().setParsedSql(sql);
 
         try {
             final PreparedStatement stmt;
-            String sql = rewritten.getSql();
-            getContext().setRewrittenSql(sql);
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 Connection connection = getHandle().getConnection();
@@ -164,7 +169,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             try {
                 for (Binding binding : bindings) {
-                    rewritten.bind(binding, stmt);
+                    ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
                     stmt.addBatch();
                 }
             }
@@ -178,7 +183,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, sql);
+                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);

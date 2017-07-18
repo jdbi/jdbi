@@ -11,93 +11,94 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
-import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestHashPrefixStatementRewriter
+public class TestHashPrefixSqlParser
 {
-    private HashPrefixStatementRewriter rw;
+    private TemplateEngine templateEngine;
+    private SqlParser parser;
+    private StatementContext ctx;
 
     @Before
     public void setUp() throws Exception
     {
-        this.rw = new HashPrefixStatementRewriter();
+        this.templateEngine = new DefinedAttributeTemplateEngine();
+        this.parser = new HashPrefixSqlParser();
+        ctx = mock(StatementContext.class);
     }
 
-    private RewrittenStatement rewrite(String sql)
+    private String render(String sql)
     {
-        Map<String, Object> attributes = Collections.emptyMap();
-        return rewrite(sql, attributes);
+        return render(sql, Collections.emptyMap());
     }
 
-    private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
+    private String render(String sql, Map<String, Object> attributes) {
         StatementContext ctx = StatementContextAccess.createContext();
         attributes.forEach(ctx::define);
 
-        return rw.rewrite(sql, new Binding(), ctx);
+        return templateEngine.render(sql, ctx);
     }
 
     @Test
     public void testNewlinesOkay() throws Exception
     {
-        RewrittenStatement rws = rewrite("select * from something\n where id = #id");
-        assertThat(rws.getSql()).isEqualTo("select * from something\n where id = ?");
+        ParsedSql parsed = parser.parse("select * from something\n where id = #id", ctx);
+        assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
-        RewrittenStatement rws = rewrite("~* #boo '#nope' _%&^& *@ #id");
-        assertThat(rws.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
+        ParsedSql parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id", ctx);
+        assertThat(parsed.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
-        RewrittenStatement rws = rewrite("#bo0 '#nope' _%&^& *@ #id");
-        assertThat(rws.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
+        ParsedSql parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id", ctx);
+        assertThat(parsed.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
-        RewrittenStatement rws = rewrite("select * from v$session");
-        assertThat(rws.getSql()).isEqualTo("select * from v$session");
+        ParsedSql parsed = parser.parse("select * from v$session", ctx);
+        assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testColonIsLiteral() throws Exception
     {
-        RewrittenStatement rws = rewrite("select * from foo where id = :id");
-        assertThat(rws.getSql()).isEqualTo("select * from foo where id = :id");
+        ParsedSql parsed = parser.parse("select * from foo where id = :id", ctx);
+        assertThat(parsed.getSql()).isEqualTo("select * from foo where id = :id");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
-        RewrittenStatement rws = rewrite("select * from `v$session");
-        assertThat(rws.getSql()).isEqualTo("select * from `v$session");
+        ParsedSql parsed = parser.parse("select * from `v$session", ctx);
+        assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
     public void testBailsOutOnInvalidInput() throws Exception
     {
-        rewrite("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c");
+        parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", ctx);
     }
 
     @Test
@@ -106,34 +107,35 @@ public class TestHashPrefixStatementRewriter
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
-        RewrittenStatement rws = rewrite("select <column> from <table> where <column> = #someValue", attributes);
-        assertThat(rws.getSql()).isEqualTo("select foo from bar where foo = ?");
+        String rendered = render("select <column> from <table> where <column> = #someValue", attributes);
+        ParsedSql parsed = parser.parse(rendered, ctx);
+        assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
     public void testUndefinedAttribute() throws Exception
     {
-        rewrite("select * from <table>", Collections.emptyMap());
+        render("select * from <table>", Collections.emptyMap());
     }
 
     @Test
     public void testLeaveEnquotedTokensIntact() throws Exception
     {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertThat(rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql()).isEqualTo(sql);
+        assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
     }
 
     @Test
     public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
     {
         String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
+        assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
     public void testCommentQuote() throws Exception
     {
         String sql = "select 1 /* ' \" <foo> */";
-        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
+        assertThat(parser.parse(sql, ctx).getSql()).isEqualTo(sql);
     }
 }

@@ -11,19 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
+import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestEscapedCharacters
 {
-    private final ColonPrefixStatementRewriter rewriter = new ColonPrefixStatementRewriter();
+    private final ColonPrefixSqlParser parser = new ColonPrefixSqlParser();
 
     private String parseString(final String src)
     {
-        return rewriter.rewriteNamedParameters(src).getParsedSql();
+        return parser.parse(src, mock(StatementContext.class)).getSql();
     }
 
     @Test

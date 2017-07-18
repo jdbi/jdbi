@@ -11,10 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
-import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,32 +22,28 @@ import java.util.WeakHashMap;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
-import org.jdbi.v3.core.statement.Binding;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
- * Statement rewriter which replaces named parameter tokens of the form <code>:tokenName</code>
+ * SQL parser which recognizes named parameter tokens of the form
+ * <code>:tokenName</code>
  * <p>
- * This is the default statement rewriter
+ * This is the default SQL parser
  * </p>
  */
-public class ColonPrefixStatementRewriter implements StatementRewriter {
-    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
+public class ColonPrefixSqlParser implements SqlParser {
+    private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     @Override
-    public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx) {
+    public ParsedSql parse(String sql, StatementContext ctx) {
         try {
-            ParsedStatement stmt = cache.computeIfAbsent(rewriteDefines(sql, ctx), this::rewriteNamedParameters);
-            return new InternalRewrittenStatement(stmt, ctx);
+            return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
     }
 
-    ParsedStatement rewriteNamedParameters(String sql) throws IllegalArgumentException {
-        ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder(sql.length());
+    private ParsedSql internalParse(String sql) throws IllegalArgumentException {
+        ParsedSql.Builder parsedSql = ParsedSql.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
@@ -57,25 +52,22 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
                 case LITERAL:
                 case QUOTED_TEXT:
                 case DOUBLE_QUOTED_TEXT:
-                    b.append(t.getText());
+                    parsedSql.append(t.getText());
                     break;
                 case NAMED_PARAM:
-                    stmt.addNamedParam(t.getText().substring(1));
-                    b.append("?");
+                    parsedSql.appendNamedParameter(t.getText().substring(1));
                     break;
                 case POSITIONAL_PARAM:
-                    b.append("?");
-                    stmt.addPositionalParam();
+                    parsedSql.appendPositionalParameter();
                     break;
                 case ESCAPED_TEXT:
-                    b.append(t.getText().substring(1));
+                    parsedSql.append(t.getText().substring(1));
                     break;
                 default:
                     break;
             }
             t = lexer.nextToken();
         }
-        stmt.setParsedSql(b.toString());
-        return stmt;
+        return parsedSql.build();
     }
 }

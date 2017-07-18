@@ -66,7 +66,8 @@ public class StatementContext implements Closeable
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
     private String            rawSql;
-    private String            rewrittenSql;
+    private String renderedSql;
+    private String            parsedSql;
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding = new Binding();
@@ -266,22 +267,38 @@ public class StatementContext implements Closeable
         return rawSql;
     }
 
-    void setRewrittenSql(String rewrittenSql)
+    void setRenderedSql(String renderedSql)
     {
-        this.rewrittenSql = rewrittenSql;
+        this.renderedSql = renderedSql;
     }
 
     /**
-     * Obtain the located and rewritten sql
+     * Obtain the rendered SQL statement
      * <p>
      * Not available until until statement execution time
      * </p>
      *
-     * @return the sql as it will be executed against the database
+     * @return the sql statement after processing template directives.
      */
-    public String getRewrittenSql()
+    public String getRenderedSql()
     {
-        return rewrittenSql;
+        return renderedSql;
+    }
+
+    void setParsedSql(String parsedSql) {
+        this.parsedSql = parsedSql;
+    }
+
+    /**
+     * Obtain the parsed SQL statement
+     * <p>
+     * Not available until until statement execution time
+     * </p>
+     *
+     * @return the sql statement as it will be executed against the database
+     */
+    public String getParsedSql() {
+        return parsedSql;
     }
 
     void setStatement(PreparedStatement stmt)

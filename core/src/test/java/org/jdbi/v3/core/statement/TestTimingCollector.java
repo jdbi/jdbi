@@ -65,7 +65,8 @@ public class TestTimingCollector
         assertThat(c).isEqualTo(1);
 
         assertThat(tc.getRawStatements()).containsExactly(statement);
-        assertThat(tc.getRewrittenStatements()).containsExactly(statement);
+        assertThat(tc.getRenderedStatements()).containsExactly(statement);
+        assertThat(tc.getParsedStatements()).containsExactly(statement);
     }
 
     @Test
@@ -89,7 +90,8 @@ public class TestTimingCollector
         assertThat(eric.getName()).isEqualTo("ERIC");
 
         assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
-        assertThat(tc.getRewrittenStatements()).containsExactly(
+        assertThat(tc.getRenderedStatements()).containsExactly(stmt1, stmt2, stmt3);
+        assertThat(tc.getParsedStatements()).containsExactly(
                 stmt1,
                 "update something set name = ? where id = ?",
                 "select * from something where id = ?");
@@ -109,7 +111,8 @@ public class TestTimingCollector
         assertThat(r.stream().map(Something::getName)).containsExactly("Eric", "Brian");
 
         assertThat(tc.getRawStatements()).containsExactly(insert, select);
-        assertThat(tc.getRewrittenStatements()).containsExactly(
+        assertThat(tc.getRenderedStatements()).containsExactly(insert, select);
+        assertThat(tc.getParsedStatements()).containsExactly(
                 "insert into something (id, name) values (?, ?)",
                 select);
     }
@@ -117,13 +120,15 @@ public class TestTimingCollector
     private static class TTC implements TimingCollector
     {
         private final List<String> rawStatements = new ArrayList<>();
-        private final List<String> rewrittenStatements = new ArrayList<>();
+        private final List<String> renderedStatements = new ArrayList<>();
+        private final List<String> parsedStatements = new ArrayList<>();
 
         @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
             rawStatements.add(ctx.getRawSql());
-            rewrittenStatements.add(ctx.getRewrittenSql());
+            renderedStatements.add(ctx.getRenderedSql());
+            parsedStatements.add(ctx.getParsedSql());
         }
 
         public synchronized List<String> getRawStatements()
@@ -131,9 +136,13 @@ public class TestTimingCollector
             return rawStatements;
         }
 
-        public synchronized List<String> getRewrittenStatements()
+        public List<String> getRenderedStatements() {
+            return renderedStatements;
+        }
+
+        public synchronized List<String> getParsedStatements()
         {
-            return rewrittenStatements;
+            return parsedStatements;
         }
     }
 }

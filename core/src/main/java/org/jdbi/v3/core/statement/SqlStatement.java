@@ -46,7 +46,6 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +63,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     /**
      * This will be set on execution, not before
      */
-    private RewrittenStatement rewritten;
-    private PreparedStatement  stmt;
+    private PreparedStatement stmt;
 
     SqlStatement(Handle handle,
                  String sql) {
@@ -1361,16 +1359,24 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement internalExecute()
     {
-        rewritten = getConfig(SqlStatements.class)
-                .getStatementRewriter()
-                .rewrite(sql, getBinding(), getContext());
-        getContext().setRewrittenSql(rewritten.getSql());
+        String renderedSql = getConfig(SqlStatements.class)
+                .getTemplateEngine()
+                .render(sql, getContext());
+        getContext().setRenderedSql(renderedSql);
+
+        ParsedSql parsedSql = getConfig(SqlStatements.class)
+                .getSqlParser()
+                .parse(renderedSql, getContext());
+        String sql = parsedSql.getSql();
+        ParsedParameters parsedParameters = parsedSql.getParameters();
+        getContext().setParsedSql(sql);
+
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, getContext());
             }
             else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
             }
         }
         catch (SQLException e) {
@@ -1379,16 +1385,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), sql, stmt));
+        addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
 
         getContext().setStatement(stmt);
 
-        try {
-            rewritten.bind(getBinding(), stmt);
-        }
-        catch (SQLException e) {
-            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());
-        }
+        ArgumentBinder.bind(parsedParameters, getBinding(), stmt, getContext());
 
         beforeExecution(stmt);
 
@@ -1396,7 +1397,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             final long start = System.nanoTime();
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
-            LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
+            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
                     .collect(elapsedTime, getContext());
