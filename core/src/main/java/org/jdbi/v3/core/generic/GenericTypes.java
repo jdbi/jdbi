@@ -22,6 +22,10 @@ import java.util.Optional;
 import org.jdbi.v3.core.generic.internal.TypeParameter;
 import org.jdbi.v3.core.generic.internal.TypeToken;
 
+/**
+ * Utilities for working with generic types.
+ */
+@SuppressWarnings("rawtypes")
 public class GenericTypes {
     private static final TypeVariable<Class<Map>> KEY;
     private static final TypeVariable<Class<Map>> VALUE;

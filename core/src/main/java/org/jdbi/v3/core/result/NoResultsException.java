@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core.result;
 
-import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementException;
 
+/**
+ * Thrown when no results were found in a context that requires at least one.
+ */
 public class NoResultsException extends StatementException
 {
     private static final long serialVersionUID = 1L;

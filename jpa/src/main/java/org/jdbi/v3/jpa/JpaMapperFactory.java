@@ -24,6 +24,9 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 
+/**
+ * Create {@link JpaMapper}s for {@link Entity} annotated classes.
+ */
 public class JpaMapperFactory implements RowMapperFactory {
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {

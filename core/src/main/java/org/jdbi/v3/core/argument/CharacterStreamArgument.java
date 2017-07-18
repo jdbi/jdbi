@@ -19,14 +19,21 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * Bind a {@link Reader} as a character stream parameter.
+ */
 public class CharacterStreamArgument implements Argument
 {
     private final Reader value;
     private final int length;
 
-    public CharacterStreamArgument(Reader value, int length)
+    /**
+     * @param reader the character stream to bind
+     * @param length the length of the stream
+     */
+    public CharacterStreamArgument(Reader reader, int length)
     {
-        this.value = value;
+        this.value = reader;
         this.length = length;
     }
 

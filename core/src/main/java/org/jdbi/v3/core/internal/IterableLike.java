@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 public class IterableLike
 {
     /**
-     * @return whether {@code ReflectionArrayIterator} can iterate over the given object
+     * @return whether {@code IterableLike} can iterate over the given object
      */
     public static boolean isIterable(Object maybeIterable)
     {

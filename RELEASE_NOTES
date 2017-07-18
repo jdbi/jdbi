@@ -11,6 +11,8 @@
   - [breaking] Moved and renamed MapEntryMapper.Config to top-level class
     MapEntryMappers
   - MapMapper preserves column ordering, #848
+  - [breaking] split Handle.cleanupHandle() into cleanupHandleCommit() and *Rollback()
+  - [breaking] remove TransactionStatus enum
   - [breaking] Refactored StatementRewriter into TemplateEngine and SqlParser.
 
 3.0.0-beta1

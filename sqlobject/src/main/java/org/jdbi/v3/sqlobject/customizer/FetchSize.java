@@ -20,6 +20,10 @@ import java.lang.annotation.Target;
 
 import org.jdbi.v3.sqlobject.customizer.internal.FetchSizeFactory;
 
+/**
+ * Specify batch size to fetch resulting rows in.
+ * @see java.sql.PreparedStatement#setFetchSize(int)
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(FetchSizeFactory.class)

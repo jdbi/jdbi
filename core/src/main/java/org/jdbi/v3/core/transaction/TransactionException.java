@@ -15,6 +15,9 @@ package org.jdbi.v3.core.transaction;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when there's a problem manipulating the transaction isolation level.
+ */
 public class TransactionException extends JdbiException
 {
     private static final long serialVersionUID = 1L;

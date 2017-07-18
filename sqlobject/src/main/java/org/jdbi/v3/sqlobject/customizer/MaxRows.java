@@ -23,6 +23,8 @@ import org.jdbi.v3.sqlobject.customizer.internal.MaxRowsFactory;
 /**
  * Used to specify the maximum numb er of rows to return on a result set. Passes through to
  * setMaxRows on the JDBC prepared statement.
+ *
+ * <b>This is significantly less efficient than a SQL {@code LIMIT}, be careful!</b>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})

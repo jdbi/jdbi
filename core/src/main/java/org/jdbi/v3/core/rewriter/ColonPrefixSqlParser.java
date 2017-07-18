@@ -21,9 +21,9 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
+import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 
 /**
  * SQL parser which recognizes named parameter tokens of the form

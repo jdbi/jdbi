@@ -14,7 +14,6 @@
 package org.jdbi.v3.core;
 
 
-import javax.sql.DataSource;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,6 +23,8 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.sql.DataSource;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
@@ -43,8 +44,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides the access point for Jdbi. Use it to obtain Handle instances
- * and provide "global" configuration for all handles obtained from it.
+ * Main entry point; configurable wrapper around a JDBC {@link DataSource}.
+ * Use it to obtain Handle instances and provide configuration
+ * for all handles obtained from it.
  */
 public class Jdbi implements Configurable<Jdbi>
 {
@@ -205,6 +207,12 @@ public class Jdbi implements Configurable<Jdbi>
         return create(url, props).open();
     }
 
+    /**
+     * Use the {@link ServiceLoader} API to detect and install plugins automagically.
+     * Some people consider this feature dangerous; some consider it essential --
+     * use at your own risk.
+     * @return this
+     */
     public Jdbi installPlugins()
     {
         ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
@@ -212,6 +220,12 @@ public class Jdbi implements Configurable<Jdbi>
         return this;
     }
 
+    /**
+     * Install a given {@link JdbiPlugin} instance that will configure any
+     * provided {@link Handle} instances.
+     * @param plugin the plugin to install
+     * @return this
+     */
     public Jdbi installPlugin(JdbiPlugin plugin)
     {
         plugin.customizeJdbi(this);
@@ -234,6 +248,9 @@ public class Jdbi implements Configurable<Jdbi>
         return this;
     }
 
+    /**
+     * @return the current {@link StatementBuilderFactory}
+     */
     public StatementBuilderFactory getStatementBuilderFactory()
     {
         return this.statementBuilderFactory.get();
@@ -264,15 +281,22 @@ public class Jdbi implements Configurable<Jdbi>
         return this;
     }
 
+    /**
+     * @return the {@link TransactionHandler}
+     */
     public TransactionHandler getTransactionHandler()
     {
         return this.transactionhandler.get();
     }
 
     /**
-     * Obtain a Handle to the data source wrapped by this Jdbi instance
+     * Obtain a Handle to the data source wrapped by this Jdbi instance.
+     * You own this expensive resource and are required to close it or
+     * risk leaks.  Using a {@code try-with-resources} block is recommended.
      *
      * @return an open Handle instance
+     * @see #useHandle(HandleConsumer)
+     * @see #withHandle(HandleCallback)
      */
     public Handle open()
     {

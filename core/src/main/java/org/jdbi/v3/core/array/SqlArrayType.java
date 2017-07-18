@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.array;
 
 /**
- * Strategy for converting array-like arguments into SQL arrays.
+ * Strategy for converting elements of array-like arguments into SQL array elements.
  *
- * @param <T> the array element type.
+ * @param <T> the array element type
  */
 public interface SqlArrayType<T> {
     /**
@@ -31,8 +31,8 @@ public interface SqlArrayType<T> {
      * Returns an equivalent value in a type supported by the JDBC vendor. If element type {@code T} is already
      * supported by the JDBC vendor, this method may return {@code element} without modification.
      *
-     * @param element the element to convert.
-     * @return the converted element.
+     * @param element the element to convert
+     * @return the converted element
      */
     Object convertArrayElement(T element);
 }

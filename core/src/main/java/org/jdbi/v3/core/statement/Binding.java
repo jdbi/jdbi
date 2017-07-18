@@ -25,7 +25,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
 /**
- * Represents the arguments bound to a particular statement
+ * Represents the arguments bound to a particular statement.
  */
 public class Binding
 {
@@ -114,6 +114,9 @@ public class Binding
         return b.toString();
     }
 
+    /**
+     * Remove all bindings from this Binding.
+     */
     public void clear()
     {
         positionals.clear();
@@ -121,6 +124,9 @@ public class Binding
         namedArgumentFinder.clear();
     }
 
+    /**
+     * @return true if there are no bindings yet
+     */
     public boolean isEmpty()
     {
         return positionals.isEmpty() && named.isEmpty() && namedArgumentFinder.isEmpty();

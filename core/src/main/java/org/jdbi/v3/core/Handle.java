@@ -39,8 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This represents a connection to the database system. It usually is a wrapper around
- * a JDBC Connection object.
+ * This represents a connection to the database system. It is a wrapper around
+ * a JDBC Connection object.  Handle provides essential methods for transaction
+ * management, statement creation, and other operations tied to the database session.
  */
 public class Handle implements Closeable, Configurable<Handle>
 {
@@ -89,6 +90,9 @@ public class Handle implements Closeable, Configurable<Handle>
         return this.connection;
     }
 
+    /**
+     * @return the current {@link StatementBuilder}
+     */
     public StatementBuilder getStatementBuilder() {
         return statementBuilder;
     }
@@ -201,7 +205,7 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Create a call to a stored procedure
+     * Create a call to a stored procedure.
      *
      * @param sql the stored procedure sql
      *
@@ -212,21 +216,21 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Return a default Query instance which can be executed later, as long as this handle remains open.
-     * @param sql the select sql
-     *
-     * @return the Query
+     * Return a Query instance that executes a statement
+     * with bound parameters and maps the result set into Java types.
+     * @param sql SQL that may return results
+     * @return a Query builder
      */
     public Query createQuery(String sql) {
         return new Query(this, sql);
     }
 
     /**
-     * Creates a Script from the given SQL script
+     * Creates a Script from the given SQL script.
      *
      * @param sql the SQL script
      *
-     * @return the created Script.
+     * @return the created Script
      */
     public Script createScript(String sql) {
         return new Script(this, sql);
@@ -235,9 +239,9 @@ public class Handle implements Closeable, Configurable<Handle>
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
      *
-     * @param sql The statement sql
+     * @param sql the statement sql
      *
-     * @return the Update
+     * @return the Update builder
      */
     public Update createUpdate(String sql) {
         return new Update(this, sql);
@@ -498,6 +502,9 @@ public class Handle implements Closeable, Configurable<Handle>
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
+    /**
+     * @return the extension method currently bound to the handle's context
+     */
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod.get();
     }
@@ -506,7 +513,6 @@ public class Handle implements Closeable, Configurable<Handle>
         this.extensionMethod.set(extensionMethod);
     }
 
-    /* package private */
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
     }

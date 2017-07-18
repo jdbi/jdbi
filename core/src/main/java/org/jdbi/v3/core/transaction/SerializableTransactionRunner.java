@@ -17,36 +17,35 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to
  * serialization failures, which can generally be resolved by automatically
  * retrying the transaction.  Any HandleCallback used under this runner
- * should be aware that it may be invoked multiple times.
+ * should be aware that it may be invoked multiple times and should be idempotent.
  */
 public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler
 {
     /* http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html */
     private static final String SQLSTATE_TXN_SERIALIZATION_FAILED = "40001";
 
-    private final Configuration configuration;
-
     public SerializableTransactionRunner()
     {
-        this(new Configuration(), new LocalTransactionHandler());
+        this(new LocalTransactionHandler());
     }
 
-    public SerializableTransactionRunner(Configuration configuration, TransactionHandler delegate)
+    public SerializableTransactionRunner(TransactionHandler delegate)
     {
         super(delegate);
-        this.configuration = configuration;
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X
     {
-        int retriesRemaining = configuration.maxRetries;
+        final Configuration config = handle.getConfig(Configuration.class);
+        int retriesRemaining = config.maxRetries;
 
         while (true) {
             try
@@ -54,7 +53,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                 return getDelegate().inTransaction(handle, callback);
             } catch (Exception e)
             {
-                if (!isSqlState(configuration.serializationFailureSqlState, e) || --retriesRemaining <= 0)
+                if (!isSqlState(config.serializationFailureSqlState, e) || --retriesRemaining <= 0)
                 {
                     throw e;
                 }
@@ -102,30 +101,39 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         return false;
     }
 
-    public static class Configuration
+    /**
+     * Configuration for serializable transaction runner
+     */
+    public static class Configuration implements JdbiConfig<Configuration>
     {
-        private final int maxRetries;
-        private final String serializationFailureSqlState;
+        private int maxRetries = 5;
+        private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
 
-        public Configuration()
-        {
-            this(5, SQLSTATE_TXN_SERIALIZATION_FAILED);
-        }
-
-        private Configuration(int maxRetries, String serializationFailureSqlState)
+        /**
+         * @param maxRetries number of retry attempts before aborting
+         * @return this
+         */
+        public Configuration setMaxRetries(int maxRetries)
         {
             this.maxRetries = maxRetries;
+            return this;
+        }
+
+        /**
+         * @param serializationFailureSqlState the SQL state to consider as a serialization failure
+         * @return this
+         */
+        public Configuration setSerializationFailureSqlState(String serializationFailureSqlState)
+        {
             this.serializationFailureSqlState = serializationFailureSqlState;
+            return this;
         }
 
-        public Configuration withMaxRetries(int maxRetries)
-        {
-            return new Configuration(maxRetries, serializationFailureSqlState);
-        }
-
-        public Configuration withSerializationFailureSqlState(String serializationFailureSqlState)
-        {
-            return new Configuration(maxRetries, serializationFailureSqlState);
+        @Override
+        public Configuration createCopy() {
+            return new Configuration()
+                    .setMaxRetries(maxRetries)
+                    .setSerializationFailureSqlState(serializationFailureSqlState);
         }
     }
 }

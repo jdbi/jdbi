@@ -14,17 +14,24 @@
 package org.jdbi.v3.core;
 
 /**
- * Base runtime exception for exceptions thrown from jdbi.
+ * Base unchecked exception for exceptions thrown from jdbi.
  */
 public abstract class JdbiException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
-    public JdbiException(String string, Throwable throwable)
+    /**
+     * @param message the exception message
+     * @param cause the optional cause
+     */
+    public JdbiException(String message, Throwable cause)
     {
-        super(string, throwable);
+        super(message, cause);
     }
 
+    /**
+     * @param cause the cause of this exception
+     */
     public JdbiException(Throwable cause)
     {
         super(cause);

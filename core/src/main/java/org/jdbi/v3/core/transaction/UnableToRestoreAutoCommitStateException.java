@@ -15,6 +15,9 @@ package org.jdbi.v3.core.transaction;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown after a transaction finishes if we can't reset its isolation level.
+ */
 public class UnableToRestoreAutoCommitStateException extends JdbiException {
 
     private static final long serialVersionUID = 2433069110223543423L;

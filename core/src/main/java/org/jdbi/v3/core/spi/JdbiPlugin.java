@@ -18,8 +18,29 @@ import java.sql.Connection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
+/**
+ * A plugin is given an opportunity to customize instances of various {@code Jdbi}
+ * types before they are returned from their factories.
+ */
 public interface JdbiPlugin {
-    default void customizeJdbi(Jdbi db) {}
+    /**
+     * Configure customizations global to any object managed by this Jdbi.
+     * This method is invoked immediately when the plugin is installed.
+     * @param jdbi the jdbi to customize
+     */
+    default void customizeJdbi(Jdbi jdbi) {}
+
+    /**
+     * Configure customizations for a new Handle instance.
+     * @param handle the handle just created
+     * @return the transformed handle
+     */
     default Handle customizeHandle(Handle handle) { return handle; }
+
+    /**
+     * Configure customizations for a newly acquired Connection.
+     * @param conn the connection Jdbi acquired
+     * @return the transformed connection to use
+     */
     default Connection customizeConnection(Connection conn) { return conn; }
 }

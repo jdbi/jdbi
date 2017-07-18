@@ -21,6 +21,9 @@ import java.lang.annotation.Target;
 import org.jdbi.v3.jpa.internal.BindJpaFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
+/**
+ * Bind a class based on the subset of {@code JPA} annotations we understand.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
 @SqlStatementCustomizingAnnotation(BindJpaFactory.class)

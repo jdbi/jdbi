@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.result;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -23,8 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 public class TestIterator
 {
@@ -50,7 +50,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -66,7 +66,7 @@ public class TestIterator
     @Test
     public void testEmptyWorksToo() throws Exception {
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -80,7 +80,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -108,7 +108,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -126,7 +126,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -142,7 +142,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -162,7 +162,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -181,7 +181,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -205,7 +205,7 @@ public class TestIterator
     public void testEmptyExplosion() throws Exception {
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator();
 
@@ -219,7 +219,7 @@ public class TestIterator
         // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
         // used in this way (Hello Jackson!).
         final Map<String, Object> result = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator()
             .next();
@@ -236,7 +236,7 @@ public class TestIterator
         // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
         // used in this way (Hello Jackson!).
         final Map<String, Object> result = h.createQuery("select * from something order by id")
-            .cleanupHandle()
+            .cleanupHandleRollback()
             .mapToMap()
             .iterator()
             .next();
@@ -261,7 +261,7 @@ public class TestIterator
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         try (final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-                .cleanupHandle()
+                .cleanupHandleRollback()
                 .mapToMap()
                 .iterator()) {
             final Map<String, Object> result =  it.next();

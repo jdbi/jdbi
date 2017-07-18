@@ -19,6 +19,10 @@ import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * Inspect a value with optional static type information and produce
+ * an {@link Argument} that binds the value to a prepared statement.
+ */
 @FunctionalInterface
 public interface ArgumentFactory
 {

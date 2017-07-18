@@ -27,6 +27,9 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.Query;
 
+/**
+ * Configuration registry for {@link RowMapperFactory} instances.
+ */
 public class RowMappers implements JdbiConfig<RowMappers> {
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, RowMapper<?>> cache = new ConcurrentHashMap<>();

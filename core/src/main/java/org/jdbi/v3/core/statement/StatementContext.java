@@ -341,6 +341,9 @@ public class StatementContext implements Closeable
         return this;
     }
 
+    /**
+     * @return the statement binding
+     */
     public Binding getBinding()
     {
         return binding;

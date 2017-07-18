@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
@@ -47,7 +48,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.rewriter.ParsedParameters;
 import org.jdbi.v3.core.rewriter.ParsedSql;
-import org.jdbi.v3.core.transaction.TransactionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +84,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return getContext().getBinding();
     }
 
+    /**
+     * Set the fetch direction.
+     * @param value the direction to fetch
+     * @return this
+     * @see PreparedStatement#setFetchDirection(int)
+     * @see java.sql.ResultSet#FETCH_FORWARD
+     * @see java.sql.ResultSet#FETCH_REVERSE
+     */
     public This setFetchDirection(final int value)
     {
         addCustomizer(StatementCustomizers.fetchDirection(value));
@@ -111,32 +119,29 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Close the handle when the statement is closed.
-     *
-     * @return the same Query instance
+     * Transfer ownership of the handle to the statement: when the statement is closed,
+     * commit the handle's transaction (if one exists) and close the handle.
+     * @return this
      */
-    public This cleanupHandle()
+    public This cleanupHandleCommit()
     {
-        return cleanupHandle(TransactionState.ROLLBACK);
+        return cleanupHandle(Handle::commit);
     }
 
     /**
-     * Force transaction state when the statement is cleaned up.
-     *
-     * @param state the transaction state to enforce.
-     *
-     * @return the same Query instance
+     * When the statement is closed, roll it back then close the owning Handle.
+     * @return this
      */
-    public This cleanupHandle(final TransactionState state)
+    public This cleanupHandleRollback()
     {
+        return cleanupHandle(Handle::rollback);
+    }
+
+    private This cleanupHandle(Consumer<Handle> action) {
         addCleanable(() -> {
             if (handle != null) {
                 if (handle.isInTransaction()) {
-                    if (state == TransactionState.COMMIT) {
-                        handle.commit();
-                    } else {
-                        handle.rollback();
-                    }
+                    action.accept(handle);
                 }
                 handle.close();
             }

@@ -15,6 +15,9 @@ package org.jdbi.v3.core.extension;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when an extension of an unknown type is created.
+ */
 public class NoSuchExtensionException extends JdbiException {
     private static final long serialVersionUID = 1L;
 

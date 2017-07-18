@@ -37,6 +37,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         return config.get();
     }
 
+    @Override
     public Handle getHandle() {
         if (handle == null) {
             initHandle();
@@ -80,6 +81,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         }
     }
 
+    @Override
     public synchronized void close() {
         closed = true;
         if (handle != null) {

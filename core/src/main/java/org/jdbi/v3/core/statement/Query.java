@@ -42,7 +42,6 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      * @param producer the result producer.
      * @return value returned by the result producer.
      */
-    @SuppressWarnings("resource")
     public <R> R execute(ResultProducer<R> producer)
     {
         try {

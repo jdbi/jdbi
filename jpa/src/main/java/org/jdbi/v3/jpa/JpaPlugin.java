@@ -16,6 +16,10 @@ package org.jdbi.v3.jpa;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
+/**
+ * Enable minimal {@code JPA} compatibility layer.
+ * This feature is experimental.
+ */
 public class JpaPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi db) {

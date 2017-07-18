@@ -17,19 +17,33 @@ import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Method;
 
+/**
+ * Holder for a {@link Class} and a {@link Method} that together
+ * define which extension method was invoked.
+ */
 public final class ExtensionMethod {
     private final Class<?> type;
     private final Method method;
 
+    /**
+     * @param type the type the method was invoked on
+     * @param method the method invoked
+     */
     public ExtensionMethod(Class<?> type, Method method) {
         this.type = requireNonNull(type);
         this.method = requireNonNull(method);
     }
 
+    /**
+     * @return the type the method was invoked on
+     */
     public Class<?> getType() {
         return type;
     }
 
+    /**
+     * @return the method invoked
+     */
     public Method getMethod() {
         return method;
     }

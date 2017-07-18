@@ -22,6 +22,9 @@ import org.jdbi.v3.core.rewriter.DefinedAttributeTemplateEngine;
 import org.jdbi.v3.core.rewriter.SqlParser;
 import org.jdbi.v3.core.rewriter.TemplateEngine;
 
+/**
+ * Configuration holder for {@link SqlStatement}s.
+ */
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
@@ -87,6 +90,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return attributes;
     }
 
+    /**
+     * @return the template engine which renders the SQL template prior to
+     * parsing parameters.
+     */
     public TemplateEngine getTemplateEngine() {
         return templateEngine;
     }
@@ -123,6 +130,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
+    /**
+     * @return the timing collector
+     */
     public TimingCollector getTimingCollector() {
         return timingCollector;
     }
