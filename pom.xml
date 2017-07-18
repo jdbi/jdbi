@@ -24,7 +24,7 @@
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
     <name>jdbi Parent</name>
-    <version>3.0.0-beta2</version>
+    <version>3.0.0-beta3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>
         Jdbi is designed to provide convenient tabular data access in
@@ -55,7 +55,7 @@
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
         <url>https://github.com/jdbi/jdbi/</url>
-        <tag>jdbi3-3.0.0-beta2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
