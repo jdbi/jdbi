@@ -35,7 +35,11 @@ public class DefineFactory implements SqlStatementCustomizerFactory
     {
         Define define = (Define) annotation;
 
-        final String name = ParameterUtil.getParameterName(define, define.value(), param);
+        final String name = ParameterUtil.findParameterName(define.value(), param)
+                .orElseThrow(() -> new UnsupportedOperationException("A @Define parameter was not given a name, " +
+                        "and parameter name data is not present in the class file, for: " +
+                        param.getDeclaringExecutable() + "::" + param));
+
         return (stmt, arg) -> stmt.define(name, arg);
     }
 }

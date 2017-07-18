@@ -86,15 +86,6 @@
            <plugins>
              <plugin>
                <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-compiler-plugin</artifactId>
-               <configuration>
-                 <compilerArguments>
-                   <parameters />
-                 </compilerArguments>
-               </configuration>
-             </plugin>
-             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-toolchains-plugin</artifactId>
                <version>1.1</version>
                <configuration>
@@ -152,11 +143,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
-                <source>${project.build.targetJdk}</source>
-                <target>${project.build.targetJdk}</target>
-              <compilerArguments>
-                <parameters />
-              </compilerArguments>
+              <source>${project.build.targetJdk}</source>
+              <target>${project.build.targetJdk}</target>
             </configuration>
           </plugin>
           <plugin>
@@ -445,5 +433,6 @@
         <module>kotlin</module>
         <module>kotlin-sqlobject</module>
         <module>bom</module>
+        <module>noparameters</module>
     </modules>
 </project>

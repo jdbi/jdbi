@@ -35,7 +35,10 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                                                               int index,
                                                               Type type) {
         final BindList bindList = (BindList) annotation;
-        final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
+        final String name = ParameterUtil.findParameterName(bindList.value(), param)
+                .orElseThrow(() -> new UnsupportedOperationException("A @BindList parameter was not given a name, " +
+                        "and parameter name data is not present in the class file, for: " +
+                        param.getDeclaringExecutable() + "::" + param));
 
         return (stmt, arg) -> {
             if (arg == null || IterableLike.isEmpty(arg)) {
