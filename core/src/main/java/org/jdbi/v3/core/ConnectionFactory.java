@@ -17,7 +17,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Interface which abstracts away how JDBC Connections are obtained
+ * Supplies {@link Connection} instances to a created {@link Handle}.
  */
 @FunctionalInterface
 public interface ConnectionFactory

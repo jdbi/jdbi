@@ -26,7 +26,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 public interface Argument
 {
     /**
-     * Callback method invoked right before statement execution.
+     * Apply the argument to the given prepared statement.
      *
      * @param position the position to which the argument should be bound, using the
      *                 stupid JDBC "start at 1" bit

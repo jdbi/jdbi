@@ -17,10 +17,13 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.joda.time.DateTime;
 
+/**
+ * Bind a {@link DateTime} as a {@link Timestamp}.
+ */
 public class DateTimeArgumentFactory extends AbstractArgumentFactory<DateTime> {
     public DateTimeArgumentFactory() {
         super(Types.TIMESTAMP);

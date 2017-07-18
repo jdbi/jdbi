@@ -18,10 +18,17 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * A typed SQL null argument.
+ */
 public class NullArgument implements Argument
 {
     private final int sqlType;
 
+    /**
+     * @param sqlType the SQL type of the Null
+     * @see java.sql.Types
+     */
     public NullArgument(int sqlType) {
         this.sqlType = sqlType;
     }

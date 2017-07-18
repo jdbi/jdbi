@@ -25,6 +25,13 @@ import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 
+/**
+ * A registry for ArgumentFactory instances.
+ * When a statement with bound parameters is executed, Jdbi consults the
+ * Arguments registry to obtain an Argument instance for each bound parameter
+ * (see #findFor(...)).
+ * The factories are consulted in reverse order of registration (i.e. last-registered wins).
+ */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
     private ConfigRegistry registry;
@@ -45,6 +52,12 @@ public class Arguments implements JdbiConfig<Arguments> {
         untypedNullArgument = that.untypedNullArgument;
     }
 
+    /**
+     * Registers the given argument factory.
+     * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
+     * @param factory the factory to add
+     * @return this
+     */
     public Arguments register(ArgumentFactory factory) {
         argumentFactories.add(0, factory);
         return this;

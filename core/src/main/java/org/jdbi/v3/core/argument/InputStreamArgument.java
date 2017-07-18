@@ -20,15 +20,23 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * Bind an input stream as either an ASCII (discouraged) or binary stream.
+ */
 public class InputStreamArgument implements Argument
 {
     private final InputStream value;
     private final int length;
     private final boolean ascii;
 
-    public InputStreamArgument(InputStream value, int length, boolean ascii)
+    /**
+     * @param stream the stream to bind
+     * @param length the length of the stream
+     * @param ascii true if the stream is ASCII
+     */
+    public InputStreamArgument(InputStream stream, int length, boolean ascii)
     {
-        this.value = value;
+        this.value = stream;
         this.length = length;
         this.ascii = ascii;
     }

@@ -26,5 +26,8 @@ public interface TimingCollector {
      */
     void collect(long elapsedNs, StatementContext ctx);
 
+    /**
+     * GNDN.
+     */
     TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
 }

@@ -15,10 +15,14 @@ package org.jdbi.v3.postgres;
 
 import java.sql.Types;
 import java.util.UUID;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
+/**
+ * Bind UUID arguments as an Object.
+ */
 public class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
     public UUIDArgumentFactory() {
         super(Types.OTHER);

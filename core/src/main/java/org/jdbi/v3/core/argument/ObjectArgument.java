@@ -27,6 +27,12 @@ public class ObjectArgument implements Argument
     private final Object value;
     private final Integer sqlType;
 
+    /**
+     * Bind a vendor-supported object with the given SQL type
+     * @param value the value to call @link {@link PreparedStatement#setObject(int, Object)} with
+     * @param sqlType the type to bind
+     * @see java.sql.Types
+     */
     public ObjectArgument(Object value, Integer sqlType) {
         this.sqlType = sqlType;
         this.value = value;

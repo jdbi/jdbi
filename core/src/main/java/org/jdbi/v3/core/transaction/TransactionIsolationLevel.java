@@ -15,6 +15,9 @@ package org.jdbi.v3.core.transaction;
 
 import java.sql.Connection;
 
+/**
+ * Supported transaction isolation levels.
+ */
 public enum TransactionIsolationLevel
 {
     NONE(Connection.TRANSACTION_NONE),

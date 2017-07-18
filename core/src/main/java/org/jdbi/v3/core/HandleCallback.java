@@ -14,13 +14,15 @@
 package org.jdbi.v3.core;
 
 /**
- * Callback for use with {@link Jdbi#withHandle(HandleCallback)}
+ * Callback that accepts a Handle that remains open for the duration
+ * of the callback invocation.  The Handle is not guaranteed to remain
+ * valid past the return from the callback.
  */
 @FunctionalInterface
 public interface HandleCallback<T, X extends Exception>
 {
     /**
-     * Will be invoked with an open Handle. The handle will be closed when this callback returns.
+     * Will be invoked with an open Handle. The handle may be closed when this callback returns.
      *
      * @param handle Handle to be used only within scope of this callback
      * @return The return value of the callback

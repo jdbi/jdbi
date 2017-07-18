@@ -25,12 +25,20 @@ import java.util.Optional;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
+/**
+ * Inspect a {@link java.beans} style object and bind parameters
+ * based on each of its discovered properties.
+ */
 public class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final String prefix;
     private final Object bean;
     private BeanInfo info;
 
+    /**
+     * @param prefix an optional prefix (we insert a '.' as a separator)
+     * @param bean the bean to inspect and bind
+     */
     public BeanPropertyArguments(String prefix, Object bean)
     {
         this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";

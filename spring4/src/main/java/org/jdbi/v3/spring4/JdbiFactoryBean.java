@@ -85,6 +85,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * the {@link Jdbi} will obtain connections
      *
      * @param dataSource the data source.
+     * @return this
      */
     public JdbiFactoryBean setDataSource(DataSource dataSource)
     {

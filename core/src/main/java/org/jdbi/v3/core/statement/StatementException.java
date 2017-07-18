@@ -15,6 +15,9 @@ package org.jdbi.v3.core.statement;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Superclass for exceptions thrown while trying to execute a statement.
+ */
 public abstract class StatementException extends JdbiException
 {
     private static final long serialVersionUID = 1L;

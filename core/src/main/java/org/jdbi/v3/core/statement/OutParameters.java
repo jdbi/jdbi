@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents output from a Call (CallableStatement)
+ * Represents output from a Call (CallableStatement).
  * @see Call
  */
 public class OutParameters

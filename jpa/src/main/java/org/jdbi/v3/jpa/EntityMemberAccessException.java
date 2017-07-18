@@ -15,6 +15,9 @@ package org.jdbi.v3.jpa;
 
 import org.jdbi.v3.core.JdbiException;
 
+/**
+ * Thrown when a JPA getter or setter fails.
+ */
 public class EntityMemberAccessException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
