@@ -285,6 +285,10 @@ public class StatementContext implements Closeable
         return renderedSql;
     }
 
+    void setParsedSql(String parsedSql) {
+        this.parsedSql = parsedSql;
+    }
+
     /**
      * Obtain the parsed SQL statement
      * <p>
@@ -292,14 +296,6 @@ public class StatementContext implements Closeable
      * </p>
      *
      * @return the sql statement as it will be executed against the database
-     */
-    void setParsedSql(String parsedSql) {
-        this.parsedSql = parsedSql;
-    }
-
-    /**
-     * Obtain the
-     * @return
      */
     public String getParsedSql() {
         return parsedSql;

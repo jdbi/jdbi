@@ -27,6 +27,12 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
+/**
+ * Template engine which replaces angle-bracketed tokens like
+ * <code>&lt;name&gt;</code> with the string value of the named attribute.
+ * Attribute names may contain letters (a-z, A-Z), digits (0-9), or underscores
+ * (<code>_</code>).
+ */
 public class DefinedAttributeTemplateEngine implements TemplateEngine {
     @Override
     public String render(String template, StatementContext ctx) {

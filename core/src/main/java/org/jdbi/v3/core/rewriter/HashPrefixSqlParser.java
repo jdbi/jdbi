@@ -44,11 +44,11 @@ public class HashPrefixSqlParser implements SqlParser {
         try {
             return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e);
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
     }
 
-    ParsedSql internalParse(final String sql) {
+    private ParsedSql internalParse(final String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();

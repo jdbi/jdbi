@@ -40,11 +40,11 @@ public class ColonPrefixSqlParser implements SqlParser {
         try {
             return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e);
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
     }
 
-    ParsedSql internalParse(String sql) throws IllegalArgumentException {
+    private ParsedSql internalParse(String sql) throws IllegalArgumentException {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();

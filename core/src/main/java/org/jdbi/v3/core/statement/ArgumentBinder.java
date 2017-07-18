@@ -21,12 +21,10 @@ import org.jdbi.v3.core.rewriter.ParsedParameters;
 
 class ArgumentBinder {
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {
-        List<String> parameterNames = parameters.getParameterNames();
-
         if (parameters.isPositional()) {
-            bindPositional(parameterNames.size(), binding, statement, context);
+            bindPositional(parameters.getParameterCount(), binding, statement, context);
         } else {
-            bindNamed(parameterNames, binding, statement, context);
+            bindNamed(parameters.getParameterNames(), binding, statement, context);
         }
     }
 
