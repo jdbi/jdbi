@@ -11,9 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.COMMENT;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.EOF;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.ESCAPED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.NAMED_PARAM;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.POSITIONAL_PARAM;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,18 +28,13 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 
 /**
  * SQL parser which recognizes named parameter tokens of the form
- * <code>:tokenName</code>
- * <p>
- * This is the default SQL parser
- * </p>
+ * <code>#tokenName</code>.
  */
-public class ColonPrefixSqlParser implements SqlParser {
+public class HashPrefixSqlParser implements SqlParser {
     private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     @Override
@@ -44,9 +46,9 @@ public class ColonPrefixSqlParser implements SqlParser {
         }
     }
 
-    private ParsedSql internalParse(String sql) throws IllegalArgumentException {
+    private ParsedSql internalParse(final String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
-        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
+        HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
             switch (t.getType()) {

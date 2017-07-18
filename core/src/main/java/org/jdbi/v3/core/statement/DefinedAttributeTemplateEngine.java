@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.COMMENT;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.DEFINE;
@@ -23,9 +23,7 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * Template engine which replaces angle-bracketed tokens like

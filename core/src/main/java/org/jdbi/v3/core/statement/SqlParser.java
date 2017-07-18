@@ -11,9 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
-
-import org.jdbi.v3.core.statement.StatementContext;
+package org.jdbi.v3.core.statement;
 
 /**
  * Parses the named parameters out of an SQL statement, and returns the

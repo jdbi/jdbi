@@ -17,10 +17,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.rewriter.ColonPrefixSqlParser;
-import org.jdbi.v3.core.rewriter.DefinedAttributeTemplateEngine;
-import org.jdbi.v3.core.rewriter.SqlParser;
-import org.jdbi.v3.core.rewriter.TemplateEngine;
 
 /**
  * Configuration holder for {@link SqlStatement}s.

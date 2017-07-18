@@ -20,9 +20,9 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.rewriter.ColonPrefixSqlParser;
-import org.jdbi.v3.core.rewriter.ParsedSql;
-import org.jdbi.v3.core.rewriter.SqlParser;
+import org.jdbi.v3.core.statement.ColonPrefixSqlParser;
+import org.jdbi.v3.core.statement.ParsedSql;
+import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;

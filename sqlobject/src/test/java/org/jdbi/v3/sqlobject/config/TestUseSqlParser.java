@@ -17,8 +17,8 @@ package org.jdbi.v3.sqlobject.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.rewriter.ColonPrefixSqlParser;
-import org.jdbi.v3.core.rewriter.HashPrefixSqlParser;
+import org.jdbi.v3.core.statement.ColonPrefixSqlParser;
+import org.jdbi.v3.core.statement.HashPrefixSqlParser;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;

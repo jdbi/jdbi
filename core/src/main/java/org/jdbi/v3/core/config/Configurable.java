@@ -16,7 +16,7 @@ package org.jdbi.v3.core.config;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.rewriter.SqlParser;
+import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
@@ -34,7 +34,7 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.rewriter.TemplateEngine;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.SqlStatements;
 
 /**

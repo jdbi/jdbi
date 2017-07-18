@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rewriter;
+package org.jdbi.v3.core.statement;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 
 /**
  * The SQL and parameters parsed from an SQL statement.

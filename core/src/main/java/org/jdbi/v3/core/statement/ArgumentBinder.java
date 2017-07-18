@@ -17,7 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.rewriter.ParsedParameters;
 
 class ArgumentBinder {
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {

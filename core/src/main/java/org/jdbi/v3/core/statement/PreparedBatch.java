@@ -30,8 +30,6 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rewriter.ParsedParameters;
-import org.jdbi.v3.core.rewriter.ParsedSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rewriter.SqlParser;
+import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;

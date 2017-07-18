@@ -46,8 +46,6 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.rewriter.ParsedParameters;
-import org.jdbi.v3.core.rewriter.ParsedSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.rewriter.TemplateEngine;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.internal.UseTemplateEngineImpl;
 
 /**
