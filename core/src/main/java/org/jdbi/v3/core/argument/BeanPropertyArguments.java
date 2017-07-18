@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.statement.StatementContext;
@@ -72,7 +73,19 @@ public class BeanPropertyArguments implements NamedArgumentFinder
 
                     try
                     {
-                        return ctx.findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean));
+                        Type propertyType = getter.getGenericReturnType();
+                        Object propertyValue = getter.invoke(bean);
+                        Optional<Argument> argument = ctx.findArgumentFor(propertyType, propertyValue);
+
+                        if (!argument.isPresent()) {
+                            throw new UnableToCreateStatementException(
+                                    String.format("No argument factory registered for type [%s] for bean property [%s] on [%s]",
+                                            propertyType,
+                                            propertyName,
+                                            bean), ctx);
+                        }
+
+                        return argument;
                     }
                     catch (IllegalAccessException e)
                     {
