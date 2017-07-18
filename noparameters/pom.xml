@@ -31,6 +31,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <no_parameter_names>true</no_parameter_names>
     </properties>
 
     <dependencies>

@@ -80,6 +80,29 @@
 
     <profiles>
       <profile>
+        <id>compile-with-parameter-names</id>
+        <activation>
+          <property>
+            <name>!no_parameter_names</name>
+          </property>
+        </activation>
+        <build>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                  <compilerArgs>
+                    <arg>-parameters</arg>
+                  </compilerArgs>
+                </configuration>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
+      </profile>
+      <profile>
         <id>toolchains</id>
         <build>
          <pluginManagement>
