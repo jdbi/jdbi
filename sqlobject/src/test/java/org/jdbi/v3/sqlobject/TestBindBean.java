@@ -84,7 +84,11 @@ public class TestBindBean {
 
         assertThatThrownBy(() -> handle.attach(BeanDao.class).insert(new Bean(1, ValueType.valueOf("foo"))))
                 .hasMessageContaining("No argument factory registered");
+    }
 
+    @Test
+    public void testArgumentFactoryRegisteredForProperty() {
+        handle.execute("create table beans (id integer, value_type varchar)");
         handle.registerArgument(new ValueTypeArgumentFactory());
 
         BeanDao dao = handle.attach(BeanDao.class);

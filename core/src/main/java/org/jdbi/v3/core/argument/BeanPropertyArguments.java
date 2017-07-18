@@ -75,14 +75,17 @@ public class BeanPropertyArguments implements NamedArgumentFinder
                     {
                         Type propertyType = getter.getGenericReturnType();
                         Object propertyValue = getter.invoke(bean);
-                        Argument argument = ctx.findArgumentFor(propertyType, propertyValue)
-                                .orElseThrow(() -> new UnableToCreateStatementException(
-                                        String.format("No argument factory registered for type [%s] for bean property [%s] on [%s]",
-                                                propertyType,
-                                                propertyName,
-                                                bean), ctx));
+                        Optional<Argument> argument = ctx.findArgumentFor(propertyType, propertyValue);
 
-                        return Optional.of(argument);
+                        if (!argument.isPresent()) {
+                            throw new UnableToCreateStatementException(
+                                    String.format("No argument factory registered for type [%s] for bean property [%s] on [%s]",
+                                            propertyType,
+                                            propertyName,
+                                            bean), ctx);
+                        }
+
+                        return argument;
                     }
                     catch (IllegalAccessException e)
                     {
