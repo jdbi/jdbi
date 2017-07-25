@@ -12,8 +12,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
-
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.Handle
@@ -34,7 +32,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 /**
  * Temporary extension function for [Jdbi.withHandle].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -49,7 +47,7 @@ inline fun <R> Jdbi.withHandleUnchecked(crossinline block: (Handle) -> R): R {
 /**
  * Temporary extension function for [Jdbi.useHandle].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -64,7 +62,7 @@ inline fun Jdbi.useHandleUnchecked(crossinline block: (Handle) -> Unit) {
 /**
  * Temporary extension function for [Jdbi.inTransaction].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -79,7 +77,7 @@ inline fun <R> Jdbi.inTransactionUnchecked(crossinline block: (Handle) -> R): R 
 /**
  * Temporary extension function for [Jdbi.useTransaction].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -94,7 +92,7 @@ inline fun Jdbi.useTransactionUnchecked(crossinline block: (Handle) -> Unit) {
 /**
  * Temporary extension function for [Jdbi.inTransaction].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -109,7 +107,7 @@ inline fun <R> Jdbi.inTransactionUnchecked(level: TransactionIsolationLevel, cro
 /**
  * Temporary extension function for [Jdbi.useTransaction].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -124,7 +122,7 @@ inline fun Jdbi.useTransactionUnchecked(level: TransactionIsolationLevel, crossi
 /**
  * Temporary extension function for [Jdbi.withExtension].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
@@ -139,7 +137,7 @@ inline fun <E, R> Jdbi.withExtensionUnchecked(extensionType: Class<E>, crossinli
 /**
  * Temporary extension function for [Jdbi.useExtension].
  *
- * This function WILL be deprecated when not needed anymore.
+ * This function WILL be deprecated and removed when not needed anymore.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
