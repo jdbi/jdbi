@@ -96,6 +96,10 @@
 
       <dependency>
           <groupId>org.jdbi</groupId>
+          <artifactId>jdbi3-kotlin</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.jdbi</groupId>
           <artifactId>jdbi3-kotlin-sqlobject</artifactId>
       </dependency>
 
@@ -225,6 +229,29 @@
                         <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-kotlin-apidocs</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../kotlin/target/dokka</directory>
+                                </resource>
+                                <resource>
+                                    <directory>../kotlin-sqlobject/target/dokka</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

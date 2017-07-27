@@ -1789,6 +1789,11 @@ Honestly though.. just tear off the bandage and switch to Jdbi proper.
 link:http://kotlinlang.org/[Kotlin^] support is provided by *jdbi3-kotlin* and
 *jdbi3-kotlin-sqlobject* modules.
 
+Kotlin API documentation:
+
+* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
+* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
+
 ==== ResultSet mapping
 
 The *jdbi3-kotlin* plugin adds ResultSet mapping to Kotlin data classes. It
@@ -2369,7 +2374,9 @@ TODO:
 
 === API Reference
 
-link:apidocs/index.html[Javadoc^]
+* link:apidocs/index.html[Javadoc^]
+* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
+* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
 
 === Related Projects
 

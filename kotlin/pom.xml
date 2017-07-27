@@ -144,6 +144,7 @@
                         <phase>package</phase>
                         <goals>
                             <goal>javadocJar</goal>
+                            <goal>dokka</goal>
                         </goals>
                     </execution>
                 </executions>
