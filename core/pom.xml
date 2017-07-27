@@ -21,7 +21,7 @@
         <version>3.0.0-beta3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3</artifactId>
+    <artifactId>jdbi3-core</artifactId>
     <name>jdbi Core</name>
     <packaging>jar</packaging>
     <description>

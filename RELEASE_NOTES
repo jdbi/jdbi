@@ -1,3 +1,11 @@
+3.0.0-beta3 (in development)
+  - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack
+    of support for exception transparency: withHandleUnchecked,
+    useHandleUnchecked, inTransactionUnchecked, useTransactionUnchecked,
+    withExtensionUnchecked, useExtensionUnchecked.
+  - Renamed org.jdbi:jdbi3 artifact to org.jdbi:jdbi3-core, for consistency with
+    other modules.
+
 3.0.0-beta2
   - [breaking] Removed Handle.update() and Handle.insert(), in favor of
     Handle.execute(), which does the same thing. Handle.execute() now returns

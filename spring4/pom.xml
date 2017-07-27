@@ -40,7 +40,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3</artifactId>
+            <artifactId>jdbi3-core</artifactId>
         </dependency>
 
         <dependency>
