@@ -65,10 +65,12 @@ public class TestReturningMap {
         @SqlUpdate("insert into config (key, value) values (:key, :value)")
         void insert(String key, String value);
 
+        // tag::keyValue[]
         @SqlQuery("select key, value from config")
         @KeyColumn("key")
         @ValueColumn("value")
         Map<String, String> getAll();
+        // end::keyValue[]
     }
 
     @Test
@@ -97,10 +99,12 @@ public class TestReturningMap {
         @SqlBatch("insert into user (id, name) values (:id, :name)")
         void insert(@BindBean User... users);
 
+        // tag::uniqueIndex[]
         @SqlQuery("select * from user")
         @KeyColumn("id")
         @RegisterConstructorMapper(User.class)
         Map<Integer, User> getAll();
+        // end::uniqueIndex[]
     }
 
     @Test
@@ -158,17 +162,21 @@ public class TestReturningMap {
         @SqlBatch("insert into phone (id, user_id, phone) values (:id, :userId, :phone)")
         void insertPhone(int userId, @BindBean Phone... phones);
 
+        // tag::joinRow[]
         @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id")
         @RegisterConstructorMapper(value = User.class, prefix = "u")
         @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Map<User, Phone> getMap();
+        // end::joinRow[]
 
+        // tag::joinRowMultimap[]
         @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id")
         @RegisterConstructorMapper(value = User.class, prefix = "u")
         @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Multimap<User, Phone> getMultimap();
+        // end::joinRowMultimap[]
 
     }
 

@@ -15,6 +15,7 @@
 :projecthome: https://github.com/jdbi/jdbi
 :exampledir: ../test/java/jdbi/doc
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
+:guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
 
 ////
@@ -706,12 +707,75 @@ TODO:
 
 ===== Map.Entry mapping
 
-TODO:
+Out of the box, Jdbi registers a `RowMapper<Map.Entry<K,V>>`. Since each row in
+the result set is a `Map.Entry<K,V>`, the entire result set can be easily
+collected into a `Map<K,V>` (or Guava's `Multimap<K,V>`).
 
-* Demonstrate collectInfo(new GenericType<Map<Key,Value>>(){})
-* Key and value are row types (e.g. one-to-many entities)
-* Key is a column, value is a row type (e.g. index by id)
-* Key is a column, value is a column (e.g. accessing a config table)
+NOTE: A mapper must be registered for both the key and value type.
+
+Join rows can be gathered into a map result by specifying the generic map
+signature:
+
+[source,java,indent=0]
+----
+include::{coreexampledir}/MapEntryMapperTest.java[tags=joinRow]
+----
+
+In the preceding example, the `User` mapper uses a "u" column name prefix, and
+the `Phone` mapper uses "p". Since each mapper only reads columns with the
+expected prefix, the respective `id` columns are unambiguous.
+
+A unique index (e.g. by ID column) can be obtained by setting the key column
+name:
+
+[source,java,indent=0]
+----
+include::{coreexampledir}/MapEntryMapperTest.java[tags=uniqueIndex]
+----
+
+Set both the key and value column names to gather a two-column query into a map
+result:
+
+[source,java,indent=0]
+----
+include::{coreexampledir}/MapEntryMapperTest.java[tags=keyValue]
+----
+
+All the above examples assume a one-to-one key/value relationship. What if
+there is a one-to-many relationship?
+
+Google Guava provides a `Multimap` type, which supports mapping multiple
+values per key.
+
+First, follow the instructions in the <<Google Guava>> section to install
+`GuavaPlugin` into Jdbi.
+
+Then, simply ask for a `Multimap` instead of a `Map`:
+
+[source,java,indent=0]
+----
+include::{guavaexampledir}/MultimapEntryMapperTest.java[tags=joinRow]
+----
+
+The `collectInto()` method is worth explaining. When you call it, several things
+happen behind the scenes:
+
+* Consult the `JdbiCollectors` registry to obtain a
+  link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] which
+  supports the given container type.
+* Next, ask that `CollectorFactory` to extract the element type from the
+  container type signature. In the above example, the element type of
+  `Multimap<User,Phone>` is `Map.Entry<User,Phone>`.
+* Obtain a mapper for that element type from the mapping registry.
+* Obtain a link:{jdkdocs}/java/util/stream/Collector.html[Collector^] for the
+  container type from the `CollectorFactory`.
+* Finally, return `map(elementMapper).collect(collector)`.
+
+NOTE: If the lookup for the collector factory, element type, or element mapper
+fails, an exception is thrown.
+
+Jdbi can be enhanced to support arbitrary container types. See
+<<JdbiCollector>> for more information.
 
 === SQL Arrays
 
@@ -1424,11 +1488,62 @@ TODO: provide examples
 * Return type is Map<String,Object>, but we're selecting an hstore column from
   a single row.
 
+===== Map<K,V> Results
+
+SQL Object methods may return `Map<K,V>` types (see <<Map.Entry mapping>> in
+the Core API). In this scenario, each row is mapped to a `Map.Entry<K,V>`,
+and the entries for each row are collected into a single `Map` instance.
+
+NOTE: A mapper must be registered for both the key and value types.
+
+Gather master/detail join rows into a map, simply by registering mappers
+for the key and value types.
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRow]
+----
+
+In the preceding example, the `User` mapper uses a "u" column name prefix, and
+the `Phone` mapper uses "p". Since each mapper only reads the column with the
+expected prefix, the respective `id` columns are unambigous.
+
+A unique index (e.g. by ID column) can be obtains by setting the key column
+name:
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestReturningMap.java[tags=uniqueIndex]
+----
+
+Set both the key and value column names to gather a two-column query into a map
+result:
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestReturningMap.java[tags=keyValue]
+----
+
+All of the above examples assume a one-to-one key/value relationship.
+
+What if there is a one-to-many relationship? Google Guava provides a `Multimap`
+type, which supports mapping multiple values per key.
+
+First, follow the instructions in the <<Google Guava>> section to install
+`GuavaPlugin`.
+
+Then, simply specify a `Multimap` return type instead of `Map`:
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRowMultimap]
+----
+
 ==== @SqlUpdate
 
 TODO:
 
-* By default supports voice, int/long (update count), or boolean (update count
+* By default supports void, int/long (update count), or boolean (update count
   > 0) return types
 * Or use @GetGeneratedKeys annotation to return generated keys. e.g. return an
   id column value obtained from a sequence.
@@ -2162,7 +2277,7 @@ TODO:
 JdbiPlugin may be used to perform bulk configuration
 TODO
 
-=== JdbiCollectors registry
+=== JdbiCollector
 
 TODO:
 

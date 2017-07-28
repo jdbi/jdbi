@@ -11,9 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.guava;
 
-import java.util.Map;
+import static org.assertj.guava.api.Assertions.assertThat;
+
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.Objects;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
@@ -23,12 +26,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-
-public class MapEntryMapperTest {
+public class MultimapEntryMapperTest {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new GuavaPlugin());
 
     private Handle h;
 
@@ -42,43 +42,47 @@ public class MapEntryMapperTest {
         h.execute("create table config (key varchar, value varchar)");
         h.prepareBatch("insert into config (key, value) values (?, ?)")
                 .add("foo", "123")
+                .add("foo", "456")
                 .add("bar", "xyz")
                 .execute();
 
         // tag::keyValue[]
-        Map<String, String> map = h.createQuery("select key, value from config")
+        Multimap<String, String> map = h.createQuery("select key, value from config")
                 .setMapKeyColumn("key")
                 .setMapValueColumn("value")
-                .collectInto(new GenericType<Map<String, String>>() {});
+                .collectInto(new GenericType<Multimap<String, String>>() {});
         // end::keyValue[]
 
-        assertThat(map).containsOnly(
-                entry("foo", "123"),
-                entry("bar", "xyz"));
+        Multimap<String, String> expected = ImmutableListMultimap.<String, String>builder()
+                .putAll("foo", "123", "456")
+                .put("bar", "xyz")
+                .build();
+        assertThat(map).isEqualTo(expected);
     }
 
     @Test
-    public void uniqueIndex() {
-        h.execute("create table user (id int, name varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
-                .add(1, "alice")
-                .add(2, "bob")
-                .add(3, "cathy")
-                .add(4, "dilbert")
+    public void index() {
+        h.execute("create table user (id int, manager_id int, name varchar)");
+        h.prepareBatch("insert into user (id, manager_id, name) values (?, ?, ?)")
+                .add(1, 0, "alice")
+                .add(2, 1, "bob")
+                .add(3, 1, "cathy")
+                .add(4, 3, "dilbert")
                 .execute();
 
-        // tag::uniqueIndex[]
-        Map<Integer, User> map = h.createQuery("select * from user")
-                .setMapKeyColumn("id")
+        // tag::index[]
+        Multimap<Integer, User> map = h.createQuery("select id, manager_id, name from user")
+                .setMapKeyColumn("manager_id")
                 .registerRowMapper(ConstructorMapper.factory(User.class))
-                .collectInto(new GenericType<Map<Integer, User>>() {});
-        // end::uniqueIndex[]
+                .collectInto(new GenericType<Multimap<Integer, User>>() {});
+        // end::index[]
 
-        assertThat(map).containsOnly(
-                entry(1, new User(1, "alice")),
-                entry(2, new User(2, "bob")),
-                entry(3, new User(3, "cathy")),
-                entry(4, new User(4, "dilbert")));
+        Multimap<Integer, User> expected = ImmutableListMultimap.<Integer, User>builder()
+                .put(0, new User(1, "alice"))
+                .putAll(1, new User(2, "bob"), new User(3, "cathy"))
+                .put(3, new User(4, "dilbert"))
+                .build();
+        assertThat(map).isEqualTo(expected);
     }
 
     @Test
@@ -88,27 +92,27 @@ public class MapEntryMapperTest {
         h.prepareBatch("insert into user (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
-                .add(3, "cathy")
                 .execute();
         h.prepareBatch("insert into phone (id, user_id, phone) values (?, ?, ?)")
                 .add(10, 1, "555-0001")
-                .add(20, 2, "555-0002")
-                .add(30, 3, "555-0003")
+                .add(11, 1, "555-0002")
+                .add(20, 2, "555-0003")
                 .execute();
 
         // tag::joinRow[]
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id";
-        Map<User, Phone> map = h.createQuery(sql)
+        Multimap<User, Phone> map = h.createQuery(sql)
                 .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
                 .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
-                .collectInto(new GenericType<Map<User, Phone>>() {});
+                .collectInto(new GenericType<Multimap<User, Phone>>() {});
         // end::joinRow[]
 
-        assertThat(map).containsOnly(
-                entry(new User(1, "alice"), new Phone(10, "555-0001")),
-                entry(new User(2, "bob"),   new Phone(20, "555-0002")),
-                entry(new User(3, "cathy"), new Phone(30, "555-0003")));
+        Multimap<User, Phone> expected = ImmutableListMultimap.<User, Phone>builder()
+                .putAll(new User(1, "alice"), new Phone(10, "555-0001"), new Phone(11, "555-0002"))
+                .put(new User(2, "bob"), new Phone(20, "555-0003"))
+                .build();
+        assertThat(map).isEqualTo(expected);
     }
 
     public static class User {
