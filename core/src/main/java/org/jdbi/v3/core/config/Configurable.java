@@ -15,9 +15,6 @@ package org.jdbi.v3.core.config;
 
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
-
-import org.jdbi.v3.core.statement.SqlParser;
-import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -31,11 +28,14 @@ import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.core.statement.TimingCollector;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -134,6 +134,26 @@ public interface Configurable<This> {
      */
     default This setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy strategy) {
         return configure(SqlArrayTypes.class, c -> c.setArgumentStrategy(strategy));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(MapEntryMappers.class).setKeyColumn(keyColumn)}
+     *
+     * @param keyColumn the key column name
+     * @return this
+     */
+    default This setMapKeyColumn(String keyColumn) {
+        return configure(MapEntryMappers.class, c -> c.setKeyColumn(keyColumn));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(MapEntryMappers.class).setValueColumn(valueColumn)}
+     *
+     * @param valueColumn the value column name
+     * @return this
+     */
+    default This setMapValueColumn(String valueColumn) {
+        return configure(MapEntryMappers.class, c -> c.setValueColumn(valueColumn));
     }
 
     /**

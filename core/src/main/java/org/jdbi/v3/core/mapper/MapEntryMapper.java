@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static java.util.Objects.requireNonNull;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 
