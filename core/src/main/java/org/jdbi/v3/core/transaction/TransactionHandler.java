@@ -22,7 +22,7 @@ import org.jdbi.v3.core.HandleCallback;
  * opened from that <code>Jdbi</code> will use the handler specified.
  *
  * <p>
- * The default implementation, <code>ConnectionTransactionHandler</code>, explicitly manages
+ * The default implementation, {@link LocalTransactionHandler}, explicitly manages
  * the transactions on the underlying JDBC <code>Connection</code>.
  * </p>
  */
