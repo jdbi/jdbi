@@ -62,6 +62,7 @@
         <project.build.targetJdk>1.8</project.build.targetJdk>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <basepom.maven.version>3.2.5</basepom.maven.version>
+        <findbugs.version>3.0.1</findbugs.version>
 
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
@@ -335,8 +336,18 @@
 
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>3.0.1</version>
+                <artifactId>findbugs-annotations</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
             </dependency>
 
             <dependency>
