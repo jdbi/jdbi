@@ -23,7 +23,6 @@
 
     <artifactId>jdbi3-sqlobject</artifactId>
     <name>jdbi3 SqlObject</name>
-    <packaging>jar</packaging>
     <description>
         jdbi SqlObject transforms simple annotated interfaces into
         full-featured DAO implementations.
