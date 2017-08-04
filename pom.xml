@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <name>jdbi Parent</name>
+    <name>jdbi3 Parent</name>
     <version>3.0.0-beta3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>

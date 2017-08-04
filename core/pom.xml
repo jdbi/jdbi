@@ -22,8 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-core</artifactId>
-    <name>jdbi Core</name>
-    <packaging>jar</packaging>
+    <name>jdbi3 Core</name>
     <description>
         jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query

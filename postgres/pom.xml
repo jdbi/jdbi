@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-postgres</artifactId>
-    <name>jdbi Postgres</name>
+    <name>jdbi3 Postgres</name>
     <description>
         jdbi PostgreSQL specific features
     </description>
