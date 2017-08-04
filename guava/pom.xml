@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-guava</artifactId>
-    <name>jdbi Guava Integration</name>
+    <name>jdbi3 Guava Integration</name>
 
     <dependencies>
         <dependency>

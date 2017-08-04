@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-spring4</artifactId>
-    <name>jdbi Spring</name>
+    <name>jdbi3 Spring</name>
     <packaging>jar</packaging>
     <description>
         jdbi Spring integration

@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-sqlobject</artifactId>
-    <name>jdbi SqlObject</name>
+    <name>jdbi3 SqlObject</name>
     <packaging>jar</packaging>
     <description>
         jdbi SqlObject transforms simple annotated interfaces into

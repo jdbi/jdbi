@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-docs</artifactId>
-    <name>jdbi documentation</name>
+    <name>jdbi3 documentation</name>
 
     <description>
         Build and deploy jdbi docs, written in AsciiDoc.

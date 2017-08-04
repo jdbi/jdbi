@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-kotlin-sqlobject</artifactId>
-    <name>jdbi SqlObject Kotlin plugin</name>
+    <name>jdbi3 SqlObject Kotlin plugin</name>
 
     <developers>
         <developer>
