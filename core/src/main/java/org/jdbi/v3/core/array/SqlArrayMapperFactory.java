@@ -14,20 +14,9 @@
 package org.jdbi.v3.core.array;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Supplier;
 
+import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -35,32 +24,13 @@ import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 
 /**
- * Built in {@link ColumnMapper}s for {@link List}, {@link Set}, and common subclasses
- * like:
- * <ul>
- * <li> {@code ArrayList} </li>
- * <li> {@code LinkedList} </li>
- * <li> {@code CopyOnWriteArrayList} </li>
- * <li> {@code HashSet} </li>
- * <li> {@code LinkedHashSet} </li>
- * <li> {@code TreeSet} </li>
- * </ul>
+ * Maps SQL array columns into Java arrays or other Java container types.
+ * Supports any Java array type for which a {@link ColumnMapper} is registered
+ * for the array element type. Supports any other container type for which a
+ * {@link org.jdbi.v3.core.collector.CollectorFactory} is registered, and for which
+ * a {@link ColumnMapper} is registered for the container element type.
  */
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, Supplier<Collection<?>>> suppliers = new HashMap<>();
-
-    public SqlArrayMapperFactory() {
-        suppliers.put(List.class, ArrayList::new);
-        suppliers.put(ArrayList.class, ArrayList::new);
-        suppliers.put(LinkedList.class, LinkedList::new);
-        suppliers.put(CopyOnWriteArrayList.class, CopyOnWriteArrayList::new);
-
-        suppliers.put(Set.class, HashSet::new);
-        suppliers.put(HashSet.class, HashSet::new);
-        suppliers.put(LinkedHashSet.class, LinkedHashSet::new);
-        suppliers.put(TreeSet.class, TreeSet::new);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
@@ -72,14 +42,11 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
                     .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
-        Supplier<Collection<?>> supplier = suppliers.get(erasedType);
-        if (supplier != null) {
-            return GenericTypes.findGenericParameter(type, Collection.class)
-                    .flatMap(elementType -> elementTypeMapper(elementType, config))
-                    .map(elementMapper -> new CollectionColumnMapper(elementMapper, supplier));
-        }
-
-        return Optional.empty();
+        JdbiCollectors collectorRegistry = config.get(JdbiCollectors.class);
+        return collectorRegistry.findFor(type)
+                .flatMap(collector -> collectorRegistry.findElementTypeFor(type)
+                        .flatMap(elementType -> elementTypeMapper(elementType, config))
+                        .map(elementMapper -> new CollectorColumnMapper(elementMapper, collector)));
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
