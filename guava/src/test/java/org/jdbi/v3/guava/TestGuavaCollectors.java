@@ -68,8 +68,7 @@ public class TestGuavaCollectors {
     @Test
     public void immutableList() {
         ImmutableList<Integer> list = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .mapTo(int.class)
-                .collect(ImmutableList.toImmutableList());
+                .collectInto(new GenericType<ImmutableList<Integer>>(){});
 
         assertThat(list).containsOnlyElementsOf(expected);
     }
@@ -77,8 +76,7 @@ public class TestGuavaCollectors {
     @Test
     public void immutableSet() {
         ImmutableSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .mapTo(int.class)
-                .collect(ImmutableSet.toImmutableSet());
+                .collectInto(new GenericType<ImmutableSet<Integer>>(){});
 
         assertThat(set).containsOnlyElementsOf(expected);
     }
@@ -86,8 +84,7 @@ public class TestGuavaCollectors {
     @Test
     public void immutableSortedSet() {
         ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .mapTo(int.class)
-                .collect(ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()));
+                .collectInto(new GenericType<ImmutableSortedSet<Integer>>(){});
 
         assertThat(set).containsExactlyElementsOf(expected);
     }
@@ -107,24 +104,21 @@ public class TestGuavaCollectors {
     @Test
     public void optionalPresent() {
         Optional<Integer> shouldBePresent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 1")
-                .mapTo(int.class)
-                .collect(GuavaCollectors.toOptional());
+                .collectInto(new GenericType<Optional<Integer>>(){});
         assertThat(shouldBePresent).contains(1);
     }
 
     @Test
     public void optionalAbsent() {
         Optional<Integer> shouldBeAbsent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 100")
-                .mapTo(int.class)
-                .collect(GuavaCollectors.toOptional());
+                .collectInto(new GenericType<Optional<Integer>>(){});
         assertThat(shouldBeAbsent).isAbsent();
     }
 
     @Test(expected = IllegalStateException.class)
     public void optionalMultiple() {
         dbRule.getSharedHandle().createQuery("select intValue from something")
-                .mapTo(int.class)
-                .collect(GuavaCollectors.toOptional());
+                .collectInto(new GenericType<Optional<Integer>>(){});
     }
 
     @Test
