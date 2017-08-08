@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.spring4;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
+    private boolean installPluginsFromClasspath = false;
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
 
     public JdbiFactoryBean() {
@@ -51,13 +53,17 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     @Override
     public Jdbi getObject() throws Exception
     {
-        final Jdbi db = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
+        final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
-        plugins.forEach(db::installPlugin);
+        if (installPluginsFromClasspath) {
+            jdbi.installPlugins();
+        }
 
-        globalDefines.forEach(db::define);
+        plugins.forEach(jdbi::installPlugin);
 
-        return db;
+        globalDefines.forEach(jdbi::define);
+
+        return jdbi;
     }
 
     /**
@@ -93,10 +99,29 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
         return this;
     }
 
+    /**
+     * Installs the given plugins which will be installed into the {@link Jdbi}.
+     * @param plugins collection of Jdbi plugins to install.
+     * @return this
+     */
     @Autowired(required=false)
     public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins)
     {
-        this.plugins = plugins;
+        this.plugins = new ArrayList<>(plugins);
+        return this;
+    }
+
+    /**
+     * Sets whether to install plugins automatically from the classpath, using
+     * {@link java.util.ServiceLoader} manifests.
+     *
+     * @param installPlugins whether to install plugins automatically from the
+     *                       classpath.
+     * @return this
+     * @see Jdbi#installPlugins() for detail
+     */
+    public JdbiFactoryBean setInstallPlugins(boolean installPlugins) {
+        this.installPluginsFromClasspath = installPlugins;
         return this;
     }
 

@@ -30,6 +30,17 @@
 
     <bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
         <property name="dataSource" ref="db"/>
+        <property name="installPlugins" value="true"/>
+        <property name="plugins">
+            <list>
+                <bean class="org.jdbi.v3.spring4.ManualPlugin"/>
+            </list>
+        </property>
+        <property name="globalDefines">
+            <map>
+                <entry key="foo" value="bar"/>
+            </map>
+        </property>
     </bean>
 
     <!--suppress SpringBeanConstructorArgInspection -->

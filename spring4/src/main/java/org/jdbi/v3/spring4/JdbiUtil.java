@@ -31,18 +31,18 @@ public class JdbiUtil
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,
      * or a new one otherwise.
-     * @param db the Jdbi instance from which to obtain the handle
+     * @param jdbi the Jdbi instance from which to obtain the handle
      *
      * @return the Handle instance
      */
-    public static Handle getHandle(Jdbi db)
+    public static Handle getHandle(Jdbi jdbi)
     {
-        Handle bound = (Handle) TransactionSynchronizationManager.getResource(db);
+        Handle bound = (Handle) TransactionSynchronizationManager.getResource(jdbi);
         if (bound == null) {
-            bound = db.open();
+            bound = jdbi.open();
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
-                TransactionSynchronizationManager.bindResource(db, bound);
-                TransactionSynchronizationManager.registerSynchronization(new Adapter(db, bound));
+                TransactionSynchronizationManager.bindResource(jdbi, bound);
+                TransactionSynchronizationManager.registerSynchronization(new Adapter(jdbi, bound));
                 TRANSACTIONAL_HANDLES.add(bound);
             }
         }
@@ -51,13 +51,13 @@ public class JdbiUtil
 
     /**
      * Close a handle if it is not transactionally bound, otherwise no-op
-     * @param h the handle to consider closing
+     * @param handle the handle to consider closing
      */
-    public static void closeIfNeeded(Handle h)
+    public static void closeIfNeeded(Handle handle)
     {
-        if (!TRANSACTIONAL_HANDLES.contains(h))
+        if (!TRANSACTIONAL_HANDLES.contains(handle))
         {
-            h.close();
+            handle.close();
         }
     }
 

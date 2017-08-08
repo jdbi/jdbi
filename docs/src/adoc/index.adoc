@@ -2072,9 +2072,114 @@ To use this module, add a Maven dependency:
 </dependency>
 ----
 
-Then configure the Jdbi factory bean in your Spring container:
+Then configure the Jdbi factory bean in your Spring container, e.g.:
 
-TODO: usage example
+[source,xml]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+  <!--1-->
+  <bean id="derby"
+    class="org.apache.derby.jdbc.EmbeddedDataSource"
+    destroy-method="close">
+    <property name="databaseName" value="testing"/>
+  </bean>
+
+  <!--2-->
+  <bean id="transactionManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="derby"/>
+  </bean>
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+
+  <!--3-->
+  <bean id="jdbi"
+    class="org.jdbi.v3.spring4.JdbiFactoryBean">
+    <property name="dataSource" ref="derby"/>
+  </bean>
+
+  <!--4-->
+  <bean id="service"
+    class="com.example.service.MyService">
+    <constructor-arg ref="jdbi"/>
+  </bean>
+</beans>
+----
+
+<1> The SQL data source that Jdbi will connect to. In this example we use a
+    Derby database, but it can be any JDBC-compatible database.
+<2> Enable configuration of transactions via annotations.
+<3> Configure `JdbiFactoryBean` using the data source configured earlier.
+<4> Inject `Jdbi` into a service class. Alternatively, use standard JSR-330
+    `@Inject` annotations on the target class instead of configuring it in
+    your `beans.xml`.
+
+==== Installing plugins
+
+Plugins may be automatically installed by scanning the classpath for
+link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
+
+[source,xml]
+----
+<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+  ...
+  <property name="installPlugins" value="true"/>
+</bean>
+----
+
+Plugins may also be installed explicitly:
+
+[source,xml]
+----
+<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+  ...
+  <property name="plugins">
+    <list>
+      <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
+      <bean class="org.jdbi.v3.guava.GuavaPlugin"/>
+    </list>
+  </property>
+</bean>
+----
+
+Not all plugins are automatically installable. In these situations, you can
+auto-install some plugins and manually install the rest:
+
+[source,xml]
+----
+<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+  ...
+  <property name="installPlugins" value="true"/>
+  <property name="plugins">
+    <list>
+      <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
+    </list>
+  </property>
+</bean>
+----
+
+==== Global Attributes
+
+Global defined attributes may be configured on the factory bean:
+
+[source,xml]
+----
+<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+  <property name="dataSource" ref="db"/>
+  <property name="globalDefines">
+    <map>
+      <entry key="foo" value="bar"/>
+    </map>
+  </property>
+</bean>
+----
 
 === StringTemplate 4
 
