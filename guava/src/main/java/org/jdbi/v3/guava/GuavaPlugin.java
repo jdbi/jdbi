@@ -24,6 +24,5 @@ public class GuavaPlugin implements JdbiPlugin {
     public void customizeJdbi(Jdbi db) {
         db.registerArgument(GuavaArguments.factory());
         db.registerCollector(GuavaCollectors.factory());
-        db.registerColumnMapper(GuavaMappers.columnFactory());
     }
 }

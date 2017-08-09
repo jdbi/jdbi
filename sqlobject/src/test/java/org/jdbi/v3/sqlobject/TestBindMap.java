@@ -32,7 +32,6 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -102,7 +101,6 @@ public class TestBindMap {
     }
 
     @Test
-    @Ignore("Pending fix for https://github.com/jdbi/jdbi/issues/500")
     public void testBindMap_KeyNotInMapOrKeys() throws Exception {
         handle.execute("insert into something(id, name) values (3, 'Carol')");
         exception.expect(UnableToExecuteStatementException.class);

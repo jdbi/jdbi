@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
@@ -52,8 +54,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * <li>java.util.List&lt;T&gt;</li>
  * <li>java.util.ArrayList&lt;T&gt;</li>
  * <li>java.util.LinkedList&lt;T&gt;</li>
+ * <li>java.util.concurrent.CopyOnWriteArrayList&lt;T&gt;</li>
  * <li>java.util.Set&lt;T&gt;</li>
  * <li>java.util.HashSet&lt;T&gt;</li>
+ * <li>java.util.LinkedHashSet&lt;T&gt;</li>
  * <li>java.util.SortedSet&lt;T&gt;</li>
  * <li>java.util.TreeSet&lt;T&gt;</li>
  * </ul>
@@ -64,8 +68,8 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * <li>java.util.LinkedHashMap&lt;K, V&gt;</li>
  * <li>java.util.SortedMap&lt;K, V&gt;</li>
  * <li>java.util.TreeMap&lt;K, V&gt;</li>
- * <li>java.util.ConcurrentMap&lt;K, V&gt;</li>
- * <li>java.util.ConcurrentHashMap&lt;K, V&gt;</li>
+ * <li>java.util.concurrent.ConcurrentMap&lt;K, V&gt;</li>
+ * <li>java.util.concurrent.ConcurrentHashMap&lt;K, V&gt;</li>
  * <li>java.util.WeakHashMap&lt;K, V&gt;</li>
  * </ul>
  */
@@ -81,9 +85,11 @@ public class BuiltInCollectorFactory implements CollectorFactory {
         collectors.put(List.class, toList());
         collectors.put(ArrayList.class, toCollection(ArrayList::new));
         collectors.put(LinkedList.class, toCollection(LinkedList::new));
+        collectors.put(CopyOnWriteArrayList.class, toCollection(CopyOnWriteArrayList::new));
 
         collectors.put(Set.class, toSet());
         collectors.put(HashSet.class, toCollection(HashSet::new));
+        collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
         collectors.put(SortedSet.class, toCollection(TreeSet::new));
         collectors.put(TreeSet.class, toCollection(TreeSet::new));
 

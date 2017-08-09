@@ -13,26 +13,27 @@
  */
 package org.jdbi.v3.core.array;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
-class CollectionColumnMapper<T, C extends Collection<T>> implements ColumnMapper<C> {
+class CollectorColumnMapper<T, A, R> implements ColumnMapper<R> {
     private final ColumnMapper<T> elementMapper;
-    private final Supplier<C> collectionSupplier;
+    private final Collector<T, A, R> collector;
 
-    CollectionColumnMapper(ColumnMapper<T> elementMapper,
-                           Supplier<C> collectionSupplier) {
+    CollectorColumnMapper(ColumnMapper<T> elementMapper,
+                          Collector<T, A, R> collector) {
         this.elementMapper = elementMapper;
-        this.collectionSupplier = collectionSupplier;
+        this.collector = collector;
     }
 
     @Override
-    public C map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    public R map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         java.sql.Array array = r.getArray(columnNumber);
 
         if (array == null) {
@@ -47,15 +48,16 @@ class CollectionColumnMapper<T, C extends Collection<T>> implements ColumnMapper
         }
     }
 
-    private C buildFromResultSet(java.sql.Array array, StatementContext ctx) throws SQLException {
-        C result = collectionSupplier.get();
+    private R buildFromResultSet(Array array, StatementContext ctx) throws SQLException {
+        A result = collector.supplier().get();
+        BiConsumer<A, T> accumulator = collector.accumulator();
 
         try (ResultSet rs = array.getResultSet()) {
             while (rs.next()) {
-                result.add(elementMapper.map(rs, 2, ctx));
+                accumulator.accept(result, elementMapper.map(rs, 2, ctx));
             }
         }
 
-        return result;
+        return collector.finisher().apply(result);
     }
 }

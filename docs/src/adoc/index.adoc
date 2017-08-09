@@ -1826,7 +1826,13 @@ Then install the plugin into your `Jdbi` instance:
 jdbi.installPlugin(new GuavaPlugin());
 ----
 
-TODO: usage examples
+With the plugin installed, any supported Guava collection type can
+be returned from a SQL object method:
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestGuavaCollectors.java[tags=returnTypes]
+----
 
 === H2 Database
 
