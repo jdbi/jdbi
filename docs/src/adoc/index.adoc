@@ -2086,23 +2086,21 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
   <!--1-->
-  <bean id="derby"
-    class="org.apache.derby.jdbc.EmbeddedDataSource"
-    destroy-method="close">
-    <property name="databaseName" value="testing"/>
+  <bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="url" value="jdbc:h2:mem:testing"/>
   </bean>
 
   <!--2-->
   <bean id="transactionManager"
     class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <property name="dataSource" ref="derby"/>
+    <property name="dataSource" ref="db"/>
   </bean>
   <tx:annotation-driven transaction-manager="transactionManager"/>
 
   <!--3-->
   <bean id="jdbi"
     class="org.jdbi.v3.spring4.JdbiFactoryBean">
-    <property name="dataSource" ref="derby"/>
+    <property name="dataSource" ref="db"/>
   </bean>
 
   <!--4-->
@@ -2113,8 +2111,8 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 </beans>
 ----
 
-<1> The SQL data source that Jdbi will connect to. In this example we use a
-    Derby database, but it can be any JDBC-compatible database.
+<1> The SQL data source that Jdbi will connect to. In this example we use an H2
+    database, but it can be any JDBC-compatible database.
 <2> Enable configuration of transactions via annotations.
 <3> Configure `JdbiFactoryBean` using the data source configured earlier.
 <4> Inject `Jdbi` into a service class. Alternatively, use standard JSR-330
