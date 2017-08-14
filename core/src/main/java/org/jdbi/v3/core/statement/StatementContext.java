@@ -66,8 +66,8 @@ public class StatementContext implements Closeable
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
     private String            rawSql;
-    private String renderedSql;
-    private String            parsedSql;
+    private String            renderedSql;
+    private ParsedSql         parsedSql;
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding = new Binding();
@@ -285,7 +285,7 @@ public class StatementContext implements Closeable
         return renderedSql;
     }
 
-    void setParsedSql(String parsedSql) {
+    void setParsedSql(ParsedSql parsedSql) {
         this.parsedSql = parsedSql;
     }
 
@@ -297,7 +297,7 @@ public class StatementContext implements Closeable
      *
      * @return the sql statement as it will be executed against the database
      */
-    public String getParsedSql() {
+    public ParsedSql getParsedSql() {
         return parsedSql;
     }
 
