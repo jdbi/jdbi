@@ -152,7 +152,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 .parse(renderedSql, getContext());
         String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
-        getContext().setParsedSql(sql);
+        getContext().setParsedSql(parsedSql);
 
         try {
             final PreparedStatement stmt;

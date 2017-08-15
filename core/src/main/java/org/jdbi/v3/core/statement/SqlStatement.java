@@ -1369,7 +1369,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 .parse(renderedSql, getContext());
         String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
-        getContext().setParsedSql(sql);
+        getContext().setParsedSql(parsedSql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {

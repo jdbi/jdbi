@@ -22,6 +22,7 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.ParsedSql;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,7 +67,7 @@ public class TestTimingCollector
 
         assertThat(tc.getRawStatements()).containsExactly(statement);
         assertThat(tc.getRenderedStatements()).containsExactly(statement);
-        assertThat(tc.getParsedStatements()).containsExactly(statement);
+        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(statement);
     }
 
     @Test
@@ -91,7 +92,7 @@ public class TestTimingCollector
 
         assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
         assertThat(tc.getRenderedStatements()).containsExactly(stmt1, stmt2, stmt3);
-        assertThat(tc.getParsedStatements()).containsExactly(
+        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
                 stmt1,
                 "update something set name = ? where id = ?",
                 "select * from something where id = ?");
@@ -112,7 +113,7 @@ public class TestTimingCollector
 
         assertThat(tc.getRawStatements()).containsExactly(insert, select);
         assertThat(tc.getRenderedStatements()).containsExactly(insert, select);
-        assertThat(tc.getParsedStatements()).containsExactly(
+        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
                 "insert into something (id, name) values (?, ?)",
                 select);
     }
@@ -121,7 +122,7 @@ public class TestTimingCollector
     {
         private final List<String> rawStatements = new ArrayList<>();
         private final List<String> renderedStatements = new ArrayList<>();
-        private final List<String> parsedStatements = new ArrayList<>();
+        private final List<ParsedSql> parsedStatements = new ArrayList<>();
 
         @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
@@ -140,7 +141,7 @@ public class TestTimingCollector
             return renderedStatements;
         }
 
-        public synchronized List<String> getParsedStatements()
+        public synchronized List<ParsedSql> getParsedStatements()
         {
             return parsedStatements;
         }
