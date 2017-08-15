@@ -5,6 +5,7 @@
     withExtensionUnchecked, useExtensionUnchecked.
   - Renamed org.jdbi:jdbi3 artifact to org.jdbi:jdbi3-core, for consistency with
     other modules.
+  - [breaking] StatementContext.getParsedSql() now returns a ParsedSql instead of String
 
 3.0.0-beta2
   - [breaking] Removed Handle.update() and Handle.insert(), in favor of
