@@ -37,7 +37,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
-    private boolean installPluginsFromClasspath = false;
+    private boolean autoInstallPlugins = false;
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
 
     public JdbiFactoryBean() {
@@ -55,7 +55,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     {
         final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
-        if (installPluginsFromClasspath) {
+        if (autoInstallPlugins) {
             jdbi.installPlugins();
         }
 
@@ -115,13 +115,13 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * Sets whether to install plugins automatically from the classpath, using
      * {@link java.util.ServiceLoader} manifests.
      *
-     * @param installPlugins whether to install plugins automatically from the
-     *                       classpath.
+     * @param autoInstallPlugins whether to install plugins automatically from
+     *                           the classpath.
      * @return this
      * @see Jdbi#installPlugins() for detail
      */
-    public JdbiFactoryBean setInstallPlugins(boolean installPlugins) {
-        this.installPluginsFromClasspath = installPlugins;
+    public JdbiFactoryBean setAutoInstallPlugins(boolean autoInstallPlugins) {
+        this.autoInstallPlugins = autoInstallPlugins;
         return this;
     }
 

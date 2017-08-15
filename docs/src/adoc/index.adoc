@@ -2128,7 +2128,7 @@ link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
   ...
-  <property name="installPlugins" value="true"/>
+  <property name="autoInstallPlugins" value="true"/>
 </bean>
 ----
 
@@ -2154,7 +2154,7 @@ auto-install some plugins and manually install the rest:
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
   ...
-  <property name="installPlugins" value="true"/>
+  <property name="autoInstallPlugins" value="true"/>
   <property name="plugins">
     <list>
       <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
