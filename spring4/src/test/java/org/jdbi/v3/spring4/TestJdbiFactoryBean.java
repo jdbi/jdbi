@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class TestJdbiFactoryBean {
 
     private Service service;
     private DataSource ds;
+    private Jdbi jdbi;
 
     @Autowired
     public void setService(Service service)
@@ -46,6 +48,11 @@ public class TestJdbiFactoryBean {
     public void setDataSource(DataSource ds)
     {
         this.ds = ds;
+    }
+
+    @Autowired
+    public void setJdbi(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
 
     @Test
@@ -74,6 +81,24 @@ public class TestJdbiFactoryBean {
             int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
             assertThat(count).isEqualTo(0);
         }
+    }
+
+    @Test
+    public void testAutoInstalledPlugin() throws Exception {
+        assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(AutoPlugin.KEY))
+                .isEqualTo(AutoPlugin.VALUE);
+    }
+
+    @Test
+    public void testManualInstalledPlugin() throws Exception {
+        assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(ManualPlugin.KEY))
+                .isEqualTo(ManualPlugin.VALUE);
+    }
+
+    @Test
+    public void testGlobalDefinedAttribute() throws Exception {
+        assertThat(jdbi.getConfig(SqlStatements.class).getAttribute("foo"))
+                .isEqualTo("bar"); // see test-context.xml
     }
 
     @Test
