@@ -59,7 +59,7 @@ public class DefaultStatementBuilder implements StatementBuilder
             return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
         }
         else {
-            return conn.prepareStatement(sql);
+            return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         }
     }
 

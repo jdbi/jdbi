@@ -15,7 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import static org.jdbi.v3.core.result.ResultProducers.returningResults;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -100,28 +99,6 @@ public class Query extends SqlStatement<Query> implements ResultBearing
     public Query setMaxFieldSize(final int maxFields)
     {
         return addCustomizer(StatementCustomizers.maxFieldSize(maxFields));
-    }
-
-    /**
-     * Specify that the fetch order should be reversed, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
-    public Query fetchReverse()
-    {
-        return setFetchDirection(ResultSet.FETCH_REVERSE);
-    }
-
-    /**
-     * Specify that the fetch order should be forward, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
-    public Query fetchForward()
-    {
-        return setFetchDirection(ResultSet.FETCH_FORWARD);
     }
 
     /**
