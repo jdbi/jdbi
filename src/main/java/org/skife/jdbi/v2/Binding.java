@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents the arguments bound to a particular statement
@@ -120,5 +121,41 @@ public class Binding
         positionals.clear();
         named.clear();
         namedArgumentFinder.clear();
+    }
+
+    /**
+     * @return true if there are no bindings yet
+     */
+    public boolean isEmpty()
+    {
+        return positionals.isEmpty() && named.isEmpty() && namedArgumentFinder.isEmpty();
+    }
+
+    /**
+     * @return the number of positional arguments
+     */
+    public int sizePositional() {
+        return positionals.size();
+    }
+
+    /**
+     * @return the indexes of the positional arguments
+     */
+    public Set<Integer> getPositionalIndexes() {
+        return positionals.keySet();
+    }
+
+    /**
+     * @return the number of named arguments
+     */
+    public int sizeNamed() {
+        return named.size();
+    }
+
+    /**
+     * @return the names of the named arguments
+     */
+    public Set<String> getNamedKeys() {
+        return named.keySet();
     }
 }
