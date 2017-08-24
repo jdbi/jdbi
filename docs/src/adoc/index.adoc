@@ -2472,7 +2472,7 @@ TODO:
 
 === TemplateEngine
 
-Jdbi uses a link:{jdbidocs}/core/rewriter/TemplateEngine.html[TemplateEngine^]
+Jdbi uses a link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^]
 implementation to render templates into SQL. Template engines take a SQL
 template string and the `StatementContext` as input, and produce a parseable
 SQL string as output.
@@ -2519,7 +2519,7 @@ which renders templates using the StringTemplate library. See
 === SqlParser
 
 After the SQL template has been rendered, Jdbi uses a
-link:{jdbidocs}/core/rewriter/SqlParser.html[SqlParser^] to parse out any named
+link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^] to parse out any named
 parameters from the SQL statement. This Produces a `ParsedSql` object, which
 contains all the information Jdbi needs to bind parameters and execute your SQL
 statement.
