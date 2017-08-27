@@ -1797,6 +1797,110 @@ There is a performance penalty every time a connection is allocated and
 released. If you need to make successive calls to a SQL Object, consider using
 one of the above options for better performance, instead of on-demand.
 
+=== Configuring Annotations
+
+As with Core, we often need to apply configuration to a SQL method or an entire
+SQL object. For this we use Configuring Annotations--i.e. annotations that
+apply some configuration.
+
+Jdbi provides many configuring annotations out of the box:
+
+* The
+  link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
+  package contains the most commonly used annotations, including those for registering
+  mappers and arguments, and for configuring SQL statement rendering and parsing.
+* The
+  link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.v3.sqlobject.locator^]
+  package contains annotations which configure Jdbi to load the SQL statement for a
+  SQL method from some alternate source, e.g. a file on the classpath.
+* The
+  link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.v3.stringtemplate4^]
+  package contains annotations to configure Jdbi to load SQL from StringTemplate 4
+  `.stg` files on the classpath, and/or to parse SQL templates using the
+  ST4 template engine.
+
+You can also create your own configuring annotations. Let's look at an example
+from Jdbi to see how it's done.
+
+First, create an annotation that you want to attach configuration to:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME) // <1>
+@Target({ElementType.TYPE, ElementType.METHOD}) // <2>
+public @interface UseTemplateEngine {
+  Class<? extends TemplateEngine> value();
+}
+----
+<1> All configuring annotations should have a `RUNTIME` retention policy.
+<2> Configuring annotations may target types, methods, or both.
+
+TIP: Strictly speaking, the `@Target` annotation is not required, but it's a
+good practice to include it, so that annotations can only be applied where they
+will actually do something.
+
+Next, we write an implementation of the
+link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] class, to process
+the annotation and apply the configuration:
+
+[source,java]
+----
+public class UseTemplateEngineImpl implements Configurer {
+  @Override
+  public void configureForMethod(ConfigRegistry registry,
+                                 Annotation annotation,
+                                 Class<?> sqlObjectType,
+                                 Method method) {
+    configure(registry, (UseTemplateEngine) annotation);
+  }
+
+  @Override
+  public void configureForType(ConfigRegistry registry,
+                               Annotation annotation,
+                               Class<?> sqlObjectType) {
+    configure(registry, (UseTemplateEngine) annotation);
+  }
+
+  private void configure(ConfigRegistry registry,
+                         UseTemplateEngine annotation) {
+    try {
+      TemplateEngine templateEngine = annotation.value().getConstructor().newInstance();
+      registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
+    }
+    catch (NoSuchMethodException e) {
+      throw new RuntimeException("Cannot construct " + anno.value(), e);
+    }
+  }
+}
+----
+
+In this example, we're applying the same configuration, whether the
+`@UseTemplateEngine` annotation is used on the SQL object type or method.
+However, configurers are free to apply different configuration as appropriate
+at the type and method level.
+
+For configuring annotations with only one target, (e.g. `@KeyColumn` and
+`@ValueColumn` may only be applied to methods), you need only implement
+the `Configurer` method appropriate for the annotation target.
+
+Finally, add the
+link:{jdbidocs}/sqlobject/config/ConfiguringAnnotation.html[@ConfiguringAnnotation^]
+annotation to our configuring annotation (yo dawg), to tell Jdbi which
+`Configurer` to use for this annotation:
+
+[source,java]
+----
+@ConfiguringAnnotation(UseTemplateEngineImpl.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface UseTemplateEngine {
+    Class<? extends TemplateEngine> value();
+}
+----
+
+=== Customizing Annotations
+
+
 == Third-Party Integration
 
 === Google Guava
