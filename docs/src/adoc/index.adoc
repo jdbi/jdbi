@@ -1,7 +1,7 @@
 = Jdbi 3 Developer Guide
 :doctype: book
 :toc: left
-:toclevels: 2
+:toclevels: 3
 :sectanchors:
 :sectlinks:
 :sectnums:
@@ -1833,7 +1833,8 @@ public @interface UseTemplateEngine {
 }
 ----
 <1> All configuring annotations should have a `RUNTIME` retention policy.
-<2> Configuring annotations may target types, methods, or both.
+<2> Configuring annotations may target types, methods, or both. Typically,
+placing an annotation on the type means "apply this annotation to each method."
 
 TIP: Strictly speaking, the `@Target` annotation is not required, but it's a
 good practice to include it, so that annotations can only be applied where they
@@ -1876,8 +1877,8 @@ public class UseTemplateEngineImpl implements Configurer {
 
 In this example, we're applying the same configuration, whether the
 `@UseTemplateEngine` annotation is used on the SQL object type or method.
-However, configurers are free to apply different configuration as appropriate
-at the type and method level.
+However, configurers are free to apply different configurations depending on
+whether the annotation was placed on the type or the method.
 
 For configuring annotations with only one target, (e.g. `@KeyColumn` and
 `@ValueColumn` may only be applied to methods), you need only implement
@@ -1885,8 +1886,9 @@ the `Configurer` method appropriate for the annotation target.
 
 Finally, add the
 link:{jdbidocs}/sqlobject/config/ConfiguringAnnotation.html[@ConfiguringAnnotation^]
-annotation to our configuring annotation (yo dawg), to tell Jdbi which
-`Configurer` to use for this annotation:
+annotation to your configuring annotation (yo dawg), to tell Jdbi that
+`UseTemplateEngineImpl` is responsible for implementing the behavior of
+`@UseTemplateEngine`.
 
 [source,java]
 ----
@@ -1898,8 +1900,160 @@ public @interface UseTemplateEngine {
 }
 ----
 
+Your annotation is now ready to use in any SQL object:
+
+[source,java]
+----
+public interface DynamicDao {
+  @UseTemplateEngine(StringTemplateEngine.class)
+  @SqlQuery("select <columns; separator=\", \"> from <table>")
+  public <T> List<T> list(@MapTo Class<T> type,
+                          @Define String table,
+                          @Define String... columns);
+}
+----
+
 === Customizing Annotations
 
+Some configurations only make sense to apply to individual SQL statements, like
+parameter bindings, cursor direction, or result fetch size. For these
+situations, Jdbi provides several annotations:
+
+* The
+  link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
+  package contains the most commonly used customizing annotations, including
+  those for binding parameters, defining attributes, and controlling the fetch
+  behavior of the statement's result set.
+* The
+  link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.v3.sqlobject.statement^]
+  package contains the `@MapTo` annotation (seen in the previous section). This
+  annotation is used on a method parameter, to dynamically specify the mapped
+  type at the time the method is invoked.
+* The
+  link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
+  package contains the `@TransactionIsolation` annotation, which (predictably)
+  sets the transaction isolation level of the method.
+* The
+  link:{jdbidocs}/jpa/package-summary.html[org.jdbi.v3.jpa^]
+  package contains the `@BindJpa` annotation, for binding properties to column
+  according to JPA `@Column` annotations.
+
+Customizing annotations are applied only after the
+link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] has been
+created.
+
+As with <<Configuring Annotations>>, you can create your own SQL statement
+customizing annotations and attach runtime behavior to them.
+
+First, create an annotation that you want to attach a statement customization
+to:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME) // <1>
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER}) // <2>
+public @interface MaxRows {
+  int value();
+}
+----
+<1> All statement customizing annotations should have a `RUNTIME` retention
+    policy.
+<2> Customizing annotations may target types, methods, parameters, or any
+    combination of them. Placing a customizing annotation on a type typically
+    means "apply this customization to every method." When used on parameters,
+    often the annotation will use the argument passed to the method instead of
+    some value on the annotation.
+
+TIP: Strictly speaking, the `@Target` annotation is not required, but it's a
+good practice to include it, so that annotations can only be applied where they
+will actually do something.
+
+Next, we write an implementation of the
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizerFactory.html[SqlStatementCustomizerFactory^]
+class, to process the annotation and apply the customization to the statement.
+
+Statement customizing annotations are a little bit different from configuring
+annotations. The `SqlStatementCustomizerFactory` produces two different types
+of "statement customizer" command objects:
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
+(for annotations on types or methods), and
+link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
+(for annotations on method parameters).
+
+Let's implement a statement customizer factory for our annotation:
+
+[source,java]
+----
+public class MaxRowsFactory implements SqlStatementCustomizerFactory {
+    @Override
+    public SqlStatementCustomizer createForType(Annotation annotation,
+                                                Class<?> sqlObjectType) {
+        final int maxRows = ((MaxRows)annotation).value(); // <1>
+        return stmt -> ((Query)stmt).setMaxRows(maxRows); // <2>
+    }
+
+    @Override
+    public SqlStatementCustomizer createForMethod(Annotation annotation,
+                                                  Class<?> sqlObjectType,
+                                                  Method method) {
+        return createForType(annotation, sqlObjectType); // <3>
+    }
+
+    @Override
+    public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                              Class<?> sqlObjectType,
+                                                              Method method,
+                                                              Parameter param,
+                                                              int index,
+                                                              Type type) {
+        return (stmt, maxRows) -> ((Query)stmt).setMaxRows((Integer) maxRows); // <4>
+    }
+}
+----
+<1> Extract the max rows from the annotation
+<2> link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
+    can be implemented as a lambda--it receives a
+    link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] as a
+    parameter, calls whatever method it wants on the statement, and returns
+    void.
+<3> Since the customization is the same at the method level as at the type
+    level, we simply delegate to the type-level method for brevity.
+<4> link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
+    can also be implemented as a lambda, but instead it accepts a `SqlStatement`
+    and the value that was passed into the method on the annotated parameter.
+
+Finally, add the
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizingAnnotation.html[@SqlStatementCustomizingAnnotation^]
+annotation the customizing annotation, to tell Jdbi that `MaxRowsFactory` is
+responsible for implementing the behavior of `@MaxRows`:
+
+[source,java]
+----
+@SqlStatementCustomizingAnnotation(MaxRowsFactory.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.PARAMETER})
+public @interface MaxRows {
+    int value() default -1;
+}
+----
+
+Your statement customizing annotation is now ready to use on any SQL object:
+
+[source,java]
+----
+public interface Dao {
+  @SqlQuery("select * from contacts")
+  @MaxRows(100)
+  List<Contact> list();
+
+  @SqlQuery("select * from contacts")
+  List<Contact> list(@MaxRows int maxRows);
+}
+----
+
+TIP: We chose `@MaxRows` as an example here because it was easy to understand.
+In practice, you will likely get better database performance by using a `LIMIT`
+clause in your SQL statement than by using `@MaxRows`.
 
 == Third-Party Integration
 

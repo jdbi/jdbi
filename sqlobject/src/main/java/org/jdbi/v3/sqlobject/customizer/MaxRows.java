@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import org.jdbi.v3.sqlobject.customizer.internal.MaxRowsFactory;
 
 /**
- * Used to specify the maximum numb er of rows to return on a result set. Passes through to
+ * Used to specify the maximum number of rows to return on a result set. Passes through to
  * setMaxRows on the JDBC prepared statement.
  *
  * <b>This is significantly less efficient than a SQL {@code LIMIT}, be careful!</b>
