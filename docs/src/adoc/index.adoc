@@ -78,7 +78,7 @@ include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
 ----
 
 Jdbi has a flexible plugin architecture which makes it easy to fold in support
-for your favorite libraries (Guava, JodaTime, Spring) or database vendor
+for your favorite libraries (Guava, JodaTime, Spring, Vavr) or database vendor
 (H2, Oracle, Postgres).
 
 Jdbi is not an ORM. There is no session cache, change tracking, "open session
@@ -157,6 +157,8 @@ jdbi3-spring4::
     Provides a factory bean to set up Jdbi singleton.
 jdbi3-stringtemplate4::
     Use the StringTemplate4 template engine, instead of JDBI's built in engine.
+jdbi3-vavr::
+    Support for Vavr Tuples, Collections and Value arguments
 
 == Core API
 
@@ -2517,6 +2519,123 @@ public interface AccountDao {
 In this example, the SQL template will still be loaded from the file
 `com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
 template will be used, regardless of the method name.
+
+=== Vavr
+
+The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional library:
+
+* Supports argument resolution of sever Vavr Value types such as
+  `Option<T>`, `Either<L, T>`, `Lazy<T>`, `Try<T>` and `Validation<T>`.
+  Given that for the wrapped type `T` a Mapper is registered.
+* Return Vavr collection types from queries. Supported are `Seq<T>`, `Set<T>`
+  and `Map<T>` as well as all subtypes thereof.
+  It is possible to collect into a `Traversable<T>`, in this case a `List<T>`
+  will be used as default implementation.
+  For interface types a sensible default implementation will be used
+  (e.q. `List<T>` for `Seq<T>`).
+* Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
+  you can map your query results e.g. to `Tuple3<Integer, String, Long>`.
+  If you select more columns than the arity of the projection the columns
+  up to that index will be used.
+
+To use the plugin, add a Maven dependency:
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-vavr</artifactId>
+</dependency>
+----
+
+If you wish to roll your own version of Vavr add an exclusion for io.vavr:vavr.
+Currently Vavr >= 0.9.0 is supported and tested.
+
+As with other plugins: install via `Jdbi` instance or use auto install.
+
+[source,java]
+----
+jdbi.installPlugin(new VavrPlugin());
+----
+
+Here are some usage examples of the features listed above:
+
+[source,java]
+----
+String query = "select * from users where :name is null or name = :name";
+Option<String> param = Option.of("eric");
+
+// will fetch first user with given name or first user without name (Option.none)
+return handle.createQuery(query)
+        .bind("name", param)
+        .mapToBean(User.class)
+        .findFirst();
+----
+
+where `param` may be one of `Option<T>`, `Either<L, T>`, `Lazy<T>`, `Try<T>`
+or `Validation<T>`. Note that in the case of these types, the nested value must
+be 'present' otherwise a `null` value is used (e.g. for `Either.Left` or
+`Validation.Invalid`).
+
+[source,java]
+----
+handle.createQuery("select name from users")
+        .collectInto(new GenericType<Seq<String>>() {});
+----
+
+This works for all the collection types supported. For the nested value
+row and column mappers already installed in *Jdbi* will be used. The plugin
+will obey configured key and value columns for `Map<K, V>` return types.
+
+Last but not least we can now project simple queries to Vavr tuples like that:
+
+[source,java]
+----
+// given a 'tuples' table with t1 int, t2 varchar, t3 varchar, ...
+List<Tuple3<Integer, String, String>> tupleProjection = handle
+        .createQuery("select t1, t2, t3 from tuples")
+        .mapTo(new GenericType<List<Tuple3<Integer, String, String>>>() {})
+        .list();
+----
+
+You can also project complex types into a tuple as long as a row mapper is
+registered.
+
+[source,java]
+----
+// given that there are row mappers registered for both complex types
+Tuple2<City, Address> tupleProjection = handle
+        .createQuery("select cityname, zipcode, street, housenumber from " +
+            "addresses where user_id = 1")
+        .mapTo(new GenericType<Tuple2<City, Address>>() {})
+        .findOnly();
+----
+
+If you want to mix complex types and simple ones we also got you covered.
+Using the `TupleMappers` class you can configure your projections.(In fact,
+you have to - read below!)
+
+[source,java]
+----
+handle.configure(TupleMappers.class, c ->
+        c.setColumn(2, "street").setColumn(3, "housenumber"));
+
+Tuple3<City, String, Integer> result = handle
+        .createQuery("select cityname, zipcode, street, housenumber from " +
+             "addresses where user_id = 1")
+        .mapTo(new GenericType<Tuple3<City, String, Integer>>() {})
+        .findOnly();
+----
+
+Bear in mind:
+
+* The configuration of the columns is 1-based, since they reflect
+  the tuples' values (which you would query by e.g. `._1`).
+* Tuples are always mapped fully column-wise or fully via row mappers.
+  If you want to mix row-mapped types and single-column mappings the
+  `TupleMappers` must be configured properly i.e. all non row-mapped
+  tuple indices must be provided with a column configuration!
+
 
 == Advanced Topics
 
