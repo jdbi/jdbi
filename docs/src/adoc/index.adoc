@@ -885,7 +885,21 @@ TODO: example
 *R<T>*. The *java.util.stream.Collectors* class has a number of interesting
 *Collector*s to start with.
 
-TODO: example
+You can also write your own custom collectors.  For example, to accumulate
+found rows into a *Map*:
+
+[source,java]
+----
+h.execute("insert into something (id, name) values (1, 'Alice'), (2, 'Bob'), (3, 'Chuckles')");
+Map<Integer, Something> users = h.createQuery("select id, name from something")
+    .mapTo(Something.class)
+    .collect(Collector.of(HashMap::new, (accum, item) -> {
+        accum.put(item.getId(), item);   // Each entry is added into an accumulator map
+    }, (l, r) -> {
+        l.putAll(r);                     // While jdbi does not process rows in parallel,
+        return l;                        // the Collector contract encourages writing combiners.
+    }, Characteristics.IDENTITY_FINISH));
+----
 
 ===== Reduction
 
