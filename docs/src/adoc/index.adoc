@@ -1336,6 +1336,19 @@ Jdbi provides one SQL locator class in the core library: `ClasspathSqlLocator`.
 
 TODO: usage example
 
+=== StatementContext
+
+The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
+is a carrier for various state related to the creation and execution of statements
+that is not appropriate to hold on the *Query* or other particular statement class
+itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
+and accumulated bindings.  It is exposed to implementations of most user extension points,
+for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+
+The *StatementContext* itself is not intended to be extended and generally extensions
+should not need to mutate the context.  Please read the JavaDoc for more information
+on advanced usage.
+
 == SQL Objects
 
 SQL Objects are a declarative-style alternative to the fluent-style Core API.
