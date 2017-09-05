@@ -83,20 +83,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Set the fetch direction.
-     * @param value the direction to fetch
-     * @return this
-     * @see PreparedStatement#setFetchDirection(int)
-     * @see java.sql.ResultSet#FETCH_FORWARD
-     * @see java.sql.ResultSet#FETCH_REVERSE
-     */
-    public This setFetchDirection(final int value)
-    {
-        addCustomizer(StatementCustomizers.fetchDirection(value));
-        return typedThis;
-    }
-
-    /**
      * @return the un-translated SQL used to create this statement
      */
     protected String getSql()

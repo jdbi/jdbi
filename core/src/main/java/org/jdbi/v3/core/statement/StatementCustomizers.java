@@ -24,20 +24,6 @@ public final class StatementCustomizers
     private StatementCustomizers() { }
 
     /**
-     * Sets the fetch direction on a query.
-     * @param direction the direction, per {@link java.sql.Statement#setFetchDirection(int)}
-     * @return the customizer
-     */
-    public static StatementCustomizer fetchDirection(final Integer direction) {
-        return new StatementCustomizer() {
-            @Override
-            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
-                stmt.setFetchDirection(direction);
-            }
-        };
-    }
-
-    /**
      * Set a timeout on the statement.
      * @param seconds timeout in seconds
      * @return the customizer

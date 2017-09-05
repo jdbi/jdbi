@@ -14,7 +14,8 @@
 package org.jdbi.v3.core.transaction;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
@@ -45,7 +47,7 @@ public class TestTransactionsAutoCommit
         Handle h = Jdbi.create(() -> connection).open();
 
         when(connection.getAutoCommit()).thenReturn(true);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        when(connection.prepareStatement(anyString(), anyInt(), anyInt())).thenReturn(statement);
         when(statement.execute()).thenReturn(true);
         when(statement.getUpdateCount()).thenReturn(1);
         // throw e.g some underlying database error
@@ -67,7 +69,7 @@ public class TestTransactionsAutoCommit
         inOrder.verify(connection).setAutoCommit(false);
 
         // 3. execute statement (without commit)
-        inOrder.verify(connection).prepareStatement("insert into something (id, name) values (?, ?)");
+        inOrder.verify(connection).prepareStatement("insert into something (id, name) values (?, ?)", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         inOrder.verify(statement).execute();
         inOrder.verify(statement).getUpdateCount();
 
