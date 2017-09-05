@@ -2360,29 +2360,40 @@ methods are just creating and binding custom implementations of
 
 === JdbiConfig
 
-TODO:
+Configuration is managed by the
+link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry]
+class.  Each Jdbi object that represents a distinct database context
+(for example, *Jdbi* itself, a *Handle* instance, or an attached SqlObject
+class) gets its own configuration registry.  Most contexts implement the
+link:{jdbidocs}/core/config/Configurable.html[Configurable] interface which
+allows modification of its configuration as well as retrieving the current
+context's configuration for use by Jdbi core or extensions.
 
-* ConfigRegistry is a registry of `JdbiConfig` implementations.
-* Usage:
-** ConfigRegistry.get(Class<T extends JdbiConfig>)
-** Configurable.getConfig(Class<T extends JdbiConfig>)
-** Configurable.configure(Class<T extends JdbiConfig>, Consumer<T>)
-* The `registerXyz` methods everywhere are part of the `Configurable`
-  interface, and are actually being handled under the hood by `ConfigRegistry`.
-* Jdbi, Handle, SQL objects, and SQL statements (updates, queries, etc) all
-  hold a ConfigRegistry.
-* Inheritance of configuration at time of instantiation:
-** When Jdbi creates a Handle, the handle gets a copy of the Jdbi's config
-   registry state.
-** When Jdbi creates an on-demand extension object (i.e. a SQL object), the
-   extension gets a copy of the Jdbi's config registry state.
-** When a Handle creates a SQL statement object such as a Query or Update, that
-   SQL statement gets a copy of the Handle's config registry state.
-** When a Handle creates an attached extension object (i.e. a SQL object), that
-   extension gets a copy of the Handle's config registry state.
-* When a Jdbi create an on-demand SQL object, the SQL object receives a
-  configuration at the moment it was created. The same applies when Handle
-  creates a SQL statement, or attaches a SQL Object.
+When a new configurable context is created, it inherits a copy of its parent
+configuration at the time of creation - further modifications tothe original will
+not affect already created configuration contexts.  Configuration context
+copies happen when producing a Handle from Jdbi, when opening a *SqlStatement*
+from the Handle, and when attaching or creating an on-demand extension such as
+*SqlObject*.
+
+The configuration itself is stored in various implementations of the
+link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig] interface.
+Each implementation must adhere to the contract of the interface; in particular
+it must have a public no-argument constructor that provides useful defaults 
+and a *createCopy* method that is invoked when a configuration registry is cloned.
+
+Generally, configuration should be set on a context before that context is used,
+and not changed later.  Some configuration classes may be thread safe but most are
+not.
+
+Many of Jdbi's core features, for example argument or mapper registries, are simply
+implementations of *JdbiConfig* that store the registered mappings for later use
+during query execution.
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExampleConfig.java[tags=exampleConfig]
+----
 
 ==== Creating a custom JdbiConfig type
 
