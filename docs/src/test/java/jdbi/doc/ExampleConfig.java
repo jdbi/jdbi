@@ -3,7 +3,7 @@ package jdbi.doc;
 import org.jdbi.v3.core.config.JdbiConfig;
 
 // tag::exampleConfig[]
-public class ExampleConfig implements JdbiConfig<ExampleConfig>{
+public class ExampleConfig implements JdbiConfig<ExampleConfig> {
 
     private String color;
     private int number;
