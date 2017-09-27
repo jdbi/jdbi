@@ -21,7 +21,7 @@ import java.sql.Statement;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
-import org.jdbi.v3.core.result.ResultSetMapper;
+import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
@@ -56,8 +56,8 @@ public class Query extends SqlStatement<Query> implements ResultBearing
     }
 
     @Override
-    public <R> R mapResultSet(ResultSetMapper<R> mapper) {
-        return execute(returningResults()).mapResultSet(mapper);
+    public <R> R scanResultSet(ResultSetScanner<R> mapper) {
+        return execute(returningResults()).scanResultSet(mapper);
     }
 
     /**

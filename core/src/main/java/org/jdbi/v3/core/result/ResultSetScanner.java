@@ -20,16 +20,19 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Maps result sets to objects.
+ * Scan over rows of result sets, mapping and collecting the rows to a result type.
+ * Unlike the Row and ColumnMappers, this interface lets you control the ResultSet
+ * scrolling - the implementation should {@link ResultSet#next()} over rows it wants to consider.
  *
- * @param <T> the mapped type
- * @see org.jdbi.v3.core.result.ResultBearing#mapResultSet(ResultSetMapper)
+ * @param <T> the collected result type
+ * @see org.jdbi.v3.core.result.ResultBearing#scanResultSet(ResultSetScanner)
  */
 @FunctionalInterface
-public interface ResultSetMapper<T> {
+public interface ResultSetScanner<T> {
     /**
-     * Maps the lazily-supplied result set into an object. The result set is not opened (and typically, the statement
-     * the result came from is not executed) until {@code resultSetSupplier.get()} is called.
+     * Scans the lazily-supplied result set into a result. The ResultSet is not produced
+     * (and typically, the statement the result came from is not executed) until
+     * {@code resultSetSupplier.get()} is called.
      * <p>
      * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed, to
      * ensure that database resources are freed:
@@ -52,5 +55,5 @@ public interface ResultSetMapper<T> {
      * @return the mapped result
      * @throws SQLException if anything goes wrong
      */
-    T mapResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
+    T scanResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
 }

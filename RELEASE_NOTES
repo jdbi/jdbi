@@ -1,4 +1,7 @@
-3.0.0-beta3 (in development)
+3.0.0-beta4 (in development)
+  - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
+
+3.0.0-beta3
   - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack
     of support for exception transparency: withHandleUnchecked,
     useHandleUnchecked, inTransactionUnchecked, useTransactionUnchecked,

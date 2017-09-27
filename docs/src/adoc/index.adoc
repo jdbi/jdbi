@@ -909,6 +909,19 @@ single remains, and then return that.
 
 TODO: example
 
+===== ResultSetScanner
+
+The *ResultSetScanner* interface accepts a lazily-provided *ResultSet*
+and produces the result Jdbi returns from statement execution.
+
+Most of the above operations are implemented in terms of *ResultSetScanner*.
+The Scanner has ownership of the ResultSet and may advance or seek it.
+
+The return value ends up being the final result of statement execution.
+
+Most users should prefer using the higher level result collectors described above,
+but someone's gotta do the dirty work.
+
 ==== Joins
 
 Joining multiple tables together is a very common database task. It is also

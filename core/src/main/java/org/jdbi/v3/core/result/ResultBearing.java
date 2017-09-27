@@ -48,9 +48,9 @@ public interface ResultBearing {
     static ResultBearing of(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) {
         return new ResultBearing() {
             @Override
-            public <R> R mapResultSet(ResultSetMapper<R> mapper) {
+            public <R> R scanResultSet(ResultSetScanner<R> mapper) {
                 try {
-                    return mapper.mapResultSet(resultSetSupplier, ctx);
+                    return mapper.scanResultSet(resultSetSupplier, ctx);
                 }
                 catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
@@ -65,7 +65,7 @@ public interface ResultBearing {
      * @param <R> result type returned by the mapper.
      * @return the value returned by the mapper.
      */
-    <R> R mapResultSet(ResultSetMapper<R> mapper);
+    <R> R scanResultSet(ResultSetScanner<R> mapper);
 
     /**
      * Maps this result set to a {@link ResultIterable} of the given element type.
@@ -110,7 +110,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default ResultIterable<?> mapTo(Type type) {
-        return mapResultSet((supplier, ctx) -> {
+        return scanResultSet((supplier, ctx) -> {
             RowMapper<?> mapper = ctx.findRowMapperFor(type)
                     .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for type " + type));
             return ResultIterable.of(supplier, mapper, ctx);
@@ -157,7 +157,7 @@ public interface ResultBearing {
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
     default <T> ResultIterable<T> map(RowMapper<T> mapper) {
-        return mapResultSet((supplier, ctx) -> ResultIterable.of(supplier, mapper, ctx));
+        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, mapper, ctx));
     }
 
     /**
@@ -170,7 +170,7 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return mapResultSet((supplier, ctx) -> {
+        return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
                 RowView rv = new RowView(rs, ctx);
                 U result = seed;
@@ -198,7 +198,7 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return mapResultSet((supplier, ctx) -> {
+        return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
                 U result = seed;
                 while (rs.next()) {
@@ -269,7 +269,7 @@ public interface ResultBearing {
      */
     @SuppressWarnings("unchecked")
     default Object collectInto(Type containerType) {
-        return mapResultSet((rs, ctx) -> {
+        return scanResultSet((rs, ctx) -> {
             Collector collector = ctx.findCollectorFor(containerType)
                     .orElseThrow(() -> new NoSuchCollectorException("No collector registered for container type " + containerType));
             Type elementType = ctx.findElementTypeFor(containerType)
