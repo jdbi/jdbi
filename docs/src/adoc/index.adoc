@@ -3110,21 +3110,39 @@ jdbi.setParser(parser);
 
 === TimingCollector
 
-TODO:
+The *TimingCollector* interface is called after executing each statement
+and given the statement context and duration of execution in nanoseconds.
 
-* TimingCollector - use to gather database metrics
+This interface isn't completely thought out yet; the developers welcome
+feedback on how to improve timing collection.
 
 === ResultProducer
 
-TODO:
+A *ResultProducer* takes a lazily supplied *PreparedStatement* and
+produces a result.  The most common producer path, *execute()*,
+retrieves the *ResultSet* over the query results and then uses a
+*ResultSetScanner* or higher level mapper to produce results.
 
-* Given a PreparedStatement supplier, produce a result of some type.
-* ResultProducers factory class has some common examples
-* See also OracleReturning
-* Update.execute(ResultProducer)
-* Query.execute(ResultProducer)
-* PreparedBatch.execute(ResultProducer)
-* Rules about who has to clean up a statement (whoever calls supplier.get())
+An example alternate use is to just return the number of rows modified,
+as in an UPDATE or INSERT statement:
+
+[source,java]
+----
+public static ResultProducer<Integer> returningUpdateCount() {
+    return (statementSupplier, ctx) -> {
+        try {
+            return statementSupplier.get().getUpdateCount();
+        } finally {
+            ctx.close();
+        }
+    };
+}
+----
+
+If you acquire the lazy statement, you are responsible for ensuring
+that the context is closed eventually to release database resources.
+
+Most users will not need to implement the *ResultProducer* interface.
 
 == Appendix
 
