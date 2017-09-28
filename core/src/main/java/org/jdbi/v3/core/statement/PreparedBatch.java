@@ -169,6 +169,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             try {
                 for (Binding binding : bindings) {
+                    getContext().setBinding(binding);
                     ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
                     stmt.addBatch();
                 }

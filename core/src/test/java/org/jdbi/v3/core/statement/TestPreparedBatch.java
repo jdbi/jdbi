@@ -14,27 +14,41 @@
 package org.jdbi.v3.core.statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 public class TestPreparedBatch
 {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
+    private Handle h;
+
+    @Before
+    public void openHandle() {
+        h = dbRule.openHandle();
+    }
+
+    @After
+    public void closeHandle() {
+        h.close();
+    }
+
     @Test
     public void testBindBatch() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -50,7 +64,6 @@ public class TestPreparedBatch
     @Test
     public void testBigishBatch() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -69,7 +82,6 @@ public class TestPreparedBatch
     @Test
     public void testBindProperties() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -86,7 +98,6 @@ public class TestPreparedBatch
     @Test
     public void testBindMaps() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -103,7 +114,6 @@ public class TestPreparedBatch
     @Test
     public void testMixedModeBatch() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -117,7 +127,6 @@ public class TestPreparedBatch
     @Test
     public void testPositionalBinding() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -129,7 +138,6 @@ public class TestPreparedBatch
     @Test
     public void testForgotFinalAdd() throws Exception
     {
-        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -144,5 +152,24 @@ public class TestPreparedBatch
 
         assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
                 .containsExactly("Jeff", "Tom");
+    }
+
+    @Test
+    public void testContextGetsBinding() throws Exception
+    {
+        try {
+            h.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .bind("id", 0)
+                .bind("name", "alice")
+                .add()
+                .bind("id", 0)
+                .bind("name", "bob")
+                .add()
+                .execute();
+            fail("expected exception");
+        } catch (UnableToExecuteStatementException e) {
+            final StatementContext ctx = e.getStatementContext();
+            assertThat(ctx.getBinding().findForName("name", ctx).toString()).contains("bob");
+        }
     }
 }
