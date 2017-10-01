@@ -49,6 +49,7 @@ public class Handle implements Closeable, Configurable<Handle>
 
     private final TransactionHandler transactions;
     private final Connection connection;
+    private final boolean forceEndTransactions;
 
     private ThreadLocal<ConfigRegistry> config;
     private ThreadLocal<ExtensionMethod> extensionMethod;
@@ -66,6 +67,7 @@ public class Handle implements Closeable, Configurable<Handle>
         this.config = ThreadLocal.withInitial(() -> config);
         this.extensionMethod = new ThreadLocal<>();
         this.statementBuilder = statementBuilder;
+        this.forceEndTransactions = !transactions.isInTransaction(this);
     }
 
     @Override
@@ -118,7 +120,7 @@ public class Handle implements Closeable, Configurable<Handle>
     public void close() {
         extensionMethod.remove();
         if (!closed) {
-            boolean wasInTransaction = isInTransaction();
+            boolean wasInTransaction = isInTransaction() && forceEndTransactions;
             if (wasInTransaction) {
                 rollback();
             }
