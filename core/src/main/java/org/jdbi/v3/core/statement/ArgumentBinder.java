@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core.statement;
 
+import org.jdbi.v3.core.argument.Argument;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import org.jdbi.v3.core.argument.Argument;
 
 class ArgumentBinder {
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {
@@ -43,6 +44,11 @@ class ArgumentBinder {
     }
 
     private static void bindNamed(List<String> parameterNames, Binding binding, PreparedStatement statement, StatementContext context) {
+        if (parameterNames.isEmpty() && !binding.isEmpty()) {
+            throw new UnableToExecuteStatementException(
+                    String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding),
+                    context);
+        }
         for (int i = 0; i < parameterNames.size(); i++) {
             String param = parameterNames.get(i);
 
