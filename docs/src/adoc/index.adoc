@@ -1,7 +1,7 @@
 = Jdbi 3 Developer Guide
 :doctype: book
 :toc: left
-:toclevels: 2
+:toclevels: 3
 :sectanchors:
 :sectlinks:
 :sectnums:
@@ -1698,39 +1698,6 @@ If you like StringTemplate, the <<StringTemplate 4>> module also provides a
 SqlLocator, which can load SQL templates from StringTemplate 4 files on the
 classpath.
 
-==== Transactions
-
-You may declare transactions with SqlObject annotations:
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectTransaction]
-----
-
-SQL methods with a `@Transaction` annotation may optionally specify a
-transaction isolation level:
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
-----
-
-If a `@Transaction` method calls another `@Transaction` method, they must
-specify the same isolation level, or the inner method must not specify
-anything, in which case the isolation level of the outer method is used.
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
-----
-
-TODO: Demonstrate Transactional mixin
-
-* Call methods on the mixin to begin, checkpoint, rollback, and commit
-  transactions.
-* Be careful using this mixin with on-demand SQL Objects. Only use
-  inTransaction or useTransaction. None of the others will do what you expect.
-
 === Default Methods
 
 Occasionally a use case comes up where SQL Method annotations don't fit. In
@@ -1778,6 +1745,39 @@ public interface ContactPhoneDao {
   }
 }
 ----
+
+=== Transaction Management
+
+You may declare transactions with SqlObject annotations:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransaction]
+----
+
+SQL methods with a `@Transaction` annotation may optionally specify a
+transaction isolation level:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
+----
+
+If a `@Transaction` method calls another `@Transaction` method, they must
+specify the same isolation level, or the inner method must not specify
+anything, in which case the isolation level of the outer method is used.
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
+----
+
+TODO: Demonstrate Transactional mixin
+
+* Call methods on the mixin to begin, checkpoint, rollback, and commit
+  transactions.
+* Be careful using this mixin with on-demand SQL Objects. Only use
+  inTransaction or useTransaction. None of the others will do what you expect.
 
 === Using SQL Objects
 
@@ -1836,6 +1836,37 @@ long bobId = dao.insertFullContact(bob);
 There is a performance penalty every time a connection is allocated and
 released. If you need to make successive calls to a SQL Object, consider using
 one of the above options for better performance, instead of on-demand.
+
+=== Additional Annotations
+
+Jdbi provides dozens of annotations out of the box:
+
+* link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
+  provides annotations for things that can be configured at the `Jdbi` or
+  `Handle` level. This includes registration of mappers and arguments, and for
+  configuring SQL statement rendering and parsing.
+* link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
+  provides annotations for binding parameters, defining attributes, and
+  controlling the fetch behavior of the statement's result set.
+* link:{jdbidocs}/jpa/package-summary.html[org.jdbi.v3.jpa^]
+  provides the `@BindJpa` annotation, for binding properties to column according
+  to JPA `@Column` annotations.
+* link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.v3.sqlobject.locator^]
+  provides annotations that configure Jdbi to load SQL statements from an
+  alternative source, e.g. a file on the classpath.
+* link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.v3.sqlobject.statement^]
+  provides the `@MapTo` annotation, which is used for dynamically specifying the
+  mapped type at the time the method is invoked.
+* link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.v3.stringtemplate4^]
+  provides annotations that configure Jdbi to load SQL from StringTemplate 4
+  `.stg` files on the classpath, and/or to parse SQL templates using the
+  ST4 template engine.
+* link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
+  provides annotations for transaction management in a SQL object. See
+  <<Transaction Management>> for details.
+
+Jdbi is designed to support user-defined annotations. See
+<<User-Defined Annotations>> for a guide to creating your own.
 
 == Third-Party Integration
 
@@ -2439,9 +2470,6 @@ TODO:
 ** Call `Jdbi.installPlugins()` to automatically install all SPI plugins on the
    classpath.
 
-JdbiPlugin may be used to perform bulk configuration
-TODO
-
 === JdbiCollector
 
 TODO:
@@ -2452,17 +2480,389 @@ TODO:
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
 
-=== SQL Object custom annotations
+=== User-Defined Annotations
 
-TODO:
+SQL Object is designed to be extended with user-defined annotations. In fact,
+most of the annotations provided in Jdbi are wired up with the approach
+outlined below.
 
-* SqlMethodAnnotation - Introduce your own SQL method annotations on par with
-  @SqlQuery, @SqlUpdate, etc.
-* SqlMethodDecoratingAnnotation - Introduce your own SQL method decorating
-  annotations on par with @Transaction. Applies to any SQL Object method,
-  annotated or default.
-* ConfiguringAnnotation
-* SqlStatementCustomizingAnnotation
+There are a few different categories of annotations in SQL Object, and it's
+important to understand the differences between them:
+
+- <<Statement Customizing Annotations>> - configures the underlying
+  link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] of a method
+  prior to execution. These can only be used in tandem with annotations like
+  `@SqlQuery`, `@SqlUpdate`, etc, and do not work on default methods.
+- <<Configuration Annotations>> - modifies configuration in the
+  link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] within the
+  scope of a SQL object or one of its methods.
+- <<Method Decorating Annotations>> - decorates a method invocation with
+  some additional behavior, e.g. the `@Transaction` annotation wraps the method
+  call in a `handle.inTransaction()` call.
+
+Once you know which type of annotation you want, proceed to the appropriate
+section below and follow the guide to set it up.
+
+==== Statement Customizing Annotations
+
+SQL statement customizing annotations are used to apply some change to the
+link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] associated
+with a SQL method.
+
+Typically these annotations correlate to an API method in core. e.g. `@Bind`
+corresponds to `SqlStatement.bind()`, `@MaxRows` corresponds to
+`Query.setMaxRows()`, etc.
+
+Customizing annotations are applied only after the
+link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] has been
+created.
+
+You can create your own SQL statement customizing annotations and attach runtime
+behavior to them.
+
+First, create an annotation that you want to attach a statement customization
+to:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME) // <1>
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER}) // <2>
+public @interface MaxRows {
+  int value();
+}
+----
+<1> All statement customizing annotations should have a `RUNTIME` retention
+    policy.
+<2> Statement customizing annotations only work on types, methods, or
+    parameters. Strictly speaking, the `@Target` annotation is not required, but
+    it's a good practice to include it, so that annotations can only be applied
+    where they will actually do something.
+
+Placing a customizing annotation on a type means "apply this customization to
+every method."
+
+When used on parameters, annotations may use the argument passed to the method
+while processing the annotation.
+
+Next, we write an implementation of the
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizerFactory.html[SqlStatementCustomizerFactory^]
+class, to process the annotation and apply the customization to the statement.
+
+The `SqlStatementCustomizerFactory` produces two different types of "statement
+customizer" command objects:
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
+(for annotations on types or methods), and
+link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
+(for annotations on method parameters).
+
+Let's implement a statement customizer factory for our annotation:
+
+[source,java]
+----
+public class MaxRowsFactory implements SqlStatementCustomizerFactory {
+    @Override
+    public SqlStatementCustomizer createForType(Annotation annotation,
+                                                Class<?> sqlObjectType) {
+        final int maxRows = ((MaxRows)annotation).value(); // <1>
+        return stmt -> ((Query)stmt).setMaxRows(maxRows); // <2>
+    }
+
+    @Override
+    public SqlStatementCustomizer createForMethod(Annotation annotation,
+                                                  Class<?> sqlObjectType,
+                                                  Method method) {
+        return createForType(annotation, sqlObjectType); // <3>
+    }
+
+    @Override
+    public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                              Class<?> sqlObjectType,
+                                                              Method method,
+                                                              Parameter param,
+                                                              int index,
+                                                              Type type) {
+        return (stmt, maxRows) -> ((Query)stmt).setMaxRows((Integer) maxRows); // <4>
+    }
+}
+----
+<1> Extract the max rows from the annotation
+<2> link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
+    can be implemented as a lambda--it receives a
+    link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] as a
+    parameter, calls whatever method it wants on the statement, and returns
+    void.
+<3> Since the customization for this annotation is the same at the method level
+    as at the type level, we simply delegate to the type-level method for
+    brevity.
+<4> link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
+    can also be implemented as a lambda. It accepts a `SqlStatement` and the
+    value that was passed into the method on the annotated parameter.
+
+Finally, add the
+link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizingAnnotation.html[@SqlStatementCustomizingAnnotation^]
+annotation the `@MaxRows` annotation type. This tells Jdbi that `MaxRowsFactory`
+implements the behavior of the `@MaxRows` annotation:
+
+[source,java]
+----
+@SqlStatementCustomizingAnnotation(MaxRowsFactory.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.PARAMETER})
+public @interface MaxRows {
+    int value() default -1;
+}
+----
+
+Your statement customizing annotation is now ready to use on any SQL object:
+
+[source,java]
+----
+public interface Dao {
+  @SqlQuery("select * from contacts")
+  @MaxRows(100)
+  List<Contact> list();
+
+  @SqlQuery("select * from contacts")
+  List<Contact> list(@MaxRows int maxRows);
+}
+----
+
+TIP: We chose `@MaxRows` as an example here because it was easy to understand.
+In practice, you will get better database performance by using a `LIMIT` clause
+in your SQL statement than by using `@MaxRows`.
+
+==== Configuration Annotations
+
+Configuration annotations are used to apply some change to the
+link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] associated with
+a SQL object or method.
+
+Typically these annotations correlate to a method of
+link:{jdbidocs}/core/config/Configurable.html[Configurable^] (`Jdbi`,
+`Handle`, and `SqlStatement` all implement this interface). For example,
+`@RegisterColumnMapper` correlates to `Configurable.registerColumnMapper()`.
+
+You can create your own configuration annotations, and attach runtime behavior
+to them:
+
+- Write a new configuration annotation, with any attributes you need.
+- Write an implementation of
+  link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] which performs
+  the configuration associated with your annotation.
+- Add the `@ConfiguringAnnotation` annotation to your configuration annotation
+  type.
+
+With the above steps completed, Jdbi will invoke your configurer whenever it
+encounters the associated annotation.
+
+Let's re-implement one of Jdbi's built-in annotations as an example:
+
+The `@RegisterColumnMapper` annotation has an attribute to specify the class of
+the column mapper to register. Wherever the annotation is used, we want Jdbi to
+create an instance of that mapper type, and register it with the config
+registry.
+
+First, let's create the new annotation type:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME) // <1>
+@Target({ElementType.TYPE, ElementType.METHOD}) // <2>
+public @interface RegisterColumnMapper{
+  Class<? extends ColumnMapper<?>> value();
+}
+----
+<1> All configuration annotations should have a `RUNTIME` retention policy.
+<2> Configuration annotations only work on types and methods. Strictly speaking,
+    the `@Target` annotation is not required, but it's a good practice to
+    include it, so that annotations can only be applied where they will actually
+    do something.
+
+Placing a configuration annotation on a type means "apply this configuration to
+every method."
+
+Next, we write an implementation of the
+link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] class, to process
+the annotation and apply the configuration:
+
+[source,java]
+----
+public class RegisterColumnMapperImpl implements Configurer {
+  @Override
+  public void configureForMethod(ConfigRegistry registry,
+                                 Annotation annotation,
+                                 Class<?> sqlObjectType,
+                                 Method method) {
+    configure(registry, (RegisterColumnMapper) annotation);
+  }
+
+  @Override
+  public void configureForType(ConfigRegistry registry,
+                               Annotation annotation,
+                               Class<?> sqlObjectType) {
+    configure(registry, (RegisterColumnMapper) annotation);
+  }
+
+  private void configure(ConfigRegistry registry,
+                         RegisterColumnMapper registerColumnMapper) { // <1>
+    try {
+      Class<? extends ColumnMapper> mapperType = registerColumnMapper.value();
+      ColumnMapper mapper = mapperType.getConstructor().newInstance();
+      registry.get(ColumnMappers.class).register(mapper);
+    }
+    catch (NoSuchMethodException e) {
+      throw new RuntimeException("Cannot construct " + mapperType, e);
+    }
+  }
+}
+----
+<1> In this example, we're applying the same configuration, whether the
+    `@RegisterColumnMapper` annotation is used on the SQL object type or method.
+    However this is not a requirement--some annotations may choose to apply
+    configuration differently depending on whether the annotation is placed on
+    the type or the method.
+
+For configuration annotations with only one target, (e.g. `@KeyColumn` and
+`@ValueColumn` may only be applied to methods), you need only implement
+the `Configurer` method appropriate for the annotation target.
+
+Finally, add the
+link:{jdbidocs}/sqlobject/config/ConfiguringAnnotation.html[@ConfiguringAnnotation^]
+annotation to your `@RegisterColumnMapper` annotation type. This tells Jdbi that
+`RegisterColumnMapperImpl` implements the behavior of the
+`@RegisterColumnMapper` annotation.
+
+[source,java]
+----
+@ConfiguringAnnotation(RegisterColumnMapperImpl.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface RegisterColumnMapper {
+    Class<? extends TemplateEngine> value();
+}
+----
+
+Your configuration annotation is now ready to use in any SQL object:
+
+[source,java]
+----
+public interface AccountDao {
+  @SqlQuery("select balance from accounts where id = ?")
+  @RegisterColumnMapper(MoneyMapper.class)
+  public Money getBalance(long accountId);
+}
+----
+
+==== Method Decorating Annotations
+
+Method decorating annotations are used to enhance a SQL Object method with
+additional (or substitute) behavior.
+
+Internally, SQL Object represents the behavior of each method with an instance
+of the link:{jdbidocs}/sqlobject/Handler.html[Handler^] interface. Every time
+you call a method on a SQL Object instance, the method is executed by executing
+the handler for the given method.
+
+When use use a decorating annotation (like `@Transaction`), the regular handler
+for a method is wrapped in another handler which may perform some action before
+and/or after passing the call to the original handler.
+
+A decorator could even perform some action _instead_ of calling the original,
+e.g. for a caching annotation.
+
+Let's re-implement the `@Transaction` annotation to see how it works:
+
+First, create the annotation type:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME) // <1>
+@Target(ElementType.METHOD) // <2>
+public @interface Transaction {
+    TransactionIsolationLevel value();
+}
+----
+<1> All decorating annotations should have a `RUNTIME` retention policy.
+<2> Decorating annotations only work on types and methods. Strictly speaking,
+    the `@Target` annotation is note required, but it's a good practice to
+    include it, so that annotations can only be applied where they will actually
+    do something.
+
+Placing a decorating annotation on a type means "apply this decoration to every
+method."
+
+Next we write an implementation of the
+link:{jdbidocs}/sqlobject/HandlerDecorator.html[HandlerDecorator^] interface, to
+process the annotation and apply the decoration:
+
+[source,java]
+----
+public class TransactionDecorator implements HandlerDecorator {
+  public Handler decorateHandler(Handler base,
+                                 Class<?> sqlObjectType,
+                                 Method method) {
+    Transaction anno = method.getAnnotation(Transaction.class); // <1>
+    TransactionIsolationLevel isolation = anno.value(); // <2>
+
+    return (target, args, handleSupplier) -> handleSupplier.getHandle() // <3>
+        .inTransaction(isolation, h -> base.invoke(target, args, handleSupplier));
+  }
+}
+----
+<1> Get the `@Transaction` annotation
+<2> Extract the transaction isolation level from the annotation
+<3> The `Handler` interface accepts a target (the SQL Object instance being
+    invoked), an `Object[]` array of arguments passed to the method, and a
+    `HandleSupplier`.
+
+Finally, add the
+link:{jdbidocs}/sqlobject/SqlMethodDecoratingAnnotation.html[@SqlMethodDecoratingAnnotation^]
+annotation to your `@Transaction` annotation type. This tells Jdbi that
+`TransactionDecorator` implements the behavior of the `@Transaction` annotation.
+
+[source,java]
+----
+@SqlMethodDecoratingAnnotation(TransactionDecorator.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Transaction {
+    TransactionIsolationLevel value();
+}
+----
+
+Your decorating annotation is now ready to use in any SQL object:
+
+[source,java]
+----
+public interface ContactDao {
+  @SqlBatch("insert into contacts (id, name) values (:id, :name)")
+  @Transaction
+  void batchInsert(@BindBean Contact... contacts);
+}
+----
+
+===== Decorator Order
+
+If a SQL object method has two or more decorating annotations applied, and the
+order of decorations is important, use the `@DecoratorOrder` annotation.
+
+For example, suppose a method were annotated both with `@Cached` and
+`@Transaction` (just go with it..). We would probably want the `@Cached`
+annotation to go first, so that transactions are not created unnecessarily when
+the cache already contains the entry.
+
+[source,java]
+----
+public interface ContactDao {
+  @SqlQuery("select * from contacts where id = ?")
+  @Cached
+  @Transaction
+  @DecoratorOrder(Cached.class, Transaction.class)
+  Contact getById(long id);
+}
+----
+
+Decorator order is expressed from outermost to innermost.
 
 === SQL Object internal plumbing
 
