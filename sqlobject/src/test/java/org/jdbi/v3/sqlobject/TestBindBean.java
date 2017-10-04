@@ -95,21 +95,21 @@ public class TestBindBean {
 
         dao.insert(new Bean(1, ValueType.valueOf("foo"), "fooField", "fooGetter"));
         assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType, bean -> bean.fromField, Bean::getFromGetter)
-                .containsExactly(1, ValueType.valueOf("foo"), "fooField", Bean.PREFIX + "fooGetter");
+                .containsExactly(1, ValueType.valueOf("foo"), "fooField", "fooGetter");
     }
 
     public static class Bean {
-        public static final String PREFIX = "prefix-";
         private int id;
         private ValueType valueType;
         public String fromField;
-        public String fromGetter;
+        public final String fromGetter = "ACCESSED FROM FIELD";
+        private String actuallyFromGetter;
 
         public Bean(int id, ValueType valueType, String fromField, String fromGetter) {
             this.id = id;
             this.valueType = valueType;
             this.fromField = fromField;
-            this.fromGetter = fromGetter;
+            this.actuallyFromGetter = fromGetter;
         }
 
         public int getId() {
@@ -121,10 +121,7 @@ public class TestBindBean {
         }
 
         public String getFromGetter() {
-            if(!fromGetter.startsWith(PREFIX)) {
-                return PREFIX + fromGetter;
-            }
-            return fromGetter;
+            return actuallyFromGetter;
         }
     }
 

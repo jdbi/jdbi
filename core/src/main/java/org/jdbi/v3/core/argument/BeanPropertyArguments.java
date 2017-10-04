@@ -20,7 +20,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
@@ -108,15 +107,22 @@ public class BeanPropertyArguments implements NamedArgumentFinder
             {
                 for (Field field : bean.getClass().getFields())
                 {
-                    if (Modifier.isPublic(field.getModifiers()) && field.getName().equals(propertyName))
+                    if (field.getName().equals(propertyName))
                     {
                         Object fieldValue = field.get(bean);
-                        Optional<Argument> argument = ctx.findArgumentFor(field.getGenericType(), fieldValue);
+                        Type fieldType = field.getGenericType();
+                        Optional<Argument> argument = ctx.findArgumentFor(fieldType, fieldValue);
 
-                        if (argument.isPresent())
+                        if (!argument.isPresent())
                         {
-                            return argument;
+                            throw new UnableToCreateStatementException(
+                                    String.format("No argument factory registered for type [%s] for field [%s] on [%s]",
+                                            fieldType,
+                                            propertyName,
+                                            bean), ctx);
                         }
+
+                        return argument;
                     }
                 }
             }
