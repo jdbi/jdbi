@@ -17,8 +17,10 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
@@ -100,6 +102,29 @@ public class BeanPropertyArguments implements NamedArgumentFinder
                                 propertyName, bean), e, ctx);
                     }
                 }
+            }
+
+            try
+            {
+                for (Field field : bean.getClass().getFields())
+                {
+                    if (Modifier.isPublic(field.getModifiers()) && field.getName().equals(propertyName))
+                    {
+                        Object fieldValue = field.get(bean);
+                        Optional<Argument> argument = ctx.findArgumentFor(field.getGenericType(), fieldValue);
+
+                        if (argument.isPresent())
+                        {
+                            return argument;
+                        }
+                    }
+                }
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
+                                "bean property [%s] on [%s]",
+                        propertyName, bean), e, ctx);
             }
         }
         return Optional.empty();
