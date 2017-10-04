@@ -42,4 +42,12 @@ public class TestBatch
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).hasSize(3);
     }
+
+    @Test(expected=IllegalStateException.class)
+    public void testEmptyBatchThrows() throws Exception {
+        try (Handle h = dbRule.openHandle()) {
+            final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
+            b.add(); // No parameters written yet
+        }
+    }
 }

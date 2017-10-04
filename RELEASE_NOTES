@@ -1,5 +1,6 @@
 3.0.0-beta4 (in development)
   - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
+  - PreparedBatch: throw an exception if you try to add() an empty binding
 
 3.0.0-beta3
   - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack
