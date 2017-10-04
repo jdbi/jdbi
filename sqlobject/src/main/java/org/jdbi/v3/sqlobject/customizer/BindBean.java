@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import org.jdbi.v3.sqlobject.customizer.internal.BindBeanFactory;
 
 /**
- * Binds the properties of a JavaBean to a SQL statement.
+ * Binds the properties and public fields of a JavaBean to a SQL statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -29,7 +29,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindBeanFactory;
 public @interface BindBean
 {
     /**
-     * Prefix to apply to each bean property name. If specified, properties will be bound as
+     * Prefix to apply to each bean property/field name. If specified, properties will be bound as
      * {@code prefix.propertyName}.
      *
      * @return the prefix

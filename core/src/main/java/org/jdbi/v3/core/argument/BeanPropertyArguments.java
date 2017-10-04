@@ -17,6 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -100,6 +101,36 @@ public class BeanPropertyArguments implements NamedArgumentFinder
                                 propertyName, bean), e, ctx);
                     }
                 }
+            }
+
+            try
+            {
+                for (Field field : bean.getClass().getFields())
+                {
+                    if (field.getName().equals(propertyName))
+                    {
+                        Object fieldValue = field.get(bean);
+                        Type fieldType = field.getGenericType();
+                        Optional<Argument> argument = ctx.findArgumentFor(fieldType, fieldValue);
+
+                        if (!argument.isPresent())
+                        {
+                            throw new UnableToCreateStatementException(
+                                    String.format("No argument factory registered for type [%s] for field [%s] on [%s]",
+                                            fieldType,
+                                            propertyName,
+                                            bean), ctx);
+                        }
+
+                        return argument;
+                    }
+                }
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
+                                "bean property [%s] on [%s]",
+                        propertyName, bean), e, ctx);
             }
         }
         return Optional.empty();
