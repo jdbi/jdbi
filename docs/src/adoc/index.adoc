@@ -1425,12 +1425,85 @@ and its parameters.
 The parameters to the method are used as arguments to the statement, and the
 SQL statement result mapped into the method return type.
 
+==== @SqlUpdate
+
+Use the `@SqlUpdate` annotation for operations that modify data (i.e. inserts,
+updates, deletes).
+
+[source,java]
+----
+public interface UserDao {
+  @SqlUpdate("insert into users (id, name) values (?, ?)")
+  void insert(long id, String name);
+}
+----
+
+Method arguments are bound to the `?` token in the SQL statement at their
+respective positions. So `id` is bound to the first `?`, and `name` to the
+second.
+
+[TIP]
+`@SqlUpdate` can also be used for DDL (Data Definition Language) operations like
+creating or altering tables. We recommend using a schema migration tool such
+as link:https://flywaydb.org/[Flyway^] or
+link:http://www.liquibase.org/[Liquibase^] to maintain your database schemas.
+
+By default, a `@SqlUpdate` method may return a handful of types:
+
+* `void`: returns nothing (obviously)
+* `int` or `long`: returns the update count. Depending on the database vendor
+  and JDBC driver, this may be either the number of rows changed, or the number
+  matched by the query (regardless of whether any data was changed).
+* `boolean`: returns true if the update count is greater than zero.
+
+===== @GetGeneratedKeys
+
+Some SQL statements will cause data to be generated on your behalf at the
+database, e.g. a table with an auto-generated primary key, or a primary key
+selected from a sequence. We need a way to retrieve these generated values back
+from the database.
+
+[WARNING]
+Databases vary in support for generated keys. Some support only one generated
+key column per statement, and some (such as Postgres) can return the entire row.
+You should check your database vendor's documentation before relying on this
+behavior.
+
+The `@GetGeneratedKeys` annotation tells Jdbi that the return value should be
+generated key from the SQL statement, instead of the update count.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlUpdate("insert into users (id, name) values (nextval('user_seq'), ?)")
+  @GetGeneratedKeys("id")
+  long insert(String name);
+}
+----
+
+Multiple columns may be generated and returned in this way:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlUpdate("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+  @GetGeneratedKeys({"id", "created_on"})
+  @RegisterBeanMapper(IdCreateTime.class)
+  IdCreateTime insert(String name);
+}
+----
+
+[TIP]
+The One True Database supports additional functionality when returning generated
+keys. See <<PostgreSQL-GetGeneratedKeys,PostgreSQL>> for more details.
+
 ==== Binding Arguments
 
-Arguments passed to the method are bound as arguments to the SQL statement.
+Before we go on with the other `@Sql___` annotations, let's discuss how method
+arguments are bound as parameters to the SQL statement.
 
-If using positional arguments, the method arguments are bound to the
-corresponding `?` argument marker in the SQL statement:
+By default, arguments passed to the method are bound as positional parameters
+in the SQL statement.
 
 [source,java]
 ----
@@ -1578,15 +1651,6 @@ Then, simply specify a `Multimap` return type instead of `Map`:
 ----
 include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRowMultimap]
 ----
-
-==== @SqlUpdate
-
-TODO:
-
-* By default supports void, int/long (update count), or boolean (update count
-  > 0) return types
-* Or use @GetGeneratedKeys annotation to return generated keys. e.g. return an
-  id column value obtained from a sequence.
 
 ==== @SqlBatch
 
@@ -2133,6 +2197,35 @@ It also configures SQL array type support for `int`, `long`, `float`, `double`,
 
 See the link:{jdbidocs}/postgres/package-summary.html[javadoc^] for an
 exhaustive list.
+
+[reftext="PostgreSQL-GetGeneratedKeys"]
+==== @GetGeneratedKeys
+
+In Postgres, `@GetGeneratedKeys` can return the entire modified row if you
+request generated keys without naming any columns.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlUpdate("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+  @GetGeneratedKeys
+  @RegisterBeanMapper(User.class)
+  User insert(String name);
+}
+----
+
+If a database operation modifies multiple rows (e.g. an update that will modify
+several rows), your method can return all the modified rows in a collection:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlUpdate("update users set active = false where id = any(?)")
+  @GetGeneratedKeys
+  @RegisterBeanMapper(User.class)
+  List<User> deactivateUsers(long... userIds);
+}
+----
 
 === Spring
 
