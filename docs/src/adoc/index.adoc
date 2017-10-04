@@ -1464,7 +1464,8 @@ In SQL Object (but not in Core), you can qualify a bound map with a prefix:
 void insert(@BindMap("user") Map<String, ?> map);
 ----
 
-You can bind from the properties of a Java Bean:
+You can bind from the properties or public fields of a Java Bean
+(properties are prioritized if both are present):
 
 [source,java]
 ----
