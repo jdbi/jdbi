@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.BeanFunctionsArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -187,6 +188,31 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindBean(String prefix, Object bean)
     {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
+    }
+
+    /**
+     * Binds functions with no parameters on the argument.
+     *
+     * @param object source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     */
+    public This bindFunctions(Object object)
+    {
+        return bindNamedArgumentFinder(new BeanFunctionsArguments(null, object));
+    }
+
+    /**
+     * Binds functions with no parameters on the argument, with the given prefix.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param object source of functions to use as arguments
+     *
+     * @return modified statement
+     */
+    public This bindFunctions(String prefix, Object object)
+    {
+        return bindNamedArgumentFinder(new BeanFunctionsArguments(prefix, object));
     }
 
     /**

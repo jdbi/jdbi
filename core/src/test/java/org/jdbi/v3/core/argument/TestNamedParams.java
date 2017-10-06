@@ -74,6 +74,26 @@ public class TestNamedParams
     }
 
     @Test
+    public void testFunctionsBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+        Update s = h.createUpdate("insert into something (id, name) values (:id, :aFunctionThatReturnsTheName)");
+        s.bindFunctions(new Object() {
+            @SuppressWarnings("unused")
+            public int id() {
+                return 0;
+            }
+
+            @SuppressWarnings("unused")
+            public String aFunctionThatReturnsTheName() {
+                return "Keith";
+            }
+        });
+        int insert_count = s.execute();
+        assertThat(insert_count).isEqualTo(1);
+    }
+
+    @Test
     public void testMapKeyBinding() throws Exception
     {
         Handle h = dbRule.openHandle();
