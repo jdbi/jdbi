@@ -17,9 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperFactoriesImpl;
-import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperFactoryImpl;
 
 @ConfiguringAnnotation(RegisterColumnMapperFactoriesImpl.class)
 @Retention(RetentionPolicy.RUNTIME)

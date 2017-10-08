@@ -41,7 +41,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 
 import java.util.stream.Stream;
-import org.assertj.guava.api.Assertions;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

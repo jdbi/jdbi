@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject.statement;
 
 import java.lang.reflect.Type;
-import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 

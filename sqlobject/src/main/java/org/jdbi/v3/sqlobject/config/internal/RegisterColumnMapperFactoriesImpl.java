@@ -17,11 +17,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactories;
-import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
 public class RegisterColumnMapperFactoriesImpl implements Configurer
 {

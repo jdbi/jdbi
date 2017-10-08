@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject.config.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
