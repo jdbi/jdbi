@@ -28,7 +28,10 @@ import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 
 /**
- * Locates SQL in <code>.sql</code> files on the classpath.
+ * Locates SQL in <code>.sql</code> files on the classpath.  Given a class and
+ * method name, for example <code>com.foo.Bar#query<code>, load a
+ * classpath resource name like <code>com/foo/Bar/query.sql</code>.
+ * The contents are then parsed, cached, and returned for use by a statement.
  */
 public final class ClasspathSqlLocator {
     private static final char PACKAGE_DELIMITER = '.';

@@ -1390,14 +1390,22 @@ With serializable isolation, one of the two transactions is forced to abort and
 retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30
 from the other, we get 30 + 60 = 90 and the assertion succeeds.
 
-=== SQL Locators
+=== ClasspathSqlLocator
 
 You may find it helpful to store your SQL templates in individual files on the
 classpath, rather than in string inside Java code.
 
-Jdbi provides one SQL locator class in the core library: `ClasspathSqlLocator`.
+The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
+and then reads, parses, and caches the loaded statements.
 
-TODO: usage example
+[source,java]
+----
+// reads classpath resource com/foo/BarDao/query.sql
+ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
+----
 
 === StatementContext
 
@@ -1798,21 +1806,30 @@ method to return the keys generated from the SQL statement:
 include::{exampledir}/GeneratedKeysTest.java[tags=sqlObject]
 ----
 
-==== SQL Locators
+==== SqlLocator
 
-Occasionally, such as when SQL statements start to get very large, it may be
-cumbersome to provide those statements as Java strings in `@Sql___` method
-annotations.
+When SQL statements grow in complexity, it may be cumbersome to provide
+the statements as Java strings in `@Sql___` method annotations.
 
-Jdbi provides annotations that let you configure where SQL will be loaded from.
+Jdbi provides annotations that let you configure external locations to
+load SQL statements.
 
-The SQL Object module includes two annotations:
-
-* @UseAnnotationSqlLocator (the default behavior)
+* @UseAnnotationSqlLocator (the default behavior; use @Sql___(...) annotation value)
 * @UseClasspathSqlLocator - loads SQL from a file on the classpath, based on
   the package and name of the SQL Object interface type.
 
-TODO: usage example
+[source,java]
+----
+package com.foo;
+@UseClasspathSqlLocator
+interface BarDao {
+    // loads classpath resource com/foo/BarDao/query.sql
+    @SqlQuery
+    void query();
+}
+----
+
+*@UseClasspathSqlLocator* is implemented with <<ClasspathSqlLocator>>, as described above.
 
 If you like StringTemplate, the <<StringTemplate 4>> module also provides a
 SqlLocator, which can load SQL templates from StringTemplate 4 files on the
