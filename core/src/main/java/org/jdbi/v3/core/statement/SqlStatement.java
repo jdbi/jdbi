@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.joining;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
@@ -1067,7 +1068,18 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     private Argument toArgument(Type type, Object value) {
         return getConfig(Arguments.class).findFor(type, value)
-                .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
+                .orElseThrow(() -> factoryNotFound(type, value));
+    }
+
+    private UnsupportedOperationException factoryNotFound(Type type, Object value) {
+        if (type instanceof Class<?>) { // not a ParameterizedType
+            final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
+            if (params.length > 0) {
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params) +
+                        "'.  To bind a generic type, prefer using bindByType.");
+            }
+        }
+        return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);
     }
 
     /**
