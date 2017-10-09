@@ -46,6 +46,7 @@ import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 
@@ -165,6 +166,41 @@ public class StatementContext implements Closeable
      */
     public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
         return getConfig(SqlArrayTypes.class).findFor(elementType);
+    }
+
+    /**
+     * Obtain a mapper for the given type in this context.
+     *
+     * @param <T> the type to map
+     * @param type the target type to map to
+     * @return a mapper for the given type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    public <T> Optional<RowMapper<T>> findMapperFor(Class<T> type) {
+        return getConfig(Mappers.class).findFor(type);
+    }
+
+    /**
+     * Obtain a mapper for the given type in this context.
+     *
+     * @param <T> the type to map
+     * @param type the target type to map to
+     * @return a mapper for the given type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    public <T> Optional<RowMapper<T>> findMapperFor(GenericType<T> type) {
+        return getConfig(Mappers.class).findFor(type);
+    }
+
+    /**
+     * Obtain a mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a mapper for the given type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    public Optional<RowMapper<?>> findMapperFor(Type type) {
+        return getConfig(Mappers.class).findFor(type);
     }
 
     /**

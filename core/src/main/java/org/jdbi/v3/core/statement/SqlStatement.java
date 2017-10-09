@@ -45,8 +45,8 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1415,20 +1415,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     @SuppressWarnings("unchecked")
-    <T> RowMapper<T> rowMapperForType(Class<T> type)
+    <T> RowMapper<T> mapperForType(Class<T> type)
     {
-        return (RowMapper<T>) rowMapperForType((Type) type);
+        return (RowMapper<T>) mapperForType((Type) type);
     }
 
     @SuppressWarnings("unchecked")
-    <T> RowMapper<T> rowMapperForType(GenericType<T> type)
+    <T> RowMapper<T> mapperForType(GenericType<T> type)
     {
-        return (RowMapper<T>) rowMapperForType(type.getType());
+        return (RowMapper<T>) mapperForType(type.getType());
     }
 
-    RowMapper<?> rowMapperForType(Type type)
+    RowMapper<?> mapperForType(Type type)
     {
-        return getConfig(RowMappers.class).findFor(type)
+        return getConfig(Mappers.class).findFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

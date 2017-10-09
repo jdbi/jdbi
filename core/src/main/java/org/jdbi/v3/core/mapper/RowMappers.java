@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
@@ -131,12 +130,9 @@ public class RowMappers implements JdbiConfig<RowMappers> {
             return Optional.of(cached);
         }
 
-        Optional<RowMapper<?>> mapper = findFirstPresent(
-                () -> factories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, registry)))
-                        .findFirst(),
-                () -> registry.get(ColumnMappers.class).findFor(type)
-                        .map(SingleColumnMapper::new));
+        Optional<RowMapper<?>> mapper = factories.stream()
+                .flatMap(factory -> toStream(factory.build(type, registry)))
+                .findFirst();
 
         mapper.ifPresent(m -> cache.put(type, m));
 
