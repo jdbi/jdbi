@@ -1,6 +1,17 @@
 3.0.0-beta4 (in development)
   - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
   - PreparedBatch: throw an exception if you try to add() an empty binding
+  - [breaking] Removed column mapper fallback behavior from
+    StatementContext.findRowMapperFor() and RowMappers.findFor(), in favor or new
+    StatementContext.findMapperFor() and Mappers.findFor() methods. Previously,
+    findRowMapperFor() would first consult the RowMappers registry, then the
+    ColumnMappers registry if no RowMapper was registered for a given type. Thus:
+    - StatementContext.findMapperFor(...) or Mappers.findFor() may return a row mapper or
+      a first-column mapper.
+    - StatementContext.findRowMapperFor(...) or RowMappers.findFor() returns only row
+      mappers
+    - StatementContext.findColumnMapperFor(...) or ColumnMappers.findFor() returns only
+      column mapper
 
 3.0.0-beta3
   - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack
