@@ -111,7 +111,7 @@ public interface ResultBearing {
      */
     default ResultIterable<?> mapTo(Type type) {
         return scanResultSet((supplier, ctx) -> {
-            RowMapper<?> mapper = ctx.findRowMapperFor(type)
+            RowMapper<?> mapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for type " + type));
             return ResultIterable.of(supplier, mapper, ctx);
         });
@@ -274,7 +274,7 @@ public interface ResultBearing {
                     .orElseThrow(() -> new NoSuchCollectorException("No collector registered for container type " + containerType));
             Type elementType = ctx.findElementTypeFor(containerType)
                     .orElseThrow(() -> new ElementTypeNotFoundException("Unknown element type for container type " + containerType));
-            RowMapper<?> mapper = ctx.findRowMapperFor(elementType)
+            RowMapper<?> mapper = ctx.findMapperFor(elementType)
                     .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for element type " + elementType));
             return ResultIterable.of(rs, mapper, ctx).collect(collector);
         });
