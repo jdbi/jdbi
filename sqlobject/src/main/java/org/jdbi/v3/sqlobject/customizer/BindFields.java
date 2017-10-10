@@ -18,21 +18,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.customizer.internal.BindBeanFactory;
+import org.jdbi.v3.sqlobject.customizer.internal.BindFieldsFactory;
 
 /**
- * Binds the properties of a JavaBean to a SQL statement.
+ * Binds the properties and public fields of an object to a SQL statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindBeanFactory.class)
-public @interface BindBean
+@SqlStatementCustomizingAnnotation(BindFieldsFactory.class)
+public @interface BindFields
 {
     /**
-     * Prefix to apply to each bean property. If specified, properties will be bound as
+     * Prefix to apply to each bean field name. If specified, fields will be bound as
      * {@code prefix.propertyName}.
      *
      * @return the prefix
      */
     String value() default "";
 }
+

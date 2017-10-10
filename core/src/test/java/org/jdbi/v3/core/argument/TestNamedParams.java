@@ -74,6 +74,21 @@ public class TestNamedParams
     }
 
     @Test
+    public void testFieldsBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
+        s.bindFields(new Object() {
+            @SuppressWarnings("unused")
+            public int id = 0;
+            @SuppressWarnings("unused")
+            public String name = "Keith";
+        });
+        int insert_count = s.execute();
+        assertThat(insert_count).isEqualTo(1);
+    }
+
+    @Test
     public void testFunctionsBinding() throws Exception
     {
         Handle h = dbRule.openHandle();

@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.BeanFieldArguments;
 import org.jdbi.v3.core.argument.BeanFunctionsArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
@@ -188,6 +189,31 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindBean(String prefix, Object bean)
     {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
+    }
+
+    /**
+     * Binds public fields of the specified object as arguments for the query.
+     *
+     * @param object source of the public fields to bind.
+     *
+     * @return modified statement
+     */
+    public This bindFields(Object object)
+    {
+        return bindNamedArgumentFinder(new BeanFieldArguments(null, object));
+    }
+
+    /**
+     * Binds public fields of the specified object as arguments for the query.
+     *
+     * @param prefix a prefix to apply to all field names.
+     * @param object source of the public fields to bind.
+     *
+     * @return modified statement
+     */
+    public This bindFields(String prefix, Object object)
+    {
+        return bindNamedArgumentFinder(new BeanFieldArguments(prefix, object));
     }
 
     /**

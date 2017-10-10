@@ -80,9 +80,9 @@ public class TestBindBean {
 
     @Test
     public void testNoArgumentFactoryRegisteredForProperty() {
-        handle.execute("create table beans (id integer, value_type varchar, fromField varchar, fromGetter varchar)");
+        handle.execute("create table beans (id integer, value_type varchar)");
 
-        assertThatThrownBy(() -> handle.attach(BeanDao.class).insert(new Bean(1, ValueType.valueOf("foo"), "fooField", "fooGetter")))
+        assertThatThrownBy(() -> handle.attach(BeanDao.class).insert(new Bean(1, ValueType.valueOf("foo"))))
                 .hasMessageContaining("No argument factory registered");
     }
 
@@ -93,23 +93,18 @@ public class TestBindBean {
 
         BeanDao dao = handle.attach(BeanDao.class);
 
-        dao.insert(new Bean(1, ValueType.valueOf("foo"), "fooField", "fooGetter"));
-        assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType, bean -> bean.fromField, Bean::getFromGetter)
-                .containsExactly(1, ValueType.valueOf("foo"), "fooField", "fooGetter");
+        dao.insert(new Bean(1, ValueType.valueOf("foo")));
+        assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType)
+                .containsExactly(1, ValueType.valueOf("foo"));
     }
 
     public static class Bean {
         private int id;
         private ValueType valueType;
-        public String fromField;
-        public final String fromGetter = "ACCESSED FROM FIELD";
-        private String actuallyFromGetter;
 
-        public Bean(int id, ValueType valueType, String fromField, String fromGetter) {
+        public Bean(int id, ValueType valueType) {
             this.id = id;
             this.valueType = valueType;
-            this.fromField = fromField;
-            this.actuallyFromGetter = fromGetter;
         }
 
         public int getId() {
@@ -118,10 +113,6 @@ public class TestBindBean {
 
         public ValueType getValueType() {
             return valueType;
-        }
-
-        public String getFromGetter() {
-            return actuallyFromGetter;
         }
     }
 
@@ -137,7 +128,7 @@ public class TestBindBean {
     }
 
     public interface BeanDao {
-        @SqlUpdate("insert into beans (id, value_type, fromField, fromGetter) values (:id, :valueType, :fromField, :fromGetter)")
+        @SqlUpdate("insert into beans (id, value_type) values (:id, :valueType)")
         void insert(@BindBean Bean bean);
 
         @SqlQuery("select * from beans where id = :id")

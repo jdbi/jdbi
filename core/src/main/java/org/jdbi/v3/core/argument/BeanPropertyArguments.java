@@ -17,9 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.statement.StatementContext;
@@ -68,36 +66,6 @@ public class BeanPropertyArguments extends FunctionReturnValueNamedArgumentFinde
 
                 return getArgumentForMethod(getter, ctx);
             }
-        }
-
-        try
-        {
-            for (Field field : object.getClass().getFields())
-            {
-                if (field.getName().equals(name))
-                {
-                    Object fieldValue = field.get(object);
-                    Type fieldType = field.getGenericType();
-                    Optional<Argument> argument = ctx.findArgumentFor(fieldType, fieldValue);
-
-                    if (!argument.isPresent())
-                    {
-                        throw new UnableToCreateStatementException(
-                                String.format("No argument factory registered for type [%s] for field [%s] on [%s]",
-                                        fieldType,
-                                        name,
-                                        object), ctx);
-                    }
-
-                    return argument;
-                }
-            }
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
-                            "bean property [%s] on [%s]",
-                    name, object), e, ctx);
         }
         return Optional.empty();
     }
