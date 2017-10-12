@@ -30,7 +30,7 @@ import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.transaction.TransactionIsolation;
+import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
@@ -48,7 +48,7 @@ public class TestTransactional
     public interface TheBasics extends Transactional<TheBasics>
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        @TransactionIsolation(TransactionIsolationLevel.SERIALIZABLE)
+        @Transaction(TransactionIsolationLevel.SERIALIZABLE)
         int insert(@BindBean Something something);
     }
 

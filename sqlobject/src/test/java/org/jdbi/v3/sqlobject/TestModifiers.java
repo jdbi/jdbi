@@ -27,9 +27,8 @@ import org.jdbi.v3.sqlobject.customizer.FetchSize;
 import org.jdbi.v3.sqlobject.customizer.MaxRows;
 import org.jdbi.v3.sqlobject.customizer.QueryTimeOut;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.transaction.TransactionIsolation;
+import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
-import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
@@ -121,9 +120,8 @@ public class TestModifiers
         assertThat(things).hasSize(3);
     }
 
-
     @Test
-    public void testIsolationLevelOnMethod() throws Exception
+    public void testIsolationLevel() throws Exception
     {
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
@@ -131,25 +129,6 @@ public class TestModifiers
                 spiffy.insert(1, "Tom");
 
                 Something tom = iso.findById(1);
-                assertThat(tom).isNotNull();
-
-                spiffy.rollback();
-
-                Something not_tom = iso.findById(1);
-                assertThat(not_tom).isNull();
-            });
-        });
-    }
-
-    @Test
-    public void testIsolationLevelOnParam() throws Exception
-    {
-        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
-            dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
-                spiffy.begin();
-                spiffy.insert(1, "Tom");
-
-                Something tom = iso.findById(1, READ_UNCOMMITTED);
                 assertThat(tom).isNotNull();
 
                 spiffy.rollback();
@@ -195,13 +174,9 @@ public class TestModifiers
     @RegisterRowMapper(SomethingMapper.class)
     public interface IsoLevels
     {
-        @TransactionIsolation(READ_UNCOMMITTED)
+        @Transaction(READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
-
-        @SqlQuery("select id, name from something where id = :id")
-        Something findById(@Bind("id") int id, @TransactionIsolation TransactionIsolationLevel iso);
-
     }
 
 }
