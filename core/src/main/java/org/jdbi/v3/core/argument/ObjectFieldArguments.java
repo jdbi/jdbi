@@ -23,19 +23,19 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 /**
  * Inspect an object and binds parameters based on each of its public fields.
  */
-public class BeanFieldArguments extends ObjectPropertyNamedArgumentFinder
+public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder
 {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param bean the bean to inspect and bind
      */
-    public BeanFieldArguments(String prefix, Object bean)
+    public ObjectFieldArguments(String prefix, Object bean)
     {
         super(prefix, bean);
     }
 
     @Override
-    public Optional<Argument> find0(String name, StatementContext ctx)
+    Optional<Argument> find0(String name, StatementContext ctx)
     {
         try
         {

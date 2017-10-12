@@ -21,7 +21,7 @@ import java.util.Optional;
  * Base {@link NamedArgumentFinder} implementation that can be used when binding properties of an object, with an
  * optional prefix.
  */
-public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
+abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
 {
     protected final String prefix;
     protected final Object object;
@@ -54,5 +54,5 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
      * @param name name of the property to bind (this does *not* include the prefix)
      * @param ctx {@link StatementContext} to bind on
      */
-    protected abstract Optional<Argument> find0(String name, StatementContext ctx);
+    abstract Optional<Argument> find0(String name, StatementContext ctx);
 }

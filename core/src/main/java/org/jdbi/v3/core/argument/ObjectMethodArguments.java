@@ -19,21 +19,21 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
- * Binds public functions with no parameters on a specified object.
+ * Binds public methods with no parameters on a specified object.
  */
-public class BeanFunctionsArguments extends FunctionReturnValueNamedArgumentFinder
+public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder
 {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind functions on
      */
-    public BeanFunctionsArguments(String prefix, Object object)
+    public ObjectMethodArguments(String prefix, Object object)
     {
         super(prefix, object);
     }
 
     @Override
-    public Optional<Argument> find0(String name, StatementContext ctx)
+    Optional<Argument> find0(String name, StatementContext ctx)
     {
         if (name.startsWith(prefix))
         {

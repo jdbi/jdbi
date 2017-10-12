@@ -36,8 +36,8 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.argument.BeanFieldArguments;
-import org.jdbi.v3.core.argument.BeanFunctionsArguments;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -200,7 +200,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindFields(Object object)
     {
-        return bindNamedArgumentFinder(new BeanFieldArguments(null, object));
+        return bindNamedArgumentFinder(new ObjectFieldArguments(null, object));
     }
 
     /**
@@ -213,32 +213,32 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindFields(String prefix, Object object)
     {
-        return bindNamedArgumentFinder(new BeanFieldArguments(prefix, object));
+        return bindNamedArgumentFinder(new ObjectFieldArguments(prefix, object));
     }
 
     /**
-     * Binds functions with no parameters on the argument.
+     * Binds methods with no parameters on the argument.
      *
-     * @param object source of named parameter values to use as arguments
+     * @param object source of methods to use as arguments
      *
      * @return modified statement
      */
-    public This bindFunctions(Object object)
+    public This bindMethods(Object object)
     {
-        return bindNamedArgumentFinder(new BeanFunctionsArguments(null, object));
+        return bindNamedArgumentFinder(new ObjectMethodArguments(null, object));
     }
 
     /**
-     * Binds functions with no parameters on the argument, with the given prefix.
+     * Binds methods with no parameters on the argument, with the given prefix.
      *
      * @param prefix a prefix to apply to all property names.
-     * @param object source of functions to use as arguments
+     * @param object source of methods to use as arguments
      *
      * @return modified statement
      */
-    public This bindFunctions(String prefix, Object object)
+    public This bindMethods(String prefix, Object object)
     {
-        return bindNamedArgumentFinder(new BeanFunctionsArguments(prefix, object));
+        return bindNamedArgumentFinder(new ObjectMethodArguments(prefix, object));
     }
 
     /**

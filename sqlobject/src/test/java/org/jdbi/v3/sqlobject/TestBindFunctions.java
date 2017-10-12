@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.customizer.BindFunctions;
+import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class TestBindFunctions {
 
     public interface Dao {
         @SqlUpdate("update something set name=:name where id=:id")
-        void update(@BindFunctions FluentSomething thing);
+        void update(@BindMethods FluentSomething thing);
 
         @SqlQuery("select name from something where id = :id")
         String getName(long id);

@@ -23,15 +23,15 @@ import java.util.Optional;
 
 /**
  * Base {@link NamedArgumentFinder} implementation that can be used for bindings that use the return value
- * of an object's function as an argument.
+ * of an object's method as an argument.
  */
-public abstract class FunctionReturnValueNamedArgumentFinder extends ObjectPropertyNamedArgumentFinder
+abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedArgumentFinder
 {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
-     * @param object the object to bind functions on
+     * @param object the object to bind methods on
      */
-    protected FunctionReturnValueNamedArgumentFinder(String prefix, Object object)
+    protected MethodReturnValueNamedArgumentFinder(String prefix, Object object)
     {
         super(prefix, object);
     }
@@ -39,7 +39,6 @@ public abstract class FunctionReturnValueNamedArgumentFinder extends ObjectPrope
 
     protected Optional<Argument> getArgumentForMethod(Method method, StatementContext ctx)
     {
-        // TODO: Check if we really want to throw exceptions here if using multiple binding annotations
         try
         {
             Type propertyType = method.getGenericReturnType();
@@ -49,7 +48,7 @@ public abstract class FunctionReturnValueNamedArgumentFinder extends ObjectPrope
             if (!argument.isPresent())
             {
                 throw new UnableToCreateStatementException(
-                        String.format("No argument factory registered for type [%s] for function [%s] on [%s]",
+                        String.format("No argument factory registered for type [%s] for method [%s] on [%s]",
                                 propertyType,
                                 method.getName(),
                                 object), ctx);
@@ -60,13 +59,13 @@ public abstract class FunctionReturnValueNamedArgumentFinder extends ObjectPrope
         catch (IllegalAccessException e)
         {
             throw new UnableToCreateStatementException(String.format("Access exception invoking " +
-                            "function [%s] on [%s]",
+                            "method [%s] on [%s]",
                     method.getName(), object), e, ctx);
         }
         catch (InvocationTargetException e)
         {
             throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
-                            "function [%s] on [%s]",
+                            "method [%s] on [%s]",
                     method.getName(), object), e, ctx);
         }
     }

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.customizer.internal;
 
-import org.jdbi.v3.sqlobject.customizer.BindFunctions;
+import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
-public class BindFunctionsFactory implements SqlStatementCustomizerFactory {
+public class BindMethodsFactory implements SqlStatementCustomizerFactory {
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
@@ -31,12 +31,12 @@ public class BindFunctionsFactory implements SqlStatementCustomizerFactory {
                                                               int index,
                                                               Type type) {
         return (stmt, bean) -> {
-            final String prefix = ((BindFunctions) annotation).value();
+            final String prefix = ((BindMethods) annotation).value();
             if (prefix.isEmpty()) {
-                stmt.bindFunctions(bean);
+                stmt.bindMethods(bean);
             }
             else {
-                stmt.bindFunctions(prefix, bean);
+                stmt.bindMethods(prefix, bean);
             }
         };
     }

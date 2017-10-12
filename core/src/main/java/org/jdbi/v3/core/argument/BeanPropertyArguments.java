@@ -27,7 +27,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
  */
-public class BeanPropertyArguments extends FunctionReturnValueNamedArgumentFinder
+public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
 {
     private BeanInfo info;
 

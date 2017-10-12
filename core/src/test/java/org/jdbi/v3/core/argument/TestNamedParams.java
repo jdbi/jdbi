@@ -22,6 +22,7 @@ import java.util.Map;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,10 +68,17 @@ public class TestNamedParams
     public void testBeanPropertyBinding() throws Exception
     {
         Handle h = dbRule.openHandle();
+        Something original = new Something(0, "Keith");
+
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
-        s.bindBean(new Something(0, "Keith"));
+        s.bindBean(original);
         int insert_count = s.execute();
         assertThat(insert_count).isEqualTo(1);
+
+        Query q = h.createQuery("select * from something where id = :id").bind("id", original.getId());
+        final Something fromDb = q.mapToBean(Something.class).findOnly();
+
+        assertThat(fromDb).isEqualTo(original);
     }
 
     @Test
@@ -85,7 +93,12 @@ public class TestNamedParams
             public String name = "Keith";
         });
         int insert_count = s.execute();
+
+        Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
+        final Something fromDb = q.mapToBean(Something.class).findOnly();
+
         assertThat(insert_count).isEqualTo(1);
+        assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
     }
 
     @Test
@@ -93,7 +106,7 @@ public class TestNamedParams
     {
         Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :aFunctionThatReturnsTheName)");
-        s.bindFunctions(new Object() {
+        s.bindMethods(new Object() {
             @SuppressWarnings("unused")
             public int id() {
                 return 0;
@@ -105,7 +118,12 @@ public class TestNamedParams
             }
         });
         int insert_count = s.execute();
+
+        Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
+        final Something fromDb = q.mapToBean(Something.class).findOnly();
+
         assertThat(insert_count).isEqualTo(1);
+        assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
     }
 
     @Test
@@ -118,7 +136,12 @@ public class TestNamedParams
         args.put("name", "Keith");
         s.bindMap(args);
         int insert_count = s.execute();
+
+        Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
+        final Something fromDb = q.mapToBean(Something.class).findOnly();
+
         assertThat(insert_count).isEqualTo(1);
+        assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
     }
 
     @Test

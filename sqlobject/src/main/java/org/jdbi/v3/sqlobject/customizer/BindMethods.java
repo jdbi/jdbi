@@ -18,12 +18,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.customizer.internal.BindFunctionsFactory;
+import org.jdbi.v3.sqlobject.customizer.internal.BindMethodsFactory;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindFunctionsFactory.class)
-public @interface BindFunctions
+@SqlStatementCustomizingAnnotation(BindMethodsFactory.class)
+public @interface BindMethods
 {
     /**
      * Prefix to apply to each fluent accessor name. If specified, properties will be bound as
