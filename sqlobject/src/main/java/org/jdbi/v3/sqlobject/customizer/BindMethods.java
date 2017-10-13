@@ -18,19 +18,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.customizer.internal.BindBeanFactory;
+import org.jdbi.v3.sqlobject.customizer.internal.BindMethodsFactory;
 
-/**
- * Binds the properties of a JavaBean to a SQL statement.
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindBeanFactory.class)
-public @interface BindBean
+@SqlStatementCustomizingAnnotation(BindMethodsFactory.class)
+public @interface BindMethods
 {
     /**
-     * Prefix to apply to each bean property. If specified, properties will be bound as
-     * {@code prefix.propertyName}.
+     * Prefix to apply to each fluent accessor name. If specified, properties will be bound as
+     * {@code prefix.accessorName}.
      *
      * @return the prefix
      */

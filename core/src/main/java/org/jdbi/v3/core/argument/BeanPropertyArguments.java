@@ -17,10 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.statement.StatementContext;
@@ -30,10 +27,8 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
  */
-public class BeanPropertyArguments implements NamedArgumentFinder
+public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
 {
-    private final String prefix;
-    private final Object bean;
     private BeanInfo info;
 
     /**
@@ -42,8 +37,7 @@ public class BeanPropertyArguments implements NamedArgumentFinder
      */
     public BeanPropertyArguments(String prefix, Object bean)
     {
-        this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
-        this.bean = bean;
+        super(prefix, bean);
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
@@ -56,81 +50,21 @@ public class BeanPropertyArguments implements NamedArgumentFinder
     }
 
     @Override
-    public Optional<Argument> find(String name, StatementContext ctx)
+    public Optional<Argument> find0(String name, StatementContext ctx)
     {
-        if (name.startsWith(prefix)) {
-            String propertyName = name.substring(prefix.length());
-            for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
+        for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
+        {
+            if (name.equals(descriptor.getName()))
             {
-                if (propertyName.equals(descriptor.getName()))
+                Method getter = descriptor.getReadMethod();
+                if (getter == null)
                 {
-                    Method getter = descriptor.getReadMethod();
-                    if (getter == null)
-                    {
-                        throw new UnableToCreateStatementException(String.format("No getter method found for " +
-                                        "bean property [%s] on [%s]",
-                                propertyName, bean), ctx);
-                    }
-
-                    try
-                    {
-                        Type propertyType = getter.getGenericReturnType();
-                        Object propertyValue = getter.invoke(bean);
-                        Optional<Argument> argument = ctx.findArgumentFor(propertyType, propertyValue);
-
-                        if (!argument.isPresent()) {
-                            throw new UnableToCreateStatementException(
-                                    String.format("No argument factory registered for type [%s] for bean property [%s] on [%s]",
-                                            propertyType,
-                                            propertyName,
-                                            bean), ctx);
-                        }
-
-                        return argument;
-                    }
-                    catch (IllegalAccessException e)
-                    {
-                        throw new UnableToCreateStatementException(String.format("Access exception invoking getter for " +
-                                        "bean property [%s] on [%s]",
-                                propertyName, bean), e, ctx);
-                    }
-                    catch (InvocationTargetException e)
-                    {
-                        throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
-                                        "getter for bean property [%s] on [%s]",
-                                propertyName, bean), e, ctx);
-                    }
+                    throw new UnableToCreateStatementException(String.format("No getter method found for " +
+                                    "bean property [%s] on [%s]",
+                            name, object), ctx);
                 }
-            }
 
-            try
-            {
-                for (Field field : bean.getClass().getFields())
-                {
-                    if (field.getName().equals(propertyName))
-                    {
-                        Object fieldValue = field.get(bean);
-                        Type fieldType = field.getGenericType();
-                        Optional<Argument> argument = ctx.findArgumentFor(fieldType, fieldValue);
-
-                        if (!argument.isPresent())
-                        {
-                            throw new UnableToCreateStatementException(
-                                    String.format("No argument factory registered for type [%s] for field [%s] on [%s]",
-                                            fieldType,
-                                            propertyName,
-                                            bean), ctx);
-                        }
-
-                        return argument;
-                    }
-                }
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
-                                "bean property [%s] on [%s]",
-                        propertyName, bean), e, ctx);
+                return getArgumentForMethod(getter, ctx);
             }
         }
         return Optional.empty();
@@ -138,6 +72,6 @@ public class BeanPropertyArguments implements NamedArgumentFinder
 
     @Override
     public String toString() {
-        return "{lazy bean property arguments \"" + bean + "\"";
+        return "{lazy bean property arguments \"" + object + "\"";
     }
 }

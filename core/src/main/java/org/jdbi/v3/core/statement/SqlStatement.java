@@ -37,6 +37,8 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -188,6 +190,56 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindBean(String prefix, Object bean)
     {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
+    }
+
+    /**
+     * Binds public fields of the specified object as arguments for the query.
+     *
+     * @param object source of the public fields to bind.
+     *
+     * @return modified statement
+     */
+    public This bindFields(Object object)
+    {
+        return bindNamedArgumentFinder(new ObjectFieldArguments(null, object));
+    }
+
+    /**
+     * Binds public fields of the specified object as arguments for the query.
+     *
+     * @param prefix a prefix to apply to all field names.
+     * @param object source of the public fields to bind.
+     *
+     * @return modified statement
+     */
+    public This bindFields(String prefix, Object object)
+    {
+        return bindNamedArgumentFinder(new ObjectFieldArguments(prefix, object));
+    }
+
+    /**
+     * Binds methods with no parameters on the argument.
+     *
+     * @param object source of methods to use as arguments
+     *
+     * @return modified statement
+     */
+    public This bindMethods(Object object)
+    {
+        return bindNamedArgumentFinder(new ObjectMethodArguments(null, object));
+    }
+
+    /**
+     * Binds methods with no parameters on the argument, with the given prefix.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param object source of methods to use as arguments
+     *
+     * @return modified statement
+     */
+    public This bindMethods(String prefix, Object object)
+    {
+        return bindNamedArgumentFinder(new ObjectMethodArguments(prefix, object));
     }
 
     /**
