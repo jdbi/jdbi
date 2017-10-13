@@ -372,9 +372,9 @@ handle.createUpdate("insert into contacts (id, name) values (:theId, :theName)")
       .execute();
 ----
 
-Optionally, you can qualify each bound bean/object with a prefix. This can help remove
-ambiguity in situations where two or more bound beans have similar property
-names:
+Optionally, you can qualify each bound bean/object with a prefix. This can help
+remove ambiguity in situations where two or more bound beans have similar
+property names:
 
 [source,java]
 ----
@@ -391,8 +391,8 @@ handle.createUpdate("insert into documents (id, folder_id, name, contents) " +
 ----
 
 [WARNING]
-Neither `bindMap()`, `bindMethods()`, `bindFields()` nor `bindBean()` support binding of nested properties (e.g.
-`:user.address.street`).
+Neither `bindMap()`, `bindMethods()`, `bindFields()`, nor `bindBean()` support
+ binding of nested properties (e.g. `:user.address.street`).
 
 ==== Custom Arguments
 
@@ -1595,7 +1595,8 @@ Or you can bind from public, parameterless methods of an object:
 void insert(@BindMethods User user);
 ----
 
-Like `@BindMap`, `@BindBean` `@BindMethods` and `@BindFields` can have an optional prefix:
+Like `@BindMap`, the `@BindBean`, `@BindMethods`, and `@BindFields` annotations
+can have an optional prefix:
 
 [source,java]
 ----
@@ -1606,8 +1607,9 @@ void insert(@BindBean("user") User user);
 ----
 
 [WARNING]
-As in the Core API, neither `@BindMap`, `@BindBean`, `@BindFields` nor `@BindMethods` support binding of
-nested properties (e.g. `:user.address.street`).
+As in the Core API, neither `@BindMap`, `@BindBean`, `@BindFields`, nor
+`@BindMethods` support binding of nested properties
+(e.g. `:user.address.street`).
 
 ==== @SqlQuery
 
@@ -2525,9 +2527,9 @@ interface, as its name suggests, finds arguments by name from some source.
 Typically a single `NamedArgumentFinder` instance will provide arguments for
 several different names.
 
-In cases where neither `bindBean()`, `bindFields()`, `bindMethods()` nor `bindMap()` are a good fit, you can
-implement your own `NamedArgumentFinder` and bind that, instead of
-extracting and binding each argument individually.
+In cases where neither `bindBean()`, `bindFields()`, `bindMethods()`, nor
+`bindMap()` are a good fit, you can implement your own `NamedArgumentFinder` and
+bind that, instead of extracting and binding each argument individually.
 
 [source,java]
 ----
@@ -2543,11 +2545,11 @@ stmt.bindNamedArgumentFinder(cacheFinder);
 Under the hood, the
 link:{jdbidocs}/core/statement/SqlStatement.html#bindBean-java.lang.Object-[SqlStatement.bindBean()^],
 link:{jdbidocs}/core/statement/SqlStatement.html#bindMethods-java.lang.Object-[SqlStatement.bindMethods()^],
-link:{jdbidocs}/core/statement/SqlStatement.html#bindFields-java.lang.Object-[SqlStatement.bindFields()^]
+link:{jdbidocs}/core/statement/SqlStatement.html#bindFields-java.lang.Object-[SqlStatement.bindFields()^],
 and
 link:{jdbidocs}/core/statement/SqlStatement.html#bindMap-java.util.Map-[SqlStatement.bindMap()^]
 methods are just creating and binding custom implementations of
-`NamedArgumentFinder` for beans, methods, fields and maps, respectively.
+`NamedArgumentFinder` for beans, methods, fields, and maps, respectively.
 
 === JdbiConfig
 
