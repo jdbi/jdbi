@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.SqlOperation;
 import org.jdbi.v3.sqlobject.statement.internal.SqlQueryHandler;
 
 /**
@@ -26,7 +26,7 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlQueryHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlQueryHandler.class)
+@SqlOperation(SqlQueryHandler.class)
 public @interface SqlQuery {
     /**
      * The query (or query name if using a statement locator) to be executed. If no value is specified,

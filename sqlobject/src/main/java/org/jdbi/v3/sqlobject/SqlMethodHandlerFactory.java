@@ -27,7 +27,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
     public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
         List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
                 .map(Annotation::annotationType)
-                .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
+                .filter(type -> type.isAnnotationPresent(SqlOperation.class))
                 .collect(toList());
 
         if (sqlMethodAnnotations.isEmpty()) {
@@ -52,7 +52,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         }
 
         return Optional.of(sqlMethodAnnotations.stream()
-                .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
+                .map(type -> type.getAnnotation(SqlOperation.class))
                 .map(a -> buildHandler(a.value(), sqlObjectType, method))
                 .findFirst()
                 .<IllegalStateException>orElseThrow(() -> new IllegalStateException(String.format(

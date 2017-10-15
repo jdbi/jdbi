@@ -20,7 +20,7 @@ import java.util.Optional;
  * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
  * that annotation.
  *
- * @see SqlMethodAnnotation
+ * @see SqlOperation
  */
 public interface HandlerFactory {
     /**

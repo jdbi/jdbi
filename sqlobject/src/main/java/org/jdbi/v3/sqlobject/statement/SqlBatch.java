@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.SqlOperation;
 import org.jdbi.v3.sqlobject.statement.internal.SqlBatchHandler;
 
 /**
@@ -37,7 +37,7 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlBatchHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlBatchHandler.class)
+@SqlOperation(SqlBatchHandler.class)
 public @interface SqlBatch {
     /**
      * @return the SQL string (or name)

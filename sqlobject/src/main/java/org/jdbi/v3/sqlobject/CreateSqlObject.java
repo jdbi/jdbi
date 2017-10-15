@@ -26,5 +26,5 @@ import org.jdbi.v3.sqlobject.internal.CreateSqlObjectHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@SqlMethodAnnotation(CreateSqlObjectHandler.class)
+@SqlOperation(CreateSqlObjectHandler.class)
 public @interface CreateSqlObject { }

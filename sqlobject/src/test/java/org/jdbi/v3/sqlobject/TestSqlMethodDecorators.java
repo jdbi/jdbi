@@ -124,25 +124,25 @@ public class TestSqlMethodDecorators {
     public interface Dao {
         @Foo
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         void unordered();
 
         @Foo
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         @DecoratorOrder({Foo.class, Bar.class})
         void orderedFooBar();
 
         @Foo
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         @DecoratorOrder({Bar.class, Foo.class})
         void orderedBarFoo();
 
         @Foo
         @Abort
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         @DecoratorOrder({Foo.class, Abort.class, Bar.class})
         void abortingDecorator();
     }
@@ -151,12 +151,12 @@ public class TestSqlMethodDecorators {
     public interface OrderedOnType {
         @Foo
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         void orderedFooBarOnType();
 
         @Foo
         @Bar
-        @CustomSqlMethod
+        @CustomSqlOperation
         @DecoratorOrder({Bar.class, Foo.class})
         void orderedBarFooOnMethod();
     }
@@ -205,8 +205,8 @@ public class TestSqlMethodDecorators {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @SqlMethodAnnotation(CustomSqlMethod.Impl.class)
-    public @interface CustomSqlMethod {
+    @SqlOperation(CustomSqlOperation.Impl.class)
+    public @interface CustomSqlOperation {
         class Impl implements Handler {
             @Override
             public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {

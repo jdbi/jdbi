@@ -19,11 +19,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to identify SQL method annotations. Use this to annotate an annotation.
+ * Annotation used to identify SQL operation annotations. Use this to annotate
+ * an annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface SqlMethodAnnotation {
+public @interface SqlOperation {
     /**
      * Handler class for methods annotated with the associated annotation.
      * Must have a public no-arg, {@code (Method method)}, or

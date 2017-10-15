@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.SqlOperation;
 import org.jdbi.v3.sqlobject.statement.internal.SqlCallHandler;
 
 /**
@@ -26,7 +26,7 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlCallHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlCallHandler.class)
+@SqlOperation(SqlCallHandler.class)
 public @interface SqlCall {
     String value() default "";
 }
