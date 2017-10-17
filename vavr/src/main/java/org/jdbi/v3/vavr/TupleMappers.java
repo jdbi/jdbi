@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.vavr;
 
+import io.vavr.Tuple;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.mapper.MapEntryConfig;
@@ -29,13 +30,13 @@ public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<Tu
 
     private ConfigRegistry registry;
 
-    private String[] columns = new String[8];
+    private String[] columns = new String[Tuple.MAX_ARITY];
 
     public TupleMappers() {
     }
 
     private TupleMappers(TupleMappers that) {
-        this.columns = that.columns;
+        System.arraycopy(that.columns, 0, this.columns, 0, Tuple.MAX_ARITY);
     }
 
     @Override
