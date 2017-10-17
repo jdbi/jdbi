@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Configuration class for MapEntryMapper.
  */
-public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryConfig {
+public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryConfig<MapEntryMappers> {
     public MapEntryMappers() {
     }
 
