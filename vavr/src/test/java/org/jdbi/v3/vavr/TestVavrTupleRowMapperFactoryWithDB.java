@@ -85,8 +85,11 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple1HavingOnlyOneRowMapper_shouldFail() throws SQLException {
-        assertThatThrownBy(() -> dbRule.getSharedHandle()
+    public void testMapTuple2HavingOnlyOneRowMapper_shouldFail() throws SQLException {
+        final Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(new SomethingMapper());
+
+        assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
                 .findOnly()
@@ -115,16 +118,10 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
 
-        Tuple3<Integer, Something, Integer> result = handle
+        assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
-                .findOnly();
-
-        assertThat(result._1).isEqualTo(1);
-        assertThat(result._2).isEqualTo(new Something(1, "eric"));
-
-        // TODO should this fail?
-        assertThat(result._3).isNotEqualTo(100);
+                .findOnly()).isInstanceOf(NoSuchMapperException.class);
     }
 
     @Test
