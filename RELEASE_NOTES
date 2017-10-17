@@ -12,6 +12,7 @@
       mappers
     - StatementContext.findColumnMapperFor(...) or ColumnMappers.findFor() returns only
       column mapper
+  - [breaking] Renamed @SqlMethodAnnotation meta-annotation to @SqlOperation.
 
 3.0.0-beta3
   - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack

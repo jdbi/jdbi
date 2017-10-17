@@ -65,7 +65,7 @@ public class TestSqlMethodAnnotations
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @SqlMethodAnnotation(Foo.Impl.class)
+    @SqlOperation(Foo.Impl.class)
     public @interface Foo {
         class Impl implements Handler {
             @Override

@@ -71,7 +71,7 @@ public class SqlObjectFactory implements ExtensionFactory {
 
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
-                .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlMethodAnnotation.class));
+                .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlOperation.class));
     }
 
     /**
