@@ -2548,10 +2548,9 @@ To use the plugin, add a Maven dependency:
 </dependency>
 ----
 
-If you wish to roll your own version of Vavr add an exclusion for io.vavr:vavr.
-Currently Vavr >= 0.9.0 is supported and tested.
-
-As with other plugins: install via `Jdbi` instance or use auto install.
+Currently Vavr >= 0.9.0 is supported and tested. The plugin pulls a supported version of
+Vavr and is ready to be used. As with other plugins: install via `Jdbi` instance or
+use auto install.
 
 [source,java]
 ----
