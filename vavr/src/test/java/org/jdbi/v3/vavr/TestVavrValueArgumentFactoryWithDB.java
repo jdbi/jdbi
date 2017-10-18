@@ -88,12 +88,14 @@ public class TestVavrValueArgumentFactoryWithDB {
         assertThat(result).isEqualTo(BRIAN_SOMETHING);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testGetTryFailure_shouldThrow() {
-        dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
+    @Test
+    public void testGetTryFailure_shouldReturnAllRows() {
+        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Try.failure(new Throwable()))
                 .mapToBean(Something.class)
-                .findOnly();
+                .list();
+
+        assertThat(result).hasSize(2);
     }
 
     @Test
@@ -106,12 +108,14 @@ public class TestVavrValueArgumentFactoryWithDB {
         assertThat(result).isEqualTo(BRIAN_SOMETHING);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testGetEitherLeft_shouldThrow() {
-        dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
+    @Test
+    public void testGetEitherLeft_shouldReturnAllRows() {
+        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Either.left("eric"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .list();
+
+        assertThat(result).hasSize(2);
     }
 
     @Test
@@ -124,12 +128,14 @@ public class TestVavrValueArgumentFactoryWithDB {
         assertThat(result).isEqualTo(BRIAN_SOMETHING);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testGetValidationInvalid_shouldThrow() {
-        dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
+    @Test
+    public void testGetValidationInvalid_shouldReturnAllRows() {
+        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Validation.invalid("eric"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .list();
+
+        assertThat(result).hasSize(2);
     }
 
 }
