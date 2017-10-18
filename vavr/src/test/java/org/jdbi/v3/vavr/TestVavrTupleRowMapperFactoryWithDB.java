@@ -125,6 +125,19 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
+    public void testMapTuple3WithOnlyOneSpecifiedColumn_shouldFail() throws SQLException {
+        Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(new SomethingMapper());
+        handle.configure(TupleMappers.class, c ->
+                c.setColumn(1, "integerValue"));
+
+        assertThatThrownBy(() -> handle
+                .createQuery("select * from something where id = 1")
+                .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
+                .findOnly()).isInstanceOf(NoSuchMapperException.class);
+    }
+
+    @Test
     public void testMapTuple2SelectedColumns_shouldSucceed() throws SQLException {
         Tuple2<Integer, String> result = dbRule.getSharedHandle()
                 .createQuery("select intValue, name from something where id = 2")
