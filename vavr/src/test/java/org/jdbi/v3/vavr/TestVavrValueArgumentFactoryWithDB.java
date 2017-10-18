@@ -25,6 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVavrValueArgumentFactoryWithDB {
@@ -54,6 +56,16 @@ public class TestVavrValueArgumentFactoryWithDB {
                 .findOnly();
 
         assertThat(result).isEqualTo(ERIC_SOMETHING);
+    }
+
+    @Test
+    public void testGetOptionEmpty_shouldReturnAllRows() {
+        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
+                .bind("name", Option.none())
+                .mapToBean(Something.class)
+                .list();
+
+        assertThat(result).hasSize(2);
     }
 
     @Test
