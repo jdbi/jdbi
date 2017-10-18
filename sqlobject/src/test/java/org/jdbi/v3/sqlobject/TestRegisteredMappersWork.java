@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.result.ResultSetException;
@@ -172,7 +173,7 @@ public class TestRegisteredMappersWork
         assertThat(henning).isEqualTo(new Something(1, "Henning"));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = NoSuchMapperException.class)
     public void testNoRootRegistrations() throws Exception
     {
         try (Handle h = dbRule.openHandle()) {
