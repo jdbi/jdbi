@@ -114,6 +114,24 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
+    public void testMapTuple3WithAllSpecifiedColumns_shouldRespectConfiguration() throws SQLException {
+        Handle handle = dbRule.getSharedHandle();
+        handle.configure(TupleMappers.class, c ->
+                c.setColumn(1, "integerValue")
+                        .setColumn(2, "intValue")
+                        .setColumn(3, "id"));
+
+        Tuple3<Integer, Integer, Integer> result = handle
+                .createQuery("select * from something where id = 1")
+                .mapTo(new GenericType<Tuple3<Integer, Integer, Integer>>() {})
+                .findOnly();
+
+        assertThat(result._1).isEqualTo(99);
+        assertThat(result._2).isEqualTo(100);
+        assertThat(result._3).isEqualTo(1);
+    }
+
+    @Test
     public void testMapTuple3WithoutSpecifiedColumn_shouldFail() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());

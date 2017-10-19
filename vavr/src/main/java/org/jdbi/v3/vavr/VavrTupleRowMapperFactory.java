@@ -25,6 +25,7 @@ import io.vavr.Tuple6;
 import io.vavr.Tuple7;
 import io.vavr.Tuple8;
 import io.vavr.collection.Array;
+import io.vavr.control.Option;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -53,10 +54,28 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
             Class<? extends Tuple> tupleClass = (Class<? extends Tuple>) erasedType;
             Array<Tuple2<Type, Integer>> tupleTypes = Array.of(tupleClass.getTypeParameters())
                     .map(tp -> resolveType(tp, type))
-                    .zipWithIndex();
+                    .zipWithIndex((t, i) -> Tuple.of(t, i + 1));
 
-            final Array<Optional<RowMapper<?>>> colMappers = tupleTypes
-                    .map(t -> getColumnMapper(t._1, t._2 + 1, config));
+            Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName =
+                    tupleTypes.map(t -> Tuple.of(t._1, t._2, getConfiguredColumnName(t._2, config)));
+
+            boolean anyColumnSet = withConfiguredColumnName.map(t -> t._3).exists(Option::isDefined);
+            if (anyColumnSet) {
+                Array<Optional<RowMapper<?>>> mappers = withConfiguredColumnName
+                        .map(t -> t._3.isDefined() ?
+                                getColumnMapperForDefinedColumn(t._1, t._3.get(), config) :
+                                getRowMapper(t._1, t._2, config));
+
+                boolean mappableWithConfigured = mappers.forAll(Optional::isPresent);
+                if (mappableWithConfigured) {
+                    Array<? extends RowMapper<?>> ms = mappers.map(Optional::get);
+                    return Optional.of((rs, ctx) ->
+                            buildTuple(tupleClass, i -> ms.get(i).map(rs, ctx)));
+                }
+            }
+
+            Array<Optional<RowMapper<?>>> colMappers = tupleTypes
+                    .map(t -> getColumnMapper(t._1, t._2, config));
 
             boolean mappableByColumn = colMappers.forAll(Optional::isPresent);
             if (mappableByColumn) {
@@ -65,8 +84,8 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                         buildTuple(tupleClass, i -> cms.get(i).map(rs, ctx)));
             }
 
-            final Array<Optional<RowMapper<?>>> rowMappers = tupleTypes
-                    .map(t -> getRowMapper(t._1, t._2 + 1, config));
+            Array<Optional<RowMapper<?>>> rowMappers = tupleTypes
+                    .map(t -> getRowMapper(t._1, t._2, config));
 
             boolean mappableByRowMappers = rowMappers.forAll(Optional::isPresent);
             if (mappableByRowMappers) {
@@ -111,22 +130,29 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                 .map(cm -> new SingleColumnMapper<>(cm, colIndex));
     }
 
-    Optional<RowMapper<?>> getRowMapper(Type type, int tupleIndex, ConfigRegistry config) {
+    private Optional<RowMapper<?>> getRowMapper(Type type, int tupleIndex, ConfigRegistry config) {
 
         // try to map by configured tuple
-        Optional<String> tupleColumn = Optional.ofNullable(config.get(TupleMappers.class)
-                .getColumn(tupleIndex));
+        Option<String> tupleColumn = getConfiguredColumnName(tupleIndex, config);
 
-        if (tupleColumn.isPresent()) {
+        if (tupleColumn.isDefined()) {
             String col = tupleColumn.get();
-
-            return config
-                    .get(ColumnMappers.class)
-                    .findFor(type)
-                    .map(cm -> new SingleColumnMapper<>(cm, col));
+            return getColumnMapperForDefinedColumn(type, col, config);
 
         }
         return config.get(RowMappers.class).findFor(type);
+    }
+
+    private Optional<RowMapper<?>> getColumnMapperForDefinedColumn(Type type, String col, ConfigRegistry config) {
+        return config
+                .get(ColumnMappers.class)
+                .findFor(type)
+                .map(cm -> new SingleColumnMapper<>(cm, col));
+    }
+
+    private Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
+        return Option.of(config.get(TupleMappers.class)
+                .getColumn(tupleIndex));
     }
 
     private interface MapperValueResolver extends CheckedFunction1<Integer, Object> {
