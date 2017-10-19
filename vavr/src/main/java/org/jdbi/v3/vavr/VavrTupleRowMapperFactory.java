@@ -68,9 +68,7 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
 
                 boolean mappableWithConfigured = mappers.forAll(Optional::isPresent);
                 if (mappableWithConfigured) {
-                    Array<? extends RowMapper<?>> ms = mappers.map(Optional::get);
-                    return Optional.of((rs, ctx) ->
-                            buildTuple(tupleClass, i -> ms.get(i).map(rs, ctx)));
+                    return buildMapper(tupleClass, mappers);
                 }
             }
 
@@ -79,9 +77,7 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
 
             boolean mappableByColumn = colMappers.forAll(Optional::isPresent);
             if (mappableByColumn) {
-                Array<? extends RowMapper<?>> cms = colMappers.map(Optional::get);
-                return Optional.of((rs, ctx) ->
-                        buildTuple(tupleClass, i -> cms.get(i).map(rs, ctx)));
+                return buildMapper(tupleClass, colMappers);
             }
 
             Array<Optional<RowMapper<?>>> rowMappers = tupleTypes
@@ -89,19 +85,22 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
 
             boolean mappableByRowMappers = rowMappers.forAll(Optional::isPresent);
             if (mappableByRowMappers) {
-                Array<? extends RowMapper<?>> rms = rowMappers.map(Optional::get);
-                return Optional.of((rs, ctx) ->
-                        buildTuple(tupleClass, i -> rms.get(i).map(rs, ctx)));
+                return buildMapper(tupleClass, rowMappers);
             }
         }
 
         return Optional.empty();
     }
 
-
     private boolean canBeMappedToTuple(Class<?> erasedType) {
         // tuple2 already has a mapper
         return Tuple.class.isAssignableFrom(erasedType) && !Tuple2.class.equals(erasedType);
+    }
+
+    private Optional<RowMapper<?>> buildMapper(Class<? extends Tuple> tupleClass, Array<Optional<RowMapper<?>>> colMappers) {
+        Array<? extends RowMapper<?>> cms = colMappers.map(Optional::get);
+        return Optional.of((rs, ctx) ->
+                buildTuple(tupleClass, i -> cms.get(i).map(rs, ctx)));
     }
 
     private Tuple buildTuple(Class<? extends Tuple> tupleClass, MapperValueResolver r) throws SQLException {
@@ -150,7 +149,7 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                 .map(cm -> new SingleColumnMapper<>(cm, col));
     }
 
-    private Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
+    Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
         return Option.of(config.get(TupleMappers.class)
                 .getColumn(tupleIndex));
     }

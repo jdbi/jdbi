@@ -23,6 +23,7 @@ import io.vavr.Tuple5;
 import io.vavr.Tuple6;
 import io.vavr.Tuple7;
 import io.vavr.Tuple8;
+import io.vavr.control.Option;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -46,6 +47,11 @@ public class TestVavrTupleRowMapperFactory {
             @Override
             Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigRegistry config) {
                 return Optional.of((rs, ctx) -> tupleIndex);
+            }
+
+            @Override
+            Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
+                return Option.none();
             }
         };
     }
