@@ -809,7 +809,7 @@ NOTE: If the lookup for the collector factory, element type, or element mapper
 fails, an exception is thrown.
 
 Jdbi can be enhanced to support arbitrary container types. See
-<<JdbiCollector>> for more information.
+<<JdbiCollectors>> for more information.
 
 === SQL Arrays
 
@@ -1613,28 +1613,152 @@ As in the Core API, neither `@BindMap`, `@BindBean`, `@BindFields`, nor
 
 ==== @SqlQuery
 
-SqlQuery returns a single- or multi-row result, depending on whether the method
-return type looks like a collection.
+Use the `@SqlQuery` annotation for select operations.
 
-TODO:
+Query methods may return a single- or multi-row result, depending on whether the
+method return type looks like a collection.
 
-* Executes a statement, and maps the result set to the method return type.
-* Query methods may return single value types (which returns the first row of
-  the result set), or a collection of rows.
-* Foo: maps 0..1 rows to type Foo
-* List<Foo>: maps 0..n rows to Foo, and return in a List
-* Iterable<Foo> will return a `ResultIterable`, which must be explicitly closed
-* Stream<Foo> will return a java.util.stream.Stream, which must be explicitly
-  consumed, and then closed.
-* Using an iterable or stream return type will not play nice with on-demand SQL
-  objects. The iterable or stream will be closed before the method returns.
-* Implement a <<CollectorFactory>> to teach Jdbi to recognize new collection
-  types.
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select name from users")
+  List<String> listNames(); // <1>
+
+  @SqlQuery("select name from users where id = ?")
+  String getName(long id); // <2> <3>
+}
+----
+<1> When a multi-row method returns an empty result set, an empty collection is
+    returned.
+<2> If a single-row method returns multiple rows from the query, only the first
+    row in the result set is returned from the method.
+<3> If a single-row method returns an empty result set, `null` is returned.
+
+[TIP]
+Jdbi can be "taught" to recognize new collection types by registering a
+link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] with the
+<<JdbiCollectors>> config registry.
+
+See
+link:{jdbidocs}/core/collector/BuiltInCollectorFactory.html[BuiltInCollectorFactory^]
+for the complete list of collection types supported out of the box. Certain
+Jdbi plugins (e.g. `GuavaPlugin`) register additional collection types.
+
+Query methods may also return a <<ResultIterable>>,
+link:{jdbidocs}/core/result/ResultIterator.html[ResultIterator^], or a
+`Stream`.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select name from users")
+  ResultIterable<String> getNamesAsIterable();
+
+  @SqlQuery("select name from users")
+  ResultIterator<String> getNamesAsIterator();
+
+  @SqlQuery("select name from users")
+  Stream<String> getNamesAsStream();
+}
+----
+
+The objects returned from these methods hold database resources that must be
+explicitly closed when you are done with them. We strongly recommend the use of
+try-with-resource blocks when calling these methods, to prevent resource leaks:
+
+[source,java]
+----
+try (ResultIterable<String> names = dao.getNamesAsIterable()) {
+  ...
+}
+
+try (ResultIterator<String> names = dao.getNamesAsIterator()) {
+  ...
+}
+
+try (Stream<String> names = dao.getNamesAsStream()) {
+  ...
+}
+----
+
+[WARNING]
+`ResultIterable`, `ResultIterator` and `Stream` methods do not play nice with
+on-demand SQL Objects. Unless the methods are called in a nested way (see
+<<On-Demand>>), the returned object will already be closed.
 
 ===== @Register___Mapper
 
+Use `@Register___Mapper` annotations on SQL Objects to declaratively register
+mappers.
+
+If a row mapper exists for the element type, use `@RegisterRowMapper`:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select * from users")
+  @RegisterRowMapper(UserMapper.class)
+  List<User> list();
+}
+----
+
+Any mapper class used with this annotation must meet a few criteria:
+
+[source,java]
+----
+public class UserMapper implements RowMapper<User> { // <1> <2>
+  public UserMapper() // <3>
+    ...
+  }
+
+  public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+    ...
+  }
+}
+----
+<1> Must be a public class.
+<2> Must implement `RowMapper` with an explicit type argument (e.g.
+    `RowMapper<User>`) instead of a type variable (e.g. `RowMapper<T>`).
+<2> Must have a public, no-argument constructor (or a default constructor).
+
+Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`. The factory
+class must be public, and have a public, no-argument constructor.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select * from users")
+  @RegisterRowMapperFactory(UserMapperFactory.class)
+  List<User> list();
+}
+
+public class UserMapperFactory implements RowMapperFactory { // <1>
+  public UserMapperFactory() {} // <2>
+
+  public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    ...
+  }
+}
+----
+<1> Must be a public class
+<2> Must have a public, no-argument constructor (or a default constructor).
+
+Use `@RegisterColumnMapper` to register a column mapper:
+
+TODO continue here
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+
+
+
+
 You can register mappers declaratively on SqlObjects with annotations such as:
-* @RegisterRowMapper / @RegisterRowMapperFactory
 * @RegisterColumnMapper / @RegisterColumnMapperFactory
 * @RegisterBeanMapper - treat column names as bean properties
 * @RegisterConstructorMapper - treat column name as constructor parameter names
@@ -1938,8 +2062,8 @@ the callback returns.
 
 ==== On-Demand
 
-On-demand instances have an open-ended lifecycle, as they obtain and releases
-connections for each method call. They are thread-safe, and may be reused
+On-demand instances have an open-ended lifecycle, as they obtain and release a
+connection for each method call. They are thread-safe, and may be reused
 across an application. This is handy when you only need to make single calls at
 a time.
 
@@ -1954,6 +2078,19 @@ long bobId = dao.insertFullContact(bob);
 There is a performance penalty every time a connection is allocated and
 released. If you need to make successive calls to a SQL Object, consider using
 one of the above options for better performance, instead of on-demand.
+
+TODO:
+
+* Explain how nested calls within e.g. a default method use the same handle
+  until the outer method returns
+* Default methods can make multiple calls and will execute through the same
+  handle.
+* To make multiple calls from outside the DAO be executed against the same
+  handle, extend `SqlObject` and embed all calls inside a `useHandle()` /
+  `withHandle()` lambda.
+* `@CreateSqlObject` does not play nice with on-demand.
+* `Stream<T>` or `Iterable<T>` return types do not play nice with on-demand.
+
 
 === Additional Annotations
 
@@ -2619,7 +2756,7 @@ TODO:
 ** Call `Jdbi.installPlugins()` to automatically install all SPI plugins on the
    classpath.
 
-=== JdbiCollector
+=== JdbiCollectors
 
 TODO:
 
