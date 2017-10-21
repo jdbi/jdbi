@@ -23,6 +23,7 @@ import io.vavr.Tuple5;
 import io.vavr.Tuple6;
 import io.vavr.Tuple7;
 import io.vavr.Tuple8;
+import io.vavr.collection.Array;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
@@ -53,6 +54,11 @@ public class TestVavrTupleRowMapperFactory {
             Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
                 return Option.none();
             }
+
+            @Override
+            Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigRegistry config, Array<Tuple2<Type, Integer>> tupleTypes) {
+                return tupleTypes.map(t -> Tuple.of(t._1, t._2, Option.<String>none()));
+            }
         };
     }
 
@@ -72,10 +78,9 @@ public class TestVavrTupleRowMapperFactory {
     }
 
     @Test
-    public void testBuildRowMapperForTuple2_shouldFail() throws SQLException {
-        Optional<RowMapper<?>> mapper =
-                unit.build(new GenericType<Tuple2<?, ?>>() {}.getType(), null);
-        assertThat(mapper).isEmpty();
+    public void testBuildRowMapperForTuple2_shouldSucceed() throws SQLException {
+        testProjectionMapper(new GenericType<Tuple2<Integer, Integer>>() {},
+                Tuple.of(1, 2));
     }
 
     @Test

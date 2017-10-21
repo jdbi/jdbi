@@ -49,7 +49,7 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
         Class<?> erasedType = getErasedType(type);
 
         boolean emptyTupleType = Tuple0.class.equals(erasedType) || Tuple.class.equals(erasedType);
-        boolean mappableTupleType = type instanceof ParameterizedType && canBeMappedToTuple(erasedType);
+        boolean mappableTupleType = type instanceof ParameterizedType && Tuple.class.isAssignableFrom(erasedType);
 
         if (mappableTupleType && !emptyTupleType) {
             Class<? extends Tuple> tupleClass = (Class<? extends Tuple>) erasedType;
@@ -57,9 +57,13 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                     .map(tp -> resolveType(tp, type))
                     .zipWithIndex((t, i) -> Tuple.of(t, i + 1));
 
-            Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName =
-                    tupleTypes.map(t -> Tuple.of(t._1, t._2, getConfiguredColumnName(t._2, config)));
-
+            Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName;
+            if (Tuple2.class.equals(erasedType)) {
+                withConfiguredColumnName = resolveKeyValueColumns(config, tupleTypes);
+            } else {
+                withConfiguredColumnName = tupleTypes
+                        .map(t -> Tuple.of(t._1, t._2, getConfiguredColumnName(t._2, config)));
+            }
             boolean anyColumnSet = withConfiguredColumnName.map(t -> t._3).exists(Option::isDefined);
             if (anyColumnSet) {
                 Array<Optional<RowMapper<?>>> mappers = withConfiguredColumnName
@@ -106,9 +110,15 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
         return Optional.empty();
     }
 
-    private boolean canBeMappedToTuple(Class<?> erasedType) {
-        // tuple2 already has a mapper
-        return Tuple.class.isAssignableFrom(erasedType) && !Tuple2.class.equals(erasedType);
+    Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigRegistry config, Array<Tuple2<Type, Integer>> tupleTypes) {
+        Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName;
+        Tuple2<Type, Integer> keyType = tupleTypes.get(0);
+        Tuple2<Type, Integer> valueType = tupleTypes.get(1);
+        withConfiguredColumnName = Array.of(
+                Tuple.of(keyType._1, keyType._2, Option.of(config.get(TupleMappers.class).getKeyColumn())),
+                Tuple.of(valueType._1, valueType._2, Option.of(config.get(TupleMappers.class).getValueColumn()))
+        );
+        return withConfiguredColumnName;
     }
 
     private Optional<RowMapper<?>> buildMapper(Class<? extends Tuple> tupleClass, Array<Optional<RowMapper<?>>> colMappers) {
@@ -120,6 +130,8 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
     private Tuple buildTuple(Class<? extends Tuple> tupleClass, MapperValueResolver r) throws SQLException {
         if (Tuple1.class.equals(tupleClass)) {
             return Tuple.of(r.apply(0));
+        } else if (Tuple2.class.equals(tupleClass)) {
+            return Tuple.of(r.apply(0), r.apply(1));
         } else if (Tuple3.class.equals(tupleClass)) {
             return Tuple.of(r.apply(0), r.apply(1), r.apply(2));
         } else if (Tuple4.class.equals(tupleClass)) {

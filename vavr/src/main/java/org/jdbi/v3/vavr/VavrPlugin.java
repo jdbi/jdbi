@@ -32,7 +32,6 @@ public class VavrPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerCollector(new VavrCollectorFactory());
-        jdbi.registerRowMapper(VavrTuple2Mapper.factory());
         jdbi.registerRowMapper(new VavrTupleRowMapperFactory());
         jdbi.registerArgument(new VavrValueArgumentFactory());
     }

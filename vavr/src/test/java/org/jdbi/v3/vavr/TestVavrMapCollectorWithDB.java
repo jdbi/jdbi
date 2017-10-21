@@ -35,7 +35,7 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestVavrTuple2MapperWithDB {
+public class TestVavrMapCollectorWithDB {
 
     private static final String VAL_PREFIX = "valCol";
     private static final String KEY_PREFIX = "keyCol";

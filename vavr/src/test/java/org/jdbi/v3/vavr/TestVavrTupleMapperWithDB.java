@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO consider removing this since its mostly redunant with other test class
 public class TestVavrTupleMapperWithDB {
 
     @Rule
@@ -71,7 +72,7 @@ public class TestVavrTupleMapperWithDB {
 
     @Test
     public void testTuple1CollectorWithMultiSelect_shouldSucceed() {
-        List<Tuple1<Integer>> firstColumnTuples = expected.map(i -> new Tuple1<>(i));
+        List<Tuple1<Integer>> firstColumnTuples = expected.map(Tuple1::new);
         List<Tuple1<Integer>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select * from tuples")
                 .collectInto(new GenericType<List<Tuple1<Integer>>>() {
