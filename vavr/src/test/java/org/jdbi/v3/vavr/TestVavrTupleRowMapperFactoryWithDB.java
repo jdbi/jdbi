@@ -93,7 +93,8 @@ public class TestVavrTupleRowMapperFactoryWithDB {
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
                 .findOnly()
-        ).isInstanceOf(NoSuchMapperException.class);
+        ).isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining("SomethingValues");
     }
 
     @Test
@@ -139,7 +140,9 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
-                .findOnly()).isInstanceOf(NoSuchMapperException.class);
+                .findOnly())
+                .isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining("TupleMappers config class");
     }
 
     @Test
@@ -152,7 +155,9 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
-                .findOnly()).isInstanceOf(NoSuchMapperException.class);
+                .findOnly()).isInstanceOf(NoSuchMapperException.class)
+                .isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining("TupleMappers config class");
     }
 
     @Test

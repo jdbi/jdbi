@@ -28,6 +28,7 @@ import io.vavr.collection.Array;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -64,28 +65,41 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                 Array<Optional<RowMapper<?>>> mappers = withConfiguredColumnName
                         .map(t -> t._3.isDefined() ?
                                 getColumnMapperForDefinedColumn(t._1, t._3.get(), config) :
-                                getRowMapper(t._1, t._2, config));
+                                getRowMapper(t._1, config));
 
                 boolean mappableWithConfigured = mappers.forAll(Optional::isPresent);
                 if (mappableWithConfigured) {
                     return buildMapper(tupleClass, mappers);
                 }
-            }
 
-            Array<Optional<RowMapper<?>>> colMappers = tupleTypes
-                    .map(t -> getColumnMapper(t._1, t._2, config));
+                Array<String> configuredColumns = withConfiguredColumnName
+                        .map(t -> t._2 + ": " + t._3.getOrNull());
+                throw new NoSuchMapperException(type + " cannot be mapped. " +
+                        "If tuple columns are configured (TupleMappers config class), " +
+                        "each tuple entry must be mappable via " +
+                        "specified column name or existing RowMapper. " +
+                        "Currently configured: " + configuredColumns.mkString(", "));
+            } else {
+                Array<Optional<RowMapper<?>>> colMappers = tupleTypes
+                        .map(t -> getColumnMapper(t._1, t._2, config));
 
-            boolean mappableByColumn = colMappers.forAll(Optional::isPresent);
-            if (mappableByColumn) {
-                return buildMapper(tupleClass, colMappers);
-            }
+                boolean mappableByColumn = colMappers.forAll(Optional::isPresent);
+                if (mappableByColumn) {
+                    return buildMapper(tupleClass, colMappers);
+                }
 
-            Array<Optional<RowMapper<?>>> rowMappers = tupleTypes
-                    .map(t -> getRowMapper(t._1, t._2, config));
+                Array<Optional<RowMapper<?>>> rowMappers = tupleTypes
+                        .map(t -> getRowMapper(t._1, config));
 
-            boolean mappableByRowMappers = rowMappers.forAll(Optional::isPresent);
-            if (mappableByRowMappers) {
-                return buildMapper(tupleClass, rowMappers);
+                boolean mappableByRowMappers = rowMappers.forAll(Optional::isPresent);
+                if (mappableByRowMappers) {
+                    return buildMapper(tupleClass, rowMappers);
+                }
+
+                throw new NoSuchMapperException(type + " cannot be mapped. " +
+                        "All tuple elements must be mappable by ColumnMapper or all by RowMapper. " +
+                        "If you want to mix column- and rowmapped entries, you must configure " +
+                        "columns via TupleMappers config class");
             }
         }
 
@@ -129,16 +143,7 @@ public class VavrTupleRowMapperFactory implements RowMapperFactory {
                 .map(cm -> new SingleColumnMapper<>(cm, colIndex));
     }
 
-    private Optional<RowMapper<?>> getRowMapper(Type type, int tupleIndex, ConfigRegistry config) {
-
-        // try to map by configured tuple
-        Option<String> tupleColumn = getConfiguredColumnName(tupleIndex, config);
-
-        if (tupleColumn.isDefined()) {
-            String col = tupleColumn.get();
-            return getColumnMapperForDefinedColumn(type, col, config);
-
-        }
+    private Optional<RowMapper<?>> getRowMapper(Type type, ConfigRegistry config) {
         return config.get(RowMappers.class).findFor(type);
     }
 
