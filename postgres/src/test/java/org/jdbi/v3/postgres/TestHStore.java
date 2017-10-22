@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
@@ -98,7 +99,7 @@ public class TestHStore {
 
     @Test
     public void testRaisesExceptionWhenReadsWithWrongType() {
-        expectedException.expect(UnsupportedOperationException.class);
+        expectedException.expect(NoSuchMapperException.class);
         expectedException.expectMessage("No mapper registered for type java.util.Map<java.lang.String, java.lang.Object>");
 
         handle.createQuery("select caps from campaigns order by id")
