@@ -40,6 +40,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     public Arguments() {
         register(BuiltInArgumentFactory.INSTANCE);
         register(new SqlArrayArgumentFactory());
+        register(new JavaTimeZoneIdArgumentFactory());
     }
 
     @Override
