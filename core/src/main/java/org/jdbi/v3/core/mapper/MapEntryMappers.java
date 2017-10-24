@@ -47,7 +47,7 @@ public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryCon
      */
     @Override
     public MapEntryMappers setKeyColumn(String keyColumn) {
-        this.keyColumn = requireNonNull(keyColumn);
+        this.keyColumn = keyColumn;
         return this;
     }
 
@@ -66,7 +66,7 @@ public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryCon
      */
     @Override
     public MapEntryMappers setValueColumn(String valueColumn) {
-        this.valueColumn = requireNonNull(valueColumn);
+        this.valueColumn = valueColumn;
         return this;
     }
 

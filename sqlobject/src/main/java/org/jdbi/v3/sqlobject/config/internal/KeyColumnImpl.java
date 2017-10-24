@@ -25,6 +25,7 @@ public class KeyColumnImpl implements Configurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         KeyColumn keyColumn = (KeyColumn) annotation;
-        registry.get(MapEntryMappers.class).setKeyColumn(keyColumn.value());
+        String name = keyColumn.value();
+        registry.get(MapEntryMappers.class).setKeyColumn(name.isEmpty() ? null : name);
     }
 }

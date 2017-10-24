@@ -111,6 +111,40 @@ public class MapEntryMapperTest {
                 entry(new User(3, "cathy"), new Phone(30, "555-0003")));
     }
 
+    @Test
+    public void overrideKeyValueColumnAtJdbiLevelWithNullAtStatement() {
+        h.execute("create table user (id int, name varchar)");
+        h.execute("create table phone (id int, user_id int, phone varchar)");
+        h.prepareBatch("insert into user (id, name) values (?, ?)")
+                .add(1, "alice")
+                .add(2, "bob")
+                .add(3, "cathy")
+                .execute();
+        h.prepareBatch("insert into phone (id, user_id, phone) values (?, ?, ?)")
+                .add(10, 1, "555-0001")
+                .add(20, 2, "555-0002")
+                .add(30, 3, "555-0003")
+                .execute();
+
+        String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
+                "from user u left join phone p on u.id = p.user_id";
+        dbRule.getJdbi()
+                .setMapKeyColumn("foo")
+                .setMapValueColumn("bar")
+                .useHandle(handle -> {
+                    Map<User, Phone> map = handle.createQuery(sql)
+                            .setMapKeyColumn(null)
+                            .setMapValueColumn(null)
+                            .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
+                            .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
+                            .collectInto(new GenericType<Map<User, Phone>>() {});
+                    assertThat(map).containsOnly(
+                            entry(new User(1, "alice"), new Phone(10, "555-0001")),
+                            entry(new User(2, "bob"),   new Phone(20, "555-0002")),
+                            entry(new User(3, "cathy"), new Phone(30, "555-0003")));
+                });
+    }
+
     public static class User {
         private final int id;
         private final String name;

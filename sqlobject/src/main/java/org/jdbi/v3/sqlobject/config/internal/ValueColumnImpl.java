@@ -25,6 +25,7 @@ public class ValueColumnImpl implements Configurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         ValueColumn valueColumn = (ValueColumn) annotation;
-        registry.get(MapEntryMappers.class).setValueColumn(valueColumn.value());
+        String name = valueColumn.value();
+        registry.get(MapEntryMappers.class).setValueColumn(name.isEmpty() ? null : name);
     }
 }
