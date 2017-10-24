@@ -53,6 +53,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
      * @see #find(String, StatementContext)
      * @param name name of the property to bind (this does *not* include the prefix)
      * @param ctx {@link StatementContext} to bind on
+     * @return an argument to bind, if any
      */
     abstract Optional<Argument> find0(String name, StatementContext ctx);
 }
