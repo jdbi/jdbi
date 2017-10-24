@@ -87,6 +87,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
         mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
         mappers.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
+        mappers.put(ZoneId.class, referenceMapper(BuiltInMapperFactory::getZoneId));
     }
 
     @Override
@@ -173,6 +174,11 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static LocalTime getLocalTime(ResultSet r, int i) throws SQLException {
         Time time = r.getTime(i);
         return time == null ? null : time.toLocalTime();
+    }
+
+    private static ZoneId getZoneId(ResultSet r, int i) throws SQLException {
+        String id = r.getString(i);
+        return id == null ? null : ZoneId.of(id);
     }
 
     private static InetAddress getInetAddress(ResultSet r, int i, StatementContext ctx) throws SQLException {
