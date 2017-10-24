@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import org.jdbi.v3.core.Handle;
@@ -39,7 +40,7 @@ public class TestJavaTime {
         h = db.getSharedHandle();
         h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
-            th.execute("create table stuff (ts timestamp, d date)");
+            th.execute("create table stuff (ts timestamp, d date, z text)");
         });
     }
 
@@ -86,5 +87,12 @@ public class TestJavaTime {
         final Instant leap = Instant.ofEpochMilli(-14159025000L);
         h.execute("insert into stuff values(?)", leap);
         assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).findOnly()).isEqualTo(leap);
+    }
+
+    @Test
+    public void zoneId() {
+        final ZoneId zone = ZoneId.systemDefault();
+        h.execute("insert into stuff(z) values (?)", zone);
+        assertThat(h.createQuery("select z from stuff").mapTo(ZoneId.class).findOnly()).isEqualTo(zone);
     }
 }
