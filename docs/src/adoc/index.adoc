@@ -713,7 +713,13 @@ include::{exampledir}/ResultsTest.java[tags=constructorMapper]
 The constructor parameter names "id", "name" match the database column names
 and as such no custom mapper code is required at all.
 
-TODO: column name prefixes
+TODO:
+
+* column name prefixes
+* JdbiConstructor annotation
+* ConstructorProperties annotation.
+* Lombok's `@AllArgsConstructor` generates `@ConstructorProperties` on
+  constructor, so constructor mappers work well with data classes that have it.
 
 ===== BeanMapper
 
@@ -1696,12 +1702,9 @@ try (Stream<String> names = dao.getNamesAsStream()) {
 on-demand SQL Objects. Unless the methods are called in a nested way (see
 <<On-Demand>>), the returned object will already be closed.
 
-===== @Register___Mapper
+===== @RegisterRowMapper
 
-Use `@Register___Mapper` annotations on SQL Objects to declaratively register
-mappers.
-
-If a row mapper exists for the element type, use `@RegisterRowMapper`:
+Use `@RegisterRowMapper` to register a concrete row mapper class:
 
 [source,java]
 ----
@@ -1712,12 +1715,12 @@ public interface UserDao {
 }
 ----
 
-Any mapper class used with this annotation must meet a few criteria:
+Row mappers used with this annotation must meet a few requirements:
 
 [source,java]
 ----
 public class UserMapper implements RowMapper<User> { // <1> <2>
-  public UserMapper() // <3>
+  public UserMapper() { // <3>
     ...
   }
 
@@ -1731,8 +1734,13 @@ public class UserMapper implements RowMapper<User> { // <1> <2>
     `RowMapper<User>`) instead of a type variable (e.g. `RowMapper<T>`).
 <2> Must have a public, no-argument constructor (or a default constructor).
 
-Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`. The factory
-class must be public, and have a public, no-argument constructor.
+[TIP]
+The `@RegisterRowMapper` annotation may be repeated multiple times on the same
+type or method to register multiple mappers.
+
+===== @RegisterRowMapperFactory
+
+Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`.
 
 [source,java]
 ----
@@ -1741,38 +1749,205 @@ public interface UserDao {
   @RegisterRowMapperFactory(UserMapperFactory.class)
   List<User> list();
 }
+----
 
+Row mapper factories used with this annotation must meet a few requirements:
+
+[source,java]
+----
 public class UserMapperFactory implements RowMapperFactory { // <1>
-  public UserMapperFactory() {} // <2>
+  public UserMapperFactory() { // <2>
+    ...
+  }
 
   public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
     ...
   }
 }
 ----
-<1> Must be a public class
+<1> Must be a public class.
 <2> Must have a public, no-argument constructor (or a default constructor).
+
+[TIP]
+The `@RegisterRowMapperFactory` annotation may be repeated multiple times on the
+same type or method to register multiple factories.
+
+===== @RegisterColumnMapper
 
 Use `@RegisterColumnMapper` to register a column mapper:
 
-TODO continue here
-----------------------------
-----------------------------
-----------------------------
-----------------------------
-----------------------------
-----------------------------
-----------------------------
-----------------------------
+[source,java]
+----
+public interface AccountDao {
+  @SqlQuery("select balance from accounts where id = ?")
+  @RegisterColumnMapper(MoneyMapper.class)
+  Money getBalance(long id);
+}
+----
 
+Column mappers used with this annotation must meet a few requirements:
 
+[source,java]
+----
+public class MoneyMapper implements ColumnMapper<Money> { // <1> <2>
+  public MoneyMapper() { // <3>
+    ...
+  }
 
+  public T map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    ...
+  }
+}
+----
+<1> Must be a public class.
+<2> Must implement `ColumnMapper` with an explicit type argument (e.g.
+    `ColumnMapper<User>`) instead of a type variable (e.g. `ColumnMapper<T>`).
+<3> Must have a public, no-argument constructor (or a default constructor).
 
-You can register mappers declaratively on SqlObjects with annotations such as:
-* @RegisterColumnMapper / @RegisterColumnMapperFactory
-* @RegisterBeanMapper - treat column names as bean properties
-* @RegisterConstructorMapper - treat column name as constructor parameter names
-* @RegisterFieldMapper - treat column names as field names
+[TIP]
+The `@RegisterColumnMapper` annotation may be repeated multiple times on the
+same type or method to register multiple mappers.
+
+===== @RegisterColumnMapperFactory
+
+Use `@RegisterColumnMapperFactory` to register a column mapper factory:
+
+[source,java]
+----
+public interface AccountDao {
+  @SqlQuery("select * from users")
+  @RegisterColumnMapperFactory(MoneyMapperFactory.class)
+  List<User> list();
+}
+----
+
+Row mapper factories used with this annotation must meet a few requirements:
+
+[source,java]
+----
+public class UserMapperFactory implements RowMapperFactory { // <1>
+  public UserMapperFactory() { // <2>
+    ...
+  }
+
+  public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    ...
+  }
+}
+----
+<1> Must be a public class.
+<2> Must have a public, no-argument constructor (or a default constructor).
+
+[TIP]
+The `@RegisterColumnMapperFactory` annotation may be repeated multiple times on
+the same type or method to register multiple factories.
+
+===== @RegisterBeanMapper
+
+Use `@RegisterBeanMapper` to register a <<BeanMapper>> for a bean class:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select * from users")
+  @RegisterBeanMapper(User.class)
+  List<User> list();
+}
+----
+
+Using the `prefix` attribute causes the bean mapper to map only those columns
+that begin with the prefix:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+      "from users u left join roles r on u.role_id = r.id")
+  @RegisterBeanMapper(value = User.class, prefix = "u_")
+  @RegisterBeanMapper(value = Role.class, prefix = "r_")
+  Map<User,Role> getRolesPerUser();
+}
+----
+
+In this example, the `User` mapper will map the columns `u_id` and `u_name` into
+the `User.id` and `User.name` properties. Likewise for `r_id` and `r_name` into
+`Role.id` and `Role.name`, respectively.
+
+[TIP]
+The `@RegisterBeanMapper` annotation may be repeated (as demonstrated above) on
+the same type or method to register multiple bean mappers.
+
+===== @RegisterConstructorMapper
+
+Use `@RegisterConstructorMapper` to register a <<ConstructorMapper>> for classes
+that are instantiated with all properties through the constructor.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select * from users")
+  @RegisterConstructorMapper(User.class)
+  List<User> list();
+}
+----
+
+Using the `prefix` attribute causes the constructor mapper to only map those
+columns that begin with the prefix:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+      "from users u left join roles r on u.role_id = r.id")
+  @RegisterConstructorMapper(value = User.class, prefix = "u_")
+  @RegisterConstructorMapper(value = Role.class, prefix = "r_")
+  Map<User,Role> getRolesPerUser();
+}
+----
+
+In this example, the `User` mapper will map the columns `u_id` and `u_name` into
+the `id` and `name` parameters of the `User` constructor. Likewise for `r_id`
+and `r_name` into `id` and `name` parameters of the `Role` constructor,
+respectively.
+
+[TIP]
+The `@RegisterConstructorMapper` annotation may be repeated multiple times on
+the same type or method to register multiple constructor mappers.
+
+===== @RegisterFieldMapper
+
+Use `@RegisterFieldMapper` to register a <<FieldMapper>> for a given class.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select * from users")
+  @RegisterFieldMapper(User.class)
+  List<User> list();
+}
+----
+
+Using the `prefix` attribute causes the field mapper to only map those columns
+that begin with the prefix:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+      "from users u left join roles r on u.role_id = r.id")
+  @RegisterFieldMapper(value = User.class, prefix = "u_")
+  @RegisterFieldMapper(value = Role.class, prefix = "r_")
+  Map<User,Role> getRolesPerUser();
+}
+----
+
+In this example, the `User` mapper will map the columns `u_id` and `u_name` into
+the `User.id` and `User.name` fields. Likewise for `r_id` and `r_name` into the
+`Role.id` and `Role.name` fields, respectively.
+
+[TIP]
+The `@RegisterConstructorMapper` annotation may be repeated multiple times on
+the same type or method to register multiple constructor mappers.
 
 ===== @SingleValue
 
