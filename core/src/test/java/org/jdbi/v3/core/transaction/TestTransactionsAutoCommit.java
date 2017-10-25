@@ -16,6 +16,7 @@ package org.jdbi.v3.core.transaction;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -63,7 +64,7 @@ public class TestTransactionsAutoCommit
 
         // expected behaviour chain:
         // 1. store initial auto-commit state
-        inOrder.verify(connection).getAutoCommit();
+        inOrder.verify(connection, atLeastOnce()).getAutoCommit();
 
         // 2. turn off auto-commit
         inOrder.verify(connection).setAutoCommit(false);

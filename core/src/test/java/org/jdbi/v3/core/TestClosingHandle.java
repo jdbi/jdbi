@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -156,6 +157,16 @@ public class TestClosingHandle
         }
         finally {
             assertThat(h.isClosed()).isTrue();
+        }
+    }
+
+    @Test
+    public void testCloseWithOpenContainerManagedTransaction() throws Exception {
+        try (Connection conn = dbRule.getConnectionFactory().openConnection()) {
+            conn.setAutoCommit(false); // open transaction
+
+            Handle handle = Jdbi.open(conn);
+            handle.close();
         }
     }
 }

@@ -13,21 +13,25 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.Connection;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
+import org.mockito.Mockito;
 
 /**
  * Utilities for testing jdbi internal classes.
  */
 public class HandleAccess {
     /**
-     * Create a handle with no connection,
+     * Create a handle with a fake connection,
      * useful for tests that do not actually hit
      * a database.
      */
     public static Handle createHandle() {
+        Connection fakeConnection = Mockito.mock(Connection.class);
+
         return new Handle(new ConfigRegistry(), new LocalTransactionHandler(),
-                new DefaultStatementBuilder(), null);
+                new DefaultStatementBuilder(), fakeConnection);
     }
 }
