@@ -1506,6 +1506,7 @@ By default, a `@SqlUpdate` method may return a handful of types:
   matched by the query (regardless of whether any data was changed).
 * `boolean`: returns true if the update count is greater than zero.
 
+[reftext="SqlUpdate-GetGeneratedKeys"]
 ===== @GetGeneratedKeys
 
 Some SQL statements will cause data to be generated on your behalf at the
@@ -1949,6 +1950,7 @@ the `User.id` and `User.name` fields. Likewise for `r_id` and `r_name` into the
 The `@RegisterConstructorMapper` annotation may be repeated multiple times on
 the same type or method to register multiple constructor mappers.
 
+[reftext="SqlQuery-SingleValue"]
 ===== @SingleValue
 
 Sometimes when using advanced SQL features like Arrays, a container type like
@@ -2052,22 +2054,121 @@ Do you use PostgreSQL's `hstore` columns? The <<PostgreSQL>> plugin provides an
 
 ==== @SqlBatch
 
-TODO:
+Use the `@SqlBatch` annotation for bulk update operations. `@SqlBatch` is
+analogous to <<Prepared Batches,PreparedBatch>> in Core.
 
-* Analogous to PreparedBatch in core
-* Execute a statement multiple times, using a series of input arguments.
-* Useful for e.g. batch inserts, batch updates on the same table
-* Method parameters that look like collections will be used as successive
-  elements in the batch. All collection parameters will be zipped.
-* Method parameters that don't look like collections will be bound to that
-  same value for every element in the batch.
-* All parameters are zipped into a series, and then the batch executes the
-  statement for each set of arguments in the series.
-* Returns void, int[] or long[] (update counts per batch statement), or
-  boolean[] (update count > 0 per batch statement).
-* Use @GetGeneratedKeys to return containers of generated keys
-* Use @SingleValue for arguments that should be treated as single values, that
-  Jdbi would otherwise container a collection.
+[source,java]
+----
+public interface ContactDao {
+  @SqlBatch("insert into contacts (id, name, email) values (?, ?, ?)")
+  void bulkInsert(List<Integer> ids,
+                  Iterator<String> names,
+                  String... emails);
+}
+----
+
+Batch parameters may be collections, iterables, iterators, arrays (including
+varargs). We'll call these "iterables" for brevity.
+
+When a batch method is called, SQL Object iterates through the method's iterable
+parameters, and executes the SQL statement with the corresponding elements from
+each parameter.
+
+Thus a statement like:
+
+[source,java]
+----
+contactDao.bulkInsert(
+    ImmutableList.of(1, 2, 3),
+    ImmutableList.of("foo", "bar", "baz").iterator(),
+    "a@example.com", "b@example.com", "c@fake.com");
+----
+
+would execute:
+
+[source,sql]
+----
+insert into contacts (id, name, email) values (1, 'foo', 'a@example.com');
+insert into contacts (id, name, email) values (2, 'bar', 'b@example.com');
+insert into contacts (id, name, email) values (3, 'baz', 'c@fake.com');
+----
+
+Constant values may also be used as parameters to a SQL batch. In this case,
+the same value is bound to that parameter for every SQL statement in the batch.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlBatch("insert into users (tenant_id, id, name) " +
+      "values (:tenantId, :user.id, :user.name)")
+  void bulkInsert(@Bind("tenantId") long tenantId, // <1>
+                  @BindBean("user") User... users);
+}
+----
+<1> Insert each user record using the same `tenant_id`.
+
+[WARNING]
+`@SqlBatch` methods must have at least one iterable parameter.
+
+By default, a `@SqlBatch` method may return a handful of types:
+
+* `void`: returns nothing (obviously)
+* `int[]` or `long[]`: returns the update count per execution in the batch.
+  Depending on the database vendor and JDBC driver, this may be either the
+  number of rows changed by a statement, or the number matched by the query
+  (regardless of whether any data was changed).
+* `boolean[]`: returns true if the update count is greater than zero, one value
+  for each execution in the batch.
+
+[reftext="SqlBatch-GetGeneratedKeys"]
+===== @GetGeneratedKeys
+
+Similar to `@SqlUpdate`, the `@GetGeneratedKeys` annotations tells SQL Object
+that the return value should be the generated keys from each SQL statement,
+instead of the update count. See
+<<SqlUpdate-GetGeneratedKeys,@GetGeneratedKeys>> for a more thorough discussion.
+
+[source,java]
+----
+public interface UserDao {
+  @SqlBatch("insert into users (id, name) values (nextval('user_seq'), ?)")
+  @GetGeneratedKeys("id")
+  long[] bulkInsert(List<String> names); // <1>
+}
+----
+<1> Returns the generated ID for each inserted name.
+
+Multiple columns may be generated and returned in this way:
+[source,java]
+----
+public interface UserDao {
+  @SqlBatch("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+  @GetGeneratedKeys({"id", "created_on"})
+  @RegisterBeanMapper(IdCreateTime.class)
+  List<IdCreateTime> bulkInsert(String... names);
+}
+----
+
+[reftext="SqlBatch-SingleValue"]
+===== @SingleValue
+
+In some cases you may want an iterable parameter to be treated as a
+constant--use the `@SingleValue` annotation on the method parameter. This causes
+SQL Object to bind the whole iterable as the parameter value for every SQL
+statement in the batch (typically as a SQL Array parameter).
+
+[source,java]
+----
+public interface UserDao {
+  @SqlBatch("insert into users (id, name, roles) values (?, ?, ?)")
+  void bulkInsert(List<Long> ids,
+                  List<String> names,
+                  @SingleValue List<String> roles);
+}
+----
+
+In the above example, each new row would get the same `varchar[]` value in the
+`roles` column.
 
 ==== @SqlCall
 
