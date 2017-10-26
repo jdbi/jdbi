@@ -1953,16 +1953,26 @@ the same type or method to register multiple constructor mappers.
 
 Sometimes when using advanced SQL features like Arrays, a container type like
 `int[]` or `List<Integer>` can ambiguously mean either "a single SQL int[]" or
-"a ResultSet of int". Since arrays are not commonly used in normalized schema,
-jdbi assumes that you are collecting a ResultSet into a container object. You
-can annotate a return type as `@SingleValue` to override this.
+"a ResultSet of int".
 
-TODO: provide examples
+Since arrays are not commonly used in normalized schema, SQL Object assumes by
+default that you are collecting a ResultSet into a container object. You can
+annotate a return type as `@SingleValue` to override this.
 
-* Return type is List<String> but we're selecting a varchar[] column from a
-  single row.
-* Return type is Map<String,Object>, but we're selecting an hstore column from
-  a single row.
+For example, suppose we want to select a `varchar[]` column from a single row:
+
+[source,java]
+----
+public interface UserDao {
+  @SqlQuery("select roles from users where id = ?")
+  @SingleValue
+  List<String> getUserRoles(long userId)
+}
+----
+
+Normally, Jdbi would interpret `List<String>` to mean that the mapped type is
+`String`, and to collect all result rows into a list. The `@SingleValue`
+annotation causes Jdbi to treat `List<String>` as the mapped type instead.
 
 ===== Map<K,V> Results
 
@@ -2014,6 +2024,31 @@ Then, simply specify a `Multimap` return type instead of `Map`:
 ----
 include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRowMultimap]
 ----
+
+All the examples so far have been `Map` types where each row in the result set
+is a single `Map.Entry`. However, what if the `Map` we want to return is
+actually a single row or even a single column?
+
+Jdbi's link:{jdbidocs}/core/mapper/MapMapper.html[MapMapper^] maps each row to a
+`Map<String, Object>`, where column names (converted to lowercase) are mapped to
+column values.
+
+By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
+values. Use the `@SingleValue` annotation to override this, so that the return
+type is treated as a single value instead of a collection:
+
+[source,java]
+----
+@SqlQuery("select * from users where id = ?")
+@RegisterRowMapper(MapMapper.class)
+@SingleValue
+Map<String, Object> getById(long userId);
+----
+
+[TIP]
+Do you use PostgreSQL's `hstore` columns? The <<PostgreSQL>> plugin provides an
+`hstore` to `Map<String, String>` column mapper. See
+<<PostgreSQL-hstore,hstore>> for more information.
 
 ==== @SqlBatch
 
@@ -2582,6 +2617,32 @@ It also configures SQL array type support for `int`, `long`, `float`, `double`,
 
 See the link:{jdbidocs}/postgres/package-summary.html[javadoc^] for an
 exhaustive list.
+
+[reftext="PostgreSQL-hstore"]
+==== hstore
+
+The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper:
+
+[source,java]
+----
+Map<String, String> accountAttributes = handle
+    .select("select attributes from account where id = ?", userId)
+    .mapTo(new GenericType<Map<String, String>>() {})
+    .findOnly();
+----
+
+By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
+values. Use the `@SingleValue` annotation to override this, so that the return
+type is treated as a single value instead of a collection:
+
+[source,java]
+----
+public interface AccountDao {
+  @SqlQuery("select attributes from account where id = ?")
+  @SingleValue
+  Map<String, String> getAccountAttributes(long accountId);
+}
+----
 
 [reftext="PostgreSQL-GetGeneratedKeys"]
 ==== @GetGeneratedKeys
