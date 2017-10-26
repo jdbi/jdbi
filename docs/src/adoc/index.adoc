@@ -293,7 +293,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * java.net: `Inet4Address`, `Inet6Address`, `URL`, and `URI`
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
-  `OffsetDateTime`, and `ZonedDateTime`
+  `OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
 * java.util: `Date`, `Optional` (around any other supported type), and `UUID`
 * `java.util.Collection` and Java arrays (stored as SQL arrays). Some
   additional setup may be required depending on the type of array element.
@@ -656,7 +656,7 @@ Out of the box, Jdbi supports mapping database columns to the following types:
 * java.net: `InetAddress`, `URL`, and `URI`
 * java.sql: `Timestamp`
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
-  `OffsetDateTime`, and `ZonedDateTime`
+  `OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
 * java.util: `UUID`
 * `java.util.Collection` and Java arrays (for array columns). Some
   additional setup may be required depending on the type of array element.
