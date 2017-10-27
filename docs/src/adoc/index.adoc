@@ -1643,6 +1643,9 @@ public interface UserDao {
 
   @SqlQuery("select name from users where id = ?")
   String getName(long id); // <2> <3>
+
+  @SqlQuery("select name from users where id = ?")
+  Optional<String> findName(long id); // <4>
 }
 ----
 <1> When a multi-row method returns an empty result set, an empty collection is
@@ -1650,6 +1653,9 @@ public interface UserDao {
 <2> If a single-row method returns multiple rows from the query, only the first
     row in the result set is returned from the method.
 <3> If a single-row method returns an empty result set, `null` is returned.
+<4> Methods may return `Optional` values. If the query returns no rows (or if
+    the value in the row is null), `Optional.empty()` is returned instead of null.
+    SQL Object throws an exception if query returns more than one row.
 
 [TIP]
 Jdbi can be "taught" to recognize new collection types by registering a
