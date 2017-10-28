@@ -13,6 +13,7 @@
     - StatementContext.findColumnMapperFor(...) or ColumnMappers.findFor() returns only
       column mapper
   - [breaking] Renamed @SqlMethodAnnotation meta-annotation to @SqlOperation.
+  - Added support for Vavr object-functional data types in jdbi3-vavr module.
   - java.time.ZoneId support
 
 3.0.0-beta3
