@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.customizer;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -38,6 +39,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.OutParameterFactory;
 @SqlStatementCustomizingAnnotation(OutParameterFactory.class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(OutParameterList.class)
 public @interface OutParameter {
     String name();
     int sqlType();

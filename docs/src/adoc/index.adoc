@@ -2178,11 +2178,40 @@ In the above example, each new row would get the same `varchar[]` value in the
 
 ==== @SqlCall
 
-TODO:
+Use the `@SqlCall` annotation to call stored procedures.
 
-* Use @OutParameter to register an output parameter. Multiple output parameters
-  are not yet supported.
-* Method may return null or OutParameters
+[source,java]
+----
+public interface AccountDao {
+  @SqlCall("{call suspend_account(:id)}")
+  void suspendAccount(@Bind("id") long accountId);
+}
+----
+
+`@SqlCall` methods can return `void`, or may return `OutParameters` if the
+stored procedure has any output parameters. Each output parameter must be
+registered with the `@OutParameter` annotation.
+
+[source,java]
+----
+public interface OrderDao {
+  @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
+  @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
+  @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
+  OutParameters prepareOrderFromCart(@Bind("cartId") long cartId);
+}
+----
+
+Individual output parameters can be extracted from the
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] returned from
+the method:
+
+[source,java]
+----
+OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
+long orderId = outParams.getLong("orderId");
+double orderTotal = outParams.getDouble("orderTotal");
+----
 
 ==== Automatic parameter naming
 
