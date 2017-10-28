@@ -35,8 +35,10 @@ public class TestOutParameterAnnotation {
     @Before
     public void setUp() throws Exception {
         db = dbRule.getJdbi();
-        db.useHandle(h ->
-            h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql"));
+        db.useHandle(h -> {
+            h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql");
+            h.execute("CREATE FUNCTION swap(IN a INT, IN b INT, OUT c INT, OUT d INT) AS $$ BEGIN c := b; d := a; END; $$ LANGUAGE plpgsql");
+        });
     }
 
     @Test
@@ -48,9 +50,24 @@ public class TestOutParameterAnnotation {
         assertThat(outParameters.getInt("outparam")).isEqualTo(100);
     }
 
+    @Test
+    public void testMultipleOutParameters() {
+        MyDao myDao = db.onDemand(MyDao.class);
+
+        OutParameters outParameters = myDao.callMultipleOutParameters(1, 9);
+
+        assertThat(outParameters.getInt("c")).isEqualTo(9);
+        assertThat(outParameters.getInt("d")).isEqualTo(1);
+    }
+
     public interface MyDao {
         @SqlCall("{call set100(:outparam)}")
         @OutParameter(name="outparam", sqlType = Types.INTEGER)
         OutParameters callStoredProc();
+
+        @SqlCall("{call swap(:a, :b, :c, :d)}")
+        @OutParameter(name = "c", sqlType = Types.INTEGER)
+        @OutParameter(name = "d", sqlType = Types.INTEGER)
+        OutParameters callMultipleOutParameters(int a, int b);
     }
 }
