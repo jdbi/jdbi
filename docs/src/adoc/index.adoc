@@ -551,7 +551,7 @@ two types of mappers:
 
 ==== Row Mappers
 
-The link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^] is a functional
+link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^] is a functional
 interface, which maps the current row of a JDBC
 link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] to a mapped type. Row
 mappers are invoked once for each row in the result set.
@@ -612,7 +612,7 @@ Row mappers can be registered for particular types. This simplifies usage,
 requiring only that you specify what type you want to map to. Jdbi
 automatically looks up the mapper from the registry, and uses it.
 
-[source,java,indent=0]
+[source,java]
 ----
 jdbi.registerRowMapper(User.class,
     (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name"));
@@ -628,7 +628,7 @@ A mapper which implements `RowMapper` with an explicit mapped type (such as the
 `UserMapper` class in the previous section) may be registered without specifying
 the mapped type:
 
-[source,java,indent=0]
+[source,java]
 ----
 handle.registerRowMapper(new UserMapper());
 ----
@@ -649,13 +649,14 @@ produce row mappers for arbitrary types.
 
 Implementing a factory might be preferable to a regular row mapper if:
 
-* Multiple classes follow a similar coding pattern, and a row mapper could be
-  implemented in a generalized format. For example, Jdbi provides a generalized
-  <<BeanMapper>>, which maps result set columns to bean properties.
+* The mapper implementation is generic, and could apply to multiple mapped
+  types. For example, Jdbi provides a generalized <<BeanMapper>>, which maps
+  columns to bean properties for any bean class.
 * The mapped type has a generic signature, and/or the mapper could be composed
   from other registered mappers. For example, Jdbi provides a
   <<Map.Entry mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
   for types `K` and `V`.
+* You want to bundle multiple mappers into a single class.
 
 Let's take an example `Pair<L, R>` class:
 
@@ -706,7 +707,7 @@ provides several methods for helping to interpret Java generic types.
 
 The method `GenericTypes.getErasedType` accepts a `java.lang.reflect.Type` and
 returns the raw `java.lang.Class` for that type. So if `type` were the generic
-type `Pair<Foo,Bar>`, it would return `Foo.class`.
+type `Pair<Foo,Bar>`, it would return `Pair.class`.
 
 Next, we extract the `L` and `R` generic parameters from the mapped type:
 
@@ -824,33 +825,87 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-Note that we are creating an anonymous inner class that extends from
-`GenericType<T>`. At runtime, Jdbi inspects the generic type signature and
-extracts the `T` parameter for you.
+Note that the expression `new GenericType<Pair<String, String>>() {}` creates an
+anonymous inner class that extends from `GenericType<T>`. At runtime, Jdbi
+inspects the generic type signature and extracts the `T` parameter for you.
 
 ==== Column Mappers
 
-Sometimes you only wish to fetch a single value, or need to build a larger
-object out of multiple individually mappable elements. A column mapper works on
-a single column instead of by row:
+link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional
+interface, which maps a column from the current row of a JDBC
+link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] to a mapped type.
 
-[source,java,indent=0]
+Since `ColumnMapper` is a functional interface, they can be provided inline to a
+query using a lambda expression:
+
+[source,java]
 ----
-include::{exampledir}/ResultsTest.java[tags=columnMapper]
+List<Money> amounts = handle
+    .select("select amount from transactions where account_id = ?", accountId)
+    .map((rs, col, ctx) -> Money.parse(rs.getString(col))) // <1>
+    .list();
 ----
 
-Notice how the ConstructorMapper, which usually would not know
-what to do with a custom *UserName* object, now automatically
-uses the column mapper to fill in the constructor parameter.
+Whenever a column mapper is used to map rows, only the first column of each row
+is mapped.
 
-TODO:
+Column mappers may be defined as classes, which allows for re-use:
 
-* ColumnMapper is a functional interface. Demonstrate using column mapper
-  lambda inline
+[source,java]
+----
+public class MoneyMapper implements ColumnMapper<Money> {
+  public T map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    return Money.parse(r.getString(columnNumber));
+  }
+}
+----
+
+[source,java]
+----
+List<Money> amounts = handle
+    .select("select amount from transactions where account_id = ?", accountId)
+    .map(new MoneyMapper())
+    .list();
+----
+
+This `ColumnMapper` is equivalent to the lambda mapper above, but more explicit.
 
 ===== ColumnMappers registry
 
-Out of the box, Jdbi supports mapping database columns to the following types:
+Column mappers may be registered for specific types. This simplifies usage,
+requiring only that you specify what type you want to map to. Jdbi automatically
+looks up the mapper from the registry, and uses it.
+
+[source,java]
+----
+jdbi.registerColumnMapper(Money.class,
+    (rs, col, ctx) -> Money.parse(rs.getString(col)));
+
+List<Money> amounts = jdbi.withHandle(handle ->
+    handle.select("select amount from transactions where account_id = ?", accountId)
+          .mapTo(Money.class)
+          .list());
+----
+
+A mapper which implements `ColumnMapper` with an explicit mapped type (such as
+the `MoneyMapper` class in the previous section) may be registered without
+specifying the mapped type:
+
+[source,java]
+----
+handle.registerColumnMapper(new MoneyMapper());
+----
+
+When this method is used, Jdbi inspects the generic class signature of the
+mapper to automatically discover the mapped type.
+
+It is possible to register more than one mapper for any given type. When this
+happens, the last-registered mapper for a given type takes precedence. This
+permits optimizations, like registering a "default" mapper for some type, while
+allowing that default mapper to be overridden with a different one when
+appropriate.
+
+Out of the box, column mappers are registered for the following types:
 
 * Primitives: `boolean`, `byte`, `short`, `int`, `long`, `char`, `float`, and
   `double`
@@ -864,24 +919,159 @@ Out of the box, Jdbi supports mapping database columns to the following types:
   `OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
 * java.util: `UUID`
 * `java.util.Collection` and Java arrays (for array columns). Some
-  additional setup may be required depending on the type of array element.
-
-TODO:
-
-* Registering column mappers allows Jdbi to automatically convert database
-  result columns to the mapped type.
-* Registering an inline column mapper by mapped type
-* Registering a concretely typed column mapper
-* Last registered mapper for a given type wins. This means you can override the
-  out-of-the-box mapper for any type with your own mapper
+  additional setup may be required depending on the type of array element--see
+  <<SQL Arrays>>.
 
 ===== ColumnMapperFactory
 
-TODO:
+A link:{jdbidocs}/core/mapper/ColumnMapperFactory.html[ColumnMapperFactory^] can
+produce column mappers for arbitrary types.
 
-* For mapping arbitrary value types, e.g. Money
-* How to implement a column mapper factory
-* Use GenericTypes helper to help with generics.
+Implementing a factory might be preferable to a regular column mapper if:
+
+* The mapper class is generic, and could apply to multiple mapped types.
+* The type being mapped is generic, and/or the mapper could be composed
+  from other registered mappers.
+* You want to bundle multiple mappers into a single class.
+
+Let's create a mapper factory for `Optional<T>` as an example. The factory
+should produce a `ColumnMapper<Optional<T>>` for any `T`, provided a column
+mapper is registered for `T`.
+
+Let's take this one step at a time:
+
+[source,java]
+----
+public class OptionalColumnMapperFactory implements ColumnMapperFactory {
+  public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    ...
+  }
+}
+----
+
+The `build` method accepts a mapped type, and a config registry. It may return
+`Optional.of(someMapper)` if it knows how to map that type, or
+`Optional.empty()` otherwise.
+
+First, we check whether the mapped type is an `Optional`:
+
+[source,java]
+----
+if (!Optional.class.equals(GenericTypes.getErasedType(type))) {
+  return Optional.empty();
+}
+----
+
+The link:{jdbidocs}/core/generic/GenericTypes.html[GenericTypes^] utility class
+provides several methods for helping to interpret Java generic types.
+
+The method `GenericTypes.getErasedType` accepts a `java.lang.reflect.Type` and
+returns the raw `java.lang.Class` for that type. So if `type` were the generic
+type `Optional<String>`, it would return `Optional.class`.
+
+Next, we extract the `T` generic parameter from the mapped type:
+
+[source,java]
+----
+Type embeddedType = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
+----
+
+The `GenericTypes.resolveType` method accepts a generic type parameter to
+resolve, and a context type in which to resolve it.
+
+The expression `Optional.class.getTypeParameters()[0]` gives the type variable
+`T`. So if `type` was `Optional<String>`, the call to `resolveType` means
+"resolve the type variable `T` in the context of `Optional<String>`, which
+resolves to the type `Foo`.
+
+Now that we have the type of `T`, we can look up a column mapper for that type
+from the `ColumnMappers` config class, through the config registry:
+
+[source,java]
+----
+ColumnMapper<?> embeddedMapper = config.get(ColumnMappers.class)
+    .findFor(embeddedType)
+    .orElseThrow(() -> new NoSuchMapperException(
+        "No column mapper registered for parameter " + embeddedType + " of type " + type));
+----
+
+The config registry is a locator for config classes. So when we call
+`config.get(ColumnMappers.class)`, we get back a `ColumnMappers` instance with
+the current column mapper configuration.
+
+Next we call `ColumnMappers.findFor()` to get the column mappers for the left
+and right type parameters.
+
+[TIP]
+You may have noticed that although this method can return `Optional`, we're
+throwing an exception if we can't find a mapper for the embedded type. We've
+found this to be a best practice: return `Optional.empty()` if the factory knows
+nothing about the mapped type (`Optional`, in this case). If it knows the mapped
+type but is missing some configuration to make it work (e.g. no mapper
+registered for tye `T` parameter) it is more helpful to throw an exception with
+an informative message, so users can diagnose _why_ the mapper isn't working as
+expected.
+
+Finally, we construct the column mapper for optionals, and return it:
+
+[source,java]
+----
+ColumnMapper<?> optionalMapper = (rs, col, ctx) ->
+    Optional.ofNullable(embeddedMapper.map(rs, col, ctx));
+
+return Optional.of(optionalMapper);
+----
+
+Here is the factory class all together:
+
+[source,java]
+----
+public class OptionalColumnMapperFactory implements ColumnMapperFactory {
+  public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    if (!Optional.class.equals(GenericTypes.getErasedType(type))) {
+      return Optional.empty();
+    }
+
+    Type t = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
+
+    ColumnMapper<?> embeddedMapper = config.get(ColumnMappers.class)
+        .findFor(t)
+        .orElseThrow(() -> new NoSuchMapperException(
+            "No column mapper registered for parameter " + t + " of type " + type));
+
+    ColumnMapper<?> optionalMapper = (rs, col, ctx) ->
+        Optional.ofNullable(embeddedMapper.map(rs, col, ctx));
+
+    return Optional.of(optionalMapper);
+  }
+}
+----
+
+Column mapper factories may be registered similar to regular column mappers:
+
+[source,java]
+----
+jdbi.registerColumnMapper(new OptionalColumnMapperFactory());
+----
+
+But how can we map to `Optional<String>`? Java doesn't provide a type-safe way
+to pass around generic types.
+
+For this, Jdbi provides a `GenericType<T>` class:
+
+[source,java]
+----
+try (Handle handle = jdbi.open()) {
+  List<Optional<String>> middleNames = handle
+          .createQuery("select middle_name from contacts")
+          .mapTo(new GenericType<Optional<String>>() {})
+          .list();
+}
+----
+
+Note that the expression `new GenericType<Optional<String>>() {}` creates an
+anonymous inner class that extends from `GenericType<T>`. At runtime, Jdbi
+inspects the generic type signature and extracts the `T` parameter for you.
 
 ==== Reflection Mappers
 
