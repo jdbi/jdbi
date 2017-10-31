@@ -541,11 +541,21 @@ LocalDate releaseDate = handle.createQuery(
     .findOnly();
 ----
 
+You can produce `Map<String, Object>` instances which map column name to value.
+Column names are converted to lowercase, as JDBC drivers have different and often confusing
+rules around case sensitivity.
+
+[source,java]
+----
+List<Map<String, Object>> maps = handle.createQuery(
+        "select title, release_date from films")
+    .list();  // or mapToMap() if you want collections other than List
+----
+
 TODO:
 
 * demonstrate providing a column mapper inline
 * demonstrate mapToBean()
-* demonstrate mapToMap()
 
 === Mappers
 
