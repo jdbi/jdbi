@@ -22,6 +22,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -95,6 +96,14 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             return customizers.stream();
         }
 
+        if (parameter.getType() == Consumer.class) {
+            if (method.getReturnType() != Void.TYPE) {
+                throw new IllegalStateException(
+                  "SQL Object methods with a Consumer parameter must have void return type.");
+            }
+            return Stream.empty();
+        }
+
         return Stream.of(defaultParameterCustomizer(type, method, parameter, i));
     }
 
@@ -134,6 +143,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final String locatedSql = locateSql(h);
         final StatementType stmt = createStatement(h, locatedSql);
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
+        cfg.setArgs(args);
         configureReturner(stmt, cfg);
         applyCustomizers(stmt, args);
         return cfg.getReturner().get();

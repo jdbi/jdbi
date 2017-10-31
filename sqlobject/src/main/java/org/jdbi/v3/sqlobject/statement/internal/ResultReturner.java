@@ -18,6 +18,8 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -59,10 +61,11 @@ abstract class ResultReturner
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
-            throw new IllegalStateException(String.format(
+            return findConsumer(extensionType, method)
+                .orElseThrow(() -> new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
                     method.getDeclaringClass().getName(),
-                    method.getName()));
+                    method.getName())));
         }
         else if (ResultIterable.class.isAssignableFrom(returnClass)) {
             return new ResultIterableResultReturner(returnType);
@@ -79,6 +82,23 @@ abstract class ResultReturner
         else {
             return new CollectedResultReturner(returnType);
         }
+    }
+
+    /**
+     * Inspect a Method for a {@link Consumer} to execute for each produced row.
+     * @param extensionType the extension that owns the method
+     * @param method the method called
+     * @param ctx the statement context
+     * @return a ResultReturner that invokes the consumer and does not return a value
+     */
+    static Optional<ResultReturner> findConsumer(Class<?> extensionType, Method method) {
+        final Class<?>[] paramTypes = method.getParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (paramTypes[i] == Consumer.class) {
+                return Optional.of(new ConsumerResultReturner(method, i));
+            }
+        }
+        return Optional.empty();
     }
 
     protected abstract Object result(ResultIterable<?> iterable, StatementContext ctx);
@@ -223,6 +243,31 @@ abstract class ResultReturner
         @Override
         protected Type elementType(StatementContext ctx)
         {
+            return elementType;
+        }
+    }
+
+    static class ConsumerResultReturner extends ResultReturner
+    {
+        private final int consumerIndex;
+        private final Type elementType;
+
+        ConsumerResultReturner(Method method, int consumerIndex) {
+            this.consumerIndex = consumerIndex;
+            elementType = method.getGenericParameterTypes()[consumerIndex];
+        }
+
+        @Override
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx) {
+            @SuppressWarnings("unchecked")
+            Consumer<Object> consumer = (Consumer<Object>)
+                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
+            iterable.forEach(consumer);
+            return null;
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
             return elementType;
         }
     }

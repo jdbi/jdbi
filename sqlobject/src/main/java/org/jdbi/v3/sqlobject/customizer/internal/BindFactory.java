@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;

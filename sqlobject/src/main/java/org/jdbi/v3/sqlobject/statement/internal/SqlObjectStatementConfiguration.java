@@ -20,12 +20,14 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class SqlObjectStatementConfiguration implements JdbiConfig<SqlObjectStatementConfiguration>
 {
     private Supplier<Object> returner;
+    private Object[] args;
 
     public SqlObjectStatementConfiguration() { }
 
     private SqlObjectStatementConfiguration(SqlObjectStatementConfiguration other)
     {
         this.returner = other.returner;
+        this.args = other.args;
     }
 
     @Override
@@ -39,5 +41,13 @@ public class SqlObjectStatementConfiguration implements JdbiConfig<SqlObjectStat
 
     Supplier<Object> getReturner() {
         return returner;
+    }
+
+    void setArgs(Object[] args) {
+        this.args = args;
+    }
+
+    Object[] getArgs() {
+        return args;
     }
 }

@@ -2820,6 +2820,18 @@ If you like StringTemplate, the <<StringTemplate 4>> module also provides a
 SqlLocator, which can load SQL templates from StringTemplate 4 files on the
 classpath.
 
+=== Consumer Methods
+
+As a special case, you may provide a `Consumer<T>` argument in addition to other bound parameters.
+The provided consumer is executed once for each row in the result set.
+The static type of parameter T determines the row type.
+
+[source,java]
+----
+@SqlQuery("select id, name from users")
+void forEachUser(Consumer<User> consumer);
+----
+
 === Default Methods
 
 Occasionally a use case comes up where SQL Method annotations don't fit. In
