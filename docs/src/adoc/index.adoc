@@ -702,12 +702,8 @@ if (!Pair.class.equals(GenericTypes.getErasedType(type))) {
 }
 ----
 
-The link:{jdbidocs}/core/generic/GenericTypes.html[GenericTypes^] utility class
-provides several methods for helping to interpret Java generic types.
-
-The method `GenericTypes.getErasedType` accepts a `java.lang.reflect.Type` and
-returns the raw `java.lang.Class` for that type. So if `type` were the generic
-type `Pair<Foo,Bar>`, it would return `Pair.class`.
+[TIP]
+The `GenericTypes` utility class is discussed in <<Working with Generic Types>>.
 
 Next, we extract the `L` and `R` generic parameters from the mapped type:
 
@@ -717,16 +713,12 @@ Type leftType = GenericTypes.resolveType(Pair.class.getTypeParameters()[0], type
 Type rightType = GenericTypes.resolveType(Pair.class.getTypeParameters()[1], type);
 ----
 
-The `GenericTypes.resolveType` method accepts a generic type parameter to
-resolve, and a context type in which to resolve it.
-
 In the first line, `Pair.class.getTypeParameters()[0]` gives the type variable
-`L`. So if `type` was `Pair<Foo, Bar>`, the call to `resolveType` means "resolve
-the type variable `L` in the context of `Pair<Foo, Bar>`, which resolves to the
-left parameter, `Foo`.
+`L`. Likewise in the second line, `Pair.class.getTypeParameters()[1]` gives the type
+variable `R`.
 
-Likewise in the second line, `Pair.class.getTypeParameters()[0]` gives the type
-variable `L`, so the `resolveType` call returns `Bar`.
+We use `resolveType()` to resolve the types for the `L` and `R` type variables
+in the context of the mapped type.
 
 Now that we have the types for `L` and `R`, we can look up the column mappers
 for those types from the `ColumnMappers` config class, through the config
@@ -749,7 +741,7 @@ The config registry is a locator for config classes. So when we call
 the current column mapper configuration.
 
 Next we call `ColumnMappers.findFor()` to get the column mappers for the left
-and right type parameters.
+and right types.
 
 [TIP]
 You may have noticed that although this method can return `Optional`, we're
@@ -808,15 +800,7 @@ Row mapper factories may be registered similar to regular row mappers:
 [source,java]
 ----
 jdbi.registerRowMapper(new PairMapperFactory());
-----
 
-But how can we map to `Pair<String, String>`? Java doesn't provide a type-safe
-way to pass around generic types.
-
-For this, Jdbi provides a `GenericType<T>` class:
-
-[source,java]
-----
 try (Handle handle = jdbi.open()) {
   List<Pair<String, String>> configPairs = handle
           .createQuery("SELECT key, value FROM config")
@@ -825,9 +809,8 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-Note that the expression `new GenericType<Pair<String, String>>() {}` creates an
-anonymous inner class that extends from `GenericType<T>`. At runtime, Jdbi
-inspects the generic type signature and extracts the `T` parameter for you.
+[TIP]
+The `GenericType` utility class is discussed in <<Working with Generic Types>>.
 
 ==== Column Mappers
 
@@ -962,34 +945,28 @@ if (!Optional.class.equals(GenericTypes.getErasedType(type))) {
 }
 ----
 
-The link:{jdbidocs}/core/generic/GenericTypes.html[GenericTypes^] utility class
-provides several methods for helping to interpret Java generic types.
+[TIP]
+The `GenericTypes` utility class is discussed in <<Working with Generic Types>>.
 
-The method `GenericTypes.getErasedType` accepts a `java.lang.reflect.Type` and
-returns the raw `java.lang.Class` for that type. So if `type` were the generic
-type `Optional<String>`, it would return `Optional.class`.
-
-Next, we extract the `T` generic parameter from the mapped type:
+Next, extract the `T` generic parameter from the mapped type:
 
 [source,java]
 ----
-Type embeddedType = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
+Type t = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
 ----
 
-The `GenericTypes.resolveType` method accepts a generic type parameter to
-resolve, and a context type in which to resolve it.
-
 The expression `Optional.class.getTypeParameters()[0]` gives the type variable
-`T`. So if `type` was `Optional<String>`, the call to `resolveType` means
-"resolve the type variable `T` in the context of `Optional<String>`, which
-resolves to the type `Foo`.
+`T`.
+
+We use `resolveType()` to resolve the type of `T` in the context of the mapped
+type.
 
 Now that we have the type of `T`, we can look up a column mapper for that type
 from the `ColumnMappers` config class, through the config registry:
 
 [source,java]
 ----
-ColumnMapper<?> embeddedMapper = config.get(ColumnMappers.class)
+ColumnMapper<?> tMapper = config.get(ColumnMappers.class)
     .findFor(embeddedType)
     .orElseThrow(() -> new NoSuchMapperException(
         "No column mapper registered for parameter " + embeddedType + " of type " + type));
@@ -999,8 +976,8 @@ The config registry is a locator for config classes. So when we call
 `config.get(ColumnMappers.class)`, we get back a `ColumnMappers` instance with
 the current column mapper configuration.
 
-Next we call `ColumnMappers.findFor()` to get the column mappers for the left
-and right type parameters.
+Next we call `ColumnMappers.findFor()` to get the column mapper for the embedded
+type.
 
 [TIP]
 You may have noticed that although this method can return `Optional`, we're
@@ -1017,7 +994,7 @@ Finally, we construct the column mapper for optionals, and return it:
 [source,java]
 ----
 ColumnMapper<?> optionalMapper = (rs, col, ctx) ->
-    Optional.ofNullable(embeddedMapper.map(rs, col, ctx));
+    Optional.ofNullable(tMapper.map(rs, col, ctx));
 
 return Optional.of(optionalMapper);
 ----
@@ -1034,13 +1011,13 @@ public class OptionalColumnMapperFactory implements ColumnMapperFactory {
 
     Type t = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
 
-    ColumnMapper<?> embeddedMapper = config.get(ColumnMappers.class)
+    ColumnMapper<?> tMapper = config.get(ColumnMappers.class)
         .findFor(t)
         .orElseThrow(() -> new NoSuchMapperException(
             "No column mapper registered for parameter " + t + " of type " + type));
 
     ColumnMapper<?> optionalMapper = (rs, col, ctx) ->
-        Optional.ofNullable(embeddedMapper.map(rs, col, ctx));
+        Optional.ofNullable(tMapper.map(rs, col, ctx));
 
     return Optional.of(optionalMapper);
   }
@@ -1052,15 +1029,7 @@ Column mapper factories may be registered similar to regular column mappers:
 [source,java]
 ----
 jdbi.registerColumnMapper(new OptionalColumnMapperFactory());
-----
 
-But how can we map to `Optional<String>`? Java doesn't provide a type-safe way
-to pass around generic types.
-
-For this, Jdbi provides a `GenericType<T>` class:
-
-[source,java]
-----
 try (Handle handle = jdbi.open()) {
   List<Optional<String>> middleNames = handle
           .createQuery("select middle_name from contacts")
@@ -1069,9 +1038,8 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-Note that the expression `new GenericType<Optional<String>>() {}` creates an
-anonymous inner class that extends from `GenericType<T>`. At runtime, Jdbi
-inspects the generic type signature and extracts the `T` parameter for you.
+[TIP]
+The `GenericType` utility class is discussed in <<Working with Generic Types>>.
 
 ==== Reflection Mappers
 
@@ -3530,6 +3498,103 @@ Bear in mind:
 
 
 == Advanced Topics
+
+=== Working with Generic Types
+
+Jdbi provides utility classes to make it easier to work with Java generic types.
+
+==== GenericType
+
+link:{jdbidocs}/core/generic/GenericType.html[GenericType^] represents a generic
+type signature that can be passed around in a type-safe way.
+
+Create a generic type reference by instantiating an anonymous inner class:
+
+[source,java]
+----
+new GenericType<Optional<String>>() {}
+----
+
+This type reference can be passed to any Jdbi method that accepts a
+`GenericType<T>`, e.g.:
+
+[source,java]
+----
+List<Optional<String>> middleNames = handle
+    .select("select middle_name from contacts")
+    .mapTo(new GenericType<Optional<String>>() {})
+    .list();
+----
+
+The `GenericType.getType()` returns the raw
+link:{jdkdocs}/java/lang/reflect/Type.html[java.lang.reflect.Type^] object used
+to represent generics in Java.
+
+==== GenericTypes
+
+link:{jdbidocs}/core/generic/GenericTypes.html[GenericTypes^] provides methods
+for working with Java generic types signatures.
+
+All methods in `GenericTypes` operate in terms of `java.lang.reflect.Type`.
+
+The `getErasedType(Type)` method accepts a `Type` and returns the raw `Class`
+for that type, with any generic parameters erased:
+
+[source,java]
+----
+Type listOfInteger = new GenericType<List<Integer>>() {}.getType();
+GenericTypes.getErasedType(listOfInteger); // => List.class
+
+GenericTypes.getErasedType(String.class); // => String.class
+----
+
+The `resolveType(Type, Type)` method takes a generic type, and a context type in
+which to resolve it.
+
+For example, given the type variable `T` from `Optional<T>`:
+
+[source,java]
+----
+Type t = Optional.class.getTypeParameters()[0];
+----
+
+And given the context type `Optional<String>`:
+
+[source,java]
+----
+Type optionalOfString = new GenericType<Optional<String>>() {}.getType();
+----
+
+The `resolveType()` method answers the question: "what is type T, in the context
+of type Optional<String>?"
+
+[source,java]
+----
+GenericTypes.resolveType(t, optionalOfString);
+// => String.class
+----
+
+This scenario of resolving the first type parameter of some generic supertype is
+so common that we made a separate method for it:
+
+[source,java]
+----
+GenericTypes.findGenericParameter(optionalOfString, Optional.class);
+// => Optional.of(String.class)
+
+Type listOfInteger = new GenericType<List<Integer>>() {}.getType();
+GenericTypes.findGenericParameter(listOfInteger, Collection.class);
+// => Optional.of(Integer.class)
+----
+
+Note that this method will return `Optional.empty()` if the type parameter
+cannot be resolved, or the types have nothing to do with each other:
+
+[source,java]
+----
+GenericTypes.findGenericParameter(optionalOfString, List.class);
+// => Optional.empty();
+----
 
 === NamedArgumentFinder
 
