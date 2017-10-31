@@ -22,9 +22,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
@@ -158,74 +158,46 @@ public class TransactionTest {
         // end::sqlObjectNestedTransaction[]
     }
 
-    // tag::serializable[]
-    public interface IntListDao {
-        @SqlUpdate("CREATE TABLE ints (value INTEGER)")
-        void create();
-
-        @SqlQuery("SELECT sum(value) FROM ints")
-        int sum();
-
-        @SqlUpdate("INSERT INTO ints(value) VALUES(:value)")
-        void insert(int value);
-    }
-
-    static class SumAndInsert implements Callable<Integer>, HandleCallback<Integer, Exception> {
-        private final Jdbi db;
-        private final CountDownLatch latch;
-
-        public SumAndInsert(CountDownLatch latch, Jdbi db) {
-            this.latch = latch;
-            this.db = db;
-        }
-
-        @Override
-        public Integer withHandle(Handle handle) throws Exception {
-            IntListDao dao = handle.attach(IntListDao.class);
-            int sum = dao.sum();
-
-            // First time through, make sure neither transaction writes until both have read
-            latch.countDown();
-            latch.await();
-
-            // Now do the write.
-            dao.insert(sum);
-            return sum;
-        }
-
-        @Override
-        public Integer call() throws Exception {
-            // Get a connection and run the transaction
-            return db.inTransaction(TransactionIsolationLevel.SERIALIZABLE, this);
-        }
-    }
-
     @Test
     public void serializableTransaction() throws Exception {
+        // tag::serializable[]
         // Automatically rerun transactions
         db.setTransactionHandler(new SerializableTransactionRunner());
 
         // Set up some values
-        IntListDao dao = handle.attach(IntListDao.class);
-        dao.create();
-        dao.insert(10);
-        dao.insert(20);
+        BiConsumer<Handle, Integer> insert = (h, i) -> h.execute("INSERT INTO ints(value) VALUES(?)", i);
+        handle.execute("CREATE TABLE ints (value INTEGER)");
+        insert.accept(handle, 10);
+        insert.accept(handle, 20);
 
+        // Run the following twice in parallel, and synchronize
         ExecutorService executor = Executors.newCachedThreadPool();
         CountDownLatch latch = new CountDownLatch(2);
 
+        Callable<Integer> sumAndInsert = () ->
+            db.inTransaction(TransactionIsolationLevel.SERIALIZABLE, h -> {
+                // Both read initial state of table
+                int sum = h.select("SELECT sum(value) FROM ints").mapTo(int.class).findOnly();
+
+                // First time through, make sure neither transaction writes until both have read
+                latch.countDown();
+                latch.await();
+
+                // Now do the write.
+                insert.accept(h, sum);
+                return sum;
+            });
+
         // Both of these would calculate 10 + 20 = 30, but that violates serialization!
-        SumAndInsert txn1 = new SumAndInsert(latch, db);
-        SumAndInsert txn2 = new SumAndInsert(latch, db);
+        Future<Integer> result1 = executor.submit(sumAndInsert);
+        Future<Integer> result2 = executor.submit(sumAndInsert);
 
-        Future<Integer> result1 = executor.submit(txn1);
-        Future<Integer> result2 = executor.submit(txn2);
-
-        // One of them gets 30, the other gets 10 + 20 + 30 = 60
+        // One of the transactions gets 30, the other will abort and automatically rerun.
+        // On the second attempt it will compute 10 + 20 + 30 = 60, seeing the update from its sibling.
         // This assertion fails under any isolation level below SERIALIZABLE!
         assertThat(result1.get() + result2.get()).isEqualTo(30 + 60);
 
         executor.shutdown();
+        // end::serializable[]
     }
-    // end::serializable[]
 }

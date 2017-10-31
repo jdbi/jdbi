@@ -469,10 +469,10 @@ A link:{jdbidocs}/core/statement/Query.html[Query^] is a
 link:{jdbidocs}/core/result/ResultBearing.html[result-bearing^] SQL statement
 that returns a result set from the database.
 
-//[source,java,indent=0]
-//----
-//include::{exampledir}/StatementsTest.java[tags=query]
-//----
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=query]
+----
 
 For single rows, you can use `findOnly()`, which expects exactly one row (or
 throws an exception):
@@ -600,27 +600,6 @@ include::{exampledir}/ResultsTest.java[tags=rowMapper]
 ----
 
 This `RowMapper` is equivalent to the lambda mapper above but more explicit.
-
-// TODO move the stream stuff to `ResultIterable`?
-
-*Stream* integration allows you to use a RowMapper to adapt a ResultSet into
-the new Java 8 Streams framework. As long as your database supports streaming
-results (for example, PostgreSQL will do it as long as you are in a transaction
-and set a fetch size), the stream will lazily fetch rows from the database as
-necessary.
-
-[source,java]
-----
-handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
-      .map(new UserMapper())
-      .useStream(stream -> {
-          Optional<String> first = stream
-              .filter(u -> u.id > 2)
-              .map(u -> u.name)
-              .findFirst();
-          assertThat(first).contains("Charlie");
-      });
-----
 
 ===== RowMappers registry
 
@@ -1417,24 +1396,45 @@ multiple rows are encountered, it will throw *IllegalStateException*.
 
 ===== Stream
 
+*Stream* integration allows you to use a RowMapper to adapt a ResultSet into
+the new Java 8 Streams framework. As long as your database supports streaming
+results (for example, PostgreSQL will do it as long as you are in a transaction
+and set a fetch size), the stream will lazily fetch rows from the database as
+necessary.
+
 *#stream* returns a *Stream<T>*. You should then process the stream and produce
 a result. This stream must be closed to release any database resources held, so
-we recommend using a *try-with-resources* block to ensure that no resources are
-leaked.
+we recommend *useStream*, *withStream* or alternately a *try-with-resources* block
+to ensure that no resources are leaked.
 
-TODO: try-with-resources example
+[source,java]
+----
+handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+      .map(new UserMapper())
+      .useStream(stream -> {
+          Optional<String> first = stream
+              .filter(u -> u.id > 2)
+              .map(u -> u.name)
+              .findFirst();
+          assertThat(first).contains("Charlie");
+      });
+----
 
 *#withStream* and *#useStream* handle closing the stream for you. You provide a
 *StreamCallback* that produces a result or a *StreamConsumer* that produces no
 result, respectively.
 
-TODO: useStream, withStream examples
-
 ===== List
 
 *#list* emits a *List<T>*. This necessarily buffers all results in memory.
 
-TODO: example
+[source,java]
+----
+List<User> users =
+    handle.createQuery("SELECT id, name FROM user")
+        .map(new UserMapper())
+        .list();
+----
 
 ===== Collectors
 
@@ -1464,7 +1464,7 @@ Map<Integer, Something> users = h.createQuery("select id, name from something")
 value and a *BiFunction<U, T, U>* it will repeatedly combine *U*s until only a
 single remains, and then return that.
 
-TODO: example
+// TODO: example
 
 ===== ResultSetScanner
 
@@ -1687,8 +1687,6 @@ certain patterns of data. Consider performance requirements when deciding
 whether to use high level mapping or more direct low level access with
 handwritten mappers.
 
-TODO: move the following into the SQL Objects section
-
 You can also use it with SqlObject:
 
 [source,java,indent=0]
@@ -1858,16 +1856,11 @@ Both optionally allow you to specify the transaction isolation level.
 include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
 ----
 
-Here, we (probably unnecessarily) guard a simple _SELECT_ statement with a
-transaction.
+Here, we (probably unnecessarily) guard a simple _SELECT_ statement with a transaction.
 
-TODO:
-
-* Jdbi.useTransaction (shortcut for useHandle(h -> h.useTransaction(...))
-* Jdbi.inTransaction (shortcut for withHandle(h -> h.inTransaction(...))
-* Handle methods for transaction management: begin(), savepoint(), rollback(),
-  commit(), etc. Failing to explicitly commit or roll back a transaction will
-  roll back the transaction and throw an exception.
+Additionally, Handle has a number of methods for direct transaction management:
+begin(), savepoint(), rollback(), commit(), etc.  Normally, you will not need to use these.
+Failing to explicitly commit or roll back a transaction will roll back the transaction and throw an exception.
 
 ==== Serializable Transactions
 
@@ -1875,8 +1868,6 @@ For more advanced queries, sometimes serializable transactions are required.
 *jdbi* includes a transaction runner that is able to retry transactions that
 abort due to serialization failures. It is important that your transaction does
 not have side effects as it may be executed multiple times.
-
-TODO: convert this example to core API?
 
 [source,java,indent=0]
 ----
@@ -2890,12 +2881,14 @@ anything, in which case the isolation level of the outer method is used.
 include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
 ----
 
+////
 TODO: Demonstrate Transactional mixin
 
 * Call methods on the mixin to begin, checkpoint, rollback, and commit
   transactions.
 * Be careful using this mixin with on-demand SQL Objects. Only use
   inTransaction or useTransaction. None of the others will do what you expect.
+////
 
 === Using SQL Objects
 
@@ -2955,6 +2948,7 @@ There is a performance penalty every time a connection is allocated and
 released. If you need to make successive calls to a SQL Object, consider using
 one of the above options for better performance, instead of on-demand.
 
+////
 TODO:
 
 * Explain how nested calls within e.g. a default method use the same handle
@@ -2966,7 +2960,7 @@ TODO:
   `withHandle()` lambda.
 * `@CreateSqlObject` does not play nice with on-demand.
 * `Stream<T>` or `Iterable<T>` return types do not play nice with on-demand.
-
+////
 
 === Additional Annotations
 
@@ -3050,8 +3044,6 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
-TODO: usage examples
-
 === JodaTime
 
 This plugin adds support for using joda-time's `DateTime` type.
@@ -3072,8 +3064,6 @@ Then install the plugin into your `Jdbi` instance:
 ----
 jdbi.installPlugin(new JodaTimePlugin());
 ----
-
-TODO: usage example
 
 === JPA
 
@@ -3102,8 +3092,6 @@ Then install the plugin into your `Jdbi` instance:
 ----
 jdbi.installPlugin(new JpaPlugin());
 ----
-
-TODO: usage example
 
 Honestly though.. just tear off the bandage and switch to Jdbi proper.
 
@@ -3231,7 +3219,7 @@ To use this feature, add a Maven dependency:
 Then, use the `OracleReturning` class with an `Update` or `PreparedBatch`
 to get the returned DML.
 
-TODO: usage example
+// TODO: usage example
 
 === PostgreSQL
 
@@ -3859,18 +3847,20 @@ include::{exampledir}/ExampleConfig.java[tags=exampleConfig]
 
 === JdbiPlugin
 
-TODO:
+JdbiPlugin can be used to bundle bulk configuration.
+Plugins may be installed explicitly via `Jdbi.installPlugin(JdbiPlugin)`, or
+may be installed automagically from the classpath using the ServiceLoader mechanism
+via `installPlugins()`.
 
-* JdbiPlugin can be used to bundle bulk configuration
-* Plugins may be installed explicitly via Jdbi.installPlugin(JdbiPlugin)
-* Plugins may be installed automagically from the classpath, using the
-  ServiceLoader mechanism, if you provide a file in
-  `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin` containing the fully
-  qualified class name of your plugin.
-** Example
-** Call `Jdbi.installPlugins()` to automatically install all SPI plugins on the
-   classpath.
+Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
+containing the fully qualified class name of your plugin.
 
+[TIP]
+The developers encourage you to install plugins explicitly.  Code with declared dependencies
+on the module it uses is more robust to refactoring and provides useful data
+for static analysis tools about what code is or isn't used.
+
+////
 === JdbiCollectors
 
 TODO:
@@ -3880,6 +3870,7 @@ TODO:
 * JdbiCollectors registry
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
+////
 
 === User-Defined Annotations
 
@@ -4265,6 +4256,7 @@ public interface ContactDao {
 
 Decorator order is expressed from outermost to innermost.
 
+////
 === SQL Object internal plumbing
 
 TODO:
@@ -4281,7 +4273,9 @@ TODO:
 * HandlerDecorators - Apply Handler decorations base on any criteria, not just
   annotations.
 ** SqlMethodAnnotatedHandlerDecorator
+////
 
+////
 === Extensions
 
 Jdbi supports generic extensions. SQL Objects are just one implementation of
@@ -4298,7 +4292,9 @@ TODO:
 *** Reentrant calls like one method of the interface calling another, reuse
     the already-open handle.
 * ExtensionFactory
+////
 
+////
 === SQL interpolation
 
 Jdbi configuration supports the concept of defined attributes. These are
@@ -4321,6 +4317,7 @@ TODO:
 * usage examples:
 ** `insert into <table> (<columns>) values (<values>)`
 ** `select <columns> from <table> where <conditions> order by <order>`
+////
 
 === TemplateEngine
 
@@ -4455,12 +4452,12 @@ Most users will not need to implement the *ResultProducer* interface.
 
 === Best Practices
 
-TODO:
-
 * Test your SQL Objects (DAOs) against real databases when possible.
+  Jdbi tries to be defensive and fail eagerly when you hold it wrong.
+
 * Use the `-parameters` compiler flag to avoid all those
   `@Bind("foo") String foo` redundant qualifiers in SQL Object method
-  parameters.
+  parameters.  See <<Automatic parameter naming>>.
 * Use a profiler! The true root cause of performance problems can often be a
   surprise. Measure first, _then_ tune for performance. And then measure again
   to be sure it made a difference.
@@ -4474,10 +4471,14 @@ TODO:
 
 === Related Projects
 
-TODO:
+link:https://github.com/opentable/otj-pg-embedded[Embedded Postgres^]
+makes testing against a real database quick and easy.
 
-* arteam/dropwizard-jdbi3
-* arteam/metrics-jdbi3
+link:https://github.com/arteam/dropwizard-jdbi3[dropwizard-jdbi3^]
+provides integration with DropWizard.
+
+link:https://github.com/arteam/metrics-jdbi3[metrics-jdbi3^]
+instruments using DropWizard-Metrics to emit statement timing statistics.
 
 Do you know of a project related to Jdbi? Send us an issue and we'll add a link
 here!
