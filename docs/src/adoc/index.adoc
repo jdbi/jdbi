@@ -1706,12 +1706,22 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 Updates are operations that return an integer number of rows modified, such
 as a database *INSERT*, *UPDATE*, or *DELETE*.
 
+You can execute a simple update with `Handle`'s `int execute(String sql, Object... args)`
+method which binds simple positional parameters.
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=execute]
+----
+
+To further customize, use `createUpdate`:
+
 [source,java,indent=0]
 ----
 include::{exampledir}/StatementsTest.java[tags=update]
 ----
 
-TODO: Handle.createUpdate vs Handle.execute
+Updates may return <<Generated Keys>> instead of a result count.
 
 === Batches
 
@@ -1719,67 +1729,41 @@ A *Batch* sends many commands to the server in bulk.
 
 After opening the batch, repeated add statements, and invoke *add*.
 
-TODO:
+[source,java,indent=0]
+----
 
-* Each command may be different.
-* Binding arguments is not supported.
+include::{exampledir}/BatchTest.java[tags=simpleBatch]
+----
+
+The statements are sent to the database in bulk, but each statement is executed separately.
+There are no parameters.  Each statement returns a modification count, as with an Update, and
+those counts are then returned in an `int[]` array.  In common cases all elements will be `1`.
 
 === Prepared Batches
 
-A *PreparedBatch* sends the same command to the server in bulk. Each command
-may have different arguments. After opening the batch, repeatedly add bound
-arguments, and invoke *add*.
+A *PreparedBatch* sends one statement to the server with many argument sets.
+The statement is executed repeatedly, once for each batch of arguments that is *add*-ed to it.
 
-The result is a list of modified row count.
+The result is again a `int[]` of modified row count.
 
 [source,java,indent=0]
 ----
 include::{exampledir}/StatementsTest.java[tags=batch]
 ----
 
-TODO:
-
-* Useful for e.g. batch inserts, batch updates on the same table
-* All arguments are zipped into a series, and then the batch executes the
-  statement for each set of arguments in the series.
-* Returns int[] (update count per batch statement)
-* Or use executeAndReturnGeneratedKeys to return the generated keys, which can
-  be mapped to some java type
-
-=== Batch Updates
-
-TODO: coalesce with <<Prepared Batches>> section
-
-Normally, every statement executed requires a round-trip to the database
-server. When inserting or updating a large number of records, this can add
-unacceptable amounts of latency. JDBC provides support for batching independent
-statements via
-link:{jdkdocs}/java/sql/Statement.html#executeBatch--[Statement.executeBatch^]
-as well as a single statement with many varying bound arguments via
-link:{jdkdocs}/java/sql/PreparedStatement.html#addBatch--[PreparedStatement.addBatch^].
-
-*jdbi* exposes this functionality through the *Batch* and *PreparedBatch*
-classes. Their use is straightforward. To execute many separate statements as a
-single batch:
-
-[source,java,indent=0]
-----
-include::{exampledir}/BatchTest.java[tags=simpleBatch]
-----
-
-If you have a single statement but want to bind many groups of arguments:
-
-[source,java,indent=0]
-----
-include::{exampledir}/BatchTest.java[tags=preparedBatch]
-----
-
-We also support SqlObject batch inserts:
+SqlObject also supports batch inserts:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/BatchTest.java[tags=sqlObjectBatch]
 ----
+
+[TIP]
+Batching dramatically increases efficiency over repeated single statement execution, but
+many databases don't handle extremely large batches well either.  Test with your database
+configuration, but often extremely large data sets should be divided
+and committed in pieces - or risk bringing your database to its knees.
+
 
 ==== Exception Rewriting
 

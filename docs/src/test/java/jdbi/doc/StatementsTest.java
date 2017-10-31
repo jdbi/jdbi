@@ -56,6 +56,11 @@ public class StatementsTest
             .execute();
         assertThat(count).isEqualTo(1);
         // end::update[]
+
+        // tag::execute[]
+        count = handle.execute("INSERT INTO user(id, name) VALUES(?, ?)", 4, "Alice");
+        assertThat(count).isEqualTo(1);
+        // end::execute[]
     }
 
     @Test
@@ -80,11 +85,12 @@ public class StatementsTest
         {
             batch.bind("id", i).bind("name", "User:" + i).add();
         }
+        int[] counts = batch.execute();
+        // end::batch[]
 
         int[] expected = new int[4900];
         Arrays.fill(expected, 1);
-        assertThat(batch.execute()).isEqualTo(expected);
-        // end::batch[]
+        assertThat(counts).isEqualTo(expected);
     }
 
     static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2)

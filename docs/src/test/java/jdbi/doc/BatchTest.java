@@ -8,7 +8,6 @@ import java.util.Collection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.Batch;
-import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -30,14 +29,15 @@ public class BatchTest {
     }
 
     @Test
-    // tag::simpleBatch[]
     public void testSimpleBatch() {
+        // tag::simpleBatch[]
         Batch batch = handle.createBatch();
 
         batch.add("INSERT INTO fruit VALUES(0, 'apple')");
         batch.add("INSERT INTO fruit VALUES(1, 'banana')");
 
         int[] rowsModified = batch.execute();
+        // end::simpleBatch[]
         assertThat(rowsModified).containsExactly(1, 1);
         assertThat(handle.createQuery("SELECT count(1) FROM fruit")
                 .mapTo(int.class)
@@ -45,25 +45,6 @@ public class BatchTest {
                 .intValue())
                 .isEqualTo(2);
     }
-    // end::simpleBatch[]
-
-    @Test
-    // tag::preparedBatch[]
-    public void testPreparedBatch() {
-        PreparedBatch batch = handle.prepareBatch("INSERT INTO fruit VALUES(:id, :name)");
-
-        batch.bind("id", 0).bind("name", "apple").add();
-        batch.bind("id", 1).bind("name", "banana").add();
-
-        int[] rowsModified = batch.execute();
-        assertThat(rowsModified).containsExactly(1, 1);
-        assertThat(handle.createQuery("SELECT count(1) FROM fruit")
-                .mapTo(int.class)
-                .findOnly()
-                .intValue())
-                .isEqualTo(2);
-    }
-    // end::preparedBatch[]
 
     @Test
     // tag::sqlObjectBatch[]
@@ -85,6 +66,7 @@ public class BatchTest {
         @SqlQuery("SELECT count(1) FROM fruit")
         int countFruit();
     }
+    // end::sqlObjectBatch[]
 
     public class Fruit {
         private final int id;
@@ -97,5 +79,4 @@ public class BatchTest {
         public int getId() { return id; }
         public String getName() { return name; }
     }
-    // end::sqlObjectBatch[]
 }
