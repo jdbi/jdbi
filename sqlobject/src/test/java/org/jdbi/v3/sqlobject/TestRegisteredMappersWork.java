@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -102,25 +101,6 @@ public class TestRegisteredMappersWork
                     .mapTo(Bean.class) // uses annotation-registered mapper
                     .findFirst();
         }
-    }
-
-    void foo() throws Exception {
-        Jdbi jdbi = dbRule.getJdbi();
-        jdbi.useHandle(handle -> {
-            BeanMappingDao dao = handle.attach(BeanMappingDao.class);
-            TestColumnMappers.SomeBeanDao another = handle.attach(TestColumnMappers.SomeBeanDao.class);
-
-
-        });
-
-        BeanMappingDao dao = jdbi.onDemand(BeanMappingDao.class);
-        dao.useHandle(h -> {
-            TestColumnMappers.SomeBeanDao another = h.attach(TestColumnMappers.SomeBeanDao.class);
-            Bean foo = dao.findByName("foo");
-
-            foo.setColor("brown");
-            dao.insertBean(foo);
-        });
     }
 
     @Test
