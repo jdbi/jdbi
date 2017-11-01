@@ -14,6 +14,7 @@
 
 :projecthome: https://github.com/jdbi/jdbi
 :exampledir: ../test/java/jdbi/doc
+:exampleresourcedir: ../test/resources
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
@@ -1705,15 +1706,46 @@ include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
 
 A *Call* invokes a database stored procedure.
 
+Let's assume an existing stored procedure as an example:
+
+[source,sql]
+----
+include::{exampleresourcedir}/create_stored_proc_add.sql[tags=createStoredProc]
+----
+
+Here's how to call a stored procedure:
+
 [source,java,indent=0]
 ----
-include::{exampledir}/CallTest.java[tags=call]
+include::{exampledir}/CallTest.java[tags=invokeProcedure]
+----
+<1> Call `Handle.createCall()` with the SQL statement. Note that JDBC has a
+    peculiar SQL format when calling stored procedures, which we must follow.
+<2> Bind input parameters to the procedure call.
+<3> Register out parameters, the values that will be returned from the stored
+    procedure call. This tells JDBC what data type to expect for each out
+    parameter.
+<4> Out parameters may be registered by name (as shown in the example) or by
+    zero-based index, if the SQL is using positional parameters. Multiple output
+    parameters may be registered, depending on the output of the stored
+    procedure itself.
+<5> Finally, call `invoke()` to execute the procedure.
+
+Invoking the stored procedure returns an
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object, which
+contains the value(s) returned from the stored procedure call.
+
+Now we can extract the result(s) from `OutParameters`:
+
+[source,java,indent=0]
+----
+include::{exampledir}/CallTest.java[tags=getOutParameters]
 ----
 
-TODO:
-
-* registerOutParameter - explain what the method parameters mean
-* Explain OutParameters class
+[WARNING]
+Due to design constraints within JDBC, the parameter data types available
+through `OutParameters` is limited to those types supported directly by JDBC.
+This cannot be expanded through e.g. mapper registration.
 
 === Scripts
 
