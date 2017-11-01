@@ -3499,7 +3499,7 @@ Last but not least we can now project simple queries to Vavr tuples like that:
 // given a 'tuples' table with t1 int, t2 varchar, t3 varchar, ...
 List<Tuple3<Integer, String, String>> tupleProjection = handle
         .createQuery("select t1, t2, t3 from tuples")
-        .mapTo(new GenericType<List<Tuple3<Integer, String, String>>>() {})
+        .mapTo(new GenericType<Tuple3<Integer, String, String>>() {})
         .list();
 ----
 
