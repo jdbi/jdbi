@@ -14,6 +14,7 @@
 package jdbi.doc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +26,10 @@ import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.JoinRow;
+import org.jdbi.v3.core.mapper.JoinRowMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -178,33 +182,59 @@ public class ResultsTest {
     }
     // end::columnMapper[]
 
-    // tag::beanMapper[]
-    public static class UserBean {
-        private int id;
-        private String name;
+    @Test
+    public void beanMapper() {
+        // tag::beanMapper[]
+        handle.registerRowMapper(BeanMapper.factory(UserBean.class));
 
-        public int getId() {
-            return id;
-        }
-        public void setId(int id) {
-            this.id = id;
-        }
-        public String getName() {
-            return name;
-        }
-        public void setName(String name) {
-            this.name = name;
-        }
+        List<UserBean> users = handle
+                .createQuery("select id, name from user")
+                .mapTo(UserBean.class)
+                .list();
+        // end::beanMapper[]
+
+        assertThat(users).extracting("name").contains("Alice", "Bob", "Charlie", "Data");
     }
 
     @Test
-    public void beanMapper() {
-        UserBean charlie = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
-            .bind("name", "Charlie")
-            .mapToBean(UserBean.class)
-            .findOnly();
+    public void mapToBean() {
+        // tag::mapToBean[]
+        List<UserBean> users = handle
+                .createQuery("select id, name from user")
+                .mapToBean(UserBean.class)
+                .list();
+        // end::mapToBean[]
 
-        assertThat(charlie.getName()).isEqualTo("Charlie");
+        assertThat(users).extracting("name").contains("Alice", "Bob", "Charlie", "Data");
     }
-    // end::beanMapper[]
+
+    @Test
+    public void beanMapperPrefix() {
+        handle.execute("create table contacts (id int, name text)");
+        handle.execute("create table phones (id int, contact_id int, name text, number text)");
+
+        handle.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
+        handle.execute("insert into phones (id, contact_id, name, number) values (?, ?, ?, ?)",
+                100, 1, "Home", "555-1212");
+        handle.execute("insert into phones (id, contact_id, name, number) values (?, ?, ?, ?)",
+                101, 1, "Work", "555-9999");
+
+        // tag::beanMapperPrefix[]
+        handle.registerRowMapper(BeanMapper.factory(ContactBean.class, "c"));
+        handle.registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"));
+        handle.registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class));
+        List<JoinRow> contactPhones = handle.select("select " +
+                "c.id cid, c.name cname, " +
+                "p.id pid, p.name pname, p.number pnumber " +
+                "from contacts c left join phones p on c.id = p.contact_id")
+                .mapTo(JoinRow.class)
+                .list();
+        // end::beanMapperPrefix[]
+
+        assertThat(contactPhones)
+                .extracting(cp -> cp.get(ContactBean.class), cp -> cp.get(PhoneBean.class))
+                .containsExactly(
+                        tuple(new ContactBean(1, "Alice"), new PhoneBean(100, "Home", "555-1212")),
+                        tuple(new ContactBean(1, "Alice"), new PhoneBean(101, "Work", "555-9999")));
+    }
 }

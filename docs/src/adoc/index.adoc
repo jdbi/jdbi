@@ -1067,22 +1067,39 @@ constructor parameter names (ConstructorMapper), or field names (FieldMapper).
 Reflective mappers are snake_case aware and will automatically match up these
 columns to camelCase field/argument/property names.
 
-For legacy column names that don't match up to property names, use the
-`@ColumnName` annotation to provide an exact column name.
-
-TODO: ColumnName example
-
 ===== ConstructorMapper
 
-*jdbi* provides a simple constructor mapper which uses reflection to assign
-columns to constructor parameters by name. Unfortunately parameter names are
-not enabled by default and require a compiler option, but once you have that
-enabled the result is quite concise:
+*Jdbi* provides a simple constructor mapper which uses reflection to assign
+columns to constructor parameters by name.
+
+[source,java,indent=0]
+----
+@ConstructorProperties({"id", "name"})
+public User(int id, String name) {
+  this.id = id;
+  this.name = name;
+}
+----
+
+The `@ConstructorProperties` annotations tells Jdbi the property name of each
+constructor parameter, so it can figure out which column corresponds to each
+constructor parameter.
+
+[TIP]
+Lombok's `@AllArgsConstructor` annotation generates the
+`@ConstructorProperties` annotation for you.
+
+The Java compiler can be configured to write method parameter names to the
+class file. Enabling this compiler option removes the need for the
+`@ConstructorProperties` annotation. See <<Automatic parameter naming>>.
 
 [source,java,indent=0]
 ----
 include::{exampledir}/ResultsTest.java[tags=userConstructor]
 ----
+
+Register a constructor mapper for your mapped class using the `factory()`
+method:
 
 [source,java,indent=0]
 ----
@@ -1092,32 +1109,149 @@ include::{exampledir}/ResultsTest.java[tags=constructorMapper]
 The constructor parameter names "id", "name" match the database column names
 and as such no custom mapper code is required at all.
 
-TODO:
+Constructor mappers can be configured with a column name prefix for each mapped
+constructor parameter. This can help to disambiguate mapping joins, e.g. when
+two mapped classes have identical property names (like `id` or `name`):
 
-* column name prefixes
-* JdbiConstructor annotation
-* ConstructorProperties annotation.
-* Lombok's `@AllArgsConstructor` generates `@ConstructorProperties` on
-  constructor, so constructor mappers work well with data classes that have it.
+[source,java]
+----
+handle.registerRowMapper(ConstructorMapper.factory(Contact.class, "c"));
+handle.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
+handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
+List<JoinRow> contactPhones = handle.select("select " +
+        "c.id cid, c.name cname, " +
+        "p.id pid, p.name pname, p.number pnumber " +
+        "from contacts c left join phones p on c.id = p.contact_id")
+    .mapTo(JoinRow.class)
+    .list();
+----
+
+Typically, the mapped class will have a single constructor. If it has multiple
+constructors, Jdbi will pick one based on these rules:
+
+- First, use the constructor annotated with `@JdbiConstructor`, if any.
+- Next, use the constructor annotated with `@ConstructorProperties`, if any.
+- Otherwise, throw an exception that Jdbi doesn't know which constructor to
+  use.
+
+For legacy column names that don't match up to property names, use the
+`@ColumnName` annotation to provide an exact column name.
+
+[source,java]
+----
+public User(@ColumnName("user_id") int id, String name) {
+  this.id = id;
+  this.name = name;
+}
+----
 
 ===== BeanMapper
 
-We also provide basic support for beans:
+We also provide basic support for mapping beans:
+
+[source,java]
+----
+include::{exampledir}/UserBean.java[tags=beanMapper]
+----
+
+Register a bean mapper for your mapped class, using the `factory()` method:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/ResultsTest.java[tags=beanMapper]
 ----
 
-TODO: column name prefixes
+Alternatively, call `mapToBean()` instead of registering a bean mapper:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ResultsTest.java[tags=mapToBean]
+----
+
+Bean mappers can be configured with a column name prefix for each mapped
+property. This can help to disambiguate mapping joins, e.g. when two mapped
+classes have identical property names (like `id` or `name`):
+
+[source,java,indent=0]
+----
+include::{exampledir}/ResultsTest.java[tags=beanMapperPrefix]
+----
+
+For legacy column names that don't match up to property names, use the
+`@ColumnName` annotation to provide an exact column name.
+
+[source,java]
+----
+public class User {
+  private int id;
+
+  @ColumnName("user_id")
+  public int getId() { return id; }
+
+  public void setId(int id) { this.id = id; }
+}
+----
+
+The `@ColumnName` annotation can be placed on either the getter or setter
+method.
 
 ===== FieldMapper
 
-TODO:
+link:{jdbidocs}/mapper/reflect/FieldMapper.html[FieldMapper^] uses reflection
+to map database columns directly to object fields (including private fields).
 
-* usage
-* column name prefixes
+[source,java]
+----
+public class User {
+  public int id;
 
+  public String name;
+}
+----
+
+Register a field mapper for your mapped class, using the `factory()` method:
+
+[source,java]
+----
+handle.registerRowMapper(FieldMapper.factory(User.class));
+
+List<UserBean> users = handle
+        .createQuery("select id, name from user")
+        .mapTo(User.class)
+        .list();
+----
+
+Field mappers can be configured with a column name prefix for each mapped
+field. This can help to disambiguate mapping joins, e.g. when two mapped
+classes have identical property names (like `id` or `name`):
+
+[source,java]
+----
+handle.registerRowMapper(FieldMapper.factory(Contact.class, "c"));
+handle.registerRowMapper(FieldMapper.factory(Phone.class, "p"));
+handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
+List<JoinRow> contactPhones = handle.select("select " +
+        "c.id cid, c.name cname, " +
+        "p.id pid, p.name pname, p.number pnumber " +
+        "from contacts c left join phones p on c.id = p.contact_id")
+    .mapTo(JoinRow.class)
+    .list();
+----
+
+For legacy column names that don't match up to field names, use the
+`@ColumnName` annotation to provide an exact column name:
+
+[source,java]
+----
+public class User {
+  @ColumnName("user_id")
+  public int id;
+
+  public String name;
+}
+----
+
+////
 ===== ReflectionMappers config class
 
 TODO:
@@ -1125,6 +1259,7 @@ TODO:
 * strict matching
 * column name matchers
 * default column name matchers out of the box
+////
 
 ===== Map.Entry mapping
 
