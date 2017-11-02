@@ -24,7 +24,7 @@ public class CallTest
 
         // tag::invokeProcedure[]
         OutParameters result = handle
-                .createCall("{:sum = add(:a, :b)}") // <1>
+                .createCall("{:sum = call add(:a, :b)}") // <1>
                 .bind("a", 13) // <2>
                 .bind("b", 9) // <2>
                 .registerOutParameter("sum", Types.INTEGER) // <3> <4>
