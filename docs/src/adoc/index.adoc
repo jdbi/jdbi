@@ -547,11 +547,6 @@ List<Map<String, Object>> maps = handle.createQuery(
     .list();  // or mapToMap() if you want collections other than List
 ----
 
-TODO:
-
-* demonstrate providing a column mapper inline
-* demonstrate mapToBean()
-
 === Mappers
 
 Jdbi makes use of mappers to convert result data into Java objects. There are
