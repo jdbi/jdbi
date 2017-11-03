@@ -127,12 +127,7 @@ public class LocalTransactionHandler implements TransactionHandler
     @Override
     public boolean isInTransaction(Handle handle)
     {
-        try {
-            return !handle.getConnection().getAutoCommit();
-        }
-        catch (SQLException e) {
-            throw new TransactionException("Failed to test for transaction status", e);
-        }
+        return !localStuff.containsKey(handle);
     }
 
     @SuppressWarnings("unchecked")
