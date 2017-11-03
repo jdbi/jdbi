@@ -97,6 +97,9 @@ quality, we recommend thoroughly testing your code with Jdbi 3 before using it
 in a production environment. http://www.jdbi.org[jdbi2^] is still the stable
 release.
 
+[TIP]
+Already using Jdbi v2? See <<Upgrading from v2 to v3>>.
+
 == Getting Started
 
 Jdbi is easy to include in your Java project - with an
@@ -4525,6 +4528,82 @@ link:https://groups.google.com/group/jdbi[Google Group mailing list^]
 
 Users sometimes hang out on
 link:irc://irc.freenode.net/#jdbi[IRC in #jdbi on Freenode^].
+
+=== Upgrading from v2 to v3
+
+Already using Jdbi v2?
+
+Here's a quick summary of differences to help you upgrade:
+
+General:
+
+* Maven artifacts renamed and split out:
+  * Old: `org.jdbi:jdbi`
+  * New: `org.jdbi:jdbi3-core`, `org.jdbi:jdbi3-sqlobject`, etc.
+* Root package renamed: `org.skife.jdbi.v2` -> `org.jdbi.v3`
+
+Core API:
+
+* `DBI`, `IDBI` -> `Jdbi`
+** Instantiate with `Jdbi.create()` factory methods instead of constructors.
+* `DBIException` -> `JdbiException`
+* `ResultSetMapper` -> `RowMapper`
+* `ResultColumnMapper` -> `ColumnMapper`
+* `ResultSetMapperFactory` -> `RowMapperFactory`
+* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* Argument and mapper factories now operate in terms of
+  `java.lang.reflect.Type` instead of `java.lang.Class`. This allows Jdbi to
+  handle arguments and mappers for generic types.
+* Argument and mapper factories now have a single `build()` method that returns
+  an `Optional`, instead of separate `accepts()` and `build()` methods.
+* `StatementLocator` interface removed from core. All core statements expect to
+  receive the actual SQL string now. A similar concept, `SqlLocator` was added
+  but is specific to SQL Object.
+* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
+* StringTemplate no longer required to process `<name>`-style tokens in SQL.
+* `TransactionConsumer` and `TransactionCallback` only take a `Handle` now--the
+  `TransactionStatus` argument is removed. Just rollback the handle now.
+* `TransactionStatus` class removed.
+* `CallbackFailedException` class removed. The functional interfaces like
+  `HandleConsumer`, `HandleCallback`, `TransactionCallback`, etc can now throw
+  any exception type. Methods like `Jdbi.inTransaction` that take these
+  callbacks use exception transparency to throw only the exception thrown by
+  the callback. If your callback throws no checked exceptions, you don't need
+  a try/catch block.
+* `Handle.select(String, ...)` now returns a `Query` for further method
+  chaining, instead of a `List<Map<String, Object>>`.
+* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
+  and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
+* `Query` no longer maps to `Map<String, Object>` by default. Call
+  `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
+
+SQL Object API:
+
+* SQL Object support is not installed by default. It must be added as a
+  separate dependency, and the plugin installed into the `Jdbi` object:
+
+[source,java]
+----
+Jdbi jdbi = Jdbi.create(...);
+jdbi.installPlugin(new SqlObjectPlugin());
+----
+
+* SQL Object types in v3 must be public interfaces--no classes. Method return
+  types must likewise be public. This is due to SQL Object implementation
+  switching from CGLIB to `java.lang.reflect.Proxy`, which only supports
+  interfaces.
+* `GetHandle` -> `SqlObject`
+* `SqlLocator` replaces `StatementLocator`, and only applies to SQL Objects.
+* `@Bind` annotations on SQL Object method parameters can be made optional,
+  by compiling your code with the `-parameters` compiler flag enabled.
+* `@BindIn` -> `@BindList`, and no longer requires StringTemplate
+* On-demand SQL objects don't play well with methods that return `Iterable`
+  or `FluentIterable`. On-demand objects strictly close the handle after each
+  method call, and no longer "hold the door open" for you to finish consuming
+  the interable as they did in v2. This forecloses a major source of connection
+  leaks.
+* SQL Objects are no longer closeable -- they are either on-demand, or their
+  lifecycle is tied to the lifecycle of the `Handle` they are attached to.
 
 ////
 
