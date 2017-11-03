@@ -30,7 +30,6 @@ import org.jdbi.v3.core.statement.StatementContext;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -280,15 +279,5 @@ public interface ResultBearing {
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for element type " + elementType));
             return ResultIterable.of(rs, mapper, ctx).collect(collector);
         });
-    }
-
-    /**
-     * Shorthand for {@code mapToMap().list()}, a commonly combined operation.
-     * Note that in many cases it is preferable to define a result type and avoid
-     * using {@code Map}; usually both clarity and performance improve.
-     * @return the query results
-     */
-    default List<Map<String, Object>> list() {
-        return mapToMap().list();
     }
 }

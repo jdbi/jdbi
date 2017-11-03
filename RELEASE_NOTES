@@ -1,6 +1,3 @@
-3.0.0-beta5
-  - add ResultBearing#list as shorthand for mapToMap().list()
-
 3.0.0-beta4
   - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
   - PreparedBatch: throw an exception if you try to add() an empty binding
