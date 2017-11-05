@@ -4542,20 +4542,29 @@ Core API:
 * `DBI`, `IDBI` -> `Jdbi`
 ** Instantiate with `Jdbi.create()` factory methods instead of constructors.
 * `DBIException` -> `JdbiException`
-* `ResultSetMapper` -> `RowMapper`
-* `ResultColumnMapper` -> `ColumnMapper`
-* `ResultSetMapperFactory` -> `RowMapperFactory`
-* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* `Handle.select(String, ...)` now returns a `Query` for further method
+  chaining, instead of a `List<Map<String, Object>>`. Call
+  `Handle.select(sql, ...).mapToMap().list()` for the same effect as v2.
+* `Handle.insert()` and `Handle.update()` have been coalesced into
+  `Handle.execute()`.
+* `ArgumentFactory` is no longer generic.
+* `AbstractArgumentFactory` is a generic implementation of `ArgumentFactory`
+  for factories that handle a single argument type.
 * Argument and mapper factories now operate in terms of
   `java.lang.reflect.Type` instead of `java.lang.Class`. This allows Jdbi to
   handle arguments and mappers for generic types.
 * Argument and mapper factories now have a single `build()` method that returns
   an `Optional`, instead of separate `accepts()` and `build()` methods.
-* `StatementLocator` interface removed from core. All core statements expect to
-  receive the actual SQL string now. A similar concept, `SqlLocator` was added
-  but is specific to SQL Object.
-* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
-* StringTemplate no longer required to process `<name>`-style tokens in SQL.
+* `ResultSetMapper` -> `RowMapper`. The row index parameter was also removed
+  from `RowMapper`--the current row number can be retrieved directly from the
+  `ResultSet`.
+* `ResultColumnMapper` -> `ColumnMapper`
+* `ResultSetMapperFactory` -> `RowMapperFactory`
+* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* `Query` no longer maps to `Map<String, Object>` by default. Call
+  `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
+* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
+  and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
 * `TransactionConsumer` and `TransactionCallback` only take a `Handle` now--the
   `TransactionStatus` argument is removed. Just rollback the handle now.
 * `TransactionStatus` class removed.
@@ -4565,12 +4574,11 @@ Core API:
   callbacks use exception transparency to throw only the exception thrown by
   the callback. If your callback throws no checked exceptions, you don't need
   a try/catch block.
-* `Handle.select(String, ...)` now returns a `Query` for further method
-  chaining, instead of a `List<Map<String, Object>>`.
-* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
-  and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
-* `Query` no longer maps to `Map<String, Object>` by default. Call
-  `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
+* `StatementLocator` interface removed from core. All core statements expect to
+  receive the actual SQL string now. A similar concept, `SqlLocator` was added
+  but is specific to SQL Object.
+* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
+* StringTemplate no longer required to process `<name>`-style tokens in SQL.
 
 SQL Object API:
 
@@ -4599,6 +4607,10 @@ jdbi.installPlugin(new SqlObjectPlugin());
   leaks.
 * SQL Objects are no longer closeable -- they are either on-demand, or their
   lifecycle is tied to the lifecycle of the `Handle` they are attached to.
+* `@BindAnnotation` meta-annotation removed. Use
+  `@SqlStatementCustomizingAnnotation` instead.
+* `@SingleValueResult` -> `@SingleValue`. The annotation may be used for method
+  return types, or on `@SqlBatch` parameters.
 
 ////
 
