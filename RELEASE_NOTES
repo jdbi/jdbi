@@ -1,3 +1,7 @@
+3.0.0-rc1
+  - SQL Object methods may have a Consumer<T> instead of a return type. See
+    http://jdbi.github.io/#_consumer_methods.
+
 3.0.0-beta4
   - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
   - PreparedBatch: throw an exception if you try to add() an empty binding
