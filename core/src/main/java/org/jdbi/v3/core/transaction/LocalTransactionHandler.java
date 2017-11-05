@@ -97,7 +97,7 @@ public class LocalTransactionHandler implements TransactionHandler
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
             if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                throw new TransactionException(String.format("Attempt to release non-existent savepoint, '%s'",
                                                              name));
             }
             conn.releaseSavepoint(savepoint);
@@ -114,7 +114,7 @@ public class LocalTransactionHandler implements TransactionHandler
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
             if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                throw new TransactionException(String.format("Attempt to rollback to non-existent savepoint, '%s'",
                                                              name));
             }
             conn.rollback(savepoint);

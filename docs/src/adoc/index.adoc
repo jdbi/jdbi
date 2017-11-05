@@ -37,12 +37,6 @@ Style guidelines:
 * Be inclusive: keep usage of male and female names equal in code examples.
 * Best edited while drunk
 
-TODO:
-
-* Extract section on enabling `-parameters` option to its own section in
-  Advanced Topics, then add links to it from both `ConstructorMapper` and
-  `SQL Object` sections.
-
 ////
 
 == Introduction to Jdbi
@@ -544,12 +538,6 @@ LocalDate releaseDate = handle.createQuery(
     .mapTo(LocalDate.class)
     .findOnly();
 ----
-
-TODO:
-
-* demonstrate providing a column mapper inline
-* demonstrate mapToBean()
-* demonstrate mapToMap()
 
 === Mappers
 
@@ -1062,9 +1050,9 @@ constructor parameter.
 Lombok's `@AllArgsConstructor` annotation generates the
 `@ConstructorProperties` annotation for you.
 
-The Java compiler can be configured to write method parameter names to the
-class file. Enabling this compiler option removes the need for the
-`@ConstructorProperties` annotation. See <<Automatic parameter naming>>.
+Enabling the `-parameters` Java compiler flag removes the need for the
+`@ConstructorProperties` annotation--see <<Compiling with Parameter Names>>.
+Thus:
 
 [source,java,indent=0]
 ----
@@ -2087,6 +2075,16 @@ You can use named arguments with the `@Bind` annotation:
 void insert(@Bind("id") long id, @Bind("name") String name);
 ----
 
+<<Compiling with Parameter Names,Compiling with parameter names>> removes the
+need for the `@Bind` annotation. Jdbi will then bind each un-annotated parameter
+to the parameter's name.
+
+[source,java]
+----
+@SqlUpdate("insert into users (id, name) values (:id, :name)")
+void insert(long id, String name);
+----
+
 You can bind from the entries of a `Map`:
 
 [source,java]
@@ -2727,59 +2725,6 @@ OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
 long orderId = outParams.getLong("orderId");
 double orderTotal = outParams.getDouble("orderTotal");
 ----
-
-==== Automatic parameter naming
-
-Normally, you must explicitly declare a `@Bind` annotation and specify the name
-to which the argument will be bound:
-
-[source,java]
-----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
-void insert(@Bind("id") long id, @Bind("name") String name);
-----
-
-If you compile your SQL Object interfaces with the `-parameters` flag enabled,
-then Jdbi can then automatically name your bound parameters based on the method
-parameter name. Thus:
-
-[source,java]
-----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
-void insert(long id, String name);
-----
-
-===== Maven setup
-
-Configure the `maven-compiler-plugin` in your POM:
-
-[source,xml]
-----
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-compiler-plugin</artifactId>
-  <configuration>
-    <compilerArgs>
-      <arg>-parameters</arg>
-    </compilerArgs>
-  </configuration>
-</plugin>
-----
-
-===== IntelliJ IDEA setup
-
-* File -> Settings
-* Build, Execution, Deployment -> Compiler -> Java Compiler
-* Additional command-line parameters: `-parameters`
-* Click Apply, then OK.
-* Build -> Rebuild Project
-
-===== Eclipse setup
-
-* Window -> Preferences
-* Java -> Compiler
-* Under "Classfile Generation," check the option "Store information about
-  method parameters (usable via reflection)."
 
 ==== @GetGeneratedKeys
 
@@ -3688,6 +3633,66 @@ Bear in mind:
 
 == Advanced Topics
 
+=== Compiling with Parameter Names
+
+By default, the Java compiler does not write parameter names of constructors and
+methods to class files. At runtime, reflectively asking for parameter names
+gives values like "arg0", "arg1", etc.
+
+Out of the box, Jdbi uses annotations to know what each parameter is called,
+e.g.:
+
+* `ConstructorMapper` uses the `@ConstructorProperties` annotation.
+* SQL Object method arguments use the `@Bind` annotation.
+
+[source,java]
+----
+@SqlUpdate("insert into users (id, name) values (:id, :name)")
+void insert(@Bind("id") long id, @Bind("name") String name); // <1>
+----
+<1> Such verbose, very boilerplate. Wow.
+
+If you compile your code with the `-parameters` compiler flag, then the need for
+these annotations is removed--Jdbi automatically uses the method parameter name:
+
+[source,java]
+----
+@SqlUpdate("insert into users (id, name) values (:id, :name)")
+void insert(long id, String name);
+----
+
+==== Maven setup
+
+Configure the `maven-compiler-plugin` in your POM:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <compilerArgs>
+      <arg>-parameters</arg>
+    </compilerArgs>
+  </configuration>
+</plugin>
+----
+
+==== IntelliJ IDEA setup
+
+* File -> Settings
+* Build, Execution, Deployment -> Compiler -> Java Compiler
+* Additional command-line parameters: `-parameters`
+* Click Apply, then OK.
+* Build -> Rebuild Project
+
+==== Eclipse setup
+
+* Window -> Preferences
+* Java -> Compiler
+* Under "Classfile Generation," check the option "Store information about
+  method parameters (usable via reflection)."
+
 === Working with Generic Types
 
 Jdbi provides utility classes to make it easier to work with Java generic types.
@@ -4482,7 +4487,7 @@ Most users will not need to implement the *ResultProducer* interface.
 
 * Use the `-parameters` compiler flag to avoid all those
   `@Bind("foo") String foo` redundant qualifiers in SQL Object method
-  parameters.  See <<Automatic parameter naming>>.
+  parameters.  See <<Compiling with Parameter Names>>.
 * Use a profiler! The true root cause of performance problems can often be a
   surprise. Measure first, _then_ tune for performance. And then measure again
   to be sure it made a difference.
@@ -4537,20 +4542,29 @@ Core API:
 * `DBI`, `IDBI` -> `Jdbi`
 ** Instantiate with `Jdbi.create()` factory methods instead of constructors.
 * `DBIException` -> `JdbiException`
-* `ResultSetMapper` -> `RowMapper`
-* `ResultColumnMapper` -> `ColumnMapper`
-* `ResultSetMapperFactory` -> `RowMapperFactory`
-* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* `Handle.select(String, ...)` now returns a `Query` for further method
+  chaining, instead of a `List<Map<String, Object>>`. Call
+  `Handle.select(sql, ...).mapToMap().list()` for the same effect as v2.
+* `Handle.insert()` and `Handle.update()` have been coalesced into
+  `Handle.execute()`.
+* `ArgumentFactory` is no longer generic.
+* `AbstractArgumentFactory` is a generic implementation of `ArgumentFactory`
+  for factories that handle a single argument type.
 * Argument and mapper factories now operate in terms of
   `java.lang.reflect.Type` instead of `java.lang.Class`. This allows Jdbi to
   handle arguments and mappers for generic types.
 * Argument and mapper factories now have a single `build()` method that returns
   an `Optional`, instead of separate `accepts()` and `build()` methods.
-* `StatementLocator` interface removed from core. All core statements expect to
-  receive the actual SQL string now. A similar concept, `SqlLocator` was added
-  but is specific to SQL Object.
-* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
-* StringTemplate no longer required to process `<name>`-style tokens in SQL.
+* `ResultSetMapper` -> `RowMapper`. The row index parameter was also removed
+  from `RowMapper`--the current row number can be retrieved directly from the
+  `ResultSet`.
+* `ResultColumnMapper` -> `ColumnMapper`
+* `ResultSetMapperFactory` -> `RowMapperFactory`
+* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* `Query` no longer maps to `Map<String, Object>` by default. Call
+  `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
+* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
+  and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
 * `TransactionConsumer` and `TransactionCallback` only take a `Handle` now--the
   `TransactionStatus` argument is removed. Just rollback the handle now.
 * `TransactionStatus` class removed.
@@ -4560,12 +4574,11 @@ Core API:
   callbacks use exception transparency to throw only the exception thrown by
   the callback. If your callback throws no checked exceptions, you don't need
   a try/catch block.
-* `Handle.select(String, ...)` now returns a `Query` for further method
-  chaining, instead of a `List<Map<String, Object>>`.
-* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
-  and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
-* `Query` no longer maps to `Map<String, Object>` by default. Call
-  `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
+* `StatementLocator` interface removed from core. All core statements expect to
+  receive the actual SQL string now. A similar concept, `SqlLocator` was added
+  but is specific to SQL Object.
+* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
+* StringTemplate no longer required to process `<name>`-style tokens in SQL.
 
 SQL Object API:
 
@@ -4594,6 +4607,10 @@ jdbi.installPlugin(new SqlObjectPlugin());
   leaks.
 * SQL Objects are no longer closeable -- they are either on-demand, or their
   lifecycle is tied to the lifecycle of the `Handle` they are attached to.
+* `@BindAnnotation` meta-annotation removed. Use
+  `@SqlStatementCustomizingAnnotation` instead.
+* `@SingleValueResult` -> `@SingleValue`. The annotation may be used for method
+  return types, or on `@SqlBatch` parameters.
 
 ////
 
