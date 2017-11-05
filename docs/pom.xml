@@ -85,6 +85,10 @@
         <artifactId>jdbi3-stringtemplate4</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-vavr</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.jetbrains</groupId>
           <artifactId>annotations</artifactId>
       </dependency>
