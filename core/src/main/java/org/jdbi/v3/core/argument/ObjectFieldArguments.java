@@ -13,10 +13,22 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static java.util.stream.Collectors.toMap;
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
@@ -25,48 +37,52 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  */
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder
 {
+    private static final Map<Class, Map<String, Field>> CLASS_FIELDS = ExpiringMap.builder()
+        .expiration(10, TimeUnit.MINUTES)
+        .expirationPolicy(ExpirationPolicy.ACCESSED)
+        .entryLoader((Class type) ->
+            Stream.of(type.getFields())
+                .collect(toMap(Field::getName, Function.identity())))
+        .build();
+
+    private final Map<String, Field> fields;
+
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param bean the bean to inspect and bind
      */
-    public ObjectFieldArguments(String prefix, Object bean)
-    {
+    public ObjectFieldArguments(String prefix, Object bean) {
         super(prefix, bean);
+
+        this.fields = CLASS_FIELDS.get(bean.getClass());
     }
 
     @Override
-    Optional<Argument> find0(String name, StatementContext ctx)
-    {
+    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+        Field field = fields.get(name);
+
+        if (field == null) {
+            return Optional.empty();
+        }
+
         try
         {
-            for (Field field : object.getClass().getFields())
-            {
-                if (field.getName().equals(name))
-                {
-                    Object fieldValue = field.get(object);
-                    Type fieldType = field.getGenericType();
-                    Optional<Argument> argument = ctx.findArgumentFor(fieldType, fieldValue);
+            Type type = field.getGenericType();
+            Object value = field.get(object);
 
-                    if (!argument.isPresent())
-                    {
-                        throw new UnableToCreateStatementException(
-                                String.format("No argument factory registered for type [%s] for field [%s] on [%s]",
-                                        fieldType,
-                                        name,
-                                        object), ctx);
-                    }
-
-                    return argument;
-                }
-            }
+            return Optional.of(new TypedValue(type, value));
         }
         catch (IllegalAccessException e)
         {
             throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
-                            "bean property [%s] on [%s]",
-                    name, object), e, ctx);
+                    "bean property [%s] on [%s]",
+                name, object), e, ctx);
         }
-        return Optional.empty();
+    }
+
+    @Override
+    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+        return new ObjectFieldArguments(null, obj);
     }
 
     @Override

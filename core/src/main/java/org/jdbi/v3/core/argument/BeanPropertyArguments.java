@@ -13,13 +13,22 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
@@ -29,7 +38,24 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  */
 public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
 {
-    private BeanInfo info;
+    private static final Map<Class, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap.builder()
+        .expiration(10, TimeUnit.MINUTES)
+        .expirationPolicy(ExpirationPolicy.ACCESSED)
+        .entryLoader((Class type) -> {
+            try {
+                BeanInfo info = Introspector.getBeanInfo(type);
+                return Stream.of(info.getPropertyDescriptors())
+                    .collect(toMap(PropertyDescriptor::getName, Function.identity()));
+            }
+            catch (IntrospectionException e) {
+                throw new UnableToCreateStatementException(
+                    "Failed to introspect object which is supposed to be used to " +
+                    "set named args for a statement via JavaBean properties", e);
+            }
+        })
+        .build();
+
+    private final Map<String, PropertyDescriptor> propertyDescriptors;
 
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
@@ -38,36 +64,41 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
     public BeanPropertyArguments(String prefix, Object bean)
     {
         super(prefix, bean);
-        try
-        {
-            this.info = Introspector.getBeanInfo(bean.getClass());
-        }
-        catch (IntrospectionException e)
-        {
-            throw new UnableToCreateStatementException("Failed to introspect object which is supposed to be used to " +
-                                                       "set named args for a statement via JavaBean properties", e);
-        }
+
+        this.propertyDescriptors = CLASS_PROPERTY_DESCRIPTORS.get(bean.getClass());
     }
 
     @Override
-    public Optional<Argument> find0(String name, StatementContext ctx)
-    {
-        for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
-        {
-            if (name.equals(descriptor.getName()))
-            {
-                Method getter = descriptor.getReadMethod();
-                if (getter == null)
-                {
-                    throw new UnableToCreateStatementException(String.format("No getter method found for " +
-                                    "bean property [%s] on [%s]",
-                            name, object), ctx);
-                }
+    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+        PropertyDescriptor descriptor = propertyDescriptors.get(name);
 
-                return getArgumentForMethod(getter, ctx);
-            }
+        if (descriptor == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        Method getter = getGetter(name, descriptor, ctx);
+
+        Type type = getter.getGenericReturnType();
+        Object value = invokeMethod(getter, ctx);
+
+        return Optional.of(new TypedValue(type, value));
+    }
+
+    private Method getGetter(String name, PropertyDescriptor descriptor, StatementContext ctx) {
+        Method getter = descriptor.getReadMethod();
+
+        if (getter == null) {
+            throw new UnableToCreateStatementException(String.format("No getter method found for " +
+                    "bean property [%s] on [%s]",
+                name, object), ctx);
+        }
+
+        return getter;
+    }
+
+    @Override
+    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+        return new BeanPropertyArguments(null, obj);
     }
 
     @Override
