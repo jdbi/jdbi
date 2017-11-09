@@ -1106,6 +1106,60 @@ public User(@ColumnName("user_id") int id, String name) {
 }
 ----
 
+Nested constructor-injected types can be mapped using the `@Nested` annotation:
+
+[source,java]
+----
+public class User {
+  public User(int id,
+              String name,
+              @Nested Address address) {
+    ...
+  }
+}
+
+public class Address {
+  public Address(String street,
+                 String city,
+                 String state,
+                 String zip) {
+    ...
+  }
+}
+----
+
+[source,java]
+----
+handle.registerMapper(ConstructorMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, street, city, state, zip from users")
+    .mapTo(User.class)
+    .list();
+----
+
+The `@Nested` annotation has an optional `value()` attribute, which can be used
+to apply a column name prefix to each nested constructor parameter:
+
+[source,java]
+----
+public User(int id,
+            String name,
+            @Nested("addr") Address address) {
+  ...
+}
+----
+
+[source,java]
+----
+handle.registerMapper(ConstructorMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .mapTo(User.class)
+    .list();
+----
+
 ===== BeanMapper
 
 We also provide basic support for mapping beans:
@@ -1155,6 +1209,64 @@ public class User {
 
 The `@ColumnName` annotation can be placed on either the getter or setter
 method.
+
+Nested Java Bean types can be mapped using the `@Nested` annotation:
+
+[source,java]
+----
+public class User {
+  private int id;
+  private String name;
+  private Address address;
+
+  ... (getters and setters)
+
+  @Nested // <1>
+  public Address getAddress() { ... }
+
+  public void setAddress(Address address) { ... }
+}
+
+public class Address {
+  private String street;
+  private String city;
+  private String state;
+  private String zip;
+
+  ... (getters and setters)
+}
+----
+<1> The `@Nested` annotation can be placed on either the getter or setter
+    method.
+
+[source,java]
+----
+handle.registerMapper(BeanMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, street, city, state, zip from users")
+    .mapTo(User.class)
+    .list();
+----
+
+The `@Nested` annotation has an optional `value()` attribute, which can be used
+to apply a column name prefix to each nested bean property:
+
+[source,java]
+----
+@Nested("addr")
+public Address getAddress() { ... }
+----
+
+[source,java]
+----
+handle.registerMapper(BeanMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .mapTo(User.class)
+    .list();
+----
 
 ===== FieldMapper
 
@@ -1210,6 +1322,60 @@ public class User {
 
   public String name;
 }
+----
+
+Nested field-mapped types can be mapped using the `@Nested` annotation:
+
+[source,java]
+----
+public class User {
+  public int id;
+  public String name;
+
+  @Nested
+  public Address address;
+}
+
+public class Address {
+  public String street;
+  public String city;
+  public String state;
+  public String zip;
+}
+----
+
+[source,java]
+----
+handle.registerMapper(FieldMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, street, city, state, zip from users")
+    .mapTo(User.class)
+    .list();
+----
+
+The `@Nested` annotation has an optional `value()` attribute, which can be used
+to apply a column name prefix to each nested field:
+
+[source,java]
+----
+public class User {
+  public int id;
+  public String name;
+
+  @Nested("addr")
+  public Address address;
+}
+----
+
+[source,java]
+----
+handle.registerMapper(FieldMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .mapTo(User.class)
+    .list();
 ----
 
 ////

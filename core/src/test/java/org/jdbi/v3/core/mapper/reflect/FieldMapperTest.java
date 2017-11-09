@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -231,5 +232,43 @@ public class FieldMapperTest {
 
         assertThat(thing.i).isEqualTo(1);
         assertThat(thing.s).isEqualTo("foo");
+    }
+
+    @Test
+    public void testNested() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        NestedThing result = handle
+            .registerRowMapper(FieldMapper.factory(NestedThing.class))
+            .select("select id, name from something")
+            .mapTo(NestedThing.class)
+            .findOnly();
+        assertThat(result.nested.i).isEqualTo(1);
+        assertThat(result.nested.s).isEqualTo("foo");
+    }
+
+    static class NestedThing {
+        @Nested
+        ColumnNameThing nested;
+    }
+
+    @Test
+    public void testNestedPrefix() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        NestedPrefixThing result = handle
+            .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
+            .select("select id nested_id, name nested_name from something")
+            .mapTo(NestedPrefixThing.class)
+            .findOnly();
+        assertThat(result.nested.i).isEqualTo(1);
+        assertThat(result.nested.s).isEqualTo("foo");
+    }
+
+    static class NestedPrefixThing {
+        @Nested("nested")
+        ColumnNameThing nested;
     }
 }

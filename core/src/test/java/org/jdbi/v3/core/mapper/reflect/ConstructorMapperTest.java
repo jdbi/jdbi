@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,6 +67,21 @@ public class ConstructorMapperTest {
         assertThat(bean.i).isEqualTo(2);
     }
 
+    static class ConstructorBean {
+        private final String s;
+        private final int i;
+
+        ConstructorBean(int some, String other, long constructor) {
+            throw new UnsupportedOperationException("You don't belong here!");
+        }
+
+        @JdbiConstructor
+        ConstructorBean(String s, int i) {
+            this.s = s;
+            this.i = i;
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicate() throws Exception {
         execute("SELECT i, s, s FROM bean");
@@ -83,6 +99,13 @@ public class ConstructorMapperTest {
         assertThat(nb.i).isEqualTo(3);
     }
 
+    static class NamedParameterBean {
+        final int i;
+        NamedParameterBean(@ColumnName("xyz") int i) {
+            this.i = i;
+        }
+    }
+
     @Test
     public void testConstructorProperties() throws Exception {
         final ConstructorPropertiesBean cpi = dbRule.getSharedHandle()
@@ -91,28 +114,6 @@ public class ConstructorMapperTest {
                 .findOnly();
         assertThat(cpi.s).isEqualTo("3");
         assertThat(cpi.i).isEqualTo(2);
-    }
-
-    static class ConstructorBean {
-        private final String s;
-        private final int i;
-
-        ConstructorBean(int some, String other, long constructor) {
-            throw new UnsupportedOperationException("You don't belong here!");
-        }
-
-        @JdbiConstructor
-        ConstructorBean(String s, int i) {
-            this.s = s;
-            this.i = i;
-        }
-    }
-
-    static class NamedParameterBean {
-        final int i;
-        NamedParameterBean(@ColumnName("xyz") int i) {
-            this.i = i;
-        }
     }
 
     static class ConstructorPropertiesBean {
@@ -128,6 +129,44 @@ public class ConstructorMapperTest {
         ConstructorPropertiesBean(String x, int y) {
             this.s = x;
             this.i = y;
+        }
+    }
+
+    @Test
+    public void nestedParameters() {
+        NestedBean result = dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+            .select("select s, i from bean")
+            .mapTo(NestedBean.class)
+            .findOnly();
+        assertThat(result.nested.s).isEqualTo("3");
+        assertThat(result.nested.i).isEqualTo(2);
+    }
+
+    static class NestedBean {
+        final ConstructorBean nested;
+
+        NestedBean(@Nested ConstructorBean nested) {
+            this.nested = nested;
+        }
+    }
+
+    @Test
+    public void nestedPrefixParameters() {
+        NestedPrefixBean result = dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
+            .select("select i nested_i, s nested_s from bean")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly();
+        assertThat(result.nested.s).isEqualTo("3");
+        assertThat(result.nested.i).isEqualTo(2);
+    }
+
+    static class NestedPrefixBean {
+        final ConstructorBean nested;
+
+        NestedPrefixBean(@Nested("nested") ConstructorBean nested) {
+            this.nested = nested;
         }
     }
 }

@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -298,5 +300,61 @@ public class BeanMapperTest {
 
         assertThat(bean.getI()).isEqualTo(1);
         assertThat(bean.getS()).isEqualTo("foo");
+    }
+
+    @Test
+    public void testNested() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
+
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        assertThat(handle
+            .createQuery("select id, name from something")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .extracting("nested.id", "nested.name")
+            .containsExactly(1, "foo");
+    }
+
+    static class NestedBean {
+        private Something nested;
+
+        @Nested
+        public Something getNested() {
+            return nested;
+        }
+
+        public void setNested(Something nested) {
+            this.nested = nested;
+        }
+    }
+
+    @Test
+    public void testNestedPrefix() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        assertThat(handle
+            .createQuery("select id nested_id, name nested_name from something")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .extracting("nested.id", "nested.name")
+            .containsExactly(1, "foo");
+    }
+
+    static class NestedPrefixBean {
+        private Something nested;
+
+        public Something getNested() {
+            return nested;
+        }
+
+        @Nested("nested")
+        public void setNested(Something nested) {
+            this.nested = nested;
+        }
     }
 }

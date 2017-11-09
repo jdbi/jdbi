@@ -13,21 +13,26 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNameMatchers;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -86,7 +91,7 @@ public class FieldMapper<T> implements RowMapper<T>
 
     private final Class<T> type;
     private final String prefix;
-    private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
+    private final Map<Field, RowMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
     private FieldMapper(Class<T> type, String prefix)
     {
@@ -101,105 +106,97 @@ public class FieldMapper<T> implements RowMapper<T>
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        List<Integer> columnNumbers = new ArrayList<>();
-        List<ColumnMapper<?>> mappers = new ArrayList<>();
+        final List<String> columnNames = getColumnNames(rs);
+
+        List<RowMapper<?>> mappers = new ArrayList<>();
         List<Field> fields = new ArrayList<>();
 
-        ResultSetMetaData metadata = rs.getMetaData();
-        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
+        List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
 
-        for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-            String name = metadata.getColumnLabel(i).toLowerCase();
+        for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
+            for (Field field : aType.getDeclaredFields()) {
+                Nested anno = field.getAnnotation(Nested.class);
+                if (anno == null) {
+                    findColumnIndex(paramName(field), prefix, columnNames, columnNameMatchers, () -> debugName(field))
+                        .ifPresent(index -> {
+                            Type type = field.getGenericType();
+                            ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
+                                .orElse((r, n, c) -> rs.getObject(n));
+                            mappers.add(new SingleColumnMapper(mapper, index + 1));
+                            fields.add(field);
+                        });
+                } else {
+                    RowMapper<?> mapper = nestedMappers.computeIfAbsent(field, f -> {
+                        String prefix = FieldMapper.this.prefix + anno.value();
+                        return FieldMapper.of(field.getType(), prefix);
+                    }).specialize(rs, ctx);
 
-            if (prefix.length() > 0) {
-                if (name.length() > prefix.length() &&
-                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
-                    name = name.substring(prefix.length());
-                }
-                else {
-                    continue;
+                    mappers.add(mapper);
+                    fields.add(field);
                 }
             }
-
-            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, n -> fieldByColumn(n, columnNameMatchers));
-
-            if (!maybeField.isPresent()) {
-                continue;
-            }
-
-            final Field field = maybeField.get();
-            final Type type = field.getGenericType();
-            final ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
-                    .orElse((r, n, c) -> r.getObject(n));
-
-            columnNumbers.add(i);
-            mappers.add(mapper);
-            fields.add(field);
         }
 
-        if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
+        if (mappers.isEmpty() && columnNames.size() > 0) {
             throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
-                    "didn't find any matching columns in result set", type));
+                "didn't find any matching columns in result set", type));
         }
 
-        if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-                columnNumbers.size() != metadata.getColumnCount()) {
-            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
-                    "only matched properties for %s of %s columns", type,
-                    columnNumbers.size(), metadata.getColumnCount()));
+        // TODO rethink strict mapping in terms of nested row mappers
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+            mappers.size() != columnNames.size()) {
+            throw new IllegalArgumentException(String.format(
+                "Mapping fields for type %s only matched properties for %s of %s columns",
+                type,
+                mappers.size(),
+                columnNames.size()));
         }
-
 
         return (r, c) -> {
-            T obj;
-            try {
-                obj = type.newInstance();
-            }
-            catch (Exception e) {
-                throw new IllegalArgumentException(String.format("A type, %s, was mapped " +
-                        "which was not instantiable", type.getName()), e);
-            }
+            T obj = construct();
 
-            for (int i = 0; i < columnNumbers.size(); i++) {
-                int columnNumber = columnNumbers.get(i);
-                ColumnMapper<?> mapper = mappers.get(i);
+            for (int i = 0; i < mappers.size(); i++) {
+                RowMapper<?> mapper = mappers.get(i);
                 Field field = fields.get(i);
 
-                Object value = mapper.map(rs, columnNumber, ctx);
-                try {
-                    field.setAccessible(true);
-                    field.set(obj, value);
-                } catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(String.format("Unable to access " +
-                            "property, %s", field.getName()), e);
-                }
+                Object value = mapper.map(rs, ctx);
+                writeField(obj, field, value);
             }
+
             return obj;
         };
     }
 
-    private Optional<Field> fieldByColumn(String columnName, List<ColumnNameMatcher> columnNameMatchers)
-    {
-        Class<?> aClass = type;
-        while(aClass != null) {
-            for (Field field : aClass.getDeclaredFields()) {
-                String paramName = paramName(field);
-                for (ColumnNameMatcher strategy : columnNameMatchers) {
-                    if (strategy.columnNameMatches(columnName, paramName)) {
-                        return Optional.of(field);
-                    }
-                }
-            }
-            aClass = aClass.getSuperclass();
-        }
-        return Optional.empty();
-    }
-
-    private String paramName(Field field)
-    {
+    private static String paramName(Field field) {
         return Optional.ofNullable(field.getAnnotation(ColumnName.class))
                 .map(ColumnName::value)
                 .orElseGet(field::getName);
+    }
+
+    private String debugName(Field field) {
+        return String.format("%s.%s", type.getSimpleName(), field.getName());
+    }
+
+    private T construct() {
+        try {
+            return type.newInstance();
+        }
+        catch (Exception e) {
+            String message = String.format(
+                "A type, %s, was mapped which was not instantiable",
+                type.getName());
+            throw new IllegalArgumentException(message, e);
+        }
+    }
+
+    private void writeField(T obj, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(String.format("Unable to access " +
+                "property, %s", field.getName()), e);
+        }
     }
 }
 
