@@ -1,4 +1,4 @@
-# Jdbi
+![Jdbi Logo](docs/src/adoc/images/logo.svg)
 
 [![Build Status](https://travis-ci.org/jdbi/jdbi.svg?branch=master)](https://travis-ci.org/jdbi/jdbi)
 

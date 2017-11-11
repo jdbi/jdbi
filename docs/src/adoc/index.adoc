@@ -9,6 +9,8 @@
 :icons: font
 :source-highlighter: coderay
 :source-language: asciidoc
+:imagesdir: images
+
 :jdbidocs: ./apidocs/org/jdbi/v3
 :jdkdocs: https://docs.oracle.com/javase/8/docs/api
 
@@ -18,6 +20,8 @@
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+
+image::logo.svg[Jdbi logo]
 
 ////
 Style guidelines:
