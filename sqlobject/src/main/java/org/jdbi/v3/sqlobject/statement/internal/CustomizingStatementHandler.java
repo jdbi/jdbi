@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -56,15 +57,21 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         this.sqlObjectType = type;
         this.method = method;
 
-        // Prepare customizers that don't depend on actual arguments.
-        final Stream<BoundCustomizer> methodCustomizers = concat(
-                annotationsFor(type).map(a -> instantiateFactory(a).createForType(a, type)),
-                annotationsFor(method).map(a -> instantiateFactory(a).createForMethod(a, type, method)))
+        // Include annotations on the interface's supertypes
+        final Stream<BoundCustomizer> typeCustomizers = concat(Stream.of(type.getInterfaces()), Stream.of(type))
+            .flatMap(t -> annotationsFor(t))
+            .map(a -> instantiateFactory(a).createForType(a, type))
             .map(BoundCustomizer::of);
 
-        // Append customizers that do.
-        statementCustomizers = concat(methodCustomizers, parameterCustomizers(type, method))
-            .collect(Collectors.<BoundCustomizer>toList());
+        final Stream<BoundCustomizer> methodCustomizers =  annotationsFor(method)
+            .map(a -> instantiateFactory(a).createForMethod(a, type, method))
+            .map(BoundCustomizer::of);
+
+        final Stream<BoundCustomizer> parameterCustomizers = parameterCustomizers(type, method);
+
+        statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers)
+            .flatMap(Function.identity())
+            .collect(Collectors.toList());
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {

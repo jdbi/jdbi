@@ -90,6 +90,11 @@ public class SqlObjectFactory implements ExtensionFactory {
                 handle.getConfig(HandlerDecorators.class));
 
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
+
+        for (Class<?> iface : extensionType.getInterfaces()) {
+            forEachConfigurer(iface, (configurer, annotation) ->
+                configurer.configureForType(instanceConfig, annotation, extensionType));
+        }
         forEachConfigurer(extensionType, (configurer, annotation) ->
                 configurer.configureForType(instanceConfig, annotation, extensionType));
 

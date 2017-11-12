@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.time.Clock;
 import java.time.OffsetDateTime;
 
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
@@ -25,8 +26,16 @@ public class TimestampedFactory implements SqlStatementCustomizerFactory {
 
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        return createForType(annotation, sqlObjectType);
+    }
+
+    @Override
+    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
         final String parameterName = ((Timestamped) annotation).value();
 
-        return stmt -> stmt.bind(parameterName, OffsetDateTime.now());
+        return stmt -> {
+            Clock clock = stmt.getConfig(TimestampedConfig.class).getClock();
+            stmt.bind(parameterName, OffsetDateTime.now(clock));
+        };
     }
 }

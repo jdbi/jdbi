@@ -41,7 +41,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.TimestampedFactory;
  * </code>
  * </pre>
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @SqlStatementCustomizingAnnotation(TimestampedFactory.class)
 @Documented
