@@ -13,41 +13,64 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static java.util.stream.Collectors.toMap;
+
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Binds public methods with no parameters on a specified object.
  */
 public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder
 {
+    private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
+        .expiration(10, TimeUnit.MINUTES)
+        .expirationPolicy(ExpirationPolicy.ACCESSED)
+        .entryLoader((Class<?> type) ->
+            Stream.of(type.getMethods())
+                .filter(m -> m.getParameterCount() == 0)
+                .collect(toMap(Method::getName, Function.identity())))
+        .build();
+
+    private final Map<String, Method> methods;
+
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind functions on
      */
-    public ObjectMethodArguments(String prefix, Object object)
-    {
+    public ObjectMethodArguments(String prefix, Object object) {
         super(prefix, object);
+
+        this.methods = CLASS_METHODS.get(object.getClass());
     }
 
     @Override
-    Optional<Argument> find0(String name, StatementContext ctx)
-    {
-        if (name.startsWith(prefix))
-        {
-            String propertyName = name.substring(prefix.length());
+    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+        Method method = methods.get(name);
 
-            for (Method method : object.getClass().getMethods())
-            {
-                if (method.getParameterCount() == 0 && method.getName().equals(propertyName))
-                {
-                    return getArgumentForMethod(method, ctx);
-                }
-            }
+        if (method == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        Type type = method.getGenericReturnType();
+        Object value = invokeMethod(method, ctx);
+
+        return Optional.of(new TypedValue(type, value));
+    }
+
+    @Override
+    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+        return new ObjectMethodArguments(null, obj);
     }
 
     @Override

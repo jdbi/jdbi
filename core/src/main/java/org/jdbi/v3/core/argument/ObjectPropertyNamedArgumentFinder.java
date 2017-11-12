@@ -13,9 +13,13 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * Base {@link NamedArgumentFinder} implementation that can be used when binding properties of an object, with an
@@ -23,8 +27,10 @@ import java.util.Optional;
  */
 abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
 {
-    protected final String prefix;
-    protected final Object object;
+    final String prefix;
+    final Object object;
+
+    private final Map<String, Optional<NamedArgumentFinder>> childArgumentFinders = new ConcurrentHashMap<>();
 
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
@@ -43,17 +49,42 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
         {
             final String actualName = name.substring(prefix.length());
 
-            return find0(actualName, ctx);
+            int separator = actualName.indexOf('.');
+
+            if (separator != -1) {
+                String parentName = actualName.substring(0, separator);
+                String childName = actualName.substring(separator + 1);
+
+                return childArgumentFinders
+                    .computeIfAbsent(parentName, pn ->
+                        getValue(pn, ctx).map(v -> getNestedArgumentFinder(v.value)))
+                    .flatMap(arg -> arg.find(childName, ctx));
+            }
+
+            return getValue(actualName, ctx)
+                .map(tv -> ctx.findArgumentFor(tv.type, tv.value)
+                    .orElseThrow(() -> new UnableToCreateStatementException(
+                        String.format("No argument factory registered for type [%s] for element [%s] on [%s]",
+                            tv.type,
+                            name,
+                            object),
+                        ctx)));
         }
 
         return Optional.empty();
     }
 
-    /**
-     * @see #find(String, StatementContext)
-     * @param name name of the property to bind (this does *not* include the prefix)
-     * @param ctx {@link StatementContext} to bind on
-     * @return an argument to bind, if any
-     */
-    abstract Optional<Argument> find0(String name, StatementContext ctx);
+    abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
+
+    static class TypedValue {
+        public final Type type;
+        public final Object value;
+
+        public TypedValue(Type type, Object value) {
+            this.type = type;
+            this.value = value;
+        }
+    }
+
+    abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
 }

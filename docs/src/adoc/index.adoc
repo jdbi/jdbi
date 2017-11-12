@@ -336,7 +336,7 @@ You can bind multiple arguments from properties of a Java Bean:
 ----
 Contact contact = new Contact();
 contact.setId(3);
-contact.withName("Cindy");
+contact.setName("Cindy");
 
 handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
       .bindBean(contact)
@@ -394,9 +394,13 @@ handle.createUpdate("insert into documents (id, folder_id, name, contents) " +
       .execute();
 ----
 
+[NOTE]
+`bindBean()`, `bindFields()`, and `bindMethods()` may be used to bind nested
+properties, e.g. `:user.address.street`.
+
 [WARNING]
-Neither `bindMap()`, `bindMethods()`, `bindFields()`, nor `bindBean()` support
- binding of nested properties (e.g. `:user.address.street`).
+`bindMap()` does not bind nested properties--map keys are expected to exactly
+match the bound parameter name.
 
 ==== Custom Arguments
 
@@ -2140,10 +2144,13 @@ void insert(@BindBean("user") User user);
 //void insert(@BindMethods("user") User user);
 ----
 
+[NOTE]
+As in the Core API, `@BindBean`, `@BindFields`, and `@BindMethods` may be used
+to bind nested properties, e.g. `:user.address.street`.
+
 [WARNING]
-As in the Core API, neither `@BindMap`, `@BindBean`, `@BindFields`, nor
-`@BindMethods` support binding of nested properties
-(e.g. `:user.address.street`).
+`@BindMap` does not bind nested properties--map keys are expected to exactly
+match the bound parameter name.
 
 ==== @SqlQuery
 
