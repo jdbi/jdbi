@@ -18,8 +18,6 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Optional;
 
 /**
  * Base {@link NamedArgumentFinder} implementation that can be used for bindings that use the return value
@@ -31,30 +29,15 @@ abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedA
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind methods on
      */
-    protected MethodReturnValueNamedArgumentFinder(String prefix, Object object)
+    MethodReturnValueNamedArgumentFinder(String prefix, Object object)
     {
         super(prefix, object);
     }
 
-
-    protected Optional<Argument> getArgumentForMethod(Method method, StatementContext ctx)
-    {
+    Object invokeMethod(Method method, StatementContext ctx) {
         try
         {
-            Type propertyType = method.getGenericReturnType();
-            Object propertyValue = method.invoke(object);
-            Optional<Argument> argument = ctx.findArgumentFor(propertyType, propertyValue);
-
-            if (!argument.isPresent())
-            {
-                throw new UnableToCreateStatementException(
-                        String.format("No argument factory registered for type [%s] for method [%s] on [%s]",
-                                propertyType,
-                                method.getName(),
-                                object), ctx);
-            }
-
-            return argument;
+            return method.invoke(object);
         }
         catch (IllegalAccessException e)
         {

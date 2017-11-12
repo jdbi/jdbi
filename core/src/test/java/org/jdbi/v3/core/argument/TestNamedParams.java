@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
 import org.junit.Rule;
@@ -70,62 +70,206 @@ public class TestNamedParams
         Handle h = dbRule.openHandle();
         Something original = new Something(0, "Keith");
 
-        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
-        s.bindBean(original);
-        int insert_count = s.execute();
-        assertThat(insert_count).isEqualTo(1);
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:id, :name)")
+            .bindBean(original)
+            .execute())
+            .isEqualTo(1);
 
-        Query q = h.createQuery("select * from something where id = :id").bind("id", original.getId());
-        final Something fromDb = q.mapToBean(Something.class).findOnly();
+        assertThat(h
+            .select("select * from something where id = ?", original.getId())
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(original);
+    }
 
-        assertThat(fromDb).isEqualTo(original);
+    @Test
+    public void testBeanPropertyPrefixBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+        Something original = new Something(0, "Keith");
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
+            .bindBean("my", original)
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", original.getId())
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(original);
+    }
+
+    @Test
+    public void testBeanPropertyNestedBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+
+        Something thing = new Something(0, "Keith");
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
+            .bindBean("my", new Object() {
+                @SuppressWarnings("unused")
+                public Something getNested() {
+                    return thing;
+                }
+            })
+            .execute()).isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", thing.getId())
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(thing);
     }
 
     @Test
     public void testFieldsBinding() throws Exception
     {
         Handle h = dbRule.openHandle();
-        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
-        s.bindFields(new Object() {
-            @SuppressWarnings("unused")
-            public int id = 0;
-            @SuppressWarnings("unused")
-            public String name = "Keith";
-        });
-        int insert_count = s.execute();
 
-        Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
-        final Something fromDb = q.mapToBean(Something.class).findOnly();
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:id, :name)")
+            .bindFields(new PublicFields(0, "Keith"))
+            .execute())
+            .isEqualTo(1);
 
-        assertThat(insert_count).isEqualTo(1);
-        assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
+    }
+
+    @Test
+    public void testFieldsPrefixBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
+            .bindFields("my", new PublicFields(0, "Keith"))
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
+    }
+
+    @Test
+    public void testFieldsNestedBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
+            .bindFields("my", new Object() {
+                @SuppressWarnings("unused")
+                public PublicFields nested = new PublicFields(0, "Keith");
+            })
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
+    }
+
+    public static class PublicFields {
+        public int id = 0;
+        public String name = "Keith";
+
+        public PublicFields(int id, String name) {
+
+            this.id = id;
+            this.name = name;
+        }
     }
 
     @Test
     public void testFunctionsBinding() throws Exception
     {
         Handle h = dbRule.openHandle();
-        Update s = h.createUpdate("insert into something (id, name) values (:id, :aFunctionThatReturnsTheName)");
-        s.bindMethods(new Object() {
-            @SuppressWarnings("unused")
-            public int id() {
-                return 0;
-            }
 
-            @SuppressWarnings("unused")
-            public String aFunctionThatReturnsTheName() {
-                return "Keith";
-            }
-        });
-        int insert_count = s.execute();
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:id, :name)")
+            .bindMethods(new NoArgFunctions(0, "Keith"))
+            .execute())
+            .isEqualTo(1);
 
-        Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
-        final Something fromDb = q.mapToBean(Something.class).findOnly();
-
-        assertThat(insert_count).isEqualTo(1);
-        assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
     }
 
+    @Test
+    public void testFunctionsPrefixBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
+            .bindMethods("my", new NoArgFunctions(0, "Keith"))
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
+    }
+
+    @Test
+    public void testFunctionsNestedBinding() throws Exception
+    {
+        Handle h = dbRule.openHandle();
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
+            .bindMethods("my", new Object() {
+                @SuppressWarnings("unused")
+                public NoArgFunctions nested() {
+                    return new NoArgFunctions(0, "Keith");
+                }
+            })
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .findOnly())
+            .isEqualTo(new Something(0, "Keith"));
+    }
+
+    public static class NoArgFunctions {
+        private final int i;
+        private final String s;
+
+        public NoArgFunctions(int i, String s) {
+            this.i = i;
+            this.s = s;
+        }
+
+        public int id() {
+            return i;
+        }
+
+        public String name() {
+            return s;
+        }
+    }
     @Test
     public void testMapKeyBinding() throws Exception
     {

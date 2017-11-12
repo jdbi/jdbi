@@ -9,6 +9,8 @@
 :icons: font
 :source-highlighter: coderay
 :source-language: asciidoc
+:imagesdir: images
+
 :jdbidocs: ./apidocs/org/jdbi/v3
 :jdkdocs: https://docs.oracle.com/javase/8/docs/api
 
@@ -18,6 +20,8 @@
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+
+image::logo.svg[Jdbi logo]
 
 ////
 Style guidelines:
@@ -332,7 +336,7 @@ You can bind multiple arguments from properties of a Java Bean:
 ----
 Contact contact = new Contact();
 contact.setId(3);
-contact.withName("Cindy");
+contact.setName("Cindy");
 
 handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
       .bindBean(contact)
@@ -390,9 +394,13 @@ handle.createUpdate("insert into documents (id, folder_id, name, contents) " +
       .execute();
 ----
 
+[NOTE]
+`bindBean()`, `bindFields()`, and `bindMethods()` may be used to bind nested
+properties, e.g. `:user.address.street`.
+
 [WARNING]
-Neither `bindMap()`, `bindMethods()`, `bindFields()`, nor `bindBean()` support
- binding of nested properties (e.g. `:user.address.street`).
+`bindMap()` does not bind nested properties--map keys are expected to exactly
+match the bound parameter name.
 
 ==== Custom Arguments
 
@@ -2302,10 +2310,13 @@ void insert(@BindBean("user") User user);
 //void insert(@BindMethods("user") User user);
 ----
 
+[NOTE]
+As in the Core API, `@BindBean`, `@BindFields`, and `@BindMethods` may be used
+to bind nested properties, e.g. `:user.address.street`.
+
 [WARNING]
-As in the Core API, neither `@BindMap`, `@BindBean`, `@BindFields`, nor
-`@BindMethods` support binding of nested properties
-(e.g. `:user.address.street`).
+`@BindMap` does not bind nested properties--map keys are expected to exactly
+match the bound parameter name.
 
 ==== @SqlQuery
 
@@ -2660,6 +2671,11 @@ public interface UserDao {
 Normally, Jdbi would interpret `List<String>` to mean that the mapped type is
 `String`, and to collect all result rows into a list. The `@SingleValue`
 annotation causes Jdbi to treat `List<String>` as the mapped type instead.
+
+[NOTE]
+It's tempting to `@SingleValue Optional<String>`, but usually this isn't needed.
+`Optional` is implemented as a container of zero-or-one elements.  Adding `@SingleValue`
+implies that the database itself has a column of a type like `optional<varchar>`.
 
 ===== Map<K,V> Results
 
