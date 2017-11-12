@@ -25,6 +25,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,9 +40,6 @@ import org.jdbi.v3.core.statement.StatementContext;
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
  * case insensitive mapping between the constructor parameter names and the column labels,
  * also considering camel-case to underscores conversion.
- * <p>
- * Currently the constructor must have exactly the same number of columns as the result set, and
- * the mapping must be one-to-one.  These restrictions may be reconsidered at a later time.
  */
 public class ConstructorMapper<T> implements RowMapper<T>
 {
@@ -142,7 +140,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     private ConstructorMapper(Constructor<T> constructor, String prefix) {
         this.constructor = constructor;
-        this.prefix = prefix;
+        this.prefix = prefix.toLowerCase();
         this.constructorProperties = constructor.getAnnotation(ConstructorProperties.class);
     }
 
@@ -156,17 +154,17 @@ public class ConstructorMapper<T> implements RowMapper<T>
         final List<String> columnNames = getColumnNames(rs);
 
         final int count = constructor.getParameterCount();
-        if (count > columnNames.size()) {
-            throw new IllegalStateException(String.format(
-                "%s columns in result set, but constructor takes %s",
-                columnNames.size(),
-                constructor.getParameterCount()));
-        }
 
         final Parameter[] parameters = constructor.getParameters();
         final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
 
         final RowMapper<?>[] mappers = new RowMapper<?>[count];
+
+        final boolean strict = ctx.getConfig(ReflectionMappers.class).isStrictMatching();
+        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
+        if (!prefix.isEmpty()) {
+            unmatchedColumns.removeIf(column -> !column.startsWith(prefix));
+        }
 
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
@@ -192,12 +190,33 @@ public class ConstructorMapper<T> implements RowMapper<T>
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
                         "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
                         type, paramName, constructor)));
+
+                unmatchedColumns.remove(columnNames.get(columnIndex));
             } else {
-                mappers[i] = nestedMappers.computeIfAbsent(parameter, p -> {
-                    String prefix = ConstructorMapper.this.prefix + anno.value();
-                    return ConstructorMapper.of(parameter.getType(), prefix);
-                }).specialize(rs, ctx);
+                String nestedPrefix = anno.value();
+                if (strict && nestedPrefix.isEmpty()) {
+                    throw new IllegalArgumentException(String.format(
+                        "Cannot do strict column matching on %s constructor parameter '%s' of type %s without a prefix",
+                        constructor.getDeclaringClass().getSimpleName(),
+                        parameter.getName(),
+                        parameter.getType().getSimpleName()));
+                }
+
+                String fullPrefix = prefix + nestedPrefix;
+
+                mappers[i] = nestedMappers
+                    .computeIfAbsent(parameter, p -> ConstructorMapper.of(parameter.getType(), fullPrefix))
+                    .specialize(rs, ctx);
+
+                unmatchedColumns.removeIf(column -> column.startsWith(fullPrefix));
             }
+        }
+
+        if (strict && !unmatchedColumns.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                "Mapping constructor-injected type %s could not match parameters for columns: %s",
+                constructor.getDeclaringClass().getSimpleName(),
+                unmatchedColumns));
         }
 
         return (r, c) -> {

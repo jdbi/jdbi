@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNameMatchers;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -102,7 +104,7 @@ public class BeanMapper<T> implements RowMapper<T>
     private BeanMapper(Class<T> type, String prefix)
     {
         this.type = type;
-        this.prefix = prefix;
+        this.prefix = prefix.toLowerCase();
         try
         {
             info = Introspector.getBeanInfo(type);
@@ -119,12 +121,18 @@ public class BeanMapper<T> implements RowMapper<T>
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        final List<String> columnNames = ReflectionMapperUtil.getColumnNames(rs);
+        final List<String> columnNames = getColumnNames(rs);
 
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PropertyDescriptor> properties = new ArrayList<>();
 
-        final List<ColumnNameMatcher> columnNameMatchers = ReflectionMapperUtil.getColumnNameMatchers(ctx);
+        final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
+
+        final boolean strict = ctx.getConfig(ReflectionMappers.class).isStrictMatching();
+        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
+        if (!prefix.isEmpty()) {
+            unmatchedColumns.removeIf(column -> !column.startsWith(prefix));
+        }
 
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
@@ -145,15 +153,28 @@ public class BeanMapper<T> implements RowMapper<T>
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                         properties.add(descriptor);
+
+                        unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
-                RowMapper<?> nestedMapper = nestedMappers.computeIfAbsent(descriptor, d -> {
-                    String prefix = BeanMapper.this.prefix + anno.value();
-                    return BeanMapper.of(d.getPropertyType(), prefix);
-                }).specialize(rs, ctx);
+                String nestedPrefix = anno.value().toLowerCase();
+                if (strict && nestedPrefix.isEmpty()) {
+                    throw new IllegalArgumentException(String.format(
+                        "Cannot do strict column matching on nested property %s.%s without a prefix",
+                        type.getSimpleName(),
+                        descriptor.getName()));
+                }
+
+                String fullPrefix = prefix + nestedPrefix;
+
+                RowMapper<?> nestedMapper = nestedMappers
+                    .computeIfAbsent(descriptor, d -> BeanMapper.of(d.getPropertyType(), fullPrefix))
+                    .specialize(rs, ctx);
 
                 mappers.add(nestedMapper);
                 properties.add(descriptor);
+
+                unmatchedColumns.removeIf(column -> column.startsWith(fullPrefix));
             }
         }
 
@@ -162,12 +183,11 @@ public class BeanMapper<T> implements RowMapper<T>
                     "didn't find any matching columns in result set", type));
         }
 
-        // TODO rethink strict matching in terms of nested row mappers
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
-            && mappers.size() != columnNames.size()) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
-                    "only matched properties for %s of %s columns", type,
-                mappers.size(), columnNames.size()));
+        if (strict && !unmatchedColumns.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                "Mapping bean type %s could not match properties for columns: %s",
+                type.getSimpleName(),
+                unmatchedColumns));
         }
 
         return (r, c) -> {

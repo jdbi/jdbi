@@ -35,10 +35,12 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
         columnNameMatchers = Arrays.asList(
                 new CaseInsensitiveColumnNameMatcher(),
                 new SnakeCaseColumnNameMatcher());
+        strictMatching = false;
     }
 
     private ReflectionMappers(ReflectionMappers that) {
         columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
+        strictMatching = that.strictMatching;
     }
 
     /**
@@ -68,6 +70,9 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     /**
      * Throw an IllegalArgumentException if a the set of fields doesn't
      * match to columns exactly.
+     *
+     * Reflection mappers with prefixes will only check those columns that
+     * begin with the mapper's prefix.
      *
      * @param strictMatching whether to enable strict matching
      * @return this

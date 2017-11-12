@@ -14,7 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
@@ -143,6 +145,21 @@ public class ConstructorMapperTest {
         assertThat(result.nested.i).isEqualTo(2);
     }
 
+    @Test
+    public void nestedParametersStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select s, i from bean")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Cannot do strict column matching on NestedBean constructor parameter 'nested' of type " +
+                "ConstructorBean without a prefix");
+    }
+
     static class NestedBean {
         final ConstructorBean nested;
 
@@ -160,6 +177,27 @@ public class ConstructorMapperTest {
             .findOnly();
         assertThat(result.nested.s).isEqualTo("3");
         assertThat(result.nested.i).isEqualTo(2);
+    }
+
+    @Test
+    public void nestedPrefixParametersStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
+
+        assertThat(handle
+            .createQuery("select i nested_i, s nested_s from bean")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .extracting("nested.s", "nested.i")
+            .containsExactly("3", 2);
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select i nested_i, s nested_s, 1 as other from bean")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match parameters for columns: [other]");
     }
 
     static class NestedPrefixBean {

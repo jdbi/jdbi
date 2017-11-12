@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -248,6 +249,22 @@ public class FieldMapperTest {
         assertThat(result.nested.s).isEqualTo("foo");
     }
 
+    @Test
+    public void testNestedStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(FieldMapper.factory(NestedThing.class));
+
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id, name from something")
+            .mapTo(NestedThing.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Cannot do strict column matching on nested field NestedThing.nested without a prefix");
+    }
+
     static class NestedThing {
         @Nested
         ColumnNameThing nested;
@@ -267,7 +284,32 @@ public class FieldMapperTest {
         assertThat(result.nested.s).isEqualTo("foo");
     }
 
+    @Test
+    public void testNestedPrefixStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
+
+        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+
+        assertThat(handle
+            .createQuery("select id nested_id, name nested_name, integerValue from something")
+            .mapTo(NestedPrefixThing.class)
+            .findOnly())
+            .extracting("nested.i", "nested.s", "integerValue")
+            .containsExactly(1, "foo", 5);
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id nested_id, name nested_name, intValue from something")
+            .mapTo(NestedPrefixThing.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match fields for columns: [intvalue]");
+    }
+
     static class NestedPrefixThing {
+        Integer integerValue;
+
         @Nested("nested")
         ColumnNameThing nested;
     }

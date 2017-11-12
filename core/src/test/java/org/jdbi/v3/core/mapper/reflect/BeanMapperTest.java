@@ -15,6 +15,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -22,16 +23,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.mapper.Nested;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Before;
 import org.junit.Rule;
@@ -317,6 +318,22 @@ public class BeanMapperTest {
             .containsExactly(1, "foo");
     }
 
+    @Test
+    public void testNestedStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
+
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id, name from something")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Cannot do strict column matching on nested property NestedBean.nested without a prefix");
+    }
+
     static class NestedBean {
         private Something nested;
 
@@ -345,8 +362,40 @@ public class BeanMapperTest {
             .containsExactly(1, "foo");
     }
 
+    @Test
+    public void testNestedPrefixStrict() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+
+        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+
+        assertThat(handle
+            .createQuery("select id nested_id, name nested_name, integerValue from something")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .extracting("nested.id", "nested.name", "integerValue")
+            .containsExactly(1, "foo", 5);
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id nested_id, name nested_name, intValue from something")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match properties for columns: [intvalue]");
+    }
+
     static class NestedPrefixBean {
+        private Integer integerValue;
         private Something nested;
+
+        public Integer getIntegerValue() {
+            return integerValue;
+        }
+
+        public void setIntegerValue(Integer integerValue) {
+            this.integerValue = integerValue;
+        }
 
         public Something getNested() {
             return nested;

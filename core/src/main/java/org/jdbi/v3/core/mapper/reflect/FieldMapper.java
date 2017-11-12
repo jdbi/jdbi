@@ -96,7 +96,7 @@ public class FieldMapper<T> implements RowMapper<T>
     private FieldMapper(Class<T> type, String prefix)
     {
         this.type = type;
-        this.prefix = prefix;
+        this.prefix = prefix.toLowerCase();
     }
 
     @Override
@@ -113,6 +113,12 @@ public class FieldMapper<T> implements RowMapper<T>
 
         List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
 
+        final boolean strict = ctx.getConfig(ReflectionMappers.class).isStrictMatching();
+        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
+        if (!prefix.isEmpty()) {
+            unmatchedColumns.removeIf(column -> !column.startsWith(prefix));
+        }
+
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
                 Nested anno = field.getAnnotation(Nested.class);
@@ -124,15 +130,28 @@ public class FieldMapper<T> implements RowMapper<T>
                                 .orElse((r, n, c) -> rs.getObject(n));
                             mappers.add(new SingleColumnMapper(mapper, index + 1));
                             fields.add(field);
+
+                            unmatchedColumns.remove(columnNames.get(index));
                         });
                 } else {
-                    RowMapper<?> mapper = nestedMappers.computeIfAbsent(field, f -> {
-                        String prefix = FieldMapper.this.prefix + anno.value();
-                        return FieldMapper.of(field.getType(), prefix);
-                    }).specialize(rs, ctx);
+                    String nestedPrefix = anno.value();
+                    if (strict && nestedPrefix.isEmpty()) {
+                        throw new IllegalArgumentException(String.format(
+                            "Cannot do strict column matching on nested field %s.%s without a prefix",
+                            type.getSimpleName(),
+                            field.getName()));
+                    }
+
+                    String fullPrefix = prefix + nestedPrefix;
+
+                    RowMapper<?> mapper = nestedMappers
+                        .computeIfAbsent(field, f -> FieldMapper.of(field.getType(), fullPrefix))
+                        .specialize(rs, ctx);
 
                     mappers.add(mapper);
                     fields.add(field);
+
+                    unmatchedColumns.removeIf(column -> column.startsWith(fullPrefix));
                 }
             }
         }
@@ -142,14 +161,11 @@ public class FieldMapper<T> implements RowMapper<T>
                 "didn't find any matching columns in result set", type));
         }
 
-        // TODO rethink strict mapping in terms of nested row mappers
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-            mappers.size() != columnNames.size()) {
+        if (strict && !unmatchedColumns.isEmpty()) {
             throw new IllegalArgumentException(String.format(
-                "Mapping fields for type %s only matched properties for %s of %s columns",
-                type,
-                mappers.size(),
-                columnNames.size()));
+                "Mapping type %s could not match fields for columns: %s",
+                type.getSimpleName(),
+                unmatchedColumns));
         }
 
         return (r, c) -> {
