@@ -9,6 +9,8 @@
 :icons: font
 :source-highlighter: coderay
 :source-language: asciidoc
+:imagesdir: images
+
 :jdbidocs: ./apidocs/org/jdbi/v3
 :jdkdocs: https://docs.oracle.com/javase/8/docs/api
 
@@ -18,6 +20,8 @@
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+
+image::logo.svg[Jdbi logo]
 
 ////
 Style guidelines:
@@ -2501,6 +2505,11 @@ public interface UserDao {
 Normally, Jdbi would interpret `List<String>` to mean that the mapped type is
 `String`, and to collect all result rows into a list. The `@SingleValue`
 annotation causes Jdbi to treat `List<String>` as the mapped type instead.
+
+[NOTE]
+It's tempting to `@SingleValue Optional<String>`, but usually this isn't needed.
+`Optional` is implemented as a container of zero-or-one elements.  Adding `@SingleValue`
+implies that the database itself has a column of a type like `optional<varchar>`.
 
 ===== Map<K,V> Results
 

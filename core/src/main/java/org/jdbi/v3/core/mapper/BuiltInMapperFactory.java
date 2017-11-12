@@ -36,7 +36,12 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -88,6 +93,10 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
         mappers.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
         mappers.put(ZoneId.class, referenceMapper(BuiltInMapperFactory::getZoneId));
+
+        mappers.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
+        mappers.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
+        mappers.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
     }
 
     @Override
@@ -95,6 +104,9 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
             return Optional.of(EnumMapper.byName(rawType.asSubclass(Enum.class)));
+        }
+        if (rawType == Optional.class) {
+            return Optional.of(OptionalMapper.of(type));
         }
 
         return Optional.ofNullable(mappers.get(rawType));
@@ -188,5 +200,18 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         } catch (UnknownHostException e) {
             throw new MappingException("Could not map InetAddress", e);
         }
+    }
+
+    private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
+        return new ColumnMapper<Opt>() {
+            @Override
+            public Opt map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+                final Box boxed = referenceMapper(columnGetter).map(r, columnNumber, ctx);
+                if (boxed == null) {
+                    return empty.get();
+                }
+                return present.apply(boxed);
+            }
+        };
     }
 }
