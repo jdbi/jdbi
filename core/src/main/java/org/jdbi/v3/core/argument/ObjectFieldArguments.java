@@ -37,10 +37,10 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  */
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder
 {
-    private static final Map<Class, Map<String, Field>> CLASS_FIELDS = ExpiringMap.builder()
+    private static final Map<Class<?>, Map<String, Field>> CLASS_FIELDS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class type) ->
+        .entryLoader((Class<?> type) ->
             Stream.of(type.getFields())
                 .collect(toMap(Field::getName, Function.identity())))
         .build();

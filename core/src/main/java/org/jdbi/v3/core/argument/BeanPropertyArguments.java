@@ -38,10 +38,11 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  */
 public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
 {
-    private static final Map<Class, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap.builder()
+    private static final Map<Class<?>, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
+        .builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class type) -> {
+        .entryLoader((Class<?> type) -> {
             try {
                 BeanInfo info = Introspector.getBeanInfo(type);
                 return Stream.of(info.getPropertyDescriptors())

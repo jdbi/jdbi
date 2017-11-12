@@ -33,10 +33,10 @@ import java.util.stream.Stream;
  */
 public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder
 {
-    private static final Map<Class, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
+    private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class type) ->
+        .entryLoader((Class<?> type) ->
             Stream.of(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
                 .collect(toMap(Method::getName, Function.identity())))
