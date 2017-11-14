@@ -62,6 +62,7 @@ This project is licensed under the
 ## Special Thanks
 
 * **Alex Harin ([@aharin](https://github.com/aharin))** - Kotlin plugins.
+* **Ali Shakiba ([@shakiba](https://github.com/shakiba))** - JPA plugin
 * **[@alwins0n](https://github.com/alwins0n)** - Vavr plugin.
 * **Fred Deschenes ([@FredDeschenes](https://github.com/FredDeschenes))** -
   Kotlin unchecked extensions for `Jdbi` functions. `@BindFields`,
