@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TimingCollector;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;
-import org.jdbi.v3.sqlobject.customizer.internal.TimestampedConfig;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -27,8 +28,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,66 +44,87 @@ public class TestTimestamped {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    private MockClock mockClock = new MockClock();
-
     @Before
     public void beforeEach() {
-        Jdbi jdbi = dbRule.getJdbi();
-        jdbi.installPlugin(new SqlObjectPlugin());
-        jdbi.getConfig(TimestampedConfig.class).setClock(mockClock);
-        personDAO = jdbi.onDemand(PersonDAO.class);
+        dbRule.getJdbi().installPlugin(new SqlObjectPlugin());
+        personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
     }
 
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
-        Instant insertTimestamp = mockClock.instant();
+        // This is one way we can get the binding information of the executed query
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
 
-        personDAO.insert(new Person(1, "John", "Phiri"));
+        Person p = new Person("John", "Phiri");
+        p.setId(1);
+        personDAO.insert(p);
+
+        // Clear the timing colletor
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person found = personDAO.get(1);
 
-        assertThat(found)
-            .extracting("id", "firstName", "lastName", "created", "modified")
-            .containsExactly(1, "John", "Phiri", insertTimestamp, insertTimestamp);
+        assertThat(found.getCreated()).isNotNull();
+        assertThat(found.getModified()).isNotNull();
     }
 
     @Test
     public void shouldAllowCustomTimestampParameter() {
-        Instant insertTimestamp = mockClock.instant();
+        LocalDateTime timeBefore = LocalDateTime.now().minusMinutes(1);
 
-        personDAO.insertWithCustomTimestampFields(new Person(1, "John", "Phiri"));
+        Person p = new Person("John", "Phiri");
+        p.setId(1);
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("createdAt", ctx)).isPresent());
+
+
+        personDAO.insertWithCustomTimestampFields(p);
+
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person fetched = personDAO.get(1);
 
-        assertThat(fetched)
-            .extracting("id", "firstName", "lastName", "created", "modified")
-            .containsExactly(1, "John", "Phiri", insertTimestamp, insertTimestamp);
+        assertThat(p.getFirstName()).isEqualTo(fetched.getFirstName());
+        assertThat(p.getLastName()).isEqualTo(fetched.getLastName());
+        assertThat(fetched.getCreated()).isNotNull();
+        assertThat(fetched.getModified()).isNotNull();
+
+        assertThat(fetched.getCreated()).isEqualTo(fetched.getModified());
+
+        assertThat(timeBefore).isBefore(fetched.getCreated().toLocalDateTime());
     }
 
     @Test
     public void shouldUpdateModifiedTimestamp() {
-        Instant insertTimestamp = mockClock.instant();
+        Person p = new Person("John", "Phiri");
 
-        personDAO.insert(new Person(3, "John", "Phiri"));
+        p.setId(3);
 
-        Person created = personDAO.get(3);
-        assertThat(created)
-            .extracting("id", "firstName", "lastName", "created", "modified")
-            .containsExactly(3, "John", "Phiri", insertTimestamp, insertTimestamp);
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
 
-        Instant updateTimestamp = mockClock.advance(10, ChronoUnit.SECONDS);
+        personDAO.insert(p);
 
-        created.setLastName("Banda");
-        personDAO.updatePerson(created);
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
-        Person updated = personDAO.get(3);
-        assertThat(updated)
-            .extracting("id", "firstName", "lastName", "created", "modified")
-            .containsExactly(3, "John", "Banda", insertTimestamp, updateTimestamp);
+        Person personAfterCreate = personDAO.get(3);
+
+        personAfterCreate.setLastName("Banda");
+
+        personDAO.updatePerson(personAfterCreate);
+
+        Person personAfterUpdate = personDAO.get(3);
+
+        assertThat(personAfterUpdate.getLastName()).isEqualToIgnoringCase("Banda");
+
+        assertThat(personAfterUpdate.getCreated()).isEqualTo(personAfterCreate.getCreated());
+
+        assertThat(personAfterUpdate.getModified()).isAfter(personAfterCreate.getModified());
     }
 
-    @RegisterBeanMapper(Person.class)
+    @RegisterRowMapper(PersonRowMapper.class)
     public interface PersonDAO {
         @SqlUpdate("CREATE TABLE people(id identity primary key, firstName varchar(50), lastName varchar(50), created timestamp, modified timestamp);")
         void createTable();
@@ -122,6 +146,18 @@ public class TestTimestamped {
         Person get(@Bind("id") int id);
     }
 
+    public final static class PersonRowMapper implements RowMapper<Person> {
+
+        @Override
+        public Person map(ResultSet resultSet, StatementContext statementContext) throws SQLException {
+            Person person = new Person(resultSet.getString("firstName"), resultSet.getString("lastName"));
+            person.setId(resultSet.getInt("id"));
+            person.setCreated(resultSet.getTimestamp("created"));
+            person.setModified(resultSet.getTimestamp("modified"));
+            return person;
+        }
+    }
+
     /**
      * Person JavaBean for tests
      */
@@ -132,15 +168,11 @@ public class TestTimestamped {
 
         private String lastName;
 
-        private Instant created;
+        private Timestamp created;
 
-        private Instant modified;
+        private Timestamp modified;
 
-        public Person() {
-        }
-
-        public Person(int id, String firstName, String lastName) {
-            this.id = id;
+        public Person(String firstName, String lastName) {
             this.firstName = firstName;
             this.lastName = lastName;
         }
@@ -169,19 +201,19 @@ public class TestTimestamped {
             this.lastName = lastName;
         }
 
-        public Instant getCreated() {
+        public Timestamp getCreated() {
             return created;
         }
 
-        public void setCreated(Instant created) {
+        public void setCreated(Timestamp created) {
             this.created = created;
         }
 
-        public Instant getModified() {
+        public Timestamp getModified() {
             return modified;
         }
 
-        public void setModified(Instant modified) {
+        public void setModified(Timestamp modified) {
             this.modified = modified;
         }
 

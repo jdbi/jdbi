@@ -16,17 +16,26 @@ package org.jdbi.v3.sqlobject;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.customizer.Timestamped;
-import org.jdbi.v3.sqlobject.customizer.internal.TimestampedConfig;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -42,7 +51,7 @@ public class TestInheritedAnnotations {
 
   @Before
   public void setUp() {
-    dbRule.getJdbi().getConfig(TimestampedConfig.class).setClock(mockClock);
+    dbRule.getJdbi().getConfig(BindTime.Config.class).clock = mockClock;
 
     Handle handle = dbRule.getSharedHandle();
     handle.execute("CREATE TABLE characters (id INT, name VARCHAR, created TIMESTAMP, modified TIMESTAMP)");
@@ -70,7 +79,7 @@ public class TestInheritedAnnotations {
   }
 
   @UseClasspathSqlLocator // configuring annotation
-  @Timestamped // sql statement customizing annotation
+  @BindTime // sql statement customizing annotation
   public interface CrudDao<T, ID> {
     @SqlUpdate
     void insert(@BindBean T entity);
@@ -147,6 +156,30 @@ public class TestInheritedAnnotations {
           ", created=" + created +
           ", modified=" + modified +
           '}';
+    }
+  }
+
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @SqlStatementCustomizingAnnotation(BindTime.Factory.class)
+  public @interface BindTime {
+
+    class Factory implements SqlStatementCustomizerFactory {
+      @Override
+      public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+        return stmt -> stmt.bind("now", OffsetDateTime.now(stmt.getConfig(Config.class).clock));
+      }
+    }
+
+    class Config implements JdbiConfig<Config> {
+      public Clock clock;
+
+      @Override
+      public Config createCopy() {
+        Config copy = new Config();
+        copy.clock = this.clock;
+        return copy;
+      }
     }
   }
 }

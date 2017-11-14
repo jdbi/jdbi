@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -70,7 +69,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final Stream<BoundCustomizer> parameterCustomizers = parameterCustomizers(type, method);
 
         statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers)
-            .flatMap(Function.identity())
+            .reduce(Stream.empty(), Stream::concat)
             .collect(Collectors.toList());
     }
 
