@@ -4,6 +4,7 @@
     bindFields(), (and by extension, @BindBean, @BindMethods, and @BindFields).
   - Mapping of nested attributes with BeanMapper, ConstructorMapper, and FieldMapper, using
     the @Nested annotation.
+  - SQL Objects inherit class annotations from supertypes.
 
 3.0.0-rc1
   - SQL Object methods may have a Consumer<T> instead of a return type. See

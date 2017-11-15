@@ -3145,6 +3145,94 @@ Jdbi provides dozens of annotations out of the box:
 Jdbi is designed to support user-defined annotations. See
 <<User-Defined Annotations>> for a guide to creating your own.
 
+=== Annotations and Inheritance
+
+SQL Objects inherit methods and annotations from the interfaces they extend:
+
+[source,java,indent=0]
+----
+package com.app.dao;
+
+@UseClasspathSqlLocator // <1> <2>
+public interface CrudDao<T, ID> {
+  @SqlUpdate // <3>
+  void insert(@BindBean T entity);
+
+  @SqlQuery // <3>
+  Optional<T> findById(ID id);
+
+  @SqlQuery
+  List<T> list();
+
+  @SqlUpdate
+  void update(@BindBean T entity);
+
+  @SqlUpdate
+  void deleteById(ID id);
+}
+----
+<1> See <<SqlLocator>>.
+<2> Class annotations are inherited by subtypes.
+<3> Method and parameter annotations are inherited by subtypes, unless the
+    subtype overrides the method.
+
+[source,java]
+----
+package com.app.contact;
+
+@RegisterBeanMapper(Contact.class)
+public interface ContactDao extends CrudDao<Contact, Long> {}
+----
+
+[source,java]
+----
+package com.app.account;
+
+@RegisterConstructorMapper(Account.class)
+public interface AccountDao extends CrudDao<Account, UUID> {}
+----
+
+In this example we're using the `@UseClasspathSqlLocator` annotation, so each
+method will use SQL loaded from the classpath. Thus, `ContactDao` methods will
+use SQL from:
+
+* `/com/app/contact/ContactDao/insert.sql`
+* `/com/app/contact/ContactDao/findById.sql`
+* `/com/app/contact/ContactDao/list.sql`
+* `/com/app/contact/ContactDao/update.sql`
+* `/com/app/contact/ContactDao/deleteById.sql`
+
+Whereas `AccountDao` will use SQL from:
+
+* `/com/app/account/AccountDao/insert.sql`
+* `/com/app/account/AccountDao/findById.sql`
+* `/com/app/account/AccountDao/list.sql`
+* `/com/app/account/AccountDao/update.sql`
+* `/com/app/account/AccountDao/deleteById.sql`
+
+Suppose `Account` used `name()`-style accessors instead of `getName()`. In that
+case, we'd want `AccountDao` to use `@BindMethods` instead of `@BindBean`.
+
+Let's override those methods with the right annotations:
+
+[source,java]
+----
+package com.app.account;
+
+@RegisterConstructorMapper(Account.class)
+public interface AccountDao extends CrudDao<Account, UUID> {
+  @Override
+  @SqlUpdate // <1>
+  void insert(@BindMethods Account entity);
+
+  @Override
+  @SqlUpdate // <1>
+  void update(@BindMethods Account entity);
+}
+----
+<1> Method annotations are not inherited on override, so we must duplicate
+    those we want to keep.
+
 == Third-Party Integration
 
 === Google Guava
