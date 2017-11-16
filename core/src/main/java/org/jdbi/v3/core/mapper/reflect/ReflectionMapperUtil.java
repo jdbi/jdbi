@@ -41,7 +41,6 @@ class ReflectionMapperUtil {
   }
 
   static OptionalInt findColumnIndex(String paramName,
-                                     String columnPrefix,
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
                                      Supplier<String> debugName) {
@@ -49,15 +48,6 @@ class ReflectionMapperUtil {
 
     for (int i = 0; i < columnNames.size(); i++) {
       String columnName = columnNames.get(i);
-
-      if (!columnPrefix.isEmpty()) {
-        if (columnName.length() > columnPrefix.length() &&
-            columnName.regionMatches(true, 0, columnPrefix, 0, columnPrefix.length())) {
-          columnName = columnName.substring(columnPrefix.length());
-        } else {
-          continue;
-        }
-      }
 
       for (ColumnNameMatcher strategy : columnNameMatchers) {
         if (strategy.columnNameMatches(columnName, paramName)) {

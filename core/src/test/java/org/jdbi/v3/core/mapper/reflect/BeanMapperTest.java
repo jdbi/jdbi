@@ -326,12 +326,19 @@ public class BeanMapperTest {
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThatThrownBy(() -> handle
+        assertThat(handle
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
             .findOnly())
+            .extracting("nested.id", "nested.name")
+            .containsExactly(1, "foo");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id, name, 1 as other from something")
+            .mapTo(NestedBean.class)
+            .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Cannot do strict column matching on nested property NestedBean.nested without a prefix");
+            .hasMessageContaining("could not match properties for columns: [other]");
     }
 
     static class NestedBean {
@@ -378,11 +385,18 @@ public class BeanMapperTest {
             .containsExactly(1, "foo", 5);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, intValue from something")
+            .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [intvalue]");
+            .hasMessageContaining("could not match properties for columns: [other]");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match properties for columns: [nested_other]");
     }
 
     static class NestedPrefixBean {

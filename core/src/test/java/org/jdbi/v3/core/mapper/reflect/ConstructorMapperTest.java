@@ -136,13 +136,13 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParameters() {
-        NestedBean result = dbRule.getSharedHandle()
+        assertThat(dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
             .select("select s, i from bean")
             .mapTo(NestedBean.class)
-            .findOnly();
-        assertThat(result.nested.s).isEqualTo("3");
-        assertThat(result.nested.i).isEqualTo(2);
+            .findOnly())
+            .extracting("nested.s", "nested.i")
+            .containsExactly("3", 2);
     }
 
     @Test
@@ -151,13 +151,20 @@ public class ConstructorMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
 
+        assertThat(dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+            .select("select s, i from bean")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .extracting("nested.s", "nested.i")
+            .containsExactly("3", 2);
+
         assertThatThrownBy(() -> handle
-            .createQuery("select s, i from bean")
+            .createQuery("select s, i, 1 as other from bean")
             .mapTo(NestedBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Cannot do strict column matching on NestedBean constructor parameter 'nested' of type " +
-                "ConstructorBean without a prefix");
+            .hasMessageContaining("could not match parameters for columns: [other]");
     }
 
     static class NestedBean {
@@ -198,6 +205,13 @@ public class ConstructorMapperTest {
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [other]");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match parameters for columns: [nested_other]");
     }
 
     static class NestedPrefixBean {

@@ -136,7 +136,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
     private final Constructor<T> constructor;
     private final String prefix;
     private final ConstructorProperties constructorProperties;
-    private final Map<Parameter, RowMapper<?>> nestedMappers = new ConcurrentHashMap<>();
+    private final Map<Parameter, ConstructorMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
     private ConstructorMapper(Constructor<T> constructor, String prefix) {
         this.constructor = constructor;
@@ -152,29 +152,40 @@ public class ConstructorMapper<T> implements RowMapper<T>
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         final List<String> columnNames = getColumnNames(rs);
-
-        final int count = constructor.getParameterCount();
-
-        final Parameter[] parameters = constructor.getParameters();
         final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
-
-        final RowMapper<?>[] mappers = new RowMapper<?>[count];
-
-        final boolean strict = ctx.getConfig(ReflectionMappers.class).isStrictMatching();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
-        if (!prefix.isEmpty()) {
-            unmatchedColumns.removeIf(column -> !column.startsWith(prefix));
+
+        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+
+            throw new IllegalArgumentException(String.format(
+                "Mapping constructor-injected type %s could not match parameters for columns: %s",
+                constructor.getDeclaringClass().getSimpleName(),
+                unmatchedColumns));
         }
 
+        return mapper;
+    }
+
+    private RowMapper<T> specialize0(ResultSet rs,
+                                     StatementContext ctx,
+                                     List<String> columnNames,
+                                     List<ColumnNameMatcher> columnNameMatchers,
+                                     List<String> unmatchedColumns) throws SQLException {
+        final int count = constructor.getParameterCount();
+        final Parameter[] parameters = constructor.getParameters();
+
+        final RowMapper<?>[] mappers = new RowMapper<?>[count];
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
 
             Nested anno = parameter.getAnnotation(Nested.class);
             if (anno == null) {
-                final Type type = parameter.getParameterizedType();
-                final String paramName = paramName(parameters, i, constructorProperties);
+                final String paramName = prefix + paramName(parameters, i, constructorProperties);
 
-                final int columnIndex = findColumnIndex(paramName, prefix, columnNames, columnNameMatchers,
+                final int columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
                     () -> debugName(parameter))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
                         "Constructor '%s' parameter '%s' has no column in the result set. " +
@@ -185,6 +196,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
                         paramName
                     )));
 
+                final Type type = parameter.getParameterizedType();
                 mappers[i] = ctx.findColumnMapperFor(type)
                     .map(mapper -> new SingleColumnMapper(mapper, columnIndex + 1))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
@@ -193,30 +205,13 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
                 unmatchedColumns.remove(columnNames.get(columnIndex));
             } else {
-                String nestedPrefix = anno.value();
-                if (strict && nestedPrefix.isEmpty()) {
-                    throw new IllegalArgumentException(String.format(
-                        "Cannot do strict column matching on %s constructor parameter '%s' of type %s without a prefix",
-                        constructor.getDeclaringClass().getSimpleName(),
-                        parameter.getName(),
-                        parameter.getType().getSimpleName()));
-                }
-
-                String fullPrefix = prefix + nestedPrefix;
+                String nestedPrefix = prefix + anno.value();
 
                 mappers[i] = nestedMappers
-                    .computeIfAbsent(parameter, p -> ConstructorMapper.of(parameter.getType(), fullPrefix))
-                    .specialize(rs, ctx);
-
-                unmatchedColumns.removeIf(column -> column.startsWith(fullPrefix));
+                    .computeIfAbsent(parameter, p ->
+                        new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
             }
-        }
-
-        if (strict && !unmatchedColumns.isEmpty()) {
-            throw new IllegalArgumentException(String.format(
-                "Mapping constructor-injected type %s could not match parameters for columns: %s",
-                constructor.getDeclaringClass().getSimpleName(),
-                unmatchedColumns));
         }
 
         return (r, c) -> {

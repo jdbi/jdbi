@@ -22,15 +22,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.mapper.Nested;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Before;
 import org.junit.Rule;
@@ -240,13 +240,13 @@ public class FieldMapperTest {
         Handle handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        NestedThing result = handle
+        assertThat(handle
             .registerRowMapper(FieldMapper.factory(NestedThing.class))
-            .select("select id, name from something")
+            .select("SELECT id, name FROM something")
             .mapTo(NestedThing.class)
-            .findOnly();
-        assertThat(result.nested.i).isEqualTo(1);
-        assertThat(result.nested.s).isEqualTo("foo");
+            .findOnly())
+            .extracting("nested.i", "nested.s")
+            .containsExactly(1, "foo");
     }
 
     @Test
@@ -257,12 +257,20 @@ public class FieldMapperTest {
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NestedThing.class))
+            .select("select id, name from something")
+            .mapTo(NestedThing.class)
+            .findOnly())
+            .extracting("nested.i", "nested.s")
+            .containsExactly(1, "foo");
+
         assertThatThrownBy(() -> handle
-            .createQuery("select id, name from something")
+            .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedThing.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Cannot do strict column matching on nested field NestedThing.nested without a prefix");
+            .hasMessageContaining("could not match fields for columns: [other]");
     }
 
     static class NestedThing {
@@ -275,13 +283,13 @@ public class FieldMapperTest {
         Handle handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        NestedPrefixThing result = handle
+        assertThat(handle
             .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
             .select("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixThing.class)
-            .findOnly();
-        assertThat(result.nested.i).isEqualTo(1);
-        assertThat(result.nested.s).isEqualTo("foo");
+            .findOnly())
+            .extracting("nested.i", "nested.s")
+            .containsExactly(1, "foo");
     }
 
     @Test
@@ -300,11 +308,18 @@ public class FieldMapperTest {
             .containsExactly(1, "foo", 5);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, intValue from something")
+            .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixThing.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match fields for columns: [intvalue]");
+            .hasMessageContaining("could not match fields for columns: [other]");
+
+        assertThatThrownBy(() -> handle
+            .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
+            .mapTo(NestedPrefixThing.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match fields for columns: [nested_other]");
     }
 
     static class NestedPrefixThing {

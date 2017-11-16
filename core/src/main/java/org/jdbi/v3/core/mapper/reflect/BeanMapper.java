@@ -99,7 +99,7 @@ public class BeanMapper<T> implements RowMapper<T>
     private final Class<T> type;
     private final String prefix;
     private final BeanInfo info;
-    private final Map<PropertyDescriptor, RowMapper<?>> nestedMappers = new ConcurrentHashMap<>();
+    private final Map<PropertyDescriptor, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
     private BeanMapper(Class<T> type, String prefix)
     {
@@ -122,17 +122,30 @@ public class BeanMapper<T> implements RowMapper<T>
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         final List<String> columnNames = getColumnNames(rs);
+        final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
+        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
+        RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+
+            throw new IllegalArgumentException(String.format(
+                "Mapping bean type %s could not match properties for columns: %s",
+                type.getSimpleName(),
+                unmatchedColumns));
+        }
+
+        return result;
+    }
+
+    private RowMapper<T> specialize0(ResultSet rs,
+                                     StatementContext ctx,
+                                     List<String> columnNames,
+                                     List<ColumnNameMatcher> columnNameMatchers,
+                                     List<String> unmatchedColumns) throws SQLException {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PropertyDescriptor> properties = new ArrayList<>();
-
-        final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
-
-        final boolean strict = ctx.getConfig(ReflectionMappers.class).isStrictMatching();
-        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
-        if (!prefix.isEmpty()) {
-            unmatchedColumns.removeIf(column -> !column.startsWith(prefix));
-        }
 
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
@@ -143,9 +156,9 @@ public class BeanMapper<T> implements RowMapper<T>
                 .orElse(null);
 
             if (anno == null) {
-                String paramName = paramName(descriptor);
+                String paramName = prefix + paramName(descriptor);
 
-                findColumnIndex(paramName, prefix, columnNames, columnNameMatchers, () -> debugName(descriptor))
+                findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
                         Type type = descriptor.getReadMethod().getGenericReturnType();
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
@@ -157,37 +170,20 @@ public class BeanMapper<T> implements RowMapper<T>
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
-                String nestedPrefix = anno.value().toLowerCase();
-                if (strict && nestedPrefix.isEmpty()) {
-                    throw new IllegalArgumentException(String.format(
-                        "Cannot do strict column matching on nested property %s.%s without a prefix",
-                        type.getSimpleName(),
-                        descriptor.getName()));
-                }
-
-                String fullPrefix = prefix + nestedPrefix;
+                String nestedPrefix = prefix + anno.value();
 
                 RowMapper<?> nestedMapper = nestedMappers
-                    .computeIfAbsent(descriptor, d -> BeanMapper.of(d.getPropertyType(), fullPrefix))
-                    .specialize(rs, ctx);
+                    .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
                 mappers.add(nestedMapper);
                 properties.add(descriptor);
-
-                unmatchedColumns.removeIf(column -> column.startsWith(fullPrefix));
             }
         }
 
         if (mappers.isEmpty() && columnNames.size() > 0) {
             throw new IllegalArgumentException(String.format("Mapping bean type %s " +
-                    "didn't find any matching columns in result set", type));
-        }
-
-        if (strict && !unmatchedColumns.isEmpty()) {
-            throw new IllegalArgumentException(String.format(
-                "Mapping bean type %s could not match properties for columns: %s",
-                type.getSimpleName(),
-                unmatchedColumns));
+                "didn't find any matching columns in result set", type));
         }
 
         return (r, c) -> {
