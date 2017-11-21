@@ -1,7 +1,9 @@
 3.0.0-rc2
   - Row and column mapper for Optional types
-  - Binding of nested attributes e.g. ":user.address.city" with @BindBean, @BindMethods,
-    and @BindFields.
+  - Binding of nested attributes e.g. ":user.address.city" with bindBean(), bindMethods(),
+    bindFields(), (and by extension, @BindBean, @BindMethods, and @BindFields).
+  - Mapping of nested attributes with BeanMapper, ConstructorMapper, and FieldMapper, using
+    the @Nested annotation.
   - SQL Objects inherit class annotations from supertypes.
 
 3.0.0-rc1

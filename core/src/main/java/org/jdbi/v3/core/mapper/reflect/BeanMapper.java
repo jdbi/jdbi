@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNameMatchers;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -20,20 +24,20 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -95,12 +99,12 @@ public class BeanMapper<T> implements RowMapper<T>
     private final Class<T> type;
     private final String prefix;
     private final BeanInfo info;
-    private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
+    private final Map<PropertyDescriptor, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
     private BeanMapper(Class<T> type, String prefix)
     {
         this.type = type;
-        this.prefix = prefix;
+        this.prefix = prefix.toLowerCase();
         try
         {
             info = Introspector.getBeanInfo(type);
@@ -117,107 +121,88 @@ public class BeanMapper<T> implements RowMapper<T>
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        List<Integer> columnNumbers = new ArrayList<>();
-        List<ColumnMapper<?>> mappers = new ArrayList<>();
-        List<PropertyDescriptor> properties = new ArrayList<>();
+        final List<String> columnNames = getColumnNames(rs);
+        final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
+        final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        ResultSetMetaData metadata = rs.getMetaData();
-        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
+        RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
-        for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-            String name = metadata.getColumnLabel(i);
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
 
-            if (prefix.length() > 0) {
-                if (name.length() > prefix.length() &&
-                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
-                    name = name.substring(prefix.length());
-                }
-                else {
-                    continue;
-                }
-            }
-
-            final Optional<PropertyDescriptor> maybeDescriptor =
-                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, columnNameMatchers));
-
-            if (!maybeDescriptor.isPresent()) {
-                continue;
-            }
-
-            final PropertyDescriptor descriptor = maybeDescriptor.get();
-            final Type type = descriptor.getReadMethod().getGenericReturnType();
-            final ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
-                    .orElse((r, n, c) -> r.getObject(n));
-
-            columnNumbers.add(i);
-            mappers.add(mapper);
-            properties.add(descriptor);
+            throw new IllegalArgumentException(String.format(
+                "Mapping bean type %s could not match properties for columns: %s",
+                type.getSimpleName(),
+                unmatchedColumns));
         }
 
-        if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
-                    "didn't find any matching columns in result set", type));
+        return result;
+    }
+
+    private RowMapper<T> specialize0(ResultSet rs,
+                                     StatementContext ctx,
+                                     List<String> columnNames,
+                                     List<ColumnNameMatcher> columnNameMatchers,
+                                     List<String> unmatchedColumns) throws SQLException {
+        final List<RowMapper<?>> mappers = new ArrayList<>();
+        final List<PropertyDescriptor> properties = new ArrayList<>();
+
+        for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
+            Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+                .filter(Objects::nonNull)
+                .map(m -> m.getAnnotation(Nested.class))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+            if (anno == null) {
+                String paramName = prefix + paramName(descriptor);
+
+                findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
+                    .ifPresent(index -> {
+                        Type type = descriptor.getReadMethod().getGenericReturnType();
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
+                            .orElse((r, n, c) -> r.getObject(n));
+
+                        mappers.add(new SingleColumnMapper<>(mapper, index + 1));
+                        properties.add(descriptor);
+
+                        unmatchedColumns.remove(columnNames.get(index));
+                    });
+            } else {
+                String nestedPrefix = prefix + anno.value();
+
+                RowMapper<?> nestedMapper = nestedMappers
+                    .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+
+                mappers.add(nestedMapper);
+                properties.add(descriptor);
+            }
         }
 
-        if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-                columnNumbers.size() != metadata.getColumnCount()) {
+        if (mappers.isEmpty() && columnNames.size() > 0) {
             throw new IllegalArgumentException(String.format("Mapping bean type %s " +
-                    "only matched properties for %s of %s columns", type,
-                    columnNumbers.size(), metadata.getColumnCount()));
+                "didn't find any matching columns in result set", type));
         }
 
         return (r, c) -> {
-            T bean;
-            try {
-                bean = type.newInstance();
-            }
-            catch (Exception e) {
-                throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
-                        "which was not instantiable", type.getName()), e);
-            }
+            T bean = construct();
 
-            for (int i = 0; i < columnNumbers.size(); i++) {
-                int columnNumber = columnNumbers.get(i);
-                ColumnMapper<?> mapper = mappers.get(i);
+            for (int i = 0; i < mappers.size(); i++) {
+                RowMapper<?> mapper = mappers.get(i);
                 PropertyDescriptor property = properties.get(i);
 
-                Object value = mapper.map(r, columnNumber, ctx);
-                try {
-                    property.getWriteMethod().invoke(bean, value);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(String.format("Unable to access setter for " +
-                            "property, %s", property.getName()), e);
-                }
-                catch (InvocationTargetException e) {
-                    throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
-                            "invoker setter for the %s property", property.getName()), e);
-                }
-                catch (NullPointerException e) {
-                    throw new IllegalArgumentException(String.format("No appropriate method to " +
-                            "write property %s", property.getName()), e);
-                }
+                Object value = mapper.map(r, ctx);
+
+                writeProperty(bean, property, value);
             }
 
             return bean;
         };
     }
 
-    private Optional<PropertyDescriptor> descriptorForColumn(String columnName,
-                                                             List<ColumnNameMatcher> columnNameMatchers)
-    {
-        for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-            String paramName = paramName(descriptor);
-            for (ColumnNameMatcher strategy : columnNameMatchers) {
-                if (strategy.columnNameMatches(columnName, paramName)) {
-                    return Optional.of(descriptor);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private String paramName(PropertyDescriptor descriptor)
+    private static String paramName(PropertyDescriptor descriptor)
     {
         return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
                 .filter(Objects::nonNull)
@@ -226,5 +211,37 @@ public class BeanMapper<T> implements RowMapper<T>
                 .map(ColumnName::value)
                 .findFirst()
                 .orElseGet(descriptor::getName);
+    }
+
+    private String debugName(PropertyDescriptor descriptor) {
+        return String.format("%s.%s", type.getSimpleName(), descriptor.getName());
+    }
+
+    private T construct() {
+        try {
+            return type.newInstance();
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
+                "which was not instantiable", type.getName()), e);
+        }
+    }
+
+    private static void writeProperty(Object bean, PropertyDescriptor property, Object value) {
+        try {
+            property.getWriteMethod().invoke(bean, value);
+        }
+        catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(String.format("Unable to access setter for " +
+                "property, %s", property.getName()), e);
+        }
+        catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
+                "invoker setter for the %s property", property.getName()), e);
+        }
+        catch (NullPointerException e) {
+            throw new IllegalArgumentException(String.format("No appropriate method to " +
+                "write property %s", property.getName()), e);
+        }
     }
 }
