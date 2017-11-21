@@ -46,6 +46,11 @@ public class HashPrefixSqlParser implements SqlParser {
         }
     }
 
+    @Override
+    public String nameParameter(String rawName, StatementContext ctx) {
+        return "#" + rawName;
+    }
+
     private ParsedSql internalParse(final String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));

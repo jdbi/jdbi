@@ -4112,7 +4112,7 @@ from the Handle, and when attaching or creating an on-demand extension such as
 The configuration itself is stored in various implementations of the
 link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig] interface.
 Each implementation must adhere to the contract of the interface; in particular
-it must have a public no-argument constructor that provides useful defaults 
+it must have a public no-argument constructor that provides useful defaults
 and a *createCopy* method that is invoked when a configuration registry is cloned.
 
 Generally, configuration should be set on a context before that context is used,
@@ -4849,6 +4849,8 @@ Core API:
   but is specific to SQL Object.
 * `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
 * StringTemplate no longer required to process `<name>`-style tokens in SQL.
+* Custom SqlParser implementations must now provide a way to transform raw
+  parameter names to names that will be properly parsed out as named params.
 
 SQL Object API:
 

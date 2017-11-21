@@ -19,7 +19,6 @@ package org.jdbi.v3.core.statement;
  * type of parameters used (named or positional), the number, and the parameter
  * name for each position (if applicable).
  */
-@FunctionalInterface
 public interface SqlParser {
     /**
      * Parses the given SQL statement, and returns the {@link ParsedSql}
@@ -31,4 +30,13 @@ public interface SqlParser {
      * information about the parameters which should be bound (number and names)
      */
     ParsedSql parse(String sql, StatementContext ctx);
+
+    /**
+     * Convert rawName to a name as recognized by this parser
+     *
+     * @param rawName the raw name to transform
+     * @param ctx The statement context for the statement being executed
+     * @return a name appropriate for being identified a a named parameter by this parser
+     */
+    String nameParameter(String rawName, StatementContext ctx);
 }

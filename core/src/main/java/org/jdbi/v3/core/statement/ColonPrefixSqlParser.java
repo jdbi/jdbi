@@ -42,6 +42,11 @@ public class ColonPrefixSqlParser implements SqlParser {
         }
     }
 
+    @Override
+    public String nameParameter(String rawName, StatementContext ctx) {
+        return ":" + rawName;
+    }
+
     private ParsedSql internalParse(String sql) throws IllegalArgumentException {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
