@@ -7,7 +7,7 @@
   - SQL Objects inherit class annotations from supertypes.
   - bindList() and @BindList now follow the parameter naming style of the active SqlParser,
     via the new SqlParser.nameParameter() method. e.g. ":foo" for ColonPrefixSqlParser, vs
-    "#foo" for
+    "#foo" for HashPrefixSqlParser.
 
 3.0.0-rc1
   - SQL Object methods may have a Consumer<T> instead of a return type. See
