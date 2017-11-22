@@ -89,12 +89,6 @@ data structures.
 You bring your own SQL, and Jdbi only runs the commands you tell it to--the way
 God intended.
 
-[NOTE]
-Jdbi 3 is currently in beta. While we are reasonably confident in its
-quality, we recommend thoroughly testing your code with Jdbi 3 before using it
-in a production environment. http://www.jdbi.org[jdbi2^] is still the stable
-release.
-
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>.
 
