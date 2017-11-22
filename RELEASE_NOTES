@@ -1,10 +1,13 @@
 3.0.0-rc2
   - Row and column mapper for Optional types
   - Binding of nested attributes e.g. ":user.address.city" with bindBean(), bindMethods(),
-    bindFields(), (and by extension, @BindBean, @BindMethods, and @BindFields).
+    bindFields(), as well as @BindBean, @BindMethods, and @BindFields in SQL objects.
   - Mapping of nested attributes with BeanMapper, ConstructorMapper, and FieldMapper, using
     the @Nested annotation.
   - SQL Objects inherit class annotations from supertypes.
+  - bindList() and @BindList now follow the parameter naming style of the active SqlParser,
+    via the new SqlParser.nameParameter() method. e.g. ":foo" for ColonPrefixSqlParser, vs
+    "#foo" for
 
 3.0.0-rc1
   - SQL Object methods may have a Consumer<T> instead of a return type. See
