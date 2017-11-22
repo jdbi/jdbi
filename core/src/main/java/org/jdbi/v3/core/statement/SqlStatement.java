@@ -1260,7 +1260,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             if (i > 0) {
                 names.append(',');
             }
-            names.append(':').append(name);
+            String paramName = getConfig().get(SqlStatements.class).getSqlParser().nameParameter(name, getContext());
+            names.append(paramName);
 
             bind(name, values.get(i));
         }

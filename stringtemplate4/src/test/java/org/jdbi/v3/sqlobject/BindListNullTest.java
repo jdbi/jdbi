@@ -140,5 +140,10 @@ public class BindListNullTest
             log.add(sql);
             return new ColonPrefixSqlParser().parse(sql, ctx);
         }
+
+        @Override
+        public String nameParameter(String rawName, StatementContext ctx) {
+            return new ColonPrefixSqlParser().nameParameter(rawName, ctx);
+        }
     }
 }
