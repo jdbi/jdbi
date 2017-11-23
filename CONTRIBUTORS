@@ -1,4 +1,4 @@
-Contributors:
+jdbi 1/2:
     Brian McCallister
     Martin Traverso
     Henning Schmiedehausen
@@ -10,3 +10,8 @@ Contributors:
     Thomas Risberg for the Spring DataAccessException wrapping code
     Simone Gianni for finding (and finding the fix for) a nasty setNull bug
     Thomas Dudziak
+
+jdbi3:
+    Steven Schlansker
+    Matthew Hall
+    Artem Prigoda
