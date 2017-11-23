@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.locator;
 
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 
 /**
@@ -22,7 +23,7 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
  */
 public class AnnotationSqlLocator implements SqlLocator {
     @Override
-    public String locate(Class<?> sqlObjectType, Method method) {
+    public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
         return SqlAnnotations.getAnnotationValue(method)
                 .orElseThrow(() -> new IllegalStateException("Sql annotation missing query"));
     }

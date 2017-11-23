@@ -24,7 +24,7 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 public class UseClasspathSqlLocatorImpl implements Configurer {
-    private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
+    private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method, config) -> {
         String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
         return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
     };
