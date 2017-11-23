@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : Convenient SQL for Java</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/jdbi2/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/jdbi2/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	      <a href="/jdbi2">JDBI</a>
+        <span id="navigation">
+          <a href="/jdbi2/archive.html">Docs</a> |
+          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="/jdbi2/getting_jdbi/">Download</a> |
+          <a href="/jdbi2/apidocs">Javadoc</a> |
+          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/community.html">Community</a> 
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+  
+  <h1 class="emphnext">
+    <a href="/dbi_handle_and_statement">DBI, Handles, and SQL Statements</a> 
+  </h1>
+  <h1 id='dbi'>DBI</h1>
+
+<p>When starting with JDBI, the first thing you need to do is construct a <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> instance. The DBI instance provides connections to the database via <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/Handle.html'>Handle</a> instances. DBIs can be constructed three primary ways.</p>
+
+<p>The first is to pass a JDBC <a href='http://download.oracle.com/javase/6/docs/api/javax/sql/DataSource.html'>DataSource</a> instance to the constructor. In this case connections will be obtained from the datasource. This is generally the best option for cases where you want connection pooling.</p>
+
+<p>The second method is to pass in a combination of a JDBC url, properties, and/or a username and password. See the constructors on <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> for the exact combinations. All these forms pass through to the JDBC <a href='http://download.oracle.com/javase/6/docs/api/java/sql/DriverManager.html'>DriverManager</a> against its matching static methods.</p>
+
+<p>The third form uses a JDBI specific interface, <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/tweak/ConnectionFactory.html'>ConnectionFactory</a> which allows for unusual ways of obtaining connections, such as for interfacing with thread-bound connection instances in Spring, or other exotic techniques.</p>
+
+<h2 id='dbi_options'>DBI Options</h2>
+
+<p>Once a DBI is obtained there are a number of configurable options on it. These include specifying the transaction handler, how externalized SQL statements are looked up, how statements are translated, configuring logging, timing collection, and registering top level customizers. All of these things will be examined in more detail in section XXXX.</p>
+
+<h1 id='handles'>Handles</h1>
+
+<p>Handles can be obtained from a DBI by opening it as such:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>handle</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+
+<span class='c1'>// make sure to close it!</span>
+<span class='n'>handle</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>This requires explicitly closing the handle when you are through with it. The alternative is to pass in a callback which will receive an open handle, and will ensure it is closed when the callback completes, as follows:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>dbi</span><span class='o'>.</span><span class='na'>withHandle</span><span class='o'>(</span><span class='k'>new</span> <span class='n'>HandleCallback</span><span class='o'>&lt;</span><span class='n'>Void</span><span class='o'>&gt;()</span>
+<span class='o'>{</span>
+  <span class='kd'>public</span> <span class='n'>Void</span> <span class='nf'>withHandle</span><span class='o'>(</span><span class='n'>Handle</span> <span class='n'>handle</span><span class='o'>)</span> <span class='kd'>throws</span> <span class='n'>Exception</span>
+  <span class='o'>{</span>
+    <span class='n'>handle</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table silly (id int)&quot;</span><span class='o'>);</span>
+    <span class='k'>return</span> <span class='kc'>null</span><span class='o'>;</span>
+  <span class='o'>}</span>
+<span class='o'>});</span>
+</code></pre>
+</div>
+<p>Handles are used to create and execute statements, queries, calls, batches, and prepared batches. Additionally, statement customizations, result set mappers, and so on can be registered on the Handle. Anything set on the handle will override the settings inherited from the DBI, but only for that Handle and statements created from it.</p>
+
+<h1 id='direct_statements'>Direct Statements</h1>
+
+<p>The simplest way to execute statements on a handle is direct execution via the Handle#execute and Handle#query:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (?, ?)&quot;</span><span class='o'>,</span> <span class='mi'>3</span><span class='o'>,</span> <span class='s'>&quot;Patrick&quot;</span><span class='o'>);</span>
+
+<span class='n'>List</span><span class='o'>&lt;</span><span class='n'>Map</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>,</span> <span class='n'>Object</span><span class='o'>&gt;&gt;</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>select</span><span class='o'>(</span><span class='s'>&quot;select id, name from something&quot;</span><span class='o'>);</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>size</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='mi'>1</span><span class='o'>));</span>
+
+<span class='n'>Map</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>,</span> <span class='n'>Object</span><span class='o'>&gt;</span> <span class='n'>row</span> <span class='o'>=</span> <span class='n'>rs</span><span class='o'>.</span><span class='na'>get</span><span class='o'>(</span><span class='mi'>0</span><span class='o'>);</span>
+<span class='n'>assertThat</span><span class='o'>((</span><span class='n'>Integer</span><span class='o'>)</span><span class='n'>row</span><span class='o'>.</span><span class='na'>get</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='mi'>3</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>((</span><span class='n'>String</span><span class='o'>)</span><span class='n'>row</span><span class='o'>.</span><span class='na'>get</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Patrick&quot;</span><span class='o'>));</span>
+</code></pre>
+</div>
+<p>Direct statements work fine for simple DML and when SQL is not being <a href='/externalizing_sql/'>externalized</a>, but getting back untyped maps for queries is generally annoying, particularly as different JDBC drivers will interpret ResultSet#getObject() differently, particularly for numeric types.</p>
+
+<h1 id='creating_sqlstatements'>Creating SQLStatements</h1>
+
+<p>A more sophisticated way to execute sql is to create <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/SQLStatement.html'>SQLStatement</a> instances. Variants exist for <a href='/fluent_calls'>calls</a>, updates, <a href='/fluent_queries/'>queries</a>, and <a href='/fluent_batches/'>prepared batches</a>. The general form for updates looks like:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>createStatement</span><span class='o'>(</span><span class='s'>&quot;insert into something(id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>,</span> <span class='mi'>4</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>,</span> <span class='s'>&quot;Martin&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>execute</span><span class='o'>();</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>The call to Handle#createStatement creates an <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/Update.html'>Update</a> instance, which we then bind two <a href='/named_parameters/'>named arguments</a> to, and finally execute. In addition to binding parameters, we can set properties on the generated statement, such as the query timeout. SQLStatement instances generally return the same instance from each call on the statement, until the statement is executed. This allows for method chaining, as above. This method chaining is by no means required, however. The above example works the same way when written as:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='n'>Update</span> <span class='n'>s</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createStatement</span><span class='o'>(</span><span class='s'>&quot;insert into something(id, name) values (:id, :name)&quot;</span><span class='o'>);</span>
+<span class='n'>s</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>,</span> <span class='mi'>4</span><span class='o'>);</span>
+<span class='n'>s</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>,</span> <span class='s'>&quot;Martin&quot;</span><span class='o'>);</span>
+<span class='n'>s</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>Which you use is a matter of taste.</p>
+
+<p>Queries are also SQLStatement instances, but they generally get more complicated so <a href='/fluent_queries/'>have their own section</a>.</p>
+
+  
+
+  <div id="pagination">
+    <a href="/jdbi2/getting_jdbi/" class="forward">Getting JDBI ❯❯</a>
+    <a href="/jdbi2">Home</a> | <a href="/archive.html">Docs</a>
+  </div>
+</div>
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+

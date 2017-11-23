@@ -54,13 +54,18 @@ enhanced support for modular plugins.
 Not upgrading yet? The link:/jdbi2[v2 documentation] is still available.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
-Jdbi with it.
+Jdbi with it.  Jdbi improves JDBC's rough interface, providing a more natural
+Java database interface that is easy to bind to your domain data types.  Unlike
+an ORM, we do not aim to provide a complete object relational mapping framework -
+instead of that hidden complexity, we provide building blocks that allow you to
+construct the mapping between relations and objects as appropriate for your application.
 
 Jdbi's API comes in two flavors:
 
 === Fluent API
 
-The Core API provides a fluent, imperative interface.
+The Core API provides a fluent, imperative interface.  Use Builder style objects
+to wire up your SQL to rich Java data types.
 
 [source,java,indent=0]
 ----
@@ -70,6 +75,8 @@ include::{exampledir}/IntroductionTest.java[tags=core]
 === Declarative API
 
 The SQL Object extension sits atop Core, and provides a declarative interface.
+Tell Jdbi what SQL to execute and the shape of the results you like by declaring
+an annotated Java `interface`, and it will provide the implementation.
 
 [source,java,indent=0]
 ----

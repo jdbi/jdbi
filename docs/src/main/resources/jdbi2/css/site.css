@@ -1,0 +1,7 @@
+h1 a {
+	text-decoration: none;
+}
+
+ul.undecorated li {
+	list-style-type: none;
+}

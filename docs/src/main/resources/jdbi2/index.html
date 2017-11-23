@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : Convenient SQL for Java</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/jdbi2/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/jdbi2/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	      <a href="/jdbi2">JDBI</a>
+        <span id="navigation">
+          <a href="/jdbi2/archive.html">Docs</a> |
+          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="/jdbi2/getting_jdbi/">Download</a> |
+          <a href="/jdbi2/apidocs">Javadoc</a> |
+          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/community.html">Community</a> 
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+  
+  <h1 class="emphnext">
+    <a href="/five_minute_intro">Five Minute Introduction</a> 
+  </h1>
+  <p><a href='http://jdbi.org/'>JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
+
+<h1 id='fluent_api'>Fluent API</h1>
+
+<p>The fluent style looks like:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='c1'>// using in-memory H2 database</span>
+<span class='n'>DataSource</span> <span class='n'>ds</span> <span class='o'>=</span> <span class='n'>JdbcConnectionPool</span><span class='o'>.</span><span class='na'>create</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>,</span>
+                                          <span class='s'>&quot;username&quot;</span><span class='o'>,</span>
+                                          <span class='s'>&quot;password&quot;</span><span class='o'>);</span>
+<span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='n'>ds</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (?, ?)&quot;</span><span class='o'>,</span> <span class='mi'>1</span><span class='o'>,</span> <span class='s'>&quot;Brian&quot;</span><span class='o'>);</span>
+
+<span class='n'>String</span> <span class='n'>name</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id = :id&quot;</span><span class='o'>)</span>
+                    <span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>,</span> <span class='mi'>1</span><span class='o'>)</span>
+                    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringColumnMapper</span><span class='o'>.</span><span class='na'>INSTANCE</span><span class='o'>)</span>
+                    <span class='o'>.</span><span class='na'>first</span><span class='o'>();</span>
+                    
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>name</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>));</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>The DBI type is analogous to a JDBC DataSource, and will usually be constructed by passing in a JDBC DataSource. There are alternate constructors which take JDBC URL and credentials, and other means. From the DBI instance you obtain Handle instances. A Handle represents a single connection to the database. Handles rely on an underlying JDBC connection object.</p>
+
+<p>With a handle you may create and execute statements, queries, calls, batches, or prepared batches. In the above example we execute a statement to define a table, execute another statement, this time with two positional arguments to insert a value, and finally construct a query, bind a value to a named argument in the query, map the results to a String, and take the first result which comes back.</p>
+
+<p>The named argument facility on statements and queries is provided by JDBI &#8211; it parses out the SQL and uses positional parameters when actually constructing the prepared statements. The above example uses the default colon-demarcated parser, but an alternative hash delimited parser is included as well for use with databases which use colons in their grammars, such as <a href='http://www.postgresql.org/'>PostgreSQL</a>.</p>
+
+<h1 id='sql_object_api'>SQL Object API</h1>
+
+<p>The second, SQL object, style API simplifies the common idiom of creating DAO objects where a single method maps to a single statement. A SQL object definition is an annotated interface, such as:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>MyDAO</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>createSomethingTable</span><span class='o'>();</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>insert</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>,</span> <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>)</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id = :id&quot;</span><span class='o'>)</span>
+  <span class='n'>String</span> <span class='nf'>findNameById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+
+  <span class='cm'>/**</span>
+<span class='cm'>   * close with no args is used to close the connection</span>
+<span class='cm'>   */</span>
+  <span class='kt'>void</span> <span class='nf'>close</span><span class='o'>();</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>This interface defines two updates, the first to create the same table as in the fluent api example, and the second to do the same insert, the third defines a query. In the second two cases, notice that the arguments to the statements are past to the method, and bound by name.</p>
+
+<p>The final method, close(), is special. When it is invoked it will close the underlying JDBC connection. The method may be declared to raise an exception, such as the close() method does on java.io.Closeable, making it suitable for use with automatic resource management in Java 7.</p>
+
+<p>To use this sql object definition, we use code like so:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='c1'>// using in-memory H2 database via a pooled DataSource</span>
+<span class='n'>JdbcConnectionPool</span> <span class='n'>ds</span> <span class='o'>=</span> <span class='n'>JdbcConnectionPool</span><span class='o'>.</span><span class='na'>create</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test2&quot;</span><span class='o'>,</span>
+                                                  <span class='s'>&quot;username&quot;</span><span class='o'>,</span>
+                                                  <span class='s'>&quot;password&quot;</span><span class='o'>);</span>
+<span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='n'>ds</span><span class='o'>);</span>
+
+<span class='n'>MyDAO</span> <span class='n'>dao</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>(</span><span class='n'>MyDAO</span><span class='o'>.</span><span class='na'>class</span><span class='o'>);</span>
+
+<span class='n'>dao</span><span class='o'>.</span><span class='na'>createSomethingTable</span><span class='o'>();</span>
+
+<span class='n'>dao</span><span class='o'>.</span><span class='na'>insert</span><span class='o'>(</span><span class='mi'>2</span><span class='o'>,</span> <span class='s'>&quot;Aaron&quot;</span><span class='o'>);</span>
+
+<span class='n'>String</span> <span class='n'>name</span> <span class='o'>=</span> <span class='n'>dao</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>2</span><span class='o'>);</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>name</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Aaron&quot;</span><span class='o'>));</span>
+
+<span class='n'>dao</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+<span class='n'>ds</span><span class='o'>.</span><span class='na'>dispose</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>We obtain an instance of the sql object from the DBI instance, and then call methods on it. There are a couple different ways of creating sql object instances. The one one here binds the object to a specific handle, so we need to make sure to close the object when we are finished with it.</p>
+
+  
+
+  <div id="pagination">
+    <a href="/jdbi2/getting_jdbi/" class="forward">Getting JDBI ❯❯</a>
+    <a href="/jdbi2">Home</a> | <a href="/archive.html">Docs</a>
+  </div>
+</div>
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+

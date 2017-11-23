@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : SQL Object Queries</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/jdbi2/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/jdbi2/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	      <a href="/jdbi2">JDBI</a>
+        <span id="navigation">
+          <a href="/jdbi2/archive.html">Docs</a> |
+          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="/jdbi2/getting_jdbi/">Download</a> |
+          <a href="/jdbi2/apidocs">Javadoc</a> |
+          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/community.html">Community</a> 
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+    <h1 class="emphnext">
+      	<a href="/jdbi2/">SQL Object Queries</a> 
+    </h1>
+<p>Queries are denoted on sql object interfaces via the <code>@SqlQuery</code> annotation on the query methods. The return type of the method indicates what to do with the result set. Take the following queries:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>SomeQueries</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id = :id&quot;</span><span class='o'>)</span>
+  <span class='n'>String</span> <span class='nf'>findName</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id &gt; :from and id &lt; :to&quot;</span><span class='o'>)</span>
+  <span class='n'>List</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='nf'>findNamesBetween</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;from&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>from</span><span class='o'>,</span> <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;to&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>to</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something&quot;</span><span class='o'>)</span>
+  <span class='n'>Iterator</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='nf'>findAllNames</span><span class='o'>();</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>The first method, <code>findName</code> infers that you want only the first result, and it will be mapped into a <code>String</code>. It will take the first element in the first row of the result set to return.</p>
+
+<p>The second method, <code>findNamesBetween</code> will again infer that we are looking for a String, and pull the first string from each row of the result set. Because it returns a <code>java.util.List</code> it will eagerly map each row to a String and return the full result set.</p>
+
+<p>The third method, <code>findAllNames</code> does the same String extraction from each row, but because the method returns a <code>java.util.Iterator</code> it loads results lazily, only traversing the result set as <code>Iterator#next</code> or <code>Iterator#hasNext</code> is called. The iterator returned is actually a <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultIterator.html'>ResultIterator</a>. The underlying result set will be closed when the <code>ResultIterator#close</code> method is invoked, or when the end of the result set is reached.</p>
+
+<p>As with String, mappings for singular primitive types are provided out of the box by JDBI. You can plug in support for additional singular (read: single-column) data types by registering <a href='/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultColumnMapper.html'>ResultColumnMapper</a> or <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultColumnMapperFactory.html'>ResultColumnMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method.</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>ValueType</span>
+<span class='o'>{</span>
+  <span class='kd'>public</span> <span class='kd'>static</span> <span class='n'>ValueType</span> <span class='nf'>valueOf</span><span class='o'>(</span><span class='n'>String</span> <span class='n'>value</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>value</span> <span class='o'>==</span> <span class='kc'>null</span> <span class='o'>?</span> <span class='kc'>null</span> <span class='o'>:</span> <span class='k'>new</span> <span class='n'>ValueType</span><span class='o'>(</span><span class='n'>value</span><span class='o'>);</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>private</span> <span class='kd'>final</span> <span class='n'>String</span> <span class='n'>value</span><span class='o'>;</span>
+
+  <span class='kd'>private</span> <span class='nf'>ValueType</span><span class='o'>(</span><span class='n'>String</span> <span class='n'>value</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>value</span> <span class='o'>=</span> <span class='n'>value</span><span class='o'>;</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='n'>String</span> <span class='nf'>getValue</span><span class='o'>()</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>value</span><span class='o'>;</span>
+  <span class='o'>}</span>
+<span class='o'>}</span>
+
+<span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>ValueTypeMapper</span> <span class='kd'>implements</span> <span class='n'>ResultColumnMapper</span><span class='o'>&lt;</span><span class='n'>ValueType</span><span class='o'>&gt;</span>
+<span class='o'>{</span>
+  <span class='kd'>public</span> <span class='n'>ValueType</span> <span class='nf'>mapColumn</span><span class='o'>(</span><span class='n'>ResultSet</span> <span class='n'>r</span><span class='o'>,</span> <span class='kt'>int</span> <span class='n'>columnNumber</span><span class='o'>,</span> <span class='n'>StatementContext</span> <span class='n'>ctx</span><span class='o'>)</span> <span class='kd'>throws</span> <span class='n'>SQLException</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>ValueType</span><span class='o'>.</span><span class='na'>valueOf</span><span class='o'>(</span><span class='n'>r</span><span class='o'>.</span><span class='na'>getString</span><span class='o'>(</span><span class='n'>columnNumber</span><span class='o'>));</span> 
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='n'>ValueType</span> <span class='nf'>mapColumn</span><span class='o'>(</span><span class='n'>ResultSet</span> <span class='n'>r</span><span class='o'>,</span> <span class='n'>String</span> <span class='n'>columnLabel</span><span class='o'>,</span> <span class='n'>StatementContext</span> <span class='n'>ctx</span><span class='o'>)</span> <span class='kd'>throws</span> <span class='n'>SQLException</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>ValueType</span><span class='o'>.</span><span class='na'>valueOf</span><span class='o'>(</span><span class='n'>r</span><span class='o'>.</span><span class='na'>getString</span><span class='o'>(</span><span class='n'>columnLabel</span><span class='o'>));</span>
+  <span class='o'>}</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>You can plug in support for the new mapper by registering it on the object mapper:</p>
+
+<p><div class='highlight'><pre><code class='java'><span /><span class='nd'>@RegisterColumnMapper</span><span class='o'>(</span><span class='n'>ValueTypeMapper</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+<span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>ValueTypeQuery</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select value from thing where id = :id&quot;</span><span class='o'>)</span>
+  <span class='n'>ValueType</span> <span class='nf'>findById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div></p>
+
+<p>Alternately, we can specify a column mapper to use for a specific method:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>ValueTypeQuery</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select value from thing where id = :id&quot;</span><span class='o'>)</span>
+  <span class='nd'>@RegisterColumnMapper</span><span class='o'>(</span><span class='n'>ValueTypeMapper</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+  <span class='n'>ValueType</span> <span class='nf'>findById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>We can also register column mappers on the <code>DBI</code> or <code>Handle</code> instance the sql object is attached to. The choice of where to register a mapper depends on how widely you want it to be scoped. For example, registering a mapper on the <code>DBI</code> instance effectively makes it global, whereas registering it on a SQL object method limits the scope of the mapper to just that method.</p>
+
+<p>For more sophisticated mappings that span multiple columns, you can register <a href='/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a> or <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultSetMapperFactory.html'>ResultSetMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method. Take for example the following result set mapper and class it maps to:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>Something</span>
+<span class='o'>{</span>
+  <span class='kd'>private</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>;</span>
+  <span class='kd'>private</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>;</span>
+  <span class='kd'>private</span> <span class='n'>ValueType</span> <span class='n'>value</span><span class='o'>;</span>
+  
+  <span class='kd'>public</span> <span class='nf'>Something</span><span class='o'>()</span> <span class='o'>{</span> <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='nf'>Something</span><span class='o'>(</span><span class='kt'>int</span> <span class='n'>id</span><span class='o'>,</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>,</span> <span class='n'>ValueType</span> <span class='n'>value</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>id</span> <span class='o'>=</span> <span class='n'>id</span><span class='o'>;</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>name</span> <span class='o'>=</span> <span class='n'>name</span><span class='o'>;</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>value</span> <span class='o'>=</span> <span class='n'>value</span><span class='o'>;</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='kt'>int</span> <span class='nf'>getId</span><span class='o'>()</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>id</span><span class='o'>;</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='kt'>void</span> <span class='nf'>setId</span><span class='o'>(</span><span class='kt'>int</span> <span class='n'>id</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>id</span> <span class='o'>=</span> <span class='n'>id</span><span class='o'>;</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='n'>String</span> <span class='nf'>getName</span><span class='o'>()</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>name</span><span class='o'>;</span>
+  <span class='o'>}</span>
+
+  <span class='kd'>public</span> <span class='kt'>void</span> <span class='nf'>setName</span><span class='o'>(</span><span class='n'>String</span> <span class='n'>name</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>name</span> <span class='o'>=</span> <span class='n'>name</span><span class='o'>;</span>
+  <span class='o'>}</span>
+  
+  <span class='kd'>public</span> <span class='n'>ValueType</span> <span class='nf'>getValue</span><span class='o'>()</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='n'>value</span><span class='o'>;</span>
+  <span class='o'>}</span>
+  
+  <span class='kd'>public</span> <span class='kt'>void</span> <span class='nf'>setValue</span><span class='o'>(</span><span class='n'>ValueType</span> <span class='n'>value</span><span class='o'>)</span>
+  <span class='o'>{</span>
+    <span class='k'>this</span><span class='o'>.</span><span class='na'>value</span> <span class='o'>=</span> <span class='n'>value</span><span class='o'>;</span>
+  <span class='o'>}</span>
+<span class='o'>}</span>
+
+<span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>SomethingMapper</span> <span class='kd'>implements</span> <span class='n'>ResultSetMapper</span><span class='o'>&lt;</span><span class='n'>Something</span><span class='o'>&gt;</span>
+<span class='o'>{</span>
+  <span class='kd'>public</span> <span class='n'>Something</span> <span class='nf'>map</span><span class='o'>(</span><span class='kt'>int</span> <span class='n'>index</span><span class='o'>,</span> <span class='n'>ResultSet</span> <span class='n'>r</span><span class='o'>,</span> <span class='n'>StatementContext</span> <span class='n'>ctx</span><span class='o'>)</span> <span class='kd'>throws</span> <span class='n'>SQLException</span>
+  <span class='o'>{</span>
+    <span class='k'>return</span> <span class='k'>new</span> <span class='n'>Something</span><span class='o'>(</span><span class='n'>r</span><span class='o'>.</span><span class='na'>getInt</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>),</span> <span class='n'>r</span><span class='o'>.</span><span class='na'>getString</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>),</span> <span class='n'>ValueType</span><span class='o'>.</span><span class='na'>valueOf</span><span class='o'>(</span><span class='n'>r</span><span class='o'>.</span><span class='na'>getString</span><span class='o'>(</span><span class='s'>&quot;value&quot;</span><span class='o'>));</span>
+  <span class='o'>}</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>We can now make use of the <code>SomethingMapper</code> in a couple ways. The first is to register it on the sql object itself:</p>
+
+<p><div class='highlight'><pre><code class='java'><span /><span class='nd'>@RegisterMapper</span><span class='o'>(</span><span class='n'>SomethingMapper</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+<span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>AnotherQuery</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select id, name, value from something where id = :id&quot;</span><span class='o'>)</span>
+  <span class='n'>Something</span> <span class='nf'>findById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div></p>
+
+<p>In this case whenever a query needs to map to <code>Something</code> it will find the registered mapper and try to use that.</p>
+
+<p>Alternately, we can specify a result mapper to use for a specific method:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>YetAnotherQuery</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select id, name, value from something where id = :id&quot;</span><span class='o'>)</span>
+  <span class='nd'>@RegisterMapper</span><span class='o'>(</span><span class='n'>SomethingMapper</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+  <span class='n'>Something</span> <span class='nf'>findById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>You can also register result set mappers on the <code>DBI</code> or <code>Handle</code> instance the sql object is attached to.</p>
+
+<p>jDBI provides a bean mapper out of the box, which maps column names to bean property names. The bean mapper delegates mapping of individual columns to the column mapper registry, so make sure to register an appropriate column mapper for any custom/non-standard data types.</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>OneMoreQuery</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select id, name, value from something where id = :id&quot;</span><span class='o'>)</span>
+  <span class='nd'>@RegisterColumnMapper</span><span class='o'>(</span><span class='n'>ValueTypeMapper</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+  <span class='nd'>@MapResultAsBean</span>
+  <span class='n'>Something</span> <span class='nf'>findById</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>Note that the bean mapper skip properties that were not selected in the SQL query, and thus are an effective tool to retrieve a limited view of your data.</p>
+    <div id="pagination">
+        
+            <a href="/jdbi2//sql_object_overview" class="back">❮❮ SQL Object API Overview </a>
+        
+        
+        <a href="/jdbi2/">Home</a> | <a href="/archive.html">Docs</a>
+        
+        
+            <a href="/jdbi2//sql_object_api_dml" class="forward"> SQL Object Data Manipulation ❯❯</a>
+        
+    </div>
+</div>
+
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : SQL Object Argument Binding</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/jdbi2/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/jdbi2/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	      <a href="/jdbi2">JDBI</a>
+        <span id="navigation">
+          <a href="/jdbi2/archive.html">Docs</a> |
+          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="/jdbi2/getting_jdbi/">Download</a> |
+          <a href="/jdbi2/apidocs">Javadoc</a> |
+          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/community.html">Community</a> 
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+    <h1 class="emphnext">
+      	<a href="/jdbi2/">SQL Object Argument Binding</a> 
+    </h1>
+<p>Arguments passed to properly annotated methods on sql object instances will be bound to the statements being executed. There are two binding annotations included with JDBI, <code>@Bind</code> and <code>@BindBean</code>. In addition to these binding annotations, there is a facility for defining your own.</p>
+
+<p>The <code>@Bind</code> annotation binds a single named argument. If no value is specified for the annotation it will bind the argument to the name <code>it</code>. For example:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>static</span> <span class='kd'>interface</span> <span class='nc'>BindExamples</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>insert</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>,</span> <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>)</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;delete from something where name = :it&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>deleteByName</span><span class='o'>(</span><span class='nd'>@Bind</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>The <code>@BindBean</code> annotation binds JavaBeans&#8482; properties by name. If no value is given to the annotation the bean properties will be bound directly to their property names. If a value is given, the properties will be prefixed by the value given and a period. Take the <code>Something</code> bean, which has the properties <code>id</code> and <code>name</code> in the following example:</p>
+<div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>static</span> <span class='kd'>interface</span> <span class='nc'>BindBeanExample</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>insert</span><span class='o'>(</span><span class='nd'>@BindBean</span> <span class='n'>Something</span> <span class='n'>s</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;update something set name = :s.name where id = :s.id&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>update</span><span class='o'>(</span><span class='nd'>@BindBean</span><span class='o'>(</span><span class='s'>&quot;s&quot;</span><span class='o'>)</span> <span class='n'>Something</span> <span class='n'>something</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>Finally, we can define our own binding annotations. To do this we create an annotation type annotated with the <code>@BindingAnnotation</code> annotation. This annotation requires a value, which is a <code>Class</code> implementing <code>BinderFactory</code>. The <code>BinderFactory</code> is parameterized with the annotation type and the type of argument expected. When your custom binding annotation is used, a binder factory will be created and used to create <code>Binder</code> instances which actually bind the values. Let&#8217;s look at a trivial example.</p>
+<div class='highlight'><pre><code class='java'><span /><span class='c1'>// our binding annotation</span>
+<span class='nd'>@BindingAnnotation</span><span class='o'>(</span><span class='n'>BindSomething</span><span class='o'>.</span><span class='na'>SomethingBinderFactory</span><span class='o'>.</span><span class='na'>class</span><span class='o'>)</span>
+<span class='nd'>@Retention</span><span class='o'>(</span><span class='n'>RetentionPolicy</span><span class='o'>.</span><span class='na'>RUNTIME</span><span class='o'>)</span>
+<span class='nd'>@Target</span><span class='o'>({</span><span class='n'>ElementType</span><span class='o'>.</span><span class='na'>PARAMETER</span><span class='o'>})</span>
+<span class='kd'>public</span> <span class='nd'>@interface</span> <span class='n'>BindSomething</span> 
+<span class='o'>{</span> 
+
+  <span class='kd'>public</span> <span class='kd'>static</span> <span class='kd'>class</span> <span class='nc'>SomethingBinderFactory</span> <span class='kd'>implements</span> <span class='n'>BinderFactory</span>
+  <span class='o'>{</span>
+    <span class='kd'>public</span> <span class='n'>Binder</span> <span class='nf'>build</span><span class='o'>(</span><span class='n'>Annotation</span> <span class='n'>annotation</span><span class='o'>)</span>
+    <span class='o'>{</span>
+      <span class='k'>return</span> <span class='k'>new</span> <span class='n'>Binder</span><span class='o'>&lt;</span><span class='n'>BindSomething</span><span class='o'>,</span> <span class='n'>Something</span><span class='o'>&gt;()</span>
+      <span class='o'>{</span>
+        <span class='kd'>public</span> <span class='kt'>void</span> <span class='nf'>bind</span><span class='o'>(</span><span class='n'>SQLStatement</span> <span class='n'>q</span><span class='o'>,</span> <span class='n'>BindSomething</span> <span class='n'>bind</span><span class='o'>,</span> <span class='n'>Something</span> <span class='n'>arg</span><span class='o'>)</span>
+        <span class='o'>{</span>
+          <span class='n'>q</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;ident&quot;</span><span class='o'>,</span> <span class='n'>arg</span><span class='o'>.</span><span class='na'>getId</span><span class='o'>());</span>
+          <span class='n'>q</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;nom&quot;</span><span class='o'>,</span> <span class='n'>arg</span><span class='o'>.</span><span class='na'>getName</span><span class='o'>());</span>
+        <span class='o'>}</span>
+      <span class='o'>};</span>
+    <span class='o'>}</span>
+  <span class='o'>}</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>This binding annotation, <code>@BindSomething</code> is used to bind the properties of a something instance to the names <code>ident</code> and <code>nom</code>. The binding annotation is declared to be a binding annotation, using the static inner class <code>SomethingBinderFactory</code>. It is also declared to only apply to methods, and that it should be retained at runtime (the <code>@Retention(RetentionPolicy.RUNTIME)</code> annotation is really important, don&#8217;t forget it).</p>
+
+<p>The <code>SomethingBinderFactory</code> produces a <code>Binder</code> instance which will receive the sql statement, the annotation which lead to it being used, and the argument which it is to bind. In this case it binds values statically, but you could have any values on the annotation you like to influence how it is bound.</p>
+    <div id="pagination">
+        
+            <a href="/jdbi2//sql_object_api_batching" class="back">❮❮ SQL Object Batching </a>
+        
+        
+        <a href="/jdbi2/">Home</a> | <a href="/archive.html">Docs</a>
+        
+        
+            <a href="/jdbi2//sql_object_mixins" class="forward"> SQL Object Mixins ❯❯</a>
+        
+    </div>
+</div>
+
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+
