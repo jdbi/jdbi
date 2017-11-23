@@ -170,7 +170,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     String locateSql(final Handle h)
     {
-        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
+        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method, h.getConfig());
     }
 
     Method getMethod()

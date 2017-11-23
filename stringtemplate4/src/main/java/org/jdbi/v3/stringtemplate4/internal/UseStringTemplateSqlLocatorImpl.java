@@ -30,7 +30,7 @@ import org.stringtemplate.v4.STGroup;
 public class UseStringTemplateSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method) -> {
+        SqlLocator locator = (type, method, config) -> {
             String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             STGroup group = findStringTemplateGroup(type);
             if (!group.isDefined(templateName)) {

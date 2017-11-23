@@ -15,16 +15,20 @@ package org.jdbi.v3.sqlobject.locator;
 
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+
 /**
  * Locates SQL for jdbi SQL Object methods.
  */
+@FunctionalInterface
 public interface SqlLocator {
     /**
      * Locates and returns the SQL for the given SQL Object type and method.
      *
      * @param sqlObjectType the SQL object type
      * @param method the method
+     * @param config the config registry
      * @return the SQL for the given method.
      */
-    String locate(Class<?> sqlObjectType, Method method);
+    String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config);
 }

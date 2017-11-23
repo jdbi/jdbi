@@ -1,3 +1,6 @@
+3.0.0-rc3
+  - [breaking] Added ConfigRegistry parameter to SqlLocator.locate() method.
+
 3.0.0-rc2
   - Row and column mapper for Optional types
   - Binding of nested attributes e.g. ":user.address.city" with bindBean(), bindMethods(),
