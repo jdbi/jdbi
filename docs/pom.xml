@@ -108,6 +108,15 @@
       </dependency>
 
       <dependency>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>findbugs-annotations</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+      </dependency>
+
+      <dependency>
         <groupId>com.opentable.components</groupId>
         <artifactId>otj-pg-embedded</artifactId>
         <scope>test</scope>

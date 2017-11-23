@@ -30,6 +30,7 @@ public @interface Nested {
   /**
    * The column name prefix for all members of the nested object. If unset,
    * no column name prefix is applied.
+   * @return the column name prefix
    */
   String value() default "";
 }
