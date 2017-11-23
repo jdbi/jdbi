@@ -4109,7 +4109,7 @@ allows modification of its configuration as well as retrieving the current
 context's configuration for use by Jdbi core or extensions.
 
 When a new configurable context is created, it inherits a copy of its parent
-configuration at the time of creation - further modifications tothe original will
+configuration at the time of creation - further modifications to the original will
 not affect already created configuration contexts.  Configuration context
 copies happen when producing a Handle from Jdbi, when opening a *SqlStatement*
 from the Handle, and when attaching or creating an on-demand extension such as
