@@ -46,7 +46,12 @@ Style guidelines:
 == Introduction to Jdbi
 
 The *Jdbi* library provides convenient, idiomatic access to relational data in
-Java.
+Java.  *jdbi3* is the third major release which introduces enhanced support for
+Java 8 concepts, countless refinements to the design and implementation, and
+enhanced support for modular plugins.
+
+[TIP]
+Not upgrading yet? The link:/jdbi2[v2 documentation] is still available.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
 Jdbi with it.
