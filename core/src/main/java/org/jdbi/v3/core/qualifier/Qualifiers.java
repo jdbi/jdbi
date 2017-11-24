@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
@@ -36,7 +37,7 @@ import static java.util.stream.Collectors.toSet;
 public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
             elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
-            Qualifiers::getQualifiers);
+            (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
     private ConfigRegistry registry;
 
     public Qualifiers() {}

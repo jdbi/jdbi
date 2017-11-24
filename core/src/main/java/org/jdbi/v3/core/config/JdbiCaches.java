@@ -15,6 +15,7 @@ package org.jdbi.v3.core.config;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.jdbi.v3.meta.Beta;
@@ -45,13 +46,21 @@ public final class JdbiCaches implements JdbiConfig<JdbiCaches> {
     }
 
     public static <K, V> JdbiCache<K, V> declare(Function<K, ?> keyNormalizer, Function<K, V> computer) {
+        return declare(keyNormalizer, (config, k) -> computer.apply(k));
+    }
+
+    public static <K, V> JdbiCache<K, V> declare(BiFunction<ConfigRegistry, K, V> computer) {
+        return declare(Function.identity(), computer);
+    }
+
+    public static <K, V> JdbiCache<K, V> declare(Function<K, ?> keyNormalizer, BiFunction<ConfigRegistry, K, V> computer) {
         return new JdbiCache<K, V>() {
             @SuppressWarnings("unchecked")
             @Override
             public V get(K key, ConfigRegistry config) {
                 return (V) config.get(JdbiCaches.class).caches
                         .computeIfAbsent(this, x -> new ConcurrentHashMap<>())
-                        .computeIfAbsent(keyNormalizer.apply(key), x -> computer.apply(key));
+                        .computeIfAbsent(keyNormalizer.apply(key), x -> computer.apply(config, key));
             }
         };
     }

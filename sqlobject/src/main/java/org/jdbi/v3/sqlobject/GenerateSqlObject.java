@@ -13,23 +13,18 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.JdbiException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.jdbi.v3.meta.Beta;
 
 /**
- * Thrown when constructing a SqlObject fails.
+ * Decorate a SqlObject type to instruct the {@code jdbi3-generator} annotation processor
+ * to create a compiled implementation.
  */
-public class UnableToCreateSqlObjectException extends JdbiException {
-    private static final long serialVersionUID = 1L;
-
-    public UnableToCreateSqlObjectException(String message) {
-        super(message);
-    }
-
-    public UnableToCreateSqlObjectException(Throwable cause) {
-        super(cause);
-    }
-
-    public UnableToCreateSqlObjectException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Beta
+public @interface GenerateSqlObject {}

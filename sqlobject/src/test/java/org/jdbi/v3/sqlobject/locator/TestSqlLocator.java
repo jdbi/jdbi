@@ -45,13 +45,17 @@ public class TestSqlLocator {
         jdbi.getConfig(SqlObjects.class).setSqlLocator(
             (type, method, config) -> config.get(TestConfig.class).sql);
 
-        jdbi.getConfig(TestConfig.class).sql = "select * from something order by id";
-        assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
-            .containsExactly(new Something(1, "Bob"), new Something(2, "Alice"));
+        jdbi.useHandle(h -> {
+            h.getConfig(TestConfig.class).sql = "select * from something order by id";
+            assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+                .containsExactly(new Something(1, "Bob"), new Something(2, "Alice"));
+        });
 
-        jdbi.getConfig(TestConfig.class).sql = "select * from something order by name";
-        assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
-            .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
+        jdbi.useHandle(h -> {
+            h.getConfig(TestConfig.class).sql = "select * from something order by name";
+            assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+                .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
+        });
     }
 
     public static class TestConfig implements JdbiConfig<TestConfig> {
@@ -74,5 +78,4 @@ public class TestSqlLocator {
         @SqlQuery
         List<Something> list();
     }
-
 }
