@@ -34,5 +34,6 @@ public class VavrPlugin implements JdbiPlugin {
         jdbi.registerCollector(new VavrCollectorFactory());
         jdbi.registerRowMapper(new VavrTupleRowMapperFactory());
         jdbi.registerArgument(new VavrValueArgumentFactory());
+        jdbi.registerColumnMapper(VavrOptionMapper.factory());
     }
 }
