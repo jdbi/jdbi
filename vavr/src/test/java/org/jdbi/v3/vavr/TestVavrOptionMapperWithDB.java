@@ -17,6 +17,7 @@ import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
@@ -24,8 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestVavrOptionMapperWithDB {
 
@@ -42,12 +45,29 @@ public class TestVavrOptionMapperWithDB {
     @Test
     public void testOptionMapped_shouldSucceed() throws SQLException {
         final Set<Option<String>> result = dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select name from something")
                 .collectInto(new GenericType<Set<Option<String>>>() {});
 
         assertThat(result).hasSize(2);
         assertThat(result).contains(Option.none(), Option.of("eric"));
+    }
+
+    @Test
+    public void testOptionMappedWithoutGenericParameter_shouldFail() throws SQLException {
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+                .createQuery("select name from something")
+                .collectInto(new GenericType<Set<Option>>() {}))
+                .isInstanceOf(NoSuchMapperException.class);
+    }
+
+
+    @Test
+    public void testOptionMappedWithoutNestedMapper_shouldFail() throws SQLException {
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
+                .createQuery("select id, name from something")
+                .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
+                .isInstanceOf(NoSuchMapperException.class);
     }
 
     @Test
@@ -59,7 +79,7 @@ public class TestVavrOptionMapperWithDB {
                 .findOnly();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
-        assertThat(result.getName().get()).isEqualToIgnoringCase("eric");
+        assertThat(result).isEqualTo(new SomethingWithOption(1, Option.of("eric")));
     }
 
     @Test
@@ -71,7 +91,7 @@ public class TestVavrOptionMapperWithDB {
                 .findOnly();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
-        assertThat(result.getName().getOrNull()).isNull();
+        assertThat(result).isEqualTo(new SomethingWithOption(2, Option.none()));
     }
 
     public static class SomethingWithOption {
@@ -91,18 +111,14 @@ public class TestVavrOptionMapperWithDB {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             SomethingWithOption that = (SomethingWithOption) o;
-
-            if (id != that.id) return false;
-            return name != null ? name.equals(that.name) : that.name == null;
+            return id == that.id &&
+                    Objects.equals(name, that.name);
         }
 
         @Override
         public int hashCode() {
-            int result = id;
-            result = 31 * result + (name != null ? name.hashCode() : 0);
-            return result;
+            return Objects.hash(id, name);
         }
     }
 
