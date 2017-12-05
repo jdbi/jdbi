@@ -133,13 +133,11 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      *
      * @param <T> the collected type
      * @return a {@code Collector} which collects 0 or 1 input elements into an {@code Optional<T>}.
+     * @deprecated Use {@link OptionalCollectors#toOptional()} instead.
      */
+    @Deprecated
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
-        return Collector.of(
-                OptionalBuilder<T>::new,
-                OptionalBuilder::set,
-                (left, right) -> left.build().isPresent() ? left : right,
-                OptionalBuilder::build);
+        return OptionalCollectors.toOptional();
     }
 
     /**

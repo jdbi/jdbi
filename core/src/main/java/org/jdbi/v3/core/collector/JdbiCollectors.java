@@ -30,6 +30,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
 
     public JdbiCollectors() {
         register(new BuiltInCollectorFactory());
+        register(new OptionalPrimitiveCollectorFactory());
         register(new ArrayCollectorFactory());
     }
 

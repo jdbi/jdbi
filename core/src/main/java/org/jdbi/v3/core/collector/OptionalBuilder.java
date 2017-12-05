@@ -13,22 +13,51 @@
  */
 package org.jdbi.v3.core.collector;
 
-import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-class OptionalBuilder<T> {
-    private Optional<T> optional = Optional.empty();
+class OptionalBuilder<T, OPT_T> {
+  private final Supplier<OPT_T> empty;
+  private final Function<T, OPT_T> factory;
 
-    public void set(T value) {
-        if (optional.isPresent()) {
-            throw new IllegalStateException(
-                    String.format("Multiple values for Optional type: ['%s','%s',...]",
-                            optional.get(),
-                            value));
-        }
-        optional = Optional.ofNullable(value);
+  boolean set;
+  T value;
+
+  OptionalBuilder(Supplier<OPT_T> empty, Function<T, OPT_T> factory) {
+    this.empty = empty;
+    this.factory = factory;
+  }
+
+  void set(T value) {
+    if (set) {
+      throw tooManyValues(this.value, value);
     }
 
-    public Optional<T> build() {
-        return optional;
+    this.value = value;
+    this.set = true;
+  }
+
+  OPT_T build() {
+    return value == null ? empty.get() : factory.apply(value);
+  }
+
+  static <T, OPT_T> OptionalBuilder<T, OPT_T> combine(OptionalBuilder<T, OPT_T> left,
+                                                      OptionalBuilder<T, OPT_T> right) {
+    if (left.set && right.set) {
+      throw tooManyValues(left.value, right.value);
     }
+
+    return left.set ? left : right;
+  }
+
+  private static <T> IllegalStateException tooManyValues(T first, T second) {
+    return new IllegalStateException(
+        String.format("Multiple values for optional: [%s, %s, ...]",
+            stringify(first),
+            stringify(second)));
+  }
+
+  private static String stringify(Object value) {
+    return value == null ? null : "'" + value + "'";
+  }
 }

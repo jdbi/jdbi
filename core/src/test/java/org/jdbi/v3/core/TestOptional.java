@@ -26,8 +26,12 @@ import org.junit.rules.ExpectedException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
     private static final String SELECT_BY_NAME = "select * from something " +
@@ -47,6 +51,88 @@ public class TestOptional {
         handle = dbRule.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+    }
+
+    @Test
+    public void testMapToOptional() throws Exception {
+        GenericType<Optional<String>> optionalString = new GenericType<Optional<String>>() {};
+
+        assertThat(handle.select("select name from something where id = 0")
+            .collectInto(optionalString))
+            .isEmpty();
+
+        assertThat(handle.select("select null from something where id = 1")
+            .collectInto(optionalString))
+            .isEmpty();
+
+        assertThat(handle.select("select name from something where id = 1")
+            .collectInto(optionalString))
+            .hasValue("eric");
+
+        assertThatThrownBy(() -> handle.select("select name from something")
+            .collectInto(optionalString))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Multiple values for optional");
+    }
+
+    @Test
+    public void testMapToOptionalInt() throws Exception {
+        assertThat(handle.select("select id from something where name = 'arthur'")
+            .collectInto(OptionalInt.class))
+            .isEmpty();
+
+        assertThat(handle.select("select null from something where name = 'eric'")
+            .collectInto(OptionalInt.class))
+            .isEmpty();
+
+        assertThat(handle.select("select id from something where name = 'eric'")
+            .collectInto(OptionalInt.class))
+            .hasValue(1);
+
+        assertThatThrownBy(() -> handle.select("select id from something")
+            .collectInto(OptionalInt.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Multiple values for optional");
+    }
+
+    @Test
+    public void testMapToOptionalLong() throws Exception {
+        assertThat(handle.select("select id from something where name = 'ford'")
+            .collectInto(OptionalLong.class))
+            .isEmpty();
+
+        assertThat(handle.select("select null from something where name = 'eric'")
+            .collectInto(OptionalLong.class))
+            .isEmpty();
+
+        assertThat(handle.select("select id from something where name = 'eric'")
+            .collectInto(OptionalLong.class))
+            .hasValue(1L);
+
+        assertThatThrownBy(() -> handle.select("select id from something")
+            .collectInto(OptionalLong.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Multiple values for optional");
+    }
+
+    @Test
+    public void testMapToOptionalDouble() throws Exception {
+        assertThat(handle.select("select id from something where name = 'slartibartfast'")
+            .collectInto(OptionalDouble.class))
+            .isEmpty();
+
+        assertThat(handle.select("select null from something where name = 'eric'")
+            .collectInto(OptionalDouble.class))
+            .isEmpty();
+
+        assertThat(handle.select("select id from something where name = 'eric'")
+            .collectInto(OptionalDouble.class))
+            .hasValue(1d);
+
+        assertThatThrownBy(() -> handle.select("select id from something")
+            .collectInto(OptionalDouble.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Multiple values for optional");
     }
 
     @Test
