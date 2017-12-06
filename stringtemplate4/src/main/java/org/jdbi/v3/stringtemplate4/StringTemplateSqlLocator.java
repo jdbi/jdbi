@@ -134,7 +134,9 @@ public class StringTemplateSqlLocator {
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
         try (InputStream is = openStream(classLoader, path)) {
-            return new STGroupString(toString(is));
+            STGroupString group = new STGroupString(toString(is));
+            group.load();
+            return group;
         }
         catch (IOException e) {
             throw new RuntimeException("Unable to read StringTemplate group file at " + path + " on classpath", e);
