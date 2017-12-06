@@ -55,19 +55,20 @@ public class TestVavrOptionMapperWithDB {
     @Test
     public void testOptionMappedWithoutGenericParameter_shouldFail() throws SQLException {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
+                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select name from something")
                 .collectInto(new GenericType<Set<Option>>() {}))
-                .isInstanceOf(NoSuchMapperException.class);
+                .isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining("raw");
     }
-
 
     @Test
     public void testOptionMappedWithoutNestedMapper_shouldFail() throws SQLException {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something")
                 .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
-                .isInstanceOf(NoSuchMapperException.class);
+                .isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining("nested");
     }
 
     @Test
