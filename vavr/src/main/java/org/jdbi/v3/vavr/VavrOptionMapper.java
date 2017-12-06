@@ -29,21 +29,19 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 public class VavrOptionMapper<T> implements ColumnMapper<Option<T>> {
 
-    private final Type type;
+    private final Type nestedType;
 
-    private VavrOptionMapper(Type type) {
-        this.type = type;
+    private VavrOptionMapper(Type nestedType) {
+        this.nestedType = nestedType;
     }
 
-    public static ColumnMapper<?> of(Type type) {
-        return new VavrOptionMapper(type);
-    }
-
-    public static ColumnMapperFactory factory() {
+    static ColumnMapperFactory factory() {
         return (type, config) -> {
             Class<?> rawType = getErasedType(type);
             if (rawType == Option.class) {
-                return Optional.of(VavrOptionMapper.of(type));
+                final Type nestedType = GenericTypes.findGenericParameter(type, Option.class)
+                        .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Option type"));
+                return Optional.of(new VavrOptionMapper<>(nestedType));
             }
             return Optional.empty();
         };
@@ -52,11 +50,8 @@ public class VavrOptionMapper<T> implements ColumnMapper<Option<T>> {
     @SuppressWarnings("unchecked")
     @Override
     public Option<T> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        final ColumnMapper<?> mapper = ctx.findColumnMapperFor(
-                GenericTypes.findGenericParameter(type, Option.class)
-                        .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Option type")))
-                .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + type + " nested in Option"));
-
+        final ColumnMapper<?> mapper = ctx.findColumnMapperFor(nestedType)
+                .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + nestedType + " nested in Option"));
         return (Option<T>) Option.of(mapper.map(r, columnNumber, ctx));
     }
 
