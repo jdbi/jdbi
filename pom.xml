@@ -66,7 +66,7 @@
 
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
-        <dep.slf4j.version>1.7.21</dep.slf4j.version>
+        <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.kotlin.version>1.1.0</dep.kotlin.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.dokka.version>0.9.13</dep.dokka.version>
@@ -301,6 +301,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>2.1.1</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -330,7 +336,7 @@
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.8.0</version>
+                <version>0.10.1</version>
             </dependency>
 
             <dependency>
