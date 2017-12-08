@@ -34,7 +34,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
  * <p>
  * if there is no such value (Try-Failed, Either-Left...) a "null" value will be applied as argument value
  */
-public class VavrValueArgumentFactory implements ArgumentFactory {
+class VavrValueArgumentFactory implements ArgumentFactory {
 
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {

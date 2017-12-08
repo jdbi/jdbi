@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
-public class VavrOptionMapper<T> implements ColumnMapper<Option<T>> {
+class VavrOptionMapper<T> implements ColumnMapper<Option<T>> {
 
     private final Type nestedType;
 

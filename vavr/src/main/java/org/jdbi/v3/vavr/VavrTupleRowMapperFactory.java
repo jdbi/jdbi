@@ -42,7 +42,7 @@ import java.util.Optional;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 
-public class VavrTupleRowMapperFactory implements RowMapperFactory {
+class VavrTupleRowMapperFactory implements RowMapperFactory {
 
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {

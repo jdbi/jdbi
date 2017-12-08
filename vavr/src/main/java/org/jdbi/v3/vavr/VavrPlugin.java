@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
  *  <li>supports vavr collections via {@link org.jdbi.v3.core.result.ResultBearing#collectInto(Type)} call</li>
  *  <li>supports key-value mappings of a tuple result (implicitly used by map collectors)</li>
  *  <li>supports tuple projection</li>
+ *  <li>supports column mapping for {@link io.vavr.control.Option}</li>
  * </ul>
  */
 public class VavrPlugin implements JdbiPlugin {
