@@ -16,14 +16,14 @@ package org.jdbi.v3.core.collector;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-class OptionalBuilder<T, OPT_T> {
-  private final Supplier<OPT_T> empty;
-  private final Function<T, OPT_T> factory;
+class OptionalBuilder<T, O> {
+  private final Supplier<O> empty;
+  private final Function<T, O> factory;
 
   boolean set;
   T value;
 
-  OptionalBuilder(Supplier<OPT_T> empty, Function<T, OPT_T> factory) {
+  OptionalBuilder(Supplier<O> empty, Function<T, O> factory) {
     this.empty = empty;
     this.factory = factory;
   }
@@ -37,7 +37,7 @@ class OptionalBuilder<T, OPT_T> {
     this.set = true;
   }
 
-  OPT_T build() {
+  O build() {
     return value == null ? empty.get() : factory.apply(value);
   }
 

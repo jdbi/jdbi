@@ -85,12 +85,13 @@ public class OptionalCollectors {
    * @param empty   Supplies an instance of the optional type with no value.
    * @param factory Returns an instance of the optional type with the input parameter as the value.
    * @param <T>     The optional element type.
-   * @param <OPT_T> The optional type (including any element type arguments)
+   * @param <O>     The optional type, which may incorporate the {@code T} generic parameter e.g.
+   *                {@code Optional<T>}.
    * @return a {@code Collector} which collects 0 or 1 input elements into an arbitrary
    * optional-style container type.
    */
-  public static <T, OPT_T> Collector<T, ?, OPT_T> toOptional(Supplier<OPT_T> empty,
-                                                             Function<T, OPT_T> factory) {
+  public static <T, O> Collector<T, ?, O> toOptional(Supplier<O> empty,
+                                                     Function<T, O> factory) {
     return Collector.of(
         () -> new OptionalBuilder<>(empty, factory),
         OptionalBuilder::set,
