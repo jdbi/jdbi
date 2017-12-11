@@ -3804,6 +3804,7 @@ The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional libra
   will be used as default implementation.
   For interface types a sensible default implementation will be used
   (e.q. `List<T>` for `Seq<T>`).
+* Columns can be mapped into Vavr's `Option<T>` type.
 * Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
   you can map your query results e.g. to `Tuple3<Integer, String, Long>`.
   If you select more columns than the arity of the projection the columns
@@ -3854,8 +3855,16 @@ handle.createQuery("select name from users")
 ----
 
 This works for all the collection types supported. For the nested value
-row and column mappers already installed in *Jdbi* will be used. The plugin
-will obey configured key and value columns for `Map<K, V>` return types.
+row and column mappers already installed in *Jdbi* will be used.
+Therefore the following would work and can make sense if the column is nullable:
+
+[source,java]
+----
+handle.createQuery("select middle_name from users") // nulls incoming!
+        .collectInto(new GenericType<Seq<Option<String>>>() {});
+----
+
+The plugin will obey configured key and value columns for `Map<K, V>` return types.
 
 Last but not least we can now project simple queries to Vavr tuples like that:
 
