@@ -213,6 +213,12 @@
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-spring4</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
@@ -336,7 +342,7 @@
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.10.1</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
