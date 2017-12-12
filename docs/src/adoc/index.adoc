@@ -2953,6 +2953,37 @@ If you like StringTemplate, the <<StringTemplate 4>> module also provides a
 SqlLocator, which can load SQL templates from StringTemplate 4 files on the
 classpath.
 
+==== @CreateSqlObject
+
+Use the @CreateSqlObject annotation to reuse a SqlObject inside another SqlObject. For example,
+you can build a transactional method which performs an SQL update defined in other SqlObject
+as part of the transaction. Jdbi won't open a new handle for a call to the child SqlObject.
+
+[source,java]
+----
+public interface Bar {
+
+    @SqlUpdate("insert into bar (name) values (:name)")
+    @GetGeneratedKeys
+    int insert(@Bind("name") String name);
+}
+
+public interface Foo {
+
+    @CreateSqlObject
+    Bar createBar();
+
+    @SqlUpdate("insert into foo (bar_id, name) values (:bar_id, :name)")
+    void insert(@Bind("bar_id") int barId, @Bind("name") String name);
+
+    @Transaction
+    default void insertBarAndFoo(String barName, String fooName) {
+        int barId = createBar().insert(barName);
+        insert(barId, fooName);
+    }
+}
+----
+
 === Consumer Methods
 
 As a special case, you may provide a `Consumer<T>` argument in addition to other bound parameters.
