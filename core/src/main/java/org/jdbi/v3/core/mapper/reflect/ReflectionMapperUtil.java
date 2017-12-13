@@ -23,8 +23,8 @@ import java.util.function.Supplier;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
-class ReflectionMapperUtil {
-  static List<String> getColumnNames(ResultSet rs) throws SQLException {
+public class ReflectionMapperUtil {
+  public static List<String> getColumnNames(ResultSet rs) throws SQLException {
     final ResultSetMetaData metadata = rs.getMetaData();
     final int count = metadata.getColumnCount();
     final List<String> columnNames = new ArrayList<>(count);
@@ -36,11 +36,11 @@ class ReflectionMapperUtil {
     return columnNames;
   }
 
-  static List<ColumnNameMatcher> getColumnNameMatchers(StatementContext ctx) {
+  public static List<ColumnNameMatcher> getColumnNameMatchers(StatementContext ctx) {
     return ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
   }
 
-  static OptionalInt findColumnIndex(String paramName,
+  public static OptionalInt findColumnIndex(String paramName,
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
                                      Supplier<String> debugName) {
