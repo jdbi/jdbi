@@ -60,11 +60,6 @@ class KotlinMapperTest {
         assertThat(result).isEqualTo(expected)
     }
 
-    @Test
-    fun shouldUseSecondOccurrenceOfColumnWhenMultipleColumnsWithSameNameArePresent() {
-        TODO("Pretty sure this test isn't necessary anymore since we're using regular 'findColumnIndex', please confirm")
-    }
-
     data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("first") val n: String)
 
     @Test

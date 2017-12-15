@@ -51,7 +51,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
     override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<Any> {
         val columnNames = getColumnNames(rs)
-        val columnNameMatchers = getColumnNameMatchers(ctx)
+        val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
         val unmatchedColumns = columnNames.toMutableSet()
 
         val mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
@@ -117,8 +117,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                     .orElseThrow({
                         IllegalArgumentException(
                                 "Constructor '${constructor.name}' parameter '$parameterName' has no column in the result set. " +
-                                        "Verify that the Java compiler is configured to emit parameter names, " +
-                                        "that your result set has the columns expected, or annotate the " +
+                                        "Verify that your result set has the columns expected, or annotate the " +
                                         "parameter names explicitly with @ColumnName"
                         )
                     })
@@ -136,8 +135,6 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                         unmatchedColumns.remove(columnNames[columnIndex])
                     }
         } else {
-            //TODO: Support for nested non-kotlin types?
-
             val nestedPrefix = prefix + nested.value
 
             nestedMappers
@@ -177,8 +174,6 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                         unmatchedColumns.remove(columnNames[columnIndex])
                     }
         } else {
-            //TODO: Support for nested non-kotlin types?
-
             val nestedPrefix = prefix + nested.value
 
             nestedPropertyMappers
