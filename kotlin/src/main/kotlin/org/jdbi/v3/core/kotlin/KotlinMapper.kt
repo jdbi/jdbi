@@ -42,7 +42,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
     private val kClass: KClass<*> = clazz.kotlin
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
-    private val memberProperties = kClass.memberProperties
+    private val memberProperties = kClass.memberProperties.mapNotNull { it as? KMutableProperty1<*, *>}.filter { property ->
+        !constructorParameters.any { parameter -> parameter.paramName() == property.propName() }
+    }
 
     private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
@@ -80,7 +82,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
             parameter to getConstructorParameterProvider(rs, ctx, parameter, columnNames, columnNameMatchers, unmatchedColumns)
         }
 
-        val memberPropertyMappers = memberProperties.mapNotNull { it as? KMutableProperty1<*, *> }.associate { property ->
+        val memberPropertyMappers = memberProperties.associate { property ->
             property to getMemberPropertyProvider(rs, ctx, property, columnNames, columnNameMatchers, unmatchedColumns)
         }
 

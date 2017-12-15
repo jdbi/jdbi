@@ -24,6 +24,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
+import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 class KotlinMapperTest {
     @Rule
@@ -230,5 +232,27 @@ class KotlinMapperTest {
         assertThat(result)
                 .extracting("first", "nested.other")
                 .containsExactly(expected.first, expected.nested.other)
+    }
+
+    class TestSkipMemberIfSetViaConstructor(@ColumnName("first") foo: String) {
+        val fromCtor = foo
+        var first: String by Delegates.observable("NOT_SET") { _: KProperty<*>, _: String, _: String ->
+            throw UnsupportedOperationException("Should not be called")
+        }
+    }
+
+    @Test
+    fun testSkipMemberIfSetViaConstructor() {
+        val expected = "it works!"
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
+                .bind("value", expected)
+                .execute()
+
+        val result = handle.createQuery("SELECT first FROM the_things")
+                .mapTo<TestSkipMemberIfSetViaConstructor>()
+                .first()
+
+        assertThat(result.fromCtor).isEqualTo(expected)
     }
 }
