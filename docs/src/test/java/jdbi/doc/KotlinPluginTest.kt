@@ -15,6 +15,7 @@ package jdbi.doc
 
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.kotlin.useSequence
+import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -29,7 +30,8 @@ class KotlinPluginTest {
     val db = H2DatabaseRule().withPlugins()
 
     // tag::dataClass[]
-    data class Thing(val id: Int, val name: String,
+    data class IdAndName(val id: Int, val name: String)
+    data class Thing(@Nested val idAndName: IdAndName,
                      val nullable: String?,
                      val nullableDefaultedNull: String? = null,
                      val nullableDefaultedNotNull: String? = "not null",
@@ -38,7 +40,7 @@ class KotlinPluginTest {
 
     // tag::sqlObject[]
     interface ThingDao {
-        @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
+        @SqlUpdate("insert into something (id, name) values (:something.idAndName.id, :something.idAndName.name)")
         fun insert(something: Thing)
 
         @SqlQuery("select id, name from something")
@@ -47,15 +49,15 @@ class KotlinPluginTest {
     // end::sqlObject[]
 
 
-    val brian = Thing(1, "Brian", null)
-    val keith = Thing(2, "Keith", null)
+    val brian = Thing(IdAndName(1, "Brian"), null)
+    val keith = Thing(IdAndName(2, "Keith"), null)
 
     // tag::setUp[]
     @Before fun setUp() {
         val dao = db.jdbi.onDemand<ThingDao>()
 
-        val brian = Thing(1, "Brian", null)
-        val keith = Thing(2, "Keith", null)
+        val brian = Thing(IdAndName(1, "Brian"), null)
+        val keith = Thing(IdAndName(2, "Keith"), null)
 
         dao.insert(brian)
         dao.insert(keith)
@@ -65,7 +67,7 @@ class KotlinPluginTest {
     // tag::testQuery[]
     @Test fun testFindById() {
         val qry = db.sharedHandle.createQuery("select id, name from something where id = :id")
-        val things: List<Thing> = qry.bind("id", brian.id).mapTo<Thing>().list()
+        val things: List<Thing> = qry.bind("id", brian.idAndName.id).mapTo<Thing>().list()
         assertEquals(1, things.size)
         assertEquals(brian, things[0])
     }

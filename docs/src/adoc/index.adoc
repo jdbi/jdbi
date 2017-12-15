@@ -3409,7 +3409,8 @@ jdbi.installPlugin(KotlinPlugin());
 ----
 
 Result set mapper also supports `@ColumnName` annotation that allows to specify
-name for a property or parameter explicitly.
+name for a property or parameter explicitly, as well as the `@Nested` annotation
+that allows mapping nested Kotlin objects.
 
 If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
 discovered and registered automatically. Otherwise, you can attach it using
