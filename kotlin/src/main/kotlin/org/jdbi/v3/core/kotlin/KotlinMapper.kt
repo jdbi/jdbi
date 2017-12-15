@@ -36,6 +36,8 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
+private val nullValueRowMapper = RowMapper<Any?> { rs, ctx -> null }
+
 class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
     private val kClass: KClass<*> = clazz.kotlin
     private val constructor = findConstructor(kClass)
@@ -83,8 +85,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         }
 
         return RowMapper { r, c ->
-            val constructorParametersWithValues = constructorParameterMappers.mapValues { (_, mapper) ->
-                mapper.map(r, c)
+            // We filter 'null' mappers to remove parameters with no mappers but a default value
+            val constructorParametersWithValues = constructorParameterMappers.filterValues { it != null }.mapValues { (_, mapper) ->
+                mapper?.map(r, c)
             }
 
             val memberPropertiesWithValues = memberPropertyMappers.mapValues { (_, mapper) ->
@@ -107,33 +110,39 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                                                 columnNames: List<String>,
                                                 columnNameMatchers: List<ColumnNameMatcher>,
                                                 unmatchedColumns: MutableSet<String>
-    ): RowMapper<*> {
+    ): RowMapper<*>? {
         val parameterName = parameter.paramName()
 
         val nested = parameter.findAnnotation<Nested>()
 
         return if (nested == null) {
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers, { parameter.name })
-                    .orElseThrow({
-                        IllegalArgumentException(
-                                "Constructor '${constructor.name}' parameter '$parameterName' has no column in the result set. " +
-                                        "Verify that your result set has the columns expected, or annotate the " +
-                                        "parameter names explicitly with @ColumnName"
-                        )
-                    })
+            when {
+                columnIndex.isPresent -> {
+                    val type = parameter.type.javaType
 
-            val type = parameter.type.javaType
-
-            ctx.findColumnMapperFor(type)
-                    .map { mapper -> SingleColumnMapper(mapper, columnIndex + 1) }
-                    .orElseThrow {
-                        IllegalArgumentException(
-                                "Could not find column mapper for type '$type' of parameter " +
-                                        "'$parameter' for constructor '$constructor'")
+                    ctx.findColumnMapperFor(type)
+                            .map { mapper -> SingleColumnMapper(mapper, columnIndex.asInt + 1) }
+                            .orElseThrow {
+                                IllegalArgumentException(
+                                        "Could not find column mapper for type '$type' of parameter " +
+                                                "'$parameter' for constructor '$constructor'")
+                            }.also {
+                        unmatchedColumns.remove(columnNames[columnIndex.asInt])
                     }
-                    .also {
-                        unmatchedColumns.remove(columnNames[columnIndex])
-                    }
+                }
+                parameter.isOptional -> {
+                    // Parameter has no matching column but has a default value, use the default value
+                    null
+                }
+                parameter.type.isMarkedNullable -> nullValueRowMapper
+                else -> throw IllegalArgumentException(
+                        "Constructor '${constructor.name}' parameter '$parameterName' has no column in the result set" +
+                                " and is not nullable. " +
+                                "Verify that your result set has the columns expected, or annotate the " +
+                                "parameter names explicitly with @ColumnName"
+                )
+            }
         } else {
             val nestedPrefix = prefix + nested.value
 
@@ -157,8 +166,8 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
             val columnIndex = findColumnIndex(propertyName, columnNames, columnNameMatchers, { property.name }).orElseThrow {
                 IllegalArgumentException(
                         "Member '${property.name}' of class '${kClass.simpleName} has no column in the result set. " +
-                        "Verify that your result set has the columns expected, or annotate the " +
-                        "property explicitly with @ColumnName"
+                                "Verify that your result set has the columns expected, or annotate the " +
+                                "property explicitly with @ColumnName"
                 )
             }
 
