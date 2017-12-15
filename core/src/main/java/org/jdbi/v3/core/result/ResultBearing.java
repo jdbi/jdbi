@@ -62,7 +62,7 @@ public interface ResultBearing {
 
     /**
      * Invokes the mapper with a result set supplier, and returns the value returned by the mapper.
-     * @param mapper result set mapper
+     * @param mapper result set scanner
      * @param <R> result type returned by the mapper.
      * @return the value returned by the mapper.
      */
