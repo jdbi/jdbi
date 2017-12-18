@@ -15,7 +15,6 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNameMatchers;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 import java.beans.ConstructorProperties;
@@ -152,7 +151,8 @@ public class ConstructorMapper<T> implements RowMapper<T>
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         final List<String> columnNames = getColumnNames(rs);
-        final List<ColumnNameMatcher> columnNameMatchers = getColumnNameMatchers(ctx);
+        final List<ColumnNameMatcher> columnNameMatchers =
+                ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);

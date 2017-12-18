@@ -3384,7 +3384,7 @@ Kotlin API documentation:
 
 ==== ResultSet mapping
 
-The *jdbi3-kotlin* plugin adds ResultSet mapping to Kotlin data classes. It
+The *jdbi3-kotlin* plugin adds mapping to Kotlin data classes. It
 supports data classes where all fields are present in the constructor as well
 as classes with writable properties. Any fields not present in the constructor
 will be set after the constructor call. The mapper supports nullable types. It
@@ -3408,8 +3408,9 @@ Then install the plugin into your `Jdbi` instance:
 jdbi.installPlugin(KotlinPlugin());
 ----
 
-Result set mapper also supports `@ColumnName` annotation that allows to specify
-name for a property or parameter explicitly.
+The Kotlin mapper also supports `@ColumnName` annotation that allows to specify
+name for a property or parameter explicitly, as well as the `@Nested` annotation
+that allows mapping nested Kotlin objects.
 
 If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
 discovered and registered automatically. Otherwise, you can attach it using

@@ -1,169 +1,258 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.jdbi.v3.core.kotlin
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.jdbi.v3.core.HandleAccess
+import org.jdbi.v3.core.Handle
+import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.reflect.ColumnName
-import org.jdbi.v3.core.statement.StatementContextAccess
+import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
+import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 class KotlinMapperTest {
+    @Rule
+    @JvmField
+    val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
+    @Rule
+    @JvmField
+    val dbRule: H2DatabaseRule = H2DatabaseRule().withPlugin(KotlinPlugin())
 
-    val resultSet = mock<ResultSet>()
-    val resultSetMetaData = mock<ResultSetMetaData>()
-    val ctx = StatementContextAccess.createContext(HandleAccess.createHandle())
-
-    private data class DataClassWithOnlyPrimaryConstructor(val id: Int, val name: String)
+    private lateinit var handle: Handle
 
     @Before
-    fun setUpMocks() {
-        whenever(resultSet.metaData).thenReturn(resultSetMetaData)
+    fun setup() {
+        handle = dbRule.sharedHandle
+        handle.execute("CREATE TABLE the_things(id integer, first text)")
+        handle.execute("CREATE TABLE the_other_things(id integer, other text)")
     }
 
-    @Test fun testDataClassWithOnlyPrimaryConstructor() {
+    data class DataClassWithOnlyPrimaryConstructor(val id: Int, val first: String)
 
-        val mapper = KotlinMapper(DataClassWithOnlyPrimaryConstructor::class.java)
-        mockColumns("id", "name")
+    @Test
+    fun testDataClassWithOnlyPrimaryConstructor() {
+        val expected = DataClassWithOnlyPrimaryConstructor(1, "does this work?")
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bindBean(expected)
+                .execute()
 
-        val thing = mapper.map(resultSet, ctx)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<DataClassWithOnlyPrimaryConstructor>()
+                .single()
 
-        assertThat(thing).isEqualToComparingFieldByField(DataClassWithOnlyPrimaryConstructor(1, "one"))
-
+        assertThat(result).isEqualTo(expected)
     }
 
-    @Test fun shouldUseSecondOccurrenceOfColumnWhenMultipleColumnsWithSameNameArePresent() {
+    data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("first") val n: String)
 
-        val mapper = KotlinMapper(DataClassWithOnlyPrimaryConstructor::class.java)
-        mockColumns("id", "name", "name")
+    @Test
+    fun testDataClassWithAnnotatedParameter() {
+        val expected = DataClassWithAnnotatedParameter(1, "does this work?")
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.getString(3)).thenReturn("two")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bind("id", expected.id)
+                .bind("first", expected.n)
+                .execute()
 
-        val thing = mapper.map(resultSet, ctx)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<DataClassWithAnnotatedParameter>()
+                .single()
 
-        assertThat(thing).isEqualToComparingFieldByField(DataClassWithOnlyPrimaryConstructor(1, "two"))
-
+        assertThat(result).isEqualTo(expected)
     }
 
-    private data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("name") val n: String)
+    class ClassWithOnlyPrimaryConstructor(val id: Int, val first: String)
 
-    @Test fun testDataClassWithAnnotatedParameter() {
+    @Test
+    fun testClassWithOnlyPrimaryConstructor() {
+        val expected = ClassWithOnlyPrimaryConstructor(1, "does this work?")
 
-        val mapper = KotlinMapper(DataClassWithAnnotatedParameter::class.java)
-        mockColumns("id", "name")
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bindBean(expected)
+                .execute()
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<ClassWithOnlyPrimaryConstructor>()
+                .single()
 
-        val thing = mapper.map(resultSet, ctx)
-
-        assertThat(thing).isEqualToComparingFieldByField(DataClassWithAnnotatedParameter(1, "one"))
-
+        assertThat(result)
+                .extracting("id", "first")
+                .containsExactly(expected.id, expected.first)
     }
 
-
-    private class ClassWithOnlyPrimaryConstructor(val id: Int, val name: String)
-
-    @Test fun testClassWithOnlyPrimaryConstructor() {
-
-        val mapper = KotlinMapper(ClassWithOnlyPrimaryConstructor::class.java)
-        mockColumns("id", "name")
-
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.wasNull()).thenReturn(false)
-
-        val thing = mapper.map(resultSet, ctx)
-
-        assertThat(thing).isEqualToComparingFieldByField(ClassWithOnlyPrimaryConstructor(1, "one"))
-
-    }
-
-
-    private class ClassWithOnlySecondaryConstructor {
+    class ClassWithOnlySecondaryConstructor {
         val id: Int
-        val name: String
+        val first: String
 
-        constructor(id: Int, name: String) {
+        constructor(id: Int, first: String) {
             this.id = id
-            this.name = name
+            this.first = first
         }
     }
 
-    @Test fun testClassWithOnlySecondaryConstructor() {
+    @Test
+    fun testClassWithOnlySecondaryConstructor() {
+        val expected = ClassWithOnlySecondaryConstructor(1, "does this work?")
 
-        val mapper = KotlinMapper(ClassWithOnlySecondaryConstructor::class.java)
-        mockColumns("id", "name")
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bindBean(expected)
+                .execute()
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<ClassWithOnlySecondaryConstructor>()
+                .single()
 
-        val thing = mapper.map(resultSet, ctx)
-
-        assertThat(thing).isEqualToComparingFieldByField(ClassWithOnlySecondaryConstructor(1, "one"))
-
+        assertThat(result)
+                .extracting("id", "first")
+                .containsExactly(expected.id, expected.first)
     }
 
-    private class ClassWithWritableProperty(val id: Int, val name: String) {
-        var foo: String = "foo"
+    class ClassWithWritableProperty(val id: Int) {
+        lateinit var first: String
     }
 
-    @Test fun testClassWithWritableProperty() {
+    @Test
+    fun testClassWithWritableProperty() {
+        val expected = ClassWithWritableProperty(1)
+        expected.first = "does this work?"
 
-        val mapper = KotlinMapper(ClassWithWritableProperty::class.java)
-        mockColumns("id", "name", "foo")
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bindBean(expected)
+                .execute()
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.getString(3)).thenReturn("bar")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<ClassWithWritableProperty>()
+                .single()
 
-        val thing = mapper.map(resultSet, ctx)
-
-        assertThat(thing).isEqualToComparingFieldByField(ClassWithWritableProperty(1, "one").apply { foo = "bar" })
-
+        assertThat(result)
+                .extracting("id", "first")
+                .containsExactly(expected.id, expected.first)
     }
 
-    private class ClassWithAnnotatedWritableProperty(val id: Int, val name: String) {
-        @ColumnName("description")
-        var foo: String = "foo"
+    class ClassWithAnnotatedWritableProperty(val id: Int) {
+        @ColumnName("first")
+        lateinit var foo: String
     }
 
-    @Test fun testClassWithAnnotatedWritableProperty() {
+    @Test
+    fun testClassWithAnnotatedWritableProperty() {
+        val expected = ClassWithAnnotatedWritableProperty(1)
+        expected.foo = "does this work?"
 
-        val mapper = KotlinMapper(ClassWithAnnotatedWritableProperty::class.java)
-        mockColumns("id", "name", "description")
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+                .bind("id", expected.id)
+                .bind("first", expected.foo)
+                .execute()
 
-        whenever(resultSet.getInt(1)).thenReturn(1)
-        whenever(resultSet.getString(2)).thenReturn("one")
-        whenever(resultSet.getString(3)).thenReturn("bar")
-        whenever(resultSet.wasNull()).thenReturn(false)
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<ClassWithAnnotatedWritableProperty>()
+                .single()
 
-        val thing = mapper.map(resultSet, ctx)
-
-        assertThat(thing).isEqualToComparingFieldByField(ClassWithAnnotatedWritableProperty(1, "one").apply { foo = "bar" })
-
+        assertThat(result)
+                .extracting("id", "foo")
+                .containsExactly(expected.id, expected.foo)
     }
 
-    private fun mockColumns(vararg columns: String) {
-        whenever(resultSetMetaData.columnCount).thenReturn(columns.size)
-        for (i in columns.indices) {
-            whenever(resultSetMetaData.getColumnLabel(i + 1)).thenReturn(columns[i])
-            whenever(resultSet.findColumn(columns[i])).thenReturn(i + 1)
+    private data class TheNestedDataClass(val other: String)
+    private data class TheDataClass(val first: String, @Nested("nested_") val nested: TheNestedDataClass)
+
+    @Test
+    fun testDataClassWithNestedConstructorParameter() {
+        val expected = TheDataClass("something", TheNestedDataClass("something else"))
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
+                .bind("value", expected.first)
+                .execute()
+        handle.createUpdate("INSERT INTO the_other_things(id, other) VALUES(1, :other)")
+                .bind("other", expected.nested.other)
+                .execute()
+
+        val result = handle
+                .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
+                .mapTo<TheDataClass>()
+                .single()
+
+        assertThat(result).isEqualTo(expected)
+    }
+
+    private class TheNestedClass() {
+        lateinit var other: String
+
+        constructor(other: String) : this() {
+            this.other = other
         }
     }
 
+    private class TheClass() {
+        @Nested("nested_")
+        lateinit var nested: TheNestedClass
+        lateinit var first: String
+
+        constructor(first: String, nested: TheNestedClass) : this() {
+            this.first = first
+            this.nested = nested
+        }
+    }
+
+    @Test
+    fun testClassWithNestedMemberProperty() {
+        val expected = TheClass("something", TheNestedClass("something else"))
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
+                .bind("value", expected.first)
+                .execute()
+        handle.createUpdate("INSERT INTO the_other_things(id, other) VALUES(1, :other)")
+                .bind("other", expected.nested.other)
+                .execute()
+
+        val result = handle
+                .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
+                .mapTo<TheClass>()
+                .single()
+
+        assertThat(result)
+                .extracting("first", "nested.other")
+                .containsExactly(expected.first, expected.nested.other)
+    }
+
+    class TestSkipMemberIfSetViaConstructor(@ColumnName("first") foo: String) {
+        val fromCtor = foo
+        var first: String by Delegates.observable("NOT_SET") { _: KProperty<*>, _: String, _: String ->
+            throw UnsupportedOperationException("Should not be called")
+        }
+    }
+
+    @Test
+    fun testSkipMemberIfSetViaConstructor() {
+        val expected = "it works!"
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
+                .bind("value", expected)
+                .execute()
+
+        val result = handle.createQuery("SELECT first FROM the_things")
+                .mapTo<TestSkipMemberIfSetViaConstructor>()
+                .first()
+
+        assertThat(result.fromCtor).isEqualTo(expected)
+    }
 }

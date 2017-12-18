@@ -49,16 +49,6 @@ class KotlinPluginTest {
 
     }
 
-    @Test fun mapperShouldUseSecondColumnIfMultipleColumnsReturnedByResultSet() {
-
-        //finds records where name contains a given string, highlight matched substring using markdown syntax
-        val qry = db.sharedHandle.createQuery("select *, REGEXP_REPLACE(name, '(' || :match || ')', '*\$1*') as name from something where name  regexp :match")
-        val things: List<Thing> = qry.bind("match", "ria").mapTo<Thing>().list()
-        assertEquals(1, things.size)
-        assertEquals("B*ria*n", things.first().name)
-
-    }
-
     @Test fun testFindByIdWithNulls() {
 
         val qry = db.sharedHandle.createQuery(
