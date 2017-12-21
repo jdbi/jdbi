@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.spring4;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Utility for working with Jdbi and Spring transaction bound resources
@@ -85,6 +85,7 @@ public class JdbiUtil
         @Override
         public void beforeCompletion()
         {
+            handle.close();
             TRANSACTIONAL_HANDLES.remove(handle);
             TransactionSynchronizationManager.unbindResource(db);
         }

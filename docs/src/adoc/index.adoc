@@ -3589,7 +3589,9 @@ public interface UserDao {
 === Spring
 
 This module provides `JdbiFactoryBean`, a factory bean which sets up a `Jdbi`
-singleton.
+singleton. Furthermore a `JdbiOperations` interface is provided together with
+a `JdbiTemplate` class following Spring's `*Operations` <- `*Template` pattern.
+The latter is the prefered way to set up Jdbi in Java config as seen below.
 
 To use this module, add a Maven dependency:
 
@@ -3707,6 +3709,33 @@ Global defined attributes may be configured on the factory bean:
   </property>
 </bean>
 ----
+
+==== Java Config
+
+If you want a fast setup similar to Spring's JdbcTemplate you can use the following:
+
+[source,java]
+----
+@Configuration
+@EnableTransactionManagement
+public class Config {
+
+    ...
+
+    @Bean
+    public Jdbi jdbi(DataSource dataSource) {
+        return Jdbi.create(dataSource);
+    }
+
+    @Bean
+    public JdbiOperations jdbiOperations(Jdbi jdbi) {
+        return new JdbiTemplate(jdbi);
+    }
+}
+----
+
+Now `JdbiOperations` or `JdbiTemplate` can be injected and are ready to use
+with `@Transactional`.
 
 === StringTemplate 4
 
