@@ -85,9 +85,13 @@ public class JdbiUtil
         @Override
         public void beforeCompletion()
         {
-            handle.close();
             TRANSACTIONAL_HANDLES.remove(handle);
             TransactionSynchronizationManager.unbindResource(db);
+        }
+
+        @Override
+        public void afterCompletion(int status) {
+            handle.close();
         }
     }
 }
