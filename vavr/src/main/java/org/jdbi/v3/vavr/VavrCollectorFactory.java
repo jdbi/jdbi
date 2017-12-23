@@ -62,6 +62,8 @@ class VavrCollectorFactory implements CollectorFactory {
 
     {
         collectors = HashMap.ofEntries(
+                // Values
+                Tuple.of(Option.class, VavrCollectors.toOption()),
                 // Seqs
                 Tuple.of(Array.class, Array.collector()),
                 Tuple.of(Vector.class, Vector.collector()),

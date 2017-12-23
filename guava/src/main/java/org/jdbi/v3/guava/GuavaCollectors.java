@@ -31,6 +31,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.core.collector.OptionalCollectors;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -139,36 +140,13 @@ public class GuavaCollectors {
     /**
      * Returns a {@code Collector} that accumulates 0 or 1 input elements into Guava's {@code Optional<T>}.
      * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements
-     * are present in a stream.
+     * are present in a stream. Null elements are mapped to {@code Optional.absent()}.
      *
      * @param <T> the collected type
      * @return a {@code Collector} which collects 0 or 1 input elements into a Guava {@code Optional<T>}.
      */
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
-        return Collector.<T, GuavaOptionalBuilder<T>, Optional<T>>of(
-                GuavaOptionalBuilder::new,
-                GuavaOptionalBuilder::set,
-                (left, right) -> left.build().isPresent() ? left : right,
-                GuavaOptionalBuilder::build);
-    }
-
-    private static class GuavaOptionalBuilder<T> {
-
-        private Optional<T> optional = Optional.absent();
-
-        public void set(T value) {
-            if (optional.isPresent()) {
-                throw new IllegalStateException(
-                        String.format("Multiple values for Optional type: ['%s','%s',...]",
-                                optional.get(),
-                                value));
-            }
-            optional = Optional.of(value);
-        }
-
-        public Optional<T> build() {
-            return optional;
-        }
+        return OptionalCollectors.toOptional(Optional::absent, Optional::of);
     }
 
     /**
