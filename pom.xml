@@ -38,7 +38,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>9</java.version>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencyManagement>
@@ -46,7 +46,9 @@
             <dependency>
                 <groupId>io.spring.platform</groupId>
                 <artifactId>platform-bom</artifactId>
-                <version>Cairo-SNAPSHOT</version>
+                <version>Cairo-BUILD-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -67,8 +69,8 @@
                             <arg>-Xlint:-serial</arg>
                         </compilerArgs>
                         <showWarnings>true</showWarnings>
-                        <source>9</source>
-                        <target>9</target>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>

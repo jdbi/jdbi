@@ -11,9 +11,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="postgresql-r2dbc" target="9" />
+      <module name="postgresql-r2dbc" target="1.8" />
       <module name="r2dbc" target="1.5" />
-      <module name="r2dbc-api" target="9" />
+      <module name="r2dbc-api" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
