@@ -23,28 +23,32 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeBytes;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyData implements BackendMessage, FrontendMessage {
+public final class CancelRequest implements FrontendMessage {
 
-    private final ByteBuf data;
+    private static final int REQUEST_CODE = 80877102;
 
-    public CopyData(ByteBuf data) {
-        this.data = Objects.requireNonNull(data, "data must not be ");
+    private final int processId;
+
+    private final int secretKey;
+
+    public CancelRequest(int processId, int secretKey) {
+        this.processId = processId;
+        this.secretKey = secretKey;
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.readableBytes()));
+            ByteBuf out = allocator.ioBuffer(16);
 
-            writeByte(out, 'd');
             writeLengthPlaceholder(out);
-            writeBytes(out, this.data);
+            writeInt(out, REQUEST_CODE);
+            writeInt(out, this.processId);
+            writeInt(out, this.secretKey);
 
             return Mono.just(writeSize(out));
         });
@@ -58,28 +62,22 @@ public final class CopyData implements BackendMessage, FrontendMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CopyData copyData = (CopyData) o;
-        return Objects.equals(this.data, copyData.data);
-    }
-
-    public ByteBuf getData() {
-        return this.data;
+        CancelRequest that = (CancelRequest) o;
+        return this.processId == that.processId &&
+            this.secretKey == that.secretKey;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.data);
+        return Objects.hash(this.processId, this.secretKey);
     }
 
     @Override
     public String toString() {
-        return "CopyData{" +
-            "data=" + this.data +
+        return "CancelRequest{" +
+            "processId=" + this.processId +
+            ", secretKey=" + this.secretKey +
             '}';
-    }
-
-    static CopyData decode(ByteBuf in) {
-        return new CopyData(in.readRetainedSlice(in.readableBytes()));
     }
 
 }

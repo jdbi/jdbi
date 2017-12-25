@@ -21,31 +21,32 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyDone implements BackendMessage, FrontendMessage {
+public final class SSLRequest implements FrontendMessage {
 
-    public static final CopyDone INSTANCE = new CopyDone();
+    public static final SSLRequest INSTANCE = new SSLRequest();
 
-    private CopyDone() {
+    private static final int REQUEST_CODE = 80877103;
+
+    private SSLRequest() {
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
+        ByteBuf out = allocator.ioBuffer(8);
 
-        writeByte(out, 'c');
         writeLengthPlaceholder(out);
+        writeInt(out, REQUEST_CODE);
 
         return Mono.just(writeSize(out));
     }
 
     @Override
     public String toString() {
-        return "CopyDone{}";
+        return "SSLRequest{}";
     }
 
 }

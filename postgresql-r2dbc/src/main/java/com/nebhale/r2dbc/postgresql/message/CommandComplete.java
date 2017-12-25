@@ -26,13 +26,13 @@ public final class CommandComplete implements BackendMessage {
 
     private final Command command;
 
-    private final Integer objectId;
+    private final Integer rowId;
 
     private final int rows;
 
-    public CommandComplete(Command command, Integer objectId, int rows) {
+    public CommandComplete(Command command, Integer rowId, int rows) {
         this.command = Objects.requireNonNull(command, "command must not be null");
-        this.objectId = objectId;
+        this.rowId = rowId;
         this.rows = rows;
     }
 
@@ -45,7 +45,7 @@ public final class CommandComplete implements BackendMessage {
             return false;
         }
         CommandComplete that = (CommandComplete) o;
-        return this.objectId == that.objectId &&
+        return this.rowId == that.rowId &&
             this.rows == that.rows &&
             this.command == that.command;
     }
@@ -54,8 +54,8 @@ public final class CommandComplete implements BackendMessage {
         return this.command;
     }
 
-    public Integer getObjectId() {
-        return this.objectId;
+    public Integer getRowId() {
+        return this.rowId;
     }
 
     public int getRows() {
@@ -64,14 +64,14 @@ public final class CommandComplete implements BackendMessage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.command, this.objectId, this.rows);
+        return Objects.hash(this.command, this.rowId, this.rows);
     }
 
     @Override
     public String toString() {
         return "CommandComplete{" +
             "command=" + this.command +
-            ", objectId=" + this.objectId +
+            ", rowId=" + this.rowId +
             ", rows=" + this.rows +
             '}';
     }
@@ -80,10 +80,10 @@ public final class CommandComplete implements BackendMessage {
         String[] tokens = readCStringUTF8(in).split(" ");
 
         Command command = Command.valueOf(tokens[0]);
-        Integer objectId = Command.INSERT == command ? Integer.parseInt(tokens[1]) : null;
+        Integer rowId = Command.INSERT == command ? Integer.parseInt(tokens[1]) : null;
         int rows = Integer.parseInt(tokens[tokens.length - 1]);
 
-        return new CommandComplete(command, objectId, rows);
+        return new CommandComplete(command, rowId, rows);
     }
 
     public enum Command {
