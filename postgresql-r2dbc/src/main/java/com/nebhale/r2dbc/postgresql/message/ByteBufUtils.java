@@ -24,7 +24,7 @@ import static io.netty.util.CharsetUtil.UTF_8;
 
 final class ByteBufUtils {
 
-    static final int MESSAGE_OVERHEAD = 5;
+    static final int MESSAGE_OVERHEAD = 1 + 4;
 
     private static final int LENGTH_PLACEHOLDER = 0;
 
@@ -63,6 +63,12 @@ final class ByteBufUtils {
     static ByteBuf writeCStringUTF8(ByteBuf out, String s) {
         out.writeCharSequence(s, UTF_8);
         out.writeByte(TERMINAL);
+        return out;
+    }
+
+    static ByteBuf writeInt(ByteBuf out, int... values) {
+        Arrays.stream(values)
+            .forEach(out::writeInt);
         return out;
     }
 

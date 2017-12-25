@@ -21,30 +21,46 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Objects;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeBytes;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeCStringUTF8;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyData implements BackendMessage, FrontendMessage {
+public final class Parse implements FrontendMessage {
 
-    private final ByteBuf data;
+    public static final String UNNAMED_STATEMENT = "";
 
-    public CopyData(ByteBuf data) {
-        this.data = Objects.requireNonNull(data, "data must not be ");
+    public static final int UNSPECIFIED = 0;
+
+    private final String name;
+
+    private final List<Short> parameters;
+
+    private final String query;
+
+    public Parse(String name, List<Short> parameters, String query) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.parameters = Objects.requireNonNull(parameters, "parameters must not be null");
+        this.query = Objects.requireNonNull(query, "query must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.readableBytes()));
+            ByteBuf out = allocator.ioBuffer();
 
-            writeByte(out, 'd');
+            writeByte(out, 'P');
             writeLengthPlaceholder(out);
-            writeBytes(out, this.data);
+            writeCStringUTF8(out, this.name);
+            writeCStringUTF8(out, this.query);
+
+            writeShort(out, this.parameters.size());
+            this.parameters.forEach(parameter -> writeInt(out, parameter));
 
             return Mono.just(writeSize(out));
         });
@@ -58,28 +74,24 @@ public final class CopyData implements BackendMessage, FrontendMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CopyData copyData = (CopyData) o;
-        return Objects.equals(this.data, copyData.data);
-    }
-
-    public ByteBuf getData() {
-        return this.data;
+        Parse that = (Parse) o;
+        return Objects.equals(this.name, that.name) &&
+            Objects.equals(this.parameters, that.parameters) &&
+            Objects.equals(this.query, that.query);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.data);
+        return Objects.hash(this.name, this.parameters, this.query);
     }
 
     @Override
     public String toString() {
-        return "CopyData{" +
-            "data=" + this.data +
+        return "Parse{" +
+            "name='" + this.name + '\'' +
+            ", parameters=" + this.parameters +
+            ", query='" + this.query + '\'' +
             '}';
-    }
-
-    static CopyData decode(ByteBuf in) {
-        return new CopyData(in.readRetainedSlice(in.readableBytes()));
     }
 
 }

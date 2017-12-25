@@ -21,31 +21,56 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
+import java.util.Objects;
+
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeCStringUTF8;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyDone implements BackendMessage, FrontendMessage {
+public final class CopyFail implements FrontendMessage {
 
-    public static final CopyDone INSTANCE = new CopyDone();
+    private final String message;
 
-    private CopyDone() {
+    public CopyFail(String message) {
+        this.message = Objects.requireNonNull(message, "message must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
+        return Mono.defer(() -> {
+            ByteBuf out = allocator.ioBuffer();
 
-        writeByte(out, 'c');
-        writeLengthPlaceholder(out);
+            writeByte(out, 'f');
+            writeLengthPlaceholder(out);
+            writeCStringUTF8(out, this.message);
 
-        return Mono.just(writeSize(out));
+            return Mono.just(writeSize(out));
+        });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CopyFail that = (CopyFail) o;
+        return Objects.equals(this.message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.message);
     }
 
     @Override
     public String toString() {
-        return "CopyDone{}";
+        return "CopyFail{" +
+            "message='" + this.message + '\'' +
+            '}';
     }
 
 }

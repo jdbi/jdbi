@@ -21,31 +21,56 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
+import java.util.Objects;
+
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeCStringUTF8;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyDone implements BackendMessage, FrontendMessage {
+public final class Query implements FrontendMessage {
 
-    public static final CopyDone INSTANCE = new CopyDone();
+    private final String query;
 
-    private CopyDone() {
+    public Query(String query) {
+        this.query = Objects.requireNonNull(query, "query must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
+        return Mono.defer(() -> {
+            ByteBuf out = allocator.ioBuffer();
 
-        writeByte(out, 'c');
-        writeLengthPlaceholder(out);
+            writeByte(out, 'Q');
+            writeLengthPlaceholder(out);
+            writeCStringUTF8(out, this.query);
 
-        return Mono.just(writeSize(out));
+            return Mono.just(writeSize(out));
+        });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Query that = (Query) o;
+        return Objects.equals(this.query, that.query);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.query);
     }
 
     @Override
     public String toString() {
-        return "CopyDone{}";
+        return "Query{" +
+            "query='" + this.query + '\'' +
+            '}';
     }
 
 }

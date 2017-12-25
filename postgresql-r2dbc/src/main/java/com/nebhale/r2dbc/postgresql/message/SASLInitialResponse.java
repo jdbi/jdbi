@@ -23,28 +23,39 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeBytes;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeCStringUTF8;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyData implements BackendMessage, FrontendMessage {
+public final class SASLInitialResponse implements FrontendMessage {
 
-    private final ByteBuf data;
+    private final ByteBuf initialResponse;
 
-    public CopyData(ByteBuf data) {
-        this.data = Objects.requireNonNull(data, "data must not be ");
+    private final String name;
+
+    public SASLInitialResponse(ByteBuf initialResponse, String name) {
+        this.initialResponse = initialResponse;
+        this.name = Objects.requireNonNull(name, "name must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.readableBytes()));
+            ByteBuf out = allocator.ioBuffer();
 
-            writeByte(out, 'd');
+            writeByte(out, 'p');
             writeLengthPlaceholder(out);
-            writeBytes(out, this.data);
+            writeCStringUTF8(out, this.name);
+
+            if (this.initialResponse == null) {
+                writeInt(out, -1);
+            } else {
+                writeInt(out, this.initialResponse.readableBytes());
+                writeBytes(out, this.initialResponse);
+            }
 
             return Mono.just(writeSize(out));
         });
@@ -58,28 +69,22 @@ public final class CopyData implements BackendMessage, FrontendMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CopyData copyData = (CopyData) o;
-        return Objects.equals(this.data, copyData.data);
-    }
-
-    public ByteBuf getData() {
-        return this.data;
+        SASLInitialResponse that = (SASLInitialResponse) o;
+        return Objects.equals(this.initialResponse, that.initialResponse) &&
+            Objects.equals(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.data);
+        return Objects.hash(this.initialResponse, this.name);
     }
 
     @Override
     public String toString() {
-        return "CopyData{" +
-            "data=" + this.data +
+        return "SASLInitialResponse{" +
+            "initialResponse=" + initialResponse +
+            ", name='" + name + '\'' +
             '}';
-    }
-
-    static CopyData decode(ByteBuf in) {
-        return new CopyData(in.readRetainedSlice(in.readableBytes()));
     }
 
 }

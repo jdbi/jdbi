@@ -23,28 +23,33 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
-import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeBytes;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeCStringUTF8;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyData implements BackendMessage, FrontendMessage {
+public final class Close implements FrontendMessage {
 
-    private final ByteBuf data;
+    public static final String UNNAMED = "";
 
-    public CopyData(ByteBuf data) {
-        this.data = Objects.requireNonNull(data, "data must not be ");
+    private final String name;
+
+    private final ExecutionType type;
+
+    public Close(String name, ExecutionType type) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.type = Objects.requireNonNull(type, "type must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.readableBytes()));
+            ByteBuf out = allocator.ioBuffer();
 
-            writeByte(out, 'd');
+            writeByte(out, 'C');
             writeLengthPlaceholder(out);
-            writeBytes(out, this.data);
+            writeByte(out, this.type.getDiscriminator());
+            writeCStringUTF8(out, this.name);
 
             return Mono.just(writeSize(out));
         });
@@ -58,28 +63,22 @@ public final class CopyData implements BackendMessage, FrontendMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CopyData copyData = (CopyData) o;
-        return Objects.equals(this.data, copyData.data);
-    }
-
-    public ByteBuf getData() {
-        return this.data;
+        Close that = (Close) o;
+        return Objects.equals(this.name, that.name) &&
+            this.type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.data);
+        return Objects.hash(this.name, this.type);
     }
 
     @Override
     public String toString() {
-        return "CopyData{" +
-            "data=" + this.data +
+        return "Close{" +
+            "name='" + this.name + '\'' +
+            ", type=" + this.type +
             '}';
-    }
-
-    static CopyData decode(ByteBuf in) {
-        return new CopyData(in.readRetainedSlice(in.readableBytes()));
     }
 
 }

@@ -18,32 +18,32 @@ package com.nebhale.r2dbc.postgresql.message;
 
 import java.util.Arrays;
 
-public enum Format {
+public enum ExecutionType {
 
-    COPY((byte) 0),
-    BINARY((byte) 1);
+    PORTAL('P'),
+    STATEMENT('S');
 
-    private final byte discriminator;
+    private final char discriminator;
 
-    Format(byte discriminator) {
+    ExecutionType(char discriminator) {
         this.discriminator = discriminator;
     }
 
-    public byte getDiscriminator() {
+    public char getDiscriminator() {
         return this.discriminator;
     }
 
     @Override
     public String toString() {
-        return "Format{" +
+        return "ExecutionType{" +
             "discriminator=" + this.discriminator +
             "} " + super.toString();
     }
 
-    static Format valueOf(short s) {
+    static ExecutionType valueOf(byte b) {
         return Arrays.stream(values())
-            .filter(type -> type.discriminator == s)
+            .filter(type -> type.discriminator == b)
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("%d is not a valid format", s)));
+            .orElseThrow(() -> new IllegalArgumentException(String.format("%d is not a valid execution type", b)));
     }
 }

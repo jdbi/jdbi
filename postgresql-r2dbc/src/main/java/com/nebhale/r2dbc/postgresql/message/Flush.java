@@ -26,18 +26,18 @@ import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyDone implements BackendMessage, FrontendMessage {
+public final class Flush implements FrontendMessage {
 
-    public static final CopyDone INSTANCE = new CopyDone();
+    public static final Flush INSTANCE = new Flush();
 
-    private CopyDone() {
+    private Flush() {
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
         ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
 
-        writeByte(out, 'c');
+        writeByte(out, 'H');
         writeLengthPlaceholder(out);
 
         return Mono.just(writeSize(out));
@@ -45,7 +45,7 @@ public final class CopyDone implements BackendMessage, FrontendMessage {
 
     @Override
     public String toString() {
-        return "CopyDone{}";
+        return "Flush{}";
     }
 
 }

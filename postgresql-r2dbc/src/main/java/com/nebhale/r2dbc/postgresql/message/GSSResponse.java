@@ -21,31 +21,57 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.MESSAGE_OVERHEAD;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeByte;
+import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeBytes;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.ByteBufUtils.writeSize;
 
-public final class CopyDone implements BackendMessage, FrontendMessage {
+public final class GSSResponse implements FrontendMessage {
 
-    public static final CopyDone INSTANCE = new CopyDone();
+    private final ByteBuf data;
 
-    private CopyDone() {
+    public GSSResponse(ByteBuf data) {
+        this.data = Objects.requireNonNull(data);
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
+        return Mono.defer(() -> {
+            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + this.data.readableBytes());
 
-        writeByte(out, 'c');
-        writeLengthPlaceholder(out);
+            writeByte(out, 'p');
+            writeLengthPlaceholder(out);
+            writeBytes(out, this.data);
 
-        return Mono.just(writeSize(out));
+            return Mono.just(writeSize(out));
+        });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GSSResponse that = (GSSResponse) o;
+        return Objects.equals(this.data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.data);
     }
 
     @Override
     public String toString() {
-        return "CopyDone{}";
+        return "GSSResponse{" +
+            "data=" + this.data +
+            '}';
     }
 
 }
