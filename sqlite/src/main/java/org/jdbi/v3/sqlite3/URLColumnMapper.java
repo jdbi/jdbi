@@ -13,18 +13,26 @@
  */
 package org.jdbi.v3.sqlite3;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-/**
- * Jdbc plugin for SQLite
- */
-public class SQLitePlugin implements JdbiPlugin {
+public class URLColumnMapper implements ColumnMapper<URL> {
+
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(new URLArgumentFactory());
-        jdbi.registerColumnMapper(new URLColumnMapper());
+    public URL map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        URL url = null;
+
+        try {
+            url = URI.create(r.getString(columnNumber)).toURL();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 }
