@@ -37,7 +37,7 @@ public class TestUrls {
         handle = jdbi.open();
         handle.useTransaction(handle -> {
             handle.execute("DROP TABLE IF EXISTS foo");
-            handle.execute("CREATE TABLE foo(url TEXT);");
+            handle.execute("CREATE TABLE foo(url URL);");
         });
     }
 
@@ -60,7 +60,7 @@ public class TestUrls {
                 .bind("url", googleUrl)
                 .execute();
 
-        Assertions.assertThat(handle.createQuery("SELECT * FROM foo").mapTo(String.class).findOnly()).isEqualTo(goolgeString);
+        Assertions.assertThat(handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly()).isEqualTo(googleUrl);
     }
 
 }
