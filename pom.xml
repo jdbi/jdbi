@@ -468,5 +468,6 @@
         <module>bom</module>
         <module>noparameters</module>
         <module>vavr</module>
+        <module>sqlite</module>
     </modules>
 </project>
