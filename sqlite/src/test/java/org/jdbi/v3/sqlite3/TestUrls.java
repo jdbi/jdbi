@@ -48,8 +48,7 @@ public class TestUrls {
     @Test
     public void testInsertUrlSuccessful() throws MalformedURLException {
         String goolgeString = "http://www.google.com";
-        URL googleUrl = null;
-        googleUrl = URI.create(goolgeString).toURL();
+        URL googleUrl = new URL(goolgeString);
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
                 .bind("url", googleUrl)
