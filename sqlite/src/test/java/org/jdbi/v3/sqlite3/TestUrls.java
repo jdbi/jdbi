@@ -36,7 +36,6 @@ public class TestUrls {
         jdbi.installPlugin(new SQLitePlugin());
         handle = jdbi.open();
         handle.useTransaction(handle -> {
-            handle.execute("DROP TABLE IF EXISTS foo");
             handle.execute("CREATE TABLE foo(url URL);");
         });
     }
@@ -47,14 +46,10 @@ public class TestUrls {
     }
 
     @Test
-    public void testInsertUrlSuccessful() {
+    public void testInsertUrlSuccessful() throws MalformedURLException {
         String goolgeString = "http://www.google.com";
         URL googleUrl = null;
-        try {
-            googleUrl = URI.create(goolgeString).toURL();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        googleUrl = URI.create(goolgeString).toURL();
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
                 .bind("url", googleUrl)
