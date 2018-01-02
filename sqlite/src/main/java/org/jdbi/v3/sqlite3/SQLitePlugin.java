@@ -19,7 +19,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 import java.net.URL;
 
 /**
- * Jdbc plugin for SQLite
+ * Jdbi plugin for SQLite.
  */
 public class SQLitePlugin implements JdbiPlugin {
     @Override
