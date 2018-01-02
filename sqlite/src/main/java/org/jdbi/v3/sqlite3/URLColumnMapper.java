@@ -22,7 +22,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class URLColumnMapper implements ColumnMapper<URL> {
+class URLColumnMapper implements ColumnMapper<URL> {
 
     @Override
     public URL map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {

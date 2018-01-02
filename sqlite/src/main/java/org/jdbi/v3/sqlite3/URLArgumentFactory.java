@@ -25,7 +25,7 @@ import java.sql.Types;
 /**
  * Build URL objects as strings.
  */
-public class URLArgumentFactory extends AbstractArgumentFactory<URL> {
+class URLArgumentFactory extends AbstractArgumentFactory<URL> {
     /**
      * Constructs an {@link ArgumentFactory} for type {@code URL}.
      */
