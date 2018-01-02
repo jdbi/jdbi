@@ -31,7 +31,7 @@ public class URLColumnMapper implements ColumnMapper<URL> {
         try {
             url = URI.create(r.getString(columnNumber)).toURL();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new SQLException(e);
         }
         return url;
     }
