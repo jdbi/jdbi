@@ -35,9 +35,7 @@ public class TestUrls {
         Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
         jdbi.installPlugin(new SQLitePlugin());
         handle = jdbi.open();
-        handle.useTransaction(handle -> {
-            handle.execute("CREATE TABLE foo(url URL);");
-        });
+        handle.useTransaction(handle -> handle.execute("CREATE TABLE foo(url URL);"));
     }
 
     @After
@@ -54,7 +52,8 @@ public class TestUrls {
                 .bind("url", googleUrl)
                 .execute();
 
-        Assertions.assertThat(handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly()).isEqualTo(googleUrl);
+        URL actualUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly();
+        Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
     }
 
 }
