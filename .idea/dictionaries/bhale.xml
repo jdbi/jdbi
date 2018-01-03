@@ -1,7 +1,9 @@
 <component name="ProjectDictionaryState">
   <dictionary name="bhale">
     <words>
+      <w>gssapi</w>
       <w>kerberos</w>
+      <w>postgre</w>
       <w>sasl</w>
       <w>scmc</w>
     </words>

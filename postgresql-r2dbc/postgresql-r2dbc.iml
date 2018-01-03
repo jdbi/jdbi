@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="ExternalSystem" externalSystem="Maven" />
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
       <configuration />
@@ -32,6 +33,7 @@
     <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.17.Final" level="project" />
     <orderEntry type="library" name="Maven: io.projectreactor:reactor-core:3.1.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.projectreactor:reactor-test:3.1.2.RELEASE" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-test:2.0.0.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter:2.0.0.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot:2.0.0.BUILD-SNAPSHOT" level="project" />

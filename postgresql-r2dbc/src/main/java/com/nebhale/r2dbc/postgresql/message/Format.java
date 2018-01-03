@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,25 @@
 
 package com.nebhale.r2dbc.postgresql.message;
 
+import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
+import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
+
 import java.util.Arrays;
 
+/**
+ * An enumeration of argument formats as used by {@link BackendMessage}s and {@link FrontendMessage}s.
+ */
 public enum Format {
 
-    COPY((byte) 0),
-    BINARY((byte) 1);
+    /**
+     * The binary data format, represented by the {@code 1} byte.
+     */
+    BINARY((byte) 1),
+
+    /**
+     * The text data format, represented by the {@code 0} byte.
+     */
+    TEXT((byte) 0);
 
     private final byte discriminator;
 
@@ -29,6 +42,24 @@ public enum Format {
         this.discriminator = discriminator;
     }
 
+    /**
+     * Returns the enum constant of this type with the specified discriminator.
+     *
+     * @param s the discriminator
+     * @return the enum constant of this type with the specified discriminator
+     */
+    public static Format valueOf(short s) {
+        return Arrays.stream(values())
+            .filter(type -> type.discriminator == s)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(String.format("%d is not a valid format", s)));
+    }
+
+    /**
+     * Returns the discriminator for the format.
+     *
+     * @return the discriminator for the format
+     */
     public byte getDiscriminator() {
         return this.discriminator;
     }
@@ -40,10 +71,4 @@ public enum Format {
             "} " + super.toString();
     }
 
-    static Format valueOf(short s) {
-        return Arrays.stream(values())
-            .filter(type -> type.discriminator == s)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("%d is not a valid format", s)));
-    }
 }
