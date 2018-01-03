@@ -17,6 +17,7 @@ import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.sqlite3.SQLitePlugin;
 import org.junit.After;
 import org.junit.Before;
@@ -52,8 +53,29 @@ public class TestUrls {
                 .bind("url", googleUrl)
                 .execute();
 
-        URL actualUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly();
+        URL actualUrl = handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
         Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
+    }
+
+    @Test(expected = ResultSetException.class)
+    public void testMapNullUrlThrowsException() {
+        handle.createUpdate("INSERT INTO foo VALUES (:url)")
+                .bind("url", ((URL) null))
+                .execute();
+
+        handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
+    }
+
+    @Test
+    public void testInserUrlUsingBindByType() throws MalformedURLException {
+        URL githubUrl = new URL("http://www.github.com");
+
+        handle.createUpdate("INSERT INTO foo VALUES (:url)")
+                .bindByType("url", githubUrl, URL.class)
+                .execute();
+
+        URL dbUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly();
+        Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
     }
 
 }
