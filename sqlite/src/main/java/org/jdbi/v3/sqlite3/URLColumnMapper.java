@@ -26,13 +26,10 @@ class URLColumnMapper implements ColumnMapper<URL> {
 
     @Override
     public URL map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        URL url = null;
-
         try {
-            url = new URL(r.getString(columnNumber));
+            return new URL(r.getString(columnNumber));
         } catch (MalformedURLException e) {
             throw new SQLException(e);
         }
-        return url;
     }
 }
