@@ -78,4 +78,13 @@ public class TestUrls {
         Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
     }
 
+    @Test(expected = ResultSetException.class)
+    public void testInsertNullUrlUsingBindByType() {
+        handle.createUpdate("INSERT INTO foo VALUES (:url)")
+                .bindByType("url", null, URL.class)
+                .execute();
+
+        handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
+    }
+
 }
