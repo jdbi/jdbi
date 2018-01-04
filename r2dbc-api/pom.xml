@@ -40,6 +40,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
