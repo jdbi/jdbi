@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2017-2017 the original author or authors.
+  ~ Copyright 2017-2018 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@
         </encoder>
     </appender>
 
-    <logger name="reactor.ipc.netty" level="DEBUG"/>
+    <logger name="reactor.ipc.netty" level="INFO"/>
     <logger name="stream"            level="INFO"/>
+    <logger name="test"              level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
