@@ -46,7 +46,7 @@ public final class Close implements FrontendMessage {
      * Creates a new message.
      *
      * @param name the name of the prepared statement or portal to close (an empty string selects the unnamed prepared statement or portal)
-     * @param type the typ to close
+     * @param type the type to close
      * @throws NullPointerException if {@code name} or {@code type} is {@code null}
      * @see #UNNAMED
      */

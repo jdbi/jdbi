@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
-import static com.nebhale.r2dbc.postgresql.message.backend.CommandComplete.Command.COPY;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.CODE;
 import static com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery.TransactionStatus.IDLE;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -149,7 +148,7 @@ public final class DefaultBackendMessageDecoderTest {
 
             return buffer;
         })
-            .expectNext(new CommandComplete(COPY, null, 100))
+            .expectNext(new CommandComplete("COPY", null, 100))
             .verifyComplete();
     }
 

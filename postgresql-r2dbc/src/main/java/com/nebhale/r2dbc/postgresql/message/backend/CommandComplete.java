@@ -28,11 +28,13 @@ import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.r
  */
 public final class CommandComplete implements BackendMessage {
 
-    private final Command command;
+    private static final String INSERT_COMMAND = "INSERT";
+
+    private final String command;
 
     private final Integer rowId;
 
-    private final int rows;
+    private final Integer rows;
 
     /**
      * Creates a new message.
@@ -42,7 +44,7 @@ public final class CommandComplete implements BackendMessage {
      * @param rows    the number of rows affected by the command
      * @throws NullPointerException if {@code command} is {@code null}
      */
-    public CommandComplete(Command command, Integer rowId, int rows) {
+    public CommandComplete(String command, Integer rowId, Integer rows) {
         this.command = Objects.requireNonNull(command, "command must not be null");
         this.rowId = rowId;
         this.rows = rows;
@@ -57,9 +59,9 @@ public final class CommandComplete implements BackendMessage {
             return false;
         }
         CommandComplete that = (CommandComplete) o;
-        return this.rows == that.rows &&
-            this.command == that.command &&
-            Objects.equals(this.rowId, that.rowId);
+        return Objects.equals(this.command, that.command) &&
+            Objects.equals(this.rowId, that.rowId) &&
+            Objects.equals(this.rows, that.rows);
     }
 
     /**
@@ -67,7 +69,7 @@ public final class CommandComplete implements BackendMessage {
      *
      * @return the command that was completed
      */
-    public Command getCommand() {
+    public String getCommand() {
         return this.command;
     }
 
@@ -85,7 +87,7 @@ public final class CommandComplete implements BackendMessage {
      *
      * @return the number of rows affected by the command
      */
-    public int getRows() {
+    public Integer getRows() {
         return this.rows;
     }
 
@@ -108,58 +110,11 @@ public final class CommandComplete implements BackendMessage {
 
         String[] tokens = readCStringUTF8(in).split(" ");
 
-        Command command = Command.valueOf(tokens[0]);
-        Integer rowId = Command.INSERT == command ? Integer.parseInt(tokens[1]) : null;
-        int rows = Integer.parseInt(tokens[tokens.length - 1]);
+        String command = tokens[0];
+        Integer rowId = INSERT_COMMAND.equalsIgnoreCase(command) ? Integer.parseInt(tokens[1]) : null;
+        Integer rows = tokens.length > 1 ? Integer.parseInt(tokens[tokens.length - 1]) : null;
 
         return new CommandComplete(command, rowId, rows);
-    }
-
-    /**
-     * An enumeration of the commands that can be executed.
-     */
-    public enum Command {
-
-        /**
-         * The {@code COPY} command.
-         */
-        COPY,
-
-        /**
-         * The {@code DELETE} command.
-         */
-        DELETE,
-
-        /**
-         * The {@code FETCH} command.
-         */
-        FETCH,
-
-        /**
-         * The {@code INSERT} command.
-         */
-        INSERT,
-
-        /**
-         * The {@code MOVE} command.
-         */
-        MOVE,
-
-        /**
-         * The {@code SELECT} command.
-         */
-        SELECT,
-
-        /**
-         * The {@code UPDATE} command.
-         */
-        UPDATE;
-
-        @Override
-        public String toString() {
-            return "Command{} " + super.toString();
-        }
-
     }
 
 }

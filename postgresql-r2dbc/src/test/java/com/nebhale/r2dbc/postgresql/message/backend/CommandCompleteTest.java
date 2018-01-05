@@ -19,8 +19,6 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageAssert.assertThat;
-import static com.nebhale.r2dbc.postgresql.message.backend.CommandComplete.Command.COPY;
-import static com.nebhale.r2dbc.postgresql.message.backend.CommandComplete.Command.INSERT;
 import static io.netty.util.CharsetUtil.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -41,7 +39,7 @@ public final class CommandCompleteTest {
 
                 return buffer;
             })
-            .isEqualTo(new CommandComplete(COPY, null, 100));
+            .isEqualTo(new CommandComplete("COPY", null, 100));
     }
 
     @Test
@@ -53,7 +51,7 @@ public final class CommandCompleteTest {
 
                 return buffer;
             })
-            .isEqualTo(new CommandComplete(INSERT, 100, 200));
+            .isEqualTo(new CommandComplete("INSERT", 100, 200));
     }
 
 }

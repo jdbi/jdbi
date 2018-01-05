@@ -17,18 +17,20 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Connection;
-import com.nebhale.r2dbc.Row;
 import com.nebhale.r2dbc.postgresql.framing.Client;
 import com.nebhale.r2dbc.postgresql.framing.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
-final class PostgresqlConnection implements Connection {
+final class PostgresqlConnection implements Connection<PostgresqlConnection, PostgresqlRow> {
 
     private final Client client;
 
@@ -46,8 +48,20 @@ final class PostgresqlConnection implements Connection {
     }
 
     @Override
+    public Mono<Void> begin() {
+        return SimpleQueryMessageFlow.exchange(this.client, "BEGIN")
+            .then();
+    }
+
+    @Override
     public void close() {
         this.client.close();
+    }
+
+    @Override
+    public Mono<Void> commit() {
+        return SimpleQueryMessageFlow.exchange(this.client, "COMMIT")
+            .then();
     }
 
     @Override
@@ -76,7 +90,7 @@ final class PostgresqlConnection implements Connection {
      * @throws NullPointerException if {@code query} is {@code null}
      */
     @Override
-    public Publisher<Publisher<Row>> query(String query) {
+    public Flux<Flux<PostgresqlRow>> query(String query) {
         Objects.requireNonNull(query, "query must not be null");
 
         return SimpleQueryMessageFlow.exchange(this.client, query)
@@ -88,6 +102,12 @@ final class PostgresqlConnection implements Connection {
     }
 
     @Override
+    public Mono<Void> rollback() {
+        return SimpleQueryMessageFlow.exchange(this.client, "ROLLBACK")
+            .then();
+    }
+
+    @Override
     public String toString() {
         return "PostgresqlConnection{" +
             "client=" + this.client +
@@ -95,6 +115,14 @@ final class PostgresqlConnection implements Connection {
             ", processId=" + this.processId +
             ", secretKey=" + this.secretKey +
             '}';
+    }
+
+    @Override
+    public Mono<Void> withTransaction(Function<PostgresqlConnection, Publisher<Void>> transaction) {
+        return begin()
+            .thenEmpty(transaction.apply(this))
+            .thenEmpty(commit())
+            .onErrorResume(t -> rollback());
     }
 
     static Builder builder() {

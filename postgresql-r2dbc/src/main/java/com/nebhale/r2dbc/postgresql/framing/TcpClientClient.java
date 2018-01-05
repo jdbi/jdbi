@@ -69,13 +69,14 @@ public final class TcpClientClient implements Client {
             .start((inbound, outbound) -> {
                 inbound.receive()
                     .concatMap(decoder::decode)
-                    .doOnNext(message -> this.logger.debug("Message received: {}", message))
+                    .doOnNext(message -> this.logger.debug("Response: {}", message))
                     .filter(this::handleWarning)
                     .concatMap(this::handleError)
                     .windowWhile(this::isNotBoundary)
                     .subscribe(this.responseProcessor);
 
                 return this.requestProcessor
+                    .doOnNext(message -> this.logger.debug("Request:  {}", message))
                     .concatMap(message -> outbound.send(message.encode(outbound.alloc())));
             });
     }
@@ -100,8 +101,8 @@ public final class TcpClientClient implements Client {
                 .subscribe(this.requests::next, this.requests::error);
 
             return this.responses
-                .take(1)
-                .concatMap(Function.identity());
+                .next()
+                .flatMapMany(Function.identity());
         });
     }
 
