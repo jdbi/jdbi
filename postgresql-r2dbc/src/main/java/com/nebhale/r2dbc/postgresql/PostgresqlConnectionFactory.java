@@ -16,7 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Connection;
 import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.framing.Client;
 import com.nebhale.r2dbc.postgresql.framing.StartupMessageFlow;
@@ -24,7 +23,7 @@ import com.nebhale.r2dbc.postgresql.framing.TcpClientClient;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
-import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
@@ -46,7 +45,7 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
     }
 
     @Override
-    public Publisher<? extends Connection> create() {
+    public Mono<PostgresqlConnection> create() {
         Client client = new TcpClientClient(this.configuration.getHost(), this.configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE);
 
         return StartupMessageFlow.exchange(this.configuration.getApplicationName(), client, this.configuration.getDatabase(), this.configuration.getPassword(), this.configuration.getUsername())

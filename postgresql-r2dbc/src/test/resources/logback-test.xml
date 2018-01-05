@@ -19,13 +19,14 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%date{HH:mm:ss.SSS} %-25thread %-37logger %msg%n</pattern>
+            <pattern>%date{HH:mm:ss.SSS} %-18thread %-53logger %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="reactor.ipc.netty" level="INFO"/>
-    <logger name="stream"            level="INFO"/>
-    <logger name="test"              level="INFO"/>
+    <logger name="com.nebhale.r2dbc.postgresql" level="DEBUG"/>
+    <logger name="reactor.ipc.netty"            level="WARN"/>
+    <logger name="stream"                       level="INFO"/>
+    <logger name="test"                         level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
