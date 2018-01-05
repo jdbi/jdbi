@@ -17,9 +17,8 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.ConnectionFactory;
-import com.nebhale.r2dbc.postgresql.framing.Client;
-import com.nebhale.r2dbc.postgresql.framing.StartupMessageFlow;
-import com.nebhale.r2dbc.postgresql.framing.TcpClientClient;
+import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
+import com.nebhale.r2dbc.postgresql.authentication.MD5PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
@@ -48,7 +47,8 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
     public Mono<PostgresqlConnection> create() {
         Client client = new TcpClientClient(this.configuration.getHost(), this.configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE);
 
-        return StartupMessageFlow.exchange(this.configuration.getApplicationName(), client, this.configuration.getDatabase(), this.configuration.getPassword(), this.configuration.getUsername())
+        return StartupMessageFlow
+            .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername())
             .reduceWith(PostgresqlConnection::builder, (builder, message) -> {
                 if (message instanceof ParameterStatus) {
                     ParameterStatus m = (ParameterStatus) message;
@@ -64,6 +64,10 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
             })
             .map(builder -> builder.client(client).build())
             .cache();
+    }
+
+    private AuthenticationHandler getAuthenticationHandler(PostgresqlConnectionConfiguration configuration) {
+        return new MD5PasswordAuthenticationHandler(configuration.getPassword(), configuration.getUsername());
     }
 
 }

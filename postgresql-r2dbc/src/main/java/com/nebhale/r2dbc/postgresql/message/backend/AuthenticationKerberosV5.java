@@ -19,7 +19,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 /**
  * The AuthenticationKerberosV5 message.
  */
-public final class AuthenticationKerberosV5 implements BackendMessage {
+public final class AuthenticationKerberosV5 implements AuthenticationMessage {
 
     /**
      * A static singleton instance that should always be used.

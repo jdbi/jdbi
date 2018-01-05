@@ -19,7 +19,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 /**
  * The AuthenticationGSS message.
  */
-public final class AuthenticationGSS implements BackendMessage {
+public final class AuthenticationGSS implements AuthenticationMessage {
 
     /**
      * A static singleton instance that should always be used.

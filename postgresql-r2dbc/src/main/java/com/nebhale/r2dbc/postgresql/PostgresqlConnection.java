@@ -17,8 +17,6 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Connection;
-import com.nebhale.r2dbc.postgresql.framing.Client;
-import com.nebhale.r2dbc.postgresql.framing.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import org.reactivestreams.Publisher;
@@ -49,7 +47,8 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
 
     @Override
     public Mono<Void> begin() {
-        return SimpleQueryMessageFlow.exchange(this.client, "BEGIN")
+        return SimpleQueryMessageFlow
+            .exchange(this.client, "BEGIN")
             .then();
     }
 
@@ -60,7 +59,8 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
 
     @Override
     public Mono<Void> commit() {
-        return SimpleQueryMessageFlow.exchange(this.client, "COMMIT")
+        return SimpleQueryMessageFlow
+            .exchange(this.client, "COMMIT")
             .then();
     }
 
@@ -93,7 +93,8 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
     public Flux<Flux<PostgresqlRow>> query(String query) {
         Objects.requireNonNull(query, "query must not be null");
 
-        return SimpleQueryMessageFlow.exchange(this.client, query)
+        return SimpleQueryMessageFlow
+            .exchange(this.client, query)
             .windowWhile(message -> !(message instanceof CommandComplete))
             .map(flux -> flux
                 .filter(DataRow.class::isInstance)
@@ -103,7 +104,8 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
 
     @Override
     public Mono<Void> rollback() {
-        return SimpleQueryMessageFlow.exchange(this.client, "ROLLBACK")
+        return SimpleQueryMessageFlow
+            .exchange(this.client, "ROLLBACK")
             .then();
     }
 

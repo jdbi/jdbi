@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql.message.backend;
+package com.nebhale.r2dbc.postgresql.authentication;
+
+import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
+import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 
 /**
- * The AuthenticationCleartextPassword message.
+ * An implementation of {@link AuthenticationHandler} that handles implicit trust authentication.
  */
-public final class AuthenticationCleartextPassword implements AuthenticationMessage {
+public final class TrustAuthenticationHandler implements AuthenticationHandler {
 
     /**
      * A static singleton instance that should always be used.
      */
+    public static final TrustAuthenticationHandler INSTANCE = new TrustAuthenticationHandler();
 
-    public static final AuthenticationCleartextPassword INSTANCE = new AuthenticationCleartextPassword();
-
-    private AuthenticationCleartextPassword() {
+    private TrustAuthenticationHandler() {
     }
 
     @Override
-    public String toString() {
-        return "AuthenticationCleartextPassword{}";
+    public FrontendMessage handle(AuthenticationMessage message) {
+        throw new IllegalArgumentException("Trust does not require a response");
     }
 
 }

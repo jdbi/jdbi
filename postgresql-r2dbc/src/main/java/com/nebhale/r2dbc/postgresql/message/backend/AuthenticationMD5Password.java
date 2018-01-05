@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * The AuthenticationMD5Password message.
  */
-public final class AuthenticationMD5Password implements BackendMessage {
+public final class AuthenticationMD5Password implements AuthenticationMessage {
 
     private final ByteBuf salt;
 

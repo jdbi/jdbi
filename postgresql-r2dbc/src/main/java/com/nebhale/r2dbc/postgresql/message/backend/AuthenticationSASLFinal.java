@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * The AuthenticationSASLFinal message.
  */
-public final class AuthenticationSASLFinal implements BackendMessage {
+public final class AuthenticationSASLFinal implements AuthenticationMessage {
 
     private final ByteBuf additionalData;
 
