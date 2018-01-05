@@ -17,22 +17,8 @@
 package com.nebhale.r2dbc.postgresql.message.backend;
 
 /**
- * The AuthenticationCleartextPassword message.
+ * A marker interface for messages that indicate that the message has to do with authentication.
  */
-public final class AuthenticationCleartextPassword implements AuthenticationMessage {
-
-    /**
-     * A static singleton instance that should always be used.
-     */
-
-    public static final AuthenticationCleartextPassword INSTANCE = new AuthenticationCleartextPassword();
-
-    private AuthenticationCleartextPassword() {
-    }
-
-    @Override
-    public String toString() {
-        return "AuthenticationCleartextPassword{}";
-    }
+public interface AuthenticationMessage extends BackendMessage {
 
 }

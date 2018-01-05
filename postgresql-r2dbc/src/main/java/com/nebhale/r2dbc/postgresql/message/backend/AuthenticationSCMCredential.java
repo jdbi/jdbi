@@ -19,7 +19,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 /**
  * The AuthenticationSCMCredential message.
  */
-public final class AuthenticationSCMCredential implements BackendMessage {
+public final class AuthenticationSCMCredential implements AuthenticationMessage {
 
     /**
      * A static singleton instance that should always be used.

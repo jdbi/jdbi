@@ -27,7 +27,7 @@ import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.r
 /**
  * The AuthenticationSASL message.
  */
-public final class AuthenticationSASL implements BackendMessage {
+public final class AuthenticationSASL implements AuthenticationMessage {
 
     private static final byte TERMINAL = 0;
 

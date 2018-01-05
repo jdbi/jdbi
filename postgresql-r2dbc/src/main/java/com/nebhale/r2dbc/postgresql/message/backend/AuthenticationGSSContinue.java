@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * The AuthenticationGSSContinue message.
  */
-public final class AuthenticationGSSContinue implements BackendMessage {
+public final class AuthenticationGSSContinue implements AuthenticationMessage {
 
     private final ByteBuf authenticationData;
 

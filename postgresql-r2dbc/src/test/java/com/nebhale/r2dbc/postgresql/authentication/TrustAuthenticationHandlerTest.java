@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql.framing;
+package com.nebhale.r2dbc.postgresql.authentication;
 
-import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
-import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
+import org.junit.Test;
 
-public interface Client {
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-    void close();
+public final class TrustAuthenticationHandlerTest {
 
-    Flux<BackendMessage> exchange(Publisher<FrontendMessage> publisher);
+    @Test
+    public void handle() {
+        assertThatIllegalArgumentException().isThrownBy(() -> TrustAuthenticationHandler.INSTANCE.handle(null))
+            .withMessage("Trust does not require a response");
+    }
 
 }

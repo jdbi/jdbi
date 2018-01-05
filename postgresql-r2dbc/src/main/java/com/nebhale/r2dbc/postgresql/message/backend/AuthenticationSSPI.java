@@ -19,7 +19,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 /**
  * The AuthenticationSSPI message.
  */
-public final class AuthenticationSSPI implements BackendMessage {
+public final class AuthenticationSSPI implements AuthenticationMessage {
 
     /**
      * A static singleton instance that should always be used.

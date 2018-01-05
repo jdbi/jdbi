@@ -15,7 +15,7 @@
  */
 
 /**
- * The framing that defines specific message exchanges between the frontend and backend.
+ * Handlers for the various styles of authentication.
  */
 
-package com.nebhale.r2dbc.postgresql.framing;
+package com.nebhale.r2dbc.postgresql.authentication;

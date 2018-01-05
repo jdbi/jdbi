@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql.framing;
+package com.nebhale.r2dbc.postgresql.authentication;
 
 import io.netty.buffer.ByteBuf;
 import reactor.core.Exceptions;

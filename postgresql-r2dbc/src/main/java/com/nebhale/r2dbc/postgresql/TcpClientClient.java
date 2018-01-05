@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql.framing;
+package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.postgresql.ServerErrorException;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
@@ -38,10 +37,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * An implementation of {@link Client} that wraps a {@link TcpClient}.  This implementation keeps a long lived connection and manages the messages sent and received across that connection.
- */
-public final class TcpClientClient implements Client {
+final class TcpClientClient implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,7 +57,7 @@ public final class TcpClientClient implements Client {
      * @param decoder the decoder to use to decode {@link BackendMessage}s
      * @throws NullPointerException if {@code host} or {@code decoder} is {@code null}
      */
-    public TcpClientClient(String host, int port, BackendMessageDecoder decoder) {
+    TcpClientClient(String host, int port, BackendMessageDecoder decoder) {
         Objects.requireNonNull(host, "host must not be null");
         Objects.requireNonNull(decoder, "decoder must not be null");
 
