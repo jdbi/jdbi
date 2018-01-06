@@ -17,8 +17,7 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Connection;
-import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
-import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
+import com.nebhale.r2dbc.Row;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,9 +27,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-final class PostgresqlConnection implements Connection<PostgresqlConnection, PostgresqlRow> {
+final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
 
     private final Client client;
+
+    private final PostgresqlOperations delegate;
 
     private final Map<String, String> parameters;
 
@@ -43,45 +44,19 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
         this.parameters = Objects.requireNonNull(parameters);
         this.processId = processId;
         this.secretKey = secretKey;
+        this.delegate = new PostgresqlOperations(this.client);
     }
 
     @Override
-    public Mono<Void> begin() {
+    public Mono<PostgresqlTransaction> begin() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "BEGIN")
-            .then();
+            .then(Mono.just(new PostgresqlTransaction(this.client)));
     }
 
     @Override
     public void close() {
         this.client.close();
-    }
-
-    @Override
-    public Mono<Void> commit() {
-        return SimpleQueryMessageFlow
-            .exchange(this.client, "COMMIT")
-            .then();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        PostgresqlConnection that = (PostgresqlConnection) o;
-        return this.processId == that.processId &&
-            this.secretKey == that.secretKey &&
-            Objects.equals(this.client, that.client) &&
-            Objects.equals(this.parameters, that.parameters);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.client, this.parameters, this.processId, this.secretKey);
     }
 
     /**
@@ -91,28 +66,14 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
      */
     @Override
     public Flux<Flux<PostgresqlRow>> query(String query) {
-        Objects.requireNonNull(query, "query must not be null");
-
-        return SimpleQueryMessageFlow
-            .exchange(this.client, query)
-            .windowWhile(message -> !(message instanceof CommandComplete))
-            .map(flux -> flux
-                .filter(DataRow.class::isInstance)
-                .ofType(DataRow.class)
-                .map(message -> new PostgresqlRow(message.getColumns())));
-    }
-
-    @Override
-    public Mono<Void> rollback() {
-        return SimpleQueryMessageFlow
-            .exchange(this.client, "ROLLBACK")
-            .then();
+        return this.delegate.query(query);
     }
 
     @Override
     public String toString() {
         return "PostgresqlConnection{" +
             "client=" + this.client +
+            ", delegate=" + this.delegate +
             ", parameters=" + this.parameters +
             ", processId=" + this.processId +
             ", secretKey=" + this.secretKey +
@@ -120,11 +81,12 @@ final class PostgresqlConnection implements Connection<PostgresqlConnection, Pos
     }
 
     @Override
-    public Mono<Void> withTransaction(Function<PostgresqlConnection, Publisher<Void>> transaction) {
+    public Mono<Void> withTransaction(Function<PostgresqlTransaction, Publisher<Void>> transaction) {
         return begin()
-            .thenEmpty(transaction.apply(this))
-            .thenEmpty(commit())
-            .onErrorResume(t -> rollback());
+            .flatMap(tx -> Flux
+                .from(transaction.apply(tx))
+                .thenEmpty(tx.commit())
+                .onErrorResume(t -> tx.rollback()));
     }
 
     static Builder builder() {

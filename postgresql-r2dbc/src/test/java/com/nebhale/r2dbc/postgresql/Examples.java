@@ -68,10 +68,11 @@ public class Examples {
         this.connectionFactory.create()
             .flatMapMany(connection ->
                 connection.begin()
-                    .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)"))
-                    .thenMany(connection.query("SELECT * FROM test_table")
-                        .concatMap(Examples::printValues))
-                    .thenMany(connection.rollback())
+                    .flatMap(transaction ->
+                        transaction.query("INSERT INTO test_table(id) VALUES(200)")
+                            .thenMany(connection.query("SELECT * FROM test_table")
+                                .concatMap(Examples::printValues))
+                            .thenEmpty(transaction.rollback()))
                     .thenMany(connection.query("SELECT * FROM test_table")
                         .concatMap(Examples::printValues))
                     .doOnComplete(connection::close))
