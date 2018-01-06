@@ -23,17 +23,16 @@ import java.util.function.Function;
 /**
  * A single connection to a database.
  *
- * @param <CONNECTION> the explicit type of connection
- * @param <ROW>        the explicit type of row
+ * @param <T> the concrete {@link Transaction} type
  */
-public interface Connection<CONNECTION extends Connection, ROW extends Row> {
+public interface Connection<T extends Transaction> extends Operations {
 
     /**
      * Begins a new transaction.
      *
      * @return a {@link Publisher} that indicates that the transaction is open
      */
-    Publisher<Void> begin();
+    Publisher<? extends Transaction> begin();
 
     /**
      * Release any resources held by the {@link Connection}.
@@ -41,37 +40,14 @@ public interface Connection<CONNECTION extends Connection, ROW extends Row> {
     void close();
 
     /**
-     * Commits the current transaction.
-     *
-     * @return a {@link Publisher} that indicates that a transaction has been committed
-     */
-    Publisher<Void> commit();
-
-    /**
-     * Execute a simple query against the database.  This method returns a {@link Publisher} of {@link Publisher}s because a query can have multiple commands (e.g. {@code SELECT * FROM table ;
-     * SELECT * FROM table}) and so the return value is partitioned as the rows returned for each command.
-     *
-     * @param query the query to execute
-     * @return the rows, if any, returned by each command in the query
-     */
-    Publisher<? extends Publisher<ROW>> query(String query);
-
-    /**
-     * Rolls back the current transaction.
-     *
-     * @return a {@link Publisher} that indicates that a transaction has been rolled back
-     */
-    Publisher<Void> rollback();
-
-    /**
      * Execute a flow within a transaction.  A successful completion of the flow results in commit and an error results in rollback.
      *
      * @param transaction the flow to execute within the transaction
      * @return a {@link Publisher} that indicates that a transaction has been rolled back
      * @see #begin()
-     * @see #commit()
-     * @see #rollback()
+     * @see Transaction#commit()
+     * @see Transaction#rollback()
      */
-    Publisher<Void> withTransaction(Function<CONNECTION, Publisher<Void>> transaction);
+    Publisher<Void> withTransaction(Function<T, Publisher<Void>> transaction);
 
 }
