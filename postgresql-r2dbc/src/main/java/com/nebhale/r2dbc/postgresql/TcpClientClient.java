@@ -29,13 +29,14 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.SynchronousSink;
 import reactor.ipc.netty.tcp.TcpClient;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.nebhale.r2dbc.postgresql.Util.not;
 
 final class TcpClientClient implements Client {
 
@@ -66,9 +67,7 @@ final class TcpClientClient implements Client {
                 inbound.receive()
                     .concatMap(decoder::decode)
                     .doOnNext(message -> this.logger.debug("Response: {}", message))
-                    .filter(this::handleWarning)
-                    .concatMap(this::handleError)
-                    .windowWhile(this::isNotBoundary)
+                    .windowWhile(not(ReadyForQuery.class::isInstance))
                     .subscribe(this.responseProcessor);
 
                 return this.requestProcessor
@@ -98,45 +97,28 @@ final class TcpClientClient implements Client {
 
             return this.responses
                 .next()
-                .flatMapMany(Function.identity());
+                .flatMapMany(flux -> flux
+                    .handle(this::handleWarningsAndErrors));
         });
     }
 
-    private Publisher<BackendMessage> handleError(BackendMessage message) {
-        if (!(message instanceof ErrorResponse)) {
-            return Mono.just(message);
-        }
-
-        ErrorResponse errorResponse = (ErrorResponse) message;
-        this.logger.error("Error: {}", toString(errorResponse.getFields()));
-
-        return Mono.error(new ServerErrorException(errorResponse.getFields()));
-    }
-
-    private boolean handleWarning(BackendMessage message) {
-        if (!(message instanceof NoticeResponse)) {
-            return true;
-        }
-
-        NoticeResponse noticeResponse = (NoticeResponse) message;
-        this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
-
-        return false;
-    }
-
-    private boolean isNotBoundary(BackendMessage message) {
-        if (!(message instanceof ReadyForQuery)) {
-            return true;
-        }
-
-        this.logger.debug("Frame boundary");
-        return false;
-    }
-
-    private String toString(List<Field> fields) {
+    private static String toString(List<Field> fields) {
         return fields.stream()
             .map(field -> String.format("%s=%s", field.getType().name(), field.getValue()))
             .collect(Collectors.joining(", "));
     }
 
+    private void handleWarningsAndErrors(BackendMessage message, SynchronousSink<BackendMessage> sink) {
+        if (message instanceof NoticeResponse) {
+            NoticeResponse noticeResponse = (NoticeResponse) message;
+            this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
+        } else if (message instanceof ErrorResponse) {
+            ErrorResponse errorResponse = (ErrorResponse) message;
+            this.logger.error("Error: {}", toString(errorResponse.getFields()));
+
+            sink.error(new ServerErrorException(errorResponse.getFields()));
+        } else {
+            sink.next(message);
+        }
+    }
 }
