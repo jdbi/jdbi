@@ -3947,6 +3947,33 @@ Bear in mind:
   `TupleMappers` must be configured properly i.e. all non row-mapped
   tuple indices must be provided with a column configuration!
 
+=== SQLite
+The *jdbi3-sqlite* plugin provides support for using the
+link:https://bitbucket.org/xerial/sqlite-jdbc/[SQLite JDBC Driver^]
+with Jdbi.
+
+The plugin configures mapping for the Java *URL* type which is not
+supported by driver.
+
+To use this plugin, first add a Maven dependency:
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-sqlite</artifactId>
+</dependency>
+----
+
+Then install the plugin into your `Jdbi` instance.
+
+[source,java,indent=0]
+----
+Jdbi jdbi = Jdbi.create("jdbc:sqlite:database")
+                .installPlugin(new SQLitePlugin());
+----
+
+
 
 == Advanced Topics
 

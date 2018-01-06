@@ -190,6 +190,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlite</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -468,5 +473,6 @@
         <module>bom</module>
         <module>noparameters</module>
         <module>vavr</module>
+        <module>sqlite</module>
     </modules>
 </project>
