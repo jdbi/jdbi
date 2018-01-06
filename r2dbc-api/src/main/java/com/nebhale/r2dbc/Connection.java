@@ -40,6 +40,22 @@ public interface Connection<T extends Transaction> extends Operations {
     void close();
 
     /**
+     * Configures the default isolation level for transactions created with this connection.
+     *
+     * @param isolationLevel the default isolation level for transactions created with this connection
+     * @return a {@link Publisher} that indicates that a transaction level has been configured
+     */
+    Publisher<Void> setIsolationLevel(IsolationLevel isolationLevel);
+
+    /**
+     * Configures the default mutability for transactions created with this connection.
+     *
+     * @param mutability the mutability for transactions created with this connection
+     * @return a {@link Publisher} that indicates that mutability has been configured
+     */
+    Publisher<Void> setMutability(Mutability mutability);
+
+    /**
      * Execute a flow within a transaction.  A successful completion of the flow results in commit and an error results in rollback.
      *
      * @param transaction the flow to execute within the transaction

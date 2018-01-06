@@ -23,8 +23,8 @@
         </encoder>
     </appender>
 
-    <logger name="com.nebhale.r2dbc.postgresql" level="INFO"/>
-    <logger name="reactor.ipc.netty"            level="WARN"/>
+    <logger name="com.nebhale.r2dbc.postgresql" level="DEBUG"/>
+    <logger name="reactor.ipc.netty"            level="DEBUG"/>
     <logger name="stream"                       level="INFO"/>
     <logger name="test"                         level="INFO"/>
 

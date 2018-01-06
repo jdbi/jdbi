@@ -17,24 +17,40 @@
 package com.nebhale.r2dbc;
 
 /**
- * Represents a row returned from a database query.
+ * SQL transaction mutability options.
  */
-public interface Row {
+public enum Mutability {
 
     /**
-     * Returns the value of a column as an {@link Integer}.
-     *
-     * @param column the index of the column to return
-     * @return the value of a column as an {@link Integer}
+     * Read-only mutability.
      */
-    Integer getInteger(int column);
+    READ_ONLY("READ ONLY"),
 
     /**
-     * Returns the value of a column as a {@link String}.
-     *
-     * @param column the index of the column to return
-     * @return the value of a column as a {@link String}
+     * Read-write mutability.
      */
-    String getString(int column);
+    READ_WRITE("READ WRITE");
+
+    private final String sql;
+
+    Mutability(String sql) {
+        this.sql = sql;
+    }
+
+    /**
+     * Returns the SQL string represented be each value.
+     *
+     * @return the SQL string represented be each value
+     */
+    public String asSql() {
+        return this.sql;
+    }
+
+    @Override
+    public String toString() {
+        return "Mutability{" +
+            "sql='" + this.sql + '\'' +
+            "} " + super.toString();
+    }
 
 }

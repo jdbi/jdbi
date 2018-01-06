@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.IsolationLevel;
+import com.nebhale.r2dbc.Mutability;
 import com.nebhale.r2dbc.Transaction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,6 +54,20 @@ final class PostgresqlTransaction implements Transaction {
     public Mono<Void> rollback() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "ROLLBACK")
+            .then();
+    }
+
+    @Override
+    public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
+        return SimpleQueryMessageFlow
+            .exchange(this.client, String.format("SET TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
+            .then();
+    }
+
+    @Override
+    public Mono<Void> setMutability(Mutability mutability) {
+        return SimpleQueryMessageFlow
+            .exchange(this.client, String.format("SET TRANSACTION %s", mutability.asSql()))
             .then();
     }
 

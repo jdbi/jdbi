@@ -17,7 +17,8 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Connection;
-import com.nebhale.r2dbc.Row;
+import com.nebhale.r2dbc.IsolationLevel;
+import com.nebhale.r2dbc.Mutability;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,6 +68,20 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     @Override
     public Flux<Flux<PostgresqlRow>> query(String query) {
         return this.delegate.query(query);
+    }
+
+    @Override
+    public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
+        return SimpleQueryMessageFlow
+            .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
+            .then();
+    }
+
+    @Override
+    public Mono<Void> setMutability(Mutability mutability) {
+        return SimpleQueryMessageFlow
+            .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION %s", mutability.asSql()))
+            .then();
     }
 
     @Override

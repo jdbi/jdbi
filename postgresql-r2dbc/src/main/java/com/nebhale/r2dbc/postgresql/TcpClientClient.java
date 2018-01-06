@@ -110,7 +110,6 @@ final class TcpClientClient implements Client {
         ErrorResponse errorResponse = (ErrorResponse) message;
         this.logger.error("Error: {}", toString(errorResponse.getFields()));
 
-        close();
         return Mono.error(new ServerErrorException(errorResponse.getFields()));
     }
 

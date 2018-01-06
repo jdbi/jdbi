@@ -34,4 +34,20 @@ public interface Transaction extends Operations {
      */
     Publisher<Void> rollback();
 
+    /**
+     * Configures the isolation level for this transaction.
+     *
+     * @param isolationLevel the isolation level for this transaction
+     * @return a {@link Publisher} that indicates that a transaction level has been configured
+     */
+    Publisher<Void> setIsolationLevel(IsolationLevel isolationLevel);
+
+    /**
+     * Configures the mutability for this transaction.
+     *
+     * @param mutability the mutability for this transaction
+     * @return a {@link Publisher} that indicates that mutability has been configured
+     */
+    Publisher<Void> setMutability(Mutability mutability);
+
 }

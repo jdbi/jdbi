@@ -14,27 +14,8 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
-
 /**
- * Represents a row returned from a database query.
+ * A Reactive Relational Database Connection API.
  */
-public interface Row {
 
-    /**
-     * Returns the value of a column as an {@link Integer}.
-     *
-     * @param column the index of the column to return
-     * @return the value of a column as an {@link Integer}
-     */
-    Integer getInteger(int column);
-
-    /**
-     * Returns the value of a column as a {@link String}.
-     *
-     * @param column the index of the column to return
-     * @return the value of a column as a {@link String}
-     */
-    String getString(int column);
-
-}
+package com.nebhale.r2dbc;
