@@ -46,9 +46,7 @@ final class TcpClientClient implements Client {
 
     private final FluxSink<FrontendMessage> requests = this.requestProcessor.sink();
 
-    private final EmitterProcessor<Flux<BackendMessage>> responseProcessor = EmitterProcessor.create();
-
-    private final Flux<Flux<BackendMessage>> responses = this.responseProcessor.publish().autoConnect();
+    private final EmitterProcessor<Flux<BackendMessage>> responseProcessor = EmitterProcessor.create(false);
 
     /**
      * Creates a new frame processor connected to a given host.
@@ -96,7 +94,7 @@ final class TcpClientClient implements Client {
             Flux.from(publisher)
                 .subscribe(this.requests::next, this.requests::error);
 
-            return this.responses
+            return this.responseProcessor
                 .next()
                 .flatMapMany(flux -> flux
                     .handle(this::handleErrors));
@@ -124,6 +122,8 @@ final class TcpClientClient implements Client {
         if (message instanceof NoticeResponse) {
             NoticeResponse noticeResponse = (NoticeResponse) message;
             this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
+        } else {
+            sink.next(message);
         }
     }
 
