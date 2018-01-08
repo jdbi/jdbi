@@ -51,6 +51,25 @@ public class Examples {
     }
 
     @Test
+    public void savePoint() {
+        this.connectionFactory.create()
+            .flatMapMany(connection -> connection
+                .withTransaction(transaction ->
+                    transaction.createSavepoint("foo")
+                        .thenMany(transaction.query("INSERT INTO test_table(id) VALUES(200)")
+                            .thenMany(transaction.query("SELECT * FROM test_table")
+                                .concatMap(Examples::printValues)))
+                        .thenEmpty(transaction.rollbackToSavepoint("foo"))
+                        .thenMany(transaction.query("SELECT * FROM test_table")
+                            .concatMap(Examples::printValues))
+                        .then())
+                .doOnTerminate(connection::close))
+            .then()
+            .as(StepVerifier::create)
+            .verifyComplete();
+    }
+
+    @Test
     public void transactionAutomatic() {
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
