@@ -16,7 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -43,8 +42,7 @@ public class Examples {
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
                 .query("SELECT * FROM test_table; SELECT * FROM test_table;")
-                .concatMap(Examples::printValues)
-                .thenEmpty(connection.close()))
+                .concatMap(Examples::printValues))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -62,8 +60,7 @@ public class Examples {
                         .thenEmpty(transaction.rollbackToSavepoint("foo"))
                         .thenMany(transaction.query("SELECT * FROM test_table")
                             .concatMap(Examples::printValues))
-                        .then())
-                .thenEmpty(connection.close()))
+                        .then()))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -79,14 +76,12 @@ public class Examples {
                             .concatMap(Examples::printValues))
                         .then(Mono.error(new Exception())))
                 .thenMany(connection.query("SELECT * FROM test_table")
-                    .concatMap(Examples::printValues))
-                .thenEmpty(connection.close()))
+                    .concatMap(Examples::printValues)))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
     }
 
-    @Ignore("Not a valid test yet, because frame delimiting with server errors doesn't work")
     @Test
     public void transactionIsolation() {
         this.connectionFactory.create()
@@ -95,22 +90,19 @@ public class Examples {
                     transaction.setMutability(READ_ONLY)
                         .thenEmpty(transaction.setIsolationLevel(READ_UNCOMMITTED))
                         .thenMany(transaction.query("INSERT INTO test_table(id) VALUES(200)"))
-                        .then())
-                .thenEmpty(connection.close()))
+                        .then()))
             .then()
             .as(StepVerifier::create)
             .verifyError(ServerErrorException.class);
     }
 
-    @Ignore("Not a valid test yet, because frame delimiting with server errors doesn't work")
     @Test
     public void transactionIsolationDefault() {
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
                 .setMutability(READ_ONLY)
                 .thenEmpty(connection.setIsolationLevel(READ_UNCOMMITTED))
-                .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)"))
-                .thenEmpty(connection.close()))
+                .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)")))
             .then()
             .as(StepVerifier::create)
             .verifyError(ServerErrorException.class);
@@ -127,8 +119,7 @@ public class Examples {
                                 .concatMap(Examples::printValues))
                             .thenEmpty(transaction.rollback()))
                     .thenMany(connection.query("SELECT * FROM test_table")
-                        .concatMap(Examples::printValues))
-                    .thenEmpty(connection.close()))
+                        .concatMap(Examples::printValues)))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
