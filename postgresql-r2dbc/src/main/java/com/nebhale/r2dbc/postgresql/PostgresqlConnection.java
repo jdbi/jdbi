@@ -74,14 +74,26 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
         return this.delegate.query(query);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException if {@code isolationLevel} is {@code null}
+     */
     @Override
     public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
+        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
+
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException if {@code mutability} is {@code null}
+     */
     @Override
     public Mono<Void> setMutability(Mutability mutability) {
         return SimpleQueryMessageFlow
@@ -101,8 +113,15 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
             '}';
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException if {@code transaction} is {@code null}
+     */
     @Override
     public Mono<Void> withTransaction(Function<PostgresqlTransaction, Publisher<Void>> transaction) {
+        Objects.requireNonNull(transaction, "transaction must not be null");
+
         return begin()
             .flatMap(tx -> Flux
                 .from(transaction.apply(tx))

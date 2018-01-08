@@ -28,11 +28,35 @@ public interface Transaction extends Operations {
     Publisher<Void> commit();
 
     /**
+     * Creates a savepoint in this transaction.
+     *
+     * @param name the name of the savepoint to create
+     * @return a {@link Publisher} that indicates that a savepoint has been created
+     */
+    Publisher<Void> createSavepoint(String name);
+
+    /**
+     * Releases a savepoint in this transaction.
+     *
+     * @param name the name of the savepoint to release
+     * @return a {@link Publisher} that indicates that a savepoint has been released
+     */
+    Publisher<Void> releaseSavepoint(String name);
+
+    /**
      * Rolls back the current transaction.
      *
      * @return a {@link Publisher} that indicates that a transaction has been rolled back
      */
     Publisher<Void> rollback();
+
+    /**
+     * Rolls back to a savepoint int his transaction.
+     *
+     * @param name the name of the savepoint to rollback to
+     * @return a {@link Publisher} that indicates that a savepoint has been rolled back to
+     */
+    Publisher<Void> rollbackToSavepoint(String name);
 
     /**
      * Configures the isolation level for this transaction.
