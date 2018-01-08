@@ -17,9 +17,12 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Operations;
+import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
+import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.SynchronousSink;
 
 import java.util.Objects;
 
@@ -42,6 +45,7 @@ final class PostgresqlOperations implements Operations {
 
         return SimpleQueryMessageFlow
             .exchange(this.client, query)
+            .handle(PostgresqlOperations::handleEmptyQueryResponse)
             .windowWhile(message -> !(message instanceof CommandComplete))
             .map(flux -> flux
                 .filter(DataRow.class::isInstance)
@@ -54,6 +58,14 @@ final class PostgresqlOperations implements Operations {
         return "PostgresqlOperations{" +
             "client=" + this.client +
             '}';
+    }
+
+    private static void handleEmptyQueryResponse(BackendMessage message, SynchronousSink<Object> sink) {
+        if (message instanceof EmptyQueryResponse) {
+            sink.complete();
+        } else {
+            sink.next(message);
+        }
     }
 
 }
