@@ -19,8 +19,11 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.IsolationLevel;
 import com.nebhale.r2dbc.Mutability;
 import com.nebhale.r2dbc.Transaction;
+import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static com.nebhale.r2dbc.postgresql.Util.not;
 
 final class PostgresqlTransaction implements Transaction {
 
@@ -37,6 +40,7 @@ final class PostgresqlTransaction implements Transaction {
     public Mono<Void> commit() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "COMMIT")
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
@@ -54,6 +58,7 @@ final class PostgresqlTransaction implements Transaction {
     public Mono<Void> rollback() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "ROLLBACK")
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
@@ -61,6 +66,7 @@ final class PostgresqlTransaction implements Transaction {
     public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
@@ -68,6 +74,7 @@ final class PostgresqlTransaction implements Transaction {
     public Mono<Void> setMutability(Mutability mutability) {
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET TRANSACTION %s", mutability.asSql()))
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 

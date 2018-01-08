@@ -19,6 +19,7 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.Connection;
 import com.nebhale.r2dbc.IsolationLevel;
 import com.nebhale.r2dbc.Mutability;
+import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+
+import static com.nebhale.r2dbc.postgresql.Util.not;
 
 final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
 
@@ -52,6 +55,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     public Mono<PostgresqlTransaction> begin() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "BEGIN")
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then(Mono.just(new PostgresqlTransaction(this.client)));
     }
 
@@ -74,6 +78,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
@@ -81,6 +86,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     public Mono<Void> setMutability(Mutability mutability) {
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION %s", mutability.asSql()))
+            .takeWhile(not(CommandComplete.class::isInstance))
             .then();
     }
 
@@ -101,7 +107,8 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
             .flatMap(tx -> Flux
                 .from(transaction.apply(tx))
                 .thenEmpty(tx.commit())
-                .onErrorResume(t -> tx.rollback()));
+                .onErrorResume(t -> tx.rollback()
+                    .then(Mono.error(t))));
     }
 
     static Builder builder() {
