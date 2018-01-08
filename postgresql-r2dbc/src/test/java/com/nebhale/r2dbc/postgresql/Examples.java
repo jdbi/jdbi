@@ -44,7 +44,7 @@ public class Examples {
             .flatMapMany(connection -> connection
                 .query("SELECT * FROM test_table; SELECT * FROM test_table;")
                 .concatMap(Examples::printValues)
-                .doOnTerminate(connection::close))
+                .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -63,7 +63,7 @@ public class Examples {
                         .thenMany(transaction.query("SELECT * FROM test_table")
                             .concatMap(Examples::printValues))
                         .then())
-                .doOnTerminate(connection::close))
+                .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -80,7 +80,7 @@ public class Examples {
                         .then(Mono.error(new Exception())))
                 .thenMany(connection.query("SELECT * FROM test_table")
                     .concatMap(Examples::printValues))
-                .doOnTerminate(connection::close))
+                .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -96,7 +96,7 @@ public class Examples {
                         .thenEmpty(transaction.setIsolationLevel(READ_UNCOMMITTED))
                         .thenMany(transaction.query("INSERT INTO test_table(id) VALUES(200)"))
                         .then())
-                .doOnTerminate(connection::close))
+                .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyError(ServerErrorException.class);
@@ -109,7 +109,8 @@ public class Examples {
             .flatMapMany(connection -> connection
                 .setMutability(READ_ONLY)
                 .thenEmpty(connection.setIsolationLevel(READ_UNCOMMITTED))
-                .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)")))
+                .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)"))
+                .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyError(ServerErrorException.class);
@@ -127,7 +128,7 @@ public class Examples {
                             .thenEmpty(transaction.rollback()))
                     .thenMany(connection.query("SELECT * FROM test_table")
                         .concatMap(Examples::printValues))
-                    .doOnTerminate(connection::close))
+                    .thenEmpty(connection.close()))
             .then()
             .as(StepVerifier::create)
             .verifyComplete();
