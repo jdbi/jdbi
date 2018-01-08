@@ -60,8 +60,10 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     }
 
     @Override
-    public void close() {
-        this.client.close();
+    public Mono<Void> close() {
+        return TerminateMessageFlow.exchange(this.client)
+            .doOnComplete(this.client::close)
+            .then();
     }
 
     /**

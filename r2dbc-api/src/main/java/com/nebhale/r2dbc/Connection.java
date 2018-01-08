@@ -36,8 +36,10 @@ public interface Connection<T extends Transaction> extends Operations {
 
     /**
      * Release any resources held by the {@link Connection}.
+     *
+     * @return a {@link Publisher} that termination is complete
      */
-    void close();
+    Publisher<Void> close();
 
     /**
      * Configures the default isolation level for transactions created with this connection.
