@@ -66,6 +66,7 @@ final class TcpClientClient implements Client {
             .start((inbound, outbound) -> {
                 inbound.receive()
                     .concatMap(decoder::decode)
+                    .handle(this::handleWarnings)
                     .doOnNext(message -> this.logger.debug("Response: {}", message))
                     .windowWhile(not(ReadyForQuery.class::isInstance))
                     .subscribe(this.responseProcessor);
@@ -98,7 +99,7 @@ final class TcpClientClient implements Client {
             return this.responses
                 .next()
                 .flatMapMany(flux -> flux
-                    .handle(this::handleWarningsAndErrors));
+                    .handle(this::handleErrors));
         });
     }
 
@@ -108,11 +109,8 @@ final class TcpClientClient implements Client {
             .collect(Collectors.joining(", "));
     }
 
-    private void handleWarningsAndErrors(BackendMessage message, SynchronousSink<BackendMessage> sink) {
-        if (message instanceof NoticeResponse) {
-            NoticeResponse noticeResponse = (NoticeResponse) message;
-            this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
-        } else if (message instanceof ErrorResponse) {
+    private void handleErrors(BackendMessage message, SynchronousSink<BackendMessage> sink) {
+        if (message instanceof ErrorResponse) {
             ErrorResponse errorResponse = (ErrorResponse) message;
             this.logger.error("Error: {}", toString(errorResponse.getFields()));
 
@@ -121,4 +119,12 @@ final class TcpClientClient implements Client {
             sink.next(message);
         }
     }
+
+    private void handleWarnings(BackendMessage message, SynchronousSink<BackendMessage> sink) {
+        if (message instanceof NoticeResponse) {
+            NoticeResponse noticeResponse = (NoticeResponse) message;
+            this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
+        }
+    }
+
 }
