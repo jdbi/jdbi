@@ -20,19 +20,19 @@ import com.nebhale.r2dbc.postgresql.message.frontend.Terminate;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
-import static com.nebhale.r2dbc.postgresql.ClientAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class TerminateMessageFlowTest {
 
     @Test
     public void exchange() {
-        assertThat(TerminateMessageFlow::exchange)
-            .makesRequests(requests -> requests
-                .expectNext(Terminate.INSTANCE)
-                .verifyComplete())
-            .andEmits(StepVerifier.LastStep::verifyComplete)
-            .verify();
+        Client client = TestClient.builder()
+            .when(Terminate.INSTANCE).thenRespond()
+            .build();
+
+        TerminateMessageFlow.exchange(client)
+            .as(StepVerifier::create)
+            .verifyComplete();
     }
 
     @Test
@@ -40,4 +40,5 @@ public final class TerminateMessageFlowTest {
         assertThatNullPointerException().isThrownBy(() -> TerminateMessageFlow.exchange(null))
             .withMessage("client must not be null");
     }
+
 }

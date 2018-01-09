@@ -19,8 +19,8 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.frontend.Query;
 import org.junit.Test;
+import reactor.test.StepVerifier;
 
-import static com.nebhale.r2dbc.postgresql.ClientAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.Mockito.mock;
 
@@ -28,16 +28,15 @@ public final class SimpleQueryMessageFlowTest {
 
     @Test
     public void exchange() {
-        assertThat(client -> SimpleQueryMessageFlow
-            .exchange(client, "test-query"))
-            .receivingServerMessages(new CommandComplete("test", null, null))
-            .makesRequests(requests -> requests
-                .expectNext(new Query("test-query"))
-                .verifyComplete())
-            .andEmits(emissions -> emissions
-                .expectNext(new CommandComplete("test", null, null))
-                .verifyComplete())
-            .verify();
+        Client client = TestClient.builder()
+            .when(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
+            .build();
+
+        SimpleQueryMessageFlow
+            .exchange(client, "test-query")
+            .as(StepVerifier::create)
+            .expectNext(new CommandComplete("test", null, null))
+            .verifyComplete();
     }
 
     @Test
