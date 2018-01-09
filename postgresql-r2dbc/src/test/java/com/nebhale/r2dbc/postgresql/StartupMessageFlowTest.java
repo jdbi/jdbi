@@ -19,14 +19,13 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
-import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
+import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.StartupMessage;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
-import static com.nebhale.r2dbc.postgresql.ClientAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.mock;
@@ -38,58 +37,56 @@ public final class StartupMessageFlowTest {
 
     @Test
     public void exchangeAuthenticationMessage() {
+        Client client = TestClient.builder()
+            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .when(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
+            .build();
+
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenReturn(new PasswordMessage("test-password"));
 
-        assertThat(client -> StartupMessageFlow
-            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username"))
-            .receivingServerMessages(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)), AuthenticationOk.INSTANCE)
-            .makesRequests(requests -> requests
-                .expectNext(new StartupMessage("test-application-name", "test-database", "test-username"))
-                .expectNext(new PasswordMessage("test-password"))
-                .verifyComplete())
-            .andEmits(StepVerifier.LastStep::verifyComplete)
-            .verify();
+        StartupMessageFlow
+            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")
+            .as(StepVerifier::create)
+            .verifyComplete();
     }
 
     @Test
     public void exchangeAuthenticationMessageFail() {
+        Client client = TestClient.builder()
+            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .build();
+
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenThrow(new IllegalArgumentException());
 
-        assertThat(client -> StartupMessageFlow
-            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username"))
-            .receivingServerMessages(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)), AuthenticationOk.INSTANCE)
-            .makesRequests(requests -> requests
-                .expectNext(new StartupMessage("test-application-name", "test-database", "test-username"))
-                .verifyError(IllegalArgumentException.class))
-            .andEmits(emissions -> emissions
-                .verifyError(IllegalArgumentException.class))
-            .verify();
+        StartupMessageFlow
+            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")
+            .as(StepVerifier::create)
+            .verifyError(IllegalArgumentException.class);
     }
 
     @Test
     public void exchangeAuthenticationOk() {
-        assertThat(client -> StartupMessageFlow
-            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username"))
-            .receivingServerMessages(AuthenticationOk.INSTANCE)
-            .makesRequests(requests -> requests
-                .expectNext(new StartupMessage("test-application-name", "test-database", "test-username"))
-                .verifyComplete())
-            .andEmits(StepVerifier.LastStep::verifyComplete)
-            .verify();
+        Client client = TestClient.builder()
+            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE)
+            .build();
+
+        StartupMessageFlow
+            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")
+            .as(StepVerifier::create)
+            .verifyComplete();
     }
 
     @Test
     public void exchangeAuthenticationOther() {
-        assertThat(client -> StartupMessageFlow
-            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username"))
-            .receivingServerMessages(new CommandComplete("test", null, null), AuthenticationOk.INSTANCE)
-            .makesRequests(requests -> requests
-                .expectNext(new StartupMessage("test-application-name", "test-database", "test-username"))
-                .verifyComplete())
-            .andEmits(emissions -> emissions
-                .expectNext(new CommandComplete("test", null, null))
-                .verifyComplete())
-            .verify();
+        Client client = TestClient.builder()
+            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE, new BackendKeyData(100, 200))
+            .build();
+
+        StartupMessageFlow
+            .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")
+            .as(StepVerifier::create)
+            .expectNext(new BackendKeyData(100, 200))
+            .verifyComplete();
     }
 
     @Test
