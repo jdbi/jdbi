@@ -33,6 +33,18 @@ final class PostgresqlRow implements Row {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PostgresqlRow that = (PostgresqlRow) o;
+        return Objects.equals(this.columns, that.columns);
+    }
+
+    @Override
     public Integer getInteger(int column) {
         String s = getString(column);
         return s == null ? null : Integer.parseInt(s);
@@ -42,6 +54,18 @@ final class PostgresqlRow implements Row {
     public String getString(int column) {
         ByteBuf buffer = this.columns.get(column);
         return String.valueOf(buffer.readCharSequence(buffer.readableBytes(), UTF_8));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.columns);
+    }
+
+    @Override
+    public String toString() {
+        return "PostgresqlRow{" +
+            "columns=" + this.columns +
+            '}';
     }
 
 }

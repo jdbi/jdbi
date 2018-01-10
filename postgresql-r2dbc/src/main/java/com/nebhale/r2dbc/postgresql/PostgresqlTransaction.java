@@ -34,7 +34,7 @@ final class PostgresqlTransaction implements Transaction {
     private final PostgresqlOperations delegate;
 
     PostgresqlTransaction(Client client) {
-        this.client = client;
+        this.client = Objects.requireNonNull(client, "client must not be null");
         this.delegate = new PostgresqlOperations(this.client);
     }
 

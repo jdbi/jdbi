@@ -33,7 +33,7 @@ final class PostgresqlOperations implements Operations {
     private final Client client;
 
     PostgresqlOperations(Client client) {
-        this.client = client;
+        this.client = Objects.requireNonNull(client, "client must not be null");
     }
 
     /**
@@ -62,7 +62,7 @@ final class PostgresqlOperations implements Operations {
             '}';
     }
 
-    private static void handleEmptyQueryResponse(BackendMessage message, SynchronousSink<Object> sink) {
+    private static void handleEmptyQueryResponse(BackendMessage message, SynchronousSink<BackendMessage> sink) {
         if (message instanceof EmptyQueryResponse) {
             sink.complete();
         } else {

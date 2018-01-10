@@ -21,6 +21,7 @@ import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
@@ -28,18 +29,27 @@ import reactor.util.function.Tuples;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 final class TestClient implements Client {
 
-    private final EmitterProcessor<FrontendMessage> requests = EmitterProcessor.create();
+    static final TestClient NO_OP = new TestClient(new LinkedList<>(), true, false);
 
-    private final EmitterProcessor<BackendMessage> responses = EmitterProcessor.create(false);
+    private final boolean complete;
 
-    private TestClient(Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges) {
+    private final boolean expectClose;
+
+    private final EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create();
+
+    private final FluxSink<FrontendMessage> requests = this.requestProcessor.sink();
+
+    private final EmitterProcessor<BackendMessage> responseProcessor = EmitterProcessor.create(false);
+
+    private TestClient(Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges, boolean complete, boolean expectClose) {
+        this.complete = complete;
         Objects.requireNonNull(exchanges);
+        this.expectClose = expectClose;
 
-        this.requests
+        this.requestProcessor
             .flatMap(request -> {
                 Tuple2<FrontendMessage, Flux<BackendMessage>> exchange = exchanges.poll();
                 if (exchange == null) {
@@ -51,20 +61,21 @@ final class TestClient implements Client {
                     return Mono.error(new AssertionError(String.format("Request %s was not the expected request %s", request, expectedRequest)));
                 }
 
-                return exchange.getT2();
+                return exchange.getT2()
+                    .doOnComplete(() -> {
+                        if (this.complete && exchanges.isEmpty()) {
+                            this.responseProcessor.onComplete();
+                        }
+                    });
             })
-            .doOnTerminate(() -> {
-                System.out.println("CHARLIE");
-                if (!exchanges.isEmpty()) {
-                    throw new AssertionError(String.format("The following requests were never received: %s", getRequestMessages(exchanges)));
-                }
-            })
-            .subscribe(this.responses);
+            .subscribe(this.responseProcessor);
     }
 
     @Override
     public void close() {
-        throw new UnsupportedOperationException();
+        if (!this.expectClose) {
+            throw new AssertionError("close called unexpectedly");
+        }
     }
 
     @Override
@@ -73,9 +84,9 @@ final class TestClient implements Client {
 
         return Flux.defer(() -> {
             Flux.from(publisher)
-                .subscribe(this.requests);
+                .subscribe(this.requests::next, this.requests::error);
 
-            return this.responses;
+            return this.responseProcessor;
         });
     }
 
@@ -83,24 +94,32 @@ final class TestClient implements Client {
         return new Builder();
     }
 
-    private static String getRequestMessages(Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges) {
-        return exchanges.stream()
-            .map(tuple -> tuple.getT1().toString())
-            .collect(Collectors.joining(", "));
-    }
-
     static final class Builder {
 
         private final Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges = new LinkedList<>();
 
+        private boolean complete = true;
+
+        private boolean expectClose = false;
+
         TestClient build() {
-            return new TestClient(this.exchanges);
+            return new TestClient(this.exchanges, this.complete, this.expectClose);
         }
 
-        Exchange when(FrontendMessage request) {
+        Builder expectClose() {
+            this.expectClose = true;
+            return this;
+        }
+
+        Exchange expectRequest(FrontendMessage request) {
             Objects.requireNonNull(request);
 
             return new Exchange(this, request);
+        }
+
+        Builder noComplete() {
+            this.complete = false;
+            return this;
         }
 
     }
@@ -119,7 +138,13 @@ final class TestClient implements Client {
         Builder thenRespond(BackendMessage... responses) {
             Objects.requireNonNull(responses);
 
-            this.builder.exchanges.add(Tuples.of(this.request, Flux.just(responses)));
+            return thenRespond(Flux.just(responses));
+        }
+
+        Builder thenRespond(Flux<BackendMessage> responses) {
+            Objects.requireNonNull(responses);
+
+            this.builder.exchanges.add(Tuples.of(this.request, responses));
             return this.builder;
         }
 

@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -25,6 +26,7 @@ import reactor.test.StepVerifier;
 import static com.nebhale.r2dbc.IsolationLevel.READ_UNCOMMITTED;
 import static com.nebhale.r2dbc.Mutability.READ_ONLY;
 
+@Ignore
 public class Examples {
 
     private final PostgresqlConnectionConfiguration configuration = PostgresqlConnectionConfiguration.builder()

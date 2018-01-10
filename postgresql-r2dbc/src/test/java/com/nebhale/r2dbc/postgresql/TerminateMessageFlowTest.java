@@ -27,7 +27,7 @@ public final class TerminateMessageFlowTest {
     @Test
     public void exchange() {
         Client client = TestClient.builder()
-            .when(Terminate.INSTANCE).thenRespond()
+            .expectRequest(Terminate.INSTANCE).thenRespond()
             .build();
 
         TerminateMessageFlow.exchange(client)

@@ -38,8 +38,8 @@ public final class StartupMessageFlowTest {
     @Test
     public void exchangeAuthenticationMessage() {
         Client client = TestClient.builder()
-            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
-            .when(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
+            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .expectRequest(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
             .build();
 
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenReturn(new PasswordMessage("test-password"));
@@ -53,7 +53,8 @@ public final class StartupMessageFlowTest {
     @Test
     public void exchangeAuthenticationMessageFail() {
         Client client = TestClient.builder()
-            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .noComplete()
             .build();
 
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenThrow(new IllegalArgumentException());
@@ -67,7 +68,7 @@ public final class StartupMessageFlowTest {
     @Test
     public void exchangeAuthenticationOk() {
         Client client = TestClient.builder()
-            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE)
+            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE)
             .build();
 
         StartupMessageFlow
@@ -79,7 +80,7 @@ public final class StartupMessageFlowTest {
     @Test
     public void exchangeAuthenticationOther() {
         Client client = TestClient.builder()
-            .when(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE, new BackendKeyData(100, 200))
+            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(AuthenticationOk.INSTANCE, new BackendKeyData(100, 200))
             .build();
 
         StartupMessageFlow
