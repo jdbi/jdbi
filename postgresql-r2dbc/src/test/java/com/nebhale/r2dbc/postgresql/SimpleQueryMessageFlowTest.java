@@ -29,7 +29,7 @@ public final class SimpleQueryMessageFlowTest {
     @Test
     public void exchange() {
         Client client = TestClient.builder()
-            .when(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
+            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
             .build();
 
         SimpleQueryMessageFlow

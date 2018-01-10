@@ -20,7 +20,6 @@ import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.authentication.MD5PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
-import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +30,8 @@ import java.util.Objects;
  */
 public final class PostgresqlConnectionFactory implements ConnectionFactory {
 
+    private final ClientFactory clientFactory;
+
     private final PostgresqlConnectionConfiguration configuration;
 
     /**
@@ -40,12 +41,17 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
      * @throws NullPointerException if {@code configuration} is {@code null}
      */
     public PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration) {
+        this(configuration, new TcpClientClientClientFactory(configuration));
+    }
+
+    PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration, ClientFactory clientFactory) {
         this.configuration = Objects.requireNonNull(configuration, "configuration must not be null");
+        this.clientFactory = clientFactory;
     }
 
     @Override
     public Mono<PostgresqlConnection> create() {
-        Client client = new TcpClientClient(this.configuration.getHost(), this.configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE);
+        Client client = this.clientFactory.create();
 
         return StartupMessageFlow
             .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername())

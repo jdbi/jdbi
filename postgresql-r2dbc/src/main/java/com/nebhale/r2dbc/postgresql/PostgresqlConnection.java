@@ -43,11 +43,11 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
 
     private final int secretKey;
 
-    private PostgresqlConnection(Client client, Map<String, String> parameters, int processId, int secretKey) {
+    private PostgresqlConnection(Client client, Map<String, String> parameters, Integer processId, Integer secretKey) {
         this.client = Objects.requireNonNull(client, "client must not be null");
-        this.parameters = Objects.requireNonNull(parameters);
-        this.processId = processId;
-        this.secretKey = secretKey;
+        this.parameters = parameters;
+        this.processId = Objects.requireNonNull(processId, "processId must not be null");
+        this.secretKey = Objects.requireNonNull(secretKey, "secretKey must not be null");
         this.delegate = new PostgresqlOperations(this.client);
     }
 
@@ -98,6 +98,8 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
      */
     @Override
     public Mono<Void> setMutability(Mutability mutability) {
+        Objects.requireNonNull(mutability, "mutability must not be null");
+
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION %s", mutability.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
@@ -136,15 +138,27 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
         return new Builder();
     }
 
+    Map<String, String> getParameters() {
+        return this.parameters;
+    }
+
+    int getProcessId() {
+        return this.processId;
+    }
+
+    int getSecretKey() {
+        return this.secretKey;
+    }
+
     static final class Builder {
 
         private Client client;
 
         private Map<String, String> parameters = new HashMap<>();
 
-        private int processId;
+        private Integer processId;
 
-        private int secretKey;
+        private Integer secretKey;
 
         private Builder() {
         }

@@ -38,19 +38,15 @@ public final class MD5PasswordAuthenticationHandlerTest {
 
     @Test
     public void handle() {
-        MD5PasswordAuthenticationHandler handler = new MD5PasswordAuthenticationHandler("test-username", "test-password");
+        MD5PasswordAuthenticationHandler handler = new MD5PasswordAuthenticationHandler("test-password", "test-username");
         AuthenticationMD5Password message = new AuthenticationMD5Password(Unpooled.buffer().writeInt(100));
 
-        assertThat(handler.handle(message)).isEqualTo(new PasswordMessage("md52f745aeea541bdd54449b0d78efa048b"));
+        assertThat(handler.handle(message)).isEqualTo(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804"));
     }
 
     @Test
     public void handleNoMessage() {
-        assertThatNullPointerException().isThrownBy(() -> {
-            MD5PasswordAuthenticationHandler handler = new MD5PasswordAuthenticationHandler("test-username", "test-password");
-
-            handler.handle(null);
-        });
+        assertThatNullPointerException().isThrownBy(() -> new MD5PasswordAuthenticationHandler("test-username", "test-password").handle(null));
     }
 
 }

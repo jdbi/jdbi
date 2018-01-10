@@ -31,16 +31,16 @@ public final class PostgresqlConnectionConfiguration {
 
     private final String password;
 
-    private final Integer port;
+    private final int port;
 
     private final String username;
 
-    private PostgresqlConnectionConfiguration(String applicationName, String database, String host, String password, Integer port, String username) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
-        this.database = Objects.requireNonNull(database, "database must not be null");
+    private PostgresqlConnectionConfiguration(String applicationName, String database, String host, String password, int port, String username) {
+        this.applicationName = applicationName;
+        this.database = database;
         this.host = Objects.requireNonNull(host, "host must not be null");
         this.password = Objects.requireNonNull(password, "password must not be null");
-        this.port = Objects.requireNonNull(port, "port must not be null");
+        this.port = port;
         this.username = Objects.requireNonNull(username, "username must not be null");
     }
 
