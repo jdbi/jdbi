@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.authentication;
 
+import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationCleartextPassword;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
@@ -26,7 +27,7 @@ import java.util.Objects;
 /**
  * An implementation of {@link AuthenticationHandler} that handles {@link AuthenticationMD5Password} messages.
  */
-public final class MD5PasswordAuthenticationHandler implements AuthenticationHandler {
+public final class PasswordAuthenticationHandler implements AuthenticationHandler {
 
     private final String password;
 
@@ -39,7 +40,7 @@ public final class MD5PasswordAuthenticationHandler implements AuthenticationHan
      * @param username the username to use for authentication
      * @throws NullPointerException if {@code password} or {@code user} is {@code null}
      */
-    public MD5PasswordAuthenticationHandler(String password, String username) {
+    public PasswordAuthenticationHandler(String password, String username) {
         this.password = Objects.requireNonNull(password, "password must not be null");
         this.username = Objects.requireNonNull(username, "username must not be null");
     }
@@ -53,17 +54,27 @@ public final class MD5PasswordAuthenticationHandler implements AuthenticationHan
     public FrontendMessage handle(AuthenticationMessage message) {
         Objects.requireNonNull(message, "message must not be null");
 
-        if (!(message instanceof AuthenticationMD5Password)) {
-            throw new IllegalArgumentException(String.format("Cannot handle %s", message.getClass()));
+        if (message instanceof AuthenticationCleartextPassword) {
+            return handleAuthenticationClearTextPassword((AuthenticationCleartextPassword) message);
+        } else if (message instanceof AuthenticationMD5Password) {
+            return handleAuthenticationMD5Password((AuthenticationMD5Password) message);
+        } else {
+            throw new IllegalArgumentException(String.format("Cannot handle %s message", message.getClass().getSimpleName()));
         }
+    }
 
+    private PasswordMessage handleAuthenticationClearTextPassword(AuthenticationCleartextPassword message) {
+        return new PasswordMessage(this.password);
+    }
+
+    private FrontendMessage handleAuthenticationMD5Password(AuthenticationMD5Password message) {
         String shadow = new FluentMessageDigest("md5")
             .update("%s%s", this.password, this.username)
             .digest();
 
         String transfer = new FluentMessageDigest("md5")
             .update(shadow)
-            .update(((AuthenticationMD5Password) message).getSalt())
+            .update(message.getSalt())
             .digest();
 
         return new PasswordMessage(String.format("md5%s", transfer));
