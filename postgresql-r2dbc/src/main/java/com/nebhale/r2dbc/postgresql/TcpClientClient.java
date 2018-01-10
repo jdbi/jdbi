@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.nebhale.r2dbc.postgresql.Util.not;
-
 final class TcpClientClient implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -66,7 +64,7 @@ final class TcpClientClient implements Client {
                     .concatMap(decoder::decode)
                     .handle(this::handleWarnings)
                     .doOnNext(message -> this.logger.debug("Response: {}", message))
-                    .windowWhile(not(ReadyForQuery.class::isInstance))
+                    .transform(WindowMaker.create(ReadyForQuery.class))
                     .subscribe(this.responseProcessor);
 
                 return this.requestProcessor

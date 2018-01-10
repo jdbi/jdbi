@@ -42,16 +42,8 @@ public final class PostgresqlOperationsTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
-
         new PostgresqlOperations(client)
             .query("test-query")
-            .as(StepVerifier::create)
-            .recordWith(windows)
-            .expectNextCount(1)
-            .verifyComplete();
-
-        windows.next()
             .as(StepVerifier::create)
             .verifyComplete();
     }
@@ -69,7 +61,7 @@ public final class PostgresqlOperationsTest {
             .query("test-query")
             .as(StepVerifier::create)
             .recordWith(windows)
-            .expectNextCount(3)
+            .expectNextCount(2)
             .verifyComplete();
 
         windows.next()
@@ -80,10 +72,6 @@ public final class PostgresqlOperationsTest {
         windows.next()
             .as(StepVerifier::create)
             .expectNext(new PostgresqlRow(Collections.singletonList(Unpooled.buffer().writeInt(200))))
-            .verifyComplete();
-
-        windows.next()
-            .as(StepVerifier::create)
             .verifyComplete();
     }
 
@@ -105,16 +93,12 @@ public final class PostgresqlOperationsTest {
             .query("test-query")
             .as(StepVerifier::create)
             .recordWith(windows)
-            .expectNextCount(2)
+            .expectNextCount(1)
             .verifyComplete();
 
         windows.next()
             .as(StepVerifier::create)
             .expectNext(new PostgresqlRow(Collections.singletonList(Unpooled.buffer().writeInt(100))))
-            .verifyComplete();
-
-        windows.next()
-            .as(StepVerifier::create)
             .verifyComplete();
     }
 

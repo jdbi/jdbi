@@ -20,6 +20,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Supplier;
 
@@ -33,7 +34,7 @@ final class WindowCollector<T> implements Supplier<Collection<Flux<T>>> {
     }
 
     public Flux<T> next() {
-        return this.windows.remove();
+        return Optional.ofNullable(this.windows.poll()).orElseThrow(() -> new AssertionError("No more windows were emitted"));
     }
 
 }
