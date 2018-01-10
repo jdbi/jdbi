@@ -18,7 +18,7 @@ package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
-import com.nebhale.r2dbc.postgresql.authentication.MD5PasswordAuthenticationHandler;
+import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import reactor.core.publisher.Mono;
@@ -73,7 +73,7 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
     }
 
     private AuthenticationHandler getAuthenticationHandler(PostgresqlConnectionConfiguration configuration) {
-        return new MD5PasswordAuthenticationHandler(configuration.getPassword(), configuration.getUsername());
+        return new PasswordAuthenticationHandler(configuration.getPassword(), configuration.getUsername());
     }
 
 }
