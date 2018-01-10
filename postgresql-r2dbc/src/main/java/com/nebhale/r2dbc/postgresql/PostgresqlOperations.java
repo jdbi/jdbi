@@ -26,8 +26,6 @@ import reactor.core.publisher.SynchronousSink;
 
 import java.util.Objects;
 
-import static com.nebhale.r2dbc.postgresql.Util.not;
-
 final class PostgresqlOperations implements Operations {
 
     private final Client client;
@@ -48,7 +46,7 @@ final class PostgresqlOperations implements Operations {
         return SimpleQueryMessageFlow
             .exchange(this.client, query)
             .handle(PostgresqlOperations::handleEmptyQueryResponse)
-            .windowWhile(not(CommandComplete.class::isInstance))
+            .transform(WindowMaker.create(CommandComplete.class))
             .map(flux -> flux
                 .filter(DataRow.class::isInstance)
                 .ofType(DataRow.class)

@@ -72,7 +72,6 @@ public final class PostgresqlTransactionTest {
         new PostgresqlTransaction(client)
             .query("test-query")
             .as(StepVerifier::create)
-            .expectNextCount(2)
             .verifyComplete();
     }
 

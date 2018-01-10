@@ -113,10 +113,8 @@ public final class PostgresqlConnectionTest {
         PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
             .query("test-query")
             .as(StepVerifier::create)
-            .expectNextCount(2)
             .verifyComplete();
     }
-
 
     @Test
     public void queryNoQuery() {
