@@ -3,9 +3,8 @@
   - ReflectionMapperUtil utility class made public.
   - collectInto() and SQL Object return type support for OptionalInt, OptionalLong,
     and OptionalDouble, and Vavr Option.
-  - New jdbi3-sqlite plugin with tailored binding and column mapping support for java.net.URL.
-  - Workaround for for multithreaded race condition loading StringTemplate STGroups and
-    templates.
+  - New jdbi3-sqlite plugin with SQLite-specific binding and column mapping for java.net.URL.
+  - Workaround for multithreaded race condition loading StringTemplate STGroups and templates.
   - Column mapper for Vavr Option.
 
 3.0.0
