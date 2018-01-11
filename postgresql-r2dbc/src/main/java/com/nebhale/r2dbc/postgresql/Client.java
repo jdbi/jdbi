@@ -32,9 +32,9 @@ interface Client {
     /**
      * Perform an exchange of messages.
      *
-     * @param publisher the publisher of outbound messages
+     * @param requests the publisher of outbound messages
      * @return a {@link Flux} of incoming messages that ends with the end of the frame (i.e. reception of a {@link ReadyForQuery} message.
      */
-    Flux<BackendMessage> exchange(Publisher<FrontendMessage> publisher);
+    Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests);
 
 }

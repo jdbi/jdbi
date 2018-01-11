@@ -20,6 +20,7 @@ import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -46,6 +47,8 @@ final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
 
     @Override
     public Flux<Flux<T>> apply(Flux<T> flux) {
+        Objects.requireNonNull(flux, "flux must not be null");
+
         return flux
             .doOnNext(t -> {  // TODO: Ask Stephane if putting these together is the right choice
                 if (this.isBoundary.test(t) && IS_IN_WINDOW.getAndSet(this, FALSE) == TRUE) {
@@ -59,10 +62,14 @@ final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
 
 
     static WindowMaker<BackendMessage> create(Class<? extends BackendMessage> boundary) {
+        Objects.requireNonNull(boundary, "boundary must not be null");
+
         return create(boundary::isInstance);
     }
 
     static <T> WindowMaker<T> create(Predicate<T> isBoundary) {
+        Objects.requireNonNull(isBoundary, "isBoundary must not be null");
+
         return new WindowMaker<>(isBoundary);
     }
 
