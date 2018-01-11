@@ -47,7 +47,7 @@ final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
     @Override
     public Flux<Flux<T>> apply(Flux<T> flux) {
         return flux
-            .doOnNext(t -> {
+            .doOnNext(t -> {  // TODO: Ask Stephane if putting these together is the right choice
                 if (this.isBoundary.test(t) && IS_IN_WINDOW.getAndSet(this, FALSE) == TRUE) {
                     this.closer.onNext(0);
                 } else if (this.isBoundary.negate().test(t) && IS_IN_WINDOW.getAndSet(this, TRUE) == FALSE) {

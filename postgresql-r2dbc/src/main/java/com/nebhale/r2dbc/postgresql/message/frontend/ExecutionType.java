@@ -16,8 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
-import java.util.Arrays;
-
 /**
  * An enumeration of execution types as used by {@link FrontendMessage}s.
  */
