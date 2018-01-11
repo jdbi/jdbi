@@ -23,51 +23,43 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
+import java.util.function.Function;
+
+import static reactor.function.TupleUtils.function;
 
 final class TestClient implements Client {
 
-    static final TestClient NO_OP = new TestClient(new LinkedList<>(), true, false);
-
-    private final boolean complete;
+    static final TestClient NO_OP = new TestClient(false, Flux.empty());
 
     private final boolean expectClose;
 
-    private final EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create();
+    private final EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create(false);
 
     private final FluxSink<FrontendMessage> requests = this.requestProcessor.sink();
 
-    private final EmitterProcessor<BackendMessage> responseProcessor = EmitterProcessor.create(false);
+    private final EmitterProcessor<Flux<BackendMessage>> responseProcessor = EmitterProcessor.create(false);
 
-    private TestClient(Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges, boolean complete, boolean expectClose) {
-        this.complete = complete;
-        Objects.requireNonNull(exchanges);
+    private TestClient(boolean expectClose, Flux<Window> windows) {
+        Objects.requireNonNull(windows);
+
         this.expectClose = expectClose;
 
-        this.requestProcessor
-            .flatMap(request -> {
-                Tuple2<FrontendMessage, Flux<BackendMessage>> exchange = exchanges.poll();
-                if (exchange == null) {
-                    return Mono.error(new AssertionError("No more exchange expected"));
-                }
+        windows
+            .map(window -> window.exchanges)
+            .map(window -> this.requestProcessor.zipWith(window)
+                .concatMap(function((request, exchange) -> {
 
-                FrontendMessage expectedRequest = exchange.getT1();
-                if (!expectedRequest.equals(request)) {
-                    return Mono.error(new AssertionError(String.format("Request %s was not the expected request %s", request, expectedRequest)));
-                }
+                    FrontendMessage expectedRequest = exchange.request;
+                    if (!expectedRequest.equals(request)) {
+                        return Mono.error(new AssertionError(String.format("Request %s was not the expected request %s", request, expectedRequest)));
+                    }
 
-                return exchange.getT2()
-                    .doOnComplete(() -> {
-                        if (this.complete && exchanges.isEmpty()) {
-                            this.responseProcessor.onComplete();
-                        }
-                    });
-            })
+                    return Flux.from(exchange.responses);
+                })))
             .subscribe(this.responseProcessor);
     }
 
@@ -80,13 +72,15 @@ final class TestClient implements Client {
 
     @Override
     public Flux<BackendMessage> exchange(Publisher<FrontendMessage> publisher) {
-        Objects.requireNonNull(publisher);
+        Objects.requireNonNull(publisher, "publisher must not be null");
 
         return Flux.defer(() -> {
             Flux.from(publisher)
                 .subscribe(this.requests::next, this.requests::error);
 
-            return this.responseProcessor;
+            return this.responseProcessor
+                .next()
+                .flatMapMany(Function.identity());
         });
     }
 
@@ -96,14 +90,15 @@ final class TestClient implements Client {
 
     static final class Builder {
 
-        private final Queue<Tuple2<FrontendMessage, Flux<BackendMessage>>> exchanges = new LinkedList<>();
-
-        private boolean complete = true;
+        private final List<Window.Builder> windows = new ArrayList<>();
 
         private boolean expectClose = false;
 
+        private Builder() {
+        }
+
         TestClient build() {
-            return new TestClient(this.exchanges, this.complete, this.expectClose);
+            return new TestClient(this.expectClose, Flux.fromIterable(this.windows).map(Window.Builder::build));
         }
 
         Builder expectClose() {
@@ -111,41 +106,105 @@ final class TestClient implements Client {
             return this;
         }
 
-        Exchange expectRequest(FrontendMessage request) {
+        Exchange.Builder<Builder> expectRequest(FrontendMessage request) {
             Objects.requireNonNull(request);
 
-            return new Exchange(this, request);
+            Window.Builder<Builder> window = new Window.Builder<>(this);
+            this.windows.add(window);
+
+            Exchange.Builder<Builder> exchange = new Exchange.Builder<>(this, request);
+            window.exchanges.add(exchange);
+
+            return exchange;
         }
 
-        Builder noComplete() {
-            this.complete = false;
-            return this;
+        Window.Builder<Builder> window() {
+            Window.Builder<Builder> window = new Window.Builder<>(this);
+            this.windows.add(window);
+            return window;
         }
 
     }
 
-    static final class Exchange {
+    private static final class Exchange {
 
-        private final Builder builder;
+        private final FrontendMessage request;
 
-        private FrontendMessage request;
+        private final Publisher<BackendMessage> responses;
 
-        private Exchange(Builder builder, FrontendMessage request) {
-            this.builder = Objects.requireNonNull(builder);
+        private Exchange(FrontendMessage request, Publisher<BackendMessage> responses) {
             this.request = Objects.requireNonNull(request);
+            this.responses = Objects.requireNonNull(responses);
         }
 
-        Builder thenRespond(BackendMessage... responses) {
-            Objects.requireNonNull(responses);
+        static final class Builder<T> {
 
-            return thenRespond(Flux.just(responses));
+            private final T chain;
+
+            private final FrontendMessage request;
+
+            private Publisher<BackendMessage> responses;
+
+            private Builder(T chain, FrontendMessage request) {
+                this.chain = Objects.requireNonNull(chain);
+                this.request = Objects.requireNonNull(request);
+            }
+
+            T thenRespond(BackendMessage... responses) {
+                Objects.requireNonNull(responses);
+
+                return thenRespond(Flux.just(responses));
+            }
+
+            T thenRespond(Publisher<BackendMessage> responses) {
+                Objects.requireNonNull(responses);
+
+                this.responses = responses;
+                return this.chain;
+            }
+
+            private Exchange build() {
+                return new Exchange(this.request, this.responses);
+            }
+
         }
 
-        Builder thenRespond(Flux<BackendMessage> responses) {
-            Objects.requireNonNull(responses);
+    }
 
-            this.builder.exchanges.add(Tuples.of(this.request, responses));
-            return this.builder;
+    private static final class Window {
+
+        private final Flux<Exchange> exchanges;
+
+        private Window(Flux<Exchange> exchanges) {
+            this.exchanges = Objects.requireNonNull(exchanges);
+        }
+
+        static final class Builder<T> {
+
+            private final T chain;
+
+            private final List<Exchange.Builder<?>> exchanges = new ArrayList<>();
+
+            private Builder(T chain) { // TODO: private
+                this.chain = Objects.requireNonNull(chain);
+            }
+
+            Window build() { // TODO: private
+                return new Window(Flux.fromIterable(this.exchanges).map(Exchange.Builder::build));
+            }
+
+            T done() {
+                return this.chain;
+            }
+
+            Exchange.Builder<Builder<T>> expectRequest(FrontendMessage request) {
+                Objects.requireNonNull(request);
+
+                Exchange.Builder<Builder<T>> exchange = new Exchange.Builder<>(this, request);
+                this.exchanges.add(exchange);
+                return exchange;
+            }
+
         }
 
     }

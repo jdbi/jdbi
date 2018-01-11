@@ -41,11 +41,15 @@ public final class PostgresqlConnectionFactoryTest {
 
     @Test
     public void createAuthenticationMD5Password() {
+        // @formatter:off
         Client client = TestClient.builder()
-            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
-            .expectRequest(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804")).thenRespond(AuthenticationOk.INSTANCE, new ParameterStatus("test-key", "test-value"),
-                new BackendKeyData(100, 200))
+            .window()
+                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+                .expectRequest(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804")).thenRespond(AuthenticationOk.INSTANCE, new ParameterStatus("test-key", "test-value"),
+                    new BackendKeyData(100, 200))
+                .done()
             .build();
+        // @formatter:on
 
         ClientFactory clientFactory = mock(ClientFactory.class);
         when(clientFactory.create()).thenReturn(client);

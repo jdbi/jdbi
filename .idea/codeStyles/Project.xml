@@ -1,6 +1,7 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="RIGHT_MARGIN" value="200" />
+    <option name="FORMATTER_TAGS_ENABLED" value="true" />
     <option name="WRAP_COMMENTS" value="true" />
     <JavaCodeStyleSettings>
       <option name="CLASS_NAMES_IN_JAVADOC" value="3" />

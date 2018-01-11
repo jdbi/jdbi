@@ -37,10 +37,14 @@ public final class StartupMessageFlowTest {
 
     @Test
     public void exchangeAuthenticationMessage() {
+        // @formatter:off
         Client client = TestClient.builder()
-            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
-            .expectRequest(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
+            .window()
+                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+                .expectRequest(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
+                .done()
             .build();
+        // @formatter:on
 
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenReturn(new PasswordMessage("test-password"));
 
@@ -54,7 +58,6 @@ public final class StartupMessageFlowTest {
     public void exchangeAuthenticationMessageFail() {
         Client client = TestClient.builder()
             .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
-            .noComplete()
             .build();
 
         when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenThrow(new IllegalArgumentException());
