@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Connection;
 import java.util.List;
@@ -26,15 +27,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class TestClosingHandle
 {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private Handle h;
 
@@ -151,13 +148,18 @@ public class TestClosingHandle
     public void testCloseWithOpenTransaction() throws Exception {
         h.begin();
 
-        exception.expect(TransactionException.class);
-        try {
-            h.close();
-        }
-        finally {
-            assertThat(h.isClosed()).isTrue();
-        }
+        assertThatThrownBy(h::close).isInstanceOf(TransactionException.class);
+        assertThat(h.isClosed()).isTrue();
+    }
+
+    @Test
+    public void testCloseWithOpenTransactionCheckDisabled() throws Exception {
+        h.getConfig(Handles.class).setForceEndTransactions(false);
+
+        h.begin();
+
+        h.close();
+        assertThat(h.isClosed()).isTrue();
     }
 
     @Test
