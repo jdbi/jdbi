@@ -39,11 +39,11 @@ final class PostgresqlTransaction implements Transaction {
     }
 
     @Override
-    public Mono<Void> commit() {
+    public <T> Mono<T> commit() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "COMMIT")
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -52,13 +52,13 @@ final class PostgresqlTransaction implements Transaction {
      * @throws NullPointerException if {@code name} is {@code null}
      */
     @Override
-    public Mono<Void> createSavepoint(String name) {
+    public <T> Mono<T> createSavepoint(String name) {
         Objects.requireNonNull(name, "name must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SAVEPOINT %s", name))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -77,21 +77,21 @@ final class PostgresqlTransaction implements Transaction {
      * @throws NullPointerException if {@cod name} is {@code null}
      */
     @Override
-    public Mono<Void> releaseSavepoint(String name) {
+    public <T> Mono<T> releaseSavepoint(String name) {
         Objects.requireNonNull(name, "name must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("RELEASE SAVEPOINT %s", name))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     @Override
-    public Mono<Void> rollback() {
+    public <T> Mono<T> rollback() {
         return SimpleQueryMessageFlow
             .exchange(this.client, "ROLLBACK")
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -100,13 +100,13 @@ final class PostgresqlTransaction implements Transaction {
      * @throws NullPointerException if {@code name} is {@code null}
      */
     @Override
-    public Mono<Void> rollbackToSavepoint(String name) {
+    public <T> Mono<T> rollbackToSavepoint(String name) {
         Objects.requireNonNull(name, "name must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("ROLLBACK TO SAVEPOINT %s", name))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -115,13 +115,13 @@ final class PostgresqlTransaction implements Transaction {
      * @throws NullPointerException if {@code isolationLevel} is {@code null}
      */
     @Override
-    public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
+    public <T> Mono<T> setIsolationLevel(IsolationLevel isolationLevel) {
         Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -130,13 +130,13 @@ final class PostgresqlTransaction implements Transaction {
      * @throws NullPointerException if {@code mutability} is {@code null}
      */
     @Override
-    public Mono<Void> setMutability(Mutability mutability) {
+    public <T> Mono<T> setMutability(Mutability mutability) {
         Objects.requireNonNull(mutability, "mutability must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET TRANSACTION %s", mutability.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     @Override

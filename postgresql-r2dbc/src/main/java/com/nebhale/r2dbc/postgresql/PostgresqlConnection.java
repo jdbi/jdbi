@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.Util.not;
 
-final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
+final class PostgresqlConnection implements Connection<PostgresqlTransaction> {   // TODO: Find a better way to expose PostgresqlTransaction
 
     private final Client client;
 
@@ -60,10 +60,10 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
     }
 
     @Override
-    public Mono<Void> close() {
+    public <U> Mono<U> close() {
         return TerminateMessageFlow.exchange(this.client)
             .doOnComplete(this.client::close)
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -82,13 +82,13 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
      * @throws NullPointerException if {@code isolationLevel} is {@code null}
      */
     @Override
-    public Mono<Void> setIsolationLevel(IsolationLevel isolationLevel) {
+    public <U> Mono<U> setIsolationLevel(IsolationLevel isolationLevel) {
         Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL %s", isolationLevel.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     /**
@@ -97,13 +97,13 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
      * @throws NullPointerException if {@code mutability} is {@code null}
      */
     @Override
-    public Mono<Void> setMutability(Mutability mutability) {
+    public <U> Mono<U> setMutability(Mutability mutability) {
         Objects.requireNonNull(mutability, "mutability must not be null");
 
         return SimpleQueryMessageFlow
             .exchange(this.client, String.format("SET SESSION CHARACTERISTICS AS TRANSACTION %s", mutability.asSql()))
             .takeWhile(not(CommandComplete.class::isInstance))
-            .then();
+            .then(Mono.empty());
     }
 
     @Override
@@ -123,15 +123,16 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> {
      * @throws NullPointerException if {@code transaction} is {@code null}
      */
     @Override
-    public Mono<Void> withTransaction(Function<PostgresqlTransaction, Publisher<Void>> transaction) {
+    public <T> Flux<T> withTransaction(Function<PostgresqlTransaction, Publisher<T>> transaction) {
         Objects.requireNonNull(transaction, "transaction must not be null");
 
         return begin()
-            .flatMap(tx -> Flux
-                .from(transaction.apply(tx))
-                .thenEmpty(tx.commit())
-                .onErrorResume(t -> tx.rollback()
-                    .then(Mono.error(t))));
+            .flatMapMany(tx ->
+                Flux.from(transaction.apply(tx))
+                    .concatWith(tx.commit())
+                    .onErrorResume(t ->
+                        tx.rollback()
+                            .then(Mono.error(t))));
     }
 
     static Builder builder() {

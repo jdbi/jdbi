@@ -17,10 +17,9 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
-import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
+import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import com.nebhale.r2dbc.postgresql.message.frontend.Query;
 import com.nebhale.r2dbc.postgresql.message.frontend.Terminate;
-import org.junit.Ignore;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -162,15 +161,23 @@ public final class PostgresqlConnectionTest {
     public void withTransaction() {
         Client client = TestClient.builder()
             .expectRequest(new Query("BEGIN")).thenRespond(new CommandComplete("BEGIN", null, null))
-            .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
+            .expectRequest(new Query("test-query")).thenRespond(new DataRow(Collections.emptyList()), new CommandComplete("SELECT", null, null))
             .expectRequest(new Query("COMMIT")).thenRespond(new CommandComplete("COMMIT", null, null))
             .build();
 
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
         PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
             .withTransaction(transaction ->
-                transaction.query("test-query")
-                    .then())
+                transaction.query("test-query"))
             .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(1)
+            .verifyComplete();
+
+        windows.next()
+            .as(StepVerifier::create)
+            .expectNext(new PostgresqlRow(Collections.emptyList()))
             .verifyComplete();
     }
 
@@ -190,8 +197,7 @@ public final class PostgresqlConnectionTest {
 
         PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
             .withTransaction(transaction ->
-                transaction.query("test-query")
-                    .then())
+                transaction.query("test-query"))
             .as(StepVerifier::create)
             .verifyError(ServerErrorException.class);
     }

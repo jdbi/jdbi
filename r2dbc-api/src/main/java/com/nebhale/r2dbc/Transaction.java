@@ -18,6 +18,9 @@ package com.nebhale.r2dbc;
 
 import org.reactivestreams.Publisher;
 
+/**
+ * The core, common operations performed against an open transaction.
+ */
 public interface Transaction extends Operations {
 
     /**
@@ -25,7 +28,7 @@ public interface Transaction extends Operations {
      *
      * @return a {@link Publisher} that indicates that a transaction has been committed
      */
-    Publisher<Void> commit();
+    <T> Publisher<T> commit();
 
     /**
      * Creates a savepoint in this transaction.
@@ -33,7 +36,7 @@ public interface Transaction extends Operations {
      * @param name the name of the savepoint to create
      * @return a {@link Publisher} that indicates that a savepoint has been created
      */
-    Publisher<Void> createSavepoint(String name);
+    <T> Publisher<T> createSavepoint(String name);
 
     /**
      * Releases a savepoint in this transaction.
@@ -41,14 +44,14 @@ public interface Transaction extends Operations {
      * @param name the name of the savepoint to release
      * @return a {@link Publisher} that indicates that a savepoint has been released
      */
-    Publisher<Void> releaseSavepoint(String name);
+    <T> Publisher<T> releaseSavepoint(String name);
 
     /**
      * Rolls back the current transaction.
      *
      * @return a {@link Publisher} that indicates that a transaction has been rolled back
      */
-    Publisher<Void> rollback();
+    <T> Publisher<T> rollback();
 
     /**
      * Rolls back to a savepoint int his transaction.
@@ -56,7 +59,7 @@ public interface Transaction extends Operations {
      * @param name the name of the savepoint to rollback to
      * @return a {@link Publisher} that indicates that a savepoint has been rolled back to
      */
-    Publisher<Void> rollbackToSavepoint(String name);
+    <T> Publisher<T> rollbackToSavepoint(String name);
 
     /**
      * Configures the isolation level for this transaction.
@@ -64,7 +67,7 @@ public interface Transaction extends Operations {
      * @param isolationLevel the isolation level for this transaction
      * @return a {@link Publisher} that indicates that a transaction level has been configured
      */
-    Publisher<Void> setIsolationLevel(IsolationLevel isolationLevel);
+    <T> Publisher<T> setIsolationLevel(IsolationLevel isolationLevel);
 
     /**
      * Configures the mutability for this transaction.
@@ -72,6 +75,6 @@ public interface Transaction extends Operations {
      * @param mutability the mutability for this transaction
      * @return a {@link Publisher} that indicates that mutability has been configured
      */
-    Publisher<Void> setMutability(Mutability mutability);
+    <T> Publisher<T> setMutability(Mutability mutability);
 
 }
