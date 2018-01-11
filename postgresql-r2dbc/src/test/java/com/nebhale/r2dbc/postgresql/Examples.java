@@ -16,120 +16,298 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import org.junit.Ignore;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.nebhale.r2dbc.IsolationLevel.READ_UNCOMMITTED;
 import static com.nebhale.r2dbc.Mutability.READ_ONLY;
 
-@Ignore
 public class Examples {
 
+    @ClassRule
+    public static final PostgresqlServerResource SERVER = new PostgresqlServerResource();
+
     private final PostgresqlConnectionConfiguration configuration = PostgresqlConnectionConfiguration.builder()
-        .applicationName("test-application-name")
-        .database("test_database")
-        .host("localhost")
-        .password("test_password")
-        .username("test_user")
+        .database(SERVER.getDatabase())
+        .host(SERVER.getHost())
+        .port(SERVER.getPort())
+        .password(SERVER.getPassword())
+        .username(SERVER.getUsername())
         .build();
 
     private final PostgresqlConnectionFactory connectionFactory = new PostgresqlConnectionFactory(this.configuration);
 
+    @BeforeClass
+    public static void createSchema() {
+        SERVER.getJdbcOperations().execute("CREATE TABLE test ( value INTEGER )");
+    }
+
+    @Before
+    public void cleanTable() {
+        SERVER.getJdbcOperations().execute("DELETE FROM test");
+    }
+
     @Test
     public void query() {
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
+
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
         this.connectionFactory.create()
-            .flatMapMany(connection -> connection
-                .query("SELECT * FROM test_table; SELECT * FROM test_table;")
-                .concatMap(Examples::printValues))
-            .then()
+            .flatMapMany(connection ->
+                connection.query("SELECT value FROM test; SELECT value FROM test"))
             .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(2)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
             .verifyComplete();
     }
 
     @Test
     public void savePoint() {
-        this.connectionFactory.create()
-            .flatMapMany(connection -> connection
-                .withTransaction(transaction ->
-                    transaction.createSavepoint("foo")
-                        .thenMany(transaction.query("INSERT INTO test_table(id) VALUES(200)")
-                            .thenMany(transaction.query("SELECT * FROM test_table")
-                                .concatMap(Examples::printValues)))
-                        .thenEmpty(transaction.rollbackToSavepoint("foo"))
-                        .thenMany(transaction.query("SELECT * FROM test_table")
-                            .concatMap(Examples::printValues))
-                        .then()))
-            .then()
-            .as(StepVerifier::create)
-            .verifyComplete();
-    }
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
 
-    @Test
-    public void transactionAutomatic() {
-        this.connectionFactory.create()
-            .flatMapMany(connection -> connection
-                .withTransaction(transaction ->
-                    transaction.query("INSERT INTO test_table(id) VALUES(200)")
-                        .thenMany(transaction.query("SELECT * FROM test_table")
-                            .concatMap(Examples::printValues))
-                        .then(Mono.error(new Exception())))
-                .thenMany(connection.query("SELECT * FROM test_table")
-                    .concatMap(Examples::printValues)))
-            .then()
-            .as(StepVerifier::create)
-            .verifyComplete();
-    }
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
 
-    @Test
-    public void transactionIsolation() {
-        this.connectionFactory.create()
-            .flatMapMany(connection -> connection
-                .withTransaction(transaction ->
-                    transaction.setMutability(READ_ONLY)
-                        .thenEmpty(transaction.setIsolationLevel(READ_UNCOMMITTED))
-                        .thenMany(transaction.query("INSERT INTO test_table(id) VALUES(200)"))
-                        .then()))
-            .then()
-            .as(StepVerifier::create)
-            .verifyError(ServerErrorException.class);
-    }
-
-    @Test
-    public void transactionIsolationDefault() {
-        this.connectionFactory.create()
-            .flatMapMany(connection -> connection
-                .setMutability(READ_ONLY)
-                .thenEmpty(connection.setIsolationLevel(READ_UNCOMMITTED))
-                .thenMany(connection.query("INSERT INTO test_table(id) VALUES(200)")))
-            .then()
-            .as(StepVerifier::create)
-            .verifyError(ServerErrorException.class);
-    }
-
-    @Test
-    public void transactionManual() {
         this.connectionFactory.create()
             .flatMapMany(connection ->
                 connection.begin()
-                    .flatMap(transaction ->
-                        transaction.query("INSERT INTO test_table(id) VALUES(200)")
-                            .thenMany(connection.query("SELECT * FROM test_table")
-                                .concatMap(Examples::printValues))
-                            .thenEmpty(transaction.rollback()))
-                    .thenMany(connection.query("SELECT * FROM test_table")
-                        .concatMap(Examples::printValues)))
-            .then()
+                    .flatMapMany(transaction ->
+                        transaction.query("SELECT value FROM test")
+                            .concatWith(transaction.query("INSERT INTO test VALUES (200)"))
+                            .concatWith(transaction.query("SELECT value FROM test"))
+                            .concatWith(transaction.createSavepoint("test_savepoint"))
+                            .concatWith(transaction.query("INSERT INTO test VALUES (300)"))
+                            .concatWith(transaction.query("SELECT value FROM test"))
+                            .concatWith(transaction.rollbackToSavepoint("test_savepoint"))
+                            .concatWith(transaction.query("SELECT value FROM test"))))
             .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(4)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .expectNext(300)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
             .verifyComplete();
     }
 
-    private static Publisher<PostgresqlRow> printValues(Flux<PostgresqlRow> publisher) {
-        return publisher
-            .doOnNext(row -> System.out.printf("ROW VALUE: %d%n", row.getInteger(0)));
+    @Test
+    public void transactionAutomaticCommit() {
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
+
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.withTransaction(transaction ->
+                    transaction.query("SELECT value FROM test")
+                        .concatWith(transaction.query("INSERT INTO test VALUES (200)"))
+                        .concatWith(transaction.query("SELECT value FROM test")))
+                    .concatWith(connection.query("SELECT value FROM test")))
+            .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(3)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+    }
+
+    @Test
+    public void transactionAutomaticRollback() {
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
+
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.withTransaction(transaction ->
+                    transaction.query("SELECT value FROM test")
+                        .concatWith(transaction.query("INSERT INTO test VALUES (200)"))
+                        .concatWith(transaction.query("SELECT value FROM test"))
+                        .concatWith(Mono.error(new Exception())))
+                    .onErrorResume(t -> connection.query("SELECT value FROM test")))
+            .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(3)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+    }
+
+    @Test
+    public void transactionManualCommit() {
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
+
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.begin()
+                    .flatMapMany(transaction ->
+                        transaction.query("SELECT value FROM test")
+                            .concatWith(transaction.query("INSERT INTO test VALUES (200)"))
+                            .concatWith(transaction.query("SELECT value FROM test"))
+                            .concatWith(transaction.commit()))
+                    .concatWith(connection.query("SELECT value FROM test"))
+            )
+            .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(3)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+    }
+
+    @Test
+    public void transactionManualRollback() {
+        SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
+
+        WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
+
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.begin()
+                    .flatMapMany(transaction ->
+                        transaction.query("SELECT value FROM test")
+                            .concatWith(transaction.query("INSERT INTO test VALUES (200)"))
+                            .concatWith(transaction.query("SELECT value FROM test"))
+                            .concatWith(transaction.rollback()))
+                    .concatWith(connection.query("SELECT value FROM test")))
+            .as(StepVerifier::create)
+            .recordWith(windows)
+            .expectNextCount(3)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .expectNext(200)
+            .verifyComplete();
+
+        windows.next()
+            .map(row -> row.getInteger(0))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+    }
+
+    @Test
+    public void transactionMutability() {
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.withTransaction(transaction ->
+                    transaction.setMutability(READ_ONLY)
+                        .concatWith(transaction.query("INSERT INTO test VALUES (200)"))))
+            .as(StepVerifier::create)
+            .verifyError(ServerErrorException.class);
+    }
+
+    @Test
+    public void transactionMutabilityConnection() {
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.setMutability(READ_ONLY)
+                    .concatWith(connection.query("INSERT INTO test VALUES (200)")))
+            .as(StepVerifier::create)
+            .verifyError(ServerErrorException.class);
     }
 
 }

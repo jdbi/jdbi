@@ -23,9 +23,9 @@ import java.util.function.Function;
 /**
  * A single connection to a database.
  *
- * @param <T> the concrete {@link Transaction} type
+ * @param <U> the concrete {@link Transaction} type
  */
-public interface Connection<T extends Transaction> extends Operations {
+public interface Connection<U extends Transaction> extends Operations {
 
     /**
      * Begins a new transaction.
@@ -39,7 +39,7 @@ public interface Connection<T extends Transaction> extends Operations {
      *
      * @return a {@link Publisher} that termination is complete
      */
-    Publisher<Void> close();
+    <T> Publisher<T> close();
 
     /**
      * Configures the default isolation level for transactions created with this connection.
@@ -47,7 +47,7 @@ public interface Connection<T extends Transaction> extends Operations {
      * @param isolationLevel the default isolation level for transactions created with this connection
      * @return a {@link Publisher} that indicates that a transaction level has been configured
      */
-    Publisher<Void> setIsolationLevel(IsolationLevel isolationLevel);
+    <T> Publisher<T> setIsolationLevel(IsolationLevel isolationLevel);
 
     /**
      * Configures the default mutability for transactions created with this connection.
@@ -55,17 +55,17 @@ public interface Connection<T extends Transaction> extends Operations {
      * @param mutability the mutability for transactions created with this connection
      * @return a {@link Publisher} that indicates that mutability has been configured
      */
-    Publisher<Void> setMutability(Mutability mutability);
+    <T> Publisher<T> setMutability(Mutability mutability);
 
     /**
      * Execute a flow within a transaction.  A successful completion of the flow results in commit and an error results in rollback.
      *
      * @param transaction the flow to execute within the transaction
-     * @return a {@link Publisher} that indicates that a transaction has been rolled back
+     * @return a {@link Publisher} that indicates that a transaction is complete
      * @see #begin()
      * @see Transaction#commit()
      * @see Transaction#rollback()
      */
-    Publisher<Void> withTransaction(Function<T, Publisher<Void>> transaction);
+    <T> Publisher<T> withTransaction(Function<U, Publisher<T>> transaction);
 
 }
