@@ -1,3 +1,13 @@
+3.0.1
+  - Kotlin mapper support for @Nested annotation
+  - ReflectionMapperUtil utility class made public.
+  - collectInto() and SQL Object return type support for OptionalInt, OptionalLong,
+    and OptionalDouble, and Vavr Option.
+  - New jdbi3-sqlite plugin with tailored binding and column mapping support for java.net.URL.
+  - Workaround for for multithreaded race condition loading StringTemplate STGroups and
+    templates.
+  - Column mapper for Vavr Option.
+
 3.0.0
   - [breaking] Added ConfigRegistry parameter to SqlLocator.locate() method.
 
