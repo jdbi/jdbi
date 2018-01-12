@@ -85,11 +85,11 @@ final class TcpClientClient implements Client {
      * @throws NullPointerException if {@code publisher} is {@code null}
      */
     @Override
-    public Flux<BackendMessage> exchange(Publisher<FrontendMessage> publisher) {
-        Objects.requireNonNull(publisher, "publisher must not be null");
+    public Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests) {
+        Objects.requireNonNull(requests, "requests must not be null");
 
         return Flux.defer(() -> {
-            Flux.from(publisher)
+            Flux.from(requests)
                 .subscribe(this.requests::next, this.requests::error);
 
             return this.responseProcessor

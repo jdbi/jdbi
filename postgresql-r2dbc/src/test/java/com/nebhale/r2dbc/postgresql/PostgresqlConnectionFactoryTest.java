@@ -28,10 +28,18 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public final class PostgresqlConnectionFactoryTest {
+
+    @Test
+    public void constructorNoClientFactory() {
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnectionFactory(null, PostgresqlConnectionConfiguration.builder()
+            .host("test-host")
+            .password("test-password")
+            .username("test-username")
+            .build()))
+            .withMessage("clientFactory must not be null");
+    }
 
     @Test
     public void constructorNoConfiguration() {
@@ -51,9 +59,6 @@ public final class PostgresqlConnectionFactoryTest {
             .build();
         // @formatter:on
 
-        ClientFactory clientFactory = mock(ClientFactory.class);
-        when(clientFactory.create()).thenReturn(client);
-
         PostgresqlConnectionConfiguration configuration = PostgresqlConnectionConfiguration.builder()
             .applicationName("test-application-name")
             .database("test-database")
@@ -62,7 +67,7 @@ public final class PostgresqlConnectionFactoryTest {
             .password("test-password")
             .build();
 
-        new PostgresqlConnectionFactory(configuration, clientFactory)
+        new PostgresqlConnectionFactory(() -> client, configuration)
             .create()
             .as(StepVerifier::create)
             .assertNext(connection -> {

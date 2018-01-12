@@ -20,17 +20,19 @@ import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
+import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * An implementation of {@link ConnectionFactory} for creating connections to a PostgreSQL database.
  */
 public final class PostgresqlConnectionFactory implements ConnectionFactory {
 
-    private final ClientFactory clientFactory;
+    private final Supplier<Client> clientFactory;
 
     private final PostgresqlConnectionConfiguration configuration;
 
@@ -41,17 +43,17 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
      * @throws NullPointerException if {@code configuration} is {@code null}
      */
     public PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration) {
-        this(configuration, new TcpClientClientClientFactory(configuration));
+        this(() -> new TcpClientClient(configuration.getHost(), configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE), configuration);
     }
 
-    PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration, ClientFactory clientFactory) {
+    PostgresqlConnectionFactory(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {
+        this.clientFactory = Objects.requireNonNull(clientFactory, "clientFactory must not be null");
         this.configuration = Objects.requireNonNull(configuration, "configuration must not be null");
-        this.clientFactory = clientFactory;
     }
 
     @Override
     public Mono<PostgresqlConnection> create() {
-        Client client = this.clientFactory.create();
+        Client client = this.clientFactory.get();
 
         return StartupMessageFlow
             .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername())
