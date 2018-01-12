@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.client.PostgresqlServerResource;
+import com.nebhale.r2dbc.postgresql.client.WindowCollector;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;

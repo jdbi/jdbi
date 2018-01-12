@@ -19,6 +19,9 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.Connection;
 import com.nebhale.r2dbc.IsolationLevel;
 import com.nebhale.r2dbc.Mutability;
+import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
+import com.nebhale.r2dbc.postgresql.client.TerminationMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -61,7 +64,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> { 
 
     @Override
     public <U> Mono<U> close() {
-        return TerminateMessageFlow.exchange(this.client)
+        return TerminationMessageFlow.exchange(this.client)
             .doOnComplete(this.client::close)
             .then(Mono.empty());
     }

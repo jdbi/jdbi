@@ -17,6 +17,9 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.Operations;
+import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
+import com.nebhale.r2dbc.postgresql.client.WindowMaker;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;

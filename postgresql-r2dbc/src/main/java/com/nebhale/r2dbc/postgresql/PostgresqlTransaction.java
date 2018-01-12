@@ -19,6 +19,8 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.IsolationLevel;
 import com.nebhale.r2dbc.Mutability;
 import com.nebhale.r2dbc.Transaction;
+import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

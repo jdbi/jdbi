@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.frontend.Terminate;
 import org.junit.Test;
@@ -22,7 +22,7 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class TerminateMessageFlowTest {
+public final class TerminationMessageFlowTest {
 
     @Test
     public void exchange() {
@@ -30,14 +30,14 @@ public final class TerminateMessageFlowTest {
             .expectRequest(Terminate.INSTANCE).thenRespond()
             .build();
 
-        TerminateMessageFlow.exchange(client)
+        TerminationMessageFlow.exchange(client)
             .as(StepVerifier::create)
             .verifyComplete();
     }
 
     @Test
     public void exchangeNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> TerminateMessageFlow.exchange(null))
+        assertThatNullPointerException().isThrownBy(() -> TerminationMessageFlow.exchange(null))
             .withMessage("client must not be null");
     }
 

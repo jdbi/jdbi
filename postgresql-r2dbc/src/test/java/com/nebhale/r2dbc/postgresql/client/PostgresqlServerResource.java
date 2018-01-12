@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.rules.ExternalResource;
@@ -33,7 +33,7 @@ import java.util.Collections;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static ru.yandex.qatools.embed.postgresql.EmbeddedPostgres.cachedRuntimeConfig;
 
-final class PostgresqlServerResource extends ExternalResource {
+public final class PostgresqlServerResource extends ExternalResource {
 
     private final Logger logger = LoggerFactory.getLogger("test.postgresql-server");
 
@@ -53,7 +53,7 @@ final class PostgresqlServerResource extends ExternalResource {
 
     private JdbcOperations jdbcOperations;
 
-    PostgresqlServerResource() {
+    public PostgresqlServerResource() {
         this.database = randomAlphanumeric(8);
         this.host = "localhost";
         this.password = randomAlphanumeric(16);
@@ -63,8 +63,28 @@ final class PostgresqlServerResource extends ExternalResource {
         this.server = new EmbeddedPostgres(getDataDirectory(this.database));
     }
 
+    public String getDatabase() {
+        return this.database;
+    }
+
+    public String getHost() {
+        return this.host;
+    }
+
     public JdbcOperations getJdbcOperations() {
         return this.jdbcOperations;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
@@ -87,26 +107,6 @@ final class PostgresqlServerResource extends ExternalResource {
         this.jdbcOperations = new JdbcTemplate(this.dataSource);
 
         this.logger.info("PostgreSQL server started");
-    }
-
-    String getDatabase() {
-        return this.database;
-    }
-
-    String getHost() {
-        return this.host;
-    }
-
-    String getPassword() {
-        return this.password;
-    }
-
-    int getPort() {
-        return this.port;
-    }
-
-    String getUsername() {
-        return this.username;
     }
 
     private static Path getCachePath() {

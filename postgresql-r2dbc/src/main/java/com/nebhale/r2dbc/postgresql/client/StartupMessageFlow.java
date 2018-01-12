@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
@@ -28,12 +28,26 @@ import reactor.core.publisher.FluxSink;
 
 import java.util.Objects;
 
-final class StartupMessageFlow {
+/**
+ * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428664018352">Start-up</a> message flow.
+ */
+public final class StartupMessageFlow {
 
     private StartupMessageFlow() {
     }
 
-    static Flux<BackendMessage> exchange(String applicationName, AuthenticationHandler authenticationHandler, Client client, String database, String username) {
+    /**
+     * Execute the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428664018352">Start-up</a> message flow.
+     *
+     * @param applicationName       the name of the application connecting to the server
+     * @param authenticationHandler the {@link AuthenticationHandler} to use for authentication
+     * @param client                the {@link Client} to exchange messages with
+     * @param database              the database to connect to
+     * @param username              the username to authenticate with
+     * @return the messages received after authentication is complete, in response to this exchange
+     * @throws NullPointerException if {@code applicationName}, {@code authenticationHandler}, {@code Client}, or {@code username} is {@code null}
+     */
+    public static Flux<BackendMessage> exchange(String applicationName, AuthenticationHandler authenticationHandler, Client client, String database, String username) {
         Objects.requireNonNull(applicationName, "applicationName must not be null");
         Objects.requireNonNull(authenticationHandler, "authenticationHandler must not be null");
         Objects.requireNonNull(client, "client must not be null");
