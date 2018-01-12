@@ -90,7 +90,7 @@ public final class TestClient implements Client {
 
     public static final class Builder {
 
-        private final List<Window.Builder> windows = new ArrayList<>();
+        private final List<Window.Builder<?>> windows = new ArrayList<>();
 
         private boolean expectClose = false;
 

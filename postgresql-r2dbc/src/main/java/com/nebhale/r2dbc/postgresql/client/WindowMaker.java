@@ -34,6 +34,7 @@ public final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
 
     private static final int FALSE = 0;
 
+    @SuppressWarnings("rawtypes")
     private static final AtomicIntegerFieldUpdater<WindowMaker> IS_IN_WINDOW = AtomicIntegerFieldUpdater.newUpdater(WindowMaker.class, "isInWindow");
 
     private static final int TRUE = 1;

@@ -34,7 +34,10 @@ import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.Util.not;
 
-final class PostgresqlConnection implements Connection<PostgresqlTransaction> {   // TODO: Find a better way to expose PostgresqlTransaction
+/**
+ * An implementation of {@link Connection} for connecting to a PostgreSQL database.
+ */
+public final class PostgresqlConnection implements Connection<PostgresqlTransaction> {   // TODO: Find a better way to expose PostgresqlTransaction
 
     private final Client client;
 
@@ -63,7 +66,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> { 
     }
 
     @Override
-    public <U> Mono<U> close() {
+    public <T> Mono<T> close() {
         return TerminationMessageFlow.exchange(this.client)
             .doOnComplete(this.client::close)
             .then(Mono.empty());
@@ -85,7 +88,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> { 
      * @throws NullPointerException if {@code isolationLevel} is {@code null}
      */
     @Override
-    public <U> Mono<U> setIsolationLevel(IsolationLevel isolationLevel) {
+    public <T> Mono<T> setIsolationLevel(IsolationLevel isolationLevel) {
         Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return SimpleQueryMessageFlow
@@ -100,7 +103,7 @@ final class PostgresqlConnection implements Connection<PostgresqlTransaction> { 
      * @throws NullPointerException if {@code mutability} is {@code null}
      */
     @Override
-    public <U> Mono<U> setMutability(Mutability mutability) {
+    public <T> Mono<T> setMutability(Mutability mutability) {
         Objects.requireNonNull(mutability, "mutability must not be null");
 
         return SimpleQueryMessageFlow

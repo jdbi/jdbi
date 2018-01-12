@@ -28,6 +28,6 @@ public interface ConnectionFactory {
      *
      * @return the newly created {@link Connection}
      */
-    Publisher<? extends Connection> create();
+    Publisher<? extends Connection<?>> create();
 
 }

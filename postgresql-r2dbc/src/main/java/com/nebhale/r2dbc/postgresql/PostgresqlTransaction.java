@@ -29,7 +29,10 @@ import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.Util.not;
 
-final class PostgresqlTransaction implements Transaction {
+/**
+ * An implementation of {@link Transaction} for managing transactions in a PostgreSQL database.
+ */
+public final class PostgresqlTransaction implements Transaction {
 
     private final Client client;
 
@@ -76,7 +79,7 @@ final class PostgresqlTransaction implements Transaction {
     /**
      * {@inheritDoc}
      *
-     * @throws NullPointerException if {@cod name} is {@code null}
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     @Override
     public <T> Mono<T> releaseSavepoint(String name) {
