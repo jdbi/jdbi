@@ -22,6 +22,9 @@ import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.util.Map;
+import java.util.Optional;
+
 /**
  * An abstraction that wraps the networking part of exchanging methods.
  */
@@ -39,5 +42,26 @@ public interface Client {
      * @return a {@link Flux} of incoming messages that ends with the end of the frame (i.e. reception of a {@link ReadyForQuery} message.
      */
     Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests);
+
+    /**
+     * Returns a snapshot of the current parameter statuses.
+     *
+     * @return a snapshot of the current parameter statuses
+     */
+    Map<String, String> getParameterStatus();
+
+    /**
+     * Returns the connected process id if it has been communicated.
+     *
+     * @return the connected process id if it has been communicated
+     */
+    Optional<Integer> getProcessId();
+
+    /**
+     * Returns the connected process secret key if it has been communicated.
+     *
+     * @return the connected process secret key if it has been communicated
+     */
+    Optional<Integer> getSecretKey();
 
 }

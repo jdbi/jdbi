@@ -101,4 +101,15 @@ public final class ReactorNettyClientTest {
             .withMessage("requests must not be null");
     }
 
+    @Test
+    public void handleBackendData() {
+        assertThat(this.client.getProcessId()).isNotEmpty();
+        assertThat(this.client.getSecretKey()).isNotEmpty();
+    }
+
+    @Test
+    public void handleParameterStatus() {
+        assertThat(this.client.getParameterStatus()).containsEntry("application_name", "test-application-name");
+    }
+
 }

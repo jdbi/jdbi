@@ -25,17 +25,25 @@ import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static reactor.function.TupleUtils.function;
 
 public final class TestClient implements Client {
 
-    public static final TestClient NO_OP = new TestClient(false, Flux.empty());
+    public static final TestClient NO_OP = new TestClient(false, Collections.emptyMap(), null, null, Flux.empty());
 
     private final boolean expectClose;
+
+    private final Map<String, String> parameterStatus;
+
+    private final Integer processId;
 
     private final EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create(false);
 
@@ -43,10 +51,13 @@ public final class TestClient implements Client {
 
     private final EmitterProcessor<Flux<BackendMessage>> responseProcessor = EmitterProcessor.create(false);
 
-    private TestClient(boolean expectClose, Flux<Window> windows) {
-        Objects.requireNonNull(windows);
+    private final Integer secretKey;
 
+    private TestClient(boolean expectClose, Map<String, String> parameterStatus, Integer processId, Integer secretKey, Flux<Window> windows) {
         this.expectClose = expectClose;
+        this.parameterStatus = parameterStatus;
+        this.processId = processId;
+        this.secretKey = secretKey;
 
         windows
             .map(window -> window.exchanges)
@@ -88,17 +99,38 @@ public final class TestClient implements Client {
         });
     }
 
+    @Override
+    public Map<String, String> getParameterStatus() {
+        return this.parameterStatus;
+    }
+
+    @Override
+    public Optional<Integer> getProcessId() {
+        return Optional.ofNullable(this.processId);
+    }
+
+    @Override
+    public Optional<Integer> getSecretKey() {
+        return Optional.ofNullable(this.secretKey);
+    }
+
     public static final class Builder {
+
+        private final Map<String, String> parameterStatus = new HashMap<>();
 
         private final List<Window.Builder<?>> windows = new ArrayList<>();
 
         private boolean expectClose = false;
 
+        private Integer processId = null;
+
+        private Integer secretKey = null;
+
         private Builder() {
         }
 
         public TestClient build() {
-            return new TestClient(this.expectClose, Flux.fromIterable(this.windows).map(Window.Builder::build));
+            return new TestClient(this.expectClose, parameterStatus, this.processId, this.secretKey, Flux.fromIterable(this.windows).map(Window.Builder::build));
         }
 
         public Builder expectClose() {
@@ -116,6 +148,21 @@ public final class TestClient implements Client {
             window.exchanges.add(exchange);
 
             return exchange;
+        }
+
+        public Builder parameterStatus(String key, String value) {
+            this.parameterStatus.put(key, value);
+            return this;
+        }
+
+        public Builder processId(Integer processId) {
+            this.processId = processId;
+            return this;
+        }
+
+        public Builder secretKey(Integer secretKey) {
+            this.secretKey = secretKey;
+            return this;
         }
 
         public Window.Builder<Builder> window() {
