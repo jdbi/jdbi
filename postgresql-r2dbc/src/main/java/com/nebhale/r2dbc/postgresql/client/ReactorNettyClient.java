@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
+import com.nebhale.r2dbc.postgresql.ServerErrorException;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
@@ -36,7 +37,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-final class TcpClientClient implements Client {
+/**
+ * An implementation of client based on the Reactor Netty project.
+ *
+ * @see TcpClient
+ */
+public final class ReactorNettyClient implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,7 +60,7 @@ final class TcpClientClient implements Client {
      * @param decoder the decoder to use to decode {@link BackendMessage}s
      * @throws NullPointerException if {@code host} or {@code decoder} is {@code null}
      */
-    TcpClientClient(String host, int port, BackendMessageDecoder decoder) {
+    public ReactorNettyClient(String host, int port, BackendMessageDecoder decoder) {
         Objects.requireNonNull(host, "host must not be null");
         Objects.requireNonNull(decoder, "decoder must not be null");
 

@@ -14,27 +14,8 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+/**
+ * The infrastructure for exchanging messages with the server.
+ */
 
-import reactor.core.publisher.Flux;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.function.Supplier;
-
-final class WindowCollector<T> implements Supplier<Collection<Flux<T>>> {
-
-    private final Queue<Flux<T>> windows = new LinkedList<>();
-
-    @Override
-    public Collection<Flux<T>> get() {
-        return this.windows;
-    }
-
-    public Flux<T> next() {
-        return Optional.ofNullable(this.windows.poll()).orElseThrow(() -> new AssertionError("No more windows were emitted"));
-    }
-
-}
+package com.nebhale.r2dbc.postgresql.client;

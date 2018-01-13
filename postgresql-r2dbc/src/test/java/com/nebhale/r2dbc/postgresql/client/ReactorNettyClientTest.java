@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
+import com.nebhale.r2dbc.postgresql.ServerErrorException;
 import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
@@ -32,12 +33,12 @@ import reactor.test.StepVerifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class TcpClientClientTest {
+public final class ReactorNettyClientTest {
 
     @ClassRule
     public static final PostgresqlServerResource SERVER = new PostgresqlServerResource();
 
-    private final TcpClientClient client = new TcpClientClient(SERVER.getHost(), SERVER.getPort(), DefaultBackendMessageDecoder.INSTANCE);
+    private final ReactorNettyClient client = new ReactorNettyClient(SERVER.getHost(), SERVER.getPort(), DefaultBackendMessageDecoder.INSTANCE);
 
     @BeforeClass
     public static void createSchema() {
@@ -56,13 +57,13 @@ public final class TcpClientClientTest {
 
     @Test
     public void constructorNoDecoder() {
-        assertThatNullPointerException().isThrownBy(() -> new TcpClientClient(SERVER.getHost(), SERVER.getPort(), null))
+        assertThatNullPointerException().isThrownBy(() -> new ReactorNettyClient(SERVER.getHost(), SERVER.getPort(), null))
             .withMessage("decoder must not be null");
     }
 
     @Test
     public void constructorNoHost() {
-        assertThatNullPointerException().isThrownBy(() -> new TcpClientClient(null, SERVER.getPort(), DefaultBackendMessageDecoder.INSTANCE))
+        assertThatNullPointerException().isThrownBy(() -> new ReactorNettyClient(null, SERVER.getPort(), DefaultBackendMessageDecoder.INSTANCE))
             .withMessage("host must not be null");
     }
 

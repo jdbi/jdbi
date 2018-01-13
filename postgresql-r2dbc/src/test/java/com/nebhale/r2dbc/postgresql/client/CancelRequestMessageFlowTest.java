@@ -14,41 +14,32 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
-import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
-import com.nebhale.r2dbc.postgresql.message.frontend.Query;
+import com.nebhale.r2dbc.postgresql.message.frontend.CancelRequest;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
-import static org.mockito.Mockito.mock;
 
-public final class SimpleQueryMessageFlowTest {
+public final class CancelRequestMessageFlowTest {
 
     @Test
     public void exchange() {
         Client client = TestClient.builder()
-            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
+            .expectRequest(new CancelRequest(100, 200)).thenRespond()
             .build();
 
-        SimpleQueryMessageFlow
-            .exchange(client, "test-query")
+        CancelRequestMessageFlow
+            .exchange(client, 100, 200)
             .as(StepVerifier::create)
-            .expectNext(new CommandComplete("test", null, null))
             .verifyComplete();
     }
 
     @Test
     public void exchangeNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> SimpleQueryMessageFlow.exchange(null, "test-query"))
+        assertThatNullPointerException().isThrownBy(() -> CancelRequestMessageFlow.exchange(null, 100, 200))
             .withMessage("client must not be null");
-    }
-
-    @Test
-    public void exchangeNoQuery() {
-        assertThatNullPointerException().isThrownBy(() -> SimpleQueryMessageFlow.exchange(mock(Client.class), null))
-            .withMessage("query must not be null");
     }
 
 }

@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.client.TestClient;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;

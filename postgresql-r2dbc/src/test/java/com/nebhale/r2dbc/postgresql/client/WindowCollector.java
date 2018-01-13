@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
-import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
-import com.nebhale.r2dbc.postgresql.message.frontend.Terminate;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.Objects;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.function.Supplier;
 
-final class TerminateMessageFlow {
+public final class WindowCollector<T> implements Supplier<Collection<Flux<T>>> {
 
-    private TerminateMessageFlow() {
+    private final Queue<Flux<T>> windows = new LinkedList<>();
+
+    @Override
+    public Collection<Flux<T>> get() {
+        return this.windows;
     }
 
-    static Flux<BackendMessage> exchange(Client client) {
-        Objects.requireNonNull(client, "client must not be null");
-
-        return client.exchange(Mono.just(Terminate.INSTANCE));
+    public Flux<T> next() {
+        return Optional.ofNullable(this.windows.poll()).orElseThrow(() -> new AssertionError("No more windows were emitted"));
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;

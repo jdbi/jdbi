@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery;
@@ -22,7 +22,10 @@ import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
-interface Client {
+/**
+ * An abstraction that wraps the networking part of exchanging methods.
+ */
+public interface Client {
 
     /**
      * Release any resources held by the {@link Client}.

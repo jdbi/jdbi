@@ -24,7 +24,10 @@ import java.util.Objects;
 
 import static io.netty.util.CharsetUtil.UTF_8;
 
-final class PostgresqlRow implements Row {
+/**
+ * An implementation of {@link Row} for managing rows in a PostgreSQL database.
+ */
+public final class PostgresqlRow implements Row {
 
     private final List<ByteBuf> columns;
 

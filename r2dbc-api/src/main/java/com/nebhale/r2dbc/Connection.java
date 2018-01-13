@@ -37,6 +37,7 @@ public interface Connection<U extends Transaction> extends Operations {
     /**
      * Release any resources held by the {@link Connection}.
      *
+     * @param <T> the type of item flowing through the {@link Publisher}
      * @return a {@link Publisher} that termination is complete
      */
     <T> Publisher<T> close();
@@ -45,6 +46,7 @@ public interface Connection<U extends Transaction> extends Operations {
      * Configures the default isolation level for transactions created with this connection.
      *
      * @param isolationLevel the default isolation level for transactions created with this connection
+     * @param <T>            the type of item flowing through the {@link Publisher}
      * @return a {@link Publisher} that indicates that a transaction level has been configured
      */
     <T> Publisher<T> setIsolationLevel(IsolationLevel isolationLevel);
@@ -53,6 +55,7 @@ public interface Connection<U extends Transaction> extends Operations {
      * Configures the default mutability for transactions created with this connection.
      *
      * @param mutability the mutability for transactions created with this connection
+     * @param <T>        the type of item flowing through the {@link Publisher}
      * @return a {@link Publisher} that indicates that mutability has been configured
      */
     <T> Publisher<T> setMutability(Mutability mutability);
@@ -61,6 +64,7 @@ public interface Connection<U extends Transaction> extends Operations {
      * Execute a flow within a transaction.  A successful completion of the flow results in commit and an error results in rollback.
      *
      * @param transaction the flow to execute within the transaction
+     * @param <T>         the type of item flowing through the {@link Publisher}
      * @return a {@link Publisher} that indicates that a transaction is complete
      * @see #begin()
      * @see Transaction#commit()

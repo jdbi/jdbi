@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
@@ -31,9 +31,9 @@ import java.util.function.Function;
 
 import static reactor.function.TupleUtils.function;
 
-final class TestClient implements Client {
+public final class TestClient implements Client {
 
-    static final TestClient NO_OP = new TestClient(false, Flux.empty());
+    public static final TestClient NO_OP = new TestClient(false, Flux.empty());
 
     private final boolean expectClose;
 
@@ -63,6 +63,10 @@ final class TestClient implements Client {
             .subscribe(this.responseProcessor);
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Override
     public void close() {
         if (!this.expectClose) {
@@ -84,29 +88,25 @@ final class TestClient implements Client {
         });
     }
 
-    static Builder builder() {
-        return new Builder();
-    }
+    public static final class Builder {
 
-    static final class Builder {
-
-        private final List<Window.Builder> windows = new ArrayList<>();
+        private final List<Window.Builder<?>> windows = new ArrayList<>();
 
         private boolean expectClose = false;
 
         private Builder() {
         }
 
-        TestClient build() {
+        public TestClient build() {
             return new TestClient(this.expectClose, Flux.fromIterable(this.windows).map(Window.Builder::build));
         }
 
-        Builder expectClose() {
+        public Builder expectClose() {
             this.expectClose = true;
             return this;
         }
 
-        Exchange.Builder<Builder> expectRequest(FrontendMessage request) {
+        public Exchange.Builder<Builder> expectRequest(FrontendMessage request) {
             Objects.requireNonNull(request);
 
             Window.Builder<Builder> window = new Window.Builder<>(this);
@@ -118,7 +118,7 @@ final class TestClient implements Client {
             return exchange;
         }
 
-        Window.Builder<Builder> window() {
+        public Window.Builder<Builder> window() {
             Window.Builder<Builder> window = new Window.Builder<>(this);
             this.windows.add(window);
             return window;
@@ -137,7 +137,7 @@ final class TestClient implements Client {
             this.responses = Objects.requireNonNull(responses);
         }
 
-        static final class Builder<T> {
+        public static final class Builder<T> {
 
             private final T chain;
 
@@ -150,13 +150,13 @@ final class TestClient implements Client {
                 this.request = Objects.requireNonNull(request);
             }
 
-            T thenRespond(BackendMessage... responses) {
+            public T thenRespond(BackendMessage... responses) {
                 Objects.requireNonNull(responses);
 
                 return thenRespond(Flux.just(responses));
             }
 
-            T thenRespond(Publisher<BackendMessage> responses) {
+            public T thenRespond(Publisher<BackendMessage> responses) {
                 Objects.requireNonNull(responses);
 
                 this.responses = responses;
@@ -179,30 +179,30 @@ final class TestClient implements Client {
             this.exchanges = Objects.requireNonNull(exchanges);
         }
 
-        static final class Builder<T> {
+        public static final class Builder<T> {
 
             private final T chain;
 
             private final List<Exchange.Builder<?>> exchanges = new ArrayList<>();
 
-            private Builder(T chain) { // TODO: private
+            private Builder(T chain) {
                 this.chain = Objects.requireNonNull(chain);
             }
 
-            Window build() { // TODO: private
-                return new Window(Flux.fromIterable(this.exchanges).map(Exchange.Builder::build));
-            }
-
-            T done() {
+            public T done() {
                 return this.chain;
             }
 
-            Exchange.Builder<Builder<T>> expectRequest(FrontendMessage request) {
+            public Exchange.Builder<Builder<T>> expectRequest(FrontendMessage request) {
                 Objects.requireNonNull(request);
 
                 Exchange.Builder<Builder<T>> exchange = new Exchange.Builder<>(this, request);
                 this.exchanges.add(exchange);
                 return exchange;
+            }
+
+            private Window build() {
+                return new Window(Flux.fromIterable(this.exchanges).map(Exchange.Builder::build));
             }
 
         }

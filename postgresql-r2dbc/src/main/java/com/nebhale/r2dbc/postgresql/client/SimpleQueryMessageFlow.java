@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.Query;
@@ -23,12 +23,23 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-final class SimpleQueryMessageFlow {
+/**
+ * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428663987712">Simple Query</a> message flow.
+ */
+public final class SimpleQueryMessageFlow {
 
     private SimpleQueryMessageFlow() {
     }
 
-    static Flux<BackendMessage> exchange(Client client, String query) {
+    /**
+     * Execute the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428663987712">Simple Query</a> message flow.
+     *
+     * @param client the {@link Client} to exchange messages with
+     * @param query  the query to execute
+     * @return the messages received in response to this exchange
+     * @throws NullPointerException if {@code client} or {@code query} is {@code null}
+     */
+    public static Flux<BackendMessage> exchange(Client client, String query) {
         Objects.requireNonNull(client, "client must not be null");
         Objects.requireNonNull(query, "query must not be null");
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql;
+package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import reactor.core.publisher.EmitterProcessor;
@@ -25,10 +25,16 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
+/**
+ * A class that partitions a {@link Flux} into windows.  The windows do not include the boundary element and do not open until the first element of the window has been received.
+ *
+ * @param <T> the type of elements within the window
+ */
+public final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
 
     private static final int FALSE = 0;
 
+    @SuppressWarnings("rawtypes")
     private static final AtomicIntegerFieldUpdater<WindowMaker> IS_IN_WINDOW = AtomicIntegerFieldUpdater.newUpdater(WindowMaker.class, "isInWindow");
 
     private static final int TRUE = 1;
@@ -45,6 +51,40 @@ final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
         this.isBoundary = isBoundary;
     }
 
+    /**
+     * Creates a new instance using a specific {@link BackendMessage} as a boundary.
+     *
+     * @param boundary the {@link BackendMessage} to use as a boundary
+     * @return a new {@link WindowMaker}
+     * @throws NullPointerException if {@code boundary} is {@code null}
+     */
+    public static WindowMaker<BackendMessage> create(Class<? extends BackendMessage> boundary) {
+        Objects.requireNonNull(boundary, "boundary must not be null");
+
+        return create(boundary::isInstance);
+    }
+
+    /**
+     * Creates a new instance using as specific {@link Predicate} as a boundary.
+     *
+     * @param isBoundary the {@link Predicate} to use as a boundary
+     * @param <T>        the type of value to test
+     * @return a new {@link WindowMaker}
+     * @throws NullPointerException if {@code predicate} is {@code null}
+     */
+    public static <T> WindowMaker<T> create(Predicate<T> isBoundary) {
+        Objects.requireNonNull(isBoundary, "isBoundary must not be null");
+
+        return new WindowMaker<>(isBoundary);
+    }
+
+    /**
+     * A {@link Flux} transformer that adds the {@link WindowMaker}.
+     *
+     * @param flux the {@link Flux} to transform
+     * @return the transformed {@link Flux}
+     * @throws NullPointerException if {@code flux} is {@code null}
+     */
     @Override
     public Flux<Flux<T>> apply(Flux<T> flux) {
         Objects.requireNonNull(flux, "flux must not be null");
@@ -58,19 +98,6 @@ final class WindowMaker<T> implements Function<Flux<T>, Flux<Flux<T>>> {
                 }
             })
             .windowWhen(this.opener::subscribe, i -> this.closer);
-    }
-
-
-    static WindowMaker<BackendMessage> create(Class<? extends BackendMessage> boundary) {
-        Objects.requireNonNull(boundary, "boundary must not be null");
-
-        return create(boundary::isInstance);
-    }
-
-    static <T> WindowMaker<T> create(Predicate<T> isBoundary) {
-        Objects.requireNonNull(isBoundary, "isBoundary must not be null");
-
-        return new WindowMaker<>(isBoundary);
     }
 
 }

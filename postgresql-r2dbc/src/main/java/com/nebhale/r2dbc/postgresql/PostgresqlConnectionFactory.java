@@ -19,6 +19,9 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler;
+import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.client.ReactorNettyClient;
+import com.nebhale.r2dbc.postgresql.client.StartupMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
@@ -43,7 +46,7 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
      * @throws NullPointerException if {@code configuration} is {@code null}
      */
     public PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration) {
-        this(() -> new TcpClientClient(configuration.getHost(), configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE), configuration);
+        this(() -> new ReactorNettyClient(configuration.getHost(), configuration.getPort(), DefaultBackendMessageDecoder.INSTANCE), configuration);
     }
 
     PostgresqlConnectionFactory(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {

@@ -95,6 +95,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.0.0</version>
+                    <configuration>
+                        <links>
+                            <link>https://projectreactor.io/docs/core/release/api/</link>
+                            <link>http://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
+                        </links>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
