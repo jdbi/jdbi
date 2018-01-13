@@ -120,7 +120,8 @@ public class Handle implements Closeable, Configurable<Handle>
     public void close() {
         extensionMethod.remove();
         if (!closed) {
-            boolean wasInTransaction = isInTransaction() && forceEndTransactions;
+            boolean wasInTransaction = isInTransaction() && forceEndTransactions
+                    && config.get().get(Handles.class).isForceEndTransactions();
             if (wasInTransaction) {
                 rollback();
             }
@@ -134,7 +135,8 @@ public class Handle implements Closeable, Configurable<Handle>
                         throw new TransactionException("Improper transaction handling detected: A Handle with an open " +
                                 "transaction was closed. Transactions must be explicitly committed or rolled back " +
                                 "before closing the Handle. " +
-                                "Jdbi has rolled back this transaction automatically.");
+                                "Jdbi has rolled back this transaction automatically. " +
+                                "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
                     }
                 }
                 catch (SQLException e) {
