@@ -27,7 +27,6 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -43,17 +42,8 @@ public final class PostgresqlConnection implements Connection<PostgresqlTransact
 
     private final PostgresqlOperations delegate;
 
-    private final Map<String, String> parameters;
-
-    private final int processId;
-
-    private final int secretKey;
-
-    private PostgresqlConnection(Client client, Map<String, String> parameters, Integer processId, Integer secretKey) {
+    PostgresqlConnection(Client client) {
         this.client = Objects.requireNonNull(client, "client must not be null");
-        this.parameters = parameters;
-        this.processId = Objects.requireNonNull(processId, "processId must not be null");
-        this.secretKey = Objects.requireNonNull(secretKey, "secretKey must not be null");
         this.delegate = new PostgresqlOperations(this.client);
     }
 
@@ -70,6 +60,15 @@ public final class PostgresqlConnection implements Connection<PostgresqlTransact
         return TerminationMessageFlow.exchange(this.client)
             .doOnComplete(this.client::close)
             .then(Mono.empty());
+    }
+
+    /**
+     * Returns a snapshot of the current parameter statuses.
+     *
+     * @return a snapshot of the current parameter statuses
+     */
+    public Map<String, String> getParameterStatus() {
+        return this.client.getParameterStatus();
     }
 
     /**
@@ -117,9 +116,6 @@ public final class PostgresqlConnection implements Connection<PostgresqlTransact
         return "PostgresqlConnection{" +
             "client=" + this.client +
             ", delegate=" + this.delegate +
-            ", parameters=" + this.parameters +
-            ", processId=" + this.processId +
-            ", secretKey=" + this.secretKey +
             '}';
     }
 
@@ -139,74 +135,6 @@ public final class PostgresqlConnection implements Connection<PostgresqlTransact
                     .onErrorResume(t ->
                         tx.rollback()
                             .then(Mono.error(t))));
-    }
-
-    static Builder builder() {
-        return new Builder();
-    }
-
-    Map<String, String> getParameters() {
-        return this.parameters;
-    }
-
-    int getProcessId() {
-        return this.processId;
-    }
-
-    int getSecretKey() {
-        return this.secretKey;
-    }
-
-    static final class Builder {
-
-        private Client client;
-
-        private Map<String, String> parameters = new HashMap<>();
-
-        private Integer processId;
-
-        private Integer secretKey;
-
-        private Builder() {
-        }
-
-        @Override
-        public String toString() {
-            return "Builder{" +
-                "client=" + this.client +
-                ", parameters=" + this.parameters +
-                ", processId=" + this.processId +
-                ", secretKey=" + this.secretKey +
-                '}';
-        }
-
-        PostgresqlConnection build() {
-            return new PostgresqlConnection(this.client, this.parameters, this.processId, this.secretKey);
-        }
-
-        Builder client(Client client) {
-            this.client = Objects.requireNonNull(client, "client must not be null");
-            return this;
-        }
-
-        Builder parameter(String key, String value) {
-            Objects.requireNonNull(key, "key must not be null");
-            Objects.requireNonNull(value, "value must not be null");
-
-            this.parameters.put(key, value);
-            return this;
-        }
-
-        Builder processId(int processId) {
-            this.processId = processId;
-            return this;
-        }
-
-        Builder secretKey(int secretKey) {
-            this.secretKey = secretKey;
-            return this;
-        }
-
     }
 
 }

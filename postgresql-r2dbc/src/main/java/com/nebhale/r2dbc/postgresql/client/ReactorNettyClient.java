@@ -17,11 +17,13 @@
 package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.ServerErrorException;
+import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessageDecoder;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.Field;
 import com.nebhale.r2dbc.postgresql.message.backend.NoticeResponse;
+import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import org.reactivestreams.Publisher;
@@ -33,8 +35,15 @@ import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.SynchronousSink;
 import reactor.ipc.netty.tcp.TcpClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -44,13 +53,39 @@ import java.util.stream.Collectors;
  */
 public final class ReactorNettyClient implements Client {
 
+    private static final AtomicReferenceFieldUpdater<ReactorNettyClient, Integer> PROCESS_ID = AtomicReferenceFieldUpdater.newUpdater(ReactorNettyClient.class, Integer.class, "processId");
+
+    private static final AtomicReferenceFieldUpdater<ReactorNettyClient, Integer> SECRET_KEY = AtomicReferenceFieldUpdater.newUpdater(ReactorNettyClient.class, Integer.class, "secretKey");
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final BiConsumer<BackendMessage, SynchronousSink<BackendMessage>> handleBackendKeyData = handleBackendMessage(BackendKeyData.class, (message, sink) -> {
+        PROCESS_ID.set(this, message.getProcessId());
+        SECRET_KEY.set(this, message.getSecretKey());
+    });
+
+    private final BiConsumer<BackendMessage, SynchronousSink<BackendMessage>> handleErrorResponse = handleBackendMessage(ErrorResponse.class, (message, sink) -> {
+        this.logger.error("Error: {}", toString(message.getFields()));
+        sink.error(new ServerErrorException(message.getFields()));
+    });
+
+    private final BiConsumer<BackendMessage, SynchronousSink<BackendMessage>> handleNoticeResponse = handleBackendMessage(NoticeResponse.class, (message, sink) ->
+        this.logger.warn("Notice: {}", toString(message.getFields())));
+
+    private final ConcurrentMap<String, String> parameterStatus = new ConcurrentHashMap<>();
+
+    private final BiConsumer<BackendMessage, SynchronousSink<BackendMessage>> handleParameterStatus = handleBackendMessage(ParameterStatus.class, (message, sink) ->
+        this.parameterStatus.put(message.getName(), message.getValue()));
 
     private final EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create();
 
     private final FluxSink<FrontendMessage> requests = this.requestProcessor.sink();
 
     private final EmitterProcessor<Flux<BackendMessage>> responseProcessor = EmitterProcessor.create(false);
+
+    private volatile Integer processId;
+
+    private volatile Integer secretKey;
 
     /**
      * Creates a new frame processor connected to a given host.
@@ -68,8 +103,10 @@ public final class ReactorNettyClient implements Client {
             .start((inbound, outbound) -> {
                 inbound.receive()
                     .concatMap(decoder::decode)
-                    .handle(this::handleWarnings)
                     .doOnNext(message -> this.logger.debug("Response: {}", message))
+                    .handle(this.handleNoticeResponse)
+                    .handle(this.handleBackendKeyData)
+                    .handle(this.handleParameterStatus)
                     .transform(WindowMaker.create(ReadyForQuery.class))
                     .subscribe(this.responseProcessor);
 
@@ -101,34 +138,40 @@ public final class ReactorNettyClient implements Client {
             return this.responseProcessor
                 .next()
                 .flatMapMany(flux -> flux
-                    .handle(this::handleErrors));
+                    .handle(this.handleErrorResponse));
         });
+    }
+
+    @Override
+    public Map<String, String> getParameterStatus() {
+        return new HashMap<>(this.parameterStatus);
+    }
+
+    @Override
+    public Optional<Integer> getProcessId() {
+        return Optional.ofNullable(PROCESS_ID.get(this));
+    }
+
+    @Override
+    public Optional<Integer> getSecretKey() {
+        return Optional.ofNullable(SECRET_KEY.get(this));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends BackendMessage> BiConsumer<BackendMessage, SynchronousSink<BackendMessage>> handleBackendMessage(Class<T> type, BiConsumer<T, SynchronousSink<BackendMessage>> consumer) {
+        return (message, sink) -> {
+            if (type.isInstance(message)) {
+                consumer.accept((T) message, sink);
+            } else {
+                sink.next(message);
+            }
+        };
     }
 
     private static String toString(List<Field> fields) {
         return fields.stream()
             .map(field -> String.format("%s=%s", field.getType().name(), field.getValue()))
             .collect(Collectors.joining(", "));
-    }
-
-    private void handleErrors(BackendMessage message, SynchronousSink<BackendMessage> sink) {
-        if (message instanceof ErrorResponse) {
-            ErrorResponse errorResponse = (ErrorResponse) message;
-            this.logger.error("Error: {}", toString(errorResponse.getFields()));
-
-            sink.error(new ServerErrorException(errorResponse.getFields()));
-        } else {
-            sink.next(message);
-        }
-    }
-
-    private void handleWarnings(BackendMessage message, SynchronousSink<BackendMessage> sink) {
-        if (message instanceof NoticeResponse) {
-            NoticeResponse noticeResponse = (NoticeResponse) message;
-            this.logger.warn("Notice: {}", toString(noticeResponse.getFields()));
-        } else {
-            sink.next(message);
-        }
     }
 
 }

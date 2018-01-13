@@ -20,8 +20,6 @@ import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.TestClient;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
-import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
-import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.StartupMessage;
 import io.netty.buffer.Unpooled;
@@ -53,10 +51,10 @@ public final class PostgresqlConnectionFactoryTest {
     public void createAuthenticationMD5Password() {
         // @formatter:off
         Client client = TestClient.builder()
+            .parameterStatus("test-key", "test-value")
             .window()
                 .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
-                .expectRequest(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804")).thenRespond(AuthenticationOk.INSTANCE, new ParameterStatus("test-key", "test-value"),
-                    new BackendKeyData(100, 200))
+                .expectRequest(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804")).thenRespond(AuthenticationOk.INSTANCE)
                 .done()
             .build();
         // @formatter:on
@@ -73,9 +71,7 @@ public final class PostgresqlConnectionFactoryTest {
             .create()
             .as(StepVerifier::create)
             .assertNext(connection -> {
-                assertThat(connection.getParameters()).containsEntry("test-key", "test-value");
-                assertThat(connection.getProcessId()).isEqualTo(100);
-                assertThat(connection.getSecretKey()).isEqualTo(200);
+                assertThat(connection.getParameterStatus()).containsEntry("test-key", "test-value");
             })
             .verifyComplete();
     }

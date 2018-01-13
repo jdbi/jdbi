@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -50,6 +51,37 @@ public class Examples {
     @Before
     public void cleanTable() {
         SERVER.getJdbcOperations().execute("DELETE FROM test");
+    }
+
+    @Test
+    public void parameterStatusConnection() {
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                Flux.just(connection.getParameterStatus())
+                    .concatWith(connection.query("SET application_name TO 'test-application'")
+                        .thenMany(Flux.empty()))
+                    .concatWith(Flux.defer(() -> Flux.just(connection.getParameterStatus()))))
+            .map(m -> m.get("application_name"))
+            .as(StepVerifier::create)
+            .expectNext("postgresql-r2dbc")
+            .expectNext("test-application")
+            .verifyComplete();
+    }
+
+    @Test
+    public void parameterStatusTransaction() {
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+                connection.withTransaction(transaction ->
+                    Flux.just(connection.getParameterStatus())
+                        .concatWith(transaction.query("SET application_name TO 'test-application'")
+                            .thenMany(Flux.empty()))
+                        .concatWith(Flux.defer(() -> Flux.just(connection.getParameterStatus())))))
+            .map(m -> m.get("application_name"))
+            .as(StepVerifier::create)
+            .expectNext("postgresql-r2dbc")
+            .expectNext("test-application")
+            .verifyComplete();
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.nebhale.r2dbc.postgresql.client.TestClient;
 import com.nebhale.r2dbc.postgresql.client.WindowCollector;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
+import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import com.nebhale.r2dbc.postgresql.message.frontend.Query;
 import com.nebhale.r2dbc.postgresql.message.frontend.Terminate;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.util.Collections;
 
 import static com.nebhale.r2dbc.IsolationLevel.READ_COMMITTED;
 import static com.nebhale.r2dbc.Mutability.READ_ONLY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class PostgresqlConnectionTest {
@@ -41,29 +43,11 @@ public final class PostgresqlConnectionTest {
             .expectRequest(new Query("BEGIN")).thenRespond(new CommandComplete("BEGIN", null, null))
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .begin()
             .as(StepVerifier::create)
             .expectNextCount(1)
             .verifyComplete();
-    }
-
-    @Test
-    public void builderNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().client(null))
-            .withMessage("client must not be null");
-    }
-
-    @Test
-    public void builderParameterNoKey() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().parameter(null, "test-value"))
-            .withMessage("key must not be null");
-    }
-
-    @Test
-    public void builderParameterNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().parameter("test-key", null))
-            .withMessage("value must not be null");
     }
 
     @Test
@@ -73,7 +57,7 @@ public final class PostgresqlConnectionTest {
             .expectClose()
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .close()
             .as(StepVerifier::create)
             .verifyComplete();
@@ -81,29 +65,17 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void constructorNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder()
-            .processId(100)
-            .secretKey(200)
-            .build())
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnection(null))
             .withMessage("client must not be null");
     }
 
     @Test
-    public void constructorProcessId() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder()
-            .client(TestClient.NO_OP)
-            .secretKey(200)
-            .build())
-            .withMessage("processId must not be null");
-    }
+    public void getParameterStatus() {
+        Client client = TestClient.builder()
+            .parameterStatus("test-key", "test-value")
+            .build();
 
-    @Test
-    public void constructorSecretKey() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder()
-            .client(TestClient.NO_OP)
-            .processId(100)
-            .build())
-            .withMessage("secretKey must not be null");
+        assertThat(new PostgresqlConnection(client).getParameterStatus()).containsEntry("test-key", "test-value");
     }
 
     @Test
@@ -112,7 +84,7 @@ public final class PostgresqlConnectionTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .query("test-query")
             .as(StepVerifier::create)
             .verifyComplete();
@@ -120,7 +92,7 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void queryNoQuery() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().client(TestClient.NO_OP).processId(100).secretKey(200).build().query(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnection(TestClient.NO_OP).query(null))
             .withMessage("query must not be null");
     }
 
@@ -130,7 +102,7 @@ public final class PostgresqlConnectionTest {
             .expectRequest(new Query("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED")).thenRespond(new CommandComplete("SET", null, null))
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .setIsolationLevel(READ_COMMITTED)
             .as(StepVerifier::create)
             .verifyComplete();
@@ -138,7 +110,7 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void setIsolationLevelNoIsolationLevel() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().client(TestClient.NO_OP).processId(100).secretKey(200).build().setIsolationLevel(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnection(TestClient.NO_OP).setIsolationLevel(null))
             .withMessage("isolationLevel must not be null");
     }
 
@@ -148,7 +120,7 @@ public final class PostgresqlConnectionTest {
             .expectRequest(new Query("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")).thenRespond(new CommandComplete("SET", null, null))
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .setMutability(READ_ONLY)
             .as(StepVerifier::create)
             .verifyComplete();
@@ -156,7 +128,7 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void setMutabilityNoMutability() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().client(TestClient.NO_OP).processId(100).secretKey(200).build().setMutability(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnection(TestClient.NO_OP).setMutability(null))
             .withMessage("mutability must not be null");
     }
 
@@ -170,7 +142,7 @@ public final class PostgresqlConnectionTest {
 
         WindowCollector<PostgresqlRow> windows = new WindowCollector<>();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .withTransaction(transaction ->
                 transaction.query("test-query"))
             .as(StepVerifier::create)
@@ -186,7 +158,7 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void withTransactionNoTransaction() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlConnection.builder().client(TestClient.NO_OP).processId(100).secretKey(200).build().withTransaction(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlConnection(TestClient.NO_OP).withTransaction(null))
             .withMessage("transaction must not be null");
     }
 
@@ -198,7 +170,7 @@ public final class PostgresqlConnectionTest {
             .expectRequest(new Query("ROLLBACK")).thenRespond(new CommandComplete("ROLLBACK", null, null))
             .build();
 
-        PostgresqlConnection.builder().client(client).processId(100).secretKey(200).build()
+        new PostgresqlConnection(client)
             .withTransaction(transaction ->
                 transaction.query("test-query"))
             .as(StepVerifier::create)

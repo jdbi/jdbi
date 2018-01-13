@@ -20,6 +20,7 @@ import com.nebhale.r2dbc.postgresql.message.frontend.CancelRequest;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class CancelRequestMessageFlowTest {
@@ -27,19 +28,40 @@ public final class CancelRequestMessageFlowTest {
     @Test
     public void exchange() {
         Client client = TestClient.builder()
+            .processId(100)
+            .secretKey(200)
             .expectRequest(new CancelRequest(100, 200)).thenRespond()
             .build();
 
         CancelRequestMessageFlow
-            .exchange(client, 100, 200)
+            .exchange(client)
             .as(StepVerifier::create)
             .verifyComplete();
     }
 
     @Test
     public void exchangeNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> CancelRequestMessageFlow.exchange(null, 100, 200))
+        assertThatNullPointerException().isThrownBy(() -> CancelRequestMessageFlow.exchange(null))
             .withMessage("client must not be null");
+    }
+
+    @Test
+    public void exchangeNoProcessId() {
+        Client client = TestClient.builder()
+            .build();
+
+        assertThatIllegalStateException().isThrownBy(() -> CancelRequestMessageFlow.exchange(client))
+            .withMessage("Connection does not yet have a processId");
+    }
+
+    @Test
+    public void exchangeNoSecretKey() {
+        Client client = TestClient.builder()
+            .processId(100)
+            .build();
+
+        assertThatIllegalStateException().isThrownBy(() -> CancelRequestMessageFlow.exchange(client))
+            .withMessage("Connection does not yet have a secretKey");
     }
 
 }

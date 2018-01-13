@@ -22,9 +22,7 @@ import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ReactorNettyClient;
 import com.nebhale.r2dbc.postgresql.client.StartupMessageFlow;
-import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.backend.DefaultBackendMessageDecoder;
-import com.nebhale.r2dbc.postgresql.message.backend.ParameterStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -56,24 +54,11 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
 
     @Override
     public Mono<PostgresqlConnection> create() {
-        Client client = this.clientFactory.get();
-
-        return StartupMessageFlow
-            .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername())
-            .reduceWith(PostgresqlConnection::builder, (builder, message) -> {
-                if (message instanceof ParameterStatus) {
-                    ParameterStatus m = (ParameterStatus) message;
-                    return builder.parameter(m.getName(), m.getValue());
-                }
-
-                if (message instanceof BackendKeyData) {
-                    BackendKeyData m = (BackendKeyData) message;
-                    return builder.processId(m.getProcessId()).secretKey(m.getSecretKey());
-                }
-
-                return builder;
-            })
-            .map(builder -> builder.client(client).build())
+        return Mono.just(this.clientFactory.get())
+            .flatMap(client ->
+                StartupMessageFlow
+                    .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername())
+                    .then(Mono.just(new PostgresqlConnection(client))))
             .cache();
     }
 
