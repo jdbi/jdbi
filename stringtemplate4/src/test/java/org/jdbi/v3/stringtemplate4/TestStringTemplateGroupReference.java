@@ -49,6 +49,17 @@ public class TestStringTemplateGroupReference {
         assertThat(dao.list(true, "name")).containsExactly(2L, 1L);
     }
 
+    @Test
+    public void testImportReference() {
+        Dao dao = handle.attach(Dao.class);
+
+        dao.insert(1, "Bob");
+        dao.insert(2, "Alice");
+
+        assertThat(dao.listWithImport(false, "")).containsExactly(1L, 2L);
+        assertThat(dao.listWithImport(true, "name")).containsExactly(2L, 1L);
+    }
+
     @UseStringTemplateSqlLocator
     public interface Dao {
         @SqlUpdate
@@ -57,5 +68,9 @@ public class TestStringTemplateGroupReference {
         @SqlQuery
         List<Long> list(@Define("sort") boolean sort,
                         @Define("sortBy") String sortBy);
+
+        @SqlQuery
+        List<Long> listWithImport(@Define("sort") boolean sort,
+                                  @Define("sortBy") String sortBy);
     }
 }
