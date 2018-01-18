@@ -18,19 +18,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.RowReducer;
 
 /**
- * Used to specify specific row mapper on a query method. Mutually exclusive
- * with {@link UseRowReducer}.
+ * Used to specify a row reducer on a result-bearing method. Mutually exclusive
+ * with {@link UseRowMapper}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface UseRowMapper
+public @interface UseRowReducer
 {
     /**
-     * The class implementing {@link RowMapper}. It must have a no-arg constructor.
-     * @return the class of row mapper to use.
+     * The class implementing {@link RowReducer}. It must have a no-arg constructor.
+     * @return the class of row reducer to use.
      */
-    Class<? extends RowMapper<?>> value();
+    Class<? extends RowReducer<?, ?>> value();
 }

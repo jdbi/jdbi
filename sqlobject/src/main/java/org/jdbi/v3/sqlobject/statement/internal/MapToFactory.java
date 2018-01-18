@@ -42,7 +42,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
             }
             ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
             stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                    () -> returner.result(((ResultBearing) stmt).mapTo(typeArg), stmt.getContext()));
+                    () -> returner.mappedResult(((ResultBearing) stmt).mapTo(typeArg), stmt.getContext()));
         };
     }
 }

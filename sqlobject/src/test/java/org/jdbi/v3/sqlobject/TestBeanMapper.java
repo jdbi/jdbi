@@ -19,19 +19,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
+import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -144,6 +147,15 @@ public class TestBeanMapper
         public int hashCode() {
             return Objects.hash(id, name, contents);
         }
+
+        @Override
+        public String toString() {
+            return "Document{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", contents='" + contents + '\'' +
+                    '}';
+        }
     }
 
     public static class Folder {
@@ -198,6 +210,15 @@ public class TestBeanMapper
         public int hashCode() {
             return Objects.hash(id, name, documents);
         }
+
+        @Override
+        public String toString() {
+            return "Folder{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", documents=" + documents +
+                    '}';
+        }
     }
 
     public interface DocumentDao extends SqlObject {
@@ -207,23 +228,37 @@ public class TestBeanMapper
         @SqlBatch("insert into documents (id, folder_id, name, contents) values (:d.id, :f.id, :d.name, :d.contents)")
         void insertDocuments(@BindBean("f") Folder folder, @BindBean("d") Document... documents);
 
-        default Optional<Folder> getFolder(int folderId) {
-            return getHandle().createQuery(
-                    "select f.id f_id, f.name f_name, " +
-                            "d.id d_id, d.name d_name, d.contents d_contents " +
-                            "from folders f left join documents d " +
-                            "on f.id = d.folder_id " +
-                            "where f.id = :folderId")
-                    .bind("folderId", folderId)
-                    .registerRowMapper(BeanMapper.factory(Folder.class, "f_"))
-                    .registerRowMapper(BeanMapper.factory(Document.class, "d_"))
-                    .reduceRows(Optional.<Folder>empty(), (folder, row) -> {
-                        Folder f = folder.orElseGet(() -> row.getRow(Folder.class));
-                        if (row.getColumn("d_id", Integer.class) != null) {
-                            f.getDocuments().add(row.getRow(Document.class));
-                        }
-                        return Optional.of(f);
-                    });
+        @SqlQuery("select f.id f_id, f.name f_name, " +
+                "d.id d_id, d.name d_name, d.contents d_contents " +
+                "from folders f left join documents d " +
+                "on f.id = d.folder_id " +
+                "where f.id = :folderId")
+        @RegisterBeanMapper(value = Folder.class, prefix = "f")
+        @RegisterBeanMapper(value = Document.class, prefix = "d")
+        @UseRowReducer(FolderDocReducer.class)
+        Optional<Folder> getFolder(int folderId);
+
+        @SqlQuery("select " +
+                "f.id f_id, f.name f_name, " +
+                "d.id d_id, d.name d_name, d.contents d_contents " +
+                "from folders f left join documents d " +
+                "on f.id = d.folder_id " +
+                "order by f.name, d.name")
+        @RegisterBeanMapper(value = Folder.class, prefix = "f")
+        @RegisterBeanMapper(value = Document.class, prefix = "d")
+        @UseRowReducer(FolderDocReducer.class)
+        List<Folder> listFolders();
+
+        class FolderDocReducer extends LinkedHashMapRowReducer<Integer, Folder> {
+            @Override
+            public void accumulate(Map<Integer, Folder> map, RowView rv) {
+                Folder f = map.computeIfAbsent(rv.getColumn("f_id", Integer.class),
+                                               id -> rv.getRow(Folder.class));
+
+                if (rv.getColumn("d_id", Integer.class) != null) {
+                    f.getDocuments().add(rv.getRow(Document.class));
+                }
+            }
         }
     }
 
@@ -248,5 +283,10 @@ public class TestBeanMapper
         assertThat(dao.getFolder(1)).contains(new Folder(1, "folder1"));
         assertThat(dao.getFolder(2)).contains(new Folder(2, "folder2", doc1));
         assertThat(dao.getFolder(3)).contains(new Folder(3, "folder3", doc2, doc3));
+
+        assertThat(dao.listFolders()).containsExactly(
+                new Folder(1, "folder1"),
+                new Folder(2, "folder2", doc1),
+                new Folder(3, "folder3", doc2, doc3));
     }
 }

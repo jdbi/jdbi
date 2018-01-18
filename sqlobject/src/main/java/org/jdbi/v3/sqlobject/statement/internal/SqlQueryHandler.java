@@ -21,6 +21,7 @@ import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     private final ResultReturner magic;
@@ -32,14 +33,25 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
 
     @Override
     void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
+        UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
+        UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
+
+        if (useRowReducer != null && useRowMapper != null) {
+            throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
+        }
+
         cfg.setReturner(() -> {
             StatementContext ctx = q.getContext();
             Type elementType = magic.elementType(ctx);
-            UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
+
+            if (useRowReducer != null) {
+                return magic.reducedResult(q.reduceRows(rowReducerFor(useRowReducer)), ctx);
+            }
+
             ResultIterable<?> iterable = useRowMapper == null
                     ? q.mapTo(elementType)
                     : q.map(rowMapperFor(useRowMapper));
-            return magic.result(iterable, ctx);
+            return magic.mappedResult(iterable, ctx);
         });
     }
 

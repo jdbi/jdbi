@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
@@ -67,17 +68,20 @@ abstract class ResultReturner
                     method.getDeclaringClass().getName(),
                     method.getName())));
         }
-        else if (ResultIterable.class.isAssignableFrom(returnClass)) {
-            return new ResultIterableResultReturner(returnType);
+        else if (ResultIterable.class.equals(returnClass)) {
+            return new ResultIterableReturner(returnType);
         }
-        else if (Stream.class.isAssignableFrom(returnClass)) {
+        else if (Stream.class.equals(returnClass)) {
             return new StreamReturner(returnType);
         }
-        else if (Iterator.class.isAssignableFrom(returnClass)) {
-            return new IteratorResultReturner(returnType);
+        else if (ResultIterator.class.equals(returnClass)) {
+            return new ResultIteratorReturner(returnType);
+        }
+        else if (Iterator.class.equals(returnClass)) {
+            return new IteratorReturner(returnType);
         }
         else if (method.isAnnotationPresent(SingleValue.class)) {
-            return new SingleValueResultReturner(returnType);
+            return new SingleValueReturner(returnType);
         }
         else {
             return new CollectedResultReturner(returnType);
@@ -88,7 +92,6 @@ abstract class ResultReturner
      * Inspect a Method for a {@link Consumer} to execute for each produced row.
      * @param extensionType the extension that owns the method
      * @param method the method called
-     * @param ctx the statement context
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
     static Optional<ResultReturner> findConsumer(Class<?> extensionType, Method method) {
@@ -101,15 +104,22 @@ abstract class ResultReturner
         return Optional.empty();
     }
 
-    protected abstract Object result(ResultIterable<?> iterable, StatementContext ctx);
+    protected abstract Object mappedResult(ResultIterable<?> iterable, StatementContext ctx);
+    protected abstract Object reducedResult(Stream<?> stream, StatementContext ctx);
+
     protected abstract Type elementType(StatementContext ctx);
 
     static class VoidReturner extends ResultReturner
     {
         @Override
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx) {
+        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
             iterable.stream().forEach(i -> {}); // Make sure to consume the result
             return null;
+        }
+
+        @Override
+        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return void from a @UseRowReducer method");
         }
 
         @Override
@@ -130,8 +140,13 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Stream<?> result(ResultIterable<?> iterable, StatementContext ctx) {
+        protected Stream<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
             return iterable.stream();
+        }
+
+        @Override
+        protected Stream<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            return stream;
         }
 
         @Override
@@ -151,13 +166,22 @@ abstract class ResultReturner
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx)
         {
             Collector collector = ctx.findCollectorFor(returnType).orElse(null);
             if (collector != null) {
                 return iterable.collect(collector);
             }
             return checkResult(iterable.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            if (collector != null) {
+                return stream.collect(collector);
+            }
+            return checkResult(stream.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -168,19 +192,24 @@ abstract class ResultReturner
         }
     }
 
-    static class SingleValueResultReturner extends ResultReturner
+    static class SingleValueReturner extends ResultReturner
     {
         private final Type returnType;
 
-        SingleValueResultReturner(Type returnType)
+        SingleValueReturner(Type returnType)
         {
             this.returnType = returnType;
         }
 
         @Override
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx)
         {
             return checkResult(iterable.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            return checkResult(stream.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -197,12 +226,12 @@ abstract class ResultReturner
         return result;
     }
 
-    static class ResultIterableResultReturner extends ResultReturner
+    static class ResultIterableReturner extends ResultReturner
     {
 
         private final Type elementType;
 
-        ResultIterableResultReturner(Type returnType)
+        ResultIterableReturner(Type returnType)
         {
             // extract T from Query<T>
             elementType = GenericTypes.findGenericParameter(returnType, ResultIterable.class)
@@ -211,9 +240,14 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
+        protected ResultIterable<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx)
         {
             return iterable;
+        }
+
+        @Override
+        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return ResultIterable from a @UseRowReducer method");
         }
 
         @Override
@@ -223,11 +257,40 @@ abstract class ResultReturner
         }
     }
 
-    static class IteratorResultReturner extends ResultReturner
+    static class ResultIteratorReturner extends ResultReturner
     {
         private final Type elementType;
 
-        IteratorResultReturner(Type returnType)
+        ResultIteratorReturner(Type returnType)
+        {
+            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
+        }
+
+        @Override
+        protected ResultIterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx)
+        {
+            return iterable.iterator();
+        }
+
+        @Override
+        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return ResultIterator from a @UseRowReducer method");
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx)
+        {
+            return elementType;
+        }
+    }
+
+    static class IteratorReturner extends ResultReturner
+    {
+        private final Type elementType;
+
+        IteratorReturner(Type returnType)
         {
             this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
                     .orElseThrow(() -> new IllegalStateException(
@@ -235,9 +298,14 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
+        protected Iterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx)
         {
             return iterable.iterator();
+        }
+
+        @Override
+        protected Iterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            return stream.iterator();
         }
 
         @Override
@@ -258,11 +326,20 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> iterable, StatementContext ctx) {
+        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
             @SuppressWarnings("unchecked")
             Consumer<Object> consumer = (Consumer<Object>)
                 ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
             iterable.forEach(consumer);
+            return null;
+        }
+
+        @Override
+        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
+            @SuppressWarnings("unchecked")
+            Consumer<Object> consumer = (Consumer<Object>)
+                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
+            stream.forEach(consumer);
             return null;
         }
 

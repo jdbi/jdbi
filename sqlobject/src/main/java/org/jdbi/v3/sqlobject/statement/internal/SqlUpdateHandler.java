@@ -25,12 +25,17 @@ import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
+
+        if (method.isAnnotationPresent(UseRowReducer.class)) {
+            throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
+        }
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
@@ -48,7 +53,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
                         ? resultBearing.mapTo(returnType)
                         : resultBearing.map(rowMapperFor(useRowMapper));
 
-                return magic.result(iterable, update.getContext());
+                return magic.mappedResult(iterable, update.getContext());
             };
         } else if (isNumeric(method.getReturnType())) {
             this.returner = update -> update.execute();

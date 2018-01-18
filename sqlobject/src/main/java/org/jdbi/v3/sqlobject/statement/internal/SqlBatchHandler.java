@@ -41,6 +41,7 @@ import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
     private final SqlBatch sqlBatch;
@@ -50,6 +51,10 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
     public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
+
+        if (method.isAnnotationPresent(UseRowReducer.class)) {
+            throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
+        }
 
         this.sqlBatch = method.getAnnotation(SqlBatch.class);
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
@@ -260,7 +265,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
         ResultIterable<Object> iterable = ResultIterable.of(result);
 
-        return magic.result(iterable, result.getContext());
+        return magic.mappedResult(iterable, result.getContext());
     }
 
     private Iterator<Object[]> zipArgs(Method method, Object[] args) {
