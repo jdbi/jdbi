@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
-
 /**
- * Represents a row returned from a database query.
+ * An implementation of the Reactive Relational Database Connection API for PostgreSQL servers.
  */
-public interface Row {
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
-
-}
+package com.nebhale.r2dbc.postgresql;

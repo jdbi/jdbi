@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
+package com.nebhale.r2dbc.postgresql;
 
-/**
- * Represents a row returned from a database query.
- */
-public interface Row {
+import org.junit.Test;
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
+import static org.assertj.core.api.Assertions.assertThat;
+
+public final class DefaultPortalNameSupplierTest {
+
+    @Test
+    public void test() {
+        assertThat(DefaultPortalNameSupplier.INSTANCE.get()).isNotEqualTo(DefaultPortalNameSupplier.INSTANCE.get());
+    }
 
 }

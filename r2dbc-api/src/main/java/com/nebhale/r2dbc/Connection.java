@@ -18,58 +18,92 @@ package com.nebhale.r2dbc;
 
 import org.reactivestreams.Publisher;
 
-import java.util.function.Function;
-
 /**
  * A single connection to a database.
- *
- * @param <U> the concrete {@link Transaction} type
  */
-public interface Connection<U extends Transaction> extends Operations {
+public interface Connection {
 
     /**
      * Begins a new transaction.
      *
      * @return a {@link Publisher} that indicates that the transaction is open
      */
-    Publisher<? extends Transaction> begin();
+    Publisher<Void> beginTransaction();
 
     /**
      * Release any resources held by the {@link Connection}.
      *
-     * @param <T> the type of item flowing through the {@link Publisher}
      * @return a {@link Publisher} that termination is complete
      */
-    <T> Publisher<T> close();
+    Publisher<Void> close();
 
     /**
-     * Configures the default isolation level for transactions created with this connection.
+     * Commits the current transaction.
      *
-     * @param isolationLevel the default isolation level for transactions created with this connection
-     * @param <T>            the type of item flowing through the {@link Publisher}
+     * @return a {@link Publisher} that indicates that a transaction has been committed
+     */
+    Publisher<Void> commitTransaction();
+
+    /**
+     * Creates a new {@link Batch} instance for building a batched request.
+     *
+     * @return a new {@link Batch} instance
+     */
+    Batch createBatch();
+
+    /**
+     * Creates a savepoint in the current transaction.
+     *
+     * @param name the name of the savepoint to create
+     * @return a {@link Publisher} that indicates that a savepoint has been created
+     */
+    Publisher<Void> createSavepoint(String name);
+
+    /**
+     * Creates a new statement for building a statement-based request.
+     *
+     * @param sql the SQL of the statement
+     * @return a new {@link Statement} instance
+     */
+    Statement createStatement(String sql);
+
+    /**
+     * Releases a savepoint in the current transaction.
+     *
+     * @param name the name of the savepoint to release
+     * @return a {@link Publisher} that indicates that a savepoint has been released
+     */
+    Publisher<Void> releaseSavepoint(String name);
+
+    /**
+     * Rolls back the current transaction.
+     *
+     * @return a {@link Publisher} that indicates that a transaction has been rolled back
+     */
+    Publisher<Void> rollbackTransaction();
+
+    /**
+     * Rolls back to a savepoint in the current transaction.
+     *
+     * @param name the name of the savepoint to rollback to
+     * @return a {@link Publisher} that indicates that a savepoint has been rolled back to
+     */
+    Publisher<Void> rollbackTransactionToSavepoint(String name);
+
+    /**
+     * Configures the isolation level for the current transaction.
+     *
+     * @param isolationLevel the isolation level for this transaction
      * @return a {@link Publisher} that indicates that a transaction level has been configured
      */
-    <T> Publisher<T> setIsolationLevel(IsolationLevel isolationLevel);
+    Publisher<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel);
 
     /**
-     * Configures the default mutability for transactions created with this connection.
+     * Configures the mutability for the current transaction.
      *
-     * @param mutability the mutability for transactions created with this connection
-     * @param <T>        the type of item flowing through the {@link Publisher}
+     * @param mutability the mutability for this transaction
      * @return a {@link Publisher} that indicates that mutability has been configured
      */
-    <T> Publisher<T> setMutability(Mutability mutability);
-
-    /**
-     * Execute a flow within a transaction.  A successful completion of the flow results in commit and an error results in rollback.
-     *
-     * @param transaction the flow to execute within the transaction
-     * @param <T>         the type of item flowing through the {@link Publisher}
-     * @return a {@link Publisher} that indicates that a transaction is complete
-     * @see #begin()
-     * @see Transaction#commit()
-     * @see Transaction#rollback()
-     */
-    <T> Publisher<T> withTransaction(Function<U, Publisher<T>> transaction);
+    Publisher<Void> setTransactionMutability(Mutability mutability);
 
 }

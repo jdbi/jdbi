@@ -21,6 +21,7 @@ import org.reactivestreams.Publisher;
 /**
  * A factory for creating {@link Connection}s.
  */
+@FunctionalInterface
 public interface ConnectionFactory {
 
     /**
@@ -28,6 +29,6 @@ public interface ConnectionFactory {
      *
      * @return the newly created {@link Connection}
      */
-    Publisher<? extends Connection<?>> create();
+    Publisher<? extends Connection> create();
 
 }

@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
+package com.nebhale.r2dbc.postgresql;
 
-/**
- * Represents a row returned from a database query.
- */
-public interface Row {
+import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
+import java.util.concurrent.atomic.AtomicInteger;
+
+final class DefaultPortalNameSupplier implements PortalNameSupplier {
+
+    static final DefaultPortalNameSupplier INSTANCE = new DefaultPortalNameSupplier();
+
+    private static final AtomicInteger COUNTER = new AtomicInteger();
+
+    private DefaultPortalNameSupplier() {
+    }
+
+    @Override
+    public String get() {
+        return String.format("B_%d", COUNTER.getAndIncrement());
+    }
 
 }

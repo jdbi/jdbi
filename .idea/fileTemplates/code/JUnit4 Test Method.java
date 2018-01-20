@@ -1,4 +1,4 @@
 @org.junit.Test
 public void ${NAME}() {
-  fail();
+  org.junit.Assert.fail();
 }

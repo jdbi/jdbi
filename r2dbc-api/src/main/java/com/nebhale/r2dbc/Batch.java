@@ -16,16 +16,26 @@
 
 package com.nebhale.r2dbc;
 
+import org.reactivestreams.Publisher;
+
 /**
- * Represents a row returned from a database query.
+ * A collection of statements that are executed in a batch for performance reasons.
  */
-public interface Row {
+public interface Batch {
 
     /**
-     * Returns the columns in this row.
+     * Add a statement to this batch.
      *
-     * @return the columns in this row
+     * @param sql the statement to add
+     * @return this {@link Batch}
      */
-    Iterable<? extends Column> getColumns();
+    Batch add(String sql);
+
+    /**
+     * Execute the batch statements.
+     *
+     * @return the results, if any, returned by each statement in the batch
+     */
+    Publisher<? extends Result> execute();
 
 }

@@ -17,15 +17,22 @@
 package com.nebhale.r2dbc;
 
 /**
- * Represents a row returned from a database query.
+ * Represents the column in a row returned from a database query.
  */
-public interface Row {
+public interface Column {
 
     /**
-     * Returns the columns in this row.
+     * Returns the value of the column as an {@link Integer}.
      *
-     * @return the columns in this row
+     * @return the value of the column as an {@link Integer}
      */
-    Iterable<? extends Column> getColumns();
+    Integer getInteger();
+
+    /**
+     * Returns the value of the column as a {@link String}.
+     *
+     * @return the value of the column as a {@link String}
+     */
+    String getString();
 
 }

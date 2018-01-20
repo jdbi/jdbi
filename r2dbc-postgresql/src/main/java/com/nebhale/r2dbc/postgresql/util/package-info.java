@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
-
 /**
- * Represents a row returned from a database query.
+ * Utility code used throughout the project.
  */
-public interface Row {
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
-
-}
+package com.nebhale.r2dbc.postgresql.util;

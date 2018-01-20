@@ -17,15 +17,15 @@
 package com.nebhale.r2dbc;
 
 /**
- * Represents a row returned from a database query.
+ * Represents the metadata for a column of the results returned from a query.
  */
-public interface Row {
+public interface ColumnMetadata {
 
     /**
-     * Returns the columns in this row.
+     * Returns the name of the column.
      *
-     * @return the columns in this row
+     * @return the name of the column
      */
-    Iterable<? extends Column> getColumns();
+    String getName();
 
 }
