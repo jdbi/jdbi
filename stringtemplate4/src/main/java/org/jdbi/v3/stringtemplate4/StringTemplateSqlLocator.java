@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,7 @@ import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.STGroupString;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -133,12 +135,13 @@ public class StringTemplateSqlLocator {
     }
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
-        try (InputStream is = openStream(classLoader, path)) {
-            STGroupString group = new STGroupString(toString(is));
+        try {
+            URL resource = classLoader.getResource(path);
+            STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
             return group;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new RuntimeException("Unable to read StringTemplate group file at " + path + " on classpath", e);
         }
     }
