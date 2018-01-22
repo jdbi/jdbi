@@ -164,28 +164,24 @@ public interface ResultBearing {
     }
 
     /**
-     * Reduce the results using the given row reducer. Do not attempt to accumulate the
-     * {@link RowView} objects into the result--they are only valid within the
-     * {@link RowReducer#accumulate(Object, RowView) accumulate()} method invocation.
-     * Instead, extract mapped types from the RowView by calling {@code RowView.getRow()}
-     * or {@code RowView.getColumn()}.
+     * Reduce the result rows using the given row reducer.
      *
      * @param reducer the row reducer.
-     * @param <A> The mutable accumulator type
-     * @param <R> The result element type
+     * @param <C> Mutable result container type
+     * @param <R> Result element type
      * @return the stream of result elements
      * @see RowReducer
      */
-    default <A, R> Stream<R> reduceRows(RowReducer<A, R> reducer) {
+    default <C, R> Stream<R> reduceRows(RowReducer<C, R> reducer) {
         return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
-                RowView rv = new RowView(rs, ctx);
+                RowView rowView = new RowView(rs, ctx);
 
-                A acc = reducer.createAccumulator();
+                C container = reducer.container();
                 while (rs.next()) {
-                    reducer.accumulate(acc, rv);
+                    reducer.accumulate(container, rowView);
                 }
-                return reducer.stream(acc);
+                return reducer.stream(container);
             }
             catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);

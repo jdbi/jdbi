@@ -1694,7 +1694,7 @@ Jdbi provides a few different APIs for dealing with joined data.
 ===== ResultBearing.reduceRows()
 
 The
-link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-U-java.util.function.BiFunction-[ResultBearing.reduceRows()^]
+link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-U-java.util.function.BiFunction-["ResultBearing.reduceRows(U, BiFunction)"^]
 method accepts an accumulator seed value and a lambda function. For each row in
 the result set, Jdbi calls the lambda with the current accumulator value and a
 link:{jdbidocs}/core/result/RowView.html[RowView^] over the current row of the
@@ -1708,8 +1708,8 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
     .registerRowMapper(BeanMapper.factory(Phone.class, "p")) <1>
     .reduceRows(new LinkedHashMap<Long, Contact>(), // <2>
-                (acc, rowView) -> {
-      Contact contact = acc.computeIfAbsent( // <3>
+                (map, rowView) -> {
+      Contact contact = map.computeIfAbsent( // <3>
           rowView.getColumn("c_id", Long.class),
           id -> rowView.getRow(Contact.class));
 
@@ -1717,7 +1717,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         contact.addPhone(rowView.getRow(Phone.class));
       }
 
-      return acc; // <5>
+      return map; // <5>
     })
     .values() // <6>
     .stream()
@@ -1745,6 +1745,40 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
     contact ID keys. So we call `Map.values()` to get a `Collection<Contact>`.
 <7> Collect the contacts into a `List<Contact>`.
 
+Alternatively, the
+link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-org.jdbi.v3.core.result.RowReducer-[ResultBearing.reduceRows(RowReducer)^]
+variant accepts a link:{jdbidocs}/core/result/RowReducer.html[RowReducer^] and
+returns a stream of reduced elements.
+
+For simple master-detail joins, the abstract
+link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html[LinkedHashMapRowReducer^]
+class makes it easy to reduce these joins into a stream of master elements.
+Adapting the example above:
+
+[source,java]
+----
+List<Contact> contacts = handle.createQuery(SELECT_ALL)
+    .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
+    .registerRowMapper(BeanMapper.factory(Phone.class, "p"))
+    .reduceRows(LinkedHashMapRowReducer.<Long, Contact> of((map, rowView) -> { // <1>
+      Contact contact = map.computeIfAbsent(
+          rowView.getColumn("c_id", Long.class),
+          id -> rowView.getRow(Contact.class));
+
+      if (rowView.getColumn("p_id", Long.class) != null) {
+        contact.addPhone(rowView.getRow(Phone.class));
+      }
+      // <2>
+    })
+    .collect(toList()); // <3>
+----
+
+<1> The factory method
+    link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html#of-java.util.function.BiConsumer-[LinkedHashMapRowReducer.of(BiConsumer)^]
+    needs only a `BiConsumer(Map<K,V>, RowView)`
+<2> No `return` statement needed. The same `map` is reused on every row.
+<3> This reduction produces a `Stream<Contact>`, and we can use any stream method
+
 You may be wondering about the `getRow()` and `getColumn()` calls to `rowView`.
 When you call `rowView.getRow(SomeType.class)`, `RowView` looks up the
 registered row mapper for `SomeType`, and uses it to map the current row to a
@@ -1762,25 +1796,15 @@ Optional<Contact> contact = handle.createQuery(SELECT_ONE)
     .bind("id", contactId)
     .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
     .registerRowMapper(BeanMapper.factory(Phone.class, "p"))
-    .reduceRows(Optional.<Contact>empty(), // <1>
-                (acc, rowView) -> {
-      Contact contact = acc.orElseGet(() -> rowView.getRow(Contact.class)); // <2>
+    .reduceRows(LinkedHashMapRowReducer.<Long, Contact> of((map, rowView) -> {
+      Contact contact = map.orElseGet(() -> rowView.getRow(Contact.class));
 
       if (rowView.getColumn("p_id", Long.class) != null) {
         contact.addPhone(rowView.getRow(Phone.class));
       }
-
-      return Optional.of(contact); // <3>
-    });
+    })
+    .findFirst();
 ----
-
-<1> Use an empty link:{jdkdocs}/java/util/Optional.html[Optional<Contact>^]
-    as the accumulator seed. After the first row, the accumulator will be a
-    non-empty `Optional<Contact>`.
-<2> Load the `Contact` from the accumulator if we already have it; otherwise,
-    initialize it through the `RowView`.
-<3> Rewrap the `Contact` in an `Optional<Contact>`, to use for the accumulator
-    on the following rows.
 
 ===== ResultBearing.reduceResultSet()
 
@@ -2758,6 +2782,67 @@ Map<String, Object> getById(long userId);
 Do you use PostgreSQL's `hstore` columns? The <<PostgreSQL>> plugin provides an
 `hstore` to `Map<String, String>` column mapper. See
 <<PostgreSQL-hstore,hstore>> for more information.
+
+===== @UseRowReducer
+
+`@SqlQuery` methods that use join queries may reduce master-detail joins
+into one or more master-level objects. See <<ResultBearing.reduceRows()>> for
+an introduction to row reducers.
+
+Consider a filesystem metaphor with folders and documents. In the join, we'll
+prefix folder columns with `f_` and document columns with `d_`.
+
+[source,java]
+----
+@RegisterBeanMapper(value = Folder.class, prefix = "f") // <1>
+@RegisterBeanMapper(value = Document.class, prefix = "d")
+public interface DocumentDao {
+    @SqlQuery("select " +
+            "f.id f_id, f.name f_name, " +
+            "d.id d_id, d.name d_name, d.contents d_contents " +
+            "from folders f left join documents d " +
+            "on f.id = d.folder_id " +
+            "where f.id = :folderId" +
+            "order by d.name")
+    @UseRowReducer(FolderDocReducer.class) // <2>
+    Optional<Folder> getFolder(int folderId); // <3>
+
+    @SqlQuery("select " +
+            "f.id f_id, f.name f_name, " +
+            "d.id d_id, d.name d_name, d.contents d_contents " +
+            "from folders f left join documents d " +
+            "on f.id = d.folder_id " +
+            "order by f.name, d.name")
+    @UseRowReducer(FolderDocReducer.class) // <2>
+    List<Folder> listFolders(); // <3>
+
+    class FolderDocReducer extends LinkedHashMapRowReducer<Integer, Folder> { // <4>
+        @Override
+        public void accumulate(Map<Integer, Folder> map, RowView rowView) {
+            Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <2>
+                                           id -> rowView.getRow(Folder.class));
+
+            if (rowView.getColumn("d_id", Integer.class) != null) { // <3>
+                f.getDocuments().add(rowView.getRow(Document.class));
+            }
+        }
+    }
+}
+----
+<1> In this example, we register the folder and document mappers with a
+    prefix, so that each mapper only looks at the columns with that prefix.
+    These mappers are used indirectly by the row reducer in the
+    `getRow(Folder.class)` and `getRow(Document.class)` calls.
+<2> Annotate the method with `@UseRowReducer`, and specify the `RowReducer`
+    implementation class.
+<3> The same `RowReducer` implementation may be used for both single- and
+    multi-master-record queries.
+<4> link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html[LinkedHashMapRowReducer^]
+    is an abstract `RowReducer` implementation that uses a `LinkedHashMap` as the result
+    container, and returns the `values()` collection as the result.
+<5> Get the `Folder` for this row from the map by ID, or create it if not in the map.
+<6> Confirm this row has a document (this _is_ a left join) before mapping a document
+    and adding it to the folder.
 
 ==== @SqlBatch
 

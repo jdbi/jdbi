@@ -19,31 +19,36 @@ import java.util.stream.Stream;
  * Reduces row data from a {@link java.sql.ResultSet} into a stream of result
  * elements. Useful for collapsing one-to-many joins.
  *
- * @param <A> the mutable accumulator type
+ * @param <C> mutable result container type
  * @param <R> result element type
  * @see ResultBearing#reduceRows(RowReducer)
  */
-public interface RowReducer<A, R> {
+public interface RowReducer<C, R> {
   /**
-   * Returns a new accumulator in a "blank" state.
+   * Returns a new, empty result container.
    *
-   * @return a new accumulator.
+   * @return a new result container.
    */
-  A createAccumulator();
+  C container();
 
   /**
-   * Folds the current row data into the accumulator.
+   * Accumulate data from the current row into the result container. Do not attempt
+   * to accumulate the {@link RowView} itself into the result container--it is only
+   * valid within the {@link RowReducer#accumulate(Object, RowView) accumulate()}
+   * method invocation. Instead, extract mapped types from the RowView by calling
+   * {@code RowView.getRow()} or {@code RowView.getColumn()} and store those values
+   * in the container.
    *
-   * @param accumulator the accumulator
-   * @param rowView row view of the current row of the result set
+   * @param container the result container
+   * @param rowView row view over the current result set row.
    */
-  void accumulate(A accumulator, RowView rowView);
+  void accumulate(C container, RowView rowView);
 
   /**
-   * Returns the final result from the accumulator as a stream of elements.
+   * Returns a stream of result elements from the result container.
    *
-   * @param accumulator the accumulator
+   * @param container the result container
    * @return stream of result elements.
    */
-  Stream<R> stream(A accumulator);
+  Stream<R> stream(C container);
 }

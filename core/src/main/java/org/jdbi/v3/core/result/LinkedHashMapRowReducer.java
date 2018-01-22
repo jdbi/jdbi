@@ -19,8 +19,8 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
- * A row reducer that uses {@link LinkedHashMap} (which preserves insertion order) as an
- * accumulator, and returns {@code map.values().stream()} as the final result.
+ * A row reducer that uses {@link LinkedHashMap} (which preserves insertion order) as a
+ * result container, and returns {@code map.values().stream()} as the final result.
  *
  * <p>Implementors need only implement the {@link #accumulate(Object, RowView)} method.
  *
@@ -30,20 +30,20 @@ import java.util.stream.Stream;
  */
 public abstract class LinkedHashMapRowReducer<K, V> implements RowReducer<Map<K, V>, V> {
   @Override
-  public Map<K, V> createAccumulator() {
+  public Map<K, V> container() {
     return new LinkedHashMap<>();
   }
 
   @Override
-  public Stream<V> stream(Map<K, V> accumulator) {
-    return accumulator.values().stream();
+  public Stream<V> stream(Map<K, V> container) {
+    return container.values().stream();
   }
 
-  public static <K, V> RowReducer<Map<K, V>, V> of(BiConsumer<Map<K, V>, RowView> acc) {
+  public static <K, V> RowReducer<?, V> of(BiConsumer<Map<K, V>, RowView> accumulator) {
     return new LinkedHashMapRowReducer<K, V>() {
       @Override
-      public void accumulate(Map<K, V> accumulator, RowView rowView) {
-        acc.accept(accumulator, rowView);
+      public void accumulate(Map<K, V> map, RowView rowView) {
+        accumulator.accept(map, rowView);
       }
     };
   }
