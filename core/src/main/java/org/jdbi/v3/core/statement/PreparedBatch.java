@@ -189,6 +189,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
                 afterExecution(stmt);
 
+                getContext().setBinding(new Binding());
+
                 return new ExecutedBatch(stmt, rs);
             }
             catch (SQLException e) {

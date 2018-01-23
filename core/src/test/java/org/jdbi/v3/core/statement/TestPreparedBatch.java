@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import java.beans.ConstructorProperties;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
@@ -170,6 +172,81 @@ public class TestPreparedBatch
         } catch (UnableToExecuteStatementException e) {
             final StatementContext ctx = e.getStatementContext();
             assertThat(ctx.getBinding().findForName("name", ctx).toString()).contains("bob");
+        }
+    }
+
+    @Test
+    public void testMultipleExecuteBindBean()
+    {
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bindBean(new Something(1, "Eric")).add();
+        b.bindBean(new Something(2, "Brian")).add();
+        b.execute();
+
+        // bindings should be cleared after execute()
+
+        b.bindBean(new Something(3, "Keith")).add();
+        b.execute();
+
+        final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(r).hasSize(3);
+        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
+        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
+        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+    }
+
+    @Test
+    public void testMultipleExecuteBind()
+    {
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bind("id", 1).bind("name", "Eric").add();
+        b.bind("id", 2).bind("name", "Brian").add();
+        b.execute();
+
+        // bindings should be cleared after execute()
+
+        b.bind("id", 3).bind("name", "Keith").add();
+        b.execute();
+
+        final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(r).hasSize(3);
+        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
+        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
+        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+    }
+
+    @Test
+    public void testMultipleExecuteBindFields()
+    {
+        h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bindFields(new PublicSomething(1, "Eric")).add();
+        b.bindFields(new PublicSomething(2, "Brian")).add();
+        b.execute();
+
+        // bindings should be cleared after execute()
+
+        b.bindFields(new PublicSomething(3, "Keith")).add();
+        b.execute();
+
+        final List<PublicSomething> r = h.createQuery("select * from something order by id").mapTo(PublicSomething.class).list();
+        assertThat(r).hasSize(3);
+        assertThat(r.get(0)).extracting(s -> s.id, s -> s.name).containsSequence(1, "Eric");
+        assertThat(r.get(1)).extracting(s -> s.id, s -> s.name).containsSequence(2, "Brian");
+        assertThat(r.get(2)).extracting(s -> s.id, s -> s.name).containsSequence(3, "Keith");
+    }
+
+    public static class PublicSomething {
+        public int id;
+        public String name;
+
+        @ConstructorProperties({"id", "name"})
+        public PublicSomething(Integer id, String name) {
+            this.id = id;
+            this.name = name;
         }
     }
 }
