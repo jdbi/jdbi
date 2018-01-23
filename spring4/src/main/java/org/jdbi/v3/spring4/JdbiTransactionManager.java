@@ -15,6 +15,7 @@ package org.jdbi.v3.spring4;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
@@ -74,10 +75,12 @@ public class JdbiTransactionManager extends AbstractPlatformTransactionManager
 
             handleHolder.setSynchronizedWithTransaction(true);
             handle = handleHolder.getHandle();
+            TransactionIsolationLevel currentIsolationLevel = handle.getTransactionIsolationLevel();
 
             handle.begin();
 
             if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+                handleHolder.setTransactionLevelForRelease(currentIsolationLevel);
                 handle.setTransactionIsolation(definition.getIsolationLevel());
             }
 

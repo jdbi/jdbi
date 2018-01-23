@@ -14,17 +14,23 @@
 package org.jdbi.v3.spring4;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.springframework.transaction.support.ResourceHolderSupport;
 
 public class HandleHolder extends ResourceHolderSupport {
 
     private final Handle handle;
 
+    private TransactionIsolationLevel transactionLevelForRelease;
+
     public HandleHolder(Handle handle) {
         this.handle = handle;
     }
 
     public void release() {
+        if (transactionLevelForRelease != null) {
+            handle.setTransactionIsolation(transactionLevelForRelease);
+        }
         handle.close();
     }
 
@@ -34,5 +40,9 @@ public class HandleHolder extends ResourceHolderSupport {
 
     public boolean isTransactionActive() {
         return handle.isInTransaction();
+    }
+
+    public void setTransactionLevelForRelease(TransactionIsolationLevel transactionLevelForRelease) {
+        this.transactionLevelForRelease = transactionLevelForRelease;
     }
 }
