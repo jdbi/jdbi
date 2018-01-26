@@ -193,6 +193,21 @@ public interface ResultBearing {
     }
 
     /**
+     * Reduce the result rows using a {@link Map Map&lt;K, V&gt;} as the
+     * result container.
+     *
+     * @param accumulator accumulator function which gathers data from each
+     *                    {@link RowView} into the result map.
+     * @param <K>         map key type
+     * @param <V>         map value type
+     * @return the stream of elements in the container's {@link Map#values()}
+     *         collection, in the order they were inserted.
+     */
+    default <K, V> Stream<V> reduceRows(BiConsumer<Map<K, V>, RowView> accumulator) {
+        return reduceRows((LinkedHashMapRowReducer<K, V>) accumulator::accept);
+    }
+
+    /**
      * Reduce the results.  Using a {@code BiFunction<U, RowView, U>}, repeatedly
      * combine query results until only a single value remains.
      *

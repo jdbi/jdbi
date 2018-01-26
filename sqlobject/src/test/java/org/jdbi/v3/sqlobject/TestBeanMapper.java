@@ -249,7 +249,7 @@ public class TestBeanMapper
         @UseRowReducer(FolderDocReducer.class)
         List<Folder> listFolders();
 
-        class FolderDocReducer extends LinkedHashMapRowReducer<Integer, Folder> {
+        class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> {
             @Override
             public void accumulate(Map<Integer, Folder> map, RowView rv) {
                 Folder f = map.computeIfAbsent(rv.getColumn("f_id", Integer.class),

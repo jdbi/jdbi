@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.result;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,11 +91,11 @@ public class TestReducing
     public void testReduceRows() {
         List<SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
-            .reduceRows(LinkedHashMapRowReducer.<Integer, SomethingWithLocations>of((map, rv) ->
+            .<Integer, SomethingWithLocations>reduceRows((map, rv) ->
                 map.computeIfAbsent(rv.getColumn("id", Integer.class),
                                     id -> new SomethingWithLocations(rv.getRow(Something.class)))
                    .locations
-                   .add(rv.getColumn("location", String.class))))
+                   .add(rv.getColumn("location", String.class)))
             .collect(toList());
 
         assertThat(result).containsExactly(

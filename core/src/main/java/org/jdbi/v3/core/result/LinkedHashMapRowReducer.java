@@ -15,7 +15,6 @@ package org.jdbi.v3.core.result;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -26,25 +25,17 @@ import java.util.stream.Stream;
  *
  * @param <K> the map key type--often the primary key type of {@code <V>}.
  * @param <V> the map value type, and the result element type--often the "master" object in a
- *     master/detail relation.
+ *            master/detail relation.
  */
-public abstract class LinkedHashMapRowReducer<K, V> implements RowReducer<Map<K, V>, V> {
-  @Override
-  public Map<K, V> container() {
-    return new LinkedHashMap<>();
-  }
+@FunctionalInterface
+public interface LinkedHashMapRowReducer<K, V> extends RowReducer<Map<K, V>, V> {
+    @Override
+    default Map<K, V> container() {
+        return new LinkedHashMap<>();
+    }
 
-  @Override
-  public Stream<V> stream(Map<K, V> container) {
-    return container.values().stream();
-  }
-
-  public static <K, V> RowReducer<?, V> of(BiConsumer<Map<K, V>, RowView> accumulator) {
-    return new LinkedHashMapRowReducer<K, V>() {
-      @Override
-      public void accumulate(Map<K, V> map, RowView rowView) {
-        accumulator.accept(map, rowView);
-      }
-    };
-  }
+    @Override
+    default Stream<V> stream(Map<K, V> container) {
+        return container.values().stream();
+    }
 }
