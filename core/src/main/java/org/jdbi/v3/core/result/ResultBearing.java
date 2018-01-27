@@ -31,9 +31,11 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 /**
  * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
@@ -162,6 +164,50 @@ public interface ResultBearing {
     }
 
     /**
+     * Reduce the result rows using the given row reducer.
+     *
+     * @param reducer the row reducer.
+     * @param <C> Mutable result container type
+     * @param <R> Result element type
+     * @return the stream of result elements
+     * @see RowReducer
+     */
+    default <C, R> Stream<R> reduceRows(RowReducer<C, R> reducer) {
+        return scanResultSet((supplier, ctx) -> {
+            try (ResultSet rs = supplier.get()) {
+                RowView rowView = new RowView(rs, ctx);
+
+                C container = reducer.container();
+                while (rs.next()) {
+                    reducer.accumulate(container, rowView);
+                }
+                return reducer.stream(container);
+            }
+            catch (SQLException e) {
+                throw new UnableToProduceResultException(e, ctx);
+            }
+            finally {
+                ctx.close();
+            }
+        });
+    }
+
+    /**
+     * Reduce the result rows using a {@link Map Map&lt;K, V&gt;} as the
+     * result container.
+     *
+     * @param accumulator accumulator function which gathers data from each
+     *                    {@link RowView} into the result map.
+     * @param <K>         map key type
+     * @param <V>         map value type
+     * @return the stream of elements in the container's {@link Map#values()}
+     *         collection, in the order they were inserted.
+     */
+    default <K, V> Stream<V> reduceRows(BiConsumer<Map<K, V>, RowView> accumulator) {
+        return reduceRows((LinkedHashMapRowReducer<K, V>) accumulator::accept);
+    }
+
+    /**
      * Reduce the results.  Using a {@code BiFunction<U, RowView, U>}, repeatedly
      * combine query results until only a single value remains.
      *
@@ -206,6 +252,39 @@ public interface ResultBearing {
                     result = accumulator.apply(result, rs, ctx);
                 }
                 return result;
+            }
+            catch (SQLException e) {
+                throw new UnableToProduceResultException(e, ctx);
+            }
+            finally {
+                ctx.close();
+            }
+        });
+    }
+
+    /**
+     * Collect the results using the given collector. Do not attempt to accumulate the
+     * {@link RowView} objects into the result--they are only valid within the
+     * {@link Collector#accumulator()} function. Instead, extract mapped types from the
+     * RowView by calling {@code RowView.getRow()} or {@code RowView.getColumn()}.
+     *
+     * @param collector the collector to collect the result rows.
+     * @param <A> the mutable accumulator type used by the collector.
+     * @param <R> the result type returned by the collector.
+     * @return the result of the collection
+     */
+    default <A, R> R collectRows(Collector<RowView, A, R> collector) {
+        return scanResultSet((supplier, ctx) -> {
+            try (ResultSet rs = supplier.get()) {
+                RowView rv = new RowView(rs, ctx);
+                A acc = collector.supplier().get();
+
+                BiConsumer<A, RowView> consumer = collector.accumulator();
+                while (rs.next()) {
+                    consumer.accept(acc, rv);
+                }
+
+                return collector.finisher().apply(acc);
             }
             catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);

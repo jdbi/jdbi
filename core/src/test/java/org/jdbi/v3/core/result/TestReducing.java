@@ -13,12 +13,15 @@
  */
 package org.jdbi.v3.core.result;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -47,14 +50,14 @@ public class TestReducing
     }
 
     @Test
-    public void testLeftJoinRowView() throws Exception
-    {
+    public void testReduceRowsWithSeed() {
         Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceRows(new HashMap<Integer, SomethingWithLocations>(), (map, rr) -> {
                 map.computeIfAbsent(rr.getColumn("id", Integer.class),
                         id -> new SomethingWithLocations(rr.getRow(Something.class)))
-                    .locations.add(rr.getColumn("location", String.class));
+                   .locations
+                   .add(rr.getColumn("location", String.class));
                 return map;
             });
 
@@ -64,8 +67,44 @@ public class TestReducing
     }
 
     @Test
-    public void testLeftJoinResultSet() throws Exception
-    {
+    public void testCollectRows() {
+        Iterable<SomethingWithLocations> result = dbRule.getSharedHandle()
+            .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
+            .collectRows(Collector.<RowView, Map<Integer, SomethingWithLocations>, Iterable<SomethingWithLocations>>of(
+                    LinkedHashMap::new,
+                    (Map<Integer, SomethingWithLocations> map, RowView rv) ->
+                        map.computeIfAbsent(rv.getColumn("id", Integer.class),
+                                            id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                           .locations
+                           .add(rv.getColumn("location", String.class)),
+                    (a, b) -> {
+                        throw new UnsupportedOperationException("shouldn't use combiner");
+                    },
+                    Map::values));
+
+        assertThat(result).containsExactly(
+            new SomethingWithLocations(new Something(1, "tree")).at("outside"),
+            new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+    }
+
+    @Test
+    public void testReduceRows() {
+        List<SomethingWithLocations> result = dbRule.getSharedHandle()
+            .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
+            .<Integer, SomethingWithLocations>reduceRows((map, rv) ->
+                map.computeIfAbsent(rv.getColumn("id", Integer.class),
+                                    id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                   .locations
+                   .add(rv.getColumn("location", String.class)))
+            .collect(toList());
+
+        assertThat(result).containsExactly(
+            new SomethingWithLocations(new Something(1, "tree")).at("outside"),
+            new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+    }
+
+    @Test
+    public void testReduceResultSet() {
         Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceResultSet(new HashMap<Integer, SomethingWithLocations>(), (map, rs, ctx) -> {

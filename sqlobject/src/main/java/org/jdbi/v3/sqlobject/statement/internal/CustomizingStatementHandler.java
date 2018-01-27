@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.RowReducer;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -41,6 +42,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 /**
  * Base handler for annotations' implementation classes.
@@ -186,6 +188,16 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         }
         catch (Exception e) {
             throw new UnableToCreateStatementException("Could not create mapper " + mapperClass.getName(), e, null);
+        }
+    }
+
+    static RowReducer<?, ?> rowReducerFor(UseRowReducer annotation) {
+        Class<? extends RowReducer<?, ?>> reducerClass = annotation.value();
+        try {
+            return reducerClass.getConstructor().newInstance();
+        }
+        catch (Exception e) {
+            throw new UnableToCreateStatementException("Could not create reducer " + reducerClass.getName(), e, null);
         }
     }
 
