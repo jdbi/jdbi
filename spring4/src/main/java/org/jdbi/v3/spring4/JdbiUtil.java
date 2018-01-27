@@ -55,7 +55,11 @@ public class JdbiUtil
     {
         if (UNMANAGED_HANDLES.contains(handle))
         {
-            handle.close();
+            try {
+                handle.close();
+            } finally {
+                UNMANAGED_HANDLES.remove(handle);
+            }
         }
     }
 }
