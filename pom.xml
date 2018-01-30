@@ -31,8 +31,9 @@
     <url>https://github.com/nebhale/r2dbc</url>
 
     <modules>
-        <module>postgresql-r2dbc</module>
         <module>r2dbc-api</module>
+        <module>r2dbc-core</module>
+        <module>r2dbc-postgresql</module>
     </modules>
 
     <properties>
@@ -51,13 +52,11 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- TODO: Remove once reactor/reactor-core#1017 is released -->
             <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-core</artifactId>
-                <version>3.1.3.BUILD-SNAPSHOT</version>
+                <version>3.1.3.RELEASE</version>
             </dependency>
-
             <dependency>
                 <groupId>ru.yandex.qatools.embed</groupId>
                 <artifactId>postgresql-embedded</artifactId>

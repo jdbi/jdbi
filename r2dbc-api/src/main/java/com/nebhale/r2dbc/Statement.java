@@ -16,16 +16,26 @@
 
 package com.nebhale.r2dbc;
 
+import org.reactivestreams.Publisher;
+
 /**
- * Represents a row returned from a database query.
+ * A statement that can be executed multiple times in a prepared and optimized way.
  */
-public interface Row {
+public interface Statement {
 
     /**
-     * Returns the columns in this row.
+     * Bind a set of arguments the statement.
      *
-     * @return the columns in this row
+     * @param parameters the parameters to bind
+     * @return this {@link Statement}
      */
-    Iterable<? extends Column> getColumns();
+    Statement bind(Iterable<Object> parameters);
+
+    /**
+     * Executes the statement multiple times.
+     *
+     * @return the results, if any, returned by each execution of the statement
+     */
+    Publisher<? extends Result> execute();
 
 }

@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
+package com.nebhale.r2dbc.postgresql.client;
+
+import java.util.function.Supplier;
 
 /**
- * Represents a row returned from a database query.
+ * A supplier for unique portal names.
  */
-public interface Row {
+@FunctionalInterface
+public interface PortalNameSupplier extends Supplier<String> {
 
     /**
-     * Returns the columns in this row.
+     * Returns a unique portal name on each invocation.
      *
-     * @return the columns in this row
+     * @return a unique portal name on each invocation
      */
-    Iterable<? extends Column> getColumns();
+    String get();
 
 }

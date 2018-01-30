@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
+package com.nebhale.r2dbc.postgresql;
 
-/**
- * Represents a row returned from a database query.
- */
-public interface Row {
+import com.nebhale.r2dbc.Statement;
+import reactor.core.publisher.Flux;
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
+// TODO
+public interface PostgresqlStatement extends Statement {
 
+    @Override
+    PostgresqlStatement bind(Iterable<Object> parameters);
+
+    @Override
+    Flux<PostgresqlResult> execute();
 }

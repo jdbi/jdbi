@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc;
+package com.nebhale.r2dbc.postgresql;
 
-/**
- * Represents a row returned from a database query.
- */
-public interface Row {
+import reactor.core.publisher.Mono;
 
-    /**
-     * Returns the columns in this row.
-     *
-     * @return the columns in this row
-     */
-    Iterable<? extends Column> getColumns();
+interface StatementCache {
+
+    Mono<String> getName(String sql);
 
 }
