@@ -16,7 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Statement;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
@@ -36,10 +35,7 @@ import java.util.stream.StreamSupport;
 
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
 
-/**
- * An implementation of {@link Statement} for executing a statement in a prepared and optimized way against a PostgreSQL database.
- */
-public final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
+final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
 
     private final List<List<ByteBuf>> bindings = new CopyOnWriteArrayList<>();
 

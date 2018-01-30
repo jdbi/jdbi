@@ -16,7 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Statement;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
@@ -28,10 +27,7 @@ import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
 
-/**
- * An implementation of {@link Statement} for executing a statement that cannot have bound parameters.  This typically means statements with multiple clauses (i.e. has semicolons) or no parameters.
- */
-public final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
+final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
     private final Client client;
 
