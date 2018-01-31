@@ -21,9 +21,11 @@ import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
 import com.nebhale.r2dbc.postgresql.client.TestClient;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.message.backend.BindComplete;
+import com.nebhale.r2dbc.postgresql.message.backend.CloseComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.NoData;
 import com.nebhale.r2dbc.postgresql.message.frontend.Bind;
+import com.nebhale.r2dbc.postgresql.message.frontend.Close;
 import com.nebhale.r2dbc.postgresql.message.frontend.Describe;
 import com.nebhale.r2dbc.postgresql.message.frontend.Execute;
 import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
@@ -80,13 +82,15 @@ public final class ExtendedQueryPostgresqlStatementTest {
                 new Bind("B_0", Collections.singletonList(Format.TEXT), Collections.singletonList(ByteBufUtils.encode(Unpooled.buffer(), "100")), Collections.emptyList(), "test-name"),
                 new Describe("B_0", ExecutionType.PORTAL),
                 new Execute("B_0", 0),
+                new Close("B_0", ExecutionType.PORTAL),
                 new Bind("B_1", Collections.singletonList(Format.TEXT), Collections.singletonList(ByteBufUtils.encode(Unpooled.buffer(), "200")), Collections.emptyList(), "test-name"),
                 new Describe("B_1", ExecutionType.PORTAL),
                 new Execute("B_1", 0),
+                new Close("B_1", ExecutionType.PORTAL),
                 Sync.INSTANCE)
             .thenRespond(
-                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null),
-                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null)
+                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null), CloseComplete.INSTANCE,
+                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null), CloseComplete.INSTANCE
             )
             .build();
 

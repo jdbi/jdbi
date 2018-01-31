@@ -20,6 +20,8 @@ import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.TestClient;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.ParseComplete;
+import com.nebhale.r2dbc.postgresql.message.frontend.Describe;
+import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
 import com.nebhale.r2dbc.postgresql.message.frontend.Parse;
 import com.nebhale.r2dbc.postgresql.message.frontend.Sync;
 import org.junit.Test;
@@ -41,7 +43,7 @@ public final class IndefiniteStatementCacheTest {
     @Test
     public void getName() {
         Client client = TestClient.builder()
-            .expectRequest(new Parse("S_0", Collections.emptyList(), "test-query"), Sync.INSTANCE).thenRespond(ParseComplete.INSTANCE)
+            .expectRequest(new Parse("S_0", Collections.emptyList(), "test-query"), new Describe("S_0", ExecutionType.STATEMENT), Sync.INSTANCE).thenRespond(ParseComplete.INSTANCE)
             .build();
 
         IndefiniteStatementCache statementCache = new IndefiniteStatementCache(client);
@@ -60,7 +62,7 @@ public final class IndefiniteStatementCacheTest {
     @Test
     public void getNameErrorResponse() {
         Client client = TestClient.builder()
-            .expectRequest(new Parse("S_0", Collections.emptyList(), "test-query"), Sync.INSTANCE).thenRespond(new ErrorResponse(Collections.emptyList()))
+            .expectRequest(new Parse("S_0", Collections.emptyList(), "test-query"), new Describe("S_0", ExecutionType.STATEMENT), Sync.INSTANCE).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
         IndefiniteStatementCache statementCache = new IndefiniteStatementCache(client);

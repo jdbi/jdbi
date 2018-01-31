@@ -72,20 +72,22 @@ public final class PostgresqlResult implements Result {
         Objects.requireNonNull(messages, "messages must not be null");
 
         EmitterProcessor<BackendMessage> processor = EmitterProcessor.create(false);
-        Mono<BackendMessage> firstMessage = processor.publishNext();
+        Flux<BackendMessage> firstMessages = processor.take(3).cache();
 
-        Mono<PostgresqlRowMetadata> rowMetadata = firstMessage
+        Mono<PostgresqlRowMetadata> rowMetadata = firstMessages
             .ofType(RowDescription.class)
+            .singleOrEmpty()
             .map(PostgresqlRowMetadata::toRowMetadata);
 
         Flux<PostgresqlRow> rows = processor
-            .startWith(firstMessage)
+            .startWith(firstMessages)
             .ofType(DataRow.class)
             .map(PostgresqlRow::toRow);
 
-        Mono<Integer> rowsUpdated = firstMessage
+        Mono<Integer> rowsUpdated = firstMessages
             .ofType(CommandComplete.class)
-            .map(CommandComplete::getRows);
+            .singleOrEmpty()
+            .flatMap(commandComplete -> Mono.justOrEmpty(commandComplete.getRows()));
 
         messages
             .handle(PostgresqlServerErrorException::handleErrorResponse)

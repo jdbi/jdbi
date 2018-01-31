@@ -22,6 +22,7 @@ import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.NoData;
 import com.nebhale.r2dbc.postgresql.message.backend.ParseComplete;
 import com.nebhale.r2dbc.postgresql.message.frontend.Bind;
+import com.nebhale.r2dbc.postgresql.message.frontend.Close;
 import com.nebhale.r2dbc.postgresql.message.frontend.Describe;
 import com.nebhale.r2dbc.postgresql.message.frontend.Execute;
 import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
@@ -48,9 +49,11 @@ public final class ExtendedQueryMessageFlowTest {
                 new Bind("B_0", Collections.singletonList(Format.TEXT), Collections.singletonList(Unpooled.buffer().writeInt(100)), Collections.emptyList(), "test-name"),
                 new Describe("B_0", ExecutionType.PORTAL),
                 new Execute("B_0", 0),
+                new Close("B_0", ExecutionType.PORTAL),
                 new Bind("B_1", Collections.singletonList(Format.TEXT), Collections.singletonList(Unpooled.buffer().writeInt(200)), Collections.emptyList(), "test-name"),
                 new Describe("B_1", ExecutionType.PORTAL),
                 new Execute("B_1", 0),
+                new Close("B_1", ExecutionType.PORTAL),
                 Sync.INSTANCE)
             .thenRespond(
                 BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null),
@@ -95,7 +98,7 @@ public final class ExtendedQueryMessageFlowTest {
     @Test
     public void parse() {
         Client client = TestClient.builder()
-            .expectRequest(new Parse("test-name", Collections.emptyList(), "test-query"), Sync.INSTANCE).thenRespond(ParseComplete.INSTANCE)
+            .expectRequest(new Parse("test-name", Collections.emptyList(), "test-query"), new Describe("test-name", ExecutionType.STATEMENT), Sync.INSTANCE).thenRespond(ParseComplete.INSTANCE)
             .build();
 
         ExtendedQueryMessageFlow

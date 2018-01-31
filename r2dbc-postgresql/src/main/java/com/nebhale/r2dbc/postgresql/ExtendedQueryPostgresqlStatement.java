@@ -19,9 +19,7 @@ package com.nebhale.r2dbc.postgresql;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
-import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
-import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
-import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
+import com.nebhale.r2dbc.postgresql.message.backend.CloseComplete;
 import com.nebhale.r2dbc.postgresql.util.ByteBufUtils;
 import com.nebhale.r2dbc.postgresql.util.SqlUtils;
 import io.netty.buffer.ByteBuf;
@@ -32,8 +30,6 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
 
 final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
 
@@ -74,7 +70,7 @@ final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
     public Flux<PostgresqlResult> execute() {
         return this.statementCache.getName(SqlUtils.replacePlaceholders(this.sql))
             .flatMapMany(name -> ExtendedQueryMessageFlow.execute(this.client, this.portalNameSupplier, name, Flux.fromIterable(this.bindings)))
-            .windowUntil(or(CommandComplete.class::isInstance, EmptyQueryResponse.class::isInstance, ErrorResponse.class::isInstance))
+            .windowUntil(CloseComplete.class::isInstance)
             .map(PostgresqlResult::toResult);
     }
 

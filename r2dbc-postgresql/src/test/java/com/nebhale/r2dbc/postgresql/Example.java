@@ -25,7 +25,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,14 +58,16 @@ public final class Example {
 
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .createBatch()
                 .add("INSERT INTO test VALUES(200)")
                 .add("SELECT value FROM test")
-                .execute())
+                .execute()
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .expectNextCount(3)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
-            .expectComplete()
-            .verify(Duration.ofSeconds(5));
+            .verifyComplete();
     }
 
     @Before
@@ -80,9 +81,12 @@ public final class Example {
 
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .createStatement("SELECT value FROM test; SELECT value FROM test")
                 .execute()
-                .flatMap(Example::extractColumns))
+                .flatMap(Example::extractColumns)
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
             .expectNext(Collections.singletonList(100))
@@ -94,10 +98,13 @@ public final class Example {
     public void connectionMutability() {
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .setTransactionMutability(READ_ONLY)
                 .thenMany(connection.createStatement("INSERT INTO test VALUES (200)")
                     .execute()
-                    .flatMap(Example::extractRowsUpdated)))
+                    .flatMap(Example::extractRowsUpdated))
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .verifyError(PostgresqlServerErrorException.class);
     }
@@ -105,11 +112,16 @@ public final class Example {
     @Test
     public void parameterStatusConnection() {
         this.connectionFactory.create()
-            .flatMapMany(connection ->
-                Flux.just(connection.getParameterStatus())
-                    .delayUntil(m -> connection.createStatement("SET application_name TO 'test-application'")
-                        .execute())
-                    .concatWith(Flux.defer(() -> Flux.just(connection.getParameterStatus()))))
+            .flatMapMany(connection -> Mono.just(
+
+                connection.getParameterStatus())
+
+                .delayUntil(m -> connection.createStatement("SET application_name TO 'test-application'")
+                    .execute())
+
+                .concatWith(Flux.defer(() -> Flux.just(connection.getParameterStatus())))
+
+                .concatWith(close(connection)))
             .map(m -> m.get("application_name"))
             .as(StepVerifier::create)
             .expectNext("postgresql-r2dbc")
@@ -126,12 +138,13 @@ public final class Example {
                 IntStream.range(0, 10)
                     .forEach(i -> statement.bind(Collections.singletonList(i)));
 
-                return statement.execute();
+                return statement
+                    .execute()
+                    .concatWith(close(connection));
             })
             .as(StepVerifier::create)
             .expectNextCount(11) // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
-            .expectComplete()
-            .verify(Duration.ofSeconds(5));
+            .verifyComplete();
     }
 
     @Test
@@ -140,16 +153,19 @@ public final class Example {
 
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .beginTransaction()
                 .<Object>thenMany(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.createStatement("INSERT INTO test VALUES (200)")
                     .execute()
                     .flatMap(Example::extractRowsUpdated))
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.createSavepoint("test_savepoint"))
                 .concatWith(connection.createStatement("INSERT INTO test VALUES (300)")
                     .execute()
@@ -157,11 +173,13 @@ public final class Example {
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.rollbackTransactionToSavepoint("test_savepoint"))
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
-                .concatWith(connection.rollbackTransaction()))
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
             .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
@@ -182,20 +200,25 @@ public final class Example {
 
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .beginTransaction()
                 .<Object>thenMany(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.createStatement("INSERT INTO test VALUES (200)")
                     .execute()
                     .flatMap(Example::extractRowsUpdated))
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.commitTransaction())
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
-                    .flatMap(Example::extractColumns)))
+                    .flatMap(Example::extractColumns))
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
             .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
@@ -211,11 +234,15 @@ public final class Example {
     public void transactionMutability() {
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .beginTransaction()
+
                 .then(connection.setTransactionMutability(READ_ONLY))
                 .thenMany(connection.createStatement("INSERT INTO test VALUES (200)")
                     .execute()
-                    .flatMap(Example::extractRowsUpdated)))
+                    .flatMap(Example::extractRowsUpdated))
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .verifyError(PostgresqlServerErrorException.class);
     }
@@ -226,20 +253,25 @@ public final class Example {
 
         this.connectionFactory.create()
             .flatMapMany(connection -> connection
+
                 .beginTransaction()
                 .<Object>thenMany(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.createStatement("INSERT INTO test VALUES (200)")
                     .execute()
                     .flatMap(Example::extractRowsUpdated))
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
                     .flatMap(Example::extractColumns))
+
                 .concatWith(connection.rollbackTransaction())
                 .concatWith(connection.createStatement("SELECT value FROM test")
                     .execute()
-                    .flatMap(Example::extractColumns)))
+                    .flatMap(Example::extractColumns))
+
+                .concatWith(close(connection)))
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
             .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
@@ -249,6 +281,12 @@ public final class Example {
             .expectNext(Collections.singletonList(100))
             .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
             .verifyComplete();
+    }
+
+    private static <T> Mono<T> close(PostgresqlConnection connection) {
+        return connection
+            .close()
+            .then(Mono.empty());
     }
 
     private static Mono<List<Integer>> extractColumns(PostgresqlResult result) {
@@ -261,4 +299,5 @@ public final class Example {
     private static Mono<Integer> extractRowsUpdated(PostgresqlResult result) {
         return result.getRowsUpdated();
     }
+
 }
