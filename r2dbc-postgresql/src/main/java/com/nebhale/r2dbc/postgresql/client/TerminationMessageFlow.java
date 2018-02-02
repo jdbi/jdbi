@@ -23,6 +23,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428663883648">Termination</a> message flow.
  */
@@ -39,7 +41,7 @@ public final class TerminationMessageFlow {
      * @throws NullPointerException if {@code client} is {@code null}
      */
     public static Flux<BackendMessage> exchange(Client client) {
-        Objects.requireNonNull(client, "client must not be null");
+        requireNonNull(client, "client must not be null");
 
         return client.exchange(Mono.just(Terminate.INSTANCE));
     }

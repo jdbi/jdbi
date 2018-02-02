@@ -23,9 +23,9 @@ import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
 import reactor.core.publisher.Flux;
 
-import java.util.Objects;
-
+import static com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow.PARAMETER_SYMBOL;
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
+import static java.util.Objects.requireNonNull;
 
 final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
@@ -34,18 +34,28 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
     private final String sql;
 
     SimpleQueryPostgresqlStatement(Client client, String sql) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
-        this.sql = Objects.requireNonNull(sql, "sql must not be null");
+        this.client = requireNonNull(client, "client must not be null");
+        this.sql = requireNonNull(sql, "sql must not be null");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws UnsupportedOperationException always as binding parameters is not supported for statements of this type
-     */
     @Override
-    public SimpleQueryPostgresqlStatement bind(Iterable<Object> parameters) {
-        throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
+    public SimpleQueryPostgresqlStatement add() {
+        throw getUnsupportedOperationException();
+    }
+
+    @Override
+    public SimpleQueryPostgresqlStatement bind(Object identifier, Object value) {
+        throw getUnsupportedOperationException();
+    }
+
+    @Override
+    public SimpleQueryPostgresqlStatement bind(Integer index, Object value) {
+        throw getUnsupportedOperationException();
+    }
+
+    @Override
+    public SimpleQueryPostgresqlStatement bindNull(Object identifier, Object type) {
+        throw getUnsupportedOperationException();
     }
 
     @Override
@@ -59,14 +69,19 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
     @Override
     public String toString() {
         return "SimpleQueryPostgresqlStatement{" +
-            "sql='" + this.sql + '\'' +
+            "client=" + this.client +
+            ", sql='" + this.sql + '\'' +
             '}';
     }
 
     static boolean supports(String sql) {
-        Objects.requireNonNull(sql, "sql must not be null");
+        requireNonNull(sql, "sql must not be null");
 
-        return sql.trim().isEmpty() || !sql.contains("?");
+        return sql.trim().isEmpty() || !PARAMETER_SYMBOL.matcher(sql).matches();
+    }
+
+    private UnsupportedOperationException getUnsupportedOperationException() {
+        return new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
 }

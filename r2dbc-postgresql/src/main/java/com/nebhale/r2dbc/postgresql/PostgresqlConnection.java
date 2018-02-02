@@ -16,28 +16,33 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Connection;
-import com.nebhale.r2dbc.IsolationLevel;
-import com.nebhale.r2dbc.Mutability;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
 import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.client.TransactionStatus;
+import com.nebhale.r2dbc.spi.Connection;
+import com.nebhale.r2dbc.spi.IsolationLevel;
+import com.nebhale.r2dbc.spi.Mutability;
+import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.OPEN;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Connection} for connecting to a PostgreSQL database.
  */
 public final class PostgresqlConnection implements Connection {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Client client;
 
@@ -46,17 +51,22 @@ public final class PostgresqlConnection implements Connection {
     private final StatementCache statementCache;
 
     PostgresqlConnection(Client client, PortalNameSupplier portalNameSupplier, StatementCache statementCache) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
-        this.portalNameSupplier = Objects.requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
-        this.statementCache = Objects.requireNonNull(statementCache, "statementCache must not be null");
+        this.client = requireNonNull(client, "client must not be null");
+        this.portalNameSupplier = requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
+        this.statementCache = requireNonNull(statementCache, "statementCache must not be null");
     }
 
     @Override
     public Mono<Void> beginTransaction() {
-        return assertTransactionStatus(IDLE::equals, () -> "Connection must not have an open transaction in order to open a transaction")
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, "BEGIN"))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (IDLE == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, "BEGIN")
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping begin transaction because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     @Override
@@ -67,10 +77,15 @@ public final class PostgresqlConnection implements Connection {
 
     @Override
     public Mono<Void> commitTransaction() {
-        return assertTransactionStatus(OPEN::equals, () -> "Connection must have an open transaction in order to commit a transaction")
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, "COMMIT"))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (OPEN == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, "COMMIT")
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping commit transaction because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     @Override
@@ -85,12 +100,17 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public Mono<Void> createSavepoint(String name) {
-        Objects.requireNonNull(name, "name must not be null");
+        requireNonNull(name, "name must not be null");
 
-        return assertTransactionStatus(OPEN::equals, () -> String.format("Connection must have an open transaction in order to create the %s savepoint", name))
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, String.format("SAVEPOINT %s", name)))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (OPEN == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, String.format("SAVEPOINT %s", name))
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping create savepoint because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     /**
@@ -100,7 +120,7 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public PostgresqlStatement createStatement(String sql) {
-        Objects.requireNonNull(sql, "sql must not be null");
+        requireNonNull(sql, "sql must not be null");
 
         if (SimpleQueryPostgresqlStatement.supports(sql)) {
             return new SimpleQueryPostgresqlStatement(this.client, sql);
@@ -127,20 +147,30 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public Mono<Void> releaseSavepoint(String name) {
-        Objects.requireNonNull(name, "name must not be null");
+        requireNonNull(name, "name must not be null");
 
-        return assertTransactionStatus(OPEN::equals, () -> String.format("Connection must have an open transaction in order to release the %s savepoint", name))
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, String.format("RELEASE SAVEPOINT %s", name)))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (OPEN == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, String.format("RELEASE SAVEPOINT %s", name))
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping release savepoint because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     @Override
     public Mono<Void> rollbackTransaction() {
-        return assertTransactionStatus(OPEN::equals, () -> "Connection must have an open transaction in order to rollback a transaction")
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, "ROLLBACK"))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (OPEN == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, "ROLLBACK")
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping rollback transaction because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     /**
@@ -150,12 +180,17 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public Mono<Void> rollbackTransactionToSavepoint(String name) {
-        Objects.requireNonNull(name, "name must not be null");
+        requireNonNull(name, "name must not be null");
 
-        return assertTransactionStatus(OPEN::equals, () -> String.format("Connection must have an open transaction in order to rollback to the %s savepoint", name))
-            .thenMany(SimpleQueryMessageFlow.exchange(this.client, String.format("ROLLBACK TO SAVEPOINT %s", name)))
-            .handle(PostgresqlServerErrorException::handleErrorResponse)
-            .then();
+        return useTransactionStatus(transactionStatus -> {
+            if (OPEN == transactionStatus) {
+                return SimpleQueryMessageFlow.exchange(this.client, String.format("ROLLBACK TO SAVEPOINT %s", name))
+                    .handle(PostgresqlServerErrorException::handleErrorResponse);
+            } else {
+                this.logger.debug("Skipping rollback transaction to savepoint because status is {}", transactionStatus);
+                return Mono.empty();
+            }
+        });
     }
 
     /**
@@ -165,7 +200,7 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public Mono<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel) {
-        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
+        requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return withTransactionStatus(getTransactionIsolationLevelQuery(isolationLevel))
             .flatMapMany(query -> SimpleQueryMessageFlow.exchange(this.client, query))
@@ -180,7 +215,7 @@ public final class PostgresqlConnection implements Connection {
      */
     @Override
     public Mono<Void> setTransactionMutability(Mutability mutability) {
-        Objects.requireNonNull(mutability, "mutability must not be null");
+        requireNonNull(mutability, "mutability must not be null");
 
         return withTransactionStatus(getTransactionMutabilityQuery(mutability))
             .flatMapMany(query -> SimpleQueryMessageFlow.exchange(this.client, query))
@@ -215,8 +250,9 @@ public final class PostgresqlConnection implements Connection {
         };
     }
 
-    private Mono<Void> assertTransactionStatus(Predicate<TransactionStatus> transactionStatus, Supplier<String> exceptionMessage) {
-        return Mono.defer(() -> transactionStatus.test(this.client.getTransactionStatus()) ? Mono.empty() : Mono.error(new IllegalStateException(exceptionMessage.get())));
+    private Mono<Void> useTransactionStatus(Function<TransactionStatus, Publisher<?>> f) {
+        return Flux.defer(() -> f.apply(this.client.getTransactionStatus()))
+            .then();
     }
 
     private <T> Mono<T> withTransactionStatus(Function<TransactionStatus, T> f) {

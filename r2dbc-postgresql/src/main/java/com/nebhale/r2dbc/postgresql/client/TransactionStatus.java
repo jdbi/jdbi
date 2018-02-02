@@ -46,13 +46,6 @@ public enum TransactionStatus {
         this.discriminator = discriminator;
     }
 
-    @Override
-    public String toString() {
-        return "TransactionStatus{" +
-            "discriminator=" + discriminator +
-            "} " + super.toString();
-    }
-
     static TransactionStatus valueOf(ReadyForQuery.TransactionStatus t) {
         return Arrays.stream(values())
             .filter(type -> type.discriminator == t)

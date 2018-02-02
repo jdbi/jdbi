@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The ParameterDescription message.
  */
@@ -37,7 +39,7 @@ public final class ParameterDescription implements BackendMessage {
      * @throws NullPointerException if {@code parameters} is {@code null}
      */
     public ParameterDescription(List<Integer> parameters) {
-        this.parameters = Objects.requireNonNull(parameters, "parameters must not be null");
+        this.parameters = requireNonNull(parameters, "parameters must not be null");
     }
 
     @Override
@@ -74,7 +76,7 @@ public final class ParameterDescription implements BackendMessage {
     }
 
     static ParameterDescription decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         List<Integer> parameters = IntStream.range(0, in.readShort())
             .map(i -> in.readInt())

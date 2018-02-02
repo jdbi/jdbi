@@ -20,6 +20,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The CopyData message.
  */
@@ -34,7 +36,7 @@ public final class CopyData implements BackendMessage {
      * @throws NullPointerException if {@code data} is {@code null}
      */
     public CopyData(ByteBuf data) {
-        this.data = Objects.requireNonNull(data, "data must not be null");
+        this.data = requireNonNull(data, "data must not be null");
     }
 
     @Override
@@ -71,7 +73,7 @@ public final class CopyData implements BackendMessage {
     }
 
     static CopyData decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         return new CopyData(in.readRetainedSlice(in.readableBytes()));
     }

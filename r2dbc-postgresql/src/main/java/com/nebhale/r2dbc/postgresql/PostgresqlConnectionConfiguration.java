@@ -18,6 +18,8 @@ package com.nebhale.r2dbc.postgresql;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Connection configuration information for connecting to a PostgreSQL database.
  */
@@ -38,10 +40,10 @@ public final class PostgresqlConnectionConfiguration {
     private PostgresqlConnectionConfiguration(String applicationName, String database, String host, String password, int port, String username) {
         this.applicationName = applicationName;
         this.database = database;
-        this.host = Objects.requireNonNull(host, "host must not be null");
-        this.password = Objects.requireNonNull(password, "password must not be null");
+        this.host = requireNonNull(host, "host must not be null");
+        this.password = requireNonNull(password, "password must not be null");
         this.port = port;
-        this.username = Objects.requireNonNull(username, "username must not be null");
+        this.username = requireNonNull(username, "username must not be null");
     }
 
     /**
@@ -119,7 +121,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code applicationName} is {@code null}
          */
         public Builder applicationName(String applicationName) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
+            this.applicationName = requireNonNull(applicationName, "applicationName must not be null");
             return this;
         }
 
@@ -151,7 +153,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code host} is {@code null}
          */
         public Builder host(String host) {
-            this.host = Objects.requireNonNull(host, "host must not be null");
+            this.host = requireNonNull(host, "host must not be null");
             return this;
         }
 
@@ -163,7 +165,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code password} is {@code null}
          */
         public Builder password(String password) {
-            this.password = Objects.requireNonNull(password, "password must not be null");
+            this.password = requireNonNull(password, "password must not be null");
             return this;
         }
 
@@ -198,7 +200,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code username} is {@code null}
          */
         public Builder username(String username) {
-            this.username = Objects.requireNonNull(username, "username must not be null");
+            this.username = requireNonNull(username, "username must not be null");
             return this;
         }
 

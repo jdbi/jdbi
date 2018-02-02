@@ -46,6 +46,7 @@ import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.SEVER
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.SEVERITY_NON_LOCALIZED;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.TABLE_NAME;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.WHERE;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An exception that represents a server error.  This exception is a direct translation of the {@link ErrorResponse} message.
@@ -96,7 +97,7 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      * @throws NullPointerException if {@code fields} is {@code null}
      */
     public PostgresqlServerErrorException(List<Field> fields) {
-        Objects.requireNonNull(fields, "fields must not be null");
+        requireNonNull(fields, "fields must not be null");
 
         Map<FieldType, String> map = fields.stream()
             .collect(Collectors.toMap(Field::getType, Field::getValue));
@@ -352,7 +353,7 @@ public final class PostgresqlServerErrorException extends RuntimeException {
     }
 
     private static PostgresqlServerErrorException toException(ErrorResponse errorResponse) {
-        Objects.requireNonNull(errorResponse, "errorResponse must not be null");
+        requireNonNull(errorResponse, "errorResponse must not be null");
 
         return new PostgresqlServerErrorException(errorResponse.getFields());
     }

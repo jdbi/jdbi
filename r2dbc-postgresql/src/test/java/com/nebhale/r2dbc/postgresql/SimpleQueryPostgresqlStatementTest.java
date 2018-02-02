@@ -40,7 +40,13 @@ public final class SimpleQueryPostgresqlStatementTest {
 
     @Test
     public void bind() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bind(Collections.emptyList()))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bind(null, null))
+            .withMessage("Binding parameters is not supported for the statement 'test-query'");
+    }
+
+    @Test
+    public void bindNull() {
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bindNull(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
@@ -228,19 +234,14 @@ public final class SimpleQueryPostgresqlStatementTest {
     }
 
     @Test
-    public void supportsNoQuestion() {
-        assertThat(SimpleQueryPostgresqlStatement.supports("test-query")).isTrue();
-    }
-
-    @Test
     public void supportsNoSql() {
         assertThatNullPointerException().isThrownBy(() -> SimpleQueryPostgresqlStatement.supports(null))
             .withMessage("sql must not be null");
     }
 
     @Test
-    public void supportsNone() {
-        assertThat(SimpleQueryPostgresqlStatement.supports("test-query-?")).isFalse();
+    public void supportsParameterSymbol() {
+        assertThat(SimpleQueryPostgresqlStatement.supports("test-query-$1")).isFalse();
     }
 
     @Test
@@ -251,6 +252,11 @@ public final class SimpleQueryPostgresqlStatementTest {
     @Test
     public void supportsSemicolon() {
         assertThat(SimpleQueryPostgresqlStatement.supports("test-query-1 ; test-query-2")).isTrue();
+    }
+
+    @Test
+    public void supportsSimple() {
+        assertThat(SimpleQueryPostgresqlStatement.supports("test-query")).isTrue();
     }
 
 }

@@ -20,6 +20,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The AuthenticationSASLFinal message.
  */
@@ -34,7 +36,7 @@ public final class AuthenticationSASLFinal implements AuthenticationMessage {
      * @throws NullPointerException if {@code additionalData} is {@code null}
      */
     public AuthenticationSASLFinal(ByteBuf additionalData) {
-        this.additionalData = Objects.requireNonNull(additionalData, "additionalData must not be null");
+        this.additionalData = requireNonNull(additionalData, "additionalData must not be null");
     }
 
     @Override
@@ -71,7 +73,7 @@ public final class AuthenticationSASLFinal implements AuthenticationMessage {
     }
 
     static AuthenticationSASLFinal decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         return new AuthenticationSASLFinal(in.readRetainedSlice(in.readableBytes()));
     }

@@ -27,6 +27,7 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeCStringUTF8;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The PasswordMessage message.
@@ -42,12 +43,12 @@ public final class PasswordMessage implements FrontendMessage {
      * @throws NullPointerException if {@code password} is {@code null}
      */
     public PasswordMessage(String password) {
-        this.password = Objects.requireNonNull(password, "password must not be null");
+        this.password = requireNonNull(password, "password must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        Objects.requireNonNull(allocator, "allocator must not be null");
+        requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
             ByteBuf out = allocator.ioBuffer();

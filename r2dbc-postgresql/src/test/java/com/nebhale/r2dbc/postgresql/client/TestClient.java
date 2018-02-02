@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
+import static java.util.Objects.requireNonNull;
 
 public final class TestClient implements Client {
 
@@ -62,7 +63,7 @@ public final class TestClient implements Client {
         this.parameterStatus = parameterStatus;
         this.processId = processId;
         this.secretKey = secretKey;
-        this.transactionStatus = Objects.requireNonNull(transactionStatus);
+        this.transactionStatus = requireNonNull(transactionStatus);
 
         FluxSink<Flux<BackendMessage>> responses = this.responseProcessor.sink();
 
@@ -95,7 +96,7 @@ public final class TestClient implements Client {
 
     @Override
     public Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests) {
-        Objects.requireNonNull(requests, "requests must not be null");
+        requireNonNull(requests, "requests must not be null");
 
         return this.responseProcessor
             .doOnSubscribe(s ->
@@ -157,7 +158,7 @@ public final class TestClient implements Client {
         }
 
         public Exchange.Builder<Builder> expectRequest(FrontendMessage... requests) {
-            Objects.requireNonNull(requests);
+            requireNonNull(requests);
 
             Window.Builder<Builder> window = new Window.Builder<>(this);
             this.windows.add(window);
@@ -184,7 +185,7 @@ public final class TestClient implements Client {
         }
 
         public Builder transactionStatus(TransactionStatus transactionStatus) {
-            this.transactionStatus = Objects.requireNonNull(transactionStatus);
+            this.transactionStatus = requireNonNull(transactionStatus);
             return this;
         }
 
@@ -203,8 +204,8 @@ public final class TestClient implements Client {
         private final Publisher<BackendMessage> responses;
 
         private Exchange(Flux<FrontendMessage> requests, Publisher<BackendMessage> responses) {
-            this.requests = Objects.requireNonNull(requests);
-            this.responses = Objects.requireNonNull(responses);
+            this.requests = requireNonNull(requests);
+            this.responses = requireNonNull(responses);
         }
 
         public static final class Builder<T> {
@@ -216,18 +217,18 @@ public final class TestClient implements Client {
             private Publisher<BackendMessage> responses;
 
             private Builder(T chain, FrontendMessage... requests) {
-                this.chain = Objects.requireNonNull(chain);
-                this.requests = Flux.just(Objects.requireNonNull(requests));
+                this.chain = requireNonNull(chain);
+                this.requests = Flux.just(requireNonNull(requests));
             }
 
             public T thenRespond(BackendMessage... responses) {
-                Objects.requireNonNull(responses);
+                requireNonNull(responses);
 
                 return thenRespond(Flux.just(responses));
             }
 
             public T thenRespond(Publisher<BackendMessage> responses) {
-                Objects.requireNonNull(responses);
+                requireNonNull(responses);
 
                 this.responses = responses;
                 return this.chain;
@@ -246,7 +247,7 @@ public final class TestClient implements Client {
         private final Flux<Exchange> exchanges;
 
         private Window(Flux<Exchange> exchanges) {
-            this.exchanges = Objects.requireNonNull(exchanges);
+            this.exchanges = requireNonNull(exchanges);
         }
 
         public static final class Builder<T> {
@@ -256,7 +257,7 @@ public final class TestClient implements Client {
             private final List<Exchange.Builder<?>> exchanges = new ArrayList<>();
 
             private Builder(T chain) {
-                this.chain = Objects.requireNonNull(chain);
+                this.chain = requireNonNull(chain);
             }
 
             public T done() {
@@ -264,7 +265,7 @@ public final class TestClient implements Client {
             }
 
             public Exchange.Builder<Builder<T>> expectRequest(FrontendMessage request) {
-                Objects.requireNonNull(request);
+                requireNonNull(request);
 
                 Exchange.Builder<Builder<T>> exchange = new Exchange.Builder<>(this, request);
                 this.exchanges.add(exchange);

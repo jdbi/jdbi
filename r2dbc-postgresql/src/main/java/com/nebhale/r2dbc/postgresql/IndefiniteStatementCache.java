@@ -16,32 +16,39 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.client.Binding;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Objects.requireNonNull;
+import static reactor.function.TupleUtils.function;
 
 final class IndefiniteStatementCache implements StatementCache {
 
-    private final Map<String, Mono<String>> cache = new ConcurrentHashMap<>();
+    private final Map<Tuple2<String, List<Integer>>, Mono<String>> cache = new HashMap<>();
 
     private final Client client;
 
     private final AtomicInteger counter = new AtomicInteger();
 
     IndefiniteStatementCache(Client client) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.client = requireNonNull(client, "client must not be null");
     }
 
     @Override
-    public Mono<String> getName(String sql) {
-        Objects.requireNonNull(sql, "sql must not be null");
+    public Mono<String> getName(Binding binding, String sql) {
+        requireNonNull(binding, "binding must not be null");
+        requireNonNull(sql, "sql must not be null");
 
-        return this.cache.computeIfAbsent(sql, this::parse);
+        return this.cache.computeIfAbsent(Tuples.of(sql, binding.getParameterTypes()), function(this::parse));
     }
 
     @Override
@@ -53,10 +60,11 @@ final class IndefiniteStatementCache implements StatementCache {
             '}';
     }
 
-    private Mono<String> parse(String sql) {
+    private Mono<String> parse(String sql, List<Integer> types) {
         String name = String.format("S_%d", this.counter.getAndIncrement());
 
-        return ExtendedQueryMessageFlow.parse(this.client, name, sql)
+        return ExtendedQueryMessageFlow
+            .parse(this.client, name, sql, types)
             .handle(PostgresqlServerErrorException::handleErrorResponse)
             .then(Mono.just(name))
             .cache();

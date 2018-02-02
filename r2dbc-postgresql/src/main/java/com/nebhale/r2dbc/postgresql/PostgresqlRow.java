@@ -16,12 +16,14 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Row;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
+import com.nebhale.r2dbc.spi.Row;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Row} for a PostgreSQL database.
@@ -31,7 +33,7 @@ public final class PostgresqlRow implements Row {
     private final List<PostgresqlColumn> columns;
 
     PostgresqlRow(List<PostgresqlColumn> columns) {
-        this.columns = Objects.requireNonNull(columns, "columns must not be null");
+        this.columns = requireNonNull(columns, "columns must not be null");
     }
 
     @Override
@@ -64,7 +66,7 @@ public final class PostgresqlRow implements Row {
     }
 
     static PostgresqlRow toRow(DataRow dataRow) {
-        Objects.requireNonNull(dataRow, "dataRow must not be null");
+        requireNonNull(dataRow, "dataRow must not be null");
 
         return new PostgresqlRow(dataRow.getColumns().stream()
             .map(PostgresqlColumn::new)

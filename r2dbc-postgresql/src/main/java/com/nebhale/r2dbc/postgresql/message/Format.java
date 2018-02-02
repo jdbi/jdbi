@@ -64,11 +64,4 @@ public enum Format {
         return this.discriminator;
     }
 
-    @Override
-    public String toString() {
-        return "Format{" +
-            "discriminator=" + this.discriminator +
-            "} " + super.toString();
-    }
-
 }

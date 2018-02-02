@@ -27,6 +27,7 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeCStringUTF8;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The Close message.
@@ -51,13 +52,13 @@ public final class Close implements FrontendMessage {
      * @see #UNNAMED
      */
     public Close(String name, ExecutionType type) {
-        this.name = Objects.requireNonNull(name, "name must not be null");
-        this.type = Objects.requireNonNull(type, "type must not be null");
+        this.name = requireNonNull(name, "name must not be null");
+        this.type = requireNonNull(type, "type must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        Objects.requireNonNull(allocator, "allocator must not be null");
+        requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
             ByteBuf out = allocator.ioBuffer();

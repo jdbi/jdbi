@@ -31,6 +31,7 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
 import static io.netty.util.CharsetUtil.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The StartupMessage message.
@@ -70,14 +71,14 @@ public final class StartupMessage implements FrontendMessage {
      * @throws NullPointerException if {@code applicationName} or {@code username} is {@code null}
      */
     public StartupMessage(String applicationName, String database, String username) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
+        this.applicationName = requireNonNull(applicationName, "applicationName must not be null");
         this.database = database;
-        this.username = Objects.requireNonNull(username, "username must not be null");
+        this.username = requireNonNull(username, "username must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        Objects.requireNonNull(allocator, "allocator must not be null");
+        requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
             ByteBuf out = allocator.ioBuffer();
