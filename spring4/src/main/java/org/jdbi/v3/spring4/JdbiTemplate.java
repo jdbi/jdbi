@@ -35,10 +35,11 @@ public class JdbiTemplate implements JdbiOperations {
     @Override
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
         Handle h = JdbiUtil.getHandle(jdbi);
-        R result = callback.withHandle(h);
-        // close if not in transaction
-        JdbiUtil.closeIfNeeded(h);
-        return result;
+        try {
+            return callback.withHandle(h);
+        } finally {
+            JdbiUtil.closeIfNeeded(h);
+        }
     }
 
     /**
