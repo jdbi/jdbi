@@ -13,7 +13,11 @@
  */
 package org.jdbi.v3.core.kotlin
 
+import org.jdbi.v3.core.extension.ExtensionCallback
+import org.jdbi.v3.core.extension.ExtensionConsumer
 import org.jdbi.v3.core.rule.H2DatabaseRule
+import org.jdbi.v3.sqlobject.customizer.Bind
+import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,6 +32,11 @@ class KotlinPluginTest {
                      val nullableDefaultedNull: String? = null,
                      val nullableDefaultedNotNull: String? = "not null",
                      val defaulted: String = "default value")
+
+    interface ThingDao {
+        @SqlQuery("select id, name from something where id = :id")
+        fun getById(@Bind("id") id: Int): Thing
+    }
 
     val brian = Thing(1, "Brian", null)
     val keith = Thing(2, "Keith", null)
@@ -76,4 +85,18 @@ class KotlinPluginTest {
 
     }
 
+    @Test fun testWithExtensionKClass() {
+        val result = db.jdbi.withExtension(ThingDao::class, ExtensionCallback<Thing, ThingDao, RuntimeException> { extension ->
+            extension.getById(brian.id)
+        })
+
+        assertEquals(result, brian)
+    }
+
+    @Test fun testUseExtensionKClass() {
+        db.jdbi.useExtension(ThingDao::class, ExtensionConsumer<ThingDao, RuntimeException> { extension ->
+            val result = extension.getById(brian.id)
+            assertEquals(result, brian)
+        })
+    }
 }

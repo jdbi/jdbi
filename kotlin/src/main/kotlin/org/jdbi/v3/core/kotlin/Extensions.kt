@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core.kotlin
 
-
+import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.extension.ExtensionCallback
+import org.jdbi.v3.core.extension.ExtensionConsumer
 import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
+import kotlin.reflect.KClass
 
 private val metadataFqName = "kotlin.Metadata"
 
@@ -33,3 +36,36 @@ inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit)
     }
 }
 
+/**
+ * A convenience method which opens an extension of the given type, yields it to a callback, and returns the result
+ * of the callback. A handle is opened if needed by the extension, and closed before returning to the caller.
+ *
+ * @param extensionType the type of extension.
+ * @param callback      a callback which will receive the extension.
+ * @param <R> the return type
+ * @param <E> the extension type
+ * @param <X> the exception type optionally thrown by the callback
+ * @return the value returned by the callback.
+ * @throws org.jdbi.v3.core.extension.NoSuchExtensionException if no [org.jdbi.v3.core.extension.ExtensionFactory]
+ * is registered which supports the given extension type.
+ * @throws X                        if thrown by the callback.
+ */
+fun <E : Any, R, X : Exception> Jdbi.withExtension(extensionType: KClass<E>, callback: ExtensionCallback<R, E, X>): R {
+    return withExtension(extensionType.java, callback)
+}
+
+/**
+ * A convenience method which opens an extension of the given type, and yields it to a callback. A handle is opened
+ * if needed by the extention, and closed before returning to the caller.
+ *
+ * @param extensionType the type of extension
+ * @param callback      a callback which will receive the extension
+ * @param <E>           the extension type
+ * @param <X>           the exception type optionally thrown by the callback
+ * @throws org.jdbi.v3.core.extension.NoSuchExtensionException if no [org.jdbi.v3.core.extension.ExtensionFactory]
+ * is registered which supports the given extension type.
+ * @throws X                        if thrown by the callback.
+ */
+fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callback: ExtensionConsumer<E, X>) {
+    useExtension(extensionType.java, callback)
+}
