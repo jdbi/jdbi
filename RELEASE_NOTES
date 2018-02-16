@@ -1,3 +1,6 @@
+3.0.2
+  - EnumMapper now tries a case insensitive match if there's no exact match
+
 3.0.1
   - Kotlin mapper support for @Nested annotation
   - ReflectionMapperUtil utility class made public.

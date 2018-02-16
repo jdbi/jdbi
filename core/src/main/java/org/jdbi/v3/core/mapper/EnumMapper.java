@@ -15,6 +15,8 @@ package org.jdbi.v3.core.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -45,6 +47,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
 
     private static class ByName<E extends Enum<E>> extends EnumMapper<E> {
         private final Class<E> type;
+        private final ConcurrentMap<String, E> insensitiveLookup = new ConcurrentHashMap<>();
 
         private ByName(Class<E> type) {
             this.type = type;
@@ -53,7 +56,22 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
         @Override
         public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             String name = r.getString(columnNumber);
-            return name == null ? null : Enum.valueOf(type, name);
+            return name == null ? null : insensitiveLookup.computeIfAbsent(name, this::resolve);
+        }
+
+        private E resolve(String name) {
+            final IllegalArgumentException failure;
+            try {
+                return Enum.valueOf(type, name);
+            } catch (IllegalArgumentException e) {
+                failure = e;
+            }
+            for (E e : type.getEnumConstants()) {
+                if (e.name().equalsIgnoreCase(name)) {
+                    return e;
+                }
+            }
+            throw failure;
         }
     }
 
