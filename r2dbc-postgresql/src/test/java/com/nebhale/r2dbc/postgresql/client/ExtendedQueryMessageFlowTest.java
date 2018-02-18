@@ -38,18 +38,15 @@ import java.util.LinkedList;
 
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
-import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class ExtendedQueryMessageFlowTest {
 
-    private static final Parameter DEFAULT_PARAMETER = new Parameter(TEXT, 400, null);
-
     @Test
     public void execute() {
         Flux<Binding> bindings = Flux.just(
-            new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))),
-            new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)))
+            new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))),
+            new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)))
         );
 
         Client client = TestClient.builder()

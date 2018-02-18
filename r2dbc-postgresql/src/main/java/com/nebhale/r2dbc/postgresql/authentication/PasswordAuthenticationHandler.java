@@ -22,8 +22,6 @@ import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 /**

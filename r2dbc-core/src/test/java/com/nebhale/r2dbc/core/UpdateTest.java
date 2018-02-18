@@ -30,7 +30,7 @@ public final class UpdateTest {
 
     @Test
     public void add() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Update(statement)
             .add();
@@ -40,7 +40,7 @@ public final class UpdateTest {
 
     @Test
     public void bind() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Update(statement)
             .bind("test-identifier", "test-value");
@@ -50,7 +50,7 @@ public final class UpdateTest {
 
     @Test
     public void bindIndex() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Update(statement)
             .bind(100, "test-value");
@@ -60,7 +60,7 @@ public final class UpdateTest {
 
     @Test
     public void bindNull() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Update(statement)
             .bindNull("test-identifier", "test-type");

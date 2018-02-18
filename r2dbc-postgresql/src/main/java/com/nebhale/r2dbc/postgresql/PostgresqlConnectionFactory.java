@@ -21,10 +21,10 @@ import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ReactorNettyClient;
 import com.nebhale.r2dbc.postgresql.client.StartupMessageFlow;
+import com.nebhale.r2dbc.postgresql.codec.DefaultCodecs;
 import com.nebhale.r2dbc.spi.ConnectionFactory;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -59,22 +59,12 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
             .delayUntil(client ->
                 StartupMessageFlow
                     .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername()))
-            .map(client -> new PostgresqlConnection(client, DefaultPortalNameSupplier.INSTANCE, new IndefiniteStatementCache(client)));
+            .map(client -> new PostgresqlConnection(client, new DefaultCodecs(client.getByteBufAllocator()), DefaultPortalNameSupplier.INSTANCE, new IndefiniteStatementCache(client)));
     }
 
     @Override
     public String toString() {
         return "PostgresqlConnectionFactory{}";
-    }
-
-    Mono<PostgresqlConnection> create(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {
-        requireNonNull(clientFactory, "clientFactory must not be null");
-        requireNonNull(configuration, "configuration must not be null");
-
-        return Mono.just(clientFactory.get())
-            .delayUntil(client -> StartupMessageFlow
-                .exchange(configuration.getApplicationName(), getAuthenticationHandler(configuration), client, configuration.getDatabase(), configuration.getUsername()))
-            .map(client -> new PostgresqlConnection(client, DefaultPortalNameSupplier.INSTANCE, new IndefiniteStatementCache(client)));
     }
 
     private AuthenticationHandler getAuthenticationHandler(PostgresqlConnectionConfiguration configuration) {

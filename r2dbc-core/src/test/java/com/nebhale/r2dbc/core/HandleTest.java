@@ -36,7 +36,7 @@ public final class HandleTest {
 
     @Test
     public void beginTransaction() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .beginTransaction();
@@ -47,7 +47,7 @@ public final class HandleTest {
 
     @Test
     public void close() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .close();
@@ -58,7 +58,7 @@ public final class HandleTest {
 
     @Test
     public void commitTransaction() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .commitTransaction();
@@ -76,7 +76,7 @@ public final class HandleTest {
     @Test
     public void createBatch() {
         MockConnection connection = MockConnection.builder()
-            .batch(MockBatch.empty())
+            .batch(MockBatch.EMPTY)
             .build();
 
         Batch batch = new Handle(connection)
@@ -88,7 +88,7 @@ public final class HandleTest {
     @Test
     public void createQuery() {
         MockConnection connection = MockConnection.builder()
-            .statement(MockStatement.empty())
+            .statement(MockStatement.EMPTY)
             .build();
 
         Query query = new Handle(connection)
@@ -100,7 +100,7 @@ public final class HandleTest {
 
     @Test
     public void createSavepoint() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .createSavepoint("test-savepoint");
@@ -112,7 +112,7 @@ public final class HandleTest {
     @Test
     public void createUpdate() {
         MockConnection connection = MockConnection.builder()
-            .statement(MockStatement.empty())
+            .statement(MockStatement.EMPTY)
             .build();
 
         Update update = new Handle(connection)
@@ -146,7 +146,7 @@ public final class HandleTest {
 
     @Test
     public void inTransaction() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         new Handle(connection)
             .inTransaction(handle ->
@@ -161,7 +161,7 @@ public final class HandleTest {
 
     @Test
     public void inTransactionError() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
         Exception exception = new Exception();
 
         new Handle(connection)
@@ -176,13 +176,13 @@ public final class HandleTest {
 
     @Test
     public void inTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null))
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.EMPTY).inTransaction(null))
             .withMessage("f must not be null");
     }
 
     @Test
     public void releaseSavepoint() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .releaseSavepoint("test-savepoint");
@@ -193,7 +193,7 @@ public final class HandleTest {
 
     @Test
     public void rollbackTransaction() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .rollbackTransaction();
@@ -204,7 +204,7 @@ public final class HandleTest {
 
     @Test
     public void rollbackTransactionToSavepoint() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .rollbackTransactionToSavepoint("test-savepoint");
@@ -215,7 +215,7 @@ public final class HandleTest {
 
     @Test
     public void select() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         MockConnection connection = MockConnection.builder()
             .statement(statement)
@@ -231,7 +231,7 @@ public final class HandleTest {
 
     @Test
     public void setTransactionIsolationLevel() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .setTransactionIsolationLevel(SERIALIZABLE);
@@ -242,7 +242,7 @@ public final class HandleTest {
 
     @Test
     public void setTransactionMutability() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         Publisher<Void> publisher = new Handle(connection)
             .setTransactionMutability(READ_ONLY);
@@ -253,7 +253,7 @@ public final class HandleTest {
 
     @Test
     public void useTransaction() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
 
         new Handle(connection)
             .useTransaction(handle ->
@@ -267,7 +267,7 @@ public final class HandleTest {
 
     @Test
     public void useTransactionError() {
-        MockConnection connection = MockConnection.empty();
+        MockConnection connection = MockConnection.EMPTY;
         Exception exception = new Exception();
 
         new Handle(connection)
@@ -282,7 +282,7 @@ public final class HandleTest {
 
     @Test
     public void useTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null))
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.EMPTY).useTransaction(null))
             .withMessage("f must not be null");
     }
 

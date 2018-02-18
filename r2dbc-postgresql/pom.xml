@@ -103,7 +103,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>com.nebhale.r2dbc.postgresql.*</excludePackageNames>
+                    <excludePackageNames>com.nebhale.r2dbc.postgresql.authentication,com.nebhale.r2dbc.postgresql.client,com.nebhale.r2dbc.postgresql.codec,com.nebhale.r2dbc.postgresql.message,com.nebhale.r2dbc.postgresql.util</excludePackageNames>
                 </configuration>
             </plugin>
             <plugin>

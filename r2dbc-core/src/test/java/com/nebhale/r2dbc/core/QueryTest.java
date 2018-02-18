@@ -31,7 +31,7 @@ public final class QueryTest {
 
     @Test
     public void add() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Query(statement)
             .add();
@@ -41,7 +41,7 @@ public final class QueryTest {
 
     @Test
     public void bind() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Query(statement)
             .bind("test-identifier", "test-value");
@@ -51,7 +51,7 @@ public final class QueryTest {
 
     @Test
     public void bindIndex() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Query(statement)
             .bind(100, "test-value");
@@ -61,7 +61,7 @@ public final class QueryTest {
 
     @Test
     public void bindNull() {
-        MockStatement statement = MockStatement.empty();
+        MockStatement statement = MockStatement.EMPTY;
 
         new Query(statement)
             .bindNull("test-identifier", "test-type");
@@ -77,7 +77,7 @@ public final class QueryTest {
 
     @Test
     public void execute() {
-        MockResult result = MockResult.empty();
+        MockResult result = MockResult.EMPTY;
 
         MockStatement statement = MockStatement.builder()
             .result(result)
@@ -95,7 +95,7 @@ public final class QueryTest {
 
     @Test
     public void executeNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).execute(null))
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.EMPTY).execute(null))
             .withMessage("f must not be null");
     }
 

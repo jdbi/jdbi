@@ -20,6 +20,8 @@ import reactor.core.publisher.Mono;
 
 public final class MockConnectionFactory implements ConnectionFactory {
 
+    public static final MockConnectionFactory EMPTY = builder().build();
+
     private final Mono<Connection> connection;
 
     private MockConnectionFactory(Mono<Connection> connection) {
@@ -28,10 +30,6 @@ public final class MockConnectionFactory implements ConnectionFactory {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public static MockConnectionFactory empty() {
-        return builder().build();
     }
 
     @Override

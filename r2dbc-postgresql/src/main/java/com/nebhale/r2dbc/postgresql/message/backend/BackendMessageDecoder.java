@@ -22,7 +22,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.SynchronousSink;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.getBody;

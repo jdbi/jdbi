@@ -22,6 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class MockConnection implements Connection {
 
+    public static final MockConnection EMPTY = builder().build();
+
     private final Batch batch;
 
     private final Statement statement;
@@ -53,10 +55,6 @@ public final class MockConnection implements Connection {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public static MockConnection empty() {
-        return builder().build();
     }
 
     @Override

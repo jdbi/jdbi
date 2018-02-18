@@ -20,6 +20,7 @@ import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.PortalNameSupplier;
 import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.client.TransactionStatus;
+import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.spi.Connection;
 import com.nebhale.r2dbc.spi.IsolationLevel;
 import com.nebhale.r2dbc.spi.Mutability;
@@ -30,7 +31,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
@@ -46,12 +46,15 @@ public final class PostgresqlConnection implements Connection {
 
     private final Client client;
 
+    private final Codecs codecs;
+
     private final PortalNameSupplier portalNameSupplier;
 
     private final StatementCache statementCache;
 
-    PostgresqlConnection(Client client, PortalNameSupplier portalNameSupplier, StatementCache statementCache) {
+    PostgresqlConnection(Client client, Codecs codecs, PortalNameSupplier portalNameSupplier, StatementCache statementCache) {
         this.client = requireNonNull(client, "client must not be null");
+        this.codecs = requireNonNull(codecs, "codecs must not be null");
         this.portalNameSupplier = requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
         this.statementCache = requireNonNull(statementCache, "statementCache must not be null");
     }
@@ -90,7 +93,7 @@ public final class PostgresqlConnection implements Connection {
 
     @Override
     public PostgresqlBatch createBatch() {
-        return new PostgresqlBatch(this.client);
+        return new PostgresqlBatch(this.client, this.codecs);
     }
 
     /**
@@ -123,9 +126,9 @@ public final class PostgresqlConnection implements Connection {
         requireNonNull(sql, "sql must not be null");
 
         if (SimpleQueryPostgresqlStatement.supports(sql)) {
-            return new SimpleQueryPostgresqlStatement(this.client, sql);
+            return new SimpleQueryPostgresqlStatement(this.client, this.codecs, sql);
         } else if (ExtendedQueryPostgresqlStatement.supports(sql)) {
-            return new ExtendedQueryPostgresqlStatement(this.client, this.portalNameSupplier, sql, this.statementCache);
+            return new ExtendedQueryPostgresqlStatement(this.client, this.codecs, this.portalNameSupplier, sql, this.statementCache);
         } else {
             throw new IllegalArgumentException(String.format("Statement '%s' cannot be created. This is often due to the presence of both multiple statements and parameters at the same time.", sql));
         }
@@ -227,6 +230,9 @@ public final class PostgresqlConnection implements Connection {
     public String toString() {
         return "PostgresqlConnection{" +
             "client=" + this.client +
+            ", codecs=" + this.codecs +
+            ", portalNameSupplier=" + this.portalNameSupplier +
+            ", statementCache=" + this.statementCache +
             '}';
     }
 

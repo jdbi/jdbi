@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
+import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
@@ -31,10 +32,13 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
     private final Client client;
 
+    private final Codecs codecs;
+
     private final String sql;
 
-    SimpleQueryPostgresqlStatement(Client client, String sql) {
+    SimpleQueryPostgresqlStatement(Client client, Codecs codecs, String sql) {
         this.client = requireNonNull(client, "client must not be null");
+        this.codecs = requireNonNull(codecs, "codecs must not be null");
         this.sql = requireNonNull(sql, "sql must not be null");
     }
 
@@ -63,13 +67,14 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
         return SimpleQueryMessageFlow
             .exchange(this.client, this.sql)
             .windowUntil(or(CommandComplete.class::isInstance, EmptyQueryResponse.class::isInstance, ErrorResponse.class::isInstance))
-            .map(PostgresqlResult::toResult);
+            .map(dataRow -> PostgresqlResult.toResult(this.codecs, dataRow));
     }
 
     @Override
     public String toString() {
         return "SimpleQueryPostgresqlStatement{" +
             "client=" + this.client +
+            ", codecs=" + this.codecs +
             ", sql='" + this.sql + '\'' +
             '}';
     }
