@@ -36,13 +36,13 @@ public final class PostgresqlRowTest {
 
     @Test
     public void constructorNoColumns() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(MockCodecs.EMPTY, null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), null))
             .withMessage("columns must not be null");
     }
 
     @Test
     public void toRow() {
-        PostgresqlRow row = PostgresqlRow.toRow(MockCodecs.EMPTY, new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))));
+        PostgresqlRow row = PostgresqlRow.toRow(MockCodecs.empty(), new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))));
 
         assertThat(row.getColumns()).hasSize(1);
     }
@@ -55,7 +55,7 @@ public final class PostgresqlRowTest {
 
     @Test
     public void toRowNoDataRow() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlRow.toRow(MockCodecs.EMPTY, null))
+        assertThatNullPointerException().isThrownBy(() -> PostgresqlRow.toRow(MockCodecs.empty(), null))
             .withMessage("dataRow must not be null");
     }
 

@@ -40,7 +40,7 @@ public final class PostgresqlBatchTest {
             .expectRequest(new Query("test-query-1; test-query-2")).thenRespond(new CommandComplete("test", null, null))
             .build();
 
-        new PostgresqlBatch(client, MockCodecs.EMPTY)
+        new PostgresqlBatch(client, MockCodecs.empty())
             .add("test-query-1")
             .add("test-query-2")
             .execute()
@@ -51,19 +51,19 @@ public final class PostgresqlBatchTest {
 
     @Test
     public void addNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlBatch(NO_OP, MockCodecs.EMPTY).add(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlBatch(NO_OP, MockCodecs.empty()).add(null))
             .withMessage("sql must not be null");
     }
 
     @Test
     public void addWithParameter() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlBatch(NO_OP, MockCodecs.EMPTY).add("test-query-$1"))
+        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlBatch(NO_OP, MockCodecs.empty()).add("test-query-$1"))
             .withMessage("Statement 'test-query-$1' is not supported.  This is often due to the presence of parameters.");
     }
 
     @Test
     public void constructorNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlBatch(null, MockCodecs.EMPTY))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlBatch(null, MockCodecs.empty()))
             .withMessage("client must not be null");
     }
 
@@ -79,7 +79,7 @@ public final class PostgresqlBatchTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
             .build();
 
-        new PostgresqlBatch(client, MockCodecs.EMPTY)
+        new PostgresqlBatch(client, MockCodecs.empty())
             .add("test-query")
             .execute()
             .as(StepVerifier::create)
@@ -93,7 +93,7 @@ public final class PostgresqlBatchTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new PostgresqlBatch(client, MockCodecs.EMPTY)
+        new PostgresqlBatch(client, MockCodecs.empty())
             .add("test-query")
             .execute()
             .as(StepVerifier::create)
@@ -107,7 +107,7 @@ public final class PostgresqlBatchTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new PostgresqlBatch(client, MockCodecs.EMPTY)
+        new PostgresqlBatch(client, MockCodecs.empty())
             .add("test-query")
             .execute()
             .as(StepVerifier::create)

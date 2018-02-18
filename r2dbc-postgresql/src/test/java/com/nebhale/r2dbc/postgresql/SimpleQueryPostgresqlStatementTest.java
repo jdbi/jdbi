@@ -41,19 +41,19 @@ public final class SimpleQueryPostgresqlStatementTest {
 
     @Test
     public void bind() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, "test-query").bind(null, null))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), "test-query").bind(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
     @Test
     public void bindNull() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, "test-query").bindNull(null, null))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), "test-query").bindNull(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
     @Test
     public void constructorNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(null, MockCodecs.EMPTY, "test-query"))
+        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(null, MockCodecs.empty(), "test-query"))
             .withMessage("client must not be null");
     }
 
@@ -65,7 +65,7 @@ public final class SimpleQueryPostgresqlStatementTest {
 
     @Test
     public void constructorNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, null))
+        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), null))
             .withMessage("sql must not be null");
     }
 
@@ -75,7 +75,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -88,7 +88,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -101,7 +101,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -115,7 +115,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -128,7 +128,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -141,7 +141,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -154,7 +154,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -167,7 +167,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -180,7 +180,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -197,7 +197,7 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -215,11 +215,11 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
-            .expectNext(new PostgresqlRow(MockCodecs.EMPTY, Collections.singletonList(new PostgresqlColumn(Unpooled.buffer().writeInt(100)))))
+            .expectNext(new PostgresqlRow(MockCodecs.empty(), Collections.singletonList(new PostgresqlColumn(Unpooled.buffer().writeInt(100)))))
             .verifyComplete();
     }
 
@@ -233,7 +233,7 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.empty(), "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)

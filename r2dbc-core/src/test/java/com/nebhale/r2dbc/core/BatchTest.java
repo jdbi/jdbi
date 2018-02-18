@@ -29,7 +29,7 @@ public final class BatchTest {
 
     @Test
     public void add() {
-        MockBatch batch = MockBatch.EMPTY;
+        MockBatch batch = MockBatch.empty();
 
         new Batch(batch)
             .add("test-query");
@@ -45,7 +45,7 @@ public final class BatchTest {
 
     @Test
     public void execute() {
-        MockResult result = MockResult.EMPTY;
+        MockResult result = MockResult.empty();
 
         MockBatch batch = MockBatch.builder()
             .result(result)
@@ -63,7 +63,7 @@ public final class BatchTest {
 
     @Test
     public void executeNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.EMPTY).execute(null))
+        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).execute(null))
             .withMessage("f must not be null");
     }
 

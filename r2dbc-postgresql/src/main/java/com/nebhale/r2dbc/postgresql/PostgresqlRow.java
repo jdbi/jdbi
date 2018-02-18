@@ -49,8 +49,7 @@ public final class PostgresqlRow implements Row {
             return false;
         }
         PostgresqlRow that = (PostgresqlRow) o;
-        return Objects.equals(this.codecs, that.codecs) &&
-            Objects.equals(this.columns, that.columns);
+        return Objects.equals(this.columns, that.columns);
     }
 
     @Override
@@ -60,7 +59,7 @@ public final class PostgresqlRow implements Row {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.codecs, this.columns);
+        return Objects.hash(this.columns);
     }
 
     @Override

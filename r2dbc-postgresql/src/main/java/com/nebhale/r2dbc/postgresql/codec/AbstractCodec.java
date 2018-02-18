@@ -27,7 +27,8 @@ abstract class AbstractCodec<T> implements Codec {
 
     private final Class<T> type;
 
-    AbstractCodec(Class<T> type) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    AbstractCodec(Class type) {
         this.type = requireNonNull(type, "type must not be null");
     }
 
@@ -44,7 +45,7 @@ abstract class AbstractCodec<T> implements Codec {
         return doEncode((T) value);
     }
 
-    static Parameter create(Format format, PostgresqlObjectId type, ByteBuf value) {
+    Parameter create(Format format, PostgresqlObjectId type, ByteBuf value) {
         requireNonNull(format, "format must not be null");
         requireNonNull(type, "type must not be null");
 

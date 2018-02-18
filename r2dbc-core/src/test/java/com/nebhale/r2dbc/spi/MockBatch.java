@@ -25,8 +25,6 @@ import static java.util.Objects.requireNonNull;
 
 public final class MockBatch implements Batch {
 
-    public static final MockBatch EMPTY = builder().build();
-
     private final Flux<Result> results;
 
     private final List<String> sqls = new ArrayList<>();
@@ -37,6 +35,10 @@ public final class MockBatch implements Batch {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static MockBatch empty() {
+        return builder().build();
     }
 
     @Override

@@ -41,7 +41,7 @@ public final class AbstractCodecTest {
 
     @Test
     public void create() {
-        Parameter parameter = AbstractCodec.create(TEXT, INT4, Unpooled.buffer().writeInt(100));
+        Parameter parameter = new StubCodec<String>(String.class).create(TEXT, INT4, Unpooled.buffer().writeInt(100));
 
         assertThat(parameter).isEqualTo(new Parameter(TEXT, INT4.getObjectId(), Unpooled.buffer().writeInt(100)));
     }

@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBufAllocator;
 
 import static java.util.Objects.requireNonNull;
 
-final class EnumCodec extends AbstractCodec<Enum> {
+final class EnumCodec extends AbstractCodec<Enum<?>> {
 
     private final StringCodec delegate;
 
@@ -31,7 +31,7 @@ final class EnumCodec extends AbstractCodec<Enum> {
     }
 
     @Override
-    public Parameter doEncode(Enum value) {
+    public Parameter doEncode(Enum<?> value) {
         requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.name());

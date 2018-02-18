@@ -41,25 +41,25 @@ public final class PostgresqlResultTest {
 
     @Test
     public void constructorNoRowMetadata() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.EMPTY, null, Flux.empty(), Mono.empty()))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.empty(), null, Flux.empty(), Mono.empty()))
             .withMessage("rowMetadata must not be null");
     }
 
     @Test
     public void constructorNoRows() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.EMPTY, Mono.empty(), null, Mono.empty()))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.empty(), Mono.empty(), null, Mono.empty()))
             .withMessage("rows must not be null");
     }
 
     @Test
     public void constructorNoRowsUpdated() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.EMPTY, Mono.empty(), Flux.empty(), null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlResult(MockCodecs.empty(), Mono.empty(), Flux.empty(), null))
             .withMessage("rowsUpdated must not be null");
     }
 
     @Test
     public void toResultCommandComplete() {
-        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.EMPTY, Flux.just(new CommandComplete("test", null, 1)));
+        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new CommandComplete("test", null, 1)));
 
         result.getRowMetadata()
             .as(StepVerifier::create)
@@ -77,7 +77,7 @@ public final class PostgresqlResultTest {
 
     @Test
     public void toResultEmptyQueryResponse() {
-        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.EMPTY, Flux.just(EmptyQueryResponse.INSTANCE));
+        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(EmptyQueryResponse.INSTANCE));
 
         result.getRowMetadata()
             .as(StepVerifier::create)
@@ -94,7 +94,7 @@ public final class PostgresqlResultTest {
 
     @Test
     public void toResultErrorResponse() {
-        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.EMPTY, Flux.just(new ErrorResponse(Collections.emptyList())));
+        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new ErrorResponse(Collections.emptyList())));
 
         result.getRowMetadata()
             .as(StepVerifier::create)
@@ -118,13 +118,13 @@ public final class PostgresqlResultTest {
 
     @Test
     public void toResultNoMessages() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlResult.toResult(MockCodecs.EMPTY, null))
+        assertThatNullPointerException().isThrownBy(() -> PostgresqlResult.toResult(MockCodecs.empty(), null))
             .withMessage("messages must not be null");
     }
 
     @Test
     public void toResultRowDescription() {
-        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.EMPTY, Flux.just(new RowDescription(Collections.emptyList()), new DataRow(Collections.emptyList()), new CommandComplete
+        PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new RowDescription(Collections.emptyList()), new DataRow(Collections.emptyList()), new CommandComplete
             ("test", null, null)));
 
         result.getRowMetadata()
@@ -134,7 +134,7 @@ public final class PostgresqlResultTest {
 
         result.getRows()
             .as(StepVerifier::create)
-            .expectNext(new PostgresqlRow(MockCodecs.EMPTY, Collections.emptyList()))
+            .expectNext(new PostgresqlRow(MockCodecs.empty(), Collections.emptyList()))
             .verifyComplete();
 
         result.getRowsUpdated()

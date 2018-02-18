@@ -25,8 +25,6 @@ import static java.util.Objects.requireNonNull;
 
 public final class MockCodecs implements Codecs {
 
-    public static final MockCodecs EMPTY = builder().build();
-
     private final Map<Object, Parameter> encodings;
 
     private MockCodecs(Map<Object, Parameter> encodings) {
@@ -35,6 +33,10 @@ public final class MockCodecs implements Codecs {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static MockCodecs empty() {
+        return builder().build();
     }
 
     @Override

@@ -154,7 +154,7 @@ public final class ExtendedQueryPostgresqlStatementTest {
 
     @Test
     public void constructorNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(null, MockCodecs.EMPTY, () -> "", "test-query", this.statementCache))
+        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(null, MockCodecs.empty(), () -> "", "test-query", this.statementCache))
             .withMessage("client must not be null");
     }
 
@@ -166,19 +166,19 @@ public final class ExtendedQueryPostgresqlStatementTest {
 
     @Test
     public void constructorNoPortalNameSupplier() {
-        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, null, "test-query", this.statementCache))
+        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), null, "test-query", this.statementCache))
             .withMessage("portalNameSupplier must not be null");
     }
 
     @Test
     public void constructorNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, () -> "", null, this.statementCache))
+        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), () -> "", null, this.statementCache))
             .withMessage("sql must not be null");
     }
 
     @Test
     public void constructorNoStatementCache() {
-        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, () -> "", "test-query", null))
+        assertThatNullPointerException().isThrownBy(() -> new ExtendedQueryPostgresqlStatement(NO_OP, MockCodecs.empty(), () -> "", "test-query", null))
             .withMessage("statementCache must not be null");
     }
 
