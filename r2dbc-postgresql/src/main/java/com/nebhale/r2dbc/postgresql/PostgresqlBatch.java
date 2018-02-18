@@ -16,14 +16,16 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Batch;
 import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.spi.Batch;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Batch} for executing a collection of statements in a batch against a PostgreSQL database.
@@ -35,7 +37,7 @@ public final class PostgresqlBatch implements Batch {
     private final List<String> statements = new ArrayList<>();
 
     PostgresqlBatch(Client client) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.client = requireNonNull(client, "client must not be null");
     }
 
     /**
@@ -45,7 +47,7 @@ public final class PostgresqlBatch implements Batch {
      */
     @Override
     public PostgresqlBatch add(String sql) {
-        Objects.requireNonNull(sql, "sql must not be null");
+        requireNonNull(sql, "sql must not be null");
 
         if (!SimpleQueryPostgresqlStatement.supports(sql)) {
             throw new IllegalArgumentException(String.format("Statement '%s' is not supported.  This is often due to the presence of parameters.", sql));

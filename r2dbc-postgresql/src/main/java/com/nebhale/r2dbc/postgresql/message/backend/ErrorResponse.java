@@ -21,6 +21,8 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The ErrorResponse message.
  */
@@ -35,7 +37,7 @@ public final class ErrorResponse implements BackendMessage {
      * @throws NullPointerException if {@code fields} is {@code null}
      */
     public ErrorResponse(List<Field> fields) {
-        this.fields = Objects.requireNonNull(fields, "fields must not be null");
+        this.fields = requireNonNull(fields, "fields must not be null");
     }
 
     @Override
@@ -72,7 +74,7 @@ public final class ErrorResponse implements BackendMessage {
     }
 
     static ErrorResponse decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         return new ErrorResponse(Field.decode(in));
     }

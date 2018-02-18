@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.not;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of client based on the Reactor Netty project.
@@ -114,7 +115,7 @@ public final class ReactorNettyClient implements Client {
      * @throws NullPointerException if {@code host} or {@code decoder} is {@code null}
      */
     public ReactorNettyClient(String host, int port) {
-        Objects.requireNonNull(host, "host must not be null");
+        requireNonNull(host, "host must not be null");
 
         BackendMessageDecoder decoder = new BackendMessageDecoder();
         FluxSink<Flux<BackendMessage>> responses = this.responseProcessor.sink();
@@ -167,7 +168,7 @@ public final class ReactorNettyClient implements Client {
      */
     @Override
     public Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests) {
-        Objects.requireNonNull(requests, "requests must not be null");
+        requireNonNull(requests, "requests must not be null");
 
         return Flux.defer(() -> {
             if (this.isClosed.get()) {

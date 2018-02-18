@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Utilities for working with {@link Predicate}s.
  */
@@ -37,7 +39,7 @@ public final class PredicateUtils {
      * @see Predicate#negate()
      */
     public static <T> Predicate<T> not(Predicate<T> t) {
-        Objects.requireNonNull(t, "t must not be null");
+        requireNonNull(t, "t must not be null");
         return t.negate();
     }
 
@@ -51,7 +53,7 @@ public final class PredicateUtils {
     @SafeVarargs
     @SuppressWarnings("varargs")
     public static <T> Predicate<T> or(Predicate<T>... ts) {
-        Objects.requireNonNull(ts, "ts must not be null");
+        requireNonNull(ts, "ts must not be null");
         return Arrays.stream(ts).reduce(Predicate::or).orElseThrow(() -> new IllegalStateException("Unable to combine predicates together via logical OR"));
     }
 

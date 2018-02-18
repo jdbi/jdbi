@@ -31,6 +31,7 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The FunctionCall message.
@@ -57,15 +58,15 @@ public final class FunctionCall implements FrontendMessage {
      * @throws NullPointerException if {@code argumentFormats}, {@code arguments}, or {@code resultFormat} is {@code null}
      */
     public FunctionCall(List<Format> argumentFormats, List<ByteBuf> arguments, int functionId, Format resultFormat) {
-        this.argumentFormats = Objects.requireNonNull(argumentFormats, "argumentFormats must not be null");
-        this.arguments = Objects.requireNonNull(arguments, "arguments must not be null");
+        this.argumentFormats = requireNonNull(argumentFormats, "argumentFormats must not be null");
+        this.arguments = requireNonNull(arguments, "arguments must not be null");
         this.functionId = functionId;
-        this.resultFormat = Objects.requireNonNull(resultFormat, "resultFormat must not be null");
+        this.resultFormat = requireNonNull(resultFormat, "resultFormat must not be null");
     }
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        Objects.requireNonNull(allocator, "allocator must not be null");
+        requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
             ByteBuf out = allocator.ioBuffer();

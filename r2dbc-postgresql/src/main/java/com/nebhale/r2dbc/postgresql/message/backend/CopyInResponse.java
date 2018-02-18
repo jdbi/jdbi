@@ -22,6 +22,8 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The CopyInResponse message.
  */
@@ -43,7 +45,7 @@ public final class CopyInResponse extends AbstractCopyResponse {
     }
 
     static CopyInResponse decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         Format overallFormat = Format.valueOf(in.readByte());
         List<Format> columnFormats = readColumnFormats(in);

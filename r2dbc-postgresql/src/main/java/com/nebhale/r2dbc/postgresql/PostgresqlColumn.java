@@ -16,7 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Column;
+import com.nebhale.r2dbc.spi.Column;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;

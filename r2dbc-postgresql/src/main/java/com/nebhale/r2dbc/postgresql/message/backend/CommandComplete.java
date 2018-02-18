@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -45,7 +46,7 @@ public final class CommandComplete implements BackendMessage {
      * @throws NullPointerException if {@code command} is {@code null}
      */
     public CommandComplete(String command, Integer rowId, Integer rows) {
-        this.command = Objects.requireNonNull(command, "command must not be null");
+        this.command = requireNonNull(command, "command must not be null");
         this.rowId = rowId;
         this.rows = rows;
     }
@@ -106,7 +107,7 @@ public final class CommandComplete implements BackendMessage {
     }
 
     static CommandComplete decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         String[] tokens = readCStringUTF8(in).split(" ");
 

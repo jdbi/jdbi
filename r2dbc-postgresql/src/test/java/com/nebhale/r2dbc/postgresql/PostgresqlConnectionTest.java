@@ -27,11 +27,11 @@ import reactor.test.StepVerifier;
 
 import java.util.Collections;
 
-import static com.nebhale.r2dbc.IsolationLevel.READ_COMMITTED;
-import static com.nebhale.r2dbc.Mutability.READ_ONLY;
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.OPEN;
+import static com.nebhale.r2dbc.spi.IsolationLevel.READ_COMMITTED;
+import static com.nebhale.r2dbc.spi.Mutability.READ_ONLY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -75,7 +75,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .beginTransaction()
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test
@@ -126,7 +126,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .commitTransaction()
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test
@@ -161,7 +161,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .createSavepoint("test-name")
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test
@@ -198,13 +198,13 @@ public final class PostgresqlConnectionTest {
 
     @Test
     public void createStatementExtended() {
-        assertThat(new PostgresqlConnection(NO_OP, () -> "", this.statementCache).createStatement("test-query-?")).isInstanceOf(ExtendedQueryPostgresqlStatement.class);
+        assertThat(new PostgresqlConnection(NO_OP, () -> "", this.statementCache).createStatement("test-query-$1")).isInstanceOf(ExtendedQueryPostgresqlStatement.class);
     }
 
     @Test
     public void createStatementIllegal() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlConnection(NO_OP, () -> "", this.statementCache).createStatement("test-query-?-1 ; test-query-?-2"))
-            .withMessage("Statement 'test-query-?-1 ; test-query-?-2' cannot be created. This is often due to the presence of both multiple statements and parameters at the same time.");
+        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlConnection(NO_OP, () -> "", this.statementCache).createStatement("test-query-$1-1 ; test-query-$1-2"))
+            .withMessage("Statement 'test-query-$1-1 ; test-query-$1-2' cannot be created. This is often due to the presence of both multiple statements and parameters at the same time.");
     }
 
     @Test
@@ -262,7 +262,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .releaseSavepoint("test-name")
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test
@@ -300,7 +300,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .rollbackTransaction()
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test
@@ -344,7 +344,7 @@ public final class PostgresqlConnectionTest {
         new PostgresqlConnection(client, () -> "", this.statementCache)
             .rollbackTransactionToSavepoint("test-name")
             .as(StepVerifier::create)
-            .verifyErrorMatches(IllegalStateException.class::isInstance);
+            .verifyComplete();
     }
 
     @Test

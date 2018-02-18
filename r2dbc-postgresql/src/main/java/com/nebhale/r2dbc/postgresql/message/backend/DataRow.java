@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The DataRow message.
  */
@@ -39,7 +41,7 @@ public final class DataRow implements BackendMessage {
      * @throws NullPointerException if {@code columns} is {@code null}
      */
     public DataRow(List<ByteBuf> columns) {
-        this.columns = Objects.requireNonNull(columns, "columns must not be null");
+        this.columns = requireNonNull(columns, "columns must not be null");
     }
 
     @Override
@@ -76,7 +78,7 @@ public final class DataRow implements BackendMessage {
     }
 
     static DataRow decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         List<ByteBuf> columns = IntStream.range(0, in.readShort())
             .mapToObj(i -> decodeColumn(in))

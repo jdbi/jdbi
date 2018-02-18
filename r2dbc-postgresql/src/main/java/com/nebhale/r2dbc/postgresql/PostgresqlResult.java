@@ -16,16 +16,18 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.Result;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
+import com.nebhale.r2dbc.spi.Result;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Result} representing the results of a query against a PostgreSQL database.
@@ -39,9 +41,9 @@ public final class PostgresqlResult implements Result {
     private final Mono<Integer> rowsUpdated;
 
     PostgresqlResult(Mono<PostgresqlRowMetadata> rowMetadata, Flux<PostgresqlRow> rows, Mono<Integer> rowsUpdated) {
-        this.rowMetadata = Objects.requireNonNull(rowMetadata, "rowMetadata must not be null");
-        this.rows = Objects.requireNonNull(rows, "rows must not be null");
-        this.rowsUpdated = Objects.requireNonNull(rowsUpdated, "rowsUpdated must not be null");
+        this.rowMetadata = requireNonNull(rowMetadata, "rowMetadata must not be null");
+        this.rows = requireNonNull(rows, "rows must not be null");
+        this.rowsUpdated = requireNonNull(rowsUpdated, "rowsUpdated must not be null");
     }
 
     @Override
@@ -69,23 +71,25 @@ public final class PostgresqlResult implements Result {
     }
 
     static PostgresqlResult toResult(Flux<BackendMessage> messages) {
-        Objects.requireNonNull(messages, "messages must not be null");
+        requireNonNull(messages, "messages must not be null");
 
         EmitterProcessor<BackendMessage> processor = EmitterProcessor.create(false);
-        Mono<BackendMessage> firstMessage = processor.publishNext();
+        Flux<BackendMessage> firstMessages = processor.take(3).cache();
 
-        Mono<PostgresqlRowMetadata> rowMetadata = firstMessage
+        Mono<PostgresqlRowMetadata> rowMetadata = firstMessages
             .ofType(RowDescription.class)
+            .singleOrEmpty()
             .map(PostgresqlRowMetadata::toRowMetadata);
 
         Flux<PostgresqlRow> rows = processor
-            .startWith(firstMessage)
+            .startWith(firstMessages)
             .ofType(DataRow.class)
             .map(PostgresqlRow::toRow);
 
-        Mono<Integer> rowsUpdated = firstMessage
+        Mono<Integer> rowsUpdated = firstMessages
             .ofType(CommandComplete.class)
-            .map(CommandComplete::getRows);
+            .singleOrEmpty()
+            .flatMap(commandComplete -> Mono.justOrEmpty(commandComplete.getRows()));
 
         messages
             .handle(PostgresqlServerErrorException::handleErrorResponse)

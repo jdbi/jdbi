@@ -16,10 +16,11 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.client.Binding;
 import reactor.core.publisher.Mono;
 
 interface StatementCache {
 
-    Mono<String> getName(String sql);
+    Mono<String> getName(Binding binding, String sql);
 
 }

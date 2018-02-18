@@ -16,32 +16,39 @@
 
 package com.nebhale.r2dbc.postgresql.client;
 
-import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
-import com.nebhale.r2dbc.postgresql.message.backend.ParseComplete;
+import com.nebhale.r2dbc.postgresql.message.backend.NoData;
+import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
 import com.nebhale.r2dbc.postgresql.message.frontend.Bind;
+import com.nebhale.r2dbc.postgresql.message.frontend.Close;
 import com.nebhale.r2dbc.postgresql.message.frontend.Describe;
 import com.nebhale.r2dbc.postgresql.message.frontend.Execute;
-import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.Parse;
 import com.nebhale.r2dbc.postgresql.message.frontend.Sync;
-import io.netty.buffer.ByteBuf;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+
+import static com.nebhale.r2dbc.postgresql.message.frontend.Execute.NO_LIMIT;
+import static com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType.PORTAL;
+import static com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType.STATEMENT;
+import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/current/static/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY">Extended query</a> message flow.
  */
 public final class ExtendedQueryMessageFlow {
 
-    private static final AtomicInteger COUNTER = new AtomicInteger();
+    /**
+     * The pattern that identifies a parameter symbol.
+     */
+    public static final Pattern PARAMETER_SYMBOL = Pattern.compile(".*\\$([\\d]+).*");
 
     private ExtendedQueryMessageFlow() {
     }
@@ -49,21 +56,21 @@ public final class ExtendedQueryMessageFlow {
     /**
      * Execute the execute portion of the <a href="https://www.postgresql.org/docs/current/static/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY">Extended query</a> message flow.
      *
+     * @param bindings           the {@link Binding}s to bind
      * @param client             the {@link Client} to exchange messages with
      * @param portalNameSupplier supplier unique portal names for each binding
      * @param statement          the name of the statement to execute
-     * @param values             the values to bind and execute
      * @return the messages received in response to the exchange
      * @throws NullPointerException if {@code client}, {@code statement}, or {@code values} is {@code null}
      */
-    public static Flux<BackendMessage> execute(Client client, PortalNameSupplier portalNameSupplier, String statement, Publisher<List<ByteBuf>> values) {
-        Objects.requireNonNull(client, "client must not be null");
-        Objects.requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
-        Objects.requireNonNull(statement, "statement must not be null");
-        Objects.requireNonNull(values, "values must not be null");
+    public static Flux<BackendMessage> execute(Publisher<Binding> bindings, Client client, PortalNameSupplier portalNameSupplier, String statement) {
+        requireNonNull(bindings, "bindings must not be null");
+        requireNonNull(client, "client must not be null");
+        requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
+        requireNonNull(statement, "statement must not be null");
 
-        return client.exchange(Flux.from(values)
-            .flatMap(value -> toBindFlow(portalNameSupplier, statement, value))
+        return client.exchange(Flux.from(bindings)
+            .flatMap(binding -> toBindFlow(binding, portalNameSupplier, statement))
             .concatWith(Mono.just(Sync.INSTANCE)));
     }
 
@@ -73,24 +80,27 @@ public final class ExtendedQueryMessageFlow {
      * @param client the {@link Client} to exchange messages with
      * @param name   the name of the statement to prepare
      * @param query  the query to execute
+     * @param types  the parameter types for the query
      * @return the messages received in response to this exchange
-     * @throws NullPointerException if {@code client}, {@code name}, or {@code query} is {@code null}
+     * @throws NullPointerException if {@code client}, {@code name}, {@code query}, or {@code types} is {@code null}
      */
-    public static Flux<BackendMessage> parse(Client client, String name, String query) {
-        Objects.requireNonNull(client, "client must not be null");
-        Objects.requireNonNull(name, "name must not be null");
-        Objects.requireNonNull(query, "query must not be null");
+    public static Flux<BackendMessage> parse(Client client, String name, String query, List<Integer> types) {
+        requireNonNull(client, "client must not be null");
+        requireNonNull(name, "name must not be null");
+        requireNonNull(query, "query must not be null");
+        requireNonNull(types, "types must not be null");
 
-        return client.exchange(Flux.just(new Parse(name, Collections.emptyList(), query), Sync.INSTANCE))
-            .takeUntil(ParseComplete.class::isInstance);
+        return client.exchange(Flux.just(new Parse(name, types, query), new Describe(name, STATEMENT), Sync.INSTANCE))
+            .takeUntil(or(RowDescription.class::isInstance, NoData.class::isInstance));
     }
 
-    private static Flux<FrontendMessage> toBindFlow(PortalNameSupplier portalNameSupplier, String statement, List<ByteBuf> value) {
+    private static Flux<FrontendMessage> toBindFlow(Binding binding, PortalNameSupplier portalNameSupplier, String statement) {
         String portal = portalNameSupplier.get();
 
-        Bind bind = new Bind(portal, Collections.singletonList(Format.TEXT), value, Collections.emptyList(), statement);
+        // TODO: Specify Return Types
+        Bind bind = new Bind(portal, binding.getParameterFormats(), binding.getParameterValues(), Collections.emptyList(), statement);
 
-        return Flux.just(bind, new Describe(portal, ExecutionType.PORTAL), new Execute(portal, 0));
+        return Flux.just(bind, new Describe(portal, PORTAL), new Execute(portal, NO_LIMIT), new Close(portal, PORTAL));
     }
 
 }

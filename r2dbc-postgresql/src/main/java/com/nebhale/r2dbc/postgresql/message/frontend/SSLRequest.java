@@ -26,6 +26,7 @@ import java.util.Objects;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The SSLRequest message.
@@ -44,7 +45,7 @@ public final class SSLRequest implements FrontendMessage {
 
     @Override
     public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        Objects.requireNonNull(allocator, "allocator must not be null");
+        requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
             ByteBuf out = allocator.ioBuffer(8);

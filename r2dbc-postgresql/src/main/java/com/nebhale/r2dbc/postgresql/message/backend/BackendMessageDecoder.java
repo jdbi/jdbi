@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.getBody;
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.getEnvelope;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A decoder that reads {@link ByteBuf}s and returns a {@link Flux} of decoded {@link BackendMessage}s.
@@ -36,7 +37,7 @@ public final class BackendMessageDecoder {
     private final AtomicReference<ByteBuf> remainder = new AtomicReference<>();
 
     public Flux<BackendMessage> decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         ByteBuf remainder = this.remainder.getAndSet(null);
         ByteBuf composite = remainder == null ? in.retain() : Unpooled.wrappedBuffer(remainder, in.retain());

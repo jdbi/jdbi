@@ -24,6 +24,8 @@ import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * An implementation of {@link AuthenticationHandler} that handles {@link AuthenticationMD5Password} messages.
  */
@@ -41,8 +43,8 @@ public final class PasswordAuthenticationHandler implements AuthenticationHandle
      * @throws NullPointerException if {@code password} or {@code user} is {@code null}
      */
     public PasswordAuthenticationHandler(String password, String username) {
-        this.password = Objects.requireNonNull(password, "password must not be null");
-        this.username = Objects.requireNonNull(username, "username must not be null");
+        this.password = requireNonNull(password, "password must not be null");
+        this.username = requireNonNull(username, "username must not be null");
     }
 
     /**
@@ -52,7 +54,7 @@ public final class PasswordAuthenticationHandler implements AuthenticationHandle
      */
     @Override
     public FrontendMessage handle(AuthenticationMessage message) {
-        Objects.requireNonNull(message, "message must not be null");
+        requireNonNull(message, "message must not be null");
 
         if (message instanceof AuthenticationCleartextPassword) {
             return handleAuthenticationClearTextPassword((AuthenticationCleartextPassword) message);

@@ -16,16 +16,18 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.ConnectionFactory;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.authentication.PasswordAuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.ReactorNettyClient;
 import com.nebhale.r2dbc.postgresql.client.StartupMessageFlow;
+import com.nebhale.r2dbc.spi.ConnectionFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link ConnectionFactory} for creating connections to a PostgreSQL database.
@@ -47,8 +49,8 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
     }
 
     PostgresqlConnectionFactory(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {
-        this.clientFactory = Objects.requireNonNull(clientFactory, "clientFactory must not be null");
-        this.configuration = Objects.requireNonNull(configuration, "configuration must not be null");
+        this.clientFactory = requireNonNull(clientFactory, "clientFactory must not be null");
+        this.configuration = requireNonNull(configuration, "configuration must not be null");
     }
 
     @Override
@@ -62,10 +64,17 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
 
     @Override
     public String toString() {
-        return "PostgresqlConnectionFactory{" +
-            "clientFactory=" + this.clientFactory +
-            ", configuration=" + this.configuration +
-            '}';
+        return "PostgresqlConnectionFactory{}";
+    }
+
+    Mono<PostgresqlConnection> create(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {
+        requireNonNull(clientFactory, "clientFactory must not be null");
+        requireNonNull(configuration, "configuration must not be null");
+
+        return Mono.just(clientFactory.get())
+            .delayUntil(client -> StartupMessageFlow
+                .exchange(configuration.getApplicationName(), getAuthenticationHandler(configuration), client, configuration.getDatabase(), configuration.getUsername()))
+            .map(client -> new PostgresqlConnection(client, DefaultPortalNameSupplier.INSTANCE, new IndefiniteStatementCache(client)));
     }
 
     private AuthenticationHandler getAuthenticationHandler(PostgresqlConnectionConfiguration configuration) {

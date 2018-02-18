@@ -31,8 +31,8 @@
     <url>https://github.com/nebhale/r2dbc</url>
 
     <modules>
-        <module>r2dbc-api</module>
         <module>r2dbc-core</module>
+        <module>r2dbc-examples</module>
         <module>r2dbc-postgresql</module>
     </modules>
 
@@ -92,6 +92,20 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.0.0</version>
                     <configuration>
@@ -132,6 +146,17 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <repositories>
@@ -160,5 +185,18 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>r2dbc-milestone</id>
+            <name>R2DBC Milestones</name>
+            <url>file:../r2dbc-maven/milestone</url>
+        </repository>
+        <snapshotRepository>
+            <id>r2dbc-snapshot</id>
+            <name>R2DBC Snapshots</name>
+            <url>file:../r2dbc-maven/snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

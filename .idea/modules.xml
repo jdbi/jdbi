@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/r2dbc.iml" filepath="$PROJECT_DIR$/r2dbc.iml" />
-      <module fileurl="file://$PROJECT_DIR$/r2dbc-api/r2dbc-api.iml" filepath="$PROJECT_DIR$/r2dbc-api/r2dbc-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/r2dbc-core/r2dbc-core.iml" filepath="$PROJECT_DIR$/r2dbc-core/r2dbc-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/r2dbc-examples/r2dbc-examples.iml" filepath="$PROJECT_DIR$/r2dbc-examples/r2dbc-examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/r2dbc-postgresql/r2dbc-postgresql.iml" filepath="$PROJECT_DIR$/r2dbc-postgresql/r2dbc-postgresql.iml" />
     </modules>
   </component>

@@ -37,13 +37,6 @@ public enum ExecutionType {
         this.discriminator = discriminator;
     }
 
-    @Override
-    public String toString() {
-        return "ExecutionType{" +
-            "discriminator=" + this.discriminator +
-            "} " + super.toString();
-    }
-
     char getDiscriminator() {
         return this.discriminator;
     }

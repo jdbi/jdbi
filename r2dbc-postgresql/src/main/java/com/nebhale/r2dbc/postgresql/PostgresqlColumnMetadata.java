@@ -16,10 +16,12 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.ColumnMetadata;
 import com.nebhale.r2dbc.postgresql.message.backend.RowDescription.Field;
+import com.nebhale.r2dbc.spi.ColumnMetadata;
 
 import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link ColumnMetadata} for a PostgreSQL database.
@@ -29,7 +31,7 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
     private final String name;
 
     PostgresqlColumnMetadata(String name) {
-        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.name = requireNonNull(name, "name must not be null");
     }
 
     @Override
@@ -62,7 +64,7 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
     }
 
     static PostgresqlColumnMetadata toColumnMetadata(Field field) {
-        Objects.requireNonNull(field, "field must not be null");
+        requireNonNull(field, "field must not be null");
 
         return new PostgresqlColumnMetadata(field.getName());
     }

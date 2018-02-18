@@ -16,12 +16,14 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import com.nebhale.r2dbc.RowMetadata;
 import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
+import com.nebhale.r2dbc.spi.RowMetadata;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link RowMetadata} for a PostgreSQL database.
@@ -31,7 +33,7 @@ public final class PostgresqlRowMetadata implements RowMetadata {
     private final List<PostgresqlColumnMetadata> columnMetadata;
 
     PostgresqlRowMetadata(List<PostgresqlColumnMetadata> columnMetadata) {
-        this.columnMetadata = Objects.requireNonNull(columnMetadata, "columnMetadata must not be null");
+        this.columnMetadata = requireNonNull(columnMetadata, "columnMetadata must not be null");
     }
 
     @Override
@@ -64,7 +66,7 @@ public final class PostgresqlRowMetadata implements RowMetadata {
     }
 
     static PostgresqlRowMetadata toRowMetadata(RowDescription rowDescription) {
-        Objects.requireNonNull(rowDescription, "rowDescription must not be null");
+        requireNonNull(rowDescription, "rowDescription must not be null");
 
         return new PostgresqlRowMetadata(rowDescription.getFields().stream()
             .map(PostgresqlColumnMetadata::toColumnMetadata)

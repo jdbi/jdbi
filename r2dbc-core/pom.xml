@@ -41,11 +41,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nebhale</groupId>
-            <artifactId>r2dbc-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
@@ -54,13 +49,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.nebhale</groupId>
-            <artifactId>r2dbc-postgresql</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
@@ -85,7 +73,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <excludePackageNames>com.nebhale.r2dbc.core.*,com.nebhale.r2dbc.spi.*</excludePackageNames>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

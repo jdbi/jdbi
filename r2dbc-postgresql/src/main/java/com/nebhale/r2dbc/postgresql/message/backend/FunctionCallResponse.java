@@ -20,6 +20,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The FunctionCallResponse message.
  */
@@ -72,7 +74,7 @@ public final class FunctionCallResponse implements BackendMessage {
     }
 
     static FunctionCallResponse decode(ByteBuf in) {
-        Objects.requireNonNull(in, "in must not be null");
+        requireNonNull(in, "in must not be null");
 
         int length = in.readInt();
         ByteBuf value = NULL == length ? null : in.readRetainedSlice(length);

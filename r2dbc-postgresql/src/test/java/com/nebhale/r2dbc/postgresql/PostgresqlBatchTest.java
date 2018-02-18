@@ -51,8 +51,8 @@ public final class PostgresqlBatchTest {
 
     @Test
     public void addWithParameter() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlBatch(NO_OP).add("test-query-?"))
-            .withMessage("Statement 'test-query-?' is not supported.  This is often due to the presence of parameters.");
+        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlBatch(NO_OP).add("test-query-$1"))
+            .withMessage("Statement 'test-query-$1' is not supported.  This is often due to the presence of parameters.");
     }
 
     @Test

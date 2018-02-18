@@ -18,10 +18,14 @@ package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.TestClient;
+import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
+import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
+import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
 import com.nebhale.r2dbc.postgresql.message.frontend.Query;
+import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -36,7 +40,13 @@ public final class SimpleQueryPostgresqlStatementTest {
 
     @Test
     public void bind() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bind(Collections.emptyList()))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bind(null, null))
+            .withMessage("Binding parameters is not supported for the statement 'test-query'");
+    }
+
+    @Test
+    public void bindNull() {
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bindNull(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
@@ -53,47 +63,174 @@ public final class SimpleQueryPostgresqlStatementTest {
     }
 
     @Test
-    public void executeCommandComplete() {
+    public void executeCommandCompleteRowMetadata() {
         Client client = TestClient.builder()
-            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, null))
+            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
         new SimpleQueryPostgresqlStatement(client, "test-query")
             .execute()
+            .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
-            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
             .verifyComplete();
     }
 
     @Test
-    public void executeEmptyQueryResponse() {
+    public void executeCommandCompleteRows() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRows)
+            .as(StepVerifier::create)
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeCommandCompleteRowsUpdated() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRowsUpdated)
+            .as(StepVerifier::create)
+            .expectNext(1)
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeEmptyQueryResponseRowMetadata() {
         Client client = TestClient.builder()
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
         new SimpleQueryPostgresqlStatement(client, "test-query")
             .execute()
+            .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
-            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
             .verifyComplete();
     }
 
     @Test
-    public void executeErrorResponse() {
+    public void executeEmptyQueryResponseRows() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRows)
+            .as(StepVerifier::create)
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeEmptyQueryResponseRowsUpdated() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRowsUpdated)
+            .as(StepVerifier::create)
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeErrorResponseRowMetadata() {
         Client client = TestClient.builder()
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
         new SimpleQueryPostgresqlStatement(client, "test-query")
             .execute()
+            .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
-            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
+            .verifyError(PostgresqlServerErrorException.class);
+    }
+
+    @Test
+    public void executeErrorResponseRows() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRows)
+            .as(StepVerifier::create)
+            .verifyError(PostgresqlServerErrorException.class);
+    }
+
+    @Test
+    public void executeErrorResponseRowsUpdated() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRowsUpdated)
+            .as(StepVerifier::create)
+            .verifyError(PostgresqlServerErrorException.class);
+    }
+
+    @Test
+    public void executeRowDescriptionRowMetadata() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query"))
+            .thenRespond(
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new DataRow(Collections.emptyList()),
+                new CommandComplete("test", null, null))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRowMetadata)
+            .as(StepVerifier::create)
+            .expectNext(new PostgresqlRowMetadata(Collections.singletonList(new PostgresqlColumnMetadata("test-name"))))
             .verifyComplete();
     }
 
     @Test
-    public void supportsNoQuestion() {
-        assertThat(SimpleQueryPostgresqlStatement.supports("test-query")).isTrue();
+    public void executeRowDescriptionRows() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query"))
+            .thenRespond(
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))),
+                new CommandComplete("test", null, null))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRows)
+            .as(StepVerifier::create)
+            .expectNext(new PostgresqlRow(Collections.singletonList(new PostgresqlColumn(Unpooled.buffer().writeInt(100)))))
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeRowDescriptionRowsUpdated() {
+        Client client = TestClient.builder()
+            .expectRequest(new Query("test-query"))
+            .thenRespond(
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))),
+                new CommandComplete("test", null, null))
+            .build();
+
+        new SimpleQueryPostgresqlStatement(client, "test-query")
+            .execute()
+            .flatMap(PostgresqlResult::getRowsUpdated)
+            .as(StepVerifier::create)
+            .verifyComplete();
     }
 
     @Test
@@ -103,8 +240,8 @@ public final class SimpleQueryPostgresqlStatementTest {
     }
 
     @Test
-    public void supportsNone() {
-        assertThat(SimpleQueryPostgresqlStatement.supports("test-query-?")).isFalse();
+    public void supportsParameterSymbol() {
+        assertThat(SimpleQueryPostgresqlStatement.supports("test-query-$1")).isFalse();
     }
 
     @Test
@@ -115,6 +252,11 @@ public final class SimpleQueryPostgresqlStatementTest {
     @Test
     public void supportsSemicolon() {
         assertThat(SimpleQueryPostgresqlStatement.supports("test-query-1 ; test-query-2")).isTrue();
+    }
+
+    @Test
+    public void supportsSimple() {
+        assertThat(SimpleQueryPostgresqlStatement.supports("test-query")).isTrue();
     }
 
 }
