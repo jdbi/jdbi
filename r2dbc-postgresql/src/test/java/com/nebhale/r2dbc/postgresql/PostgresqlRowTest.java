@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.codec.MockCodecs;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -28,21 +29,33 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 public final class PostgresqlRowTest {
 
     @Test
+    public void constructorNoCodecs() {
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(null, Collections.emptyList()))
+            .withMessage("codecs must not be null");
+    }
+
+    @Test
     public void constructorNoColumns() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(MockCodecs.EMPTY, null))
             .withMessage("columns must not be null");
     }
 
     @Test
     public void toRow() {
-        PostgresqlRow row = PostgresqlRow.toRow(new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))));
+        PostgresqlRow row = PostgresqlRow.toRow(MockCodecs.EMPTY, new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))));
 
         assertThat(row.getColumns()).hasSize(1);
     }
 
     @Test
+    public void toRowNoCodec() {
+        assertThatNullPointerException().isThrownBy(() -> PostgresqlRow.toRow(null, new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100)))))
+            .withMessage("codecs must not be null");
+    }
+
+    @Test
     public void toRowNoDataRow() {
-        assertThatNullPointerException().isThrownBy(() -> PostgresqlRow.toRow(null))
+        assertThatNullPointerException().isThrownBy(() -> PostgresqlRow.toRow(MockCodecs.EMPTY, null))
             .withMessage("dataRow must not be null");
     }
 

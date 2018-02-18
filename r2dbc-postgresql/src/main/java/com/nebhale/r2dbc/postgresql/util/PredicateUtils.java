@@ -17,7 +17,6 @@
 package com.nebhale.r2dbc.postgresql.util;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;

@@ -20,7 +20,6 @@ import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.Field;
 import com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.SynchronousSink;
 
 import java.util.List;

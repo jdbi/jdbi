@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -34,19 +36,9 @@ import static java.util.Objects.requireNonNull;
  */
 public final class Binding {
 
-    private final Parameter defaultParameter;
+    private static final Parameter UNSPECIFIED_PARAMETER = new Parameter(TEXT, UNSPECIFIED.getObjectId(), null);
 
     private final SortedMap<Integer, Parameter> parameters = new TreeMap<>();
-
-    /**
-     * Creates a new {@link Binding}.
-     *
-     * @param defaultParameter the parameter to use as a default if otherwise unspecified
-     * @throws NullPointerException if {@code defaultParameter} is {@code null}
-     */
-    public Binding(Parameter defaultParameter) {
-        this.defaultParameter = Objects.requireNonNull(defaultParameter, "defaultParameter must not be null");
-    }
 
     /**
      * Add a {@link Parameter} to the binding.
@@ -122,7 +114,7 @@ public final class Binding {
     }
 
     private Parameter get(Integer identifier) {
-        return this.parameters.getOrDefault(identifier, this.defaultParameter);
+        return this.parameters.getOrDefault(identifier, UNSPECIFIED_PARAMETER);
     }
 
     private Stream<Parameter> getParameters() {

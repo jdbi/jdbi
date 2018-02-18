@@ -21,8 +21,6 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
-
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;

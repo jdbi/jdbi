@@ -16,8 +16,6 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 /**

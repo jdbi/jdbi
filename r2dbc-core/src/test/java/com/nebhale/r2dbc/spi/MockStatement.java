@@ -27,6 +27,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class MockStatement implements Statement {
 
+    public static final MockStatement EMPTY = builder().build();
+
     private final List<Map<Object, Object>> bindings = new ArrayList<>();
 
     private final Flux<Result> results;
@@ -41,10 +43,6 @@ public final class MockStatement implements Statement {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public static MockStatement empty() {
-        return builder().build();
     }
 
     @Override

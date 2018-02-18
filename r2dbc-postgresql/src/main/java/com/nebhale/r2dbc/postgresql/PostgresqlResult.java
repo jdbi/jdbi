@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
@@ -25,8 +26,6 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -34,13 +33,16 @@ import static java.util.Objects.requireNonNull;
  */
 public final class PostgresqlResult implements Result {
 
+    private final Codecs codecs;
+
     private final Mono<PostgresqlRowMetadata> rowMetadata;
 
     private final Flux<PostgresqlRow> rows;
 
     private final Mono<Integer> rowsUpdated;
 
-    PostgresqlResult(Mono<PostgresqlRowMetadata> rowMetadata, Flux<PostgresqlRow> rows, Mono<Integer> rowsUpdated) {
+    PostgresqlResult(Codecs codecs, Mono<PostgresqlRowMetadata> rowMetadata, Flux<PostgresqlRow> rows, Mono<Integer> rowsUpdated) {
+        this.codecs = requireNonNull(codecs, "codecs must not be null");
         this.rowMetadata = requireNonNull(rowMetadata, "rowMetadata must not be null");
         this.rows = requireNonNull(rows, "rows must not be null");
         this.rowsUpdated = requireNonNull(rowsUpdated, "rowsUpdated must not be null");
@@ -64,13 +66,15 @@ public final class PostgresqlResult implements Result {
     @Override
     public String toString() {
         return "PostgresqlResult{" +
-            "rowMetadata=" + this.rowMetadata +
+            "codecs=" + this.codecs +
+            ", rowMetadata=" + this.rowMetadata +
             ", rows=" + this.rows +
             ", rowsUpdated=" + this.rowsUpdated +
             '}';
     }
 
-    static PostgresqlResult toResult(Flux<BackendMessage> messages) {
+    static PostgresqlResult toResult(Codecs codecs, Flux<BackendMessage> messages) {
+        requireNonNull(codecs, "codecs must not be null");
         requireNonNull(messages, "messages must not be null");
 
         EmitterProcessor<BackendMessage> processor = EmitterProcessor.create(false);
@@ -84,7 +88,7 @@ public final class PostgresqlResult implements Result {
         Flux<PostgresqlRow> rows = processor
             .startWith(firstMessages)
             .ofType(DataRow.class)
-            .map(PostgresqlRow::toRow);
+            .map(dataRow -> PostgresqlRow.toRow(codecs, dataRow));
 
         Mono<Integer> rowsUpdated = firstMessages
             .ofType(CommandComplete.class)
@@ -95,7 +99,7 @@ public final class PostgresqlResult implements Result {
             .handle(PostgresqlServerErrorException::handleErrorResponse)
             .subscribe(processor);
 
-        return new PostgresqlResult(rowMetadata, rows, rowsUpdated);
+        return new PostgresqlResult(codecs, rowMetadata, rows, rowsUpdated);
     }
 
 }

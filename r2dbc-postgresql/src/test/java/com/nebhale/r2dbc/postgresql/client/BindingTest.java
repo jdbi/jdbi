@@ -21,41 +21,34 @@ import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class BindingTest {
 
-    private static final Parameter DEFAULT_PARAMETER = new Parameter(TEXT, 400, null);
-
     @Test
     public void addNoIdentifier() {
-        assertThatNullPointerException().isThrownBy(() -> new Binding(DEFAULT_PARAMETER).add(null, new Parameter(TEXT, 100, null)))
+        assertThatNullPointerException().isThrownBy(() -> new Binding().add(null, new Parameter(TEXT, 100, null)))
             .withMessage("identifier must not be null");
     }
 
     @Test
     public void addNoParameter() {
-        assertThatNullPointerException().isThrownBy(() -> new Binding(DEFAULT_PARAMETER).add(1, null))
+        assertThatNullPointerException().isThrownBy(() -> new Binding().add(1, null))
             .withMessage("parameter must not be null");
     }
 
     @Test
-    public void constructorNoDefaultParameter() {
-        assertThatNullPointerException().isThrownBy(() -> new Binding(null))
-            .withMessage("defaultParameter must not be null");
-    }
-
-    @Test
     public void empty() {
-        Binding binding = new Binding(DEFAULT_PARAMETER);
+        Binding binding = new Binding();
 
         assertThat(binding.getParameterFormats()).isEmpty();
     }
 
     @Test
     public void getParameterFormats() {
-        Binding binding = new Binding(DEFAULT_PARAMETER);
+        Binding binding = new Binding();
         binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
         binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
 
@@ -64,16 +57,16 @@ public final class BindingTest {
 
     @Test
     public void getParameterTypes() {
-        Binding binding = new Binding(DEFAULT_PARAMETER);
+        Binding binding = new Binding();
         binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
         binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
 
-        assertThat(binding.getParameterTypes()).containsExactly(100, 400, 100);
+        assertThat(binding.getParameterTypes()).containsExactly(100, UNSPECIFIED.getObjectId(), 100);
     }
 
     @Test
     public void getParameterValues() {
-        Binding binding = new Binding(DEFAULT_PARAMETER);
+        Binding binding = new Binding();
         binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
         binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
 

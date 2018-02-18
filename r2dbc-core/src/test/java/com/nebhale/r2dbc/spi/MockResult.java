@@ -25,6 +25,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class MockResult implements Result {
 
+    public static final MockResult EMPTY = builder().build();
+
     private final Flux<RowMetadata> rowMetadata;
 
     private final Flux<Row> rows;
@@ -39,10 +41,6 @@ public final class MockResult implements Result {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public static MockResult empty() {
-        return builder().build();
     }
 
     @Override

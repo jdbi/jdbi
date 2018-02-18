@@ -23,10 +23,12 @@
         </encoder>
     </appender>
 
-    <logger name="com.nebhale.r2dbc.examples" level="INFO"/>
-    <logger name="reactor.ipc.netty"          level="WARN"/>
-    <logger name="stream"                     level="INFO"/>
-    <logger name="test"                       level="INFO"/>
+    <logger name="com.nebhale.r2dbc.core"       level="INFO"/>
+    <logger name="com.nebhale.r2dbc.examples"   level="INFO"/>
+    <logger name="com.nebhale.r2dbc.postgresql" level="DEBUG"/>
+    <logger name="reactor.ipc.netty"            level="WARN"/>
+    <logger name="stream"                       level="INFO"/>
+    <logger name="test"                         level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>

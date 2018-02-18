@@ -17,12 +17,12 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.client.Client;
+import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.spi.Batch;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -34,10 +34,13 @@ public final class PostgresqlBatch implements Batch {
 
     private final Client client;
 
+    private final Codecs codecs;
+
     private final List<String> statements = new ArrayList<>();
 
-    PostgresqlBatch(Client client) {
+    PostgresqlBatch(Client client, Codecs codecs) {
         this.client = requireNonNull(client, "client must not be null");
+        this.codecs = requireNonNull(codecs, "codecs must not be null");
     }
 
     /**
@@ -59,7 +62,7 @@ public final class PostgresqlBatch implements Batch {
 
     @Override
     public Flux<PostgresqlResult> execute() {
-        return new SimpleQueryPostgresqlStatement(this.client, this.statements.stream().collect(Collectors.joining("; ")))
+        return new SimpleQueryPostgresqlStatement(this.client, this.codecs, this.statements.stream().collect(Collectors.joining("; ")))
             .execute();
     }
 
@@ -67,6 +70,7 @@ public final class PostgresqlBatch implements Batch {
     public String toString() {
         return "PostgresqlBatch{" +
             "client=" + this.client +
+            ", codecs=" + this.codecs +
             ", statements=" + this.statements +
             '}';
     }

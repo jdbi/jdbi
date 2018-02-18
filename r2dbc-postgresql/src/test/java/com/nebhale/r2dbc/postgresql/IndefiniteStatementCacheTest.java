@@ -34,12 +34,9 @@ import java.util.Collections;
 
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
-import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class IndefiniteStatementCacheTest {
-
-    private static final Parameter DEFAULT_PARAMETER = new Parameter(TEXT, 400, null);
 
     @Test
     public void constructorNoClient() {
@@ -62,22 +59,22 @@ public final class IndefiniteStatementCacheTest {
 
         IndefiniteStatementCache statementCache = new IndefiniteStatementCache(client);
 
-        statementCache.getName(new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(100))), "test-query")
+        statementCache.getName(new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(100))), "test-query")
             .as(StepVerifier::create)
             .expectNext("S_0")
             .verifyComplete();
 
-        statementCache.getName(new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))), "test-query")
+        statementCache.getName(new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))), "test-query")
             .as(StepVerifier::create)
             .expectNext("S_0")
             .verifyComplete();
 
-        statementCache.getName(new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 200, Unpooled.buffer().writeShort(300))), "test-query")
+        statementCache.getName(new Binding().add(0, new Parameter(BINARY, 200, Unpooled.buffer().writeShort(300))), "test-query")
             .as(StepVerifier::create)
             .expectNext("S_1")
             .verifyComplete();
 
-        statementCache.getName(new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 200, Unpooled.buffer().writeShort(300))), "test-query-2")
+        statementCache.getName(new Binding().add(0, new Parameter(BINARY, 200, Unpooled.buffer().writeShort(300))), "test-query-2")
             .as(StepVerifier::create)
             .expectNext("S_2")
             .verifyComplete();
@@ -94,7 +91,7 @@ public final class IndefiniteStatementCacheTest {
 
         IndefiniteStatementCache statementCache = new IndefiniteStatementCache(client);
 
-        statementCache.getName(new Binding(DEFAULT_PARAMETER).add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))), "test-query")
+        statementCache.getName(new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))), "test-query")
             .as(StepVerifier::create)
             .verifyError(PostgresqlServerErrorException.class);
     }
@@ -107,7 +104,7 @@ public final class IndefiniteStatementCacheTest {
 
     @Test
     public void getNameNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new IndefiniteStatementCache(NO_OP).getName(new Binding(DEFAULT_PARAMETER), null))
+        assertThatNullPointerException().isThrownBy(() -> new IndefiniteStatementCache(NO_OP).getName(new Binding(), null))
             .withMessage("sql must not be null");
     }
 

@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.TestClient;
+import com.nebhale.r2dbc.postgresql.codec.MockCodecs;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.message.backend.CommandComplete;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
@@ -40,25 +41,31 @@ public final class SimpleQueryPostgresqlStatementTest {
 
     @Test
     public void bind() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bind(null, null))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, "test-query").bind(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
     @Test
     public void bindNull() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, "test-query").bindNull(null, null))
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, "test-query").bindNull(null, null))
             .withMessage("Binding parameters is not supported for the statement 'test-query'");
     }
 
     @Test
     public void constructorNoClient() {
-        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(null, "test-query"))
+        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(null, MockCodecs.EMPTY, "test-query"))
             .withMessage("client must not be null");
     }
 
     @Test
+    public void constructorNoCodecs() {
+        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, null, "test-query"))
+            .withMessage("codecs must not be null");
+    }
+
+    @Test
     public void constructorNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, null))
+        assertThatNullPointerException().isThrownBy(() -> new SimpleQueryPostgresqlStatement(NO_OP, MockCodecs.EMPTY, null))
             .withMessage("sql must not be null");
     }
 
@@ -68,7 +75,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -81,7 +88,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -94,7 +101,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new CommandComplete("test", null, 1))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -108,7 +115,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -121,7 +128,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -134,7 +141,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(EmptyQueryResponse.INSTANCE)
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -147,7 +154,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -160,7 +167,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
@@ -173,7 +180,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .expectRequest(new Query("test-query")).thenRespond(new ErrorResponse(Collections.emptyList()))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)
@@ -190,7 +197,7 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
@@ -208,11 +215,11 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRows)
             .as(StepVerifier::create)
-            .expectNext(new PostgresqlRow(Collections.singletonList(new PostgresqlColumn(Unpooled.buffer().writeInt(100)))))
+            .expectNext(new PostgresqlRow(MockCodecs.EMPTY, Collections.singletonList(new PostgresqlColumn(Unpooled.buffer().writeInt(100)))))
             .verifyComplete();
     }
 
@@ -226,7 +233,7 @@ public final class SimpleQueryPostgresqlStatementTest {
                 new CommandComplete("test", null, null))
             .build();
 
-        new SimpleQueryPostgresqlStatement(client, "test-query")
+        new SimpleQueryPostgresqlStatement(client, MockCodecs.EMPTY, "test-query")
             .execute()
             .flatMap(PostgresqlResult::getRowsUpdated)
             .as(StepVerifier::create)

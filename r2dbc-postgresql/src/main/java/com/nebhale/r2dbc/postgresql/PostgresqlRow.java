@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import com.nebhale.r2dbc.spi.Row;
 
@@ -30,9 +31,12 @@ import static java.util.Objects.requireNonNull;
  */
 public final class PostgresqlRow implements Row {
 
+    private final Codecs codecs;
+
     private final List<PostgresqlColumn> columns;
 
-    PostgresqlRow(List<PostgresqlColumn> columns) {
+    PostgresqlRow(Codecs codecs, List<PostgresqlColumn> columns) {
+        this.codecs = requireNonNull(codecs, "codecs must not be null");
         this.columns = requireNonNull(columns, "columns must not be null");
     }
 
@@ -45,7 +49,8 @@ public final class PostgresqlRow implements Row {
             return false;
         }
         PostgresqlRow that = (PostgresqlRow) o;
-        return Objects.equals(this.columns, that.columns);
+        return Objects.equals(this.codecs, that.codecs) &&
+            Objects.equals(this.columns, that.columns);
     }
 
     @Override
@@ -55,20 +60,22 @@ public final class PostgresqlRow implements Row {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.columns);
+        return Objects.hash(this.codecs, this.columns);
     }
 
     @Override
     public String toString() {
         return "PostgresqlRow{" +
-            "columns=" + this.columns +
+            "codecs=" + this.codecs +
+            ", columns=" + this.columns +
             '}';
     }
 
-    static PostgresqlRow toRow(DataRow dataRow) {
+    static PostgresqlRow toRow(Codecs codecs, DataRow dataRow) {
+        requireNonNull(codecs, "codecs must not be null");
         requireNonNull(dataRow, "dataRow must not be null");
 
-        return new PostgresqlRow(dataRow.getColumns().stream()
+        return new PostgresqlRow(codecs, dataRow.getColumns().stream()
             .map(PostgresqlColumn::new)
             .collect(Collectors.toList()));
     }

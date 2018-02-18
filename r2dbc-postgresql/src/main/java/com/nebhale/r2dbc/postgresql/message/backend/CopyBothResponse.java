@@ -20,7 +20,6 @@ import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
