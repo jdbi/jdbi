@@ -17,19 +17,20 @@
 package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.CODE;
 import static com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery.TransactionStatus.IDLE;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static io.netty.util.CharsetUtil.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +53,7 @@ public final class BackendMessageDecoderTest {
     @Test
     public void authenticationGSSContinue() {
         decode('R', buffer -> buffer.writeInt(8).writeInt(100))
-            .expectNext(new AuthenticationGSSContinue(Unpooled.buffer().writeInt(100)))
+            .expectNext(new AuthenticationGSSContinue(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
@@ -66,7 +67,7 @@ public final class BackendMessageDecoderTest {
     @Test
     public void authenticationMD5Password() {
         decode('R', buffer -> buffer.writeInt(5).writeInt(100))
-            .expectNext(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .expectNext(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
@@ -96,14 +97,14 @@ public final class BackendMessageDecoderTest {
     @Test
     public void authenticationSASLContinue() {
         decode('R', buffer -> buffer.writeInt(11).writeInt(100))
-            .expectNext(new AuthenticationSASLContinue(Unpooled.buffer().writeInt(100)))
+            .expectNext(new AuthenticationSASLContinue(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
     @Test
     public void authenticationSASLFinal() {
         decode('R', buffer -> buffer.writeInt(12).writeInt(100))
-            .expectNext(new AuthenticationSASLFinal(Unpooled.buffer().writeInt(100)))
+            .expectNext(new AuthenticationSASLFinal(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
@@ -167,7 +168,7 @@ public final class BackendMessageDecoderTest {
     @Test
     public void copyData() {
         decode('d', buffer -> buffer.writeInt(100))
-            .expectNext(new CopyData(Unpooled.buffer().writeInt(100)))
+            .expectNext(new CopyData(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
@@ -200,11 +201,11 @@ public final class BackendMessageDecoderTest {
 
     @Test
     public void dataRow() {
-        decode('D', buffer -> buffer
+        decodeWithRelease('D', message -> ((DataRow) message).release(), buffer -> buffer
             .writeShort(1)
             .writeInt(4)
             .writeInt(100))
-            .expectNext(new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))))
+            .expectNext(new DataRow(Collections.singletonList(TEST.buffer(4).writeInt(100))))
             .verifyComplete();
     }
 
@@ -232,7 +233,7 @@ public final class BackendMessageDecoderTest {
     @Test
     public void functionCallResponse() {
         decode('V', buffer -> buffer.writeInt(4).writeInt(100))
-            .expectNext(new FunctionCallResponse(Unpooled.buffer().writeInt(100)))
+            .expectNext(new FunctionCallResponse(TEST.buffer(4).writeInt(100)))
             .verifyComplete();
     }
 
@@ -367,20 +368,28 @@ public final class BackendMessageDecoderTest {
     @SafeVarargs
     @SuppressWarnings("varargs")
     private final FirstStep<BackendMessage> decode(char discriminator, Function<ByteBuf, ByteBuf>... decodes) {
+        return decodeWithRelease(discriminator, message -> {
+        }, decodes);
+    }
+
+    @SafeVarargs
+    @SuppressWarnings("varargs")
+    private final FirstStep<BackendMessage> decodeWithRelease(char discriminator, Consumer<BackendMessage> release, Function<ByteBuf, ByteBuf>... decodes) {
         ByteBuf data = Stream.of(decodes)
-            .map(decode -> decode.apply(Unpooled.buffer()))
+            .map(decode -> decode.apply(TEST.buffer()))
             .map(payload ->
-                Unpooled.buffer(5 + payload.readableBytes())
+                TEST.buffer(5 + payload.readableBytes())
                     .writeByte(discriminator)
                     .writeInt(4 + payload.readableBytes())
                     .writeBytes(payload))
-            .reduce(Unpooled.buffer(), ByteBuf::writeBytes);
-
+            .reduce(TEST.buffer(), ByteBuf::writeBytes);
 
         BackendMessageDecoder decoder = new BackendMessageDecoder();
 
-        return Flux.just(data.readSlice(data.readableBytes() / 2), data)
+        return Flux.just(data.readRetainedSlice(data.readableBytes() / 2), data)
             .concatMap(decoder::decode)
+            .doOnNext(release)
+            .doAfterTerminate(() -> assertThat(data.refCnt()).isZero())
             .as(StepVerifier::create);
     }
 

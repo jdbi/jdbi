@@ -17,21 +17,23 @@
 package com.nebhale.r2dbc.spi;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.requireNonNull;
 
 public final class MockResult implements Result {
 
-    private final Flux<RowMetadata> rowMetadata;
+    private final Mono<RowMetadata> rowMetadata;
 
     private final Flux<Row> rows;
 
     private final Flux<Integer> rowsUpdated;
 
-    private MockResult(Flux<RowMetadata> rowMetadata, Flux<Row> rows, Flux<Integer> rowsUpdated) {
+    private MockResult(Mono<RowMetadata> rowMetadata, Flux<Row> rows, Flux<Integer> rowsUpdated) {
         this.rowMetadata = requireNonNull(rowMetadata);
         this.rows = requireNonNull(rows);
         this.rowsUpdated = requireNonNull(rowsUpdated);
@@ -46,18 +48,20 @@ public final class MockResult implements Result {
     }
 
     @Override
-    public Flux<RowMetadata> getRowMetadata() {
-        return this.rowMetadata;
-    }
-
-    @Override
-    public Flux<Row> getRows() {
-        return this.rows;
-    }
-
-    @Override
     public Flux<Integer> getRowsUpdated() {
         return this.rowsUpdated;
+    }
+
+    @Override
+    public <T> Flux<T> map(BiFunction<Row, RowMetadata, ? extends T> f) {
+        return this.rows
+            .zipWith(this.rowMetadata.repeat())
+            .map((tuple) -> {
+                Row row = tuple.getT1();
+                RowMetadata rowMetadata = tuple.getT2();
+
+                return f.apply(row, rowMetadata);
+            });
     }
 
     @Override
@@ -71,17 +75,17 @@ public final class MockResult implements Result {
 
     public static final class Builder {
 
-        private final List<RowMetadata> rowMetadata = new ArrayList<>();
-
         private final List<Row> rows = new ArrayList<>();
 
         private final List<Integer> rowsUpdated = new ArrayList<>();
+
+        private RowMetadata rowMetadata;
 
         private Builder() {
         }
 
         public MockResult build() {
-            return new MockResult(Flux.fromIterable(this.rowMetadata), Flux.fromIterable(this.rows), Flux.fromIterable(this.rowsUpdated));
+            return new MockResult(Mono.justOrEmpty(this.rowMetadata), Flux.fromIterable(this.rows), Flux.fromIterable(this.rowsUpdated));
         }
 
         public Builder row(Row row) {
@@ -90,7 +94,7 @@ public final class MockResult implements Result {
         }
 
         public Builder rowMetadata(RowMetadata rowMetadata) {
-            this.rowMetadata.add(requireNonNull(rowMetadata));
+            this.rowMetadata = requireNonNull(rowMetadata);
             return this;
         }
 

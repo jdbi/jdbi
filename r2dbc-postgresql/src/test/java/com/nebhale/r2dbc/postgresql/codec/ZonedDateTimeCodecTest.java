@@ -17,15 +17,17 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.MONEY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.TIMESTAMPTZ;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
 import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -38,16 +40,51 @@ public final class ZonedDateTimeCodecTest {
     }
 
     @Test
+    public void decode() {
+        ZonedDateTime zonedDateTime = ZonedDateTime.now();
+
+        assertThat(new ZonedDateTimeCodec(TEST).decode(encode(TEST, zonedDateTime.toString()), TEXT, ZonedDateTime.class))
+            .isEqualTo(zonedDateTime);
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new ZonedDateTimeCodec(TEST).decode(null, TEXT, ZonedDateTime.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        ZonedDateTimeCodec codec = new ZonedDateTimeCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, TIMESTAMPTZ)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, MONEY)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, TIMESTAMPTZ)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new ZonedDateTimeCodec(TEST).doCanDecode(null, VARCHAR))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new ZonedDateTimeCodec(TEST).doCanDecode(TEXT, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
         ZonedDateTime zonedDateTime = ZonedDateTime.now();
 
-        assertThat(new ZonedDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(zonedDateTime))
-            .isEqualTo(new Parameter(TEXT, TIMESTAMPTZ.getObjectId(), encode(Unpooled.buffer(), zonedDateTime.toString())));
+        assertThat(new ZonedDateTimeCodec(TEST).doEncode(zonedDateTime))
+            .isEqualTo(new Parameter(TEXT, TIMESTAMPTZ.getObjectId(), encode(TEST, zonedDateTime.toString())));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new ZonedDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new ZonedDateTimeCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 

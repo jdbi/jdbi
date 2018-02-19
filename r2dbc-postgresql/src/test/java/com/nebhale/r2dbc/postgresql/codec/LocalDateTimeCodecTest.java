@@ -17,15 +17,17 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.MONEY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.TIMESTAMP;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
 import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -38,16 +40,51 @@ public final class LocalDateTimeCodecTest {
     }
 
     @Test
+    public void decode() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        assertThat(new LocalDateTimeCodec(TEST).decode(encode(TEST, localDateTime.toString()), TEXT, LocalDateTime.class))
+            .isEqualTo(localDateTime);
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new LocalDateTimeCodec(TEST).decode(null, TEXT, LocalDateTime.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        LocalDateTimeCodec codec = new LocalDateTimeCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, TIMESTAMP)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, MONEY)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, TIMESTAMP)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new LocalDateTimeCodec(TEST).doCanDecode(null, VARCHAR))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new LocalDateTimeCodec(TEST).doCanDecode(TEXT, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
         LocalDateTime localDateTime = LocalDateTime.now();
 
-        assertThat(new LocalDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(localDateTime))
-            .isEqualTo(new Parameter(TEXT, TIMESTAMP.getObjectId(), encode(Unpooled.buffer(), localDateTime.toString())));
+        assertThat(new LocalDateTimeCodec(TEST).doEncode(localDateTime))
+            .isEqualTo(new Parameter(TEXT, TIMESTAMP.getObjectId(), encode(TEST, localDateTime.toString())));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new LocalDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new LocalDateTimeCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 

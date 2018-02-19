@@ -28,7 +28,6 @@ import com.nebhale.r2dbc.postgresql.message.frontend.StartupMessage;
 import com.nebhale.r2dbc.postgresql.util.PostgresqlServerResource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import reactor.core.publisher.EmitterProcessor;
@@ -47,16 +46,6 @@ public final class ReactorNettyClientTest {
     public static final PostgresqlServerResource SERVER = new PostgresqlServerResource();
 
     private final ReactorNettyClient client = new ReactorNettyClient(SERVER.getHost(), SERVER.getPort());
-
-    @BeforeClass
-    public static void createSchema() {
-        SERVER.getJdbcOperations().execute("CREATE TABLE test ( value INTEGER )");
-    }
-
-    @Before
-    public void cleanTable() {
-        SERVER.getJdbcOperations().execute("DELETE FROM test");
-    }
 
     @Test
     public void close() {
@@ -95,6 +84,16 @@ public final class ReactorNettyClientTest {
             })
             .takeUntil(ReadyForQuery.class::isInstance)
             .blockLast();
+    }
+
+    @Before
+    public void createTable() {
+        SERVER.getJdbcOperations().execute("CREATE TABLE test ( value INTEGER )");
+    }
+
+    @After
+    public void dropTable() {
+        SERVER.getJdbcOperations().execute("DROP TABLE test");
     }
 
     @Test

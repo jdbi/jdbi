@@ -44,7 +44,7 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
     @Override
     public SimpleQueryPostgresqlStatement add() {
-        throw getUnsupportedOperationException();
+        return this;
     }
 
     @Override

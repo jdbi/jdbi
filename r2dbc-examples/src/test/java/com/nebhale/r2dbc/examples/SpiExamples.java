@@ -22,8 +22,8 @@ import com.nebhale.r2dbc.postgresql.PostgresqlConnectionFactory;
 import com.nebhale.r2dbc.postgresql.PostgresqlResult;
 import com.nebhale.r2dbc.postgresql.PostgresqlServerErrorException;
 import com.nebhale.r2dbc.postgresql.PostgresqlStatement;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
@@ -52,11 +52,6 @@ public final class SpiExamples {
 
     private final PostgresqlConnectionFactory connectionFactory = new PostgresqlConnectionFactory(this.configuration);
 
-    @BeforeClass
-    public static void createSchema() {
-        SERVER.getJdbcOperations().execute("CREATE TABLE test ( value INTEGER )");
-    }
-
     @Test
     public void batch() {
         SERVER.getJdbcOperations().execute("INSERT INTO test VALUES (100)");
@@ -73,11 +68,6 @@ public final class SpiExamples {
             .as(StepVerifier::create)
             .expectNextCount(3)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
             .verifyComplete();
-    }
-
-    @Before
-    public void cleanTable() {
-        SERVER.getJdbcOperations().execute("DELETE FROM test");
     }
 
     @Test
@@ -113,6 +103,16 @@ public final class SpiExamples {
                 .concatWith(close(connection)))
             .as(StepVerifier::create)
             .verifyError(PostgresqlServerErrorException.class);
+    }
+
+    @Before
+    public void createTable() {
+        SERVER.getJdbcOperations().execute("CREATE TABLE test ( value INTEGER )");
+    }
+
+    @After
+    public void dropTable() {
+        SERVER.getJdbcOperations().execute("DROP TABLE test");
     }
 
     @Test
@@ -304,8 +304,7 @@ public final class SpiExamples {
 
     private static Mono<List<Integer>> extractColumns(PostgresqlResult result) {
         return result
-            .getRows()
-            .map(r -> r.getColumns().get(0).getInteger())
+            .map((row, rowMetadata) -> row.get("value", Integer.class))
             .collectList();
     }
 

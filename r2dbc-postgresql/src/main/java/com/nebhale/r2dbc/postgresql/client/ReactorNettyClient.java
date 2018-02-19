@@ -124,6 +124,7 @@ public final class ReactorNettyClient implements Client {
                 this.byteBufAllocator.set(outbound.alloc());
 
                 inbound.receive()
+                    .retain()
                     .concatMap(decoder::decode)
                     .doOnNext(message -> this.logger.debug("Response: {}", message))
                     .handle(this.handleNoticeResponse)

@@ -17,11 +17,25 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import io.netty.buffer.ByteBuf;
 
 /**
  * Encodes and decodes objects.
  */
 public interface Codecs {
+
+    /**
+     * Decode a data to a value.
+     *
+     * @param byteBuf  the {@link ByteBuf} to decode
+     * @param dataType the data type of the data
+     * @param format   the format of the data
+     * @param type     the type to decode to
+     * @param <T>      the type of item being returned
+     * @return the decoded value
+     */
+    <T> T decode(ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type);
 
     /**
      * Encode a value.

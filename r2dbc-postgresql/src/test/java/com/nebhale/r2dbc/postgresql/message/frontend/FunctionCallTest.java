@@ -16,20 +16,20 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageAssert.assertThat;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class FunctionCallTest {
 
     @Test
     public void constructorNoArgumentFormats() {
-        assertThatNullPointerException().isThrownBy(() -> new FunctionCall(null, Collections.singletonList(Unpooled.buffer().writeInt(100)), 200, BINARY))
+        assertThatNullPointerException().isThrownBy(() -> new FunctionCall(null, Collections.singletonList(TEST.buffer(4).writeInt(100)), 200, BINARY))
             .withMessage("argumentFormats must not be null");
     }
 
@@ -41,13 +41,13 @@ public final class FunctionCallTest {
 
     @Test
     public void constructorNoResultFormat() {
-        assertThatNullPointerException().isThrownBy(() -> new FunctionCall(Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)), 200, null))
+        assertThatNullPointerException().isThrownBy(() -> new FunctionCall(Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), 200, null))
             .withMessage("resultFormat must not be null");
     }
 
     @Test
     public void encode() {
-        assertThat(new FunctionCall(Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)), 200, BINARY)).encoded()
+        assertThat(new FunctionCall(Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), 200, BINARY)).encoded()
             .isDeferred()
             .isEncodedAs(buffer -> buffer
                 .writeByte('F')

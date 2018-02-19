@@ -16,10 +16,10 @@
 
 package com.nebhale.r2dbc.postgresql.client;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -39,11 +39,11 @@ public final class ParameterTest {
 
     @Test
     public void getters() {
-        Parameter parameter = new Parameter(TEXT, 100, Unpooled.buffer().writeInt(200));
+        Parameter parameter = new Parameter(TEXT, 100, TEST.buffer(4).writeInt(200));
 
         assertThat(parameter.getFormat()).isEqualTo(TEXT);
         assertThat(parameter.getType()).isEqualTo(100);
-        assertThat(parameter.getValue()).isEqualTo(Unpooled.buffer().writeInt(200));
+        assertThat(parameter.getValue()).isEqualTo(TEST.buffer(4).writeInt(200));
     }
 
 }

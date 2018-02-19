@@ -17,13 +17,15 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.BOOL;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.MONEY;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
 import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -36,19 +38,54 @@ public final class BooleanCodecTest {
     }
 
     @Test
+    public void decode() {
+        BooleanCodec codec = new BooleanCodec(TEST);
+
+        assertThat(codec.decode(encode(TEST, "TRUE"), TEXT, Boolean.class)).isTrue();
+        assertThat(codec.decode(encode(TEST, "FALSE"), TEXT, Boolean.class)).isFalse();
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new BooleanCodec(TEST).decode(null, TEXT, Boolean.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        BooleanCodec codec = new BooleanCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, BOOL)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, MONEY)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, BOOL)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new BooleanCodec(TEST).doCanDecode(null, VARCHAR))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new BooleanCodec(TEST).doCanDecode(TEXT, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
-        BooleanCodec codec = new BooleanCodec(UnpooledByteBufAllocator.DEFAULT);
+        BooleanCodec codec = new BooleanCodec(TEST);
 
         assertThat(codec.doEncode(true))
-            .isEqualTo(new Parameter(TEXT, BOOL.getObjectId(), encode(Unpooled.buffer(), "TRUE")));
+            .isEqualTo(new Parameter(TEXT, BOOL.getObjectId(), encode(TEST, "TRUE")));
 
         assertThat(codec.doEncode(false))
-            .isEqualTo(new Parameter(TEXT, BOOL.getObjectId(), encode(Unpooled.buffer(), "FALSE")));
+            .isEqualTo(new Parameter(TEXT, BOOL.getObjectId(), encode(TEST, "FALSE")));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new BooleanCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new BooleanCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 

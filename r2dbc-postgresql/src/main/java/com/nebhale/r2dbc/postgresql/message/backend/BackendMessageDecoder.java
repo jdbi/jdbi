@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.util.ReferenceCountUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SynchronousSink;
 
@@ -38,100 +39,103 @@ public final class BackendMessageDecoder {
     public Flux<BackendMessage> decode(ByteBuf in) {
         requireNonNull(in, "in must not be null");
 
-        ByteBuf remainder = this.remainder.getAndSet(null);
-        ByteBuf composite = remainder == null ? in.retain() : Unpooled.wrappedBuffer(remainder, in.retain());
+        return Flux.generate(
+            () -> {
+                ByteBuf remainder = this.remainder.getAndSet(null);
+                return remainder == null ? in : Unpooled.wrappedBuffer(remainder, in);
+            },
+            (byteBuf, sink) -> {
+                ByteBuf envelope = getEnvelope(byteBuf);
 
-        return Flux.generate(sink -> {
-            ByteBuf envelope = getEnvelope(composite);
+                if (envelope == null) {
+                    if (byteBuf.readableBytes() > 0) {
+                        this.remainder.set(byteBuf.retain());
+                    }
 
-            if (envelope == null) {
-                if (in.readableBytes() > 0) {
-                    this.remainder.set(composite);
-                } else {
-                    composite.release();
+                    sink.complete();
+                    return byteBuf;
                 }
 
-                sink.complete();
-                return;
-            }
+                MessageType messageType = MessageType.valueOf(envelope.readByte());
+                ByteBuf body = getBody(envelope);
 
-            MessageType messageType = MessageType.valueOf(envelope.readByte());
-            ByteBuf body = getBody(envelope);
+                switch (messageType) {
+                    case AUTHENTICATION:
+                        decodeAuthentication(body, sink);
+                        break;
+                    case BACKEND_KEY_DATA:
+                        sink.next(BackendKeyData.decode(body));
+                        break;
+                    case BIND_COMPLETE:
+                        sink.next(BindComplete.INSTANCE);
+                        break;
+                    case CLOSE_COMPLETE:
+                        sink.next(CloseComplete.INSTANCE);
+                        break;
+                    case COMMAND_COMPLETE:
+                        sink.next(CommandComplete.decode(body));
+                        break;
+                    case COPY_DATA:
+                        sink.next(CopyData.decode(body));
+                        break;
+                    case COPY_DONE:
+                        sink.next(CopyDone.INSTANCE);
+                        break;
+                    case COPY_BOTH_RESPONSE:
+                        sink.next(CopyBothResponse.decode(body));
+                        break;
+                    case COPY_IN_RESPONSE:
+                        sink.next(CopyInResponse.decode(body));
+                        break;
+                    case COPY_OUT_RESPONSE:
+                        sink.next(CopyOutResponse.decode(body));
+                        break;
+                    case DATA_ROW:
+                        sink.next(DataRow.decode(body));
+                        break;
+                    case EMPTY_QUERY_RESPONSE:
+                        sink.next(EmptyQueryResponse.INSTANCE);
+                        break;
+                    case ERROR_RESPONSE:
+                        sink.next(ErrorResponse.decode(body));
+                        break;
+                    case FUNCTION_CALL_RESPONSE:
+                        sink.next(FunctionCallResponse.decode(body));
+                        break;
+                    case NO_DATA:
+                        sink.next(NoData.INSTANCE);
+                        break;
+                    case NOTICE_RESPONSE:
+                        sink.next(NoticeResponse.decode(body));
+                        break;
+                    case NOTIFICATION_RESPONSE:
+                        sink.next(NotificationResponse.decode(body));
+                        break;
+                    case PARAMETER_DESCRIPTION:
+                        sink.next(ParameterDescription.decode(body));
+                        break;
+                    case PARAMETER_STATUS:
+                        sink.next(ParameterStatus.decode(body));
+                        break;
+                    case PARSE_COMPLETE:
+                        sink.next(ParseComplete.INSTANCE);
+                        break;
+                    case PORTAL_SUSPENDED:
+                        sink.next(PortalSuspended.INSTANCE);
+                        break;
+                    case READY_FOR_QUERY:
+                        sink.next(ReadyForQuery.decode(body));
+                        break;
+                    case ROW_DESCRIPTION:
+                        sink.next(RowDescription.decode(body));
+                        break;
+                    default:
+                        sink.error(new IllegalArgumentException(String.format("%s is not a supported message type", messageType)));
+                }
 
-            switch (messageType) {
-                case AUTHENTICATION:
-                    decodeAuthentication(body, sink);
-                    return;
-                case BACKEND_KEY_DATA:
-                    sink.next(BackendKeyData.decode(body));
-                    return;
-                case BIND_COMPLETE:
-                    sink.next(BindComplete.INSTANCE);
-                    return;
-                case CLOSE_COMPLETE:
-                    sink.next(CloseComplete.INSTANCE);
-                    return;
-                case COMMAND_COMPLETE:
-                    sink.next(CommandComplete.decode(body));
-                    return;
-                case COPY_DATA:
-                    sink.next(CopyData.decode(body));
-                    return;
-                case COPY_DONE:
-                    sink.next(CopyDone.INSTANCE);
-                    return;
-                case COPY_BOTH_RESPONSE:
-                    sink.next(CopyBothResponse.decode(body));
-                    return;
-                case COPY_IN_RESPONSE:
-                    sink.next(CopyInResponse.decode(body));
-                    return;
-                case COPY_OUT_RESPONSE:
-                    sink.next(CopyOutResponse.decode(body));
-                    return;
-                case DATA_ROW:
-                    sink.next(DataRow.decode(body));
-                    return;
-                case EMPTY_QUERY_RESPONSE:
-                    sink.next(EmptyQueryResponse.INSTANCE);
-                    return;
-                case ERROR_RESPONSE:
-                    sink.next(ErrorResponse.decode(body));
-                    return;
-                case FUNCTION_CALL_RESPONSE:
-                    sink.next(FunctionCallResponse.decode(body));
-                    return;
-                case NO_DATA:
-                    sink.next(NoData.INSTANCE);
-                    return;
-                case NOTICE_RESPONSE:
-                    sink.next(NoticeResponse.decode(body));
-                    return;
-                case NOTIFICATION_RESPONSE:
-                    sink.next(NotificationResponse.decode(body));
-                    return;
-                case PARAMETER_DESCRIPTION:
-                    sink.next(ParameterDescription.decode(body));
-                    return;
-                case PARAMETER_STATUS:
-                    sink.next(ParameterStatus.decode(body));
-                    return;
-                case PARSE_COMPLETE:
-                    sink.next(ParseComplete.INSTANCE);
-                    return;
-                case PORTAL_SUSPENDED:
-                    sink.next(PortalSuspended.INSTANCE);
-                    return;
-                case READY_FOR_QUERY:
-                    sink.next(ReadyForQuery.decode(body));
-                    return;
-                case ROW_DESCRIPTION:
-                    sink.next(RowDescription.decode(body));
-                    return;
-                default:
-                    sink.error(new IllegalArgumentException(String.format("%s is not a supported message type", messageType)));
-            }
-        });
+                return byteBuf;
+            },
+            ReferenceCountUtil::release);
 
     }
 

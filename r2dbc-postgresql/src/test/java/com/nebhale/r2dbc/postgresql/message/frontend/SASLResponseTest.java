@@ -16,8 +16,9 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
 
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -32,7 +33,7 @@ public final class SASLResponseTest {
 
     @Test
     public void encode() {
-        assertThat(new SASLResponse(Unpooled.buffer().writeInt(100))).encoded()
+        assertThat(new SASLResponse(ByteBuffer.allocate(4).putInt(100))).encoded()
             .isDeferred()
             .isEncodedAs(buffer -> buffer
                 .writeByte('p')

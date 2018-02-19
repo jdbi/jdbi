@@ -22,10 +22,10 @@ import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.StartupMessage;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -53,7 +53,7 @@ public final class PostgresqlConnectionFactoryTest {
         Client client = TestClient.builder()
             .parameterStatus("test-key", "test-value")
             .window()
-                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))
                 .expectRequest(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804")).thenRespond(AuthenticationOk.INSTANCE)
                 .done()
             .build();

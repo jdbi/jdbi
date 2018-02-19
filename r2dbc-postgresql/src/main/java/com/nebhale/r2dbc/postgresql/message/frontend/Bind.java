@@ -103,6 +103,7 @@ public final class Bind implements FrontendMessage {
                 } else {
                     writeInt(out, parameters.readableBytes());
                     writeBytes(out, parameters);
+                    parameters.release();
                 }
             });
 

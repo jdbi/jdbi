@@ -18,8 +18,8 @@ package com.nebhale.r2dbc.postgresql.client;
 
 import com.nebhale.r2dbc.postgresql.message.backend.BackendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
+import com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
@@ -107,7 +107,7 @@ public final class TestClient implements Client {
 
     @Override
     public ByteBufAllocator getByteBufAllocator() {
-        return UnpooledByteBufAllocator.DEFAULT;
+        return TestByteBufAllocator.TEST;
     }
 
     @Override

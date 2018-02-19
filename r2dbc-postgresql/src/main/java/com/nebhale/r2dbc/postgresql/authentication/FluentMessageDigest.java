@@ -16,10 +16,10 @@
 
 package com.nebhale.r2dbc.postgresql.authentication;
 
-import io.netty.buffer.ByteBuf;
 import reactor.core.Exceptions;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -57,10 +57,10 @@ final class FluentMessageDigest {
         return update(String.format(format, args));
     }
 
-    FluentMessageDigest update(ByteBuf buffer) {
+    FluentMessageDigest update(ByteBuffer buffer) {
         requireNonNull(buffer, "buffer must not be null");
 
-        this.messageDigest.update(buffer.nioBuffer());
+        this.messageDigest.update(buffer);
         return this;
     }
 

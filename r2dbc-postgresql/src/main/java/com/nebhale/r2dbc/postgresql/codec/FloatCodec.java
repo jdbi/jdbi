@@ -17,6 +17,9 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
+import com.nebhale.r2dbc.postgresql.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
@@ -34,11 +37,30 @@ final class FloatCodec extends AbstractCodec<Float> {
     }
 
     @Override
+    public Float decode(ByteBuf byteBuf, Format format, Class<? extends Float> type) {
+        requireNonNull(byteBuf, "byteBuf must not be null");
+        requireNonNull(format, "format must not be null");
+
+        if (BINARY == format) {
+            return byteBuf.readFloat();
+        } else {
+            return Float.parseFloat(ByteBufUtils.decode(byteBuf));
+        }
+    }
+
+    @Override
     public Parameter doEncode(Float value) {
         requireNonNull(value, "value must not be null");
 
         ByteBuf encoded = this.byteBufAllocator.buffer(4).writeFloat(value);
         return create(BINARY, FLOAT4, encoded);
+    }
+
+    @Override
+    boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        requireNonNull(type, "type must not be null");
+
+        return FLOAT4 == type;
     }
 
 }

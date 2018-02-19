@@ -17,7 +17,6 @@
 package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.springframework.util.ReflectionUtils;
@@ -25,6 +24,8 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Function;
+
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 
 public class BackendMessageAssert extends AbstractObjectAssert<BackendMessageAssert, Class<? extends BackendMessage>> {
 
@@ -45,7 +46,7 @@ public class BackendMessageAssert extends AbstractObjectAssert<BackendMessageAss
         }
 
         ReflectionUtils.makeAccessible(method);
-        T actual = (T) ReflectionUtils.invokeMethod(method, null, decoded.apply(Unpooled.buffer()));
+        T actual = (T) ReflectionUtils.invokeMethod(method, null, decoded.apply(TEST.buffer()));
 
         return new ObjectAssert<>(actual);
     }

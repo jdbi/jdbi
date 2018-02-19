@@ -3,6 +3,7 @@
     <words>
       <w>bintray</w>
       <w>bpchar</w>
+      <w>decodings</w>
       <w>gssapi</w>
       <w>jsonb</w>
       <w>kerberos</w>

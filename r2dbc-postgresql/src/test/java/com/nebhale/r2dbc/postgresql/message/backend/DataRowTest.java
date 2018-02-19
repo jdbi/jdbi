@@ -16,12 +16,12 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageAssert.assertThat;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class DataRowTest {
@@ -39,7 +39,7 @@ public final class DataRowTest {
                 .writeShort(1)
                 .writeInt(4)
                 .writeInt(100))
-            .isEqualTo(new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))));
+            .isEqualTo(new DataRow(Collections.singletonList(TEST.buffer(4).writeInt(100))));
     }
 
     @Test

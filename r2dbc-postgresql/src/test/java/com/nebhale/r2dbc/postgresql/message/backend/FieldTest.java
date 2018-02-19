@@ -18,7 +18,6 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.CODE;
@@ -40,6 +39,7 @@ import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.SEVER
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.TABLE_NAME;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.UNKNOWN;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.WHERE;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static io.netty.util.CharsetUtil.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -60,7 +60,7 @@ public final class FieldTest {
 
     @Test
     public void decode() {
-        ByteBuf buffer = Unpooled.buffer()
+        ByteBuf buffer = TEST.buffer()
             .writeByte('C');
 
         buffer.writeCharSequence("test-value", UTF_8);

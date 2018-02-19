@@ -16,10 +16,10 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageAssert.assertThat;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class AuthenticationGSSContinueTest {
@@ -34,7 +34,7 @@ public final class AuthenticationGSSContinueTest {
     public void decode() {
         assertThat(AuthenticationGSSContinue.class)
             .decoded(buffer -> buffer.writeInt(100))
-            .isEqualTo(new AuthenticationGSSContinue(Unpooled.buffer().writeInt(100)));
+            .isEqualTo(new AuthenticationGSSContinue(TEST.buffer(4).writeInt(100)));
     }
 
 }

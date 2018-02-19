@@ -17,6 +17,9 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import static java.util.Objects.requireNonNull;
@@ -31,10 +34,21 @@ final class CharacterCodec extends AbstractCodec<Character> {
     }
 
     @Override
+    public Character decode(ByteBuf byteBuf, Format format, Class<? extends Character> type) {
+        return this.delegate.decode(byteBuf, format, String.class).charAt(0);
+    }
+
+    @Override
     public Parameter doEncode(Character value) {
         requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.toString());
     }
+
+    @Override
+    boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        return this.delegate.doCanDecode(format, type);
+    }
+
 
 }

@@ -16,13 +16,13 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageAssert.assertThat;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static io.netty.util.CharsetUtil.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -30,14 +30,14 @@ public final class BindTest {
 
     @Test
     public void constructorNoNames() {
-        assertThatNullPointerException().isThrownBy(() -> new Bind(null, Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)),
+        assertThatNullPointerException().isThrownBy(() -> new Bind(null, Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)),
             Collections.singletonList(BINARY), "test-source"))
             .withMessage("name must not be null");
     }
 
     @Test
     public void constructorNoParameterFormats() {
-        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", null, Collections.singletonList(Unpooled.buffer().writeInt(100)), Collections.singletonList(BINARY), "test-source"))
+        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", null, Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.singletonList(BINARY), "test-source"))
             .withMessage("parameterFormats must not be null");
     }
 
@@ -49,20 +49,20 @@ public final class BindTest {
 
     @Test
     public void constructorNoResultFormats() {
-        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)), null, "test-source"))
+        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), null, "test-source"))
             .withMessage("resultFormats must not be null");
     }
 
     @Test
     public void constructorNoSource() {
-        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)),
+        assertThatNullPointerException().isThrownBy(() -> new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)),
             Collections.singletonList(BINARY), null))
             .withMessage("source must not be null");
     }
 
     @Test
     public void encode() {
-        assertThat(new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(100)), Collections.singletonList(BINARY), "test-source")).encoded()
+        assertThat(new Bind("test-name", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.singletonList(BINARY), "test-source")).encoded()
             .isDeferred()
             .isEncodedAs(buffer -> {
                 buffer

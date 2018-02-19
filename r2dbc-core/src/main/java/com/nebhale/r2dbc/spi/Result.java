@@ -18,24 +18,12 @@ package com.nebhale.r2dbc.spi;
 
 import org.reactivestreams.Publisher;
 
+import java.util.function.BiFunction;
+
 /**
  * Represents the results of a query against a database.
  */
 public interface Result {
-
-    /**
-     * Returns the metadata for the results of a query against a database.  May be empty if the query did not return any rows.
-     *
-     * @return the metadata for the results of a query against a database
-     */
-    Publisher<? extends RowMetadata> getRowMetadata();
-
-    /**
-     * Returns the rows that are the results of a query against a database.  May be empty if the query did not return any rows.
-     *
-     * @return the rows that are the results of a query against a database
-     */
-    Publisher<? extends Row> getRows();
 
     /**
      * Returns the number of rows updated by a query against a database.  May be empty if the query did not update any rows.
@@ -43,5 +31,14 @@ public interface Result {
      * @return the number of rows updated by a query against a database
      */
     Publisher<Integer> getRowsUpdated();
+
+    /**
+     * Returns a mapping of the rows that are the results of a query against a database.  May be empty if the query did not return any rows.
+     *
+     * @param f   the {@link BiFunction} that maps a {@link Row} and {@link RowMetadata} to a value
+     * @param <T> the type of the mapped value
+     * @return a mapping of the rows that are the results of a query against a database
+     */
+    <T> Publisher<T> map(BiFunction<Row, RowMetadata, ? extends T> f);
 
 }

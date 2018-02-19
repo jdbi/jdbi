@@ -16,8 +16,9 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
 
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageAssert.assertThat;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -33,7 +34,7 @@ public final class SASLInitialResponseTest {
 
     @Test
     public void encode() {
-        assertThat(new SASLInitialResponse(Unpooled.buffer().writeInt(100), "test-name")).encoded()
+        assertThat(new SASLInitialResponse(ByteBuffer.allocate(4).putInt(100), "test-name")).encoded()
             .isDeferred()
             .isEncodedAs(buffer -> {
                 buffer

@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class AuthenticationSASLFinal implements AuthenticationMessage {
 
-    private final ByteBuf additionalData;
+    private final ByteBuffer additionalData;
 
     /**
      * Creates a new message.
@@ -36,7 +37,9 @@ public final class AuthenticationSASLFinal implements AuthenticationMessage {
      * @throws NullPointerException if {@code additionalData} is {@code null}
      */
     public AuthenticationSASLFinal(ByteBuf additionalData) {
-        this.additionalData = requireNonNull(additionalData, "additionalData must not be null");
+        requireNonNull(additionalData, "additionalData must not be null");
+
+        this.additionalData = additionalData.nioBuffer();
     }
 
     @Override
@@ -56,7 +59,7 @@ public final class AuthenticationSASLFinal implements AuthenticationMessage {
      *
      * @return SASL outcome "additional data", specific to the SASL mechanism being used
      */
-    public ByteBuf getAdditionalData() {
+    public ByteBuffer getAdditionalData() {
         return this.additionalData;
     }
 
@@ -75,7 +78,7 @@ public final class AuthenticationSASLFinal implements AuthenticationMessage {
     static AuthenticationSASLFinal decode(ByteBuf in) {
         requireNonNull(in, "in must not be null");
 
-        return new AuthenticationSASLFinal(in.readRetainedSlice(in.readableBytes()));
+        return new AuthenticationSASLFinal(in.readSlice(in.readableBytes()));
     }
 
 }

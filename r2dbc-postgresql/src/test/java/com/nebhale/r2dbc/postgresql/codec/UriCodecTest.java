@@ -17,15 +17,16 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import java.net.URI;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.MONEY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
 import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -38,16 +39,49 @@ public final class UriCodecTest {
     }
 
     @Test
+    public void decode() {
+        assertThat(new UriCodec(TEST).decode(encode(TEST, "http://localhost"), TEXT, URI.class))
+            .isEqualTo(URI.create("http://localhost"));
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new UriCodec(TEST).decode(null, TEXT, URI.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        UriCodec codec = new UriCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, VARCHAR)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, MONEY)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, VARCHAR)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new UriCodec(TEST).doCanDecode(null, VARCHAR))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new UriCodec(TEST).doCanDecode(TEXT, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
         URI uri = URI.create("http://localhost");
 
-        assertThat(new UriCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(uri))
-            .isEqualTo(new Parameter(TEXT, VARCHAR.getObjectId(), encode(Unpooled.buffer(), "http://localhost")));
+        assertThat(new UriCodec(TEST).doEncode(uri))
+            .isEqualTo(new Parameter(TEXT, VARCHAR.getObjectId(), encode(TEST, "http://localhost")));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new UriCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new UriCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 

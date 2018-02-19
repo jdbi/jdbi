@@ -42,24 +42,14 @@ public final class ByteBufUtils {
     /**
      * Encode a {@link CharSequence} into a {@link ByteBuf}.
      *
-     * @param byteBuf the {@link ByteBuf} to encode the {@link CharSequence} into
-     * @param s       the {@link CharSequence} to encode
-     * @return the {@link ByteBuf} with the {@link CharSequence} encoded within it
-     */
-    public static ByteBuf encode(ByteBuf byteBuf, CharSequence s) {
-        byteBuf.writeCharSequence(s, UTF_8);
-        return byteBuf;
-    }
-
-    /**
-     * Encode a {@link CharSequence} into a {@link ByteBuf}.
-     *
      * @param allocator the {@link ByteBufAllocator} to use to create a buffer
      * @param s         the {@link CharSequence} to encode
      * @return the {@link ByteBuf} with the {@link CharSequence} encoded within it
      */
     public static ByteBuf encode(ByteBufAllocator allocator, CharSequence s) {
-        return encode(allocator.buffer(), s);
+        ByteBuf byteBuf = allocator.buffer();
+        byteBuf.writeCharSequence(s, UTF_8);
+        return byteBuf;
     }
 
 }

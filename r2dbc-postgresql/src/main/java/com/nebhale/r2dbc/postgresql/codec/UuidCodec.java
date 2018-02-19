@@ -17,6 +17,7 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -36,11 +37,26 @@ final class UuidCodec extends AbstractCodec<UUID> {
     }
 
     @Override
+    public UUID decode(ByteBuf byteBuf, Format format, Class<? extends UUID> type) {
+        requireNonNull(byteBuf, "byteBuf must not be null");
+
+        return new UUID(byteBuf.readLong(), byteBuf.readLong());
+    }
+
+    @Override
     public Parameter doEncode(UUID value) {
         requireNonNull(value, "value must not be null");
 
         ByteBuf encoded = this.byteBufAllocator.buffer(16).writeLong(value.getMostSignificantBits()).writeLong(value.getLeastSignificantBits());
         return create(BINARY, PostgresqlObjectId.UUID, encoded);
+    }
+
+    @Override
+    boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        requireNonNull(format, "format must not be null");
+        requireNonNull(type, "type must not be null");
+
+        return BINARY == format && PostgresqlObjectId.UUID == type;
     }
 
 }

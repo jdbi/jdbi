@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -29,7 +30,7 @@ public final class FunctionCallResponse implements BackendMessage {
 
     private static final int NULL = -1;
 
-    private final ByteBuf value;
+    private final ByteBuffer value;
 
     /**
      * Creates a new message.
@@ -37,7 +38,7 @@ public final class FunctionCallResponse implements BackendMessage {
      * @param value the value of the function result, in the format indicated by the associated format code.
      */
     public FunctionCallResponse(ByteBuf value) {
-        this.value = value;
+        this.value = value == null ? null : value.nioBuffer();
     }
 
     @Override
@@ -57,7 +58,7 @@ public final class FunctionCallResponse implements BackendMessage {
      *
      * @return the value of the function result, in the format indicated by the associated format code
      */
-    public ByteBuf getValue() {
+    public ByteBuffer getValue() {
         return this.value;
     }
 
@@ -77,7 +78,7 @@ public final class FunctionCallResponse implements BackendMessage {
         requireNonNull(in, "in must not be null");
 
         int length = in.readInt();
-        ByteBuf value = NULL == length ? null : in.readRetainedSlice(length);
+        ByteBuf value = NULL == length ? null : in.readSlice(length);
 
         return new FunctionCallResponse(value);
     }

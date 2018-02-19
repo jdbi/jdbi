@@ -17,12 +17,14 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
+import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.INT8;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
+import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -35,14 +37,49 @@ public final class LongCodecTest {
     }
 
     @Test
+    public void decode() {
+        LongCodec codec = new LongCodec(TEST);
+
+        assertThat(codec.decode(TEST.buffer(8).writeLong(100L), BINARY, Long.class)).isEqualTo(100L);
+        assertThat(codec.decode(encode(TEST, "100"), TEXT, Long.class)).isEqualTo(100L);
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new LongCodec(TEST).decode(null, BINARY, Long.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void decodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new LongCodec(TEST).decode(TEST.buffer(0), null, Long.class))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        LongCodec codec = new LongCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, VARCHAR)).isFalse();
+        assertThat(codec.doCanDecode(BINARY, INT8)).isTrue();
+        assertThat(codec.doCanDecode(TEXT, INT8)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new LongCodec(TEST).doCanDecode(null, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
-        assertThat(new LongCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(100L))
-            .isEqualTo(new Parameter(BINARY, INT8.getObjectId(), Unpooled.buffer().writeLong(100)));
+        assertThat(new LongCodec(TEST).doEncode(100L))
+            .isEqualTo(new Parameter(BINARY, INT8.getObjectId(), TEST.buffer(8).writeLong(100)));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new LongCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new LongCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 
