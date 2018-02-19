@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class DefaultCodecs implements Codecs {
 
-    private final List<Codec> codecs;
+    private final List<Codec<?>> codecs;
 
     /**
      * Creates a new instance of {@link DefaultCodecs}.

@@ -17,10 +17,14 @@
 package com.nebhale.r2dbc.postgresql;
 
 import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
+import com.nebhale.r2dbc.spi.ColumnMetadata;
 import com.nebhale.r2dbc.spi.RowMetadata;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -30,10 +34,15 @@ import static java.util.Objects.requireNonNull;
  */
 public final class PostgresqlRowMetadata implements RowMetadata {
 
-    private final List<PostgresqlColumnMetadata> columnMetadata;
+    private final List<PostgresqlColumnMetadata> columnMetadatas;
 
-    PostgresqlRowMetadata(List<PostgresqlColumnMetadata> columnMetadata) {
-        this.columnMetadata = requireNonNull(columnMetadata, "columnMetadata must not be null");
+    private final Map<String, PostgresqlColumnMetadata> nameKeyedColumnMetadatas;
+
+    PostgresqlRowMetadata(List<PostgresqlColumnMetadata> columnMetadatas) {
+        this.columnMetadatas = requireNonNull(columnMetadatas, "columnMetadata must not be null");
+
+        this.nameKeyedColumnMetadatas = this.columnMetadatas.stream()
+            .collect(Collectors.toMap(PostgresqlColumnMetadata::getName, Function.identity()));
     }
 
     @Override
@@ -45,23 +54,43 @@ public final class PostgresqlRowMetadata implements RowMetadata {
             return false;
         }
         PostgresqlRowMetadata that = (PostgresqlRowMetadata) o;
-        return Objects.equals(this.columnMetadata, that.columnMetadata);
+        return Objects.equals(this.columnMetadatas, that.columnMetadatas);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if {@code identifier} does not correspond to a column
+     * @throws NullPointerException     if {@code identifier} is {@code null}
+     */
+    @Override
+    public ColumnMetadata getColumnMetadata(Object identifier) {
+        requireNonNull(identifier, "identifier must not be null");
+
+        if (identifier instanceof Integer) {
+            return getColumnMetadata((Integer) identifier);
+        } else if (identifier instanceof String) {
+            return getColumnMetadata((String) identifier);
+        }
+
+        throw new IllegalArgumentException(String.format("Identifier '%s' is not a valid identifier. Should either be an Integer index or a String column name.", identifier));
     }
 
     @Override
-    public List<PostgresqlColumnMetadata> getColumnMetadata() {
-        return this.columnMetadata;
+    public List<PostgresqlColumnMetadata> getColumnMetadatas() {
+        return Collections.unmodifiableList(this.columnMetadatas);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.columnMetadata);
+        return Objects.hash(this.columnMetadatas);
     }
 
     @Override
     public String toString() {
         return "PostgresqlRowMetadata{" +
-            "columnMetadata=" + this.columnMetadata +
+            "columnMetadatas=" + this.columnMetadatas +
+            ", nameKeyedColumnMetadatas=" + this.nameKeyedColumnMetadatas +
             '}';
     }
 
@@ -71,6 +100,22 @@ public final class PostgresqlRowMetadata implements RowMetadata {
         return new PostgresqlRowMetadata(rowDescription.getFields().stream()
             .map(PostgresqlColumnMetadata::toColumnMetadata)
             .collect(Collectors.toList()));
+    }
+
+    private ColumnMetadata getColumnMetadata(Integer index) {
+        if (index >= this.columnMetadatas.size()) {
+            throw new IllegalArgumentException(String.format("Column index %d is larger than the number of columns %d", index, this.columnMetadatas.size()));
+        }
+
+        return this.columnMetadatas.get(index);
+    }
+
+    private ColumnMetadata getColumnMetadata(String name) {
+        if (!this.nameKeyedColumnMetadatas.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Column name '%s' does not exist in column names %s", name, this.nameKeyedColumnMetadatas.keySet()));
+        }
+
+        return this.nameKeyedColumnMetadatas.get(name);
     }
 
 }

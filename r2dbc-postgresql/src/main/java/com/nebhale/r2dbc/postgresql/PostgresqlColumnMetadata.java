@@ -20,6 +20,7 @@ import com.nebhale.r2dbc.postgresql.message.backend.RowDescription.Field;
 import com.nebhale.r2dbc.spi.ColumnMetadata;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,8 +31,14 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
 
     private final String name;
 
-    PostgresqlColumnMetadata(String name) {
+    private final Short precision;
+
+    private final Integer type;
+
+    PostgresqlColumnMetadata(String name, Short precision, Integer type) {
         this.name = requireNonNull(name, "name must not be null");
+        this.precision = requireNonNull(precision, "precision must not be null");
+        this.type = requireNonNull(type, "type must not be null");
     }
 
     @Override
@@ -43,7 +50,9 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
             return false;
         }
         PostgresqlColumnMetadata that = (PostgresqlColumnMetadata) o;
-        return Objects.equals(this.name, that.name);
+        return Objects.equals(this.name, that.name) &&
+            Objects.equals(this.precision, that.precision) &&
+            Objects.equals(this.type, that.type);
     }
 
     @Override
@@ -52,21 +61,34 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
     }
 
     @Override
+    public Optional<Integer> getPrecision() {
+        return Optional.of(this.precision)
+            .map(Short::intValue);
+    }
+
+    @Override
+    public Integer getType() {
+        return this.type;
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(this.name);
+        return Objects.hash(this.name, this.precision, this.type);
     }
 
     @Override
     public String toString() {
         return "PostgresqlColumnMetadata{" +
             "name='" + this.name + '\'' +
+            ", precision=" + this.precision +
+            ", type=" + this.type +
             '}';
     }
 
     static PostgresqlColumnMetadata toColumnMetadata(Field field) {
         requireNonNull(field, "field must not be null");
 
-        return new PostgresqlColumnMetadata(field.getName());
+        return new PostgresqlColumnMetadata(field.getName(), field.getDataTypeSize(), field.getDataType());
     }
 
 }

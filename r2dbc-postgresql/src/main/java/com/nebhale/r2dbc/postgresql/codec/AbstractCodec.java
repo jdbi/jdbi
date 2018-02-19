@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 
 import static java.util.Objects.requireNonNull;
 
-abstract class AbstractCodec<T> implements Codec {
+abstract class AbstractCodec<T> implements Codec<T> {
 
     private final Class<T> type;
 
@@ -45,7 +45,7 @@ abstract class AbstractCodec<T> implements Codec {
         return doEncode((T) value);
     }
 
-    Parameter create(Format format, PostgresqlObjectId type, ByteBuf value) {
+    static Parameter create(Format format, PostgresqlObjectId type, ByteBuf value) {
         requireNonNull(format, "format must not be null");
         requireNonNull(type, "type must not be null");
 
