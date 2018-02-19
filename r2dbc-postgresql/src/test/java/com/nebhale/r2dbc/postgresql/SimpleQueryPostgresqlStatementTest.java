@@ -192,7 +192,7 @@ public final class SimpleQueryPostgresqlStatementTest {
         Client client = TestClient.builder()
             .expectRequest(new Query("test-query"))
             .thenRespond(
-                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) 100, 200, 300, (short) 400, Format.TEXT, "test-name", 500))),
                 new DataRow(Collections.emptyList()),
                 new CommandComplete("test", null, null))
             .build();
@@ -201,7 +201,7 @@ public final class SimpleQueryPostgresqlStatementTest {
             .execute()
             .flatMap(PostgresqlResult::getRowMetadata)
             .as(StepVerifier::create)
-            .expectNext(new PostgresqlRowMetadata(Collections.singletonList(new PostgresqlColumnMetadata("test-name"))))
+            .expectNext(new PostgresqlRowMetadata(Collections.singletonList(new PostgresqlColumnMetadata("test-name", (short) 400, 200))))
             .verifyComplete();
     }
 
@@ -210,7 +210,7 @@ public final class SimpleQueryPostgresqlStatementTest {
         Client client = TestClient.builder()
             .expectRequest(new Query("test-query"))
             .thenRespond(
-                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) 100, 200, 300, (short) 400, Format.TEXT, "test-name", 500))),
                 new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))),
                 new CommandComplete("test", null, null))
             .build();
@@ -228,7 +228,7 @@ public final class SimpleQueryPostgresqlStatementTest {
         Client client = TestClient.builder()
             .expectRequest(new Query("test-query"))
             .thenRespond(
-                new RowDescription(Collections.singletonList(new RowDescription.Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500))),
+                new RowDescription(Collections.singletonList(new RowDescription.Field((short) 100, 200, 300, (short) 400, Format.TEXT, "test-name", 500))),
                 new DataRow(Collections.singletonList(Unpooled.buffer().writeInt(100))),
                 new CommandComplete("test", null, null))
             .build();

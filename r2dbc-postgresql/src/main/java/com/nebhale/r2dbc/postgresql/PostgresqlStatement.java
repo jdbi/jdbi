@@ -31,7 +31,7 @@ public interface PostgresqlStatement extends Statement {
      * {@inheritDoc}
      *
      * @throws NullPointerException     if {@code identifier} is {@code null}
-     * @throws IllegalArgumentException if {@code identifier} is not a {@link String} like {@code $1}, {@code $2}, etc. or an {@link Integer}
+     * @throws IllegalArgumentException if {@code identifier} is not a {@link String} like {@code $1}, {@code $2}, etc.
      */
     @Override
     PostgresqlStatement bind(Object identifier, Object value);
@@ -43,7 +43,7 @@ public interface PostgresqlStatement extends Statement {
      * {@inheritDoc}
      *
      * @throws NullPointerException     if {@code identifier} or {@code type} is {@code null}
-     * @throws IllegalArgumentException if {@code identifier} is not a {@link String} like {@code $1}, {@code $2}, etc. or an {@link Integer}
+     * @throws IllegalArgumentException if {@code identifier} is not a {@link String} like {@code $1}, {@code $2}, etc.
      * @throws IllegalArgumentException if {@code type} is not an {@link Integer}
      */
     @Override

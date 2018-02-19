@@ -21,7 +21,7 @@ import com.nebhale.r2dbc.postgresql.client.Parameter;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
 
-final class NullCodec implements Codec {
+final class NullCodec implements Codec<Object> {
 
     @Override
     public boolean canEncode(Object value) {

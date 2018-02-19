@@ -17,8 +17,10 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import io.netty.buffer.ByteBuf;
 
-interface Codec {
+interface Codec<T> {
 
     boolean canEncode(Object value);
 

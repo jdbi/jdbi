@@ -19,14 +19,21 @@ package com.nebhale.r2dbc.spi;
 /**
  * Represents the metadata for a row of the results returned from a query.
  */
-// TODO
 public interface RowMetadata {
 
     /**
-     * Returns the metadata for columns in this row.
+     * Returns the {@link ColumnMetadata} for one column in this row.
      *
-     * @return the metadata for columns in this row
+     * @param identifier the identifier of the column
+     * @return the {@link ColumnMetadata} for one column in this row
      */
-    Iterable<? extends ColumnMetadata> getColumnMetadata();
+    ColumnMetadata getColumnMetadata(Object identifier);
+
+    /**
+     * Returns the {@link ColumnMetadata} for all columns in this row.
+     *
+     * @return the {@link ColumnMetadata} for all columns in this row
+     */
+    Iterable<? extends ColumnMetadata> getColumnMetadatas();
 
 }

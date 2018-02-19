@@ -27,15 +27,29 @@ public final class PostgresqlColumnMetadataTest {
 
     @Test
     public void constructorNoName() {
-        assertThatNullPointerException().isThrownBy(() -> new PostgresqlColumnMetadata(null))
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlColumnMetadata(null, (short) 100, 200))
             .withMessage("name must not be null");
     }
 
     @Test
+    public void constructorNoPrecision() {
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlColumnMetadata("test-name", null, 200))
+            .withMessage("precision must not be null");
+    }
+
+    @Test
+    public void constructorNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new PostgresqlColumnMetadata("test-name", (short) 100, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void toColumnMetadata() {
-        PostgresqlColumnMetadata columnMetadata = PostgresqlColumnMetadata.toColumnMetadata(new Field((short) -100, -200, -300, (short) -400, Format.TEXT, "test-name", -500));
+        PostgresqlColumnMetadata columnMetadata = PostgresqlColumnMetadata.toColumnMetadata(new Field((short) 100, 200, 300, (short) 400, Format.TEXT, "test-name", 500));
 
         assertThat(columnMetadata.getName()).isEqualTo("test-name");
+        assertThat(columnMetadata.getPrecision()).hasValue(400);
+        assertThat(columnMetadata.getType()).isEqualTo(200);
     }
 
     @Test

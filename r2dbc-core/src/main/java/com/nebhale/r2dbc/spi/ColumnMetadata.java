@@ -16,10 +16,11 @@
 
 package com.nebhale.r2dbc.spi;
 
+import java.util.Optional;
+
 /**
  * Represents the metadata for a column of the results returned from a query.
  */
-// TODO
 public interface ColumnMetadata {
 
     /**
@@ -28,5 +29,19 @@ public interface ColumnMetadata {
      * @return the name of the column
      */
     String getName();
+
+    /**
+     * Returns the precisions of the column.
+     *
+     * @return the precision of the column
+     */
+    Optional<Integer> getPrecision();
+
+    /**
+     * Returns the type of the column.
+     *
+     * @return the type of the column
+     */
+    Integer getType();
 
 }
