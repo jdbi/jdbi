@@ -21,6 +21,7 @@ import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.extension.ExtensionCallback
 import org.jdbi.v3.core.extension.ExtensionConsumer
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel
+import kotlin.reflect.KClass
 
 // The extensions in this file were created in response to these issues :
 // https://github.com/jdbi/jdbi/issues/858
@@ -135,6 +136,21 @@ inline fun <E, R> Jdbi.withExtensionUnchecked(extensionType: Class<E>, crossinli
 }
 
 /**
+ * Temporary extension function for [Jdbi.withExtension].
+ *
+ * This function WILL be deprecated and removed when not needed anymore.
+ *
+ * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
+ * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
+ * @see [Jdbi.withExtension]
+ */
+inline fun <E: Any, R> Jdbi.withExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> R): R {
+    return withExtension(extensionType, ExtensionCallback<R, E, RuntimeException> { dao ->
+        callback(dao)
+    })
+}
+
+/**
  * Temporary extension function for [Jdbi.useExtension].
  *
  * This function WILL be deprecated and removed when not needed anymore.
@@ -144,6 +160,21 @@ inline fun <E, R> Jdbi.withExtensionUnchecked(extensionType: Class<E>, crossinli
  * @see [Jdbi.useExtension]
  */
 inline fun <E> Jdbi.useExtensionUnchecked(extensionType: Class<E>, crossinline callback: (E) -> Unit) {
+    useExtension(extensionType, ExtensionConsumer<E, RuntimeException> { dao ->
+        callback(dao)
+    })
+}
+
+/**
+ * Temporary extension function for [Jdbi.useExtension].
+ *
+ * This function WILL be deprecated and removed when not needed anymore.
+ *
+ * @see <a href="https://github.com/jdbi/jdbi/issues/858">Github issue</a>
+ * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
+ * @see [Jdbi.useExtension]
+ */
+inline fun <E: Any> Jdbi.useExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> Unit) {
     useExtension(extensionType, ExtensionConsumer<E, RuntimeException> { dao ->
         callback(dao)
     })

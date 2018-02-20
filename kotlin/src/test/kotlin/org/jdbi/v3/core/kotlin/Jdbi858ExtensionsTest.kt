@@ -107,6 +107,22 @@ class Jdbi858ExtensionsTest {
         }
     }
 
+    @Test fun testWithExtensionUncheckedKClass() {
+        val name = jdbi.withExtensionUnchecked(FooDao::class) { dao ->
+            dao.getOnlyName()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test fun testUseExtensionUncheckedKClass() {
+        jdbi.useExtensionUnchecked(FooDao::class) { dao ->
+            val name = dao.getOnlyName()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
     companion object {
         const val EXPECTED_NAME = "Foo"
         const val TABLE_NAME = "FOO"
