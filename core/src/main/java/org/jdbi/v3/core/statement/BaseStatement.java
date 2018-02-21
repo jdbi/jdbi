@@ -98,6 +98,17 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         return typedThis;
     }
 
+    final void beforeBinding(final PreparedStatement stmt) {
+        for (StatementCustomizer customizer : customizers) {
+            try {
+                customizer.beforeBinding(stmt, ctx);
+            }
+            catch (SQLException e) {
+                throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
+            }
+        }
+    }
+
     final void beforeExecution(final PreparedStatement stmt)
     {
         for (StatementCustomizer customizer : customizers) {

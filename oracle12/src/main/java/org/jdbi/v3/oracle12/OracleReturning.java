@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
@@ -50,24 +52,55 @@ public class OracleReturning {
         return new ReturnParameters();
     }
 
+    static class ReturnParam implements Argument {
+        private final String name;
+        private final int index;
+        private final int oracleType;
+
+        ReturnParam(String name, int oracleType) {
+            this.name = name;
+            this.index = -1;
+            this.oracleType = oracleType;
+        }
+
+        ReturnParam(int index, int oracleType) {
+            this.name = null;
+            this.index = index;
+            this.oracleType = oracleType;
+        }
+
+        @Override
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            unwrapOracleStatement(statement).registerReturnParameter(position, oracleType);
+        }
+
+        private OraclePreparedStatement unwrapOracleStatement(PreparedStatement stmt) throws SQLException {
+            if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+                throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+            }
+            return stmt.unwrap(OraclePreparedStatement.class);
+        }
+
+        void bind(Binding binding) {
+            if (name == null) {
+                binding.addPositional(index, this);
+            }
+            else {
+                binding.addNamed(name, this);
+            }
+        }
+    }
+
     public static class ReturnParameters implements StatementCustomizer {
-        private final List<int[]> binds = new ArrayList<>();
+        private final List<ReturnParam> returnParams = new ArrayList<>();
 
         ReturnParameters() {
         }
 
         @Override
-        public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
-            if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
-                throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
-            }
-            OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
-            for (int[] bind : binds) {
-                try {
-                    statement.registerReturnParameter(bind[0], bind[1]);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        public void beforeBinding(PreparedStatement stmt, StatementContext ctx) throws SQLException {
+            for (ReturnParam returnParam : returnParams) {
+                returnParam.bind(ctx.getBinding());
             }
         }
 
@@ -76,10 +109,22 @@ public class OracleReturning {
          *
          * @param index      0-based index of the return parameter
          * @param oracleType one of the values from {@link oracle.jdbc.OracleTypes}
-         * @return The same instance, for method chaning
+         * @return The same instance, for method chaining
          */
         public ReturnParameters register(int index, int oracleType) {
-            binds.add(new int[]{index+1, oracleType});
+            returnParams.add(new ReturnParam(index, oracleType));
+            return this;
+        }
+
+        /**
+         * Registers a return parameter on the Oracle prepared statement.
+         *
+         * @param name name of the return parameter
+         * @param oracleType one of the values from {@link oracle.jdbc.OracleTypes}
+         * @return The same instance, for method chaining
+         */
+        public ReturnParameters register(String name, int oracleType) {
+            returnParams.add(new ReturnParam(name, oracleType));
             return this;
         }
     }
