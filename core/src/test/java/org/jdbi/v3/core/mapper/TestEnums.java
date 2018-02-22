@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -94,5 +94,12 @@ public class TestEnums
         h.createQuery("select * from something order by id")
                 .mapToBean(SomethingElse.class)
                 .findFirst();
+    }
+
+    @Test
+    public void testEnumCaseInsensitive() throws Exception
+    {
+        assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).findOnly())
+            .isEqualTo(SomethingElse.Name.brian);
     }
 }
