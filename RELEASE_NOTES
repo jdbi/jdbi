@@ -1,5 +1,6 @@
 3.1.0
   - EnumMapper now tries a case insensitive match if there's no exact match
+  - Introduce RowReducer
 
 3.0.1
   - Kotlin mapper support for @Nested annotation
