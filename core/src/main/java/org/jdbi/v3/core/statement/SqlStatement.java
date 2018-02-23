@@ -1440,6 +1440,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         getContext().setStatement(stmt);
 
+        beforeBinding(stmt);
+
         ArgumentBinder.bind(parsedParameters, getBinding(), stmt, getContext());
 
         beforeExecution(stmt);

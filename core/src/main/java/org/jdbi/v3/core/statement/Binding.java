@@ -33,8 +33,30 @@ public class Binding
     private final Map<String, Argument> named = new HashMap<>();
     private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
 
-    void addPositional(int position, Argument parameter) {
-        positionals.put(position, parameter);
+    /**
+     * Bind a positional parameter at the given index (0-based)
+     * @param position binding position
+     * @param argument the argument to bind
+     */
+    public void addPositional(int position, Argument argument) {
+        positionals.put(position, argument);
+    }
+
+    /**
+     * Bind a named parameter for the given name
+     * @param name bound argument name
+     * @param argument the argument to bind
+     */
+    public void addNamed(String name, Argument argument) {
+        this.named.put(name, argument);
+    }
+
+    /**
+     * Bind a named argument finder
+     * @param args the argument finder to bind
+     */
+    public void addNamedArgumentFinder(NamedArgumentFinder args) {
+        namedArgumentFinder.add(args);
     }
 
     /**
@@ -64,14 +86,6 @@ public class Binding
      */
     public Optional<Argument> findForPosition(int position) {
         return Optional.ofNullable(positionals.get(position));
-    }
-
-    void addNamed(String name, Argument argument) {
-        this.named.put(name, argument);
-    }
-
-    void addNamedArgumentFinder(NamedArgumentFinder args) {
-        namedArgumentFinder.add(args);
     }
 
     @Override

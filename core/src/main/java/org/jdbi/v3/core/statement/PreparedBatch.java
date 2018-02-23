@@ -166,6 +166,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
+            beforeBinding(stmt);
 
             try {
                 for (Binding binding : bindings) {
