@@ -22,7 +22,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nebhale</groupId>
+    <groupId>com.nebhale.r2dbc</groupId>
     <artifactId>r2dbc</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
