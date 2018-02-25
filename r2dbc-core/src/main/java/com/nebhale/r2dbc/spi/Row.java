@@ -19,14 +19,16 @@ package com.nebhale.r2dbc.spi;
 /**
  * Represents a row returned from a database query.
  */
-// TODO
 public interface Row {
 
     /**
-     * Returns the columns in this row.
+     * Returns the value for a column in this row.
      *
-     * @return the columns in this row
+     * @param identifier the identifier fof the column
+     * @param type       the type of item to return
+     * @param <T>        the type of the item being returned
+     * @return the value for a column in this row
      */
-    Iterable<? extends Column> getColumns();
+    <T> T get(Object identifier, Class<T> type);
 
 }

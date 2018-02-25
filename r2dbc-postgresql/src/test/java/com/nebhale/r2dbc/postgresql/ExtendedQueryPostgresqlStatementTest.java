@@ -32,7 +32,6 @@ import com.nebhale.r2dbc.postgresql.message.frontend.Describe;
 import com.nebhale.r2dbc.postgresql.message.frontend.Execute;
 import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
 import com.nebhale.r2dbc.postgresql.message.frontend.Sync;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,6 +44,7 @@ import java.util.Optional;
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.INT4;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 
 public final class ExtendedQueryPostgresqlStatementTest {
 
-    private final Parameter parameter = new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(100));
+    private final Parameter parameter = new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100));
 
     private final MockCodecs codecs = MockCodecs.builder().encoding(100, this.parameter).build();
 
@@ -186,11 +186,11 @@ public final class ExtendedQueryPostgresqlStatementTest {
     public void execute() {
         Client client = TestClient.builder()
             .expectRequest(
-                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
                 new Describe("B_0", ExecutionType.PORTAL),
                 new Execute("B_0", 0),
                 new Close("B_0", ExecutionType.PORTAL),
-                new Bind("B_1", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer(4).writeInt(200)), Collections.emptyList(), "test-name"),
+                new Bind("B_1", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(200)), Collections.emptyList(), "test-name"),
                 new Describe("B_1", ExecutionType.PORTAL),
                 new Execute("B_1", 0),
                 new Close("B_1", ExecutionType.PORTAL),
@@ -202,14 +202,14 @@ public final class ExtendedQueryPostgresqlStatementTest {
             .build();
 
         MockCodecs codecs = MockCodecs.builder()
-            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(100)))
-            .encoding(200, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(200)))
+            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)))
+            .encoding(200, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(200)))
             .build();
 
         PortalNameSupplier portalNameSupplier = new LinkedList<>(Arrays.asList("B_0", "B_1"))::remove;
 
-        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(100))), "test-query-$1")).thenReturn(Mono.just("test-name"));
-        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(200))), "test-query-$1")).thenReturn(Mono.just("test-name"));
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100))), "test-query-$1")).thenReturn(Mono.just("test-name"));
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(200))), "test-query-$1")).thenReturn(Mono.just("test-name"));
 
         new ExtendedQueryPostgresqlStatement(client, codecs, portalNameSupplier, "test-query-$1", this.statementCache)
             .bind("$1", 100)
@@ -232,7 +232,7 @@ public final class ExtendedQueryPostgresqlStatementTest {
     public void executeWithoutAdd() {
         Client client = TestClient.builder()
             .expectRequest(
-                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
                 new Describe("B_0", ExecutionType.PORTAL),
                 new Execute("B_0", 0),
                 new Close("B_0", ExecutionType.PORTAL),
@@ -242,12 +242,12 @@ public final class ExtendedQueryPostgresqlStatementTest {
             .build();
 
         MockCodecs codecs = MockCodecs.builder()
-            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(100)))
+            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)))
             .build();
 
         PortalNameSupplier portalNameSupplier = new LinkedList<>(Arrays.asList("B_0", "B_1"))::remove;
 
-        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer().writeInt(100))), "test-query-$1")).thenReturn(Mono.just("test-name"));
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100))), "test-query-$1")).thenReturn(Mono.just("test-name"));
 
         new ExtendedQueryPostgresqlStatement(client, codecs, portalNameSupplier, "test-query-$1", this.statementCache)
             .bind("$1", 100)

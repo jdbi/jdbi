@@ -22,11 +22,11 @@ import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
 import com.nebhale.r2dbc.postgresql.message.backend.BackendKeyData;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.StartupMessage;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.mock;
@@ -41,13 +41,13 @@ public final class StartupMessageFlowTest {
         // @formatter:off
         Client client = TestClient.builder()
             .window()
-                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+                .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))
                 .expectRequest(new PasswordMessage("test-password")).thenRespond(AuthenticationOk.INSTANCE)
                 .done()
             .build();
         // @formatter:on
 
-        when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenReturn(new PasswordMessage("test-password"));
+        when(this.authenticationHandler.handle(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))).thenReturn(new PasswordMessage("test-password"));
 
         StartupMessageFlow
             .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")
@@ -58,10 +58,10 @@ public final class StartupMessageFlowTest {
     @Test
     public void exchangeAuthenticationMessageFail() {
         Client client = TestClient.builder()
-            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))
+            .expectRequest(new StartupMessage("test-application-name", "test-database", "test-username")).thenRespond(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))
             .build();
 
-        when(this.authenticationHandler.handle(new AuthenticationMD5Password(Unpooled.buffer().writeInt(100)))).thenThrow(new IllegalArgumentException());
+        when(this.authenticationHandler.handle(new AuthenticationMD5Password(TEST.buffer(4).writeInt(100)))).thenThrow(new IllegalArgumentException());
 
         StartupMessageFlow
             .exchange("test-application-name", this.authenticationHandler, client, "test-database", "test-username")

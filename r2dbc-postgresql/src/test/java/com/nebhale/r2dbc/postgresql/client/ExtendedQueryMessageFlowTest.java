@@ -27,7 +27,6 @@ import com.nebhale.r2dbc.postgresql.message.frontend.Execute;
 import com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType;
 import com.nebhale.r2dbc.postgresql.message.frontend.Parse;
 import com.nebhale.r2dbc.postgresql.message.frontend.Sync;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -38,6 +37,7 @@ import java.util.LinkedList;
 
 import static com.nebhale.r2dbc.postgresql.client.TestClient.NO_OP;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class ExtendedQueryMessageFlowTest {
@@ -45,17 +45,17 @@ public final class ExtendedQueryMessageFlowTest {
     @Test
     public void execute() {
         Flux<Binding> bindings = Flux.just(
-            new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200))),
-            new Binding().add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)))
+            new Binding().add(0, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(200))),
+            new Binding().add(0, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(300)))
         );
 
         Client client = TestClient.builder()
             .expectRequest(
-                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(200)), Collections.emptyList(), "test-name"),
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(200)), Collections.emptyList(), "test-name"),
                 new Describe("B_0", ExecutionType.PORTAL),
                 new Execute("B_0", 0),
                 new Close("B_0", ExecutionType.PORTAL),
-                new Bind("B_1", Collections.singletonList(BINARY), Collections.singletonList(Unpooled.buffer().writeInt(300)), Collections.emptyList(), "test-name"),
+                new Bind("B_1", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(300)), Collections.emptyList(), "test-name"),
                 new Describe("B_1", ExecutionType.PORTAL),
                 new Execute("B_1", 0),
                 new Close("B_1", ExecutionType.PORTAL),

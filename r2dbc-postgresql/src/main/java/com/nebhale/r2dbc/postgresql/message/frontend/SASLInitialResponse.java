@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeByte;
@@ -36,7 +37,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class SASLInitialResponse implements FrontendMessage {
 
-    private final ByteBuf initialResponse;
+    private final ByteBuffer initialResponse;
 
     private final String name;
 
@@ -47,8 +48,8 @@ public final class SASLInitialResponse implements FrontendMessage {
      * @param name            name of the SASL authentication mechanism that the client selected
      * @throws NullPointerException if {@code name} is {@code null}
      */
-    public SASLInitialResponse(ByteBuf initialResponse, String name) {
-        this.initialResponse = initialResponse;
+    public SASLInitialResponse(ByteBuffer initialResponse, String name) {
+        this.initialResponse = initialResponse == null ? null : (ByteBuffer) initialResponse.flip();
         this.name = requireNonNull(name, "name must not be null");
     }
 
@@ -66,7 +67,7 @@ public final class SASLInitialResponse implements FrontendMessage {
             if (this.initialResponse == null) {
                 writeInt(out, -1);
             } else {
-                writeInt(out, this.initialResponse.readableBytes());
+                writeInt(out, this.initialResponse.remaining());
                 writeBytes(out, this.initialResponse);
             }
 

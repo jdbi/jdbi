@@ -17,8 +17,12 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
+import java.time.Instant;
 import java.util.Date;
 
 import static java.util.Objects.requireNonNull;
@@ -33,10 +37,20 @@ final class DateCodec extends AbstractCodec<Date> {
     }
 
     @Override
+    public Date decode(ByteBuf byteBuf, Format format, Class<? extends Date> type) {
+        return Date.from(this.delegate.decode(byteBuf, format, Instant.class));
+    }
+
+    @Override
     public Parameter doEncode(Date value) {
         requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.toInstant());
+    }
+
+    @Override
+    boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        return this.delegate.doCanDecode(format, type);
     }
 
 }

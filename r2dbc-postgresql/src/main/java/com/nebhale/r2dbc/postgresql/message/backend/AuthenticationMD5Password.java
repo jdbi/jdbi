@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class AuthenticationMD5Password implements AuthenticationMessage {
 
-    private final ByteBuf salt;
+    private final ByteBuffer salt;
 
     /**
      * Creates a new message.
@@ -36,7 +37,9 @@ public final class AuthenticationMD5Password implements AuthenticationMessage {
      * @throws NullPointerException if {@code salt} is {@code null}
      */
     public AuthenticationMD5Password(ByteBuf salt) {
-        this.salt = requireNonNull(salt, "salt must not be null");
+        requireNonNull(salt, "salt must not be null");
+
+        this.salt = salt.nioBuffer();
     }
 
     @Override
@@ -52,11 +55,11 @@ public final class AuthenticationMD5Password implements AuthenticationMessage {
     }
 
     /**
-     * Returns the salt to use when encrypting the password
+     * Returns the salt to use when encrypting the password.
      *
      * @return the salt to use when encrypting the password
      */
-    public ByteBuf getSalt() {
+    public ByteBuffer getSalt() {
         return this.salt;
     }
 
@@ -75,7 +78,7 @@ public final class AuthenticationMD5Password implements AuthenticationMessage {
     static AuthenticationMD5Password decode(ByteBuf in) {
         requireNonNull(in, "in must not be null");
 
-        return new AuthenticationMD5Password(in.readRetainedSlice(4));
+        return new AuthenticationMD5Password(in.readSlice(4));
     }
 
 }

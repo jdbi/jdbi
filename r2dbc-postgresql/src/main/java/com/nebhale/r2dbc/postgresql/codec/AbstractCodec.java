@@ -27,13 +27,24 @@ abstract class AbstractCodec<T> implements Codec<T> {
 
     private final Class<T> type;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    AbstractCodec(Class type) {
+    AbstractCodec(Class<T> type) {
         this.type = requireNonNull(type, "type must not be null");
     }
 
     @Override
+    public final boolean canDecode(ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
+        requireNonNull(format, "format must not be null");
+        requireNonNull(type, "type must not be null");
+
+        return byteBuf != null &&
+            this.type.isAssignableFrom(type) &&
+            doCanDecode(format, PostgresqlObjectId.valueOf(dataType));
+    }
+
+    @Override
     public final boolean canEncode(Object value) {
+        requireNonNull(value, "value must not be null");
+
         return this.type.isInstance(value);
     }
 
@@ -51,6 +62,8 @@ abstract class AbstractCodec<T> implements Codec<T> {
 
         return new Parameter(format, type.getObjectId(), value);
     }
+
+    abstract boolean doCanDecode(Format format, PostgresqlObjectId type);
 
     abstract Parameter doEncode(T value);
 

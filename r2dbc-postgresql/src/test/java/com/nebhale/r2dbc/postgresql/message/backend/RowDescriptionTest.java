@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 public final class RowDescriptionTest {
 
     @Test
-    public void constructor() {
+    public void constructorNoFields() {
         assertThatNullPointerException().isThrownBy(() -> new RowDescription(null))
             .withMessage("fields must not be null");
     }
@@ -53,6 +53,19 @@ public final class RowDescriptionTest {
                 return buffer;
             })
             .isEqualTo(new RowDescription(Collections.singletonList(new RowDescription.Field((short) 100, 200, 300, (short) 400, BINARY, "test-name", 500))));
+    }
+
+
+    @Test
+    public void fiedlConstructorNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new RowDescription.Field((short) 100, 200, 300, (short) 400, null, "test-name", 500))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void fieldConstructorNoName() {
+        assertThatNullPointerException().isThrownBy(() -> new RowDescription.Field((short) 100, 200, 300, (short) 400, BINARY, null, 500))
+            .withMessage("name must not be null");
     }
 
 }

@@ -17,23 +17,51 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import com.nebhale.r2dbc.postgresql.util.ByteBufUtils;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.INT4;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class AbstractCodecTest {
 
     @Test
+    public void canDecode() {
+        MockCodec<String> codec = MockCodec.builder(String.class)
+            .canDecode(BINARY, VARCHAR)
+            .build();
+
+        assertThat(codec.canDecode(null, VARCHAR.getObjectId(), BINARY, String.class)).isFalse();
+        assertThat(codec.canDecode(TEST.buffer(0), VARCHAR.getObjectId(), BINARY, Object.class)).isFalse();
+        assertThat(codec.canDecode(TEST.buffer(0), VARCHAR.getObjectId(), BINARY, String.class)).isTrue();
+    }
+
+    @Test
+    public void canDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> MockCodec.empty(String.class).canDecode(null, 100, null, String.class))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void canDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> MockCodec.empty(String.class).canDecode(null, 100, BINARY, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void canEncode() {
         assertThat(MockCodec.empty(String.class).canEncode("")).isTrue();
         assertThat(MockCodec.empty(String.class).canEncode(new Object())).isFalse();
+    }
+
+    @Test
+    public void canEncodeNoValue() {
+        assertThatNullPointerException().isThrownBy(() -> MockCodec.empty(String.class).canEncode(null))
+            .withMessage("value must not be null");
     }
 
     @Test
@@ -44,9 +72,9 @@ public final class AbstractCodecTest {
 
     @Test
     public void create() {
-        Parameter parameter = AbstractCodec.create(TEXT, INT4, Unpooled.buffer().writeInt(100));
+        Parameter parameter = AbstractCodec.create(TEXT, INT4, TEST.buffer(4).writeInt(100));
 
-        assertThat(parameter).isEqualTo(new Parameter(TEXT, INT4.getObjectId(), Unpooled.buffer().writeInt(100)));
+        assertThat(parameter).isEqualTo(new Parameter(TEXT, INT4.getObjectId(), TEST.buffer(4).writeInt(100)));
     }
 
     @Test
@@ -61,44 +89,9 @@ public final class AbstractCodecTest {
             .withMessage("type must not be null");
     }
 
-//    @Test
-//    public void decodeBinary() {
-//        ByteBuf byteBuf = Unpooled.buffer().writeInt(100);
-//        Object value = new Object();
-//
-//        MockCodec<Object> codec = MockCodec.builder(Object.class)
-//            .binaryDecoding(byteBuf, value)
-//            .build();
-//
-//        assertThat(codec.decode(byteBuf, BINARY)).isSameAs(value);
-//    }
-//
-//    @Test
-//    public void decodeNoFormat() {
-//        assertThatNullPointerException().isThrownBy(() -> MockCodec.empty(Object.class).decode(null, null))
-//            .withMessage("format must not be null");
-//    }
-//
-//    @Test
-//    public void decodeNull() {
-//        assertThat(MockCodec.empty(Object.class).decode(null, TEXT)).isNull();
-//    }
-//
-//    @Test
-//    public void decodeText() {
-//        ByteBuf byteBuf = ByteBufUtils.encode(Unpooled.buffer(), "test-value");
-//        Object value = new Object();
-//
-//        MockCodec<Object> codec = MockCodec.builder(Object.class)
-//            .textDecoding("test-value", value)
-//            .build();
-//
-//        assertThat(codec.decode(byteBuf, TEXT)).isSameAs(value);
-//    }
-
     @Test
     public void encode() {
-        Parameter parameter = new Parameter(TEXT, INT4.getObjectId(), Unpooled.buffer().writeInt(100));
+        Parameter parameter = new Parameter(TEXT, INT4.getObjectId(), TEST.buffer(4).writeInt(100));
         Object value = new Object();
 
         MockCodec<Object> codec = MockCodec.builder(Object.class)

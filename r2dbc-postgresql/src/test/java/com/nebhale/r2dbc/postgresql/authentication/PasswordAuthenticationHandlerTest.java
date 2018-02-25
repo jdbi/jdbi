@@ -20,9 +20,9 @@ import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationCleartextPassw
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationGSS;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMD5Password;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -52,7 +52,7 @@ public final class PasswordAuthenticationHandlerTest {
     @Test
     public void handleAuthenticationMD5Password() {
         PasswordAuthenticationHandler handler = new PasswordAuthenticationHandler("test-password", "test-username");
-        AuthenticationMD5Password message = new AuthenticationMD5Password(Unpooled.buffer().writeInt(100));
+        AuthenticationMD5Password message = new AuthenticationMD5Password(TEST.buffer(4).writeInt(100));
 
         assertThat(handler.handle(message)).isEqualTo(new PasswordMessage("md55e9836cdb369d50e3bc7d127e88b4804"));
     }

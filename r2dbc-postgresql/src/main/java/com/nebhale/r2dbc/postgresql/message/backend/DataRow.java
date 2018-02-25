@@ -42,6 +42,10 @@ public final class DataRow implements BackendMessage {
      */
     public DataRow(List<ByteBuf> columns) {
         this.columns = requireNonNull(columns, "columns must not be null");
+
+        this.columns.stream()
+            .filter(Objects::nonNull)
+            .forEach(ByteBuf::retain);
     }
 
     @Override
@@ -70,6 +74,15 @@ public final class DataRow implements BackendMessage {
         return Objects.hash(this.columns);
     }
 
+    /**
+     * Release the data encapsulated by the message.
+     */
+    public void release() {
+        this.columns.stream()
+            .filter(Objects::nonNull)
+            .forEach(ByteBuf::release);
+    }
+
     @Override
     public String toString() {
         return "DataRow{" +
@@ -89,7 +102,7 @@ public final class DataRow implements BackendMessage {
 
     private static ByteBuf decodeColumn(ByteBuf in) {
         int length = in.readInt();
-        return NULL == length ? null : in.readRetainedSlice(length);
+        return NULL == length ? null : in.readSlice(length);
     }
 
 }

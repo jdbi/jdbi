@@ -61,11 +61,7 @@ public final class PostgresqlResultTest {
     public void toResultCommandComplete() {
         PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new CommandComplete("test", null, 1)));
 
-        result.getRowMetadata()
-            .as(StepVerifier::create)
-            .verifyComplete();
-
-        result.getRows()
+        result.map((row, rowMetadata) -> row)
             .as(StepVerifier::create)
             .verifyComplete();
 
@@ -79,11 +75,7 @@ public final class PostgresqlResultTest {
     public void toResultEmptyQueryResponse() {
         PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(EmptyQueryResponse.INSTANCE));
 
-        result.getRowMetadata()
-            .as(StepVerifier::create)
-            .verifyComplete();
-
-        result.getRows()
+        result.map((row, rowMetadata) -> row)
             .as(StepVerifier::create)
             .verifyComplete();
 
@@ -96,11 +88,7 @@ public final class PostgresqlResultTest {
     public void toResultErrorResponse() {
         PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new ErrorResponse(Collections.emptyList())));
 
-        result.getRowMetadata()
-            .as(StepVerifier::create)
-            .verifyError(PostgresqlServerErrorException.class);
-
-        result.getRows()
+        result.map((row, rowMetadata) -> row)
             .as(StepVerifier::create)
             .verifyError(PostgresqlServerErrorException.class);
 
@@ -127,12 +115,7 @@ public final class PostgresqlResultTest {
         PostgresqlResult result = PostgresqlResult.toResult(MockCodecs.empty(), Flux.just(new RowDescription(Collections.emptyList()), new DataRow(Collections.emptyList()), new CommandComplete
             ("test", null, null)));
 
-        result.getRowMetadata()
-            .as(StepVerifier::create)
-            .expectNext(new PostgresqlRowMetadata(Collections.emptyList()))
-            .verifyComplete();
-
-        result.getRows()
+        result.map((row, rowMetadata) -> row)
             .as(StepVerifier::create)
             .expectNext(new PostgresqlRow(MockCodecs.empty(), Collections.emptyList()))
             .verifyComplete();

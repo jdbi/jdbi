@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.spi;
+package com.nebhale.r2dbc.postgresql.util;
 
-/**
- * Represents the column in a row returned from a database query.
- */
-// TODO
-public interface Column {
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.util.internal.PlatformDependent;
 
-    /**
-     * Returns the value of the column as an {@link Integer}.
-     *
-     * @return the value of the column as an {@link Integer}
-     */
-    Integer getInteger();
+public final class TestByteBufAllocator {
 
-    /**
-     * Returns the value of the column as a {@link String}.
-     *
-     * @return the value of the column as a {@link String}
-     */
-    String getString();
+    public static final ByteBufAllocator TEST = new UnpooledByteBufAllocator(PlatformDependent.directBufferPreferred(), true);
+
+    private TestByteBufAllocator() {
+    }
 
 }

@@ -18,8 +18,6 @@ package com.nebhale.r2dbc.postgresql.message.frontend;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.util.Objects;
 import org.reactivestreams.Publisher;
@@ -27,6 +25,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.function.Function;
+
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 
 final class FrontendMessageAssert extends AbstractObjectAssert<FrontendMessageAssert, FrontendMessage> {
 
@@ -39,7 +39,7 @@ final class FrontendMessageAssert extends AbstractObjectAssert<FrontendMessageAs
     }
 
     EncodedAssert encoded() {
-        return new EncodedAssert(this.actual.encode(UnpooledByteBufAllocator.DEFAULT));
+        return new EncodedAssert(this.actual.encode(TEST));
     }
 
     static final class EncodedAssert extends AbstractObjectAssert<EncodedAssert, Publisher<ByteBuf>> {
@@ -71,7 +71,7 @@ final class FrontendMessageAssert extends AbstractObjectAssert<FrontendMessageAs
             Mono.from(this.actual)
                 .as(StepVerifier::create)
                 .consumeNextWith(actual -> {
-                    ByteBuf expected = encoded.apply(Unpooled.buffer());
+                    ByteBuf expected = encoded.apply(TEST.buffer());
 
                     if (!Objects.areEqual(actual, expected)) {
                         failWithMessage("\nExpected:\n%s\nActual:\n%s", ByteBufUtil.prettyHexDump(expected), ByteBufUtil.prettyHexDump(actual));

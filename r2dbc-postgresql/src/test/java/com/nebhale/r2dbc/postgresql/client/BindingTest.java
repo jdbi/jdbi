@@ -16,12 +16,12 @@
 
 package com.nebhale.r2dbc.postgresql.client;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -49,8 +49,8 @@ public final class BindingTest {
     @Test
     public void getParameterFormats() {
         Binding binding = new Binding();
-        binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
-        binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
+        binding.add(0, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(200)));
+        binding.add(2, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(300)));
 
         assertThat(binding.getParameterFormats()).containsExactly(BINARY, TEXT, BINARY);
     }
@@ -58,8 +58,8 @@ public final class BindingTest {
     @Test
     public void getParameterTypes() {
         Binding binding = new Binding();
-        binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
-        binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
+        binding.add(0, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(200)));
+        binding.add(2, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(300)));
 
         assertThat(binding.getParameterTypes()).containsExactly(100, UNSPECIFIED.getObjectId(), 100);
     }
@@ -67,10 +67,10 @@ public final class BindingTest {
     @Test
     public void getParameterValues() {
         Binding binding = new Binding();
-        binding.add(0, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(200)));
-        binding.add(2, new Parameter(BINARY, 100, Unpooled.buffer().writeInt(300)));
+        binding.add(0, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(200)));
+        binding.add(2, new Parameter(BINARY, 100, TEST.buffer(4).writeInt(300)));
 
-        assertThat(binding.getParameterValues()).containsExactly(Unpooled.buffer().writeInt(200), null, Unpooled.buffer().writeInt(300));
+        assertThat(binding.getParameterValues()).containsExactly(TEST.buffer(4).writeInt(200), null, TEST.buffer(4).writeInt(300));
     }
 
 }

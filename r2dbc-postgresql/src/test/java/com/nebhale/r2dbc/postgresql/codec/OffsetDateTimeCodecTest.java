@@ -17,15 +17,17 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import java.time.OffsetDateTime;
 
+import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.MONEY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.TIMESTAMPTZ;
+import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.VARCHAR;
 import static com.nebhale.r2dbc.postgresql.util.ByteBufUtils.encode;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -38,16 +40,51 @@ public final class OffsetDateTimeCodecTest {
     }
 
     @Test
+    public void decode() {
+        OffsetDateTime offsetDateTime = OffsetDateTime.now();
+
+        assertThat(new OffsetDateTimeCodec(TEST).decode(encode(TEST, offsetDateTime.toString()), TEXT, OffsetDateTime.class))
+            .isEqualTo(offsetDateTime);
+    }
+
+    @Test
+    public void decodeNoByteBuf() {
+        assertThatNullPointerException().isThrownBy(() -> new OffsetDateTimeCodec(TEST).decode(null, TEXT, OffsetDateTime.class))
+            .withMessage("byteBuf must not be null");
+    }
+
+    @Test
+    public void doCanDecode() {
+        OffsetDateTimeCodec codec = new OffsetDateTimeCodec(TEST);
+
+        assertThat(codec.doCanDecode(BINARY, TIMESTAMPTZ)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, MONEY)).isFalse();
+        assertThat(codec.doCanDecode(TEXT, TIMESTAMPTZ)).isTrue();
+    }
+
+    @Test
+    public void doCanDecodeNoFormat() {
+        assertThatNullPointerException().isThrownBy(() -> new OffsetDateTimeCodec(TEST).doCanDecode(null, VARCHAR))
+            .withMessage("format must not be null");
+    }
+
+    @Test
+    public void doCanDecodeNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new OffsetDateTimeCodec(TEST).doCanDecode(TEXT, null))
+            .withMessage("type must not be null");
+    }
+
+    @Test
     public void doEncode() {
         OffsetDateTime offsetDateTime = OffsetDateTime.now();
 
-        assertThat(new OffsetDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(offsetDateTime))
-            .isEqualTo(new Parameter(TEXT, TIMESTAMPTZ.getObjectId(), encode(Unpooled.buffer(), offsetDateTime.toString())));
+        assertThat(new OffsetDateTimeCodec(TEST).doEncode(offsetDateTime))
+            .isEqualTo(new Parameter(TEXT, TIMESTAMPTZ.getObjectId(), encode(TEST, offsetDateTime.toString())));
     }
 
     @Test
     public void doEncodeNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new OffsetDateTimeCodec(UnpooledByteBufAllocator.DEFAULT).doEncode(null))
+        assertThatNullPointerException().isThrownBy(() -> new OffsetDateTimeCodec(TEST).doEncode(null))
             .withMessage("value must not be null");
     }
 

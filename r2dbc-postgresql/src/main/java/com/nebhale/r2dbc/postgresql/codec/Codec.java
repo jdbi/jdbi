@@ -22,7 +22,11 @@ import io.netty.buffer.ByteBuf;
 
 interface Codec<T> {
 
+    boolean canDecode(ByteBuf byteBuf, int dataType, Format format, Class<?> type);
+
     boolean canEncode(Object value);
+
+    T decode(ByteBuf byteBuf, Format format, Class<? extends T> type);
 
     Parameter encode(Object value);
 

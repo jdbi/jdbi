@@ -17,12 +17,11 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.INT4;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -36,16 +35,28 @@ public final class DefaultCodecsTest {
     }
 
     @Test
-    public void encode() {
-        Parameter parameter = new DefaultCodecs(UnpooledByteBufAllocator.DEFAULT).encode(100);
+    public void decode() {
+        assertThat(new DefaultCodecs(TEST).decode(TEST.buffer(4).writeInt(100), INT4.getObjectId(), BINARY, Integer.class))
+            .isEqualTo(100);
+    }
 
-        assertThat(parameter).isEqualTo(new Parameter(BINARY, INT4.getObjectId(), Unpooled.buffer(4).writeInt(100)));
+    @Test
+    public void decodeUnsupportedType() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new DefaultCodecs(TEST).decode(TEST.buffer(4), INT4.getObjectId(), BINARY, Object.class))
+            .withMessage("Cannot decode value of type java.lang.Object");
+    }
+
+    @Test
+    public void encode() {
+        Parameter parameter = new DefaultCodecs(TEST).encode(100);
+
+        assertThat(parameter).isEqualTo(new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)));
     }
 
     @Test
     public void encodeUnsupportedType() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new DefaultCodecs(UnpooledByteBufAllocator.DEFAULT).encode(new Object()))
-            .withMessage("Unknown parameter of type java.lang.Object");
+        assertThatIllegalArgumentException().isThrownBy(() -> new DefaultCodecs(TEST).encode(new Object()))
+            .withMessage("Cannot encode parameter of type java.lang.Object");
     }
 
 }

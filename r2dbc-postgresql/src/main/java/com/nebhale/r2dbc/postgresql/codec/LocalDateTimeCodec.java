@@ -17,6 +17,8 @@
 package com.nebhale.r2dbc.postgresql.codec;
 
 import com.nebhale.r2dbc.postgresql.client.Parameter;
+import com.nebhale.r2dbc.postgresql.message.Format;
+import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
 import com.nebhale.r2dbc.postgresql.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -37,11 +39,26 @@ final class LocalDateTimeCodec extends AbstractCodec<LocalDateTime> {
     }
 
     @Override
+    public LocalDateTime decode(ByteBuf byteBuf, Format format, Class<? extends LocalDateTime> type) {
+        requireNonNull(byteBuf, "byteBuf must not be null");
+
+        return LocalDateTime.parse(ByteBufUtils.decode(byteBuf));
+    }
+
+    @Override
     public Parameter doEncode(LocalDateTime value) {
         requireNonNull(value, "value must not be null");
 
         ByteBuf encoded = ByteBufUtils.encode(this.byteBufAllocator, value.toString());
         return create(TEXT, TIMESTAMP, encoded);
+    }
+
+    @Override
+    boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        requireNonNull(format, "format must not be null");
+        requireNonNull(type, "type must not be null");
+
+        return TEXT == format && TIMESTAMP == type;
     }
 
 }

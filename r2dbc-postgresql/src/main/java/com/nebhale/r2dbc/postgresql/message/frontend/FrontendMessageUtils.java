@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.frontend;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -40,6 +41,11 @@ final class FrontendMessageUtils {
     }
 
     static ByteBuf writeBytes(ByteBuf out, ByteBuf in) {
+        out.writeBytes(in);
+        return out;
+    }
+
+    static ByteBuf writeBytes(ByteBuf out, ByteBuffer in) {
         out.writeBytes(in);
         return out;
     }

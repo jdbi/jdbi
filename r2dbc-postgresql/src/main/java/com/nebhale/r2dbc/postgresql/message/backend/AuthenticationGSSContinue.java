@@ -18,6 +18,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class AuthenticationGSSContinue implements AuthenticationMessage {
 
-    private final ByteBuf authenticationData;
+    private final ByteBuffer authenticationData;
 
     /**
      * Creates a new message.
@@ -36,7 +37,9 @@ public final class AuthenticationGSSContinue implements AuthenticationMessage {
      * @throws NullPointerException if {@code authenticationData} is {@code null}
      */
     public AuthenticationGSSContinue(ByteBuf authenticationData) {
-        this.authenticationData = requireNonNull(authenticationData, "authenticationData must not be null");
+        requireNonNull(authenticationData, "authenticationData must not be null");
+
+        this.authenticationData = authenticationData.nioBuffer();
     }
 
     @Override
@@ -56,13 +59,13 @@ public final class AuthenticationGSSContinue implements AuthenticationMessage {
      *
      * @return GSSAPI or SSPI authentication data
      */
-    public ByteBuf getAuthenticationData() {
+    public ByteBuffer getAuthenticationData() {
         return this.authenticationData;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(authenticationData);
+        return Objects.hash(this.authenticationData);
     }
 
     @Override
@@ -75,7 +78,7 @@ public final class AuthenticationGSSContinue implements AuthenticationMessage {
     static AuthenticationGSSContinue decode(ByteBuf in) {
         requireNonNull(in, "in must not be null");
 
-        return new AuthenticationGSSContinue(in.readRetainedSlice(in.readableBytes()));
+        return new AuthenticationGSSContinue(in.readSlice(in.readableBytes()));
     }
 
 }

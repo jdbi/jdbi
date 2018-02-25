@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.MESSAGE_OVERHEAD;
@@ -35,7 +36,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class GSSResponse implements FrontendMessage {
 
-    private final ByteBuf data;
+    private final ByteBuffer data;
 
     /**
      * Creates a new message.
@@ -43,8 +44,10 @@ public final class GSSResponse implements FrontendMessage {
      * @param data GSSAPI/SSPI specific message data
      * @throws NullPointerException if {@code data} is {@code null}
      */
-    public GSSResponse(ByteBuf data) {
-        this.data = requireNonNull(data, "data must not be null");
+    public GSSResponse(ByteBuffer data) {
+        requireNonNull(data, "data must not be null");
+
+        this.data = (ByteBuffer) data.flip();
     }
 
     @Override
@@ -52,7 +55,7 @@ public final class GSSResponse implements FrontendMessage {
         requireNonNull(allocator, "allocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + this.data.readableBytes());
+            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + this.data.remaining());
 
             writeByte(out, 'p');
             writeLengthPlaceholder(out);

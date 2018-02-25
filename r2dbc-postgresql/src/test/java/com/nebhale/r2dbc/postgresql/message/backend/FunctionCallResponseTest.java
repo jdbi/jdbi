@@ -16,10 +16,10 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
-import io.netty.buffer.Unpooled;
 import org.junit.Test;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageAssert.assertThat;
+import static com.nebhale.r2dbc.postgresql.util.TestByteBufAllocator.TEST;
 
 public final class FunctionCallResponseTest {
 
@@ -27,7 +27,7 @@ public final class FunctionCallResponseTest {
     public void decode() {
         assertThat(FunctionCallResponse.class)
             .decoded(buffer -> buffer.writeInt(4).writeInt(100))
-            .isEqualTo(new FunctionCallResponse(Unpooled.buffer().writeInt(100)));
+            .isEqualTo(new FunctionCallResponse(TEST.buffer(4).writeInt(100)));
     }
 
     @Test
