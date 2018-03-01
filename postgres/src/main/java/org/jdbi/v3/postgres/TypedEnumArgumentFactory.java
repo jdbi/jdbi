@@ -25,13 +25,13 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * If instead you bind it as {@code java.sql.Types.OTHER}, Postgres will
  * autodetect the enum correctly.
  */
-public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum<?>> {
+public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum> {
     public TypedEnumArgumentFactory() {
         super(Types.OTHER);
     }
 
     @Override
-    protected Argument build(Enum<?> value, ConfigRegistry config) {
+    protected Argument build(Enum value, ConfigRegistry config) {
         return (p, s, c) -> s.setObject(p, value, Types.OTHER);
     }
 }
