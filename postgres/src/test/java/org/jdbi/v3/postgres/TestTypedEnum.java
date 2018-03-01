@@ -21,7 +21,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class TestTypedEnum {
-
     @ClassRule
     public static PostgresDbRule db = new PostgresDbRule();
 
