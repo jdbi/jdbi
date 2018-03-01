@@ -45,10 +45,10 @@ Style guidelines:
 
 == Introduction to Jdbi
 
-The *Jdbi* library provides convenient, idiomatic access to relational data in
-Java.  *jdbi3* is the third major release which introduces enhanced support for
-Java 8 concepts, countless refinements to the design and implementation, and
-enhanced support for modular plugins.
+Jdbi provides convenient, idiomatic access to relational data in Java. Jdbi 3
+is the third major release which introduces enhanced support for Java 8,
+countless refinements to the design and implementation, and enhanced support
+for modular plugins.
 
 [TIP]
 Not upgrading yet? The link:/jdbi2[v2 documentation] is still available.
@@ -1164,7 +1164,7 @@ public class Address {
 
 [source,java]
 ----
-handle.registerMapper(ConstructorMapper.factory(User.class));
+handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, street, city, state, zip from users")
@@ -1186,7 +1186,7 @@ public User(int id,
 
 [source,java]
 ----
-handle.registerMapper(ConstructorMapper.factory(User.class));
+handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
@@ -1275,7 +1275,7 @@ public class Address {
 
 [source,java]
 ----
-handle.registerMapper(BeanMapper.factory(User.class));
+handle.registerRowMapper(BeanMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, street, city, state, zip from users")
@@ -1294,7 +1294,7 @@ public Address getAddress() { ... }
 
 [source,java]
 ----
-handle.registerMapper(BeanMapper.factory(User.class));
+handle.registerRowMapper(BeanMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
@@ -1380,7 +1380,7 @@ public class Address {
 
 [source,java]
 ----
-handle.registerMapper(FieldMapper.factory(User.class));
+handle.registerRowMapper(FieldMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, street, city, state, zip from users")
@@ -1404,7 +1404,7 @@ public class User {
 
 [source,java]
 ----
-handle.registerMapper(FieldMapper.factory(User.class));
+handle.registerRowMapper(FieldMapper.factory(User.class));
 
 List<User> users = handle
     .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
@@ -5054,6 +5054,8 @@ jdbi.installPlugin(new SqlObjectPlugin());
   interfaces.
 * `GetHandle` -> `SqlObject`
 * `SqlLocator` replaces `StatementLocator`, and only applies to SQL Objects.
+* `@RegisterMapper` divided into `@RegisterRowMapper` and
+  `@RegisterColumnMapper`.
 * `@Bind` annotations on SQL Object method parameters can be made optional,
   by compiling your code with the `-parameters` compiler flag enabled.
 * `@BindIn` -> `@BindList`, and no longer requires StringTemplate
