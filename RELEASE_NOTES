@@ -1,6 +1,23 @@
 3.1.0
-  - EnumMapper now tries a case insensitive match if there's no exact match
-  - Introduce RowReducer
+  - The strict transaction handling check in Handle.close() may be disabled via
+    getConfig(Handles.class).setForceEndTransactions(false).
+  - StringTemplate SQL locator supports StringTemplate groups importing from other groups.
+  - New RowReducer interface and related APIs make it simple to reduce master-detail joins
+    into a series of master objects with the detail objects attached. See:
+    - RowReducer interface
+    - LinkedHashMapRowReducer abstract implementation for 90% of cases
+    - ResultBearing.reduceRows(RowReducer)
+    - @UseRowReducer SQL Object annotation
+  - Fixed bug in PreparedBatch preventing batches from being reusable.
+  - Additional Kotlin convenience methods to avoid adding ".java" on every Kotlin type:
+    - Jdbi.withExtension(KClass, ExtensionCallback)
+    - Jdbi.useExtension(KClass, ExtensionConsumer)
+    - Jdbi.withExtensionUnchecked(KClass, callback)
+    - Jdbi.useExtensionUnchecked(KClass, callback)
+  - EnumMapper tries a case insensitive match if there's no exact match
+  - OracleReturning.returningDml() supports named parameters
+  - Fixed regression in Postgres typed enum mapper, which caused a fallback on the
+    Jdbi default enum mapper.
 
 3.0.1
   - Kotlin mapper support for @Nested annotation
