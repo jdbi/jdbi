@@ -54,7 +54,7 @@ public class JdbiTransactionManager extends AbstractPlatformTransactionManager
 
     @Override
     protected boolean isExistingTransaction(Object transaction) throws TransactionException {
-        final HandleHolder resource = getBoundResource();
+        final HandleHolder resource = ((JdbiTransactionObject) transaction).getHandleHolder();
         return resource != null && resource.isTransactionActive();
     }
 
@@ -138,6 +138,12 @@ public class JdbiTransactionManager extends AbstractPlatformTransactionManager
         } catch (org.jdbi.v3.core.transaction.TransactionException ex) {
             throw new TransactionSystemException("Could not roll back Jdbi transaction", ex);
         }
+    }
+
+    @Override
+    protected void doSetRollbackOnly(DefaultTransactionStatus status) throws TransactionException {
+        JdbiTransactionObject transaction = (JdbiTransactionObject) status.getTransaction();
+        transaction.getHandleHolder().setRollbackOnly();
     }
 
     @Override

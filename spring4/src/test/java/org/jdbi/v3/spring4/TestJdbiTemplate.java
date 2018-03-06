@@ -116,6 +116,24 @@ public class TestJdbiTemplate {
         });
     }
 
+    @Test
+    public void testPropagationRollbackOnly() {
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
+            service.inPropagationRequired(h -> {
+                final int count = h.execute("insert into something (id, name) values (7, 'ignored')");
+                assertThat(count).isEqualTo(1);
+                service.inPropagationRequired(inner -> {
+                    final int innerCount = h.execute("insert into something (id, name) values (8, 'ignored again')");
+                    assertThat(innerCount).isEqualTo(1);
+                    throw new ForceRollback();
+                });
+            });
+        });
+
+        final int count = jdbiOps.withHandle(h -> h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(count).isEqualTo(0);
+    }
+
     @Configuration
     @EnableTransactionManagement
     public static class Config {
