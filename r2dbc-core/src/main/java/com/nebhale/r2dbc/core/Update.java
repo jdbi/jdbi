@@ -18,7 +18,10 @@ package com.nebhale.r2dbc.core;
 
 import com.nebhale.r2dbc.spi.Result;
 import com.nebhale.r2dbc.spi.Statement;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
+
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
@@ -78,6 +81,12 @@ public final class Update {
             .flatMap(Result::getRowsUpdated);
     }
 
+    public Flux<ResultBearing> executeReturningGeneratedKeys() {
+        return Flux
+            .from(this.statement.executeReturningGeneratedKeys())
+            .map(SimpleResultBearing::new);
+    }
+
     @Override
     public String toString() {
         return "Update{" +
@@ -88,6 +97,35 @@ public final class Update {
     Update bind(int index, Object value) {
         this.statement.bind(index, value);
         return this;
+    }
+
+    private static final class SimpleResultBearing implements ResultBearing {
+
+        private final Result result;
+
+        private SimpleResultBearing(Result result) {
+            this.result = result;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @throws NullPointerException if {@code f} is {@code null}
+         */
+        @Override
+        public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
+            requireNonNull(f, "f must not be null");
+
+            return Flux.from(f.apply(this.result));
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleResultBearing{" +
+                "result=" + this.result +
+                '}';
+        }
+
     }
 
 }

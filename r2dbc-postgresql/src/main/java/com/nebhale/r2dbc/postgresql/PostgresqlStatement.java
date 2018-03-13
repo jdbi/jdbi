@@ -52,4 +52,7 @@ public interface PostgresqlStatement extends Statement {
     @Override
     Flux<PostgresqlResult> execute();
 
+    @Override
+    Flux<PostgresqlResult> executeReturningGeneratedKeys();
+
 }

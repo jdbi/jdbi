@@ -22,7 +22,6 @@ import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
 import com.nebhale.r2dbc.postgresql.message.backend.RowDescription;
 import com.nebhale.r2dbc.spi.Row;
 import io.netty.buffer.ByteBuf;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -30,9 +29,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
-import static reactor.function.TupleUtils.function;
 
 /**
  * An implementation of {@link Row} for a PostgreSQL database.
@@ -111,13 +110,18 @@ public final class PostgresqlRow implements Row {
         requireNonNull(dataRow, "dataRow must not be null");
         requireNonNull(rowDescription, "rowDescription must not be null");
 
-        List<Column> columns = Flux
-            .zip(
-                Flux.fromIterable(dataRow.getColumns()),
-                Flux.fromIterable(rowDescription.getFields()))
-            .map(function((column, field) -> new Column(column, field.getDataType(), field.getFormat(), field.getName())))
-            .collectList()
-            .block();
+        List<ByteBuf> byteBufs = dataRow.getColumns();
+        List<RowDescription.Field> fields = rowDescription.getFields();
+
+        List<Column> columns = IntStream
+            .range(0, byteBufs.size())
+            .mapToObj(i -> {
+                ByteBuf byteBuf = byteBufs.get(i);
+                RowDescription.Field field = fields.get(i);
+
+                return new Column(byteBuf, field.getDataType(), field.getFormat(), field.getName());
+            })
+            .collect(Collectors.toList());
 
         dataRow.release();
 

@@ -19,6 +19,7 @@ package com.nebhale.r2dbc.postgresql.message.backend;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
 import static java.util.Objects.requireNonNull;
@@ -28,8 +29,6 @@ import static java.util.Objects.requireNonNull;
  * The CommandComplete message.
  */
 public final class CommandComplete implements BackendMessage {
-
-    private static final String INSERT_COMMAND = "INSERT";
 
     private final String command;
 
@@ -109,13 +108,17 @@ public final class CommandComplete implements BackendMessage {
     static CommandComplete decode(ByteBuf in) {
         requireNonNull(in, "in must not be null");
 
-        String[] tokens = readCStringUTF8(in).split(" ");
+        String tag = readCStringUTF8(in);
 
-        String command = tokens[0];
-        Integer rowId = INSERT_COMMAND.equalsIgnoreCase(command) ? Integer.parseInt(tokens[1]) : null;
-        Integer rows = tokens.length > 1 ? Integer.parseInt(tokens[tokens.length - 1]) : null;
-
-        return new CommandComplete(command, rowId, rows);
+        if (tag.startsWith("INSERT")) {
+            String[] tokens = tag.split(" ");
+            return new CommandComplete(tokens[0], Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+        } else if (Stream.of("COPY", "DELETE", "FETCH", "MOVE", "SELECT", "UPDATE").anyMatch(tag::startsWith)) {
+            String[] tokens = tag.split(" ");
+            return new CommandComplete(tokens[0], null, Integer.parseInt(tokens[1]));
+        } else {
+            return new CommandComplete(tag, null, null);
+        }
     }
 
 }
