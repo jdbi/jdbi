@@ -145,6 +145,27 @@ public final class Handle {
     }
 
     /**
+     * Execute behavior within a transaction returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
+     *
+     * @param isolationLevel the isolation level of the transaction
+     * @param f              a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
+     * @param <T>            the type of results
+     * @return a {@link Flux} of results
+     * @throws NullPointerException if {@code f} is {@code null}
+     * @see Connection#commitTransaction()
+     * @see Connection#rollbackTransaction()
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Flux<T> inTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<? extends T>> f) {
+        requireNonNull(isolationLevel, "isolationLevel must not be null");
+        requireNonNull(f, "f must not be null");
+
+        return inTransaction(handle -> Flux.from(handle
+            .setTransactionIsolationLevel(isolationLevel))
+            .thenMany((Publisher<T>) f.apply(this)));
+    }
+
+    /**
      * Releases a savepoint in the current transaction.
      *
      * @param name the name of the savepoint to release
@@ -228,6 +249,23 @@ public final class Handle {
         requireNonNull(f, "f must not be null");
 
         return inTransaction(f)
+            .then();
+    }
+
+    /**
+     * Execute behavior within a transaction not returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
+     *
+     * @param isolationLevel the isolation level of the transaction
+     * @param f              a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
+     * @return a {@link Mono} that execution is complete
+     * @see Connection#commitTransaction()
+     * @see Connection#rollbackTransaction()
+     */
+    public Mono<Void> useTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<?>> f) {
+        requireNonNull(isolationLevel, "isolationLevel must not be null");
+        requireNonNull(f, "f must not be null");
+
+        return inTransaction(isolationLevel, f)
             .then();
     }
 
