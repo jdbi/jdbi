@@ -44,7 +44,7 @@ public final class BatchTest {
     }
 
     @Test
-    public void execute() {
+    public void mapResult() {
         MockResult result = MockResult.empty();
 
         MockBatch batch = MockBatch.builder()
@@ -52,7 +52,7 @@ public final class BatchTest {
             .build();
 
         new Batch(batch)
-            .execute(actual -> {
+            .mapResult(actual -> {
                 assertThat(actual).isSameAs(result);
                 return Mono.just(1);
             })
@@ -62,8 +62,8 @@ public final class BatchTest {
     }
 
     @Test
-    public void executeNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).execute(null))
+    public void mapResultNoF() {
+        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).mapResult(null))
             .withMessage("f must not be null");
     }
 

@@ -62,7 +62,7 @@ public final class CoreExamples {
                 .createBatch()
                 .add("INSERT INTO test VALUES(200)")
                 .add("SELECT value FROM test")
-                .execute(Mono::just))
+                .mapResult(Mono::just))
 
             .as(StepVerifier::create)
             .expectNextCount(3)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
@@ -77,7 +77,7 @@ public final class CoreExamples {
             .withHandle(handle -> handle
 
                 .createQuery("SELECT value FROM test; SELECT value FROM test")
-                .execute(CoreExamples::extractColumns))
+                .mapResult(CoreExamples::extractColumns))
 
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
@@ -134,20 +134,20 @@ public final class CoreExamples {
             .withHandle(handle -> handle
                 .inTransaction(h1 -> h1
                     .select("SELECT value FROM test")
-                    .<Object>execute(CoreExamples::extractColumns)
+                    .<Object>mapResult(CoreExamples::extractColumns)
 
                     .concatWith(h1.execute("INSERT INTO test VALUES ($1)", 200))
                     .concatWith(h1.select("SELECT value FROM test")
-                        .execute(CoreExamples::extractColumns))
+                        .mapResult(CoreExamples::extractColumns))
 
                     .concatWith(h1.createSavepoint("test_savepoint"))
                     .concatWith(h1.execute("INSERT INTO test VALUES ($1)", 300))
                     .concatWith(h1.select("SELECT value FROM test")
-                        .execute(CoreExamples::extractColumns))
+                        .mapResult(CoreExamples::extractColumns))
 
                     .concatWith(h1.rollbackTransactionToSavepoint("test_savepoint"))
                     .concatWith(h1.select("SELECT value FROM test")
-                        .execute(CoreExamples::extractColumns))))
+                        .mapResult(CoreExamples::extractColumns))))
 
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
@@ -171,14 +171,14 @@ public final class CoreExamples {
             .withHandle(handle -> handle
                 .inTransaction(h1 -> h1
                     .select("SELECT value FROM test")
-                    .<Object>execute(CoreExamples::extractColumns)
+                    .<Object>mapResult(CoreExamples::extractColumns)
 
                     .concatWith(h1.execute("INSERT INTO test VALUES ($1)", 200))
                     .concatWith(h1.select("SELECT value FROM test")
-                        .execute(CoreExamples::extractColumns)))
+                        .mapResult(CoreExamples::extractColumns)))
 
                 .concatWith(handle.select("SELECT value FROM test")
-                    .execute(CoreExamples::extractColumns)))
+                    .mapResult(CoreExamples::extractColumns)))
 
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))
@@ -211,16 +211,16 @@ public final class CoreExamples {
             .withHandle(handle -> handle
                 .inTransaction(h1 -> h1
                     .select("SELECT value FROM test")
-                    .<Object>execute(CoreExamples::extractColumns)
+                    .<Object>mapResult(CoreExamples::extractColumns)
 
                     .concatWith(h1.execute("INSERT INTO test VALUES ($1)", 200))
                     .concatWith(h1.select("SELECT value FROM test")
-                        .execute(CoreExamples::extractColumns))
+                        .mapResult(CoreExamples::extractColumns))
 
                     .concatWith(Mono.error(new Exception())))
 
                 .onErrorResume(t -> handle.select("SELECT value FROM test")
-                    .execute(CoreExamples::extractColumns)))
+                    .mapResult(CoreExamples::extractColumns)))
 
             .as(StepVerifier::create)
             .expectNext(Collections.singletonList(100))

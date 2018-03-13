@@ -20,50 +20,59 @@ import com.nebhale.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * A wrapper for a {@link com.nebhale.r2dbc.spi.Batch} providing additional convenience APIs
- */
-public final class Batch implements ResultBearing {
+public final class MockResultBearing implements ResultBearing {
 
-    private final com.nebhale.r2dbc.spi.Batch batch;
+    private final Result result;
 
-    Batch(com.nebhale.r2dbc.spi.Batch batch) {
-        this.batch = requireNonNull(batch, "batch must not be null");
+    private MockResultBearing(Result result) {
+        this.result = requireNonNull(result);
     }
 
-    /**
-     * Add a statement to this batch.
-     *
-     * @param sql the statement to add
-     * @return this {@link Batch}
-     */
-    public Batch add(String sql) {
-        this.batch.add(sql);
-        return this;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code f} is {@code null}
-     */
+    @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        requireNonNull(f);
 
-        return Flux.from(this.batch.execute())
-            .flatMap(f::apply);
+        return Flux.from(f.apply(this.result));
     }
 
     @Override
     public String toString() {
-        return "Batch{" +
-            "batch=" + this.batch +
+        return "MockResultBearing{" +
+            "result=" + this.result +
             '}';
+    }
+
+    public static final class Builder {
+
+        private Result result;
+
+        private Builder() {
+        }
+
+        public MockResultBearing build() {
+            return new MockResultBearing(this.result);
+        }
+
+        public Builder result(Result result) {
+            this.result = requireNonNull(result);
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{" +
+                "result=" + this.result +
+                '}';
+        }
+
     }
 
 }

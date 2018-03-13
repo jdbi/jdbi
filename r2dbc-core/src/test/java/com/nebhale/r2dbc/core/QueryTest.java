@@ -76,7 +76,13 @@ public final class QueryTest {
     }
 
     @Test
-    public void execute() {
+    public void executeNoF() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
+            .withMessage("f must not be null");
+    }
+
+    @Test
+    public void mapResult() {
         MockResult result = MockResult.empty();
 
         MockStatement statement = MockStatement.builder()
@@ -84,19 +90,13 @@ public final class QueryTest {
             .build();
 
         new Query(statement)
-            .execute(actual -> {
+            .mapResult(actual -> {
                 assertThat(actual).isSameAs(result);
                 return Mono.just(1);
             })
             .as(StepVerifier::create)
             .expectNext(1)
             .verifyComplete();
-    }
-
-    @Test
-    public void executeNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).execute(null))
-            .withMessage("f must not be null");
     }
 
 }
