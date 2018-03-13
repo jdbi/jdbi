@@ -175,6 +175,34 @@ public final class HandleTest {
     }
 
     @Test
+    public void inTransactionIsolationLevel() {
+        MockConnection connection = MockConnection.empty();
+
+        new Handle(connection)
+            .inTransaction(SERIALIZABLE, handle ->
+                Mono.just(100))
+            .as(StepVerifier::create)
+            .expectNext(100)
+            .verifyComplete();
+
+        assertThat(connection.isBeginTransactionCalled()).isTrue();
+        assertThat(connection.getSetTransactionIsolationLevelIsolationLevel()).isEqualTo(SERIALIZABLE);
+        assertThat(connection.isCommitTransactionCalled()).isTrue();
+    }
+
+    @Test
+    public void inTransactionIsolationLevelNoF() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(SERIALIZABLE, null))
+            .withMessage("f must not be null");
+    }
+
+    @Test
+    public void inTransactionIsolationLevelNoIsolationLevel() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null, handle -> Mono.empty()))
+            .withMessage("isolationLevel must not be null");
+    }
+
+    @Test
     public void inTransactionNoF() {
         assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null))
             .withMessage("f must not be null");
@@ -278,6 +306,33 @@ public final class HandleTest {
 
         assertThat(connection.isBeginTransactionCalled()).isTrue();
         assertThat(connection.isRollbackTransactionCalled()).isTrue();
+    }
+
+    @Test
+    public void useTransactionIsolationLevel() {
+        MockConnection connection = MockConnection.empty();
+
+        new Handle(connection)
+            .useTransaction(SERIALIZABLE, handle ->
+                Mono.just(100))
+            .as(StepVerifier::create)
+            .verifyComplete();
+
+        assertThat(connection.isBeginTransactionCalled()).isTrue();
+        assertThat(connection.getSetTransactionIsolationLevelIsolationLevel()).isEqualTo(SERIALIZABLE);
+        assertThat(connection.isCommitTransactionCalled()).isTrue();
+    }
+
+    @Test
+    public void useTransactionIsolationLevelNoF() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(SERIALIZABLE, null))
+            .withMessage("f must not be null");
+    }
+
+    @Test
+    public void useTransactionIsolationLevelNoIsolationLevel() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null, handle -> Mono.empty()))
+            .withMessage("isolationLevel must not be null");
     }
 
     @Test
