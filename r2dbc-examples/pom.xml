@@ -41,13 +41,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nebhale</groupId>
+            <groupId>com.nebhale.r2dbc</groupId>
             <artifactId>r2dbc-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.nebhale</groupId>
+            <groupId>com.nebhale.r2dbc</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

@@ -58,7 +58,7 @@ public final class MockCodec<T> extends AbstractCodec<T> {
         Decoding decoding = new Decoding(byteBuf, requireNonNull(format));
 
         if (!this.decodings.containsKey(decoding)) {
-            throw new AssertionError(String.format("Unexpected call to decode(ByteBuf,Format) with values '%s'", byteBuf));
+            throw new AssertionError(String.format("Unexpected call to decode(ByteBuf, Format, Class) with values '%s', '%s', '%s'", byteBuf, format, type.getName()));
         }
 
         return this.decodings.get(decoding);

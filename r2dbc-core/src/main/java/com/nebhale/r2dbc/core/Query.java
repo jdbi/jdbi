@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running queries such as {@code SELECT}.
  */
-public final class Query {
+public final class Query implements ResultBearing {
 
     private final Statement statement;
 
@@ -72,14 +72,11 @@ public final class Query {
     }
 
     /**
-     * Execute the {@link Query} and transforms the {@link Result}s that are returned.
+     * {@inheritDoc}
      *
-     * @param f   a {@link Function} used to transform each {@link Result} into another value
-     * @param <T> the type of results
-     * @return the values resulting from the {@link Result} transformation
      * @throws NullPointerException if {@code f} is {@code null}
      */
-    public <T> Flux<T> execute(Function<Result, ? extends Publisher<? extends T>> f) {
+    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
         Objects.requireNonNull(f, "f must not be null");
 
         return Flux

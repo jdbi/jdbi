@@ -16,10 +16,12 @@
 
 package com.nebhale.r2dbc.spi;
 
+import org.reactivestreams.Publisher;
+
 /**
  * A collection of statements that are executed in a batch for performance reasons.
  */
-public interface Batch extends ResultProducer {
+public interface Batch {
 
     /**
      * Add a statement to this batch.
@@ -29,4 +31,10 @@ public interface Batch extends ResultProducer {
      */
     Batch add(String sql);
 
+    /**
+     * Executes one or more SQL statements and returns the {@link Result}s.
+     *
+     * @return the {@link Result}s, returned by each statement
+     */
+    Publisher<? extends Result> execute();
 }

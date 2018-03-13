@@ -16,10 +16,12 @@
 
 package com.nebhale.r2dbc.spi;
 
+import org.reactivestreams.Publisher;
+
 /**
  * A statement that can be executed multiple times in a prepared and optimized way.
  */
-public interface Statement extends ResultProducer {
+public interface Statement {
 
     /**
      * Save the current binding and create a new one.
@@ -55,4 +57,10 @@ public interface Statement extends ResultProducer {
      */
     Statement bindNull(Object identifier, Object type);
 
+    /**
+     * Executes one or more SQL statements and returns the {@link Result}s.
+     *
+     * @return the {@link Result}s, returned by each statement
+     */
+    Publisher<? extends Result> execute();
 }

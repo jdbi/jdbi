@@ -21,7 +21,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -88,8 +90,11 @@ public final class MockResult implements Result {
             return new MockResult(Mono.justOrEmpty(this.rowMetadata), Flux.fromIterable(this.rows), Flux.fromIterable(this.rowsUpdated));
         }
 
-        public Builder row(Row row) {
-            this.rows.add(requireNonNull(row));
+        public Builder row(Row... rows) {
+            Stream.of(rows)
+                .peek(Objects::requireNonNull)
+                .forEach(this.rows::add);
+
             return this;
         }
 
