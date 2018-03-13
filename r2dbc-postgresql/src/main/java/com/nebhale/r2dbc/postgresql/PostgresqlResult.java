@@ -28,9 +28,9 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 
-import static java.util.Objects.requireNonNull;
 import static reactor.function.TupleUtils.function;
 
 /**
@@ -47,10 +47,10 @@ public final class PostgresqlResult implements Result {
     private final Mono<Integer> rowsUpdated;
 
     PostgresqlResult(Codecs codecs, Mono<PostgresqlRowMetadata> rowMetadata, Flux<PostgresqlRow> rows, Mono<Integer> rowsUpdated) {
-        this.codecs = requireNonNull(codecs, "codecs must not be null");
-        this.rowMetadata = requireNonNull(rowMetadata, "rowMetadata must not be null");
-        this.rows = requireNonNull(rows, "rows must not be null");
-        this.rowsUpdated = requireNonNull(rowsUpdated, "rowsUpdated must not be null");
+        this.codecs = Objects.requireNonNull(codecs, "codecs must not be null");
+        this.rowMetadata = Objects.requireNonNull(rowMetadata, "rowMetadata must not be null");
+        this.rows = Objects.requireNonNull(rows, "rows must not be null");
+        this.rowsUpdated = Objects.requireNonNull(rowsUpdated, "rowsUpdated must not be null");
     }
 
     @Override
@@ -60,6 +60,8 @@ public final class PostgresqlResult implements Result {
 
     @Override
     public <T> Flux<T> map(BiFunction<Row, RowMetadata, ? extends T> f) {
+        Objects.requireNonNull(f, "f must not be null");
+
         return this.rows
             .zipWith(this.rowMetadata.repeat())
             .map(function((row, rowMetadata) -> {
@@ -82,8 +84,8 @@ public final class PostgresqlResult implements Result {
     }
 
     static PostgresqlResult toResult(Codecs codecs, Flux<BackendMessage> messages) {
-        requireNonNull(codecs, "codecs must not be null");
-        requireNonNull(messages, "messages must not be null");
+        Objects.requireNonNull(codecs, "codecs must not be null");
+        Objects.requireNonNull(messages, "messages must not be null");
 
         EmitterProcessor<BackendMessage> processor = EmitterProcessor.create(false);
         Flux<BackendMessage> firstMessages = processor.take(3).cache();

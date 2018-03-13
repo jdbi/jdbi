@@ -24,8 +24,6 @@ import reactor.core.publisher.Flux;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running queries such as {@code SELECT}.
  */
@@ -34,7 +32,7 @@ public final class Query implements ResultBearing {
     private final Statement statement;
 
     Query(Statement statement) {
-        this.statement = requireNonNull(statement, "statement must not be null");
+        this.statement = Objects.requireNonNull(statement, "statement must not be null");
     }
 
     /**
@@ -53,8 +51,12 @@ public final class Query implements ResultBearing {
      * @param identifier the identifier to bind to
      * @param value      the value to bind
      * @return this {@link Statement}
+     * @throws NullPointerException if {@code identifier} or {@code value} is {@code null}
      */
     public Query bind(Object identifier, Object value) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(value, "value must not be null");
+
         this.statement.bind(identifier, value);
         return this;
     }
@@ -65,17 +67,16 @@ public final class Query implements ResultBearing {
      * @param identifier the identifier to bind to
      * @param type       the type of null value
      * @return this {@link Statement}
+     * @throws NullPointerException if {@code identifier} or {@code type} is {@code null}
      */
     public Query bindNull(Object identifier, Object type) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         this.statement.bindNull(identifier, type);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code f} is {@code null}
-     */
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
         Objects.requireNonNull(f, "f must not be null");
 
@@ -92,6 +93,8 @@ public final class Query implements ResultBearing {
     }
 
     Query bind(int identifier, Object value) {
+        Objects.requireNonNull(value, "value must not be null");
+
         this.statement.bind(identifier, value);
         return this;
     }

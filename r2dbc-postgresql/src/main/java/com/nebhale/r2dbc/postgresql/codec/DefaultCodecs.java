@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
@@ -23,8 +24,7 @@ import io.netty.buffer.ByteBufAllocator;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * The default {@link Codec} implementation.  Delegates to type-specific codec implementations.
@@ -39,7 +39,7 @@ public final class DefaultCodecs implements Codecs {
      * @param byteBufAllocator the {@link ByteBufAllocator} to use for encoding
      */
     public DefaultCodecs(ByteBufAllocator byteBufAllocator) {
-        requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         this.codecs = Arrays.asList(
             new NullCodec(),
@@ -70,8 +70,12 @@ public final class DefaultCodecs implements Codecs {
     }
 
     @Override
+    @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T decode(ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type) {
+    public <T> T decode(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type) {
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         return this.codecs.stream()
             .filter(codec -> codec.canDecode(byteBuf, dataType, format, type))
             .map(codec -> ((Codec<T>) codec).decode(byteBuf, format, type))
@@ -80,12 +84,12 @@ public final class DefaultCodecs implements Codecs {
     }
 
     @Override
-    public Parameter encode(Object value) {
+    public Parameter encode(@Nullable Object value) {
         return this.codecs.stream()
             .filter(codec -> codec.canEncode(value))
             .map(codec -> codec.encode(value))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("Cannot encode parameter of type %s", value.getClass().getName())));
+            .orElseThrow(() -> new IllegalArgumentException(String.format("Cannot encode parameter of type %s", value == null ? "null" : value.getClass().getName())));
     }
 
 }

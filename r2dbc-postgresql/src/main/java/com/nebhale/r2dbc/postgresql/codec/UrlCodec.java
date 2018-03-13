@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
@@ -24,8 +25,7 @@ import io.netty.buffer.ByteBufAllocator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 final class UrlCodec extends AbstractCodec<URL> {
 
@@ -33,11 +33,15 @@ final class UrlCodec extends AbstractCodec<URL> {
 
     UrlCodec(ByteBufAllocator byteBufAllocator) {
         super(URL.class);
+
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
         this.delegate = new StringCodec(byteBufAllocator);
     }
 
     @Override
-    public URL decode(ByteBuf byteBuf, Format format, Class<? extends URL> type) {
+    public URL decode(ByteBuf byteBuf, @Nullable Format format, @Nullable Class<? extends URL> type) {
+        Objects.requireNonNull(byteBuf, "byteBuf must not be null");
+
         try {
             return new URL(this.delegate.decode(byteBuf, format, String.class));
         } catch (MalformedURLException e) {
@@ -47,13 +51,16 @@ final class UrlCodec extends AbstractCodec<URL> {
 
     @Override
     public Parameter doEncode(URL value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.toString());
     }
 
     @Override
     boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         return this.delegate.doCanDecode(format, type);
     }
 

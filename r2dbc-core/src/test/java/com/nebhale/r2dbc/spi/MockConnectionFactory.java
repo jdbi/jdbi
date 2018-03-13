@@ -16,13 +16,16 @@
 
 package com.nebhale.r2dbc.spi;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
 
 public final class MockConnectionFactory implements ConnectionFactory {
 
     private final Mono<Connection> connection;
 
-    private MockConnectionFactory(Mono<Connection> connection) {
+    private MockConnectionFactory(@Nullable Mono<Connection> connection) {
         this.connection = connection;
     }
 
@@ -62,7 +65,7 @@ public final class MockConnectionFactory implements ConnectionFactory {
         }
 
         public Builder connection(Connection connection) {
-            this.connection = connection;
+            this.connection = Objects.requireNonNull(connection);
             return this;
         }
 

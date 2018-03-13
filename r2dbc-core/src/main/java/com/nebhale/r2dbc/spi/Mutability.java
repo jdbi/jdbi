@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.spi;
 
+import java.util.Objects;
+
 /**
  * SQL transaction mutability options.
  */
@@ -34,7 +36,7 @@ public enum Mutability {
     private final String sql;
 
     Mutability(String sql) {
-        this.sql = sql;
+        this.sql = Objects.requireNonNull(sql, "sql must not be null");
     }
 
     /**

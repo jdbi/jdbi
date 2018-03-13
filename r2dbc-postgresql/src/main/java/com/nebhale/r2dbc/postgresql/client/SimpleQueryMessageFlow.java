@@ -21,7 +21,7 @@ import com.nebhale.r2dbc.postgresql.message.frontend.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428663987712">Simple Query</a> message flow.
@@ -40,8 +40,8 @@ public final class SimpleQueryMessageFlow {
      * @throws NullPointerException if {@code client} or {@code query} is {@code null}
      */
     public static Flux<BackendMessage> exchange(Client client, String query) {
-        requireNonNull(client, "client must not be null");
-        requireNonNull(query, "query must not be null");
+        Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(query, "query must not be null");
 
         return client.exchange(Mono.just(new Query(query)));
     }

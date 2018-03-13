@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 public final class MockStatement implements Statement {
 
@@ -37,7 +36,7 @@ public final class MockStatement implements Statement {
     private Map<Object, Object> current;
 
     private MockStatement(Flux<Result> results) {
-        this.results = results;
+        this.results = Objects.requireNonNull(results);
     }
 
     public static Builder builder() {
@@ -57,18 +56,27 @@ public final class MockStatement implements Statement {
 
     @Override
     public MockStatement bind(Object identifier, Object value) {
+        Objects.requireNonNull(identifier);
+        Objects.requireNonNull(value);
+
         getCurrent().put(identifier, value);
         return this;
     }
 
     @Override
     public MockStatement bind(Integer index, Object value) {
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(value);
+
         getCurrent().put(index, value);
         return this;
     }
 
     @Override
     public MockStatement bindNull(Object identifier, Object type) {
+        Objects.requireNonNull(identifier);
+        Objects.requireNonNull(type);
+
         getCurrent().put(identifier, type);
         return this;
     }
@@ -121,7 +129,9 @@ public final class MockStatement implements Statement {
         }
 
         public Builder result(Result result) {
-            this.results.add(requireNonNull(result));
+            Objects.requireNonNull(result);
+
+            this.results.add(result);
             return this;
         }
 

@@ -16,25 +16,26 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
 import io.netty.buffer.ByteBuf;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 abstract class AbstractCodec<T> implements Codec<T> {
 
     private final Class<T> type;
 
     AbstractCodec(Class<T> type) {
-        this.type = requireNonNull(type, "type must not be null");
+        this.type = Objects.requireNonNull(type, "type must not be null");
     }
 
     @Override
-    public final boolean canDecode(ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
-        requireNonNull(format, "format must not be null");
-        requireNonNull(type, "type must not be null");
+    public final boolean canDecode(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
 
         return byteBuf != null &&
             this.type.isAssignableFrom(type) &&
@@ -43,22 +44,22 @@ abstract class AbstractCodec<T> implements Codec<T> {
 
     @Override
     public final boolean canEncode(Object value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         return this.type.isInstance(value);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public final Parameter encode(Object value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         return doEncode((T) value);
     }
 
     static Parameter create(Format format, PostgresqlObjectId type, ByteBuf value) {
-        requireNonNull(format, "format must not be null");
-        requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
 
         return new Parameter(format, type.getObjectId(), value);
     }

@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
@@ -34,8 +35,10 @@ public interface Codecs {
      * @param type     the type to decode to
      * @param <T>      the type of item being returned
      * @return the decoded value
+     * @throws NullPointerException if {@code format} or {@code type} is {@code null}
      */
-    <T> T decode(ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type);
+    @Nullable
+    <T> T decode(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type);
 
     /**
      * Encode a value.
@@ -43,6 +46,6 @@ public interface Codecs {
      * @param value the value to encode
      * @return the encoded value
      */
-    Parameter encode(Object value);
+    Parameter encode(@Nullable Object value);
 
 }

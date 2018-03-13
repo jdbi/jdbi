@@ -26,6 +26,7 @@ public interface RowMetadata {
      *
      * @param identifier the identifier of the column
      * @return the {@link ColumnMetadata} for one column in this row
+     * @throws NullPointerException if {@code identifier} is {@code null}
      */
     ColumnMetadata getColumnMetadata(Object identifier);
 

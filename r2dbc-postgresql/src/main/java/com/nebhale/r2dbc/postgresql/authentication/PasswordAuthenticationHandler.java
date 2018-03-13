@@ -22,7 +22,7 @@ import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.PasswordMessage;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * An implementation of {@link AuthenticationHandler} that handles {@link AuthenticationMD5Password} messages.
@@ -41,21 +41,16 @@ public final class PasswordAuthenticationHandler implements AuthenticationHandle
      * @throws NullPointerException if {@code password} or {@code user} is {@code null}
      */
     public PasswordAuthenticationHandler(String password, String username) {
-        this.password = requireNonNull(password, "password must not be null");
-        this.username = requireNonNull(username, "username must not be null");
+        this.password = Objects.requireNonNull(password, "password must not be null");
+        this.username = Objects.requireNonNull(username, "username must not be null");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code message} is {@code null}
-     */
     @Override
     public FrontendMessage handle(AuthenticationMessage message) {
-        requireNonNull(message, "message must not be null");
+        Objects.requireNonNull(message, "message must not be null");
 
         if (message instanceof AuthenticationCleartextPassword) {
-            return handleAuthenticationClearTextPassword((AuthenticationCleartextPassword) message);
+            return handleAuthenticationClearTextPassword();
         } else if (message instanceof AuthenticationMD5Password) {
             return handleAuthenticationMD5Password((AuthenticationMD5Password) message);
         } else {
@@ -63,7 +58,7 @@ public final class PasswordAuthenticationHandler implements AuthenticationHandle
         }
     }
 
-    private PasswordMessage handleAuthenticationClearTextPassword(AuthenticationCleartextPassword message) {
+    private PasswordMessage handleAuthenticationClearTextPassword() {
         return new PasswordMessage(this.password);
     }
 

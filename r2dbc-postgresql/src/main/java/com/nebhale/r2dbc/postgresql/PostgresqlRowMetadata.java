@@ -27,8 +27,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * An implementation of {@link RowMetadata} for a PostgreSQL database.
  */
@@ -39,7 +37,7 @@ public final class PostgresqlRowMetadata implements RowMetadata {
     private final Map<String, PostgresqlColumnMetadata> nameKeyedColumnMetadatas;
 
     PostgresqlRowMetadata(List<PostgresqlColumnMetadata> columnMetadatas) {
-        this.columnMetadatas = requireNonNull(columnMetadatas, "columnMetadata must not be null");
+        this.columnMetadatas = Objects.requireNonNull(columnMetadatas, "columnMetadatas must not be null");
 
         this.nameKeyedColumnMetadatas = this.columnMetadatas.stream()
             .collect(Collectors.toMap(PostgresqlColumnMetadata::getName, Function.identity()));
@@ -61,11 +59,10 @@ public final class PostgresqlRowMetadata implements RowMetadata {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code identifier} does not correspond to a column
-     * @throws NullPointerException     if {@code identifier} is {@code null}
      */
     @Override
     public ColumnMetadata getColumnMetadata(Object identifier) {
-        requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
 
         if (identifier instanceof Integer) {
             return getColumnMetadata((Integer) identifier);
@@ -95,7 +92,7 @@ public final class PostgresqlRowMetadata implements RowMetadata {
     }
 
     static PostgresqlRowMetadata toRowMetadata(RowDescription rowDescription) {
-        requireNonNull(rowDescription, "rowDescription must not be null");
+        Objects.requireNonNull(rowDescription, "rowDescription must not be null");
 
         return new PostgresqlRowMetadata(rowDescription.getFields().stream()
             .map(PostgresqlColumnMetadata::toColumnMetadata)

@@ -20,6 +20,7 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -42,6 +43,8 @@ public final class ReactiveUtils {
      * @see Mono#onErrorResume(Function)
      */
     public static <T> Function<Throwable, Mono<T>> appendError(Supplier<Publisher<?>> s) {
+        Objects.requireNonNull(s, "s must not be null");
+
         return t ->
             Flux.from(s.get())
                 .then(Mono.error(t));
@@ -55,6 +58,8 @@ public final class ReactiveUtils {
      * @return {@link Mono#empty()} of the appropriate type
      */
     public static <T> Mono<T> typeSafe(Supplier<Publisher<Void>> s) {
+        Objects.requireNonNull(s, "s must not be null");
+
         return Flux.from(s.get())
             .then(Mono.empty());
     }

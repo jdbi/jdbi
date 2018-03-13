@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A collection of {@link Parameter}s for a single bind invocation of an {@link ExtendedQueryMessageFlow}.
@@ -46,10 +45,11 @@ public final class Binding {
      * @param identifier the identifier of the {@link Parameter}
      * @param parameter  the {@link Parameter}
      * @return this {@link Binding}
+     * @throws NullPointerException if {@code identifier} or {@code parameter} is {@code null}
      */
     public Binding add(Integer identifier, Parameter parameter) {
-        requireNonNull(identifier, "identifier must not be null");
-        requireNonNull(parameter, "parameter must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(parameter, "parameter must not be null");
 
         this.parameters.put(identifier, parameter);
 

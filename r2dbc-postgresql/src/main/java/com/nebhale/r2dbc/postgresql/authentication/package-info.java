@@ -18,4 +18,7 @@
  * Handlers for the various styles of authentication.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql.authentication;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

@@ -18,4 +18,7 @@
  * An implementation of the Reactive Relational Database Connection API for PostgreSQL servers.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

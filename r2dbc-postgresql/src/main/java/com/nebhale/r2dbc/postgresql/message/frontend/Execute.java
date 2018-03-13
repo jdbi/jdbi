@@ -28,7 +28,6 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The Execute message.
@@ -59,16 +58,16 @@ public final class Execute implements FrontendMessage {
      * @see #NO_LIMIT
      */
     public Execute(String name, int rows) {
-        this.name = requireNonNull(name, "name must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
         this.rows = rows;
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer();
+            ByteBuf out = byteBufAllocator.ioBuffer();
 
             writeByte(out, 'E');
             writeLengthPlaceholder(out);

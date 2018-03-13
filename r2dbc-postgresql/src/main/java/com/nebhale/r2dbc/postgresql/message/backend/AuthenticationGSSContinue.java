@@ -21,8 +21,6 @@ import io.netty.buffer.ByteBuf;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * The AuthenticationGSSContinue message.
  */
@@ -37,7 +35,7 @@ public final class AuthenticationGSSContinue implements AuthenticationMessage {
      * @throws NullPointerException if {@code authenticationData} is {@code null}
      */
     public AuthenticationGSSContinue(ByteBuf authenticationData) {
-        requireNonNull(authenticationData, "authenticationData must not be null");
+        Objects.requireNonNull(authenticationData, "authenticationData must not be null");
 
         this.authenticationData = authenticationData.nioBuffer();
     }
@@ -76,7 +74,7 @@ public final class AuthenticationGSSContinue implements AuthenticationMessage {
     }
 
     static AuthenticationGSSContinue decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         return new AuthenticationGSSContinue(in.readSlice(in.readableBytes()));
     }

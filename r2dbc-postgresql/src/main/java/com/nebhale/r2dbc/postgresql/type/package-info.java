@@ -18,4 +18,7 @@
  * Type information for PostgreSQL servers.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql.type;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

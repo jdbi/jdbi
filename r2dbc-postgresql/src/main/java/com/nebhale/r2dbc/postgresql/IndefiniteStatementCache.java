@@ -26,9 +26,9 @@ import reactor.util.function.Tuples;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Objects.requireNonNull;
 import static reactor.function.TupleUtils.function;
 
 final class IndefiniteStatementCache implements StatementCache {
@@ -40,13 +40,13 @@ final class IndefiniteStatementCache implements StatementCache {
     private final AtomicInteger counter = new AtomicInteger();
 
     IndefiniteStatementCache(Client client) {
-        this.client = requireNonNull(client, "client must not be null");
+        this.client = Objects.requireNonNull(client, "client must not be null");
     }
 
     @Override
     public Mono<String> getName(Binding binding, String sql) {
-        requireNonNull(binding, "binding must not be null");
-        requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(binding, "binding must not be null");
+        Objects.requireNonNull(sql, "sql must not be null");
 
         return this.cache.computeIfAbsent(Tuples.of(sql, binding.getParameterTypes()), function(this::parse));
     }

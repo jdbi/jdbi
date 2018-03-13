@@ -38,6 +38,7 @@ public interface Result {
      * @param f   the {@link BiFunction} that maps a {@link Row} and {@link RowMetadata} to a value
      * @param <T> the type of the mapped value
      * @return a mapping of the rows that are the results of a query against a database
+     * @throws NullPointerException if {@code f} is {@code null}
      */
     <T> Publisher<T> map(BiFunction<Row, RowMetadata, ? extends T> f);
 

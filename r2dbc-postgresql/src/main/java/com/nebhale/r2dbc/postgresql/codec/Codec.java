@@ -16,18 +16,20 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
 
 interface Codec<T> {
 
-    boolean canDecode(ByteBuf byteBuf, int dataType, Format format, Class<?> type);
+    boolean canDecode(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<?> type);
 
-    boolean canEncode(Object value);
+    boolean canEncode(@Nullable Object value);
 
-    T decode(ByteBuf byteBuf, Format format, Class<? extends T> type);
+    @Nullable
+    T decode(@Nullable ByteBuf byteBuf, Format format, Class<? extends T> type);
 
-    Parameter encode(Object value);
+    Parameter encode(@Nullable Object value);
 
 }

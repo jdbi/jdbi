@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.message.frontend;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -31,7 +32,6 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
 import static io.netty.util.CharsetUtil.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The StartupMessage message.
@@ -70,18 +70,18 @@ public final class StartupMessage implements FrontendMessage {
      * @param username        the database user name to connect as
      * @throws NullPointerException if {@code applicationName} or {@code username} is {@code null}
      */
-    public StartupMessage(String applicationName, String database, String username) {
-        this.applicationName = requireNonNull(applicationName, "applicationName must not be null");
+    public StartupMessage(String applicationName, @Nullable String database, String username) {
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
         this.database = database;
-        this.username = requireNonNull(username, "username must not be null");
+        this.username = Objects.requireNonNull(username, "username must not be null");
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer();
+            ByteBuf out = byteBufAllocator.ioBuffer();
 
             writeLengthPlaceholder(out);
             writeShort(out, 3, 0);

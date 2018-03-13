@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.spi;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
+
 /**
  * Represents a row returned from a database query.
  */
@@ -27,8 +29,10 @@ public interface Row {
      * @param identifier the identifier fof the column
      * @param type       the type of item to return
      * @param <T>        the type of the item being returned
-     * @return the value for a column in this row
+     * @return the value for a column in this row.  Value can be {@code null}.
+     * @throws NullPointerException if {@code identifier} or {@code type} is {@code null}
      */
+    @Nullable
     <T> T get(Object identifier, Class<T> type);
 
 }

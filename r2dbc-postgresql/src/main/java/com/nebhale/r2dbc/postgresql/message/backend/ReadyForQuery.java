@@ -21,8 +21,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * The ReadyForQuery message.
  */
@@ -37,7 +35,7 @@ public final class ReadyForQuery implements BackendMessage {
      * @throws NullPointerException if {@code transactionStatus} is {@code null}
      */
     public ReadyForQuery(TransactionStatus transactionStatus) {
-        this.transactionStatus = requireNonNull(transactionStatus, "transactionStatus must not be null");
+        this.transactionStatus = Objects.requireNonNull(transactionStatus, "transactionStatus must not be null");
     }
 
     @Override
@@ -74,7 +72,7 @@ public final class ReadyForQuery implements BackendMessage {
     }
 
     static ReadyForQuery decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         return new ReadyForQuery(TransactionStatus.valueOf(in.readByte()));
     }

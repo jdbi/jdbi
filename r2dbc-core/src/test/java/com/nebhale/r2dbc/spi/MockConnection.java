@@ -16,9 +16,10 @@
 
 package com.nebhale.r2dbc.spi;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import reactor.core.publisher.Mono;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 public final class MockConnection implements Connection {
 
@@ -46,7 +47,7 @@ public final class MockConnection implements Connection {
 
     private Mutability setTransactionMutabilityMutability;
 
-    private MockConnection(Batch batch, Statement statement) {
+    private MockConnection(@Nullable Batch batch, @Nullable Statement statement) {
         this.batch = batch;
         this.statement = statement;
     }
@@ -88,12 +89,14 @@ public final class MockConnection implements Connection {
 
     @Override
     public Mono<Void> createSavepoint(String name) {
-        this.createSavepointName = name;
+        this.createSavepointName = Objects.requireNonNull(name);
         return Mono.empty();
     }
 
     @Override
     public Statement createStatement(String sql) {
+        Objects.requireNonNull(sql);
+
         if (this.statement == null) {
             throw new AssertionError("Unexpected call to createStatement(String)");
         }
@@ -102,26 +105,32 @@ public final class MockConnection implements Connection {
         return this.statement;
     }
 
+    @Nullable
     public String getCreateSavepointName() {
         return this.createSavepointName;
     }
 
+    @Nullable
     public String getCreateStatementSql() {
         return this.createStatementSql;
     }
 
+    @Nullable
     public String getReleaseSavepointName() {
         return this.releaseSavepointName;
     }
 
+    @Nullable
     public String getRollbackTransactionToSavepointName() {
         return this.rollbackTransactionToSavepointName;
     }
 
+    @Nullable
     public IsolationLevel getSetTransactionIsolationLevelIsolationLevel() {
         return this.setTransactionIsolationLevelIsolationLevel;
     }
 
+    @Nullable
     public Mutability getSetTransactionMutabilityMutability() {
         return this.setTransactionMutabilityMutability;
     }
@@ -144,7 +153,7 @@ public final class MockConnection implements Connection {
 
     @Override
     public Mono<Void> releaseSavepoint(String name) {
-        this.releaseSavepointName = name;
+        this.releaseSavepointName = Objects.requireNonNull(name);
         return Mono.empty();
     }
 
@@ -156,19 +165,19 @@ public final class MockConnection implements Connection {
 
     @Override
     public Mono<Void> rollbackTransactionToSavepoint(String name) {
-        this.rollbackTransactionToSavepointName = name;
+        this.rollbackTransactionToSavepointName = Objects.requireNonNull(name);
         return Mono.empty();
     }
 
     @Override
     public Mono<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel) {
-        this.setTransactionIsolationLevelIsolationLevel = isolationLevel;
+        this.setTransactionIsolationLevelIsolationLevel = Objects.requireNonNull(isolationLevel);
         return Mono.empty();
     }
 
     @Override
     public Mono<Void> setTransactionMutability(Mutability mutability) {
-        this.setTransactionMutabilityMutability = mutability;
+        this.setTransactionMutabilityMutability = Objects.requireNonNull(mutability);
         return Mono.empty();
     }
 
@@ -200,7 +209,7 @@ public final class MockConnection implements Connection {
         }
 
         public Builder batch(Batch batch) {
-            this.batch = requireNonNull(batch);
+            this.batch = Objects.requireNonNull(batch);
             return this;
         }
 
@@ -209,7 +218,7 @@ public final class MockConnection implements Connection {
         }
 
         public Builder statement(Statement statement) {
-            this.statement = requireNonNull(statement);
+            this.statement = Objects.requireNonNull(statement);
             return this;
         }
 

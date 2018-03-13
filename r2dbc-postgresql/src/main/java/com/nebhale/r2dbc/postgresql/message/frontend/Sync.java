@@ -21,11 +21,12 @@ import io.netty.buffer.ByteBufAllocator;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.MESSAGE_OVERHEAD;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeByte;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The Sync message.
@@ -41,11 +42,11 @@ public final class Sync implements FrontendMessage {
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD);
+            ByteBuf out = byteBufAllocator.ioBuffer(MESSAGE_OVERHEAD);
 
             writeByte(out, 'S');
             writeLengthPlaceholder(out);

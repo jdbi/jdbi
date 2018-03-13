@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static io.netty.util.CharsetUtil.UTF_8;
 
@@ -35,55 +36,82 @@ final class FrontendMessageUtils {
     }
 
     static ByteBuf writeByte(ByteBuf out, int... values) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(values, "values must not be null");
+
         Arrays.stream(values)
             .forEach(out::writeByte);
         return out;
     }
 
     static ByteBuf writeBytes(ByteBuf out, ByteBuf in) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(in, "in must not be null");
+
         out.writeBytes(in);
         return out;
     }
 
     static ByteBuf writeBytes(ByteBuf out, ByteBuffer in) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(in, "in must not be null");
+
         out.writeBytes(in);
         return out;
     }
 
     static ByteBuf writeCString(ByteBuf out, ByteBuf in) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(in, "in must not be null");
+
         out.writeBytes(in, in.readerIndex(), in.readableBytes());
         out.writeByte(TERMINAL);
         return out;
     }
 
     static ByteBuf writeCStringUTF8(ByteBuf out, String s) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(s, "s must not be null");
+
         out.writeCharSequence(s, UTF_8);
         out.writeByte(TERMINAL);
         return out;
     }
 
     static ByteBuf writeInt(ByteBuf out, int... values) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(values, "values must not be null");
+
         Arrays.stream(values)
             .forEach(out::writeInt);
         return out;
     }
 
     static ByteBuf writeLengthPlaceholder(ByteBuf out) {
+        Objects.requireNonNull(out, "out must not be null");
+
         out.writeInt(LENGTH_PLACEHOLDER);
         return out;
     }
 
     static ByteBuf writeShort(ByteBuf out, int... values) {
+        Objects.requireNonNull(out, "out must not be null");
+        Objects.requireNonNull(values, "values must not be null");
+
         Arrays.stream(values)
             .forEach(out::writeShort);
         return out;
     }
 
     static ByteBuf writeSize(ByteBuf out) {
+        Objects.requireNonNull(out, "out must not be null");
+
         return writeSize(out, 1);
     }
 
     static ByteBuf writeSize(ByteBuf out, int startIndex) {
+        Objects.requireNonNull(out, "out must not be null");
+
         out.setInt(startIndex, out.writerIndex() - startIndex);
         return out;
     }

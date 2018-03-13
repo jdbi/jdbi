@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.authentication;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 
@@ -25,10 +26,12 @@ import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
 public interface AuthenticationHandler {
 
     /**
-     * Handle the incoming authentication message.  Note that implementations do not need handle {@link AuthenticationMessage} as callers are expected to have handled it directly.
+     * Handle the incoming authentication message.  Note that implementations do not need handle the {@link AuthenticationMessage} type as callers are expected to have handled it directly and are
+     * passing a more specific type.
      *
      * @param message the message to handle
      * @return the next outbound message to send
+     * @throws NullPointerException if {@code message} is {@code null}
      */
     FrontendMessage handle(AuthenticationMessage message);
 

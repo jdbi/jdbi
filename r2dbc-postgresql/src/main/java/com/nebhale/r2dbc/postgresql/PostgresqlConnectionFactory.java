@@ -25,9 +25,8 @@ import com.nebhale.r2dbc.postgresql.codec.DefaultCodecs;
 import com.nebhale.r2dbc.spi.ConnectionFactory;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link ConnectionFactory} for creating connections to a PostgreSQL database.
@@ -45,12 +44,16 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
      * @throws NullPointerException if {@code configuration} is {@code null}
      */
     public PostgresqlConnectionFactory(PostgresqlConnectionConfiguration configuration) {
-        this(() -> new ReactorNettyClient(configuration.getHost(), configuration.getPort()), configuration);
+        this(() -> {
+            Objects.requireNonNull(configuration, "configuration must not be null");
+
+            return new ReactorNettyClient(configuration.getHost(), configuration.getPort());
+        }, configuration);
     }
 
     PostgresqlConnectionFactory(Supplier<Client> clientFactory, PostgresqlConnectionConfiguration configuration) {
-        this.clientFactory = requireNonNull(clientFactory, "clientFactory must not be null");
-        this.configuration = requireNonNull(configuration, "configuration must not be null");
+        this.clientFactory = Objects.requireNonNull(clientFactory, "clientFactory must not be null");
+        this.configuration = Objects.requireNonNull(configuration, "configuration must not be null");
     }
 
     @Override
@@ -58,7 +61,8 @@ public final class PostgresqlConnectionFactory implements ConnectionFactory {
         return Mono.just(this.clientFactory.get())
             .delayUntil(client ->
                 StartupMessageFlow
-                    .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase(), this.configuration.getUsername()))
+                    .exchange(this.configuration.getApplicationName(), getAuthenticationHandler(this.configuration), client, this.configuration.getDatabase().orElse(null),
+                        this.configuration.getUsername()))
             .map(client -> new PostgresqlConnection(client, new DefaultCodecs(client.getByteBufAllocator()), DefaultPortalNameSupplier.INSTANCE, new IndefiniteStatementCache(client)));
     }
 

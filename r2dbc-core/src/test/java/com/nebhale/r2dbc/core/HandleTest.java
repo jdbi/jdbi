@@ -99,6 +99,12 @@ public final class HandleTest {
     }
 
     @Test
+    public void createQueryNoSql() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createQuery(null))
+            .withMessage("sql must not be null");
+    }
+
+    @Test
     public void createSavepoint() {
         MockConnection connection = MockConnection.empty();
 
@@ -107,6 +113,12 @@ public final class HandleTest {
 
         StepVerifier.create(publisher).verifyComplete();
         assertThat(connection.getCreateSavepointName()).isEqualTo("test-savepoint");
+    }
+
+    @Test
+    public void createSavepointNoName() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createSavepoint(null))
+            .withMessage("name must not be null");
     }
 
     @Test
@@ -120,6 +132,12 @@ public final class HandleTest {
 
         assertThat(update).isNotNull();
         assertThat(connection.getCreateStatementSql()).isEqualTo("test-update");
+    }
+
+    @Test
+    public void createUpdateNoSql() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createUpdate(null))
+            .withMessage("sql must not be null");
     }
 
     @Test
@@ -142,6 +160,12 @@ public final class HandleTest {
 
         assertThat(connection.getCreateStatementSql()).isEqualTo("test-update");
         assertThat(statement.getBindings()).contains(Collections.singletonMap(0, 100));
+    }
+
+    @Test
+    public void executeNoSql() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).execute(null, new Object()))
+            .withMessage("sql must not be null");
     }
 
     @Test
@@ -220,6 +244,12 @@ public final class HandleTest {
     }
 
     @Test
+    public void releaseSavepointNoName() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).releaseSavepoint(null))
+            .withMessage("name must not be null");
+    }
+
+    @Test
     public void rollbackTransaction() {
         MockConnection connection = MockConnection.empty();
 
@@ -242,6 +272,12 @@ public final class HandleTest {
     }
 
     @Test
+    public void rollbackTransactionToSavepointNoName() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).rollbackTransactionToSavepoint(null))
+            .withMessage("name must not be null");
+    }
+
+    @Test
     public void select() {
         MockStatement statement = MockStatement.empty();
 
@@ -258,6 +294,12 @@ public final class HandleTest {
     }
 
     @Test
+    public void selectNoSql() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).select(null, new Object()))
+            .withMessage("sql must not be null");
+    }
+
+    @Test
     public void setTransactionIsolationLevel() {
         MockConnection connection = MockConnection.empty();
 
@@ -269,6 +311,12 @@ public final class HandleTest {
     }
 
     @Test
+    public void setTransactionIsolationLevelNoIsolationLevel() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionIsolationLevel(null))
+            .withMessage("isolationLevel must not be null");
+    }
+
+    @Test
     public void setTransactionMutability() {
         MockConnection connection = MockConnection.empty();
 
@@ -277,6 +325,12 @@ public final class HandleTest {
 
         StepVerifier.create(publisher).verifyComplete();
         assertThat(connection.getSetTransactionMutabilityMutability()).isEqualTo(READ_ONLY);
+    }
+
+    @Test
+    public void setTransactionMutabilityNoMutability() {
+        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionMutability(null))
+            .withMessage("mutability must not be null");
     }
 
     @Test

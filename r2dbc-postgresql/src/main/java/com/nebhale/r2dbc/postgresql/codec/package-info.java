@@ -18,4 +18,7 @@
  * Encoders and Decoders for the type that the service provider understands.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql.codec;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

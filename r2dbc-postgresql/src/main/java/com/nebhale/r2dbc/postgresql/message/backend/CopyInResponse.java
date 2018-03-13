@@ -20,8 +20,7 @@ import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * The CopyInResponse message.
@@ -44,7 +43,7 @@ public final class CopyInResponse extends AbstractCopyResponse {
     }
 
     static CopyInResponse decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         Format overallFormat = Format.valueOf(in.readByte());
         List<Format> columnFormats = readColumnFormats(in);

@@ -28,6 +28,7 @@ public interface Batch {
      *
      * @param sql the statement to add
      * @return this {@link Batch}
+     * @throws NullPointerException if {@code sql} is {@code null}
      */
     Batch add(String sql);
 

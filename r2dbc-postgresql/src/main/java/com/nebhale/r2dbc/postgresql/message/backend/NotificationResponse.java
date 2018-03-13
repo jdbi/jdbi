@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The NotificationResponse message.
@@ -43,8 +42,8 @@ public final class NotificationResponse implements BackendMessage {
      * @throws NullPointerException if {@code name} or {@code payload} is {@code null}
      */
     public NotificationResponse(String name, String payload, int processId) {
-        this.name = requireNonNull(name, "name must not be null");
-        this.payload = requireNonNull(payload, "payload must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.payload = Objects.requireNonNull(payload, "payload must not be null");
         this.processId = processId;
     }
 
@@ -105,7 +104,7 @@ public final class NotificationResponse implements BackendMessage {
     }
 
     static NotificationResponse decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         int processId = in.readInt();
         String name = readCStringUTF8(in);

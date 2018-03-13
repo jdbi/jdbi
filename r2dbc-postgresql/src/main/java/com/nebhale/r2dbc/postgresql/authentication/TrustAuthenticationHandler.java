@@ -16,8 +16,11 @@
 
 package com.nebhale.r2dbc.postgresql.authentication;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessage;
+
+import java.util.Objects;
 
 /**
  * An implementation of {@link AuthenticationHandler} that handles implicit trust authentication.
@@ -33,7 +36,9 @@ public final class TrustAuthenticationHandler implements AuthenticationHandler {
     }
 
     @Override
-    public FrontendMessage handle(AuthenticationMessage message) {
+    public FrontendMessage handle(@Nullable AuthenticationMessage message) {
+        Objects.requireNonNull(message, "message must not be null");
+
         throw new IllegalArgumentException("Trust does not require a response");
     }
 

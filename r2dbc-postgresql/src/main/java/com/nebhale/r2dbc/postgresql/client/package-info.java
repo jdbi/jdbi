@@ -18,4 +18,7 @@
  * The infrastructure for exchanging messages with the server.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql.client;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

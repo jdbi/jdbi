@@ -39,7 +39,7 @@ public final class PostgresqlRowMetadataTest {
     @Test
     public void constructorNoColumnMetadata() {
         assertThatNullPointerException().isThrownBy(() -> new PostgresqlRowMetadata(null))
-            .withMessage("columnMetadata must not be null");
+            .withMessage("columnMetadatas must not be null");
     }
 
     @Test

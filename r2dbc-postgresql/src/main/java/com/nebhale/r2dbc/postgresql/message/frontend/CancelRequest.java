@@ -26,7 +26,6 @@ import java.util.Objects;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeInt;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The CancelRequest message.
@@ -51,11 +50,11 @@ public final class CancelRequest implements FrontendMessage {
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(16);
+            ByteBuf out = byteBufAllocator.ioBuffer(16);
 
             writeLengthPlaceholder(out);
             writeInt(out, REQUEST_CODE);

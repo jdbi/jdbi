@@ -18,15 +18,14 @@ package com.nebhale.r2dbc.spi;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 public final class MockRowMetadata implements RowMetadata {
 
     private final List<ColumnMetadata> columnMetadatas;
 
     private MockRowMetadata(List<ColumnMetadata> columnMetadatas) {
-        this.columnMetadatas = requireNonNull(columnMetadatas);
+        this.columnMetadatas = Objects.requireNonNull(columnMetadatas);
     }
 
     public static Builder builder() {
@@ -39,7 +38,7 @@ public final class MockRowMetadata implements RowMetadata {
 
     @Override
     public ColumnMetadata getColumnMetadata(Object identifier) {
-        requireNonNull(identifier);
+        Objects.requireNonNull(identifier);
 
         return this.columnMetadatas.get((Integer) identifier);
     }
@@ -68,6 +67,8 @@ public final class MockRowMetadata implements RowMetadata {
         }
 
         public Builder columnMetadata(ColumnMetadata columnMetadata) {
+            Objects.requireNonNull(columnMetadata);
+
             this.columnMetadatas.add(columnMetadata);
             return this;
         }

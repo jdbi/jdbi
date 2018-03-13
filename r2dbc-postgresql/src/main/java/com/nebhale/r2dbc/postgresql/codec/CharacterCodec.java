@@ -16,13 +16,14 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 final class CharacterCodec extends AbstractCodec<Character> {
 
@@ -30,23 +31,30 @@ final class CharacterCodec extends AbstractCodec<Character> {
 
     CharacterCodec(ByteBufAllocator byteBufAllocator) {
         super(Character.class);
+
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
         this.delegate = new StringCodec(byteBufAllocator);
     }
 
     @Override
-    public Character decode(ByteBuf byteBuf, Format format, Class<? extends Character> type) {
+    public Character decode(ByteBuf byteBuf, @Nullable Format format, @Nullable Class<? extends Character> type) {
+        Objects.requireNonNull(byteBuf, "byteBuf must not be null");
+
         return this.delegate.decode(byteBuf, format, String.class).charAt(0);
     }
 
     @Override
     public Parameter doEncode(Character value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.toString());
     }
 
     @Override
     boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         return this.delegate.doCanDecode(format, type);
     }
 

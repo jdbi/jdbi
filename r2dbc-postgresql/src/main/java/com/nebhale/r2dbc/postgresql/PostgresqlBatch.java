@@ -23,9 +23,8 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Batch} for executing a collection of statements in a batch against a PostgreSQL database.
@@ -39,18 +38,13 @@ public final class PostgresqlBatch implements Batch {
     private final List<String> statements = new ArrayList<>();
 
     PostgresqlBatch(Client client, Codecs codecs) {
-        this.client = requireNonNull(client, "client must not be null");
-        this.codecs = requireNonNull(codecs, "codecs must not be null");
+        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.codecs = Objects.requireNonNull(codecs, "codecs must not be null");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code sql} is {@code null}
-     */
     @Override
     public PostgresqlBatch add(String sql) {
-        requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(sql, "sql must not be null");
 
         if (!SimpleQueryPostgresqlStatement.supports(sql)) {
             throw new IllegalArgumentException(String.format("Statement '%s' is not supported.  This is often due to the presence of parameters.", sql));

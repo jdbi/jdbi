@@ -23,9 +23,8 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of the Reactive Relational Database Connection API for PostgreSQL servers.
@@ -41,7 +40,7 @@ public final class R2dbc {
      * @throws NullPointerException if {@code connectionFactory} is {@code null}
      */
     public R2dbc(ConnectionFactory connectionFactory) {
-        this.connectionFactory = requireNonNull(connectionFactory, "connectionFactory must not be null");
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory must not be null");
     }
 
     /**
@@ -55,7 +54,7 @@ public final class R2dbc {
      * @see Connection#rollbackTransaction()
      */
     public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return withHandle(handle -> handle.inTransaction(f));
     }
@@ -87,7 +86,7 @@ public final class R2dbc {
      * @throws NullPointerException if {@code f} is {@code null}
      */
     public Mono<Void> useHandle(Function<Handle, ? extends Publisher<?>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return withHandle(f)
             .then();
@@ -103,7 +102,7 @@ public final class R2dbc {
      * @see Connection#rollbackTransaction()
      */
     public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return useHandle(handle -> handle.useTransaction(f));
     }
@@ -117,7 +116,7 @@ public final class R2dbc {
      * @throws NullPointerException if {@code f} is {@code null}
      */
     public <T> Flux<T> withHandle(Function<Handle, ? extends Publisher<? extends T>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return open()
             .flatMapMany(handle -> Flux.from(

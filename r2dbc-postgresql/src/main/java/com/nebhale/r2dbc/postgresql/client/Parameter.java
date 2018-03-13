@@ -16,12 +16,11 @@
 
 package com.nebhale.r2dbc.postgresql.client;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A parameter bound to an {@link ExtendedQueryMessageFlow}.
@@ -42,9 +41,9 @@ public final class Parameter {
      * @param value  the value of the parameter
      * @throws NullPointerException if {@code format}, or {@code type} is {@code null}
      */
-    public Parameter(Format format, Integer type, ByteBuf value) {
-        this.format = requireNonNull(format, "format must not be null");
-        this.type = requireNonNull(type, "type must not be null");
+    public Parameter(Format format, Integer type, @Nullable ByteBuf value) {
+        this.format = Objects.requireNonNull(format, "format must not be null");
+        this.type = Objects.requireNonNull(type, "type must not be null");
         this.value = value;
     }
 
@@ -99,6 +98,7 @@ public final class Parameter {
      *
      * @return the value of the parameter
      */
+    @Nullable
     ByteBuf getValue() {
         return this.value;
     }

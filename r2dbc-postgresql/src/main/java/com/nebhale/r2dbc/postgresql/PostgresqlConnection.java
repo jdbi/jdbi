@@ -31,11 +31,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.OPEN;
-import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link Connection} for connecting to a PostgreSQL database.
@@ -53,10 +53,10 @@ public final class PostgresqlConnection implements Connection {
     private final StatementCache statementCache;
 
     PostgresqlConnection(Client client, Codecs codecs, PortalNameSupplier portalNameSupplier, StatementCache statementCache) {
-        this.client = requireNonNull(client, "client must not be null");
-        this.codecs = requireNonNull(codecs, "codecs must not be null");
-        this.portalNameSupplier = requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
-        this.statementCache = requireNonNull(statementCache, "statementCache must not be null");
+        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.codecs = Objects.requireNonNull(codecs, "codecs must not be null");
+        this.portalNameSupplier = Objects.requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
+        this.statementCache = Objects.requireNonNull(statementCache, "statementCache must not be null");
     }
 
     @Override
@@ -96,14 +96,9 @@ public final class PostgresqlConnection implements Connection {
         return new PostgresqlBatch(this.client, this.codecs);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code name} is {@code null}
-     */
     @Override
     public Mono<Void> createSavepoint(String name) {
-        requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, "name must not be null");
 
         return useTransactionStatus(transactionStatus -> {
             if (OPEN == transactionStatus) {
@@ -116,14 +111,9 @@ public final class PostgresqlConnection implements Connection {
         });
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code sql} is {@code null}
-     */
     @Override
     public PostgresqlStatement createStatement(String sql) {
-        requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(sql, "sql must not be null");
 
         if (SimpleQueryPostgresqlStatement.supports(sql)) {
             return new SimpleQueryPostgresqlStatement(this.client, this.codecs, sql);
@@ -143,14 +133,9 @@ public final class PostgresqlConnection implements Connection {
         return this.client.getParameterStatus();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code name} is {@code null}
-     */
     @Override
     public Mono<Void> releaseSavepoint(String name) {
-        requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, "name must not be null");
 
         return useTransactionStatus(transactionStatus -> {
             if (OPEN == transactionStatus) {
@@ -176,14 +161,9 @@ public final class PostgresqlConnection implements Connection {
         });
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code name} is {@code null}
-     */
     @Override
     public Mono<Void> rollbackTransactionToSavepoint(String name) {
-        requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, "name must not be null");
 
         return useTransactionStatus(transactionStatus -> {
             if (OPEN == transactionStatus) {
@@ -196,14 +176,9 @@ public final class PostgresqlConnection implements Connection {
         });
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code isolationLevel} is {@code null}
-     */
     @Override
     public Mono<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel) {
-        requireNonNull(isolationLevel, "isolationLevel must not be null");
+        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return withTransactionStatus(getTransactionIsolationLevelQuery(isolationLevel))
             .flatMapMany(query -> SimpleQueryMessageFlow.exchange(this.client, query))
@@ -211,14 +186,9 @@ public final class PostgresqlConnection implements Connection {
             .then();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code mutability} is {@code null}
-     */
     @Override
     public Mono<Void> setTransactionMutability(Mutability mutability) {
-        requireNonNull(mutability, "mutability must not be null");
+        Objects.requireNonNull(mutability, "mutability must not be null");
 
         return withTransactionStatus(getTransactionMutabilityQuery(mutability))
             .flatMapMany(query -> SimpleQueryMessageFlow.exchange(this.client, query))

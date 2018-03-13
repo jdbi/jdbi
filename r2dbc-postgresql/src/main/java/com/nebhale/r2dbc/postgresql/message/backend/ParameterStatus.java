@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The ParameterStatus message.
@@ -40,8 +39,8 @@ public final class ParameterStatus implements BackendMessage {
      * @throws NullPointerException if {@code status} or {@code value} is {@code null}
      */
     public ParameterStatus(String name, String value) {
-        this.name = requireNonNull(name, "name must not be null");
-        this.value = requireNonNull(value, "value must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
     @Override
@@ -89,7 +88,7 @@ public final class ParameterStatus implements BackendMessage {
     }
 
     static ParameterStatus decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         return new ParameterStatus(readCStringUTF8(in), readCStringUTF8(in));
     }

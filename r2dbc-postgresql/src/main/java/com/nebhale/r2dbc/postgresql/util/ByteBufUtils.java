@@ -19,6 +19,8 @@ package com.nebhale.r2dbc.postgresql.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
+import java.util.Objects;
+
 import static io.netty.util.CharsetUtil.UTF_8;
 
 /**
@@ -34,20 +36,27 @@ public final class ByteBufUtils {
      *
      * @param byteBuf the {@link ByteBuf} to decode
      * @return the {@link String} decoded from the {@link ByteBuf}
+     * @throws NullPointerException if {@code byteBuf} is {@code null}
      */
     public static String decode(ByteBuf byteBuf) {
+        Objects.requireNonNull(byteBuf, "byteBuf must not be null");
+
         return byteBuf.readCharSequence(byteBuf.readableBytes(), UTF_8).toString();
     }
 
     /**
      * Encode a {@link CharSequence} into a {@link ByteBuf}.
      *
-     * @param allocator the {@link ByteBufAllocator} to use to create a buffer
-     * @param s         the {@link CharSequence} to encode
+     * @param byteBufAllocator the {@link ByteBufAllocator} to use to create a buffer
+     * @param s                the {@link CharSequence} to encode
      * @return the {@link ByteBuf} with the {@link CharSequence} encoded within it
+     * @throws NullPointerException if {@code byteBufAllocator} is {@code null}
      */
-    public static ByteBuf encode(ByteBufAllocator allocator, CharSequence s) {
-        ByteBuf byteBuf = allocator.buffer();
+    public static ByteBuf encode(ByteBufAllocator byteBufAllocator, CharSequence s) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
+        Objects.requireNonNull(s, "s must not be null");
+
+        ByteBuf byteBuf = byteBufAllocator.buffer();
         byteBuf.writeCharSequence(s, UTF_8);
         return byteBuf;
     }

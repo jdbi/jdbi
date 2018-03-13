@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
@@ -26,22 +27,23 @@ import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.UNSPECIFIED;
 final class NullCodec implements Codec<Object> {
 
     @Override
-    public boolean canDecode(ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
+    public boolean canDecode(@Nullable ByteBuf byteBuf, int dataType, @Nullable Format format, @Nullable Class<?> type) {
         return byteBuf == null;
     }
 
     @Override
-    public boolean canEncode(Object value) {
+    public boolean canEncode(@Nullable Object value) {
         return value == null;
     }
 
+    @Nullable
     @Override
-    public Object decode(ByteBuf byteBuf, Format format, Class<?> type) {
+    public Object decode(@Nullable ByteBuf byteBuf, @Nullable Format format, @Nullable Class<?> type) {
         return null;
     }
 
     @Override
-    public Parameter encode(Object value) {
+    public Parameter encode(@Nullable Object value) {
         return new Parameter(BINARY, UNSPECIFIED.getObjectId(), null);
     }
 
