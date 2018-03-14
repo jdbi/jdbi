@@ -14,6 +14,7 @@
 package org.jdbi.v3.kotlin
 
 import org.jdbi.v3.core.rule.H2DatabaseRule
+import org.jdbi.v3.sqlobject.SqlObject
 import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -33,12 +34,15 @@ class KotlinSqlObjectPluginTest {
                      val nullableDefaultedNotNull: String? = "not null",
                      val defaulted: String = "default value")
 
-    interface ThingDao {
+    interface ThingDao : SqlObject {
         @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
         fun insert(something: Thing)
 
-        @SqlQuery("select id, name from something")
-        fun list(): List<Thing>
+        fun list(): List<Thing> {
+            return handle.createQuery("select id, name from something")
+                    .mapTo(Thing::class.java)
+                    .list()
+        }
 
         @SqlQuery("select id, name, null as nullable, null as nullableDefaultedNull, null as nullableDefaultedNotNull, 'test' as defaulted from something")
         fun listWithNulls(): List<Thing>
