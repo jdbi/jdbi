@@ -109,6 +109,29 @@ public final class CoreExamples {
     }
 
     @Test
+    public void generatedKeys() {
+        SERVER.getJdbcOperations().execute("CREATE TABLE test2 (id SERIAL PRIMARY KEY, value INTEGER)");
+
+        this.r2dbc
+            .withHandle(handle -> handle
+
+                .createUpdate("INSERT INTO test2(value) VALUES ($1)")
+                .bind("$1", 100)
+                .add()
+                .bind("$1", 200)
+                .add()
+                .executeReturningGeneratedKeys()
+                .flatMap(resultBearing -> resultBearing
+                    .mapResult(CoreExamples::extractIds)))
+
+            .as(StepVerifier::create)
+            .expectNext(Collections.singletonList(1))
+            .expectNext(Collections.singletonList(2))
+            .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
+            .verifyComplete();
+    }
+
+    @Test
     public void prepareStatement() {
         this.r2dbc
             .withHandle(handle -> {
@@ -236,6 +259,12 @@ public final class CoreExamples {
     private static Mono<List<Integer>> extractColumns(Result result) {
         return Flux.from(result
             .map((row, rowMetadata) -> row.get("value", Integer.class)))
+            .collectList();
+    }
+
+    private static Mono<List<Integer>> extractIds(Result result) {
+        return Flux.from(result
+            .map((row, rowMetadata) -> row.get("id", Integer.class)))
             .collectList();
     }
 

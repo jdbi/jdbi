@@ -116,6 +116,29 @@ public final class SpiExamples {
     }
 
     @Test
+    public void generatedKeys() {
+        SERVER.getJdbcOperations().execute("CREATE TABLE test2 (id SERIAL PRIMARY KEY, value INTEGER)");
+
+        this.connectionFactory.create()
+            .flatMapMany(connection ->
+
+                connection.createStatement("INSERT INTO test2(value) VALUES ($1)")
+                    .bind("$1", 100)
+                    .add()
+                    .bind("$1", 200)
+                    .add()
+                    .executeReturningGeneratedKeys()
+                    .flatMap(SpiExamples::extractIds)
+
+                    .concatWith(close(connection)))
+            .as(StepVerifier::create)
+            .expectNext(Collections.singletonList(1))
+            .expectNext(Collections.singletonList(2))
+            .expectNextCount(1)  // TODO: Remove when https://github.com/reactor/reactor-core/issues/1033
+            .verifyComplete();
+    }
+
+    @Test
     public void parameterStatusConnection() {
         this.connectionFactory.create()
             .flatMapMany(connection -> Mono.just(
@@ -305,6 +328,12 @@ public final class SpiExamples {
     private static Mono<List<Integer>> extractColumns(PostgresqlResult result) {
         return result
             .map((row, rowMetadata) -> row.get("value", Integer.class))
+            .collectList();
+    }
+
+    private static Mono<List<Integer>> extractIds(PostgresqlResult result) {
+        return result
+            .map((row, rowMetadata) -> row.get("id", Integer.class))
             .collectList();
     }
 

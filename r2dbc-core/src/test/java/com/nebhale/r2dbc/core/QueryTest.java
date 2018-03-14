@@ -76,12 +76,6 @@ public final class QueryTest {
     }
 
     @Test
-    public void executeNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
-            .withMessage("f must not be null");
-    }
-
-    @Test
     public void mapResult() {
         MockResult result = MockResult.empty();
 
@@ -97,6 +91,12 @@ public final class QueryTest {
             .as(StepVerifier::create)
             .expectNext(1)
             .verifyComplete();
+    }
+
+    @Test
+    public void mapResultNoF() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
+            .withMessage("f must not be null");
     }
 
 }

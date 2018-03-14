@@ -19,6 +19,7 @@ package com.nebhale.r2dbc.core;
 import com.nebhale.r2dbc.spi.MockResult;
 import com.nebhale.r2dbc.spi.MockStatement;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Collections;
@@ -88,6 +89,26 @@ public final class UpdateTest {
             .execute()
             .as(StepVerifier::create)
             .expectNext(100)
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeReturningGeneratedKeys() {
+        MockResult result = MockResult.empty();
+
+        MockStatement statement = MockStatement.builder()
+            .result(result)
+            .build();
+
+        new Update(statement)
+            .executeReturningGeneratedKeys()
+            .flatMap(r -> r
+                .mapResult(actual -> {
+                    assertThat(actual).isSameAs(result);
+                    return Mono.just(1);
+                }))
+            .as(StepVerifier::create)
+            .expectNext(1)
             .verifyComplete();
     }
 

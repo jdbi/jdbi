@@ -29,14 +29,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow.PARAMETER_SYMBOL;
 import static com.nebhale.r2dbc.postgresql.message.Format.BINARY;
 import static com.nebhale.r2dbc.postgresql.util.ObjectUtils.requireType;
 import static java.util.Objects.requireNonNull;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
+
+    private static Pattern INSERT = Pattern.compile(".*INSERT.*", CASE_INSENSITIVE);
+
+    private static Pattern RETURNING = Pattern.compile(".*RETURNING.*", CASE_INSENSITIVE);
 
     private final Bindings bindings = new Bindings();
 
@@ -98,11 +104,16 @@ final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
 
     @Override
     public Flux<PostgresqlResult> execute() {
-        return this.statementCache.getName(this.bindings.first(), this.sql)
-            .flatMapMany(name -> ExtendedQueryMessageFlow
-                .execute(Flux.fromStream(this.bindings.stream()), this.client, this.portalNameSupplier, name))
-            .windowUntil(CloseComplete.class::isInstance)
-            .map(messages -> PostgresqlResult.toResult(this.codecs, messages));
+        return execute(this.sql);
+    }
+
+    @Override
+    public Flux<PostgresqlResult> executeReturningGeneratedKeys() {
+        if (INSERT.matcher(this.sql).matches() && !RETURNING.matcher(this.sql).matches()) {
+            return execute(String.format("%s RETURNING *", this.sql));
+        }
+
+        return execute(this.sql);
     }
 
     @Override
@@ -129,6 +140,14 @@ final class ExtendedQueryPostgresqlStatement implements PostgresqlStatement {
 
     private void bindNull(Integer index, Integer type) {
         this.bindings.getCurrent().add(index, new Parameter(BINARY, type, null));
+    }
+
+    private Flux<PostgresqlResult> execute(String sql) {
+        return this.statementCache.getName(this.bindings.first(), sql)
+            .flatMapMany(name -> ExtendedQueryMessageFlow
+                .execute(Flux.fromStream(this.bindings.stream()), this.client, this.portalNameSupplier, name))
+            .windowUntil(CloseComplete.class::isInstance)
+            .map(messages -> PostgresqlResult.toResult(this.codecs, messages));
     }
 
     private int getIndex(String identifier) {

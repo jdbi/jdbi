@@ -229,6 +229,101 @@ public final class ExtendedQueryPostgresqlStatementTest {
     }
 
     @Test
+    public void executeReturningGeneratedKeys() {
+        Client client = TestClient.builder()
+            .expectRequest(
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
+                new Describe("B_0", ExecutionType.PORTAL),
+                new Execute("B_0", 0),
+                new Close("B_0", ExecutionType.PORTAL),
+                Sync.INSTANCE)
+            .thenRespond(
+                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null), CloseComplete.INSTANCE
+            )
+            .build();
+
+        MockCodecs codecs = MockCodecs.builder()
+            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)))
+            .build();
+
+        PortalNameSupplier portalNameSupplier = new LinkedList<>(Arrays.asList("B_0", "B_1"))::remove;
+
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100))), "INSERT test-query-$1 RETURNING *")).thenReturn(Mono.just
+            ("test-name"));
+
+        new ExtendedQueryPostgresqlStatement(client, codecs, portalNameSupplier, "INSERT test-query-$1", this.statementCache)
+            .bind("$1", 100)
+            .add()
+            .executeReturningGeneratedKeys()
+            .as(StepVerifier::create)
+            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeReturningGeneratedKeysNoInsert() {
+        Client client = TestClient.builder()
+            .expectRequest(
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
+                new Describe("B_0", ExecutionType.PORTAL),
+                new Execute("B_0", 0),
+                new Close("B_0", ExecutionType.PORTAL),
+                Sync.INSTANCE)
+            .thenRespond(
+                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null), CloseComplete.INSTANCE
+            )
+            .build();
+
+        MockCodecs codecs = MockCodecs.builder()
+            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)))
+            .build();
+
+        PortalNameSupplier portalNameSupplier = new LinkedList<>(Arrays.asList("B_0", "B_1"))::remove;
+
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100))), "SELECT test-query-$1")).thenReturn(Mono.just("test-name"));
+
+        new ExtendedQueryPostgresqlStatement(client, codecs, portalNameSupplier, "SELECT test-query-$1", this.statementCache)
+            .bind("$1", 100)
+            .add()
+            .executeReturningGeneratedKeys()
+            .as(StepVerifier::create)
+            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
+            .verifyComplete();
+    }
+
+    @Test
+    public void executeReturningGeneratedKeysWithReturning() {
+        Client client = TestClient.builder()
+            .expectRequest(
+                new Bind("B_0", Collections.singletonList(BINARY), Collections.singletonList(TEST.buffer(4).writeInt(100)), Collections.emptyList(), "test-name"),
+                new Describe("B_0", ExecutionType.PORTAL),
+                new Execute("B_0", 0),
+                new Close("B_0", ExecutionType.PORTAL),
+                Sync.INSTANCE)
+            .thenRespond(
+                BindComplete.INSTANCE, NoData.INSTANCE, new CommandComplete("test", null, null), CloseComplete.INSTANCE
+            )
+            .build();
+
+        MockCodecs codecs = MockCodecs.builder()
+            .encoding(100, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100)))
+            .build();
+
+        PortalNameSupplier portalNameSupplier = new LinkedList<>(Arrays.asList("B_0", "B_1"))::remove;
+
+        when(this.statementCache.getName(new Binding().add(0, new Parameter(BINARY, INT4.getObjectId(), TEST.buffer(4).writeInt(100))), "INSERT test-query-$1 RETURNING id")).thenReturn(Mono.just
+            ("test-name"));
+
+        new ExtendedQueryPostgresqlStatement(client, codecs, portalNameSupplier, "INSERT test-query-$1 RETURNING id", this.statementCache)
+            .bind("$1", 100)
+            .add()
+            .executeReturningGeneratedKeys()
+            .as(StepVerifier::create)
+            .expectNextCount(2)  // TODO: Decrease by 1 when https://github.com/reactor/reactor-core/issues/1033
+            .verifyComplete();
+    }
+
+    @Test
     public void executeWithoutAdd() {
         Client client = TestClient.builder()
             .expectRequest(

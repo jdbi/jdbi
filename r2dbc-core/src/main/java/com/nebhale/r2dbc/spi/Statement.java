@@ -63,4 +63,12 @@ public interface Statement {
      * @return the {@link Result}s, returned by each statement
      */
     Publisher<? extends Result> execute();
+
+    /**
+     * Executes one or more SQL statements and returns the {@link Result}s, including any generated keys.
+     *
+     * @return the {@link Result}s, returned by each statement
+     */
+    Publisher<? extends Result> executeReturningGeneratedKeys();
+
 }

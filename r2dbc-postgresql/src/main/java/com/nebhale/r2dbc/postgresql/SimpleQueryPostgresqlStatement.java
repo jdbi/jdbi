@@ -49,17 +49,17 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
     @Override
     public SimpleQueryPostgresqlStatement bind(Object identifier, Object value) {
-        throw getUnsupportedOperationException();
+        throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
     @Override
     public SimpleQueryPostgresqlStatement bind(Integer index, Object value) {
-        throw getUnsupportedOperationException();
+        throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
     @Override
     public SimpleQueryPostgresqlStatement bindNull(Object identifier, Object type) {
-        throw getUnsupportedOperationException();
+        throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
     @Override
@@ -68,6 +68,11 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
             .exchange(this.client, this.sql)
             .windowUntil(or(CommandComplete.class::isInstance, EmptyQueryResponse.class::isInstance, ErrorResponse.class::isInstance))
             .map(dataRow -> PostgresqlResult.toResult(this.codecs, dataRow));
+    }
+
+    @Override
+    public Flux<PostgresqlResult> executeReturningGeneratedKeys() {
+        throw new UnsupportedOperationException(String.format("Returning generated keys is not supported for the statement '%s'", this.sql));
     }
 
     @Override
@@ -85,8 +90,11 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
         return sql.trim().isEmpty() || !PARAMETER_SYMBOL.matcher(sql).matches();
     }
 
-    private UnsupportedOperationException getUnsupportedOperationException() {
-        return new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
+    private Flux<PostgresqlResult> execute(String sql) {
+        return SimpleQueryMessageFlow
+            .exchange(this.client, sql)
+            .windowUntil(or(CommandComplete.class::isInstance, EmptyQueryResponse.class::isInstance, ErrorResponse.class::isInstance))
+            .map(dataRow -> PostgresqlResult.toResult(this.codecs, dataRow));
     }
 
 }

@@ -38,7 +38,8 @@ public final class PostgresqlRowTest {
 
     private final List<Column> columns = Arrays.asList(
         new Column(TEST.buffer(4).writeInt(100), 200, BINARY, "test-name-1"),
-        new Column(TEST.buffer(4).writeInt(300), 400, TEXT, "test-name-2")
+        new Column(TEST.buffer(4).writeInt(300), 400, TEXT, "test-name-2"),
+        new Column(null, 400, TEXT, "test-name-3")
     );
 
     @Test
@@ -81,14 +82,14 @@ public final class PostgresqlRowTest {
 
     @Test
     public void getInvalidIndex() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), this.columns).get(2, Object.class))
-            .withMessage("Column index 2 is larger than the number of columns 2");
+        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), this.columns).get(3, Object.class))
+            .withMessage("Column index 3 is larger than the number of columns 3");
     }
 
     @Test
     public void getInvalidName() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), this.columns).get("test-name-3", Object.class))
-            .withMessage("Column name 'test-name-3' does not exist in column names [test-name-1, test-name-2]");
+        assertThatIllegalArgumentException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), this.columns).get("test-name-4", Object.class))
+            .withMessage("Column name 'test-name-4' does not exist in column names [test-name-1, test-name-2, test-name-3]");
     }
 
     @Test
@@ -112,6 +113,15 @@ public final class PostgresqlRowTest {
     public void getNoType() {
         assertThatNullPointerException().isThrownBy(() -> new PostgresqlRow(MockCodecs.empty(), this.columns).get(new Object(), null))
             .withMessage("type must not be null");
+    }
+
+    @Test
+    public void getNull() {
+        MockCodecs codecs = MockCodecs.builder()
+            .decoding(null, 400, TEXT, Object.class, null)
+            .build();
+
+        assertThat(new PostgresqlRow(codecs, this.columns).get("test-name-3", Object.class)).isNull();
     }
 
     @Test
