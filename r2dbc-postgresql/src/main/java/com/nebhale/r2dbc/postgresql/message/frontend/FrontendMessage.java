@@ -28,9 +28,10 @@ public interface FrontendMessage {
     /**
      * Encode a message into a {@link ByteBuf}.
      *
-     * @param allocator the allocator to use to get a {@link ByteBuf} to write into
+     * @param byteBufAllocator the byteBufAllocator to use to get a {@link ByteBuf} to write into
      * @return a {@link Publisher} that produces the {@link ByteBuf} containing the encoded message
+     * @throws NullPointerException if {@code byteBufAllocator} is {@code null}
      */
-    Publisher<ByteBuf> encode(ByteBufAllocator allocator);
+    Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator);
 
 }

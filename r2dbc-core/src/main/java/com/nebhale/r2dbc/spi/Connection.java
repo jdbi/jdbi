@@ -56,6 +56,7 @@ public interface Connection {
      *
      * @param name the name of the savepoint to create
      * @return a {@link Publisher} that indicates that a savepoint has been created
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     Publisher<Void> createSavepoint(String name);
 
@@ -64,6 +65,7 @@ public interface Connection {
      *
      * @param sql the SQL of the statement
      * @return a new {@link Statement} instance
+     * @throws NullPointerException if {@code sql} is {@code null}
      */
     Statement createStatement(String sql);
 
@@ -72,6 +74,7 @@ public interface Connection {
      *
      * @param name the name of the savepoint to release
      * @return a {@link Publisher} that indicates that a savepoint has been released
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     Publisher<Void> releaseSavepoint(String name);
 
@@ -87,6 +90,7 @@ public interface Connection {
      *
      * @param name the name of the savepoint to rollback to
      * @return a {@link Publisher} that indicates that a savepoint has been rolled back to
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     Publisher<Void> rollbackTransactionToSavepoint(String name);
 
@@ -95,6 +99,7 @@ public interface Connection {
      *
      * @param isolationLevel the isolation level for this transaction
      * @return a {@link Publisher} that indicates that a transaction level has been configured
+     * @throws NullPointerException if {@code isolationLevel} is {@code null}
      */
     Publisher<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel);
 
@@ -103,6 +108,7 @@ public interface Connection {
      *
      * @param mutability the mutability for this transaction
      * @return a {@link Publisher} that indicates that mutability has been configured
+     * @throws NullPointerException if {@code mutability} is {@code null}
      */
     Publisher<Void> setTransactionMutability(Mutability mutability);
 

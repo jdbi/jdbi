@@ -38,6 +38,12 @@ public final class BatchTest {
     }
 
     @Test
+    public void addNoSql() {
+        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).add(null))
+            .withMessage("sql must not be null");
+    }
+
+    @Test
     public void constructorNoBatch() {
         assertThatNullPointerException().isThrownBy(() -> new Batch(null))
             .withMessage("batch must not be null");

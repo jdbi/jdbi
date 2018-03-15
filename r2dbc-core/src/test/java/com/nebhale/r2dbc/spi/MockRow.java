@@ -16,18 +16,18 @@
 
 package com.nebhale.r2dbc.spi;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 public final class MockRow implements Row {
 
     private final Map<Identified, Object> identified;
 
     private MockRow(Map<Identified, Object> identified) {
-        this.identified = requireNonNull(identified);
+        this.identified = Objects.requireNonNull(identified);
     }
 
     public static Builder builder() {
@@ -39,8 +39,12 @@ public final class MockRow implements Row {
     }
 
     @Override
+    @Nullable
     @SuppressWarnings("unchecked")
     public <T> T get(Object identifier, Class<T> type) {
+        Objects.requireNonNull(identifier);
+        Objects.requireNonNull(type);
+
         Identified identified = new Identified(identifier, type);
 
         if (!this.identified.containsKey(identified)) {
@@ -68,8 +72,11 @@ public final class MockRow implements Row {
             return new MockRow(this.identified);
         }
 
-        public Builder identified(Object identifier, Class<?> type, Object value) {
-            this.identified.put(new Identified(requireNonNull(identifier), requireNonNull(type)), value);
+        public Builder identified(Object identifier, Class<?> type, @Nullable Object value) {
+            Objects.requireNonNull(identifier);
+            Objects.requireNonNull(type);
+
+            this.identified.put(new Identified(identifier, type), value);
             return this;
         }
 
@@ -88,8 +95,8 @@ public final class MockRow implements Row {
         private final Class<?> type;
 
         private Identified(Object identifier, Class<?> type) {
-            this.identifier = requireNonNull(identifier);
-            this.type = requireNonNull(type);
+            this.identifier = Objects.requireNonNull(identifier);
+            this.type = Objects.requireNonNull(type);
         }
 
         @Override

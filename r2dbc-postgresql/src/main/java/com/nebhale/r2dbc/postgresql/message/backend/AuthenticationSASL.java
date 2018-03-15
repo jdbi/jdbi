@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The AuthenticationSASL message.
@@ -41,7 +40,7 @@ public final class AuthenticationSASL implements AuthenticationMessage {
      * @throws NullPointerException if {@code authenticationMechanisms} is {@code null}
      */
     public AuthenticationSASL(List<String> authenticationMechanisms) {
-        this.authenticationMechanisms = requireNonNull(authenticationMechanisms, "authenticationMechanisms must not be null");
+        this.authenticationMechanisms = Objects.requireNonNull(authenticationMechanisms, "authenticationMechanisms must not be null");
     }
 
     @Override
@@ -78,7 +77,7 @@ public final class AuthenticationSASL implements AuthenticationMessage {
     }
 
     static AuthenticationSASL decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         List<String> authenticationMechanisms = new ArrayList<>();
 

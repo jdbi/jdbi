@@ -22,8 +22,6 @@ import com.nebhale.r2dbc.spi.ColumnMetadata;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * An implementation of {@link ColumnMetadata} for a PostgreSQL database.
  */
@@ -36,9 +34,9 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
     private final Integer type;
 
     PostgresqlColumnMetadata(String name, Short precision, Integer type) {
-        this.name = requireNonNull(name, "name must not be null");
-        this.precision = requireNonNull(precision, "precision must not be null");
-        this.type = requireNonNull(type, "type must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.precision = Objects.requireNonNull(precision, "precision must not be null");
+        this.type = Objects.requireNonNull(type, "type must not be null");
     }
 
     @Override
@@ -86,7 +84,7 @@ public final class PostgresqlColumnMetadata implements ColumnMetadata {
     }
 
     static PostgresqlColumnMetadata toColumnMetadata(Field field) {
-        requireNonNull(field, "field must not be null");
+        Objects.requireNonNull(field, "field must not be null");
 
         return new PostgresqlColumnMetadata(field.getName(), field.getDataTypeSize(), field.getDataType());
     }

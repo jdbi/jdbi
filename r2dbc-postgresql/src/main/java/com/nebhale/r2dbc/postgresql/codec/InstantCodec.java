@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
@@ -24,10 +25,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.Format.TEXT;
 import static com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId.TIMESTAMP;
-import static java.util.Objects.requireNonNull;
 
 final class InstantCodec extends AbstractCodec<Instant> {
 
@@ -35,19 +36,19 @@ final class InstantCodec extends AbstractCodec<Instant> {
 
     InstantCodec(ByteBufAllocator byteBufAllocator) {
         super(Instant.class);
-        this.byteBufAllocator = requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
+        this.byteBufAllocator = Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
     }
 
     @Override
-    public Instant decode(ByteBuf byteBuf, Format format, Class<? extends Instant> type) {
-        requireNonNull(byteBuf, "byteBuf must not be null");
+    public Instant decode(ByteBuf byteBuf, @Nullable Format format, @Nullable Class<? extends Instant> type) {
+        Objects.requireNonNull(byteBuf, "byteBuf must not be null");
 
         return Instant.parse(ByteBufUtils.decode(byteBuf));
     }
 
     @Override
     public Parameter doEncode(Instant value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         ByteBuf encoded = ByteBufUtils.encode(this.byteBufAllocator, value.toString());
         return create(TEXT, TIMESTAMP, encoded);
@@ -55,8 +56,8 @@ final class InstantCodec extends AbstractCodec<Instant> {
 
     @Override
     boolean doCanDecode(Format format, PostgresqlObjectId type) {
-        requireNonNull(format, "format must not be null");
-        requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
 
         return TEXT == format && TIMESTAMP == type;
     }

@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.type.PostgresqlObjectId;
@@ -23,7 +24,7 @@ import com.nebhale.r2dbc.postgresql.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 @SuppressWarnings("rawtypes")
 final class EnumCodec extends AbstractCodec<Enum> {
@@ -32,27 +33,32 @@ final class EnumCodec extends AbstractCodec<Enum> {
 
     EnumCodec(ByteBufAllocator byteBufAllocator) {
         super(Enum.class);
+
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
         this.delegate = new StringCodec(byteBufAllocator);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Enum decode(ByteBuf byteBuf, Format format, Class<? extends Enum> type) {
-        requireNonNull(byteBuf, "byteBuf must not be null");
-        requireNonNull(type, "type must not be null");
+    public Enum decode(ByteBuf byteBuf, @Nullable Format format, Class<? extends Enum> type) {
+        Objects.requireNonNull(byteBuf, "byteBuf must not be null");
+        Objects.requireNonNull(type, "type must not be null");
 
         return Enum.valueOf(type, ByteBufUtils.decode(byteBuf));
     }
 
     @Override
     public Parameter doEncode(Enum value) {
-        requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(value, "value must not be null");
 
         return this.delegate.doEncode(value.name());
     }
 
     @Override
     boolean doCanDecode(Format format, PostgresqlObjectId type) {
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         return this.delegate.doCanDecode(format, type);
     }
 

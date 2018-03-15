@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
-
 public final class MockCodec<T> extends AbstractCodec<T> {
 
     private final Set<CanDecode> canDecodes;
@@ -40,9 +38,9 @@ public final class MockCodec<T> extends AbstractCodec<T> {
     private MockCodec(Set<CanDecode> canDecodes, Map<Decoding, T> decodings, Map<T, Parameter> encodings, Class<T> type) {
         super(type);
 
-        this.canDecodes = requireNonNull(canDecodes);
-        this.decodings = requireNonNull(decodings);
-        this.encodings = requireNonNull(encodings);
+        this.canDecodes = Objects.requireNonNull(canDecodes);
+        this.decodings = Objects.requireNonNull(decodings);
+        this.encodings = Objects.requireNonNull(encodings);
     }
 
     public static <T> Builder<T> builder(Class<T> type) {
@@ -55,7 +53,11 @@ public final class MockCodec<T> extends AbstractCodec<T> {
 
     @Override
     public T decode(ByteBuf byteBuf, Format format, Class<? extends T> type) {
-        Decoding decoding = new Decoding(byteBuf, requireNonNull(format));
+        Objects.requireNonNull(byteBuf);
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(type);
+
+        Decoding decoding = new Decoding(byteBuf, format);
 
         if (!this.decodings.containsKey(decoding)) {
             throw new AssertionError(String.format("Unexpected call to decode(ByteBuf, Format, Class) with values '%s', '%s', '%s'", byteBuf, format, type.getName()));
@@ -75,7 +77,10 @@ public final class MockCodec<T> extends AbstractCodec<T> {
 
     @Override
     boolean doCanDecode(Format format, PostgresqlObjectId type) {
-        return this.canDecodes.contains(new CanDecode(requireNonNull(format), requireNonNull(type)));
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(type);
+
+        return this.canDecodes.contains(new CanDecode(format, type));
     }
 
     @Override
@@ -106,17 +111,27 @@ public final class MockCodec<T> extends AbstractCodec<T> {
         }
 
         public Builder<T> canDecode(Format format, PostgresqlObjectId type) {
-            this.canDecodes.add(new CanDecode(requireNonNull(format), requireNonNull(type)));
+            Objects.requireNonNull(format);
+            Objects.requireNonNull(type);
+
+            this.canDecodes.add(new CanDecode(format, type));
             return this;
         }
 
         public Builder<T> decoding(ByteBuf byteBuf, Format format, T value) {
-            this.decodings.put(new Decoding(byteBuf, requireNonNull(format)), requireNonNull(value));
+            Objects.requireNonNull(byteBuf);
+            Objects.requireNonNull(format);
+            Objects.requireNonNull(value);
+
+            this.decodings.put(new Decoding(byteBuf, format), value);
             return this;
         }
 
         public Builder<T> encoding(T value, Parameter parameter) {
-            this.encodings.put(value, requireNonNull(parameter));
+            Objects.requireNonNull(value);
+            Objects.requireNonNull(parameter);
+
+            this.encodings.put(value, parameter);
             return this;
         }
 
@@ -137,8 +152,8 @@ public final class MockCodec<T> extends AbstractCodec<T> {
         private final PostgresqlObjectId type;
 
         private CanDecode(Format format, PostgresqlObjectId type) {
-            this.format = requireNonNull(format);
-            this.type = requireNonNull(type);
+            this.format = Objects.requireNonNull(format);
+            this.type = Objects.requireNonNull(type);
         }
 
         @Override
@@ -176,8 +191,8 @@ public final class MockCodec<T> extends AbstractCodec<T> {
         private final Format format;
 
         private Decoding(ByteBuf byteBuf, Format format) {
-            this.byteBuf = byteBuf;
-            this.format = requireNonNull(format);
+            this.byteBuf = Objects.requireNonNull(byteBuf);
+            this.format = Objects.requireNonNull(format);
         }
 
         @Override

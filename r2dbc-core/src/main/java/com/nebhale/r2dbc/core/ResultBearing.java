@@ -22,10 +22,9 @@ import com.nebhale.r2dbc.spi.RowMetadata;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An interface indicating that a type returns results.
@@ -38,6 +37,7 @@ public interface ResultBearing {
      * @param f   a {@link Function} used to transform each {@link Result} into a {@code Publisher} of values
      * @param <T> the type of results
      * @return the values resulting from the {@link Result} transformation
+     * @throws NullPointerException if {@code f} is {@code null}
      * @see #mapRow(Function)
      * @see #mapRow(BiFunction)
      */
@@ -52,7 +52,7 @@ public interface ResultBearing {
      * @throws NullPointerException if {@code f} is {@code null}
      */
     default <T> Flux<T> mapRow(BiFunction<Row, RowMetadata, ? extends T> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return mapResult(result -> result.map(f));
     }
@@ -66,7 +66,7 @@ public interface ResultBearing {
      * @throws NullPointerException if {@code f} is {@code null}
      */
     default <T> Flux<T> mapRow(Function<Row, ? extends T> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return mapRow((row, rowMetadata) -> f.apply(row));
     }

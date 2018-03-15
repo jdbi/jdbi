@@ -18,4 +18,7 @@
  * Utility code used throughout the project.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.core.util;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

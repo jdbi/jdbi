@@ -23,12 +23,12 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static com.nebhale.r2dbc.core.util.ReactiveUtils.appendError;
 import static com.nebhale.r2dbc.core.util.ReactiveUtils.typeSafe;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A wrapper for a {@link Connection} providing additional convenience APIs.
@@ -38,7 +38,7 @@ public final class Handle {
     private final Connection connection;
 
     Handle(Connection connection) {
-        this.connection = requireNonNull(connection, "connection must not be null");
+        this.connection = Objects.requireNonNull(connection, "connection must not be null");
     }
 
     /**
@@ -82,8 +82,11 @@ public final class Handle {
      *
      * @param sql the SQL of the query
      * @return a new {@link Query} instance
+     * @throws NullPointerException if {@code sql} is {@code null}
      */
     public Query createQuery(String sql) {
+        Objects.requireNonNull(sql, "sql must not be null");
+
         return new Query(this.connection.createStatement(sql));
     }
 
@@ -92,8 +95,11 @@ public final class Handle {
      *
      * @param name the name of the savepoint to create
      * @return a {@link Publisher} that indicates that a savepoint has been created
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     public Publisher<Void> createSavepoint(String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
         return this.connection.createSavepoint(name);
     }
 
@@ -102,8 +108,11 @@ public final class Handle {
      *
      * @param sql the SQL of the update
      * @return a new {@link Update} instance
+     * @throws NullPointerException if {@code sql} is {@code null}
      */
     public Update createUpdate(String sql) {
+        Objects.requireNonNull(sql, "sql must not be null");
+
         return new Update(this.connection.createStatement(sql));
     }
 
@@ -113,8 +122,12 @@ public final class Handle {
      * @param sql        the SQL of the update
      * @param parameters the parameters to bind
      * @return the number of rows that were updated
+     * @throws NullPointerException if {@code sql} or {@code parameters} is {@code null}
      */
     public Flux<Integer> execute(String sql, Object... parameters) {
+        Objects.requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(parameters, "parameters must not be null");
+
         Update update = createUpdate(sql);
 
         IntStream.range(0, parameters.length)
@@ -135,7 +148,7 @@ public final class Handle {
      */
     @SuppressWarnings("unchecked")
     public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return Mono.from(
             beginTransaction())
@@ -152,13 +165,14 @@ public final class Handle {
      * @param <T>            the type of results
      * @return a {@link Flux} of results
      * @throws NullPointerException if {@code f} is {@code null}
+     * @see Connection#setTransactionIsolationLevel(IsolationLevel)
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     @SuppressWarnings("unchecked")
     public <T> Flux<T> inTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<? extends T>> f) {
-        requireNonNull(isolationLevel, "isolationLevel must not be null");
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return inTransaction(handle -> Flux.from(handle
             .setTransactionIsolationLevel(isolationLevel))
@@ -170,8 +184,11 @@ public final class Handle {
      *
      * @param name the name of the savepoint to release
      * @return a {@link Publisher} that indicates that a savepoint has been released
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     public Publisher<Void> releaseSavepoint(String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
         return this.connection.releaseSavepoint(name);
     }
 
@@ -189,8 +206,11 @@ public final class Handle {
      *
      * @param name the name of the savepoint to rollback to
      * @return a {@link Publisher} that indicates that a savepoint has been rolled back to
+     * @throws NullPointerException if {@code name} is {@code null}
      */
     public Publisher<Void> rollbackTransactionToSavepoint(String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
         return this.connection.rollbackTransactionToSavepoint(name);
     }
 
@@ -200,8 +220,12 @@ public final class Handle {
      * @param sql        the SQL of the query
      * @param parameters the parameters to bind
      * @return a new {@link Query} instance
+     * @throws NullPointerException if {@code sql} or {@code parameters} is {@code null}
      */
     public Query select(String sql, Object... parameters) {
+        Objects.requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(parameters, "parameters must not be null");
+
         Query query = createQuery(sql);
 
         IntStream.range(0, parameters.length)
@@ -215,8 +239,11 @@ public final class Handle {
      *
      * @param isolationLevel the isolation level for this transaction
      * @return a {@link Publisher} that indicates that a transaction level has been configured
+     * @throws NullPointerException if {@code isolationLevel} is {@code null}
      */
     public Publisher<Void> setTransactionIsolationLevel(IsolationLevel isolationLevel) {
+        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
+
         return this.connection.setTransactionIsolationLevel(isolationLevel);
     }
 
@@ -225,8 +252,11 @@ public final class Handle {
      *
      * @param mutability the mutability for this transaction
      * @return a {@link Publisher} that indicates that mutability has been configured
+     * @throws NullPointerException if {@code mutability} is {@code null}
      */
     public Publisher<Void> setTransactionMutability(Mutability mutability) {
+        Objects.requireNonNull(mutability, "mutability must not be null");
+
         return this.connection.setTransactionMutability(mutability);
     }
 
@@ -242,11 +272,12 @@ public final class Handle {
      *
      * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
+     * @throws NullPointerException if {@code f} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> f) {
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return inTransaction(f)
             .then();
@@ -258,12 +289,14 @@ public final class Handle {
      * @param isolationLevel the isolation level of the transaction
      * @param f              a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
+     * @throws NullPointerException if {@code isolationLevel} or {@code f} is {@code null}
+     * @see Connection#setTransactionIsolationLevel(IsolationLevel)
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     public Mono<Void> useTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<?>> f) {
-        requireNonNull(isolationLevel, "isolationLevel must not be null");
-        requireNonNull(f, "f must not be null");
+        Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
+        Objects.requireNonNull(f, "f must not be null");
 
         return inTransaction(isolationLevel, f)
             .then();

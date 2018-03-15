@@ -20,8 +20,6 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * The BackendKeyData message.
  */
@@ -87,7 +85,7 @@ public final class BackendKeyData implements BackendMessage {
     }
 
     static BackendKeyData decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         return new BackendKeyData(in.readInt(), in.readInt());
     }

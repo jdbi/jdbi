@@ -22,16 +22,16 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import static io.netty.util.CharsetUtil.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 final class FluentMessageDigest {
 
     private final MessageDigest messageDigest;
 
     FluentMessageDigest(String algorithm) {
-        requireNonNull(algorithm, "algorithm must not be null");
+        Objects.requireNonNull(algorithm, "algorithm must not be null");
 
         try {
             this.messageDigest = MessageDigest.getInstance(algorithm);
@@ -45,20 +45,21 @@ final class FluentMessageDigest {
     }
 
     FluentMessageDigest update(String s) {
-        requireNonNull(s, "s must not be null");
+        Objects.requireNonNull(s, "s must not be null");
 
         this.messageDigest.update(s.getBytes(UTF_8));
         return this;
     }
 
     FluentMessageDigest update(String format, Object... args) {
-        requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(format, "format must not be null");
+        Objects.requireNonNull(args, "args must not be null");
 
         return update(String.format(format, args));
     }
 
     FluentMessageDigest update(ByteBuffer buffer) {
-        requireNonNull(buffer, "buffer must not be null");
+        Objects.requireNonNull(buffer, "buffer must not be null");
 
         this.messageDigest.update(buffer);
         return this;

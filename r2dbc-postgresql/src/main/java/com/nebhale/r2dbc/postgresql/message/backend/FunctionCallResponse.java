@@ -16,12 +16,11 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * The FunctionCallResponse message.
@@ -37,7 +36,7 @@ public final class FunctionCallResponse implements BackendMessage {
      *
      * @param value the value of the function result, in the format indicated by the associated format code.
      */
-    public FunctionCallResponse(ByteBuf value) {
+    public FunctionCallResponse(@Nullable ByteBuf value) {
         this.value = value == null ? null : value.nioBuffer();
     }
 
@@ -75,7 +74,7 @@ public final class FunctionCallResponse implements BackendMessage {
     }
 
     static FunctionCallResponse decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         int length = in.readInt();
         ByteBuf value = NULL == length ? null : in.readSlice(length);

@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Client;
 import com.nebhale.r2dbc.postgresql.client.SimpleQueryMessageFlow;
 import com.nebhale.r2dbc.postgresql.codec.Codecs;
@@ -24,9 +25,10 @@ import com.nebhale.r2dbc.postgresql.message.backend.EmptyQueryResponse;
 import com.nebhale.r2dbc.postgresql.message.backend.ErrorResponse;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
+
 import static com.nebhale.r2dbc.postgresql.client.ExtendedQueryMessageFlow.PARAMETER_SYMBOL;
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
-import static java.util.Objects.requireNonNull;
 
 final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
 
@@ -37,9 +39,9 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
     private final String sql;
 
     SimpleQueryPostgresqlStatement(Client client, Codecs codecs, String sql) {
-        this.client = requireNonNull(client, "client must not be null");
-        this.codecs = requireNonNull(codecs, "codecs must not be null");
-        this.sql = requireNonNull(sql, "sql must not be null");
+        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.codecs = Objects.requireNonNull(codecs, "codecs must not be null");
+        this.sql = Objects.requireNonNull(sql, "sql must not be null");
     }
 
     @Override
@@ -48,17 +50,17 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
     }
 
     @Override
-    public SimpleQueryPostgresqlStatement bind(Object identifier, Object value) {
+    public SimpleQueryPostgresqlStatement bind(@Nullable Object identifier, @Nullable Object value) {
         throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
     @Override
-    public SimpleQueryPostgresqlStatement bind(Integer index, Object value) {
+    public SimpleQueryPostgresqlStatement bind(@Nullable Integer index, @Nullable Object value) {
         throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
     @Override
-    public SimpleQueryPostgresqlStatement bindNull(Object identifier, Object type) {
+    public SimpleQueryPostgresqlStatement bindNull(@Nullable Object identifier, @Nullable Object type) {
         throw new UnsupportedOperationException(String.format("Binding parameters is not supported for the statement '%s'", this.sql));
     }
 
@@ -85,7 +87,7 @@ final class SimpleQueryPostgresqlStatement implements PostgresqlStatement {
     }
 
     static boolean supports(String sql) {
-        requireNonNull(sql, "sql must not be null");
+        Objects.requireNonNull(sql, "sql must not be null");
 
         return sql.trim().isEmpty() || !PARAMETER_SYMBOL.matcher(sql).matches();
     }

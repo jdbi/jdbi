@@ -19,6 +19,7 @@ package com.nebhale.r2dbc.postgresql.client;
 import com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * An enumeration of transaction statuses.
@@ -43,10 +44,12 @@ public enum TransactionStatus {
     private final ReadyForQuery.TransactionStatus discriminator;
 
     TransactionStatus(ReadyForQuery.TransactionStatus discriminator) {
-        this.discriminator = discriminator;
+        this.discriminator = Objects.requireNonNull(discriminator, "discriminator must not be null");
     }
 
     static TransactionStatus valueOf(ReadyForQuery.TransactionStatus t) {
+        Objects.requireNonNull(t, "t must not be null");
+
         return Arrays.stream(values())
             .filter(type -> type.discriminator == t)
             .findFirst()

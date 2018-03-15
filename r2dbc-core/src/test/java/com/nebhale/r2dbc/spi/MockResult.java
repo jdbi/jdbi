@@ -25,8 +25,6 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import static java.util.Objects.requireNonNull;
-
 public final class MockResult implements Result {
 
     private final Mono<RowMetadata> rowMetadata;
@@ -36,9 +34,9 @@ public final class MockResult implements Result {
     private final Flux<Integer> rowsUpdated;
 
     private MockResult(Mono<RowMetadata> rowMetadata, Flux<Row> rows, Flux<Integer> rowsUpdated) {
-        this.rowMetadata = requireNonNull(rowMetadata);
-        this.rows = requireNonNull(rows);
-        this.rowsUpdated = requireNonNull(rowsUpdated);
+        this.rowMetadata = Objects.requireNonNull(rowMetadata);
+        this.rows = Objects.requireNonNull(rows);
+        this.rowsUpdated = Objects.requireNonNull(rowsUpdated);
     }
 
     public static Builder builder() {
@@ -56,6 +54,8 @@ public final class MockResult implements Result {
 
     @Override
     public <T> Flux<T> map(BiFunction<Row, RowMetadata, ? extends T> f) {
+        Objects.requireNonNull(f);
+
         return this.rows
             .zipWith(this.rowMetadata.repeat())
             .map((tuple) -> {
@@ -91,6 +91,8 @@ public final class MockResult implements Result {
         }
 
         public Builder row(Row... rows) {
+            Objects.requireNonNull(rows);
+
             Stream.of(rows)
                 .peek(Objects::requireNonNull)
                 .forEach(this.rows::add);
@@ -99,12 +101,14 @@ public final class MockResult implements Result {
         }
 
         public Builder rowMetadata(RowMetadata rowMetadata) {
-            this.rowMetadata = requireNonNull(rowMetadata);
+            this.rowMetadata = Objects.requireNonNull(rowMetadata);
             return this;
         }
 
         public Builder rowsUpdated(Integer rowsUpdated) {
-            this.rowsUpdated.add(requireNonNull(rowsUpdated));
+            Objects.requireNonNull(rowsUpdated);
+
+            this.rowsUpdated.add(rowsUpdated);
             return this;
         }
 

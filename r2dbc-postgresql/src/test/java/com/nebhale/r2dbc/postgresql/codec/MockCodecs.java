@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.codec;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.client.Parameter;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import io.netty.buffer.ByteBuf;
@@ -24,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 public final class MockCodecs implements Codecs {
 
     private final Map<Decoding, Object> decodings;
@@ -33,8 +32,8 @@ public final class MockCodecs implements Codecs {
     private final Map<Object, Parameter> encodings;
 
     private MockCodecs(Map<Decoding, Object> decodings, Map<Object, Parameter> encodings) {
-        this.decodings = requireNonNull(decodings);
-        this.encodings = requireNonNull(encodings);
+        this.decodings = Objects.requireNonNull(decodings);
+        this.encodings = Objects.requireNonNull(encodings);
     }
 
     public static Builder builder() {
@@ -45,10 +44,14 @@ public final class MockCodecs implements Codecs {
         return builder().build();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T decode(ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type) {
-        Decoding decoding = new Decoding(byteBuf, dataType, requireNonNull(format), requireNonNull(type));
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <T> T decode(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<? extends T> type) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(type);
+
+        Decoding decoding = new Decoding(byteBuf, dataType, format, type);
 
         if (!this.decodings.containsKey(decoding)) {
             throw new AssertionError(String.format("Unexpected call to decode(ByteBuf,int,Format,Class<?>) with values '%s, %d, %s, %s'", byteBuf, dataType, format, type.getName()));
@@ -58,7 +61,7 @@ public final class MockCodecs implements Codecs {
     }
 
     @Override
-    public Parameter encode(Object value) {
+    public Parameter encode(@Nullable Object value) {
         if (!this.encodings.containsKey(value)) {
             throw new AssertionError(String.format("Unexpected call to encode(Object) with value '%s'", value));
         }
@@ -87,13 +90,18 @@ public final class MockCodecs implements Codecs {
             return new MockCodecs(this.decodings, this.encodings);
         }
 
-        public <T> Builder decoding(ByteBuf byteBuf, int dataType, Format format, Class<T> type, T value) {
-            this.decodings.put(new Decoding(byteBuf, dataType, requireNonNull(format), requireNonNull(type)), value);
+        public <T> Builder decoding(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<T> type, T value) {
+            Objects.requireNonNull(format);
+            Objects.requireNonNull(type);
+
+            this.decodings.put(new Decoding(byteBuf, dataType, format, type), value);
             return this;
         }
 
-        public Builder encoding(Object value, Parameter parameter) {
-            this.encodings.put(value, requireNonNull(parameter));
+        public Builder encoding(@Nullable Object value, Parameter parameter) {
+            Objects.requireNonNull(parameter);
+
+            this.encodings.put(value, parameter);
             return this;
         }
 
@@ -117,11 +125,11 @@ public final class MockCodecs implements Codecs {
 
         private final Class<?> type;
 
-        private Decoding(ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
+        private Decoding(@Nullable ByteBuf byteBuf, int dataType, Format format, Class<?> type) {
             this.byteBuf = byteBuf;
             this.dataType = dataType;
-            this.format = requireNonNull(format);
-            this.type = requireNonNull(type);
+            this.format = Objects.requireNonNull(format);
+            this.type = Objects.requireNonNull(type);
         }
 
         @Override

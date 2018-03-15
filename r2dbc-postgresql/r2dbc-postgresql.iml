@@ -34,6 +34,7 @@
     <orderEntry type="library" name="Maven: io.netty:netty-common:4.1.22.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.22.Final" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.projectreactor:reactor-test:3.1.5.RELEASE" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.postgresql:postgresql:42.2.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-jdbc:2.0.0.RELEASE" level="project" />

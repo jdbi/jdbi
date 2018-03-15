@@ -24,8 +24,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.util.Objects.requireNonNull;
-
 abstract class AbstractCopyResponse implements BackendMessage {
 
     private final List<Format> columnFormats;
@@ -33,8 +31,8 @@ abstract class AbstractCopyResponse implements BackendMessage {
     private final Format overallFormat;
 
     AbstractCopyResponse(List<Format> columnFormats, Format overallFormat) {
-        this.columnFormats = requireNonNull(columnFormats, "columnFormats must not be null");
-        this.overallFormat = requireNonNull(overallFormat, "overallFormat must not be null");
+        this.columnFormats = Objects.requireNonNull(columnFormats, "columnFormats must not be null");
+        this.overallFormat = Objects.requireNonNull(overallFormat, "overallFormat must not be null");
     }
 
     @Override
@@ -82,6 +80,8 @@ abstract class AbstractCopyResponse implements BackendMessage {
     }
 
     static List<Format> readColumnFormats(ByteBuf in) {
+        Objects.requireNonNull(in, "in must not be null");
+
         return IntStream.range(0, in.readShort())
             .mapToObj(i -> Format.valueOf(in.readShort()))
             .collect(Collectors.toList());

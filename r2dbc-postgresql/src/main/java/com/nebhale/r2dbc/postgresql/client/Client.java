@@ -44,6 +44,7 @@ public interface Client {
      *
      * @param requests the publisher of outbound messages
      * @return a {@link Flux} of incoming messages that ends with the end of the frame (i.e. reception of a {@link ReadyForQuery} message.
+     * @throws NullPointerException if {@code requests} is {@code null}
      */
     Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests);
 

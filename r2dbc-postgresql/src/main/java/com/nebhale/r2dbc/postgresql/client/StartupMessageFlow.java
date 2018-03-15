@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.client;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.authentication.AuthenticationHandler;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationMessage;
 import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
@@ -26,7 +27,7 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/10/static/protocol-flow.html#idm46428664018352">Start-up</a> message flow.
@@ -45,13 +46,13 @@ public final class StartupMessageFlow {
      * @param database              the database to connect to
      * @param username              the username to authenticate with
      * @return the messages received after authentication is complete, in response to this exchange
-     * @throws NullPointerException if {@code applicationName}, {@code authenticationHandler}, {@code Client}, or {@code username} is {@code null}
+     * @throws NullPointerException if {@code applicationName}, {@code authenticationHandler}, {@code client}, or {@code username} is {@code null}
      */
-    public static Flux<BackendMessage> exchange(String applicationName, AuthenticationHandler authenticationHandler, Client client, String database, String username) {
-        requireNonNull(applicationName, "applicationName must not be null");
-        requireNonNull(authenticationHandler, "authenticationHandler must not be null");
-        requireNonNull(client, "client must not be null");
-        requireNonNull(username, "username must not be null");
+    public static Flux<BackendMessage> exchange(String applicationName, AuthenticationHandler authenticationHandler, Client client, @Nullable String database, String username) {
+        Objects.requireNonNull(applicationName, "applicationName must not be null");
+        Objects.requireNonNull(authenticationHandler, "authenticationHandler must not be null");
+        Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(username, "username must not be null");
 
         EmitterProcessor<FrontendMessage> requestProcessor = EmitterProcessor.create();
         FluxSink<FrontendMessage> requests = requestProcessor.sink();

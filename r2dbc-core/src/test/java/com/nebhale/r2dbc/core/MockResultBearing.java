@@ -20,16 +20,15 @@ import com.nebhale.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 public final class MockResultBearing implements ResultBearing {
 
     private final Result result;
 
     private MockResultBearing(Result result) {
-        this.result = requireNonNull(result);
+        this.result = Objects.requireNonNull(result);
     }
 
     public static Builder builder() {
@@ -38,7 +37,7 @@ public final class MockResultBearing implements ResultBearing {
 
     @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        requireNonNull(f);
+        Objects.requireNonNull(f);
 
         return Flux.from(f.apply(this.result));
     }
@@ -62,7 +61,7 @@ public final class MockResultBearing implements ResultBearing {
         }
 
         public Builder result(Result result) {
-            this.result = requireNonNull(result);
+            this.result = Objects.requireNonNull(result);
             return this;
         }
 

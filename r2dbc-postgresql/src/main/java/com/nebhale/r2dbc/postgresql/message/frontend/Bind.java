@@ -32,7 +32,6 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The Bind message.
@@ -74,19 +73,19 @@ public final class Bind implements FrontendMessage {
      * @see #UNNAMED_STATEMENT
      */
     public Bind(String name, List<Format> parameterFormats, List<ByteBuf> parameters, List<Format> resultFormats, String source) {
-        this.name = requireNonNull(name, "name must not be null");
-        this.parameterFormats = requireNonNull(parameterFormats, "parameterFormats must not be null");
-        this.parameters = requireNonNull(parameters, "parameters must not be null");
-        this.resultFormats = requireNonNull(resultFormats, "resultFormats must not be null");
-        this.source = requireNonNull(source, "source must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.parameterFormats = Objects.requireNonNull(parameterFormats, "parameterFormats must not be null");
+        this.parameters = Objects.requireNonNull(parameters, "parameters must not be null");
+        this.resultFormats = Objects.requireNonNull(resultFormats, "resultFormats must not be null");
+        this.source = Objects.requireNonNull(source, "source must not be null");
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer();
+            ByteBuf out = byteBufAllocator.ioBuffer();
 
             writeByte(out, 'B');
             writeLengthPlaceholder(out);

@@ -18,4 +18,7 @@
  * The messages that are both sent from a frontend client to a backend server and from a backend server to a frontend client.
  */
 
+@NonNullApi
 package com.nebhale.r2dbc.postgresql.message;
+
+import com.nebhale.r2dbc.core.nullability.NonNullApi;

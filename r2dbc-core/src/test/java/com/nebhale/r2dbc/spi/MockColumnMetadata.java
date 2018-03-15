@@ -16,9 +16,10 @@
 
 package com.nebhale.r2dbc.spi;
 
-import java.util.Optional;
+import com.nebhale.r2dbc.core.nullability.Nullable;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class MockColumnMetadata implements ColumnMetadata {
 
@@ -32,10 +33,10 @@ public final class MockColumnMetadata implements ColumnMetadata {
 
     private final Integer type;
 
-    private MockColumnMetadata(String name, Integer precision, Integer type) {
-        this.name = requireNonNull(name);
+    private MockColumnMetadata(String name, @Nullable Integer precision, Integer type) {
+        this.name = Objects.requireNonNull(name);
         this.precision = precision;
-        this.type = requireNonNull(type);
+        this.type = Objects.requireNonNull(type);
     }
 
     public static Builder builder() {
@@ -89,12 +90,12 @@ public final class MockColumnMetadata implements ColumnMetadata {
         }
 
         public Builder name(String name) {
-            this.name = requireNonNull(name);
+            this.name = Objects.requireNonNull(name);
             return this;
         }
 
         public Builder precision(Integer precision) {
-            this.precision = precision;
+            this.precision = Objects.requireNonNull(precision);
             return this;
         }
 
@@ -108,7 +109,7 @@ public final class MockColumnMetadata implements ColumnMetadata {
         }
 
         public Builder type(Integer type) {
-            this.type = requireNonNull(type);
+            this.type = Objects.requireNonNull(type);
             return this;
         }
 

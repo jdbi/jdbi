@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The Field type returned as part of some {@link BackendMessage}s.
@@ -43,8 +42,8 @@ public final class Field {
      * @throws NullPointerException if {@code type} or {@code value} is {@code null}
      */
     public Field(FieldType type, String value) {
-        this.type = requireNonNull(type, "type must not be null");
-        this.value = requireNonNull(value, "value must not be null");
+        this.type = Objects.requireNonNull(type, "type must not be null");
+        this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
     @Override
@@ -92,7 +91,7 @@ public final class Field {
     }
 
     static List<Field> decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         List<Field> fields = new ArrayList<>();
 

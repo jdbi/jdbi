@@ -20,8 +20,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 public final class MockBatch implements Batch {
 
@@ -30,7 +29,7 @@ public final class MockBatch implements Batch {
     private final List<String> sqls = new ArrayList<>();
 
     private MockBatch(Flux<Result> results) {
-        this.results = requireNonNull(results);
+        this.results = Objects.requireNonNull(results);
     }
 
     public static Builder builder() {
@@ -43,7 +42,9 @@ public final class MockBatch implements Batch {
 
     @Override
     public MockBatch add(String sql) {
-        this.sqls.add(requireNonNull(sql));
+        Objects.requireNonNull(sql);
+
+        this.sqls.add(sql);
         return this;
     }
 
@@ -76,7 +77,9 @@ public final class MockBatch implements Batch {
         }
 
         public Builder result(Result result) {
-            this.results.add(requireNonNull(result));
+            Objects.requireNonNull(result);
+
+            this.results.add(result);
             return this;
         }
 

@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The RowDescription message.
@@ -41,7 +40,7 @@ public final class RowDescription implements BackendMessage {
      * @throws NullPointerException if {@code fields} is {@code null}
      */
     public RowDescription(List<Field> fields) {
-        this.fields = requireNonNull(fields, "fields must not be null");
+        this.fields = Objects.requireNonNull(fields, "fields must not be null");
     }
 
     @Override
@@ -78,7 +77,7 @@ public final class RowDescription implements BackendMessage {
     }
 
     static RowDescription decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         List<Field> fields = IntStream.range(0, in.readShort())
             .mapToObj(i -> Field.decode(in))
@@ -123,8 +122,8 @@ public final class RowDescription implements BackendMessage {
             this.dataType = dataType;
             this.dataTypeModifier = dataTypeModifier;
             this.dataTypeSize = dataTypeSize;
-            this.format = requireNonNull(format, "format must not be null");
-            this.name = requireNonNull(name, "name must not be null");
+            this.format = Objects.requireNonNull(format, "format must not be null");
+            this.name = Objects.requireNonNull(name, "name must not be null");
             this.table = table;
         }
 
@@ -228,7 +227,7 @@ public final class RowDescription implements BackendMessage {
         }
 
         static Field decode(ByteBuf in) {
-            requireNonNull(in, "in must not be null");
+            Objects.requireNonNull(in, "in must not be null");
 
             String name = readCStringUTF8(in);
             int table = in.readInt();

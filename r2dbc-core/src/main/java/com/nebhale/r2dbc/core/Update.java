@@ -21,9 +21,8 @@ import com.nebhale.r2dbc.spi.Statement;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
 import java.util.function.Function;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running updates such as {@code INSERT} and {@code DELETE}.
@@ -33,7 +32,7 @@ public final class Update {
     private final Statement statement;
 
     Update(Statement statement) {
-        this.statement = requireNonNull(statement, "statement must not be null");
+        this.statement = Objects.requireNonNull(statement, "statement must not be null");
     }
 
     /**
@@ -52,8 +51,12 @@ public final class Update {
      * @param identifier the identifier to bind to
      * @param value      the value to bind
      * @return this {@link Statement}
+     * @throws NullPointerException if {@code identifier} or {@code value} is {@code null}
      */
     public Update bind(Object identifier, Object value) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(value, "value must not be null");
+
         this.statement.bind(identifier, value);
         return this;
     }
@@ -64,8 +67,12 @@ public final class Update {
      * @param identifier the identifier to bind to
      * @param type       the type of null value
      * @return this {@link Statement}
+     * @throws NullPointerException if {@code identifier} or {@code type} is {@code null}
      */
     public Update bindNull(Object identifier, Object type) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
         this.statement.bindNull(identifier, type);
         return this;
     }
@@ -81,6 +88,11 @@ public final class Update {
             .flatMap(Result::getRowsUpdated);
     }
 
+    /**
+     * Executes one or more SQL statements and returns the {@link ResultBearing}s, including any generated keys.
+     *
+     * @return the {@link ResultBearing}s, returned by each statement
+     */
     public Flux<ResultBearing> executeReturningGeneratedKeys() {
         return Flux
             .from(this.statement.executeReturningGeneratedKeys())
@@ -95,6 +107,8 @@ public final class Update {
     }
 
     Update bind(int index, Object value) {
+        Objects.requireNonNull(value, "value must not be null");
+
         this.statement.bind(index, value);
         return this;
     }
@@ -107,14 +121,9 @@ public final class Update {
             this.result = result;
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @throws NullPointerException if {@code f} is {@code null}
-         */
         @Override
         public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-            requireNonNull(f, "f must not be null");
+            Objects.requireNonNull(f, "f must not be null");
 
             return Flux.from(f.apply(this.result));
         }

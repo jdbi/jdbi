@@ -32,13 +32,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.nebhale.r2dbc.postgresql.message.frontend.Execute.NO_LIMIT;
 import static com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType.PORTAL;
 import static com.nebhale.r2dbc.postgresql.message.frontend.ExecutionType.STATEMENT;
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.or;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A utility class that encapsulates the <a href="https://www.postgresql.org/docs/current/static/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY">Extended query</a> message flow.
@@ -61,13 +61,13 @@ public final class ExtendedQueryMessageFlow {
      * @param portalNameSupplier supplier unique portal names for each binding
      * @param statement          the name of the statement to execute
      * @return the messages received in response to the exchange
-     * @throws NullPointerException if {@code client}, {@code statement}, or {@code values} is {@code null}
+     * @throws NullPointerException if {@code bindings}, {@code client}, {@code portalNameSupplier}, or {@code statement} is {@code null}
      */
     public static Flux<BackendMessage> execute(Publisher<Binding> bindings, Client client, PortalNameSupplier portalNameSupplier, String statement) {
-        requireNonNull(bindings, "bindings must not be null");
-        requireNonNull(client, "client must not be null");
-        requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
-        requireNonNull(statement, "statement must not be null");
+        Objects.requireNonNull(bindings, "bindings must not be null");
+        Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(portalNameSupplier, "portalNameSupplier must not be null");
+        Objects.requireNonNull(statement, "statement must not be null");
 
         return client.exchange(Flux.from(bindings)
             .flatMap(binding -> toBindFlow(binding, portalNameSupplier, statement))
@@ -85,10 +85,10 @@ public final class ExtendedQueryMessageFlow {
      * @throws NullPointerException if {@code client}, {@code name}, {@code query}, or {@code types} is {@code null}
      */
     public static Flux<BackendMessage> parse(Client client, String name, String query, List<Integer> types) {
-        requireNonNull(client, "client must not be null");
-        requireNonNull(name, "name must not be null");
-        requireNonNull(query, "query must not be null");
-        requireNonNull(types, "types must not be null");
+        Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(query, "query must not be null");
+        Objects.requireNonNull(types, "types must not be null");
 
         return client.exchange(Flux.just(new Parse(name, types, query), new Describe(name, STATEMENT), Sync.INSTANCE))
             .takeUntil(or(RowDescription.class::isInstance, NoData.class::isInstance));

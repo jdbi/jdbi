@@ -23,8 +23,6 @@ import reactor.core.publisher.Flux;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * A wrapper for a {@link com.nebhale.r2dbc.spi.Batch} providing additional convenience APIs
  */
@@ -33,7 +31,7 @@ public final class Batch implements ResultBearing {
     private final com.nebhale.r2dbc.spi.Batch batch;
 
     Batch(com.nebhale.r2dbc.spi.Batch batch) {
-        this.batch = requireNonNull(batch, "batch must not be null");
+        this.batch = Objects.requireNonNull(batch, "batch must not be null");
     }
 
     /**
@@ -41,17 +39,15 @@ public final class Batch implements ResultBearing {
      *
      * @param sql the statement to add
      * @return this {@link Batch}
+     * @throws NullPointerException if {@code sql} is {@code null}
      */
     public Batch add(String sql) {
+        Objects.requireNonNull(sql, "sql must not be null");
+
         this.batch.add(sql);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code f} is {@code null}
-     */
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
         Objects.requireNonNull(f, "f must not be null");
 

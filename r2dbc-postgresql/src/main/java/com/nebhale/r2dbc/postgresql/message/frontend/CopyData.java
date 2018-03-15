@@ -29,7 +29,6 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeBytes;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The CopyData message.
@@ -45,17 +44,17 @@ public final class CopyData implements FrontendMessage {
      * @throws NullPointerException if {@code data} is {@code null}
      */
     public CopyData(ByteBuffer data) {
-        requireNonNull(data, "data must not be null");
+        Objects.requireNonNull(data, "data must not be null");
 
         this.data = (ByteBuffer) data.flip();
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.remaining()));
+            ByteBuf out = byteBufAllocator.ioBuffer(MESSAGE_OVERHEAD + (this.data.remaining()));
 
             writeByte(out, 'd');
             writeLengthPlaceholder(out);

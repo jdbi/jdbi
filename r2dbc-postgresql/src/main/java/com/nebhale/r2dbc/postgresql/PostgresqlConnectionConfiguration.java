@@ -16,7 +16,11 @@
 
 package com.nebhale.r2dbc.postgresql;
 
-import static java.util.Objects.requireNonNull;
+
+import com.nebhale.r2dbc.core.nullability.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Connection configuration information for connecting to a PostgreSQL database.
@@ -35,13 +39,13 @@ public final class PostgresqlConnectionConfiguration {
 
     private final String username;
 
-    private PostgresqlConnectionConfiguration(String applicationName, String database, String host, String password, int port, String username) {
-        this.applicationName = applicationName;
+    private PostgresqlConnectionConfiguration(String applicationName, @Nullable String database, String host, String password, int port, String username) {
+        this.applicationName = Objects.requireNonNull(applicationName);
         this.database = database;
-        this.host = requireNonNull(host, "host must not be null");
-        this.password = requireNonNull(password, "password must not be null");
+        this.host = Objects.requireNonNull(host, "host must not be null");
+        this.password = Objects.requireNonNull(password, "password must not be null");
         this.port = port;
-        this.username = requireNonNull(username, "username must not be null");
+        this.username = Objects.requireNonNull(username, "username must not be null");
     }
 
     /**
@@ -69,8 +73,8 @@ public final class PostgresqlConnectionConfiguration {
         return this.applicationName;
     }
 
-    String getDatabase() {
-        return this.database;
+    Optional<String> getDatabase() {
+        return Optional.ofNullable(this.database);
     }
 
     String getHost() {
@@ -119,7 +123,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code applicationName} is {@code null}
          */
         public Builder applicationName(String applicationName) {
-            this.applicationName = requireNonNull(applicationName, "applicationName must not be null");
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
             return this;
         }
 
@@ -138,7 +142,7 @@ public final class PostgresqlConnectionConfiguration {
          * @param database the database
          * @return this {@link Builder}
          */
-        public Builder database(String database) {
+        public Builder database(@Nullable String database) {
             this.database = database;
             return this;
         }
@@ -151,7 +155,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code host} is {@code null}
          */
         public Builder host(String host) {
-            this.host = requireNonNull(host, "host must not be null");
+            this.host = Objects.requireNonNull(host, "host must not be null");
             return this;
         }
 
@@ -163,7 +167,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code password} is {@code null}
          */
         public Builder password(String password) {
-            this.password = requireNonNull(password, "password must not be null");
+            this.password = Objects.requireNonNull(password, "password must not be null");
             return this;
         }
 
@@ -198,7 +202,7 @@ public final class PostgresqlConnectionConfiguration {
          * @throws NullPointerException if {@code username} is {@code null}
          */
         public Builder username(String username) {
-            this.username = requireNonNull(username, "username must not be null");
+            this.username = Objects.requireNonNull(username, "username must not be null");
             return this;
         }
 

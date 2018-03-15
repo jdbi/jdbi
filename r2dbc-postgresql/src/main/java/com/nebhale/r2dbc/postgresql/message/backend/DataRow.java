@@ -16,14 +16,13 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * The DataRow message.
@@ -41,7 +40,7 @@ public final class DataRow implements BackendMessage {
      * @throws NullPointerException if {@code columns} is {@code null}
      */
     public DataRow(List<ByteBuf> columns) {
-        this.columns = requireNonNull(columns, "columns must not be null");
+        this.columns = Objects.requireNonNull(columns, "columns must not be null");
 
         this.columns.stream()
             .filter(Objects::nonNull)
@@ -91,7 +90,7 @@ public final class DataRow implements BackendMessage {
     }
 
     static DataRow decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         List<ByteBuf> columns = IntStream.range(0, in.readShort())
             .mapToObj(i -> decodeColumn(in))
@@ -100,7 +99,10 @@ public final class DataRow implements BackendMessage {
         return new DataRow(columns);
     }
 
+    @Nullable
     private static ByteBuf decodeColumn(ByteBuf in) {
+        Objects.requireNonNull(in);
+
         int length = in.readInt();
         return NULL == length ? null : in.readSlice(length);
     }

@@ -40,6 +40,7 @@ import reactor.ipc.netty.tcp.TcpClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -51,7 +52,6 @@ import java.util.stream.Collectors;
 
 import static com.nebhale.r2dbc.postgresql.client.TransactionStatus.IDLE;
 import static com.nebhale.r2dbc.postgresql.util.PredicateUtils.not;
-import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of client based on the Reactor Netty project.
@@ -114,7 +114,7 @@ public final class ReactorNettyClient implements Client {
      * @throws NullPointerException if {@code host} or {@code decoder} is {@code null}
      */
     public ReactorNettyClient(String host, int port) {
-        requireNonNull(host, "host must not be null");
+        Objects.requireNonNull(host, "host must not be null");
 
         BackendMessageDecoder decoder = new BackendMessageDecoder();
         FluxSink<Flux<BackendMessage>> responses = this.responseProcessor.sink();
@@ -161,14 +161,9 @@ public final class ReactorNettyClient implements Client {
         });
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code publisher} is {@code null}
-     */
     @Override
     public Flux<BackendMessage> exchange(Publisher<FrontendMessage> requests) {
-        requireNonNull(requests, "requests must not be null");
+        Objects.requireNonNull(requests, "requests must not be null");
 
         return Flux.defer(() -> {
             if (this.isClosed.get()) {

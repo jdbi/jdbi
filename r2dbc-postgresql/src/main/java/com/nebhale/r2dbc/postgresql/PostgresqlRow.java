@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.nebhale.r2dbc.postgresql.codec.Codecs;
 import com.nebhale.r2dbc.postgresql.message.Format;
 import com.nebhale.r2dbc.postgresql.message.backend.DataRow;
@@ -31,8 +32,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * An implementation of {@link Row} for a PostgreSQL database.
  */
@@ -47,8 +46,8 @@ public final class PostgresqlRow implements Row {
     private final Map<String, Column> nameKeyedColumns;
 
     PostgresqlRow(Codecs codecs, List<Column> columns) {
-        this.codecs = requireNonNull(codecs, "codecs must not be null");
-        this.columns = requireNonNull(columns, "columns must not be null");
+        this.codecs = Objects.requireNonNull(codecs, "codecs must not be null");
+        this.columns = Objects.requireNonNull(columns, "columns must not be null");
 
         this.nameKeyedColumns = this.columns.stream()
             .collect(Collectors.toMap(Column::getName, Function.identity()));
@@ -66,16 +65,11 @@ public final class PostgresqlRow implements Row {
         return Objects.equals(this.columns, that.columns);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException if {@code identifier} is not a {@link String} or {@link Integer}
-     * @throws NullPointerException     if {@code identifier} or {@code type} is {@code null}
-     */
+    @Nullable
     @Override
     public <T> T get(Object identifier, Class<T> type) {
-        requireNonNull(identifier, "identifier must not be null");
-        requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(type, "type must not be null");
         requireNotReleased();
 
         Column column;
@@ -106,9 +100,9 @@ public final class PostgresqlRow implements Row {
     }
 
     static PostgresqlRow toRow(Codecs codecs, DataRow dataRow, RowDescription rowDescription) {
-        requireNonNull(codecs, "codecs must not be null");
-        requireNonNull(dataRow, "dataRow must not be null");
-        requireNonNull(rowDescription, "rowDescription must not be null");
+        Objects.requireNonNull(codecs, "codecs must not be null");
+        Objects.requireNonNull(dataRow, "dataRow must not be null");
+        Objects.requireNonNull(rowDescription, "rowDescription must not be null");
 
         List<ByteBuf> byteBufs = dataRow.getColumns();
         List<RowDescription.Field> fields = rowDescription.getFields();
@@ -167,9 +161,9 @@ public final class PostgresqlRow implements Row {
 
         Column(ByteBuf byteBuf, Integer dataType, Format format, String name) {
             this.byteBuf = byteBuf == null ? null : byteBuf.retain();
-            this.dataType = requireNonNull(dataType, "dataType must not be null");
-            this.format = requireNonNull(format, "format must not be null");
-            this.name = requireNonNull(name, "name must not be null");
+            this.dataType = Objects.requireNonNull(dataType, "dataType must not be null");
+            this.format = Objects.requireNonNull(format, "format must not be null");
+            this.name = Objects.requireNonNull(name, "name must not be null");
         }
 
         @Override

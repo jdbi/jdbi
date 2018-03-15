@@ -16,7 +16,10 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import io.netty.buffer.ByteBuf;
+
+import java.util.Objects;
 
 import static io.netty.util.CharsetUtil.UTF_8;
 
@@ -28,10 +31,15 @@ final class BackendMessageUtils {
     }
 
     static ByteBuf getBody(ByteBuf in) {
+        Objects.requireNonNull(in, "in must not be null");
+
         return in.readSlice(in.readInt() - 4);
     }
 
+    @Nullable
     static ByteBuf getEnvelope(ByteBuf in) {
+        Objects.requireNonNull(in, "in must not be null");
+
         if (in.readableBytes() < 5) {
             return null;
         }
@@ -45,6 +53,8 @@ final class BackendMessageUtils {
     }
 
     static String readCStringUTF8(ByteBuf src) {
+        Objects.requireNonNull(src, "src must not be null");
+
         String s = src.readCharSequence(src.bytesBefore(TERMINAL), UTF_8).toString();
         src.readByte();
         return s;

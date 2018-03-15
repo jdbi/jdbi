@@ -16,6 +16,7 @@
 
 package com.nebhale.r2dbc.postgresql.util;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
@@ -71,6 +72,7 @@ public final class PostgresqlServerResource extends ExternalResource {
         return this.host;
     }
 
+    @Nullable
     public JdbcOperations getJdbcOperations() {
         return this.jdbcOperations;
     }

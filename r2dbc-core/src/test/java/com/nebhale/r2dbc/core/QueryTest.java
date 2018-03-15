@@ -60,6 +60,24 @@ public final class QueryTest {
     }
 
     @Test
+    public void bindIndexNoValue() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind(100, null))
+            .withMessage("value must not be null");
+    }
+
+    @Test
+    public void bindNoIdentifier() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind(null, new Object()))
+            .withMessage("identifier must not be null");
+    }
+
+    @Test
+    public void bindNoValue() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind("test-identifier", null))
+            .withMessage("value must not be null");
+    }
+
+    @Test
     public void bindNull() {
         MockStatement statement = MockStatement.empty();
 
@@ -67,6 +85,18 @@ public final class QueryTest {
             .bindNull("test-identifier", "test-type");
 
         assertThat(statement.getBindings()).contains(Collections.singletonMap("test-identifier", "test-type"));
+    }
+
+    @Test
+    public void bindNullNoIdentifier() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull(null, Object.class))
+            .withMessage("identifier must not be null");
+    }
+
+    @Test
+    public void bindNullNoType() {
+        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull("test-identifier", null))
+            .withMessage("type must not be null");
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package com.nebhale.r2dbc.postgresql.util;
 
+import java.util.Objects;
+
 /**
  * Utilities for working with {@link Objects}s.
  */
@@ -33,9 +35,14 @@ public final class ObjectUtils {
      * @param <T>     the type being required
      * @return the value casted to the required type
      * @throws IllegalArgumentException if {@code value} is not of the required type
+     * @throws NullPointerException     if {@code value}, {@code type}, or {@code message} is {@code null}
      */
     @SuppressWarnings("unchecked")
     public static <T> T requireType(Object value, Class<T> type, String message) {
+        Objects.requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(message, "message must not be null");
+
         if (!type.isInstance(value)) {
             throw new IllegalArgumentException(message);
         }

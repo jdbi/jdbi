@@ -30,7 +30,6 @@ import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeLengthPlaceholder;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeShort;
 import static com.nebhale.r2dbc.postgresql.message.frontend.FrontendMessageUtils.writeSize;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The Parse message.
@@ -64,17 +63,17 @@ public final class Parse implements FrontendMessage {
      * @see #UNSPECIFIED
      */
     public Parse(String name, List<Integer> parameters, String query) {
-        this.name = requireNonNull(name, "name must not be null");
-        this.parameters = requireNonNull(parameters, "parameters must not be null");
-        this.query = requireNonNull(query, "query must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.parameters = Objects.requireNonNull(parameters, "parameters must not be null");
+        this.query = Objects.requireNonNull(query, "query must not be null");
     }
 
     @Override
-    public Publisher<ByteBuf> encode(ByteBufAllocator allocator) {
-        requireNonNull(allocator, "allocator must not be null");
+    public Publisher<ByteBuf> encode(ByteBufAllocator byteBufAllocator) {
+        Objects.requireNonNull(byteBufAllocator, "byteBufAllocator must not be null");
 
         return Mono.defer(() -> {
-            ByteBuf out = allocator.ioBuffer();
+            ByteBuf out = byteBufAllocator.ioBuffer();
 
             writeByte(out, 'P');
             writeLengthPlaceholder(out);

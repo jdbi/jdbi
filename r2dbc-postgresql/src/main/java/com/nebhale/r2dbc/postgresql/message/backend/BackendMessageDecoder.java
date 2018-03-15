@@ -23,11 +23,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.SynchronousSink;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.getBody;
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.getEnvelope;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A decoder that reads {@link ByteBuf}s and returns a {@link Flux} of decoded {@link BackendMessage}s.
@@ -36,8 +36,15 @@ public final class BackendMessageDecoder {
 
     private final AtomicReference<ByteBuf> remainder = new AtomicReference<>();
 
+    /**
+     * Decode a {@link ByteBuf} into a {@link Flux} of {@link BackendMessage}s.  If the {@link ByteBuf} does not end on a {@link BackendMessage} boundary, the {@link ByteBuf} will be retained until
+     * an the concatenated contents of all retained {@link ByteBuf}s is a {@link BackendMessage} boundary.
+     *
+     * @param in the {@link ByteBuf} to decode
+     * @return a {@link Flux} of {@link BackendMessage}s
+     */
     public Flux<BackendMessage> decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         return Flux.generate(
             () -> {

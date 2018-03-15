@@ -15,10 +15,7 @@
  */
 
 /**
- * The core Reactive Relational Database Connection API.
+ * Annotations indicating nullability of the API.
  */
 
-@NonNullApi
-package com.nebhale.r2dbc.core;
-
-import com.nebhale.r2dbc.core.nullability.NonNullApi;
+package com.nebhale.r2dbc.core.nullability;

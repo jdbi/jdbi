@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package com.nebhale.r2dbc.postgresql.authentication;
+package com.nebhale.r2dbc.postgresql.client;
 
-import com.nebhale.r2dbc.postgresql.message.backend.AuthenticationOk;
+import com.nebhale.r2dbc.postgresql.message.backend.ReadyForQuery;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class TrustAuthenticationHandlerTest {
+public final class TransactionStatusTest {
 
     @Test
-    public void handle() {
-        assertThatIllegalArgumentException().isThrownBy(() -> TrustAuthenticationHandler.INSTANCE.handle(AuthenticationOk.INSTANCE))
-            .withMessage("Trust does not require a response");
+    public void valueOf() {
+        assertThat(TransactionStatus.valueOf(ReadyForQuery.TransactionStatus.IDLE)).isEqualTo(TransactionStatus.IDLE);
+    }
+
+    @Test
+    public void valueOfNoT() {
+        assertThatNullPointerException().isThrownBy(() -> TransactionStatus.valueOf((ReadyForQuery.TransactionStatus) null))
+            .withMessage("t must not be null");
     }
 
 }

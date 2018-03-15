@@ -25,6 +25,7 @@ import reactor.core.publisher.SynchronousSink;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.CODE;
@@ -45,7 +46,6 @@ import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.SEVER
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.SEVERITY_NON_LOCALIZED;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.TABLE_NAME;
 import static com.nebhale.r2dbc.postgresql.message.backend.Field.FieldType.WHERE;
-import static java.util.Objects.requireNonNull;
 
 /**
  * An exception that represents a server error.  This exception is a direct translation of the {@link ErrorResponse} message.
@@ -96,7 +96,7 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      * @throws NullPointerException if {@code fields} is {@code null}
      */
     public PostgresqlServerErrorException(List<Field> fields) {
-        requireNonNull(fields, "fields must not be null");
+        Objects.requireNonNull(fields, "fields must not be null");
 
         Map<FieldType, String> map = fields.stream()
             .collect(Collectors.toMap(Field::getType, Field::getValue));
@@ -164,8 +164,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#COLUMN_NAME} field
      */
-    public String getColumnName() {
-        return this.columnName;
+    public Optional<String> getColumnName() {
+        return Optional.ofNullable(this.columnName);
     }
 
     /**
@@ -173,8 +173,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#CONSTRAINT_NAME} field
      */
-    public String getConstraintName() {
-        return this.constraintName;
+    public Optional<String> getConstraintName() {
+        return Optional.ofNullable(this.constraintName);
     }
 
     /**
@@ -182,8 +182,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#DATA_TYPE_NAME} field
      */
-    public String getDataTypeName() {
-        return this.dataTypeName;
+    public Optional<String> getDataTypeName() {
+        return Optional.ofNullable(this.dataTypeName);
     }
 
     /**
@@ -191,8 +191,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#DETAIL} field
      */
-    public String getDetail() {
-        return this.detail;
+    public Optional<String> getDetail() {
+        return Optional.ofNullable(this.detail);
     }
 
     /**
@@ -200,8 +200,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#FILE} field
      */
-    public String getFile() {
-        return this.file;
+    public Optional<String> getFile() {
+        return Optional.ofNullable(this.file);
     }
 
     /**
@@ -209,8 +209,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#HINT} field
      */
-    public String getHint() {
-        return this.hint;
+    public Optional<String> getHint() {
+        return Optional.ofNullable(this.hint);
     }
 
     /**
@@ -218,8 +218,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#INTERNAL_POSITION} field
      */
-    public String getInternalPosition() {
-        return this.internalPosition;
+    public Optional<String> getInternalPosition() {
+        return Optional.ofNullable(this.internalPosition);
     }
 
     /**
@@ -227,8 +227,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#INTERNAL_QUERY} field
      */
-    public String getInternalQuery() {
-        return this.internalQuery;
+    public Optional<String> getInternalQuery() {
+        return Optional.ofNullable(this.internalQuery);
     }
 
     /**
@@ -236,8 +236,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#LINE} field
      */
-    public String getLine() {
-        return this.line;
+    public Optional<String> getLine() {
+        return Optional.ofNullable(this.line);
     }
 
     /**
@@ -255,8 +255,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#POSITION} field
      */
-    public String getPosition() {
-        return this.position;
+    public Optional<String> getPosition() {
+        return Optional.ofNullable(this.position);
     }
 
     /**
@@ -264,8 +264,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#ROUTINE} field
      */
-    public String getRoutine() {
-        return this.routine;
+    public Optional<String> getRoutine() {
+        return Optional.ofNullable(this.routine);
     }
 
     /**
@@ -273,8 +273,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#SCHEMA_NAME} field
      */
-    public String getSchemaName() {
-        return this.schemaName;
+    public Optional<String> getSchemaName() {
+        return Optional.ofNullable(this.schemaName);
     }
 
     /**
@@ -300,8 +300,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#TABLE_NAME} field
      */
-    public String getTableName() {
-        return this.tableName;
+    public Optional<String> getTableName() {
+        return Optional.ofNullable(this.tableName);
     }
 
     /**
@@ -309,8 +309,8 @@ public final class PostgresqlServerErrorException extends RuntimeException {
      *
      * @return the value of the {@link FieldType#WHERE} field
      */
-    public String getWhere() {
-        return this.where;
+    public Optional<String> getWhere() {
+        return Optional.ofNullable(this.where);
     }
 
     @Override
@@ -352,7 +352,7 @@ public final class PostgresqlServerErrorException extends RuntimeException {
     }
 
     private static PostgresqlServerErrorException toException(ErrorResponse errorResponse) {
-        requireNonNull(errorResponse, "errorResponse must not be null");
+        Objects.requireNonNull(errorResponse, "errorResponse must not be null");
 
         return new PostgresqlServerErrorException(errorResponse.getFields());
     }

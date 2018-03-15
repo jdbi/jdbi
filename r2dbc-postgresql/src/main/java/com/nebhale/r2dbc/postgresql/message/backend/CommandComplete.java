@@ -16,13 +16,13 @@
 
 package com.nebhale.r2dbc.postgresql.message.backend;
 
+import com.nebhale.r2dbc.core.nullability.Nullable;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.nebhale.r2dbc.postgresql.message.backend.BackendMessageUtils.readCStringUTF8;
-import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -44,8 +44,8 @@ public final class CommandComplete implements BackendMessage {
      * @param rows    the number of rows affected by the command
      * @throws NullPointerException if {@code command} is {@code null}
      */
-    public CommandComplete(String command, Integer rowId, Integer rows) {
-        this.command = requireNonNull(command, "command must not be null");
+    public CommandComplete(String command, @Nullable Integer rowId, @Nullable Integer rows) {
+        this.command = Objects.requireNonNull(command, "command must not be null");
         this.rowId = rowId;
         this.rows = rows;
     }
@@ -78,6 +78,7 @@ public final class CommandComplete implements BackendMessage {
      *
      * @return the object ID of the inserted row
      */
+    @Nullable
     public Integer getRowId() {
         return this.rowId;
     }
@@ -87,6 +88,7 @@ public final class CommandComplete implements BackendMessage {
      *
      * @return the number of rows affected by the command
      */
+    @Nullable
     public Integer getRows() {
         return this.rows;
     }
@@ -106,7 +108,7 @@ public final class CommandComplete implements BackendMessage {
     }
 
     static CommandComplete decode(ByteBuf in) {
-        requireNonNull(in, "in must not be null");
+        Objects.requireNonNull(in, "in must not be null");
 
         String tag = readCStringUTF8(in);
 
