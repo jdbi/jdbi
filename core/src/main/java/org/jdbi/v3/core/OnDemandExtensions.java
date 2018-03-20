@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import org.jdbi.v3.core.internal.JdbiThreadLocals;
 
 class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
@@ -54,15 +55,9 @@ class OnDemandExtensions {
                 if (threadExtension.get() != null) {
                     return method.invoke(threadExtension.get(), args);
                 }
-                return db.withExtension(extensionType, extension -> {
-                    threadExtension.set(extension);
-                    try {
-                        return method.invoke(extension, args);
-                    }
-                    finally {
-                        threadExtension.remove();
-                    }
-                });
+                return db.withExtension(extensionType, extension ->
+                        JdbiThreadLocals.invokeInContext(threadExtension, extension,
+                                () -> method.invoke(extension, args)));
             }
             catch (InvocationTargetException e) {
                 throw e.getTargetException();

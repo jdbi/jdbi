@@ -118,10 +118,13 @@ public class Handle implements Closeable, Configurable<Handle>
      */
     @Override
     public void close() {
-        extensionMethod.remove();
         if (!closed) {
             boolean wasInTransaction = isInTransaction() && forceEndTransactions
                     && config.get().get(Handles.class).isForceEndTransactions();
+
+            extensionMethod.remove();
+            config.remove();
+
             if (wasInTransaction) {
                 rollback();
             }
