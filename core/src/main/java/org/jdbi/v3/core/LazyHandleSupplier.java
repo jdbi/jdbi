@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.JdbiThreadLocals;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     private final Jdbi db;
@@ -63,31 +64,20 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        ExtensionMethod oldExtensionMethod = this.extensionMethod.get();
-        try {
-            this.extensionMethod.set(extensionMethod);
-
-            ConfigRegistry oldConfig = this.config.get();
-            try {
-                this.config.set(config);
-                return task.call();
-            }
-            finally {
-                this.config.set(oldConfig);
-            }
-        }
-        finally {
-            this.extensionMethod.set(oldExtensionMethod);
-        }
+        return JdbiThreadLocals.invokeInContext(this.extensionMethod, extensionMethod,
+                () -> JdbiThreadLocals.invokeInContext(this.config, config, task));
     }
 
     @Override
     public synchronized void close() {
         closed = true;
+        // once created, the handle owns cleanup of the threadlocals
         if (handle != null) {
             handle.close();
         }
-        config.remove();
-        extensionMethod.remove();
+        else {
+            config.remove();
+            extensionMethod.remove();
+        }
     }
 }
