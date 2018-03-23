@@ -21,17 +21,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
+import org.jdbi.v3.core.result.RowReducer;
+import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -46,7 +51,13 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
     private final SqlBatch sqlBatch;
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
-    private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
+
+    private final Function<PreparedBatch, ResultBearing> batchToResultBearing;
+
+    // only one of these can be non-null
+    private final Function<PreparedBatch, ResultIterator<?>> batchToResultIterable;
+    private final RowReducer<?, ?> reducer;
+
     private final ResultReturner magic;
 
     public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
@@ -65,24 +76,39 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                 throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
             }
             Function<PreparedBatch,ResultIterator<?>> modCounts = PreparedBatch::executeAndGetModCount;
-            batchIntermediate = method.getReturnType().equals(boolean[].class)
+            batchToResultBearing = null;
+            batchToResultIterable = method.getReturnType().equals(boolean[].class)
                     ? mapToBoolean(modCounts)
                     : modCounts;
+            reducer = null;
+
             magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
         } else {
             String[] columnNames = getGeneratedKeys.value();
+            batchToResultBearing = batch -> batch.executeAndReturnGeneratedKeys(columnNames);
             magic = ResultReturner.forMethod(sqlObjectType, method);
 
-            if (method.isAnnotationPresent(UseRowMapper.class)) {
-                RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
-                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
-                        .map(mapper)
-                        .iterator();
+            UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+            UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
+
+            if (useRowReducer != null) {
+                if (useRowMapper != null) {
+                    throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
+                }
+
+                batchToResultIterable = null;
+                reducer = rowReducerFor(useRowReducer);
+            }
+            else if (useRowMapper != null) {
+                RowMapper<?> mapper = rowMapperFor(useRowMapper);
+                batchToResultIterable = batchToResultBearing.andThen(batch -> batch.map(mapper).iterator());
+                reducer = null;
             }
             else {
-                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                batchToResultIterable = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
                         .mapTo(magic.elementType(batch.getContext()))
                         .iterator();
+                reducer = null;
             }
         }
     }
@@ -177,6 +203,58 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         final int chunkSize = batchChunkSize.call(args);
         final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
 
+        if (reducer != null) {
+            return executeAndReduceResult(handle, sql, chunkSize, batchArgs, reducer);
+        }
+
+        return executeAndMapResult(handle, sql, chunkSize, batchArgs);
+    }
+
+    private <A, R> Object executeAndReduceResult(Handle handle, String sql, int chunkSize, Iterator<Object[]> batchArgs, RowReducer<A, R> reducer) {
+        StatementContext ctx = null;
+
+        A acc = reducer.createAccumulator();
+
+        if (batchArgs.hasNext()) {
+            while(batchArgs.hasNext()) {
+                PreparedBatch batch = handle.prepareBatch(sql);
+                ctx = batch.getContext();
+
+                for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
+                    applyCustomizers(batch, batchArgs.next());
+                    batch.add();
+                }
+
+                executeAndAccumulateBatchResult(handle, batch, acc, reducer::accumulate);
+            }
+        }
+        else {
+            ctx = handle.prepareBatch(sql).getContext(); // dummy context
+        }
+
+        Stream<R> result = reducer.stream(acc);
+
+        return magic.reducedResult(result, ctx);
+    }
+
+    private <A> void executeAndAccumulateBatchResult(final Handle handle, final PreparedBatch batch, A accumulator, BiConsumer<A, RowView> consumer) {
+        HandleConsumer<RuntimeException> processBatch = h -> batchToResultBearing
+            .apply(batch)
+            .reduceRows(accumulator, (a, rowView) -> {
+                consumer.accept(a, rowView);
+                return a;
+            });
+
+        if (!handle.isInTransaction() && sqlBatch.transactional()) {
+            // it is safe to use same prepared batch as the inTransaction passes in the same
+            // Handle instance.
+            handle.useTransaction(processBatch);
+        } else {
+            processBatch.useHandle(handle);
+        }
+    }
+
+    private Object executeAndMapResult(Handle handle, String sql, int chunkSize, Iterator<Object[]> batchArgs) {
         ResultIterator<Object> result;
 
         if (batchArgs.hasNext()) {
@@ -313,9 +391,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction(c -> batchIntermediate.apply(batch));
+            return handle.inTransaction(c -> batchToResultIterable.apply(batch));
         } else {
-            return batchIntermediate.apply(batch);
+            return batchToResultIterable.apply(batch);
         }
     }
 

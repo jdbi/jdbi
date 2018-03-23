@@ -45,10 +45,20 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
             String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
 
+            UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+            UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
+
+            if (useRowMapper != null && useRowReducer != null) {
+                throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
+            }
+
             this.returner = update -> {
                 ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
 
-                UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+                if (useRowReducer != null) {
+                    return magic.reducedResult(resultBearing.reduceRows(rowReducerFor(useRowReducer)), update.getContext());
+                }
+
                 ResultIterable<?> iterable = useRowMapper == null
                         ? resultBearing.mapTo(returnType)
                         : resultBearing.map(rowMapperFor(useRowMapper));
