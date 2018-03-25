@@ -3969,12 +3969,13 @@ The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional libra
 * Supports argument resolution of sever Vavr Value types such as
   `Option<T>`, `Either<L, T>`, `Lazy<T>`, `Try<T>` and `Validation<T>`.
   Given that for the wrapped type `T` a Mapper is registered.
-* Return Vavr collection types from queries. Supported are `Seq<T>`, `Set<T>`
-  and `Map<T>` as well as all subtypes thereof.
+* Return Vavr collection types from queries. Supported are `Seq<T>`, `Set<T>`,
+  `Map<K, T>` and `Multimap<K, T>` as well as all subtypes thereof.
   It is possible to collect into a `Traversable<T>`, in this case a `List<T>`
-  will be used as default implementation.
-  For interface types a sensible default implementation will be used
-  (e.q. `List<T>` for `Seq<T>`).
+  will be returned.
+  For all interface types a sensible default implementation will be used
+  (e.q. `List<T>` for `Seq<T>`). Furthermore `Multimap<K, T>`s are backed by a `Seq<T>`
+  as default value container.
 * Columns can be mapped into Vavr's `Option<T>` type.
 * Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
   you can map your query results e.g. to `Tuple3<Integer, String, Long>`.
