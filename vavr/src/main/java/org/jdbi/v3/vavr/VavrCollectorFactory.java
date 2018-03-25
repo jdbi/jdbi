@@ -24,6 +24,7 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.LinkedHashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.PriorityQueue;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
@@ -70,6 +71,7 @@ class VavrCollectorFactory implements CollectorFactory {
                 Tuple.of(List.class, List.collector()),
                 Tuple.of(Stream.class, Stream.collector()),
                 Tuple.of(Queue.class, Queue.collector()),
+                Tuple.of(PriorityQueue.class, PriorityQueue.collector()),
                 // Sets
                 Tuple.of(HashSet.class, HashSet.collector()),
                 Tuple.of(LinkedHashSet.class, LinkedHashSet.collector()),

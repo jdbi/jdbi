@@ -22,6 +22,7 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.LinkedHashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.PriorityQueue;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
@@ -44,7 +45,7 @@ public class TestVavrCollectorFactory {
     private VavrCollectorFactory unit;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         unit = new VavrCollectorFactory();
     }
 
@@ -55,6 +56,7 @@ public class TestVavrCollectorFactory {
         assertTrue(unit.accepts(new GenericType<List<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<Stream<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<Queue<?>>() {}.getType()));
+        assertTrue(unit.accepts(new GenericType<PriorityQueue<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<HashSet<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<LinkedHashSet<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<TreeSet<?>>() {}.getType()));

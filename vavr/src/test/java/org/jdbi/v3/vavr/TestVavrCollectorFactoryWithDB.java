@@ -23,6 +23,7 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.LinkedHashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.PriorityQueue;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
@@ -64,6 +65,7 @@ public class TestVavrCollectorFactoryWithDB {
         testType(new GenericType<List<Integer>>() {});
         testType(new GenericType<Stream<Integer>>() {});
         testType(new GenericType<Queue<Integer>>() {});
+        testType(new GenericType<PriorityQueue<Integer>>() {});
         testType(new GenericType<HashSet<Integer>>() {});
         testType(new GenericType<LinkedHashSet<Integer>>() {});
         testType(new GenericType<TreeSet<Integer>>() {});
