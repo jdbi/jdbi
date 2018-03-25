@@ -4036,7 +4036,16 @@ handle.createQuery("select middle_name from users") // nulls incoming!
         .collectInto(new GenericType<Seq<Option<String>>>() {});
 ----
 
-The plugin will obey configured key and value columns for `Map<K, V>` return types.
+The plugin will obey configured key and value columns for `Map<K, T>`
+and `Multimap<K, T>` return types. In the next example we will key users
+by their name, which is not necessarily unique.
+
+[source,java]
+----
+Multimap<String, User> usersByName = handle.createQuery("select * from users")
+        .setMapKeyColumn("name")
+        .collectInto(new GenericType<Multimap<String, User>>() {});
+----
 
 Last but not least we can now project simple queries to Vavr tuples like that:
 
