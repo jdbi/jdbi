@@ -17,22 +17,27 @@ import io.vavr.Lazy;
 import io.vavr.Tuple;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashMultimap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.IndexedSeq;
 import io.vavr.collection.LinearSeq;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.LinkedHashMultimap;
 import io.vavr.collection.LinkedHashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Multimap;
 import io.vavr.collection.PriorityQueue;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.SortedMap;
+import io.vavr.collection.SortedMultimap;
 import io.vavr.collection.SortedSet;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Traversable;
 import io.vavr.collection.TreeMap;
+import io.vavr.collection.TreeMultimap;
 import io.vavr.collection.TreeSet;
 import io.vavr.collection.Vector;
 import io.vavr.control.Option;
@@ -56,7 +61,9 @@ class VavrCollectorFactory implements CollectorFactory {
             Set.class, HashSet.class,
             SortedSet.class, TreeSet.class,
             Map.class, HashMap.class,
-            SortedMap.class, TreeMap.class
+            SortedMap.class, TreeMap.class,
+            Multimap.class, HashMultimap.class,
+            SortedMultimap.class, TreeMultimap.class
     );
 
     private final Map<Class<?>, Collector<?, ?, ?>> collectors;
@@ -79,7 +86,11 @@ class VavrCollectorFactory implements CollectorFactory {
                 // Maps
                 Tuple.of(HashMap.class, HashMap.collector()),
                 Tuple.of(LinkedHashMap.class, LinkedHashMap.collector()),
-                Tuple.of(TreeMap.class, TreeMap.collector())
+                Tuple.of(TreeMap.class, TreeMap.collector()),
+                // Multimaps
+                Tuple.of(HashMultimap.class, HashMultimap.withSeq().collector()),
+                Tuple.of(LinkedHashMultimap.class, LinkedHashMultimap.withSeq().collector()),
+                Tuple.of(TreeMultimap.class, TreeMultimap.withSeq().collector())
         );
     }
 
@@ -110,6 +121,8 @@ class VavrCollectorFactory implements CollectorFactory {
 
         if (Map.class.isAssignableFrom(erasedType)) {
             return Optional.of(VavrGenericMapUtil.resolveMapEntryType(containerType));
+        } else if (Multimap.class.isAssignableFrom(erasedType)) {
+            return Optional.of(VavrGenericMapUtil.resolveMultimapEntryType(containerType));
         }
 
         return findGenericParameter(containerType, erasedType);
