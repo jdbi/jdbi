@@ -15,6 +15,7 @@ package org.jdbi.v3.vavr;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
+import io.vavr.collection.Multimap;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.generic.internal.TypeParameter;
 import org.jdbi.v3.core.generic.internal.TypeToken;
@@ -31,15 +32,30 @@ class VavrGenericMapUtil {
     private static final TypeVariable<Class<Map>> KEY;
     private static final TypeVariable<Class<Map>> VALUE;
 
+    private static final TypeVariable<Class<Multimap>> KEY_MULTIMAP;
+    private static final TypeVariable<Class<Multimap>> VALUE_MULTIMAP;
+
     static {
         TypeVariable<Class<Map>>[] mapParams = Map.class.getTypeParameters();
         KEY = mapParams[0];
         VALUE = mapParams[1];
+
+        TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
+        KEY_MULTIMAP = multimapParams[0];
+        VALUE_MULTIMAP = multimapParams[1];
     }
 
     static Type resolveMapEntryType(Type mapType) {
-        Type keyType = GenericTypes.resolveType(KEY, mapType);
-        Type valueType = GenericTypes.resolveType(VALUE, mapType);
+        return resolveMaplikeEntryType(mapType, KEY, VALUE);
+    }
+
+    static Type resolveMultimapEntryType(Type mapType) {
+        return resolveMaplikeEntryType(mapType, KEY_MULTIMAP, VALUE_MULTIMAP);
+    }
+
+    private static Type resolveMaplikeEntryType(Type maplikeType, Type keyParam, Type valueParam) {
+        Type keyType = GenericTypes.resolveType(keyParam, maplikeType);
+        Type valueType = GenericTypes.resolveType(valueParam, maplikeType);
         return resolveMapEntryType(keyType, valueType);
     }
 
