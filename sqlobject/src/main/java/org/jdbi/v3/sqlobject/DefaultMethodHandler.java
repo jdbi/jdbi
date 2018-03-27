@@ -47,7 +47,11 @@ class DefaultMethodHandler implements Handler {
                 if (!constructor.isAccessible()) {
                     constructor.setAccessible(true);
                 }
-                return constructor.newInstance(type, MethodHandles.Lookup.ALL_MODES);
+                return constructor.newInstance(type,
+                        MethodHandles.Lookup.PUBLIC |
+                        MethodHandles.Lookup.PRIVATE |
+                        MethodHandles.Lookup.PROTECTED |
+                        MethodHandles.Lookup.PACKAGE);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
