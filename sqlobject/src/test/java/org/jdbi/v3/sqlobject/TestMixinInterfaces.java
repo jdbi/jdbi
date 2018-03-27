@@ -168,12 +168,12 @@ public class TestMixinInterfaces
         }
     }
 
-    public interface WithGetHandle extends SqlObject
+    private interface WithGetHandle extends SqlObject
     {
 
     }
 
-    public interface TransactionStuff extends Transactional<TransactionStuff>
+    private interface TransactionStuff extends Transactional<TransactionStuff>
     {
 
         @SqlQuery("select id, name from something where id = :id")

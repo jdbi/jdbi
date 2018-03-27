@@ -82,7 +82,7 @@ public class TestRegisteredMappersWork
         }
     }
 
-    public interface BeanMappingDao extends SqlObject
+    private interface BeanMappingDao extends SqlObject
     {
         @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
         void createBeanTable();

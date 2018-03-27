@@ -221,7 +221,7 @@ public class TestBeanMapper
         }
     }
 
-    public interface DocumentDao extends SqlObject {
+    private interface DocumentDao extends SqlObject {
         @SqlBatch("insert into folders (id, name) values (:id, :name)")
         void insertFolders(@BindBean Folder... folders);
 

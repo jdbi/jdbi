@@ -88,7 +88,7 @@ public class TestDefaultMethods
         dbRule.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
     }
 
-    public interface StatementContextExtensionMethodDao extends SqlObject {
+    private interface StatementContextExtensionMethodDao extends SqlObject {
         default void check() throws Exception {
             Class<StatementContextExtensionMethodDao> extensionMethodDaoClass = StatementContextExtensionMethodDao.class;
             Method checkMethod = extensionMethodDaoClass.getMethod("check");

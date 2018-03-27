@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,10 +51,6 @@ public class SqlObjectFactory implements ExtensionFactory {
         if (looksLikeSqlObject(extensionType)) {
             if (!extensionType.isInterface()) {
                 throw new IllegalArgumentException("SQL Objects are only supported for interfaces.");
-            }
-
-            if (!Modifier.isPublic(extensionType.getModifiers())) {
-                throw new IllegalArgumentException("SQL Object types must be public.");
             }
 
             return true;
