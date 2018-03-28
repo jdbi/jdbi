@@ -1,6 +1,6 @@
 3.1.1
   - Improve IBM JDK compatibility with default methods
-  - Allow non-public SqlObject types, unless they are used onDemand
+  - Allow non-public SqlObject types!!!
 
 3.1.0
   - The strict transaction handling check in Handle.close() may be disabled via

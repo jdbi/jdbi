@@ -52,7 +52,7 @@ public class TestDefaultMethods
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
-    public interface Spiffy
+    private interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
