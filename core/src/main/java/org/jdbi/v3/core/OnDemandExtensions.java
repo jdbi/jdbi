@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -71,11 +71,7 @@ class OnDemandExtensions {
             if (Proxy.isProxyClass(target.getClass())) {
                 return Proxy.getInvocationHandler(target).invoke(target, method, args);
             }
-            try {
-                return method.invoke(target, args);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
+            return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
         } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {
