@@ -348,13 +348,13 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.4.1212</version>
+                <version>42.2.2</version>
             </dependency>
 
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.11.0</version>
+                <version>0.11.3</version>
             </dependency>
 
             <dependency>
