@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
 
 class OnDemandExtensions {
@@ -51,22 +52,30 @@ class OnDemandExtensions {
                 return extensionType + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
-            try {
-                if (threadExtension.get() != null) {
-                    return method.invoke(threadExtension.get(), args);
-                }
-                return db.withExtension(extensionType, extension ->
-                        JdbiThreadLocals.invokeInContext(threadExtension, extension,
-                                () -> method.invoke(extension, args)));
+            if (threadExtension.get() != null) {
+                return invoke(method, threadExtension.get(), args);
             }
-            catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
+            return db.withExtension(extensionType, extension ->
+                    JdbiThreadLocals.invokeInContext(threadExtension, extension,
+                            () -> invoke(method, extension, args)));
         };
 
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
                         new Class[]{extensionType}, handler));
+    }
+
+    private static Object invoke(Method method, Object target, Object[] args) {
+        try {
+            if (Proxy.isProxyClass(target.getClass())) {
+                return Proxy.getInvocationHandler(target).invoke(target, method, args);
+            }
+            return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
+        } catch (RuntimeException | Error e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 }

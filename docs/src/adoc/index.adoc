@@ -3115,15 +3115,7 @@ Occasionally a use case comes up where SQL Method annotations don't fit. In
 these situations, you can "drop down" to the Core API using a Java 8 `default`
 method.
 
-Jdbi provides a `SqlObject` mixin interface with a single method:
-
-[source,java]
-----
-public interface SqlObject {
-  Handle getHandle();
-}
-----
-
+Jdbi provides a `SqlObject` mixin interface with a `getHandle` method.
 Make your SQL Object interface extend the `SqlObject` mixin, then provide your
 own implementation in a default method:
 

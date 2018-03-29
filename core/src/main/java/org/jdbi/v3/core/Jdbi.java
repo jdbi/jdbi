@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-
-import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -494,9 +492,6 @@ public class Jdbi implements Configurable<Jdbi>
     public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
         if (!extensionType.isInterface()) {
             throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
-        }
-        if (!Modifier.isPublic(extensionType.getModifiers())) {
-            throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
         if (!getConfig(Extensions.class).hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);

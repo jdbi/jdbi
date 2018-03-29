@@ -65,7 +65,7 @@ public class TestBindListParameter {
         dao.ids(Lists.newArrayList(1, 2));
     }
 
-    public interface MyDAO {
+    private interface MyDAO {
         @SqlQuery("select count(*) from foo where bar < 12 and id in (<ids>)")
         int broken();
 

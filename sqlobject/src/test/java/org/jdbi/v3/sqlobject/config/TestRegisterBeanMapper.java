@@ -19,6 +19,7 @@ import static org.jdbi.v3.sqlobject.config.Comment.newComment;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;
@@ -57,7 +58,7 @@ public class TestRegisterBeanMapper {
 
     @Test
     public void registerBeanMappers() {
-        BlogDao dao = handle.attach(BlogDao.class);
+        PrivateBlogDao dao = handle.attach(PrivateBlogDao.class);
 
         assertThat(dao.listArticleSummaries()).containsExactly(
                 newArticle(1, "title 1"),
@@ -70,7 +71,7 @@ public class TestRegisterBeanMapper {
                 newArticle(2, "title 2", "content 2", newComment(20, "comment 20")));
     }
 
-    public interface BlogDao extends SqlObject {
+    private interface PrivateBlogDao extends SqlObject {
         @SqlQuery("select id, title from articles order by id")
         @RegisterBeanMapper(Article.class)
         List<Article> listArticleSummaries();

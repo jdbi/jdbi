@@ -69,7 +69,7 @@ public class TestReadOnly {
         }
     }
 
-    public interface RODao extends SqlObject {
+    private interface RODao extends SqlObject {
         @Transaction(readOnly = true)
         default boolean verifyReadOnly() throws SQLException {
             final Handle h = getHandle();

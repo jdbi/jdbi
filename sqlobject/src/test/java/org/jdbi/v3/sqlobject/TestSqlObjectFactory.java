@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.junit.Test;
 
 public class TestSqlObjectFactory {
     private SqlObjectFactory factory = new SqlObjectFactory();
@@ -25,9 +25,6 @@ public class TestSqlObjectFactory {
     @Test
     public void accepts() {
         assertThat(factory.accepts(NotASqlObject.class)).isFalse();
-
-        assertThatThrownBy(() -> factory.accepts(NonPublicSqlObject.class))
-                .hasMessageContaining("must be public");
 
         assertThatThrownBy(() -> factory.accepts(SqlObjectClass.class))
                 .hasMessageContaining("only supported for interfaces");

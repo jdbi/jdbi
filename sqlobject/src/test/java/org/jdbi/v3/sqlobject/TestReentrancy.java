@@ -35,7 +35,7 @@ public class TestReentrancy
     private Jdbi db;
     private Handle handle;
 
-    public interface TheBasics extends SqlObject
+    private interface TheBasics extends SqlObject
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);

@@ -52,7 +52,7 @@ public class TestDefaultMethods
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
-    public interface Spiffy
+    private interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
@@ -88,7 +88,7 @@ public class TestDefaultMethods
         dbRule.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
     }
 
-    public interface StatementContextExtensionMethodDao extends SqlObject {
+    private interface StatementContextExtensionMethodDao extends SqlObject {
         default void check() throws Exception {
             Class<StatementContextExtensionMethodDao> extensionMethodDaoClass = StatementContextExtensionMethodDao.class;
             Method checkMethod = extensionMethodDaoClass.getMethod("check");
