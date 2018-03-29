@@ -53,11 +53,11 @@ class OnDemandExtensions {
             }
 
             if (threadExtension.get() != null) {
-                return invoke(method, threadExtension.get(), args);
+                return invoke(threadExtension.get(), method, args);
             }
             return db.withExtension(extensionType, extension ->
                     JdbiThreadLocals.invokeInContext(threadExtension, extension,
-                            () -> invoke(method, extension, args)));
+                            () -> invoke(extension, method, args)));
         };
 
         return extensionType.cast(
@@ -66,7 +66,7 @@ class OnDemandExtensions {
                         new Class[]{extensionType}, handler));
     }
 
-    private static Object invoke(Method method, Object target, Object[] args) {
+    private static Object invoke(Object target, Method method, Object[] args) {
         try {
             if (Proxy.isProxyClass(target.getClass())) {
                 return Proxy.getInvocationHandler(target).invoke(target, method, args);
