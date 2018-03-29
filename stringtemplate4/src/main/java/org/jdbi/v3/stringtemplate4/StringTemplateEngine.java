@@ -16,6 +16,7 @@ package org.jdbi.v3.stringtemplate4;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
 
 /**
  * Rewrites a StringTemplate template, using the attributes on the {@link StatementContext} as template parameters.
@@ -23,7 +24,7 @@ import org.stringtemplate.v4.ST;
 public class StringTemplateEngine implements TemplateEngine {
     @Override
     public String render(String sql, StatementContext ctx) {
-        ST template = new ST(sql);
+        ST template = new ST(new STGroup(), sql);
 
         ctx.getAttributes().forEach(template::add);
 
