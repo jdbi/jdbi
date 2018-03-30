@@ -344,13 +344,13 @@ List<String> keys = new ArrayList<String>()
 keys.add("user_name");
 keys.add("street");
 
-handle.createQuery("SELECT value FROM items WHERE kind in (<listOfKinds>)
+handle.createQuery("SELECT value FROM items WHERE kind in (<listOfKinds>)")
       .bindList("listOfKinds", keys)
       .mapTo(String.class)
       .list();
      
 // Or, using the `vararg` definition
-handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)
+handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)")
       .bindList("varargListOfKinds", "user_name", "docs", "street", "library")
       .mapTo(String.class)
       .list();
