@@ -59,4 +59,10 @@ public class TestHandle
         h.close();
         assertThat(h.isClosed()).isTrue();
     }
+
+    @Test
+    public void testMrWinter() {
+        final Handle h = dbRule.getSharedHandle();
+        h.execute("CREATE TABLE \"\u2603\" (pk int primary key)");
+    }
 }
