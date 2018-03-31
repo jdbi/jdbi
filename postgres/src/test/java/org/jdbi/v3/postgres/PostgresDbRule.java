@@ -13,53 +13,13 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.jdbi.v3.testing.JdbiRule;
 
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+public class PostgresDbRule {
+    private PostgresDbRule() { }
 
-/**
- * Helper for a single, superuser privileged Postgres database.
- */
-public class PostgresDbRule implements TestRule {
-
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
-    private Jdbi db;
-    private Handle h;
-
-    @Override
-    public Statement apply(Statement base, Description description) {
-        return pg.apply(new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                db = Jdbi.create(pg.getEmbeddedPostgres().getDatabase("postgres", "postgres"))
-                        .installPlugin(new PostgresPlugin())
-                        .installPlugin(new SqlObjectPlugin());
-                h = db.open();
-
-                try {
-                    base.evaluate();
-                } finally {
-                    db = null;
-                    h.close();
-                    h = null;
-                }
-            }
-        }, description);
-    }
-
-    public Jdbi getJdbi() {
-        if (db == null) throw new AssertionError("Test not running");
-        return db;
-    }
-
-    public Handle getSharedHandle() {
-        if (h == null) throw new AssertionError("Test not running");
-        return h;
+    public static JdbiRule rule() {
+        return JdbiRule.embeddedPostgres().withPlugin(new SqlObjectPlugin()).withPlugin(new PostgresPlugin());
     }
 }

@@ -16,19 +16,20 @@ package org.jdbi.v3.postgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 public class TestTypedEnum {
     @ClassRule
-    public static PostgresDbRule db = new PostgresDbRule();
+    public static JdbiRule db = PostgresDbRule.rule();
 
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
-        h = db.getSharedHandle();
+        h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS values");
             th.execute("DROP TYPE IF EXISTS enum_t");

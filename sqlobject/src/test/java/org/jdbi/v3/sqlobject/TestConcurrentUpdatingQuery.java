@@ -15,8 +15,8 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,19 +24,20 @@ import org.junit.Test;
 public class TestConcurrentUpdatingQuery
 {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public JdbiRule dbRule = JdbiRule.h2();
 
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = dbRule.getSharedHandle();
+        handle = dbRule.getHandle();
     }
 
     @Test
     public void testConcurrentUpdateableResultSet() throws Exception
     {
+        handle.execute("create table something ( id identity primary key, name varchar(50) )");
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.createQuery("select id, name from something where id = :id")
                 .bind("id", 7)

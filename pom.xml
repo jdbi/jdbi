@@ -263,6 +263,11 @@
                 <artifactId>jdbi3-vavr</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-testing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -481,5 +486,6 @@
         <module>noparameters</module>
         <module>vavr</module>
         <module>sqlite</module>
+        <module>testing</module>
     </modules>
 </project>

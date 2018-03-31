@@ -13,31 +13,32 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Optional;
-
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class TestOptional {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
 
     private DAO dao;
 
     @Before
     public void setUp() throws Exception {
-        dao = dbRule.getSharedHandle().attach(DAO.class);
+        dbRule.getHandle().execute(
+                "create table something ( id identity primary key, name varchar(50))");
+        dao = dbRule.attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

@@ -27,12 +27,13 @@ import java.util.stream.IntStream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.SingleValue;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,14 +45,14 @@ public class TestSqlArrays {
     private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints)";
 
     @ClassRule
-    public static PostgresDbRule db = new PostgresDbRule();
+    public static JdbiRule db = PostgresDbRule.rule();
 
     private Handle h;
     private ArrayObject ao;
 
     @Before
     public void setUp() {
-        h = db.getSharedHandle();
+        h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u UUID[], i INT[])");

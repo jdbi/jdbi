@@ -13,20 +13,22 @@
  */
 package org.jdbi.v3.postgres;
 
-import com.google.common.collect.ImmutableList;
-import org.jdbi.v3.core.Handle;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.testing.JdbiRule;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class TestDuration {
     @ClassRule
-    public static PostgresDbRule postgresDbRule = new PostgresDbRule();
+    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
 
     private Handle handle;
 
@@ -34,7 +36,7 @@ public class TestDuration {
 
     @Before
     public void setUp() throws Exception {
-        handle = postgresDbRule.getSharedHandle();
+        handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists intervals");
             h.execute("create table intervals(id int not null, foo interval)");
