@@ -25,13 +25,17 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 public class UseClasspathSqlLocatorImpl implements Configurer {
     private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method, config) -> {
-        String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-        return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
+        return SqlAnnotations.getAnnotationValue(method,
+                name -> ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, defaultName(name, method))).orElseGet(method::getName);
     };
 
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         registry.get(SqlObjects.class).setSqlLocator(SQL_LOCATOR);
+    }
+
+    private static String defaultName(String name, Method method) {
+        return !name.isEmpty() ? name : method.getName();
     }
 
     @Override

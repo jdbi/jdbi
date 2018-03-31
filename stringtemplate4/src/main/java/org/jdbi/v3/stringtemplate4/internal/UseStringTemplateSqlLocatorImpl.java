@@ -17,9 +17,10 @@ import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTem
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
@@ -31,7 +32,7 @@ public class UseStringTemplateSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         SqlLocator locator = (type, method, config) -> {
-            String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
+            String templateName = SqlAnnotations.getAnnotationValue(method, sql -> sql).orElseGet(method::getName);
             STGroup group = findStringTemplateGroup(type);
             if (!group.isDefined(templateName)) {
                 throw new IllegalStateException("No StringTemplate group " + templateName + " for class " + sqlObjectType);
