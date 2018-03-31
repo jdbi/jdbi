@@ -3027,6 +3027,16 @@ long orderId = outParams.getLong("orderId");
 double orderTotal = outParams.getDouble("orderTotal");
 ----
 
+==== @SqlScript
+
+Use `@SqlScript` to execute one or more statements in a batch.  You can define attributes
+for the template engine to use.
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/statement/TestSqlScripts.java[tags=scripts]
+----
+
 ==== @GetGeneratedKeys
 
 The `@GetGeneratedKeys` annotation may be used on a `@SqlUpdate` or `@SqlBatch`

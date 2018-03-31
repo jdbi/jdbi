@@ -11,20 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.locator;
+package org.jdbi.v3.sqlobject.statement.internal;
 
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.statement.Script;
 
-/**
- * Locates SQL on the SQL method annotations like <code>@SqlQuery("foo")</code>. This is the default SqlLocator.
- */
-public class AnnotationSqlLocator implements SqlLocator {
+public class SqlScriptsHandler extends CustomizingStatementHandler<Script> {
+
+    public SqlScriptsHandler(Class<?> sqlObjectType, Method method) {
+        super(sqlObjectType, method);
+    }
+
     @Override
-    public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
-        return SqlAnnotations.getAnnotationValue(method, sql -> sql)
-                .orElseThrow(() -> new IllegalStateException("Sql annotation missing query"));
+    void configureReturner(Script stmt, SqlObjectStatementConfiguration cfg) {
+        cfg.setReturner(() -> stmt.execute());
+    }
+
+    @Override
+    Script createStatement(Handle handle, String locatedSql) {
+        return new Script(handle, locatedSql);
     }
 }
