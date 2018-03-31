@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.result.NoResultsException;
+import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
@@ -72,5 +74,16 @@ public class TestStatements
         h.execute("update something set name = 'cire' where id = 1");
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("cire");
+    }
+
+    @Test(expected = NoResultsException.class)
+    public void testStatementWithRequiredResults() throws Exception {
+        assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testStatementWithOptionalResults() throws Exception {
+        h.getConfig(ResultProducers.class).allowNoResults(true);
+        assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
     }
 }
