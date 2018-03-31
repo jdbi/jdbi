@@ -4884,6 +4884,9 @@ handle.createUpdate("insert into characters (id, name) values (#id, #name)")
       .execute();
 ----
 
+[NOTE]
+The default parsers do not readily recognize non-Latin characters as identifiers;
+they must be surrounded by double quotes.
 
 For you fearless adventurers who have read the
 link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
