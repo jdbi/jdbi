@@ -18,6 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -26,6 +29,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -33,16 +37,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
 public class TestHStore {
 
     private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {
     };
 
     @ClassRule
-    public static PostgresDbRule postgresDbRule = new PostgresDbRule();
+    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -52,12 +53,12 @@ public class TestHStore {
 
     @BeforeClass
     public static void staticSetUp() {
-        postgresDbRule.getSharedHandle().execute("create extension hstore");
+        postgresDbRule.getHandle().execute("create extension hstore");
     }
 
     @Before
     public void setUp() throws Exception {
-        handle = postgresDbRule.getSharedHandle();
+        handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists campaigns");
             h.execute("create table campaigns(id int not null, caps hstore)");

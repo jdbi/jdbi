@@ -18,13 +18,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Commonly used ResultProducer implementations.
  */
-public class ResultProducers {
-    private ResultProducers() {
+public class ResultProducers implements JdbiConfig<ResultProducers> {
+
+    private boolean allowNoResults;
+
+    public ResultProducers() {
+        this(false);
+    }
+
+    private ResultProducers(boolean allowNoResults) {
+        this.allowNoResults = allowNoResults;
     }
 
     /**
@@ -59,6 +68,9 @@ public class ResultProducers {
                 ResultSet rs = supplier.get().getResultSet();
 
                 if (rs == null) {
+                    if (ctx.getConfig(ResultProducers.class).allowNoResults) {
+                        return new EmptyResultSet();
+                    }
                     throw new NoResultsException("Statement returned no results", ctx);
                 }
 
@@ -108,4 +120,17 @@ public class ResultProducers {
         };
     }
 
+    @Override
+    public ResultProducers createCopy() {
+        return new ResultProducers(allowNoResults);
+    }
+
+    /**
+     * Normally a query that doesn't return a result set throws an exception.
+     * With this option, we will replace it with an empty result set instead.
+     */
+    public ResultProducers allowNoResults(boolean allowNoResults) {
+        this.allowNoResults = allowNoResults;
+        return this;
+    }
 }

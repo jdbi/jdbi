@@ -8,17 +8,18 @@ import java.sql.Types;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.postgres.PostgresDbRule;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class CallTest
 {
     @Rule
-    public PostgresDbRule db = new PostgresDbRule();
+    public JdbiRule db = PostgresDbRule.rule();
 
     @Test
     public void testCall() {
-        Handle handle = db.getSharedHandle();
+        Handle handle = db.getHandle();
 
         handle.execute(findSqlOnClasspath("create_stored_proc_add"));
 

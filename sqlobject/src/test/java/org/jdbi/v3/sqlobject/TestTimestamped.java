@@ -13,10 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TimingCollector;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -24,16 +30,10 @@ import org.jdbi.v3.sqlobject.customizer.Timestamped;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for the {@link Timestamped} annotation
@@ -42,11 +42,10 @@ public class TestTimestamped {
     public PersonDAO personDAO;
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
 
     @Before
-    public void beforeEach() {
-        dbRule.getJdbi().installPlugin(new SqlObjectPlugin());
+    public void before() {
         personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
     }

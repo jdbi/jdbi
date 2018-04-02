@@ -24,6 +24,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,13 +32,13 @@ import org.junit.Test;
 public class TestJavaTime {
 
     @ClassRule
-    public static PostgresDbRule db = new PostgresDbRule();
+    public static JdbiRule db = PostgresDbRule.rule();
 
     Handle h;
 
     @Before
     public void setUp() {
-        h = db.getSharedHandle();
+        h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
             th.execute("create table stuff (ts timestamp, d date, z text)");

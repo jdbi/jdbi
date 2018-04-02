@@ -13,27 +13,34 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.testing.JdbiRule;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEnumMapping
 {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
+
+    @Before
+    public void create() {
+        dbRule.getHandle().execute(
+                "create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
+    }
 
     @Test
     public void testEnums() throws Exception
     {
-        Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy spiffy = dbRule.attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);

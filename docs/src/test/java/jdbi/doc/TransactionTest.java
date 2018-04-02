@@ -35,6 +35,7 @@ import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -46,7 +47,7 @@ import jdbi.doc.ResultsTest.User;
 public class TransactionTest {
 
     @ClassRule
-    public static PostgresDbRule dbRule = new PostgresDbRule();
+    public static JdbiRule dbRule = PostgresDbRule.rule();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -57,7 +58,7 @@ public class TransactionTest {
     @Before
     public void getHandle() {
         db = dbRule.getJdbi();
-        handle = dbRule.getSharedHandle();
+        handle = dbRule.getHandle();
         handle.registerRowMapper(ConstructorMapper.factory(User.class));
     }
 

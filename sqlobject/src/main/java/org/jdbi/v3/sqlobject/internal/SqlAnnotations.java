@@ -14,13 +14,18 @@
 package org.jdbi.v3.sqlobject.internal;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlScript;
+import org.jdbi.v3.sqlobject.statement.SqlScripts;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 public class SqlAnnotations {
@@ -31,13 +36,30 @@ public class SqlAnnotations {
      * @param method the method
      * @return the annotation <code>value()</code>
      */
-    public static Optional<String> getAnnotationValue(Method method) {
+    public static Optional<String> getAnnotationValue(Method method, Function<String, String> resolveSql) {
         Predicate<String> nonEmpty = s -> !s.isEmpty();
 
         return JdbiOptionals.findFirstPresent(
-                () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class)).map(SqlBatch::value).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).filter(nonEmpty));
+                () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class)).map(SqlBatch::value).map(resolveSql).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).map(resolveSql).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).map(resolveSql).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).map(resolveSql).filter(nonEmpty),
+                () -> findScripts(method, resolveSql));
+    }
+
+    private static Optional<String> findScripts(Method method, Function<String, String> resolveSql) {
+        final SqlScripts scripts = method.getAnnotation(SqlScripts.class);
+        if (scripts != null) {
+            return Optional.of(Arrays.stream(scripts.value()).map(s -> scriptValue(s, method)).map(resolveSql).collect(Collectors.joining(" ; ")));
+        }
+        final SqlScript script = method.getAnnotation(SqlScript.class);
+        if (script != null) {
+            return Optional.of(resolveSql.apply(scriptValue(script, method)));
+        }
+        return Optional.empty();
+    }
+
+    private static String scriptValue(SqlScript script, Method method) {
+        return !script.value().isEmpty() ? script.value() : method.getName();
     }
 }

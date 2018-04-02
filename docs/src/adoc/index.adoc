@@ -3027,6 +3027,16 @@ long orderId = outParams.getLong("orderId");
 double orderTotal = outParams.getDouble("orderTotal");
 ----
 
+==== @SqlScript
+
+Use `@SqlScript` to execute one or more statements in a batch.  You can define attributes
+for the template engine to use.
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/statement/TestSqlScripts.java[tags=scripts]
+----
+
 ==== @GetGeneratedKeys
 
 The `@GetGeneratedKeys` annotation may be used on a `@SqlUpdate` or `@SqlBatch`
@@ -3374,6 +3384,35 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 ----
 <1> Method annotations are not inherited on override, so we must duplicate
     those we want to keep.
+
+== Testing
+
+The `jdbi3-testing` artifact provides a link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
+class which provides helpers for writing JUnit tests integrated with a managed database
+instance.  This makes writing unit tests quick and easy!  You must remember to include
+the database dependency itself, for example to get a pure H2 Java database:
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>1.4.197</version>
+    <scope>test</scope>
+</dependency>
+----
+
+If you want to test against Postgres, you'd instead include:
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.opentable.components</groupId>
+    <artifactId>otj-pg-embedded</artifactId>
+    <version>0.11.3</version>
+    <scope>test</scope>
+</dependency>
+----
 
 == Third-Party Integration
 
@@ -4884,6 +4923,9 @@ handle.createUpdate("insert into characters (id, name) values (#id, #name)")
       .execute();
 ----
 
+[NOTE]
+The default parsers do not readily recognize non-Latin characters as identifiers;
+they must be surrounded by double quotes.
 
 For you fearless adventurers who have read the
 link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],

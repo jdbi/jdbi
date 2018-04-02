@@ -22,7 +22,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.After;
+import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -30,22 +30,17 @@ import org.junit.Test;
 public class TestUuid {
 
     @ClassRule
-    public static PostgresDbRule db = new PostgresDbRule();
+    public static JdbiRule db = PostgresDbRule.rule();
 
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
-        h = db.getJdbi().open();
+        h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS foo");
             th.execute("CREATE TABLE foo (bar UUID, ary UUID[])");
         });
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        h.close();
     }
 
     @Test

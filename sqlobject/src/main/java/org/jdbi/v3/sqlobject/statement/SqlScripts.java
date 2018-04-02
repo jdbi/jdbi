@@ -11,15 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.sqlobject.statement;
 
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.testing.JdbiRule;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class PostgresDbRule {
-    private PostgresDbRule() { }
+import org.jdbi.v3.sqlobject.SqlOperation;
+import org.jdbi.v3.sqlobject.statement.internal.SqlScriptsHandler;
 
-    public static JdbiRule rule() {
-        return JdbiRule.embeddedPostgres().withPlugin(new SqlObjectPlugin()).withPlugin(new PostgresPlugin());
-    }
+/**
+ * Holder for repeating {@link SqlScript}s.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@SqlOperation(SqlScriptsHandler.class)
+public @interface SqlScripts {
+    SqlScript[] value();
 }
