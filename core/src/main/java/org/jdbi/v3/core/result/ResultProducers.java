@@ -58,28 +58,17 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @return ResultBearing of result rows.
      * @see PreparedStatement#getResultSet()
      */
-    @Deprecated
     public static ResultProducer<ResultBearing> returningResults() {
-        return new ResultProducers(false).returningQueryResults();
-    }
-
-    /**
-     * Result producer that returns a {@link ResultBearing} over the statement result rows.
-     *
-     * @return ResultBearing of result rows.
-     * @see PreparedStatement#getResultSet()
-     */
-    public ResultProducer<ResultBearing> returningQueryResults() {
         return (supplier, ctx) -> ResultBearing.of(getResultSet(supplier, ctx), ctx);
     }
 
-    private Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
+    private static Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
         return () -> {
             try {
                 ResultSet rs = supplier.get().getResultSet();
 
                 if (rs == null) {
-                    if (allowNoResults) {
+                    if (ctx.getConfig(ResultProducers.class).allowNoResults) {
                         return new EmptyResultSet();
                     }
                     throw new NoResultsException("Statement returned no results", ctx);

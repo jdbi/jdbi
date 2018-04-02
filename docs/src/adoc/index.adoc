@@ -3387,7 +3387,7 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 
 == Testing
 
-The `jdbi-testing` artifact provides a link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
+The `jdbi3-testing` artifact provides a link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
 class which provides helpers for writing JUnit tests integrated with a managed database
 instance.  This makes writing unit tests quick and easy!  You must remember to include
 the database dependency itself, for example to get a pure H2 Java database:

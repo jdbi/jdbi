@@ -56,7 +56,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
 
     @Override
     public <R> R scanResultSet(ResultSetScanner<R> mapper) {
-        return execute(getConfig(ResultProducers.class).returningQueryResults()).scanResultSet(mapper);
+        return execute(ResultProducers.returningResults()).scanResultSet(mapper);
     }
 
     /**
