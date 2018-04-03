@@ -69,7 +69,7 @@
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.kotlin.version>1.2.30</dep.kotlin.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
-        <dep.dokka.version>0.9.13</dep.dokka.version>
+        <dep.dokka.version>0.9.16</dep.dokka.version>
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
@@ -80,6 +80,24 @@
     </properties>
 
     <profiles>
+      <profile>
+        <id>jdk9</id>
+        <build>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${dep.dokka.version}</version>
+                <configuration>
+                  <jdkVersion>9</jdkVersion>
+                </configuration>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
+      </profile>
+
       <profile>
         <id>toolchains</id>
         <build>
