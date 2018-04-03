@@ -81,21 +81,21 @@
 
     <profiles>
       <profile>
+        <id>jdk8</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+          <property>
+            <name>!jdk9</name>
+          </property>
+        </activation>
+      </profile>
+      <profile>
         <id>jdk9</id>
-        <build>
-          <pluginManagement>
-            <plugins>
-              <plugin>
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>${dep.dokka.version}</version>
-                <configuration>
-                  <skip>true</skip>
-                </configuration>
-              </plugin>
-            </plugins>
-          </pluginManagement>
-        </build>
+        <activation>
+          <property>
+            <name>jdk9</name>
+          </property>
+        </activation>
       </profile>
 
       <profile>
