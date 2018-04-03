@@ -60,7 +60,7 @@
 
     <properties>
         <project.build.targetJdk>1.8</project.build.targetJdk>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <basepom.maven.version>3.2.5</basepom.maven.version>
         <findbugs.version>3.0.1</findbugs.version>
 
@@ -88,6 +88,25 @@
             <name>!jdk9</name>
           </property>
         </activation>
+        <build>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                  <toolchains>
+                    <jdk>
+                      <version>1.8</version>
+                      <vendor>oracle</vendor>
+                    </jdk>
+                  </toolchains>
+                </configuration>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
       </profile>
       <profile>
         <id>jdk9</id>
@@ -96,28 +115,52 @@
             <name>jdk9</name>
           </property>
         </activation>
+        <properties>
+          <project.build.targetJdk>9</project.build.targetJdk>
+          <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
+          <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+          <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+        </properties>
+        <build>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                  <toolchains>
+                    <jdk>
+                      <version>9</version>
+                      <vendor>oracle</vendor>
+                    </jdk>
+                  </toolchains>
+                </configuration>
+              </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                    <version>6.1</version>
+                  </dependency>
+                </dependencies>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
       </profile>
 
       <profile>
         <id>toolchains</id>
+        <activation>
+          <property>
+            <name>toolchain</name>
+          </property>
+        </activation>
         <build>
-         <pluginManagement>
-           <plugins>
-             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-toolchains-plugin</artifactId>
-               <version>1.1</version>
-               <configuration>
-                 <toolchains>
-                   <jdk>
-                     <version>${project.build.targetJdk}</version>
-                     <vendor>oracle</vendor>
-                   </jdk>
-                 </toolchains>
-               </configuration>
-             </plugin>
-           </plugins>
-         </pluginManagement>
          <plugins>
            <plugin>
              <groupId>org.apache.maven.plugins</groupId>
