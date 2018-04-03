@@ -35,9 +35,9 @@ matrix:
         - TESTS=Y
       script:
         # Oracle profile disabled until they fix their orai18n JAR artifact on maven.oracle.com repository.
-        #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9=true -Ptoolchains,oracle -B verify'
-        #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9=true -Ptoolchains        -B verify'
-        - mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9=true -Ptoolchains -B verify
+        #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9 -Ptoolchains,oracle -B verify'
+        #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9 -Ptoolchains        -B verify'
+        - mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Djdk9 -Ptoolchains -B verify
       jdk: oraclejdk9
     - env:
         - DOCUMENTATION=Y
