@@ -90,7 +90,7 @@
                 <artifactId>dokka-maven-plugin</artifactId>
                 <version>${dep.dokka.version}</version>
                 <configuration>
-                  <jdkVersion>9</jdkVersion>
+                  <skip>true</skip>
                 </configuration>
               </plugin>
             </plugins>
