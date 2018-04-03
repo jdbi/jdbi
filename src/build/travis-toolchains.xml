@@ -21,8 +21,19 @@
             <vendor>oracle</vendor>
         </provides>
         <configuration>
-            <!-- Location of a JDK9 in the Travis build environment -->
+            <!-- Location of a JDK8 in the Travis build environment -->
             <jdkHome>/usr/lib/jvm/java-8-oracle</jdkHome>
+        </configuration>
+    </toolchain>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>9</version>
+            <vendor>oracle</vendor>
+        </provides>
+        <configuration>
+            <!-- Location of a JDK9 in the Travis build environment -->
+            <jdkHome>/usr/lib/jvm/java-9-oracle</jdkHome>
         </configuration>
     </toolchain>
 </toolchains>
