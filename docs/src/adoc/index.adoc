@@ -1770,9 +1770,10 @@ link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-org.jdbi.v3.core.resul
 variant accepts a link:{jdbidocs}/core/result/RowReducer.html[RowReducer^] and
 returns a stream of reduced elements.
 
-For simple master-detail joins, the abstract
-link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html[LinkedHashMapRowReducer^]
-class makes it easy to reduce these joins into a stream of master elements.
+For simple master-detail joins, the
+link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-java.util.function.BiConsumer-[ResultBearing.reduceRows(BiConsumer<Map<K,V>,RowView>)^]
+method makes it easy to reduce these joins into a stream of master elements.
+
 Adapting the example above:
 
 [source,java]
@@ -1780,7 +1781,7 @@ Adapting the example above:
 List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
     .registerRowMapper(BeanMapper.factory(Phone.class, "p"))
-    .reduceRows(LinkedHashMapRowReducer.<Long, Contact> of((map, rowView) -> { // <1>
+    .reduceRows((Map<Long, Contact> map, RowView rowView) -> { // <1>
       Contact contact = map.computeIfAbsent(
           rowView.getColumn("c_id", Long.class),
           id -> rowView.getRow(Contact.class));
@@ -1793,11 +1794,13 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .collect(toList()); // <3>
 ----
 
-<1> The factory method
-    link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html#of-java.util.function.BiConsumer-[LinkedHashMapRowReducer.of(BiConsumer)^]
-    needs only a `BiConsumer(Map<K,V>, RowView)`
+<1> The lambda receives a map where result objects will be stored, and a
+    `RowView`. The map is a `LinkedHashMap`, so the result stream will
+    yield the result objects in the same order they were inserted.
 <2> No `return` statement needed. The same `map` is reused on every row.
-<3> This reduction produces a `Stream<Contact>`, and we can use any stream method
+<3> This `reduceRows()` invocation produces a `Stream<Contact>` (i.e. from
+    `map.values().stream()`. In this example, we collect the elements into a
+    list, but we could call any `Stream` method here.
 
 You may be wondering about the `getRow()` and `getColumn()` calls to `rowView`.
 When you call `rowView.getRow(SomeType.class)`, `RowView` looks up the
