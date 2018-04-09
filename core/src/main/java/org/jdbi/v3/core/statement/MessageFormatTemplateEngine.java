@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} when {@link #render} is called.
  *
- * Note: MessageFormat silently ignores superfluous values, and this class will not check for them.
+ * Note: MessageFormat does not throw exceptions when your input's placeholders don't match the values, and neither does this class. This class only validates your keys, not the input string or values.
  *
  * Example usage:
  * <pre>{@code
