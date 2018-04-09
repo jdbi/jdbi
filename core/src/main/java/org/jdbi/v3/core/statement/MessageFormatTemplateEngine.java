@@ -16,15 +16,16 @@ package org.jdbi.v3.core.statement;
 import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.Comparator;
+import java.util.Set;
 
 /**
  * Uses {@link MessageFormat#format} as a template engine.
  *
- * You need to use "0", "1", "2", etc as keys. You can {@link org.jdbi.v3.core.config.Configurable#define} values in any order.
+ * You should use "0", "1", "2", etc as keys. You can {@link org.jdbi.v3.core.config.Configurable#define} values in any order.
  *
- * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored.
+ * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} when {@link #render} is called.
  *
- * Keys are NOT checked for semantic or technical correctness — bad keys lead to undefined behavior that may include {@link RuntimeException}s, being ignored, overwriting other values, and wrong ordering,
+ * Note: MessageFormat silently ignores superfluous values, and this class will not check for them.
  *
  * Example usage:
  * <pre>{@code
@@ -39,9 +40,15 @@ import java.util.Comparator;
 public enum MessageFormatTemplateEngine implements TemplateEngine {
     INSTANCE;
 
+	public static void main(String[] args) {
+		MessageFormat.format("{1} {0}", new Object[0]);
+	}
+
     @Override
     public String render(String template, StatementContext ctx) {
-        Object[] args = ctx.getAttributes()
+    	validateKeys(ctx.getAttributes().keySet());
+
+		Object[] args = ctx.getAttributes()
             .entrySet()
             .stream()
             .map(x -> new AbstractMap.SimpleImmutableEntry<>(Integer.valueOf(x.getKey()), x.getValue()))
@@ -51,4 +58,36 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
 
         return MessageFormat.format(template, args);
     }
+
+    private static void validateKeys(Set<String> keySet) {
+		if (keySet.size() == 0) {
+			return;
+		}
+
+		// keys inherently cannot be null, so we only need to check the content
+		final int[] keys = keySet.stream()
+			// throws IllegalArgumentException for us
+			.mapToInt(Integer::parseInt)
+			.sorted()
+			.toArray();
+
+		if (keys[0] != 0) {
+			throw new IllegalArgumentException("lowest key must be 0");
+		}
+
+		int last = 0;
+		for (int i = 1; i < keys.length; i++) {
+			final int key = keys[i];
+
+			if (key == last) {
+				throw new IllegalArgumentException("key " + key + " was given more than once");
+			}
+
+			if (key > last + 1) {
+				throw new IllegalArgumentException("keys skip from " + last + " to " + key);
+			}
+
+			last = key;
+		}
+	}
 }
