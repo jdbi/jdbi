@@ -63,7 +63,7 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
         if (keySet.size() != expectedCount) {
             throw new IllegalArgumentException("expected " + expectedCount + " keys but got " + keySet.size());
         }
-        
+
         if (keySet.size() == 0) {
             return;
         }
