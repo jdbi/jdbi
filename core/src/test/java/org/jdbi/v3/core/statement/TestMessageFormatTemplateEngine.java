@@ -51,7 +51,7 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put("0", "hello");
 
-        templateEngine.render("foo bar", ctx);
+        assertThat(templateEngine.render("foo bar", ctx)).isEqualTo("foo bar");
     }
 
     @Test
@@ -59,15 +59,15 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.clear();
 
-        templateEngine.render("{0} bar", ctx);
+        assertThat(templateEngine.render("{0} bar", ctx)).isEqualTo("{0} bar");
     }
 
     @Test
     public void testWithPlaceholdersAndValues()
     {
-        attributes.put("00", "hello");
-        attributes.put("01", "world");
         attributes.put("02", "!");
+        attributes.put("000", "hello");
+        attributes.put("01", "world");
 
         assertThat(templateEngine.render("{0} {1}{2}", ctx)).isEqualTo("hello world!");
     }
@@ -86,7 +86,7 @@ public class TestMessageFormatTemplateEngine
         attributes.put("0", "hello");
         attributes.put("00", "world");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -94,6 +94,30 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put("0", "hello");
         attributes.put("2", "world");
+
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testNonNumericKey()
+    {
+        attributes.put("abc", "hello");
+
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testWhitespaceInKey()
+    {
+        attributes.put(" 1 ", "hello");
+
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBlankKey()
+    {
+        attributes.put(" ", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
     }
