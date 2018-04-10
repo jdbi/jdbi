@@ -21,28 +21,25 @@ import java.util.Set;
 /**
  * Uses {@link MessageFormat#format} as a template engine.
  *
- * You should use "0", "1", "2", etc as keys. You can {@link org.jdbi.v3.core.config.Configurable#define} values in any order.
+ * You must use "0", "1", "2", etc as keys. You may {@link org.jdbi.v3.core.config.Configurable#define} values in any order.
  *
  * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} when {@link #render} is called.
  *
- * Note: MessageFormat does not throw exceptions when your input's placeholders don't match the values, and neither does this class. This class only validates your keys, not the input string or values.
+ * MessageFormat does not throw exceptions when your pattern string's placeholders don't match the values, and neither does this class. This class only validates your keys in order to reliably reconstruct the values array. It does not validate the pattern string or values.
  *
  * Example usage:
  * <pre>{@code
- *     // select bar from foo
- *     jdbi.useHandle(handle -> handle.createCall("select {1} from {0}")
+ *     // select bar from foo where col = 'abc'
+ *     jdbi.useHandle(handle -> handle.createCall("select {1} from {0} where col = ''{2}''")
  *         .setTemplateEngine(MessageFormatTemplateEngine.INSTANCE)
  *         .define("0", "foo")
  *         .define("1", "bar")
+ *         .define("2", "abc")
  *         .invoke());
  * }</pre>
  */
 public enum MessageFormatTemplateEngine implements TemplateEngine {
     INSTANCE;
-
-    public static void main(String[] args) {
-        MessageFormat.format("{1} {0}", new Object[0]);
-    }
 
     @Override
     public String render(String template, StatementContext ctx) {
