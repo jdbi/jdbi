@@ -40,15 +40,15 @@ import java.util.Set;
 public enum MessageFormatTemplateEngine implements TemplateEngine {
     INSTANCE;
 
-	public static void main(String[] args) {
-		MessageFormat.format("{1} {0}", new Object[0]);
-	}
+    public static void main(String[] args) {
+        MessageFormat.format("{1} {0}", new Object[0]);
+    }
 
     @Override
     public String render(String template, StatementContext ctx) {
-    	validateKeys(ctx.getAttributes().keySet());
+        validateKeys(ctx.getAttributes().keySet());
 
-		Object[] args = ctx.getAttributes()
+        Object[] args = ctx.getAttributes()
             .entrySet()
             .stream()
             .map(x -> new AbstractMap.SimpleImmutableEntry<>(Integer.valueOf(x.getKey()), x.getValue()))
@@ -60,34 +60,34 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
     }
 
     private static void validateKeys(Set<String> keySet) {
-		if (keySet.size() == 0) {
-			return;
-		}
+        if (keySet.size() == 0) {
+            return;
+        }
 
-		// keys inherently cannot be null, so we only need to check the content
-		final int[] keys = keySet.stream()
-			// throws IllegalArgumentException for us
-			.mapToInt(Integer::parseInt)
-			.sorted()
-			.toArray();
+        // keys inherently cannot be null, so we only need to check the content
+        final int[] keys = keySet.stream()
+            // throws IllegalArgumentException for us
+            .mapToInt(Integer::parseInt)
+            .sorted()
+            .toArray();
 
-		if (keys[0] != 0) {
-			throw new IllegalArgumentException("lowest key must be 0");
-		}
+        if (keys[0] != 0) {
+            throw new IllegalArgumentException("lowest key must be 0");
+        }
 
-		int last = 0;
-		for (int i = 1; i < keys.length; i++) {
-			final int key = keys[i];
+        int last = 0;
+        for (int i = 1; i < keys.length; i++) {
+            final int key = keys[i];
 
-			if (key == last) {
-				throw new IllegalArgumentException("key " + key + " was given more than once");
-			}
+            if (key == last) {
+                throw new IllegalArgumentException("key " + key + " was given more than once");
+            }
 
-			if (key > last + 1) {
-				throw new IllegalArgumentException("keys skip from " + last + " to " + key);
-			}
+            if (key > last + 1) {
+                throw new IllegalArgumentException("keys skip from " + last + " to " + key);
+            }
 
-			last = key;
-		}
-	}
+            last = key;
+        }
+    }
 }
