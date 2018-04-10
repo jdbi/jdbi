@@ -19,11 +19,11 @@ import java.util.Comparator;
 import java.util.Set;
 
 /**
- * Uses {@link MessageFormat#format} as a template engine.
+ * Uses {@link MessageFormat#format(String, Object...)} as a template engine.
  *
- * You must use "0", "1", "2", etc as keys. You may {@link org.jdbi.v3.core.config.Configurable#define} values in any order.
+ * You must use "0", "1", "2", etc as keys. You may {@link org.jdbi.v3.core.config.Configurable#define(String, Object)} values in any order.
  *
- * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} when {@link #render} is called.
+ * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} (or subclasses such as {@link NumberFormatException}) when {@link #render(String, StatementContext)} is called.
  *
  * MessageFormat does not throw exceptions when your pattern string's placeholders don't match the values, and neither does this class. This class only validates your keys in order to reliably reconstruct the values array. It does not validate the pattern string or values.
  *
