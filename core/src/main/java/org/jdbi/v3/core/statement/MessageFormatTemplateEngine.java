@@ -15,17 +15,18 @@ package org.jdbi.v3.core.statement;
 
 import java.text.MessageFormat;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 
 /**
- * Uses {@link MessageFormat#format(String, Object...)} as a template engine.
+ * Uses the equivalent of {@link MessageFormat#format(String, Object...)} as a template engine.
  *
- * You must use "0", "1", "2", etc as keys. You may {@link org.jdbi.v3.core.config.Configurable#define(String, Object)} values in any order.
+ * You must use "0", "1", "2", etc as keys: start at 0, increment by 1. Keys must be numerically unique. You must {@link org.jdbi.v3.core.config.Configurable#define(String, Object)} as many key/value pairs as there are placeholders in the pattern string.
  *
- * Start at 0, increment by 1, do not repeat any keys, and do not exceed the maximum array size for your system. Leading zeroes are ignored. Invalid keys will trigger an {@link IllegalArgumentException} (or subclasses such as {@link NumberFormatException}) when {@link #render(String, StatementContext)} is called.
+ * You may {@code define} key/value pairs in any order. Keys may contain leading {@code '0'}s.
  *
- * MessageFormat does not throw exceptions when your pattern string's placeholders don't match the values, and neither does this class. This class only validates your keys in order to reliably reconstruct the values array. It does not validate the pattern string or values.
+ * Any invalid use will trigger an {@link IllegalArgumentException} (or subclasses such as {@link NumberFormatException}) when {@link #render(String, StatementContext)} is called – typically when the statement is about to be executed.
  *
  * Example usage:
  * <pre>{@code
@@ -43,7 +44,9 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
 
     @Override
     public String render(String template, StatementContext ctx) {
-        validateKeys(ctx.getAttributes().keySet());
+        MessageFormat msgFormat = new MessageFormat(template);
+
+        validateKeys(ctx.getAttributes().keySet(), msgFormat.getFormats().length);
 
         Object[] args = ctx.getAttributes()
             .entrySet()
@@ -53,10 +56,14 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
             .map(AbstractMap.SimpleImmutableEntry::getValue)
             .toArray(Object[]::new);
 
-        return MessageFormat.format(template, args);
+        return msgFormat.format(args);
     }
 
-    private static void validateKeys(Set<String> keySet) {
+    private static void validateKeys(Set<String> keySet, int expectedCount) {
+        if (keySet.size() != expectedCount) {
+            throw new IllegalArgumentException("expected " + expectedCount + " keys but got " + keySet.size());
+        }
+        
         if (keySet.size() == 0) {
             return;
         }

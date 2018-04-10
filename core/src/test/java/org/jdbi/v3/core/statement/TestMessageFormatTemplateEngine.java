@@ -47,22 +47,6 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testNoPlaceholdersButWithValues()
-    {
-        attributes.put("0", "hello");
-
-        assertThat(templateEngine.render("foo bar", ctx)).isEqualTo("foo bar");
-    }
-
-    @Test
-    public void testWithPlaceholdersButNoValues()
-    {
-        attributes.clear();
-
-        assertThat(templateEngine.render("{0} bar", ctx)).isEqualTo("{0} bar");
-    }
-
-    @Test
     public void testWithPlaceholdersAndValues()
     {
         attributes.put("02", "!");
@@ -70,6 +54,22 @@ public class TestMessageFormatTemplateEngine
         attributes.put("01", "world");
 
         assertThat(templateEngine.render("{0} {1}{2}", ctx)).isEqualTo("hello world!");
+    }
+
+    @Test
+    public void testNoPlaceholdersButWithValues()
+    {
+        attributes.put("0", "hello");
+
+        assertThatThrownBy(() -> templateEngine.render("foo bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testWithPlaceholdersButNoValues()
+    {
+        attributes.clear();
+
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
