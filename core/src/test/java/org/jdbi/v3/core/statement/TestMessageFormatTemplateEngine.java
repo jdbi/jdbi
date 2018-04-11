@@ -57,6 +57,24 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
+    public void testManyValues()
+    {
+        attributes.put("000", "a");
+        attributes.put("001", "b");
+        attributes.put("002", "c");
+        attributes.put("003", "d");
+        attributes.put("004", "e");
+        attributes.put("005", "f");
+        attributes.put("006", "g");
+        attributes.put("007", "h");
+        attributes.put("008", "i");
+        attributes.put("009", "j");
+        attributes.put("010", "k");
+
+        assertThat(templateEngine.render("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", ctx)).isEqualTo("abcdefghijk");
+    }
+
+    @Test
     public void testNoPlaceholdersButWithValues()
     {
         attributes.put("0", "hello");
