@@ -80,6 +80,24 @@ public class TestMaxRows {
     }
 
     @Test
+    public void testParamNonsense() {
+        FooParamRight sqlObject = handle.attach(FooParamRight.class);
+
+        handle.createScript(CREATE_INSERT).execute();
+
+        assertThatThrownBy(() -> sqlObject.bar(-1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is -1, which is negative or 0");
+    }
+
+    @Test
+    public void testMethodNonsense() {
+        assertThatThrownBy(() -> handle.attach(FooMethodNonsenseValue.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is -1, which is negative or 0");
+    }
+
+    @Test
     public void testControlGroup() {
         NoMaxRows sqlObject = handle.attach(NoMaxRows.class);
 
@@ -113,6 +131,13 @@ public class TestMaxRows {
     }
 
     public interface NoMaxRows extends SqlObject {
+        @SqlQuery(QUERY)
+        @RegisterRowMapper(MapMapper.class)
+        List<Map<String, Object>> bar();
+    }
+
+    public interface FooMethodNonsenseValue extends SqlObject {
+        @MaxRows(-1)
         @SqlQuery(QUERY)
         @RegisterRowMapper(MapMapper.class)
         List<Map<String, Object>> bar();
