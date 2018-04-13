@@ -78,19 +78,16 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
             throw new IllegalArgumentException("lowest key must be 0");
         }
 
-        int last = 0;
         for (int i = 1; i < keys.length; i++) {
             final int key = keys[i];
 
-            if (key == last) {
+            if (key < i) {
                 throw new IllegalArgumentException("key " + key + " was given more than once");
             }
 
-            if (key > last + 1) {
-                throw new IllegalArgumentException("keys skip from " + last + " to " + key);
+            if (key > i) {
+                throw new IllegalArgumentException("keys skip from " + (i - 1) + " to " + key);
             }
-
-            last = key;
         }
     }
 }
