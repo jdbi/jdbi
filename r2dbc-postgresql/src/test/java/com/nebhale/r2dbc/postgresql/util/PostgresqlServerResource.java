@@ -112,7 +112,7 @@ public final class PostgresqlServerResource extends ExternalResource {
     }
 
     private static Path getCachePath() {
-        return Paths.get("target/postgresql");
+        return Paths.get(System.getProperty("java.io.tmpdir"), "pgembed");
     }
 
     private static String getDataDirectory(String database) {
