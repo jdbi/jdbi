@@ -51,7 +51,6 @@ public class TestMaxRows {
     @Test
     public void testMethodRight() {
         FooMethodRight sqlObject = handle.attach(FooMethodRight.class);
-        assertThat(sqlObject).isInstanceOf(FooMethodRight.class);
 
         handle.createScript(CREATE_INSERT).execute();
 
@@ -61,11 +60,19 @@ public class TestMaxRows {
     @Test
     public void testParamRight() {
         FooParamRight sqlObject = handle.attach(FooParamRight.class);
-        assertThat(sqlObject).isInstanceOf(FooParamRight.class);
 
         handle.createScript(CREATE_INSERT).execute();
 
         assertThat(sqlObject.bar(ROWS)).hasSize(ROWS);
+    }
+
+    @Test
+    public void testControlGroup() {
+        NoMaxRows sqlObject = handle.attach(NoMaxRows.class);
+
+        handle.createScript(CREATE_INSERT).execute();
+
+        assertThat(sqlObject.bar()).hasSize(3);
     }
 
     public interface FooMethodWrong extends SqlObject {
@@ -90,5 +97,11 @@ public class TestMaxRows {
         @SqlQuery(QUERY)
         @RegisterRowMapper(MapMapper.class)
         List<Map<String, Object>> bar(@MaxRows int rows);
+    }
+
+    public interface NoMaxRows extends SqlObject {
+        @SqlQuery(QUERY)
+        @RegisterRowMapper(MapMapper.class)
+        List<Map<String, Object>> bar();
     }
 }
