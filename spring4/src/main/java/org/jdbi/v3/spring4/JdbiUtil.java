@@ -28,6 +28,10 @@ public class JdbiUtil
 {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
 
+    private JdbiUtil() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,
      * or a new one otherwise.

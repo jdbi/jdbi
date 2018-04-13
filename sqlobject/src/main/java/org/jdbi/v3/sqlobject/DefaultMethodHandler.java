@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Collections.synchronizedMap;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -22,8 +20,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 import org.jdbi.v3.core.extension.HandleSupplier;
+
+import static java.util.Collections.synchronizedMap;
 
 class DefaultMethodHandler implements Handler {
     // MethodHandles.privateLookupIn(Class, Lookup) was added in JDK 9.
@@ -39,7 +38,7 @@ class DefaultMethodHandler implements Handler {
         }
     }
 
-    private static final Map<Class<?>, MethodHandles.Lookup> privateLookups = synchronizedMap(new WeakHashMap<>());
+    private static final Map<Class<?>, MethodHandles.Lookup> PRIVATE_LOOKUPS = synchronizedMap(new WeakHashMap<>());
 
     private static MethodHandles.Lookup lookupFor(Class<?> clazz) {
         if (PRIVATE_LOOKUP_IN != null) {
@@ -65,7 +64,7 @@ class DefaultMethodHandler implements Handler {
 
         // This workaround is only used in JDK 8.x runtimes. JDK 9+ runtimes use MethodHandles.privateLookupIn()
         // above.
-        return privateLookups.computeIfAbsent(clazz, type -> {
+        return PRIVATE_LOOKUPS.computeIfAbsent(clazz, type -> {
             try {
 
                 final Constructor<MethodHandles.Lookup> constructor =
