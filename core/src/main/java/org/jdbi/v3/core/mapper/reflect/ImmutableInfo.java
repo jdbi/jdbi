@@ -32,7 +32,7 @@ public class ImmutableInfo {
             try {
                 return new PropertyDescriptor(g.getName(), g, setter.stream().filter(s -> s.getName().equals(g.getName())).findFirst().get());
             } catch (IntrospectionException e) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException(e);
             }
         }).collect(Collectors.toList());
     }

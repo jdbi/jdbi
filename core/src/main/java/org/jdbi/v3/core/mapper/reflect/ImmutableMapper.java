@@ -21,6 +21,9 @@ import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import java.beans.PropertyDescriptor;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -97,14 +100,31 @@ public class ImmutableMapper<T> implements RowMapper<T> {
 
         this.type = type;
         this.prefix = prefix;
-        this.implementation = (Class<? extends T>) type.getAnnotation(ImmutableImplementation.class).value();
+        this.implementation = getImplementationFromType(type);
 
         try {
             builder = this.implementation.getMethod("builder").invoke(null);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("The ImmutableImplementation of your ImmutableInterface needs a public static builder() " +
+                "method returning a Builder for your Immutable", e);
         }
         info = new ImmutableInfo(type, builder.getClass());
+    }
+
+    private Class<? extends T> getImplementationFromType(final Class<T> type) {
+        ImmutableImplementation implementationAnnotation = type.getAnnotation(ImmutableImplementation.class);
+        if (Objects.nonNull(implementationAnnotation)) {
+            return (Class<? extends T>) implementationAnnotation.value();
+        }
+        Package immutablePackage = type.getPackage();
+        String immutableName = type.getSimpleName();
+        String implementationName = "Immutable" + immutableName;
+        try {
+            return (Class<? extends T>) Class.forName(immutablePackage.getName() + "." + implementationName);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("The Immutable implementation for `" + immutableName + "` should be called `" +
+                implementationName + "` and lie in the package " + immutablePackage.getName(), e);
+        }
     }
 
     @Override
@@ -187,21 +207,27 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                 Object value = mapper.map(r, ctx);
 
                 try {
-                    property.getWriteMethod().invoke(builder, value);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new SQLException();
+                    MethodHandles.lookup().unreflect(property.getWriteMethod()).bindTo(builder).invokeWithArguments(value);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalArgumentException("Setter for the builder should be public", e);
+                } catch (Throwable throwable) {
+                    if (throwable instanceof RuntimeException) {
+                        throw (RuntimeException) throwable;
+                    }
+                    throw new IllegalArgumentException("Immutable build failed with exception", throwable);
                 }
             }
-
             try {
-                return (T) builder.getClass().getMethod("build").invoke(builder);
-            } catch (IllegalAccessException | NoSuchMethodException e) {
-                throw new IllegalArgumentException();
-            } catch (InvocationTargetException e) {
-                if (e.getTargetException() instanceof IllegalStateException) {
-                    throw (IllegalStateException) e.getTargetException();
+                return (T) MethodHandles.lookup().findVirtual(builder.getClass(),
+                    "build",
+                    MethodType.methodType(implementation)).bindTo(builder).invokeWithArguments();
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new IllegalArgumentException("Expected to find a Builder with public build() method", e);
+            } catch (Throwable e) {
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException) e;
                 }
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Immutable build failed with exception", e);
             }
         };
     }
