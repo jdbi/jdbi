@@ -1302,6 +1302,82 @@ List<User> users = handle
     .list();
 ----
 
+===== ImmutableMapper
+link:{jdbidocs}/mapper/reflect/ImmutableMapper.html[ImmutableMapper^] uses reflection to map database columns to immutables,
+created by the link:immutables.github.io[Immutables Api] or any other Api that creates the Immutable Implementation analog to this api
+[source,java]
+----
+@Value.Immutable
+public interface Sample {
+
+    @Value.Default
+    default long id() {
+        return 0;
+    }
+
+    String name();
+    int valueInt();
+}
+----
+
+Register a immutable mapper for your mapped interface using the factory() method:
+
+----
+handle.registerRowMapper(ImmutableMapper.factory(Sample.class));
+
+List<Sample> samples = handle
+        .createQuery("select id, name, value_int from sample")
+        .mapTo(Sample.class)
+        .list();
+----
+
+Field mappers can be configured with a column name prefix for each mapped field.
+This can help to disambiguate mapping joins, e.g.
+when two mapped classes have identical property names (like id or name):
+
+----
+handle.registerRowMapper(ImmutableMapper.factory(Contact.class, "c"));
+handle.registerRowMapper(ImmutableMapper.factory(Phone.class, "p"));
+handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
+List<JoinRow> contactPhones = handle.select("select " +
+        "c.id cid, c.name cname, " +
+        "p.id pid, p.name pname, p.number pnumber " +
+        "from contacts c left join phones p on c.id = p.contact_id")
+    .mapTo(JoinRow.class)
+    .list();
+----
+
+Nested immutable-mapped types can be mapped using the `@Nested` annotation:
+
+[source,java]
+----
+public interface User {
+  int id();
+  String name();
+
+  @Nested
+  Address address();
+}
+
+public interface Address {
+  String street();
+  String city();
+  String state();
+  String zip();
+}
+----
+
+[source,java]
+----
+handle.registerRowMapper(FieldMapper.factory(User.class));
+
+List<User> users = handle
+    .select("select id, name, street, city, state, zip from users")
+    .mapTo(User.class)
+    .list();
+----
+
+
 ===== FieldMapper
 
 link:{jdbidocs}/mapper/reflect/FieldMapper.html[FieldMapper^] uses reflection
