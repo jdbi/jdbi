@@ -79,7 +79,9 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put("0", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("foo bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("foo bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("expected 0 keys but got 1");
     }
 
     @Test
@@ -87,7 +89,9 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.clear();
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("expected 1 keys but got 0");
     }
 
     @Test
@@ -95,7 +99,9 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put("-1", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("must be 0");
     }
 
     @Test
@@ -104,7 +110,9 @@ public class TestMessageFormatTemplateEngine
         attributes.put("0", "hello");
         attributes.put("00", "world");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("0 was given more than once");
     }
 
     @Test
@@ -113,7 +121,9 @@ public class TestMessageFormatTemplateEngine
         attributes.put("0", "hello");
         attributes.put("2", "world");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("skip from 0 to 2");
     }
 
     @Test
@@ -121,7 +131,9 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put("abc", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("\"abc\"");
     }
 
     @Test
@@ -129,7 +141,9 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put(" 1 ", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("\" 1 \"");
     }
 
     @Test
@@ -137,6 +151,8 @@ public class TestMessageFormatTemplateEngine
     {
         attributes.put(" ", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("\" \"");
     }
 }
