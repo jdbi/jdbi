@@ -44,7 +44,7 @@ Both milestone and snapshot artifacts (library, source, and javadoc) can be foun
 <dependency>
   <groupId>com.nebhale.r2dbc</groupId>
   <artifactId>r2dbc-postgresql</artifactId>
-  <version>1.0.0.M1</version>
+  <version>1.0.0.M3</version>
 </dependency>
 ```
 
