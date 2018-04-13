@@ -13,21 +13,22 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 public class TestSerializableTransactionRunner
 {
+    private static final int RETRIES = 5;
+
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
@@ -38,28 +39,28 @@ public class TestSerializableTransactionRunner
     {
         db = Jdbi.create(dbRule.getConnectionFactory());
         db.setTransactionHandler(new SerializableTransactionRunner());
+        db.configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(RETRIES));
     }
 
     @Test
-    public void testEventuallyFails() throws Exception
-    {
-        final AtomicInteger tries = new AtomicInteger(5);
+    public void testEventuallyFails() {
+        final AtomicInteger attempts = new AtomicInteger(0);
         Handle handle = db.open();
 
         assertThatExceptionOfType(SQLException.class)
                 .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
                         conn -> {
-                            tries.decrementAndGet();
+                            attempts.incrementAndGet();
                             throw new SQLException("serialization", "40001");
                         }))
                 .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"));
-        assertThat(tries.get()).isEqualTo(0);
+        assertThat(attempts.get()).isEqualTo(1 + RETRIES);
     }
 
     @Test
     public void testEventuallySucceeds() throws Exception
     {
-        final AtomicInteger tries = new AtomicInteger(3);
+        final AtomicInteger tries = new AtomicInteger(RETRIES / 2);
         Handle handle = db.open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
