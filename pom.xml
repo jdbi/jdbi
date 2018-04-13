@@ -152,8 +152,8 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <inherited>true</inherited>
                     <configuration>
-                        <configLocation>${project.basedir}/src/build/checkstyle.xml</configLocation>
-                        <suppressionsLocation>${project.basedir}/src/build/checkstyle-suppress.xml</suppressionsLocation>
+                        <configLocation>/src/build/checkstyle.xml</configLocation>
+                        <suppressionsLocation>/src/build/checkstyle-suppress.xml</suppressionsLocation>
                     </configuration>
                 </plugin>
                 <plugin>
