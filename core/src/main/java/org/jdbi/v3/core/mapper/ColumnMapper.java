@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -27,8 +25,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @see ColumnMappers
  * @see org.jdbi.v3.core.result.ResultBearing#map(ColumnMapper)
  * @see org.jdbi.v3.core.config.Configurable#registerColumnMapper(ColumnMapper)
- * @see org.jdbi.v3.core.config.Configurable#registerColumnMapper(Type, ColumnMapper)
- * @see StatementContext#findColumnMapperFor(Type)
+ * @see org.jdbi.v3.core.config.Configurable#registerColumnMapper(java.lang.reflect.Type, ColumnMapper)
+ * @see StatementContext#findColumnMapperFor(java.lang.reflect.Type)
  */
 @FunctionalInterface
 public interface ColumnMapper<T> {

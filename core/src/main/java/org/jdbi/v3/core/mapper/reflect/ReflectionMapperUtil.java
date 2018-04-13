@@ -25,6 +25,10 @@ import java.util.function.Supplier;
  * Utilities for reflective mappers.
  */
 public class ReflectionMapperUtil {
+    private ReflectionMapperUtil() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
   /**
    * Returns the name of all the columns present in the specified {@link ResultSet}
    * @param rs  the {@link ResultSet} to get the column names of

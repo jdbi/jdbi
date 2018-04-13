@@ -13,15 +13,21 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
+
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.COMMENT;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.ESCAPED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
 
 /**
  * SQL parser which recognizes named parameter tokens of the form

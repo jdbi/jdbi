@@ -28,6 +28,10 @@ import java.util.NoSuchElementException;
  */
 public class IterableLike
 {
+    private IterableLike() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * @return whether {@code IterableLike} can iterate over the given object
      */

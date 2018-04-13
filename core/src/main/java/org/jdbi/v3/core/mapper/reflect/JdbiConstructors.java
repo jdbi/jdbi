@@ -23,6 +23,10 @@ import java.util.stream.Stream;
  * Utilities for {@link JdbiConstructor} annotation.
  */
 public class JdbiConstructors {
+    private JdbiConstructors() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * Find an invokable constructor.  Prefer an {@link JdbiConstructor} annotated
      * one if present.  Throws if multiple or zero candidates are found.
