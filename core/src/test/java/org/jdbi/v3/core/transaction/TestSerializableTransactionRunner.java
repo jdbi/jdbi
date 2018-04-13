@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSerializableTransactionRunner
 {
@@ -72,5 +73,12 @@ public class TestSerializableTransactionRunner
         });
 
         assertThat(tries.get()).isZero();
+    }
+
+    @Test
+    public void testNonsenseRetryCount() {
+        assertThatThrownBy(() -> db.configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(-1)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Set a number >= 0");
     }
 }
