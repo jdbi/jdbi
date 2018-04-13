@@ -60,7 +60,7 @@
 
     <properties>
         <project.build.targetJdk>1.8</project.build.targetJdk>
-        <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <basepom.maven.version>3.2.5</basepom.maven.version>
         <findbugs.version>3.0.1</findbugs.version>
 
