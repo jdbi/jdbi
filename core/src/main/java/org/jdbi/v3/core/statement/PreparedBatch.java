@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -32,6 +29,8 @@ import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
 
 /**
  * Represents a prepared batch statement.  Multiple bindings are added to the
@@ -182,11 +181,15 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution(stmt);
 
             try {
+                getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
+
                 LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
+                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
 
                 afterExecution(stmt);
 
@@ -195,6 +198,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 return new ExecutedBatch(stmt, rs);
             }
             catch (SQLException e) {
+                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
         }

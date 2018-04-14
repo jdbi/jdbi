@@ -91,17 +91,22 @@ public class Batch extends BaseStatement<Batch>
 
             try
             {
+                getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+
                 final long start = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
+
                 LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
-                return rs;
+                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
 
+                return rs;
             }
             catch (SQLException e)
             {
+                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         }

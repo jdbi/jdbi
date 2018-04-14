@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
@@ -33,12 +31,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.argument.ObjectFieldArguments;
-import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -46,11 +41,15 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -1447,13 +1446,17 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         beforeExecution(stmt);
 
         try {
+            getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+
             final long start = System.nanoTime();
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
+
             LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
                     .collect(elapsedTime, getContext());
+            getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
         }
         catch (SQLException e) {
             try {
@@ -1461,6 +1464,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             } catch (SQLException e1) {
                 e.addSuppressed(e1);
             }
+            getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
             throw new UnableToExecuteStatementException(e, getContext());
         }
 

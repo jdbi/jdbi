@@ -27,12 +27,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
     private TimingCollector timingCollector;
+    private SqlLogger sqlLogger;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+        sqlLogger = SqlLogger.NOP_SQL_LOGGER;
     }
 
     private SqlStatements(SqlStatements that) {
@@ -40,6 +42,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
         this.timingCollector = that.timingCollector;
+        this.sqlLogger = that.sqlLogger;
     }
 
     /**
@@ -142,6 +145,15 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
         this.timingCollector = timingCollector == null ? TimingCollector.NOP_TIMING_COLLECTOR : timingCollector;
+        return this;
+    }
+
+    public SqlLogger getSqlLogger() {
+        return sqlLogger;
+    }
+
+    public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
+        this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
         return this;
     }
 
