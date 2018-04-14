@@ -2,6 +2,7 @@
   - add a 'testing' artifact with a JdbiRule for JUnit tests
   - @SqlScript to execute multiple statements
   - add a ResultProducers allowNoResults option in case you may or may not get a result set
+  - add SqlLogger (to log queries, timing, and exceptions) and matching LoggableArgument (for use in custom ArgumentFactories)
 
 3.1.1
   - Improve IBM JDK compatibility with default methods
