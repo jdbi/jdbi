@@ -94,19 +94,19 @@ public class TestSqlLoggerAttributesAndBinding
         @Override
         public void logBeforeExecution(StatementContext context) {
             attributes.add(context.getAttributes());
-            bindings.add(context.getBinding().findForPosition(0).get().toString());
+            context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }
 
         @Override
         public void logAfterExecution(StatementContext context, long nanos) {
             attributes.add(context.getAttributes());
-            bindings.add(context.getBinding().findForPosition(0).get().toString());
+            context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }
 
         @Override
         public void logException(StatementContext context, SQLException ex) {
             attributes.add(context.getAttributes());
-            bindings.add(context.getBinding().findForPosition(0).get().toString());
+            context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }
 
         public List<Map<String, Object>> getAttributes() {
