@@ -15,6 +15,11 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 
+/**
+ * SqlLoggers receive query data before and after a query is executed, and after an exception is thrown by a bad query. The elapsed time in the former case, and the exception in the latter case, are passed as well. Defined attributes (&lt;foo&gt; placeholders, for example) and bound {@link org.jdbi.v3.core.argument.Argument}s are also available.
+ *
+ * See also {@link org.jdbi.v3.core.argument.LoggableArgument}. They can enable you to log previously unloggable {@link org.jdbi.v3.core.argument.Argument}s by wrapping them with a value in {@link org.jdbi.v3.core.argument.ArgumentFactory}s.
+ */
 public interface SqlLogger {
     SqlLogger NOP_SQL_LOGGER = new SqlLogger() {
         @Override
