@@ -30,12 +30,6 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
     public static final int DEFAULT_MAX_ROWS = -532778771;
 
     @Override
-    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-    {
-        throw new UnsupportedOperationException("@" + MaxRows.class.getSimpleName() + " cannot be used as a class annotation (on " + sqlObjectType.getName() + ")");
-    }
-
-    @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
     {
         final int maxRows = ((MaxRows)annotation).value();
