@@ -54,25 +54,26 @@ public class TestSerializableTransactionRunner
                             attempts.incrementAndGet();
                             throw new SQLException("serialization", "40001");
                         }))
-                .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"));
+                .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"))
+                .satisfies(e -> assertThat(e.getSuppressed()).hasSize(RETRIES));
         assertThat(attempts.get()).isEqualTo(1 + RETRIES);
     }
 
     @Test
     public void testEventuallySucceeds() throws Exception
     {
-        final AtomicInteger tries = new AtomicInteger(RETRIES / 2);
+        final AtomicInteger remaining = new AtomicInteger(RETRIES / 2);
         Handle handle = db.open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
-            if (tries.decrementAndGet() == 0)
+            if (remaining.decrementAndGet() == 0)
             {
                 return null;
             }
             throw new SQLException("serialization", "40001");
         });
 
-        assertThat(tries.get()).isZero();
+        assertThat(remaining.get()).isZero();
     }
 
     @Test

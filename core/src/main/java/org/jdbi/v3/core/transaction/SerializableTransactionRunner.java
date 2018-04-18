@@ -15,6 +15,9 @@ package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
+import javax.security.auth.login.Configuration;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -47,12 +50,28 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
+        X stack = null;
         while (true) {
             try {
                 return getDelegate().inTransaction(handle, callback);
-            } catch (Exception e) {
-                if (!isSqlState(config.serializationFailureSqlState, e) || --attempts <= 0) {
-                    throw e;
+            } catch (Exception last) {
+                X x = (X) last;
+
+                // throw immediately if the exception is unexpected
+                if (!isSqlState(config.serializationFailureSqlState, x)) {
+                    throw last;
+                }
+
+                // keep all exceptions thrown in the loop as a stack
+                if (stack == null) {
+                    stack = x;
+                } else {
+                    stack.addSuppressed(last);
+                }
+
+                // no more attempts left? Throw ALL the exceptions! \o/
+                if (--attempts <= 0) {
+                    throw stack;
                 }
             }
         }
