@@ -20,13 +20,11 @@ matrix:
   include:
     - env:
         - TESTS=Y
-        - JDK_VERSION=8
       script:
         - ./ci-test.sh
       jdk: oraclejdk8
     - env:
         - TESTS=Y
-        - JDK_VERSION=9
       script:
         - ./ci-test.sh
       jdk: oraclejdk9

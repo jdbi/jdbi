@@ -83,10 +83,7 @@
       <profile>
         <id>jdk8</id>
         <activation>
-          <activeByDefault>true</activeByDefault>
-          <property>
-            <name>!jdk9</name>
-          </property>
+          <jdk>[8,9)</jdk>
         </activation>
         <build>
           <pluginManagement>
@@ -111,9 +108,7 @@
       <profile>
         <id>jdk9</id>
         <activation>
-          <property>
-            <name>jdk9</name>
-          </property>
+          <jdk>[9,</jdk>
         </activation>
         <properties>
           <project.build.targetJdk>9</project.build.targetJdk>
@@ -131,7 +126,7 @@
                 <configuration>
                   <toolchains>
                     <jdk>
-                      <version>9</version>
+                      <version>1.9</version>
                       <vendor>oracle</vendor>
                     </jdk>
                   </toolchains>
