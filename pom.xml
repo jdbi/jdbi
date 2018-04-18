@@ -67,9 +67,9 @@
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
-        <dep.kotlin.version>1.1.0</dep.kotlin.version>
+        <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
-        <dep.dokka.version>0.9.13</dep.dokka.version>
+        <dep.dokka.version>0.9.16</dep.dokka.version>
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
@@ -81,25 +81,86 @@
 
     <profiles>
       <profile>
-        <id>toolchains</id>
+        <id>jdk8</id>
+        <activation>
+          <jdk>[8,9)</jdk>
+        </activation>
         <build>
-         <pluginManagement>
-           <plugins>
-             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-toolchains-plugin</artifactId>
-               <version>1.1</version>
-               <configuration>
-                 <toolchains>
-                   <jdk>
-                     <version>${project.build.targetJdk}</version>
-                     <vendor>oracle</vendor>
-                   </jdk>
-                 </toolchains>
-               </configuration>
-             </plugin>
-           </plugins>
-         </pluginManagement>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                  <toolchains>
+                    <jdk>
+                      <version>1.8</version>
+                      <vendor>oracle</vendor>
+                    </jdk>
+                  </toolchains>
+                </configuration>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
+      </profile>
+      <profile>
+        <id>jdk9</id>
+        <activation>
+          <jdk>[9,</jdk>
+        </activation>
+        <properties>
+          <project.build.targetJdk>9</project.build.targetJdk>
+          <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
+          <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+          <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+        </properties>
+        <build>
+          <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                  <toolchains>
+                    <jdk>
+                      <version>1.9</version>
+                      <vendor>oracle</vendor>
+                    </jdk>
+                  </toolchains>
+                </configuration>
+              </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                    <version>6.1</version>
+                  </dependency>
+                </dependencies>
+              </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.21.0</version>
+              </plugin>
+            </plugins>
+          </pluginManagement>
+        </build>
+      </profile>
+
+      <profile>
+        <id>toolchains</id>
+        <activation>
+          <property>
+            <name>toolchain</name>
+          </property>
+        </activation>
+        <build>
          <plugins>
            <plugin>
              <groupId>org.apache.maven.plugins</groupId>
