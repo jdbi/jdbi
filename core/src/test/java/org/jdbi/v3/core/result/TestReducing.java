@@ -91,7 +91,7 @@ public class TestReducing
     public void testReduceRows() {
         List<SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
-            .<Integer, SomethingWithLocations>reduceRows((map, rv) ->
+            .reduceRows((Map<Integer, SomethingWithLocations> map, RowView rv) ->
                 map.computeIfAbsent(rv.getColumn("id", Integer.class),
                                     id -> new SomethingWithLocations(rv.getRow(Something.class)))
                    .locations
