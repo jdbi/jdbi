@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 public class MaxRowsFactory implements SqlStatementCustomizerFactory
 {
     // arbitrary number to avoid coincidences
-    public static final int DEFAULT_MAX_ROWS = -532778771;
+    public static final int DEFAULT_MAX_ROWS = -1;
 
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
