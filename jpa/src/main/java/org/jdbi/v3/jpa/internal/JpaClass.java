@@ -13,14 +13,6 @@
  */
 package org.jdbi.v3.jpa.internal;
 
-import static java.util.Collections.synchronizedMap;
-import static java.util.Collections.unmodifiableList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -35,14 +27,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.synchronizedMap;
+import static java.util.Collections.unmodifiableList;
 
 public class JpaClass<C> {
-
-    private static final Map<Class<?>, JpaClass<?>> cache = synchronizedMap(new WeakHashMap<>());
+    private static final Logger LOGGER = LoggerFactory.getLogger(JpaClass.class);
+    private static final Map<Class<?>, JpaClass<?>> CACHE = synchronizedMap(new WeakHashMap<>());
 
     @SuppressWarnings("unchecked")
     public static <C> JpaClass<C> get(Class<C> clazz) {
-        return (JpaClass<C>) cache.computeIfAbsent(clazz, JpaClass::new);
+        return (JpaClass<C>) CACHE.computeIfAbsent(clazz, JpaClass::new);
     }
 
     private final List<JpaMember> members;
@@ -50,7 +49,7 @@ public class JpaClass<C> {
     private JpaClass(Class<C> clazz) {
         this.members = unmodifiableList(new ArrayList<>(inspectClass(clazz)));
 
-        logger.debug("init {}: {} members.", clazz, members.size());
+        LOGGER.debug("init {}: {} members.", clazz, members.size());
     }
 
     private static Collection<JpaMember> inspectClass(Class<?> clazz) {
@@ -120,7 +119,7 @@ public class JpaClass<C> {
                         }
                     });
         } catch (IntrospectionException e) {
-            logger.warn("Unable to introspect " + clazz, e);
+            LOGGER.warn("Unable to introspect " + clazz, e);
         }
     }
 
@@ -135,6 +134,4 @@ public class JpaClass<C> {
     public List<JpaMember> members() {
         return members;
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(JpaClass.class);
 }

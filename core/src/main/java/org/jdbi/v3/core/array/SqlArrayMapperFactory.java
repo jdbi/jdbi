@@ -43,7 +43,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
         }
 
         JdbiCollectors collectorRegistry = config.get(JdbiCollectors.class);
-        return collectorRegistry.findFor(type)
+        return (Optional) collectorRegistry.findFor(type)
                 .flatMap(collector -> collectorRegistry.findElementTypeFor(type)
                         .flatMap(elementType -> elementTypeMapper(elementType, config))
                         .map(elementMapper -> new CollectorColumnMapper(elementMapper, collector)));

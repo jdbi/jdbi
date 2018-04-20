@@ -20,6 +20,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 class ArgumentBinder {
+    private ArgumentBinder() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {
         if (parameters.isPositional()) {
             bindPositional(parameters.getParameterCount(), binding, statement, context);

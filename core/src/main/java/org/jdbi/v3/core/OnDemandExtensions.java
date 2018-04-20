@@ -36,6 +36,10 @@ class OnDemandExtensions {
         }
     }
 
+    private OnDemandExtensions() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     static <E> E create(Jdbi db, Class<E> extensionType) {
         ThreadLocal<E> threadExtension = new ThreadLocal<>();
 

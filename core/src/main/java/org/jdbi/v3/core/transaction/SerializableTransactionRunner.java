@@ -45,17 +45,30 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                                                     HandleCallback<R, X> callback) throws X
     {
         final Configuration config = handle.getConfig(Configuration.class);
-        int retriesRemaining = config.maxRetries;
+        int attempts = 1 + config.maxRetries;
 
+        X stack = null;
         while (true) {
-            try
-            {
+            try {
                 return getDelegate().inTransaction(handle, callback);
-            } catch (Exception e)
-            {
-                if (!isSqlState(config.serializationFailureSqlState, e) || --retriesRemaining <= 0)
-                {
-                    throw e;
+            } catch (Exception last) {
+                X x = (X) last;
+
+                // throw immediately if the exception is unexpected
+                if (!isSqlState(config.serializationFailureSqlState, x)) {
+                    throw last;
+                }
+
+                // keep all exceptions thrown in the loop as a stack
+                if (stack == null) {
+                    stack = x;
+                } else {
+                    stack.addSuppressed(last);
+                }
+
+                // no more attempts left? Throw ALL the exceptions! \o/
+                if (--attempts <= 0) {
+                    throw stack;
                 }
             }
         }
@@ -106,7 +119,8 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      */
     public static class Configuration implements JdbiConfig<Configuration>
     {
-        private int maxRetries = 5;
+        private static final int DEFAULT_MAX_RETRIES = 5;
+        private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
 
         /**
@@ -115,6 +129,10 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          */
         public Configuration setMaxRetries(int maxRetries)
         {
+            if (maxRetries < 0) {
+                throw new IllegalArgumentException("\"" + maxRetries + " retries\" makes no sense. Set a number >= 0 (default " + DEFAULT_MAX_RETRIES + ").");
+            }
+
             this.maxRetries = maxRetries;
             return this;
         }

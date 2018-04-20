@@ -14,13 +14,7 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -46,8 +40,13 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
 
 public class Types {
 
@@ -199,7 +198,7 @@ public class Types {
     }
 
     private static final class TypeVariableInvocationHandler implements InvocationHandler {
-        private static final Map<String, Method> typeVariableMethods;
+        private static final Map<String, Method> TYPE_VARIABLE_METHODS;
 
         static {
             Map<String, Method> builder = new LinkedHashMap<>();
@@ -214,7 +213,7 @@ public class Types {
                     builder.put(method.getName(), method);
                 }
             }
-            typeVariableMethods = Collections.unmodifiableMap(builder);
+            TYPE_VARIABLE_METHODS = Collections.unmodifiableMap(builder);
         }
 
         private final TypeVariableImpl<?> typeVariableImpl;
@@ -226,7 +225,7 @@ public class Types {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String methodName = method.getName();
-            Method typeVariableMethod = typeVariableMethods.get(methodName);
+            Method typeVariableMethod = TYPE_VARIABLE_METHODS.get(methodName);
             if (typeVariableMethod == null) {
                 throw new UnsupportedOperationException(methodName);
             } else {

@@ -55,19 +55,19 @@ public class UseSqlParserImpl implements Configurer
                                   Method m) throws Exception
     {
         try {
-            Constructor<? extends SqlParser> no_arg = value.getConstructor();
-            return no_arg.newInstance();
+            Constructor<? extends SqlParser> noArg = value.getConstructor();
+            return noArg.newInstance();
         }
         catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends SqlParser> class_arg = value.getConstructor(Class.class);
-                return class_arg.newInstance(sqlObjectType);
+                Constructor<? extends SqlParser> classArg = value.getConstructor(Class.class);
+                return classArg.newInstance(sqlObjectType);
             }
             catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends SqlParser> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends SqlParser> constructor = value.getConstructor(Class.class,
                                                                                             Method.class);
-                    return c_m_arg.newInstance(sqlObjectType, m);
+                    return constructor.newInstance(sqlObjectType, m);
                 }
                 throw new IllegalStateException("Unable to instantiate, no viable constructor " + value.getName());
             }

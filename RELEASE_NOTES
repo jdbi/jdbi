@@ -2,6 +2,10 @@
   - add a 'testing' artifact with a JdbiRule for JUnit tests
   - @SqlScript to execute multiple statements
   - add a ResultProducers allowNoResults option in case you may or may not get a result set
+  - improve SerializableTransactionRunner 'max retries' semantics
+  - add a TemplateEngine based on java.text.MessageFormat
+  - allow absence of 'value' on @MaxRows and validate its (lack of) use on SqlObjects
+  - fix SqlObject getting confused about result types due to bridge methods
   - add SqlLogger to log queries, timing, and exceptions, with matching LoggableArgument for use in custom ArgumentFactories
 
 3.1.1

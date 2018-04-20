@@ -73,6 +73,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
  * </ul>
  */
 public class GuavaCollectors {
+    private GuavaCollectors() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */

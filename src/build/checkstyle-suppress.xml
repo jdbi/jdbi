@@ -17,7 +17,9 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress checks=".*" files="org/skife/jdbi/rewriter/colon/ColonStatementLexer\.java$"/>
-    <suppress checks=".*" files="org/skife/jdbi/rewriter/hash/HashStatementLexer\.java$"/>
-    <suppress checks=".*" files="org/skife/jdbi/rewriter/printf/FormatterStatementLexer\.java$"/>
+    <suppress checks=".*" files="SqlScriptLexer\.java$"/>
+    <suppress checks=".*" files="DefineStatementLexer\.java$"/>
+    <suppress checks=".*" files="ColonStatementLexer\.java$"/>
+    <suppress checks=".*" files="FormatterStatementLexer\.java$"/>
+    <suppress checks=".*" files="HashStatementLexer\.java$"/>
 </suppressions>

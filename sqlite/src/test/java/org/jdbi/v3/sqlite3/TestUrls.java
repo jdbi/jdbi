@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlite3;
 
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.sqlite3.SQLitePlugin;
@@ -24,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 
 public class TestUrls {

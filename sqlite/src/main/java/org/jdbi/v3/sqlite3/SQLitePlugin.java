@@ -16,8 +16,6 @@ package org.jdbi.v3.sqlite3;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-import java.net.URL;
-
 /**
  * Jdbi plugin for SQLite.
  */

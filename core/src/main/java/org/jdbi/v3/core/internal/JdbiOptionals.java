@@ -13,13 +13,17 @@
  */
 package org.jdbi.v3.core.internal;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
+
 public class JdbiOptionals {
+    private JdbiOptionals() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     @SafeVarargs
     public static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
         return Stream.of(suppliers)

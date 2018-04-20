@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -42,61 +40,62 @@ import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
  * from the JDK.
  */
 public class BuiltInMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
-        mappers.put(byte.class, primitiveMapper(ResultSet::getByte));
-        mappers.put(char.class, primitiveMapper(BuiltInMapperFactory::getChar));
-        mappers.put(short.class, primitiveMapper(ResultSet::getShort));
-        mappers.put(int.class, primitiveMapper(ResultSet::getInt));
-        mappers.put(long.class, primitiveMapper(ResultSet::getLong));
-        mappers.put(float.class, primitiveMapper(ResultSet::getFloat));
-        mappers.put(double.class, primitiveMapper(ResultSet::getDouble));
+        MAPPERS.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
+        MAPPERS.put(byte.class, primitiveMapper(ResultSet::getByte));
+        MAPPERS.put(char.class, primitiveMapper(BuiltInMapperFactory::getChar));
+        MAPPERS.put(short.class, primitiveMapper(ResultSet::getShort));
+        MAPPERS.put(int.class, primitiveMapper(ResultSet::getInt));
+        MAPPERS.put(long.class, primitiveMapper(ResultSet::getLong));
+        MAPPERS.put(float.class, primitiveMapper(ResultSet::getFloat));
+        MAPPERS.put(double.class, primitiveMapper(ResultSet::getDouble));
 
-        mappers.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
-        mappers.put(Byte.class, referenceMapper(ResultSet::getByte));
-        mappers.put(Character.class, referenceMapper(BuiltInMapperFactory::getCharacter));
-        mappers.put(Short.class, referenceMapper(ResultSet::getShort));
-        mappers.put(Integer.class, referenceMapper(ResultSet::getInt));
-        mappers.put(Long.class, referenceMapper(ResultSet::getLong));
-        mappers.put(Float.class, referenceMapper(ResultSet::getFloat));
-        mappers.put(Double.class, referenceMapper(ResultSet::getDouble));
+        MAPPERS.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
+        MAPPERS.put(Byte.class, referenceMapper(ResultSet::getByte));
+        MAPPERS.put(Character.class, referenceMapper(BuiltInMapperFactory::getCharacter));
+        MAPPERS.put(Short.class, referenceMapper(ResultSet::getShort));
+        MAPPERS.put(Integer.class, referenceMapper(ResultSet::getInt));
+        MAPPERS.put(Long.class, referenceMapper(ResultSet::getLong));
+        MAPPERS.put(Float.class, referenceMapper(ResultSet::getFloat));
+        MAPPERS.put(Double.class, referenceMapper(ResultSet::getDouble));
 
-        mappers.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
+        MAPPERS.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
 
-        mappers.put(String.class, referenceMapper(ResultSet::getString));
+        MAPPERS.put(String.class, referenceMapper(ResultSet::getString));
 
-        mappers.put(byte[].class, referenceMapper(ResultSet::getBytes));
+        MAPPERS.put(byte[].class, referenceMapper(ResultSet::getBytes));
 
-        mappers.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
+        MAPPERS.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
 
-        mappers.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
+        MAPPERS.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
 
-        mappers.put(URL.class, referenceMapper(ResultSet::getURL));
-        mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
-        mappers.put(UUID.class, BuiltInMapperFactory::getUUID);
+        MAPPERS.put(URL.class, referenceMapper(ResultSet::getURL));
+        MAPPERS.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
+        MAPPERS.put(UUID.class, BuiltInMapperFactory::getUUID);
 
-        mappers.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
-        mappers.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
-        mappers.put(LocalDateTime.class, referenceMapper(BuiltInMapperFactory::getLocalDateTime));
-        mappers.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
-        mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
-        mappers.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
-        mappers.put(ZoneId.class, referenceMapper(BuiltInMapperFactory::getZoneId));
+        MAPPERS.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
+        MAPPERS.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
+        MAPPERS.put(LocalDateTime.class, referenceMapper(BuiltInMapperFactory::getLocalDateTime));
+        MAPPERS.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
+        MAPPERS.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
+        MAPPERS.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
+        MAPPERS.put(ZoneId.class, referenceMapper(BuiltInMapperFactory::getZoneId));
 
-        mappers.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
-        mappers.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
-        mappers.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
+        MAPPERS.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
+        MAPPERS.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
+        MAPPERS.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
     }
 
     @Override
@@ -109,7 +108,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
             return Optional.of(OptionalMapper.of(type));
         }
 
-        return Optional.ofNullable(mappers.get(rawType));
+        return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
     @FunctionalInterface

@@ -95,6 +95,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             @Override
             public void close() {
+                ctx.close();
             }
         };
     }
