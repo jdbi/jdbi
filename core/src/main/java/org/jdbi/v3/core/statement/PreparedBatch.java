@@ -181,16 +181,17 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             beforeExecution(stmt);
 
+            Long startNanos = null;
             try {
                 getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
 
-                final long start = System.nanoTime();
+                startNanos = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
-                final long elapsedTime = System.nanoTime() - start;
+                final long elapsedNanos = System.nanoTime() - startNanos;
 
-                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
-                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
+                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedNanos / 1000000L, parsedSql);
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
+                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
 
                 afterExecution(stmt);
 
@@ -199,7 +200,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 return new ExecutedBatch(stmt, rs);
             }
             catch (SQLException e) {
-                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
+                final long elapsedNanos = System.nanoTime() - startNanos;
+                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
         }

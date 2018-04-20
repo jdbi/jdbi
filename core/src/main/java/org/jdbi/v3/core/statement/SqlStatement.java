@@ -1445,26 +1445,30 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeExecution(stmt);
 
+        Long startNanos = null;
         try {
             getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
 
-            final long start = System.nanoTime();
+            startNanos = System.nanoTime();
             stmt.execute();
-            final long elapsedTime = System.nanoTime() - start;
+            final long elapsedNanos = System.nanoTime() - startNanos;
 
-            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
+            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedNanos / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
-                    .collect(elapsedTime, getContext());
-            getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
+                    .collect(elapsedNanos, getContext());
+            getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
         }
         catch (SQLException e) {
+            final long elapsedNanos = System.nanoTime() - startNanos;
+
             try {
                 stmt.close();
             } catch (SQLException e1) {
                 e.addSuppressed(e1);
             }
-            getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
+
+            getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
             throw new UnableToExecuteStatementException(e, getContext());
         }
 

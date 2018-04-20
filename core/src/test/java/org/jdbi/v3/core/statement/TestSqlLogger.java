@@ -70,7 +70,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_NULL, INSERT_NULL);
-            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -97,7 +97,7 @@ public class TestSqlLogger
         } catch (RuntimeException e) {
             // unfortunately...
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -122,7 +122,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -158,9 +158,10 @@ public class TestSqlLogger
         }
 
         @Override
-        public void logException(StatementContext context, SQLException ex) {
+        public void logException(StatementContext context, SQLException ex, long nanos) {
             rawSql.add(context.getRawSql());
             exceptions.add(ex);
+            timings.add(nanos);
         }
 
         public List<String> getRawSql() {

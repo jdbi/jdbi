@@ -27,5 +27,5 @@ public interface SqlLogger {
 
     default void logAfterExecution(StatementContext context, long nanos) {}
 
-    default void logException(StatementContext context, SQLException ex) {}
+    default void logException(StatementContext context, SQLException ex, long nanos) {}
 }

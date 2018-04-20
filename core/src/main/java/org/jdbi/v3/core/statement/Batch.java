@@ -89,24 +89,26 @@ public class Batch extends BaseStatement<Batch>
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
+            Long startNanos = null;
             try
             {
                 getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
 
-                final long start = System.nanoTime();
+                startNanos = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
-                final long elapsedTime = System.nanoTime() - start;
+                final long elapsedNanos = System.nanoTime() - startNanos;
 
-                LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
+                LOG.trace("] executed in {}ms", elapsedNanos / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
-                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedTime);
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
+                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
 
                 return rs;
             }
             catch (SQLException e)
             {
-                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e);
+                final long elapsedNanos = System.nanoTime() - startNanos;
+                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         }
