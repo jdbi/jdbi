@@ -102,6 +102,7 @@ public interface Configurable<This> {
      * @param collector timing collector
      * @return this
      */
+    @Deprecated
     default This setTimingCollector(TimingCollector collector) {
         return configure(SqlStatements.class, c -> c.setTimingCollector(collector));
     }

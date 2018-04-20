@@ -15,8 +15,11 @@ package org.jdbi.v3.core.statement;
 
 /**
  * This class collects timing information for statement execution.
+ *
+ * Use {@link SqlLogger} instead.
  */
 @FunctionalInterface
+@Deprecated
 public interface TimingCollector {
     /**
      * Called after a statement completes with how long it took to execute.
@@ -24,10 +27,12 @@ public interface TimingCollector {
      * @param elapsedNs the elapsed time in nanoseconds.
      * @param ctx the context of the just completed statement
      */
+    @Deprecated
     void collect(long elapsedNs, StatementContext ctx);
 
     /**
      * GNDN.
      */
+    @Deprecated
     TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
 }

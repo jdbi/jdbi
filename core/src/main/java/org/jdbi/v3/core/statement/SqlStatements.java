@@ -26,6 +26,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
+    @Deprecated
     private TimingCollector timingCollector;
     private SqlLogger sqlLogger;
 
@@ -132,6 +133,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * @return the timing collector
      */
+    @Deprecated
     public TimingCollector getTimingCollector() {
         return timingCollector;
     }
@@ -143,6 +145,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param timingCollector the new timing collector
      * @return this
      */
+    @Deprecated
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
         this.timingCollector = timingCollector == null ? TimingCollector.NOP_TIMING_COLLECTOR : timingCollector;
         return this;
