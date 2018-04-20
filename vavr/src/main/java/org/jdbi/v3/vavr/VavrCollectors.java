@@ -19,6 +19,10 @@ import io.vavr.control.Option;
 import org.jdbi.v3.core.collector.OptionalCollectors;
 
 public class VavrCollectors {
+    private VavrCollectors() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
   /**
    * Returns a {@code Collector} that accumulates 0 or 1 input elements into an {@code Option<T>}.
    * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements

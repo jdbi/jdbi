@@ -45,6 +45,10 @@ class VavrGenericMapUtil {
         VALUE_MULTIMAP = multimapParams[1];
     }
 
+    private VavrGenericMapUtil() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     static Type resolveMapEntryType(Type mapType) {
         return resolveMaplikeEntryType(mapType, KEY, VALUE);
     }

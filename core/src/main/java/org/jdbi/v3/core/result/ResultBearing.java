@@ -18,11 +18,9 @@ import org.jdbi.v3.core.collector.NoSuchCollectorException;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -77,8 +75,8 @@ public interface ResultBearing {
      * @param <T>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     @SuppressWarnings("unchecked")
@@ -93,8 +91,8 @@ public interface ResultBearing {
      * @param <T>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     @SuppressWarnings("unchecked")
@@ -108,8 +106,8 @@ public interface ResultBearing {
      * @param type the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default ResultIterable<?> mapTo(Type type) {

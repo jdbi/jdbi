@@ -17,6 +17,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class JdbiStreams {
+    private JdbiStreams() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     public static <T> Stream<T> toStream(Optional<T> optional) {
         return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
     }

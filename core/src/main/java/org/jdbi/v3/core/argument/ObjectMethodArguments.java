@@ -13,13 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static java.util.stream.Collectors.toMap;
-
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
-import org.jdbi.v3.core.statement.StatementContext;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -27,6 +20,11 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.statement.StatementContext;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Binds public methods with no parameters on a specified object.

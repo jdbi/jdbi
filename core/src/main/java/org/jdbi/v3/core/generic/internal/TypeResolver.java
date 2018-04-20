@@ -14,13 +14,6 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableMap;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
-
-import javax.annotation.Nullable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,6 +27,13 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
 
 public final class TypeResolver {
 
@@ -264,13 +264,13 @@ public final class TypeResolver {
 
   private static final class TypeMappingIntrospector extends TypeVisitor {
 
-    private static final WildcardCapturer wildcardCapturer = new WildcardCapturer();
+    private static final WildcardCapturer WILDCARD_CAPTURER = new WildcardCapturer();
 
     private final Map<TypeVariableKey, Type> mappings = new HashMap<>();
 
     static Map<TypeVariableKey, Type> getTypeMappings(Type contextType) {
       TypeMappingIntrospector introspector = new TypeMappingIntrospector();
-      introspector.visit(wildcardCapturer.capture(contextType));
+      introspector.visit(WILDCARD_CAPTURER.capture(contextType));
       return unmodifiableMap(new LinkedHashMap<>(introspector.mappings));
     }
 

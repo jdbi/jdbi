@@ -15,8 +15,6 @@ package org.jdbi.v3.core.mapper;
 
 import org.jdbi.v3.core.config.JdbiConfig;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Configuration class for MapEntryMapper.
  */

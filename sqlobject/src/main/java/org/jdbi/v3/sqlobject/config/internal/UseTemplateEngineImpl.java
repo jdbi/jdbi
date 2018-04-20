@@ -56,19 +56,19 @@ public class UseTemplateEngineImpl implements Configurer
                                        Method m) throws Exception
     {
         try {
-            Constructor<? extends TemplateEngine> no_arg = value.getConstructor();
-            return no_arg.newInstance();
+            Constructor<? extends TemplateEngine> noArg = value.getConstructor();
+            return noArg.newInstance();
         }
         catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends TemplateEngine> class_arg = value.getConstructor(Class.class);
-                return class_arg.newInstance(sqlObjectType);
+                Constructor<? extends TemplateEngine> classArg = value.getConstructor(Class.class);
+                return classArg.newInstance(sqlObjectType);
             }
             catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends TemplateEngine> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends TemplateEngine> constructor = value.getConstructor(Class.class,
                                                                                             Method.class);
-                    return c_m_arg.newInstance(sqlObjectType, m);
+                    return constructor.newInstance(sqlObjectType, m);
                 }
                 throw new IllegalStateException("Unable to instantiate, no viable constructor " + value.getName());
             }

@@ -15,10 +15,6 @@ package org.jdbi.v3.core.argument;
 
 import static java.util.stream.Collectors.toMap;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Map;

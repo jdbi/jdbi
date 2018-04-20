@@ -16,6 +16,10 @@ package org.jdbi.v3.core.internal;
 import java.util.concurrent.Callable;
 
 public class JdbiThreadLocals {
+    private JdbiThreadLocals() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     public static <V, L> V invokeInContext(ThreadLocal<L> threadLocal, L context, Callable<V> task) throws Exception {
         L oldContext = threadLocal.get();
         try {
