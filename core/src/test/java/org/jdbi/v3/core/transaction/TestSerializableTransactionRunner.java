@@ -40,7 +40,7 @@ public class TestSerializableTransactionRunner
     {
         db = Jdbi.create(dbRule.getConnectionFactory());
         db.setTransactionHandler(new SerializableTransactionRunner());
-        db.configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(RETRIES));
+        db.getConfig(SerializableTransactionRunner.Configuration.class).setMaxRetries(RETRIES);
     }
 
     @Test
