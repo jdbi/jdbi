@@ -4,6 +4,7 @@
   - add a ResultProducers allowNoResults option in case you may or may not get a result set
   - add a TemplateEngine based on java.text.MessageFormat
   - allow absence of 'value' on @MaxRows and validate its (lack of) use on SqlObjects
+  - fix SqlObject getting confused about result types due to bridge methods
 
 3.1.1
   - Improve IBM JDK compatibility with default methods
