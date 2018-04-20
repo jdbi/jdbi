@@ -21,20 +21,11 @@ import java.sql.SQLException;
  * See also {@link org.jdbi.v3.core.argument.LoggableArgument}. They can enable you to log previously unloggable {@link org.jdbi.v3.core.argument.Argument}s by wrapping them with a value in {@link org.jdbi.v3.core.argument.ArgumentFactory}s.
  */
 public interface SqlLogger {
-    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {
-        @Override
-        public void logBeforeExecution(StatementContext context) {}
+    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {};
 
-        @Override
-        public void logAfterExecution(StatementContext context, long nanos) {}
+    default void logBeforeExecution(StatementContext context) {}
 
-        @Override
-        public void logException(StatementContext context, SQLException ex) {}
-    };
+    default void logAfterExecution(StatementContext context, long nanos) {}
 
-    void logBeforeExecution(StatementContext context);
-
-    void logAfterExecution(StatementContext context, long nanos);
-
-    void logException(StatementContext context, SQLException ex);
+    default void logException(StatementContext context, SQLException ex) {}
 }
