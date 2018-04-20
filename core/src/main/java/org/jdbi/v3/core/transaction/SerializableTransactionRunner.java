@@ -15,9 +15,6 @@ package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
-import javax.security.auth.login.Configuration;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.JdbiConfig;
