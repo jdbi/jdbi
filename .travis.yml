@@ -11,39 +11,30 @@ cache:
     - '$HOME/.m2/repository'
 
 before_install:
-    - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
-    - '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || openssl aes-256-cbc -K $secure_files_key -iv $secure_files_iv -in src/build/travis-settings.xml.enc -out ~/.m2/settings.xml -d'
-    - '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || openssl aes-256-cbc -K $secure_files_key -iv $secure_files_iv -in src/build/travis-settings-security.xml.enc -out ~/.m2/settings-security.xml -d'
+  - ./ci-pre-install.sh
 
 install:
-  # Oracle profile disabled until they fix their orai18n JAR artifact on maven.oracle.com repository.
-  #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -Ptoolchains,oracle -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install'
-  #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -Ptoolchains        -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install'
-  - mvn -Ptoolchains -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install
+  - ./ci-install.sh
 
 matrix:
   include:
     - env:
         - TESTS=Y
       script:
-        # Oracle profile disabled until they fix their orai18n JAR artifact on maven.oracle.com repository.
-        #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains,oracle -B verify'
-        #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains        -B verify'
-        - mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains -B verify
+        - ./ci-test.sh
       jdk: oraclejdk8
+    - env:
+        - TESTS=Y
+      script:
+        - ./ci-test.sh
+      jdk: oraclejdk9
     - env:
         - DOCUMENTATION=Y
       script:
-        # Oracle profile disabled until they fix their orai18n JAR artifact on maven.oracle.com repository.
-        #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains,oracle -B verify'
-        #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains        -B verify'
-        - mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains -B verify
+        - ./ci-doc.sh
       jdk: oraclejdk8
     - env:
         - CODE_STYLE=Y
       script:
-        # Oracle profile disabled until they fix their orai18n JAR artifact on maven.oracle.com repository.
-        #- '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains,oracle -B verify'
-        #- '[ "$TRAVIS_SECURE_ENV_VARS"  = "true" ] || mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains        -B verify'
-        - mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains -B verify
+        - ./ci-code-style.sh
       jdk: oraclejdk8
