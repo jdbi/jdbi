@@ -57,8 +57,7 @@ public class TestSqlLogger
         h.createUpdate(INSERT).execute();
 
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT, INSERT);
-        assertThat(logger.getTimings()).hasSize(2);
-        assertThat(logger.getTimings()).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -71,8 +70,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_NULL, INSERT_NULL);
-            assertThat(logger.getTimings()).hasSize(1);
-            assertThat(logger.getTimings()).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -85,8 +83,7 @@ public class TestSqlLogger
 
         // unfortunately...
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-        assertThat(logger.getTimings()).hasSize(2);
-        assertThat(logger.getTimings()).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -100,8 +97,7 @@ public class TestSqlLogger
         } catch (RuntimeException e) {
             // unfortunately...
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-            assertThat(logger.getTimings()).hasSize(1);
-            assertThat(logger.getTimings()).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -113,8 +109,7 @@ public class TestSqlLogger
         h.prepareBatch(INSERT_PREPARED).bind(0, 1).execute();
 
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-        assertThat(logger.getTimings()).hasSize(2);
-        assertThat(logger.getTimings()).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -127,8 +122,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-            assertThat(logger.getTimings()).hasSize(1);
-            assertThat(logger.getTimings()).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(1).allMatch(x -> x > 0);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
