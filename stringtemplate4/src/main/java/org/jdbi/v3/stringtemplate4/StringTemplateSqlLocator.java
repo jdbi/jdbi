@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -130,7 +131,13 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
-        return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path));
+        final STGroup cached = CACHE.get(path);
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (StringTemplateSqlLocator.class) {
+            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path));
+        }
     }
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
