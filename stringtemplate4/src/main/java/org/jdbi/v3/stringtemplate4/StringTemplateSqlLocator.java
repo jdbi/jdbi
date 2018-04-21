@@ -146,8 +146,11 @@ public class StringTemplateSqlLocator {
             URL resource = classLoader.getResource(path);
             STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
-            // FIXME Next line will throw errors in console if variables is not defined
-            group.getInstanceOf(templateName).render();
+            ST st = group.getInstanceOf(templateName);
+            if (st != null) {
+                // FIXME Next line will throw errors in console if variables is not defined
+                st.render();
+            }
             return group;
         }
         catch (Exception e) {
