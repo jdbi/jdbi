@@ -148,7 +148,6 @@ public class StringTemplateSqlLocator {
             group.load();
             ST st = group.getInstanceOf(templateName);
             if (st != null) {
-                // FIXME Next line will throw errors in console if variables is not defined
                 st.render();
             }
             return group;
