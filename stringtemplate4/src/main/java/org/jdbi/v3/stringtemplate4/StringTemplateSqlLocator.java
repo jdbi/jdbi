@@ -41,6 +41,8 @@ public class StringTemplateSqlLocator {
 
     private static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
+    private static final Object SYNC_OBJECT = new Object();
+
     private StringTemplateSqlLocator() {
     }
 
@@ -55,8 +57,7 @@ public class StringTemplateSqlLocator {
      * @return the located SQL.
      */
     public static ST findStringTemplate(Class<?> type, String name) {
-        STGroup group = findStringTemplateGroup(type);
-
+        STGroup group = findStringTemplateGroup(type, name);
         if (!group.isDefined(name)) {
             throw new IllegalStateException("No StringTemplate group " + name + " for class " + type);
         }
@@ -73,7 +74,7 @@ public class StringTemplateSqlLocator {
      * @return the located SQL.
      */
     public static ST findStringTemplate(String path, String name) {
-        STGroup group = findStringTemplateGroup(path);
+        STGroup group = findStringTemplateGroup(path, name);
 
         return findTemplateInGroup(path, name, group);
     }
@@ -88,7 +89,7 @@ public class StringTemplateSqlLocator {
      * @return the located SQL.
      */
     public static ST findStringTemplate(ClassLoader classLoader, String path, String name) {
-        STGroup group = findStringTemplateGroup(classLoader, path);
+        STGroup group = findStringTemplateGroup(classLoader, path, name);
 
         return findTemplateInGroup(path, name, group);
     }
@@ -109,8 +110,8 @@ public class StringTemplateSqlLocator {
      *             StringTemplate group file on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(Class<?> type) {
-        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type));
+    public static STGroup findStringTemplateGroup(Class<?> type, String templateName) {
+        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type), templateName);
     }
 
     /**
@@ -119,8 +120,8 @@ public class StringTemplateSqlLocator {
      * @param path the resource path on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(String path) {
-        return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path);
+    public static STGroup findStringTemplateGroup(String path, String templateName) {
+        return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path, templateName);
     }
 
     /**
@@ -130,21 +131,23 @@ public class StringTemplateSqlLocator {
      * @param path the resource path on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
+    public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path, String templateName) {
         final STGroup cached = CACHE.get(path);
         if (cached != null) {
             return cached;
         }
-        synchronized (StringTemplateSqlLocator.class) {
-            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path));
+        synchronized (SYNC_OBJECT) {
+            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path, templateName));
         }
     }
 
-    private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
+    private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path, String templateName) {
         try {
             URL resource = classLoader.getResource(path);
             STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
+            // FIXME Next line will throw errors in console if variables is not defined
+            group.getInstanceOf(templateName).render();
             return group;
         }
         catch (Exception e) {
