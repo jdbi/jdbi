@@ -16,7 +16,6 @@ package org.jdbi.v3.core.rule;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.rules.TestRule;
 
-public interface DatabaseRule extends TestRule
-{
+public interface DatabaseRule extends TestRule {
     Jdbi getJdbi();
 }

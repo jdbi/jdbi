@@ -23,45 +23,37 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestEnums
-{
+public class TestEnums {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    public static class SomethingElse
-    {
-        public enum Name
-        {
+    public static class SomethingElse {
+        public enum Name {
             eric, brian
         }
 
         private int id;
         private Name name;
 
-        public Name getName()
-        {
+        public Name getName() {
             return name;
         }
 
-        public void setName(Name name)
-        {
+        public void setName(Name name) {
             this.name = name;
         }
 
-        public int getId()
-        {
+        public int getId() {
             return id;
         }
 
-        public void setId(int id)
-        {
+        public void setId(int id) {
             this.id = id;
         }
     }
 
     @Test
-    public void testMapEnumValues() throws Exception
-    {
+    public void testMapEnumValues() throws Exception {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -73,8 +65,7 @@ public class TestEnums
     }
 
     @Test
-    public void testMapToEnum() throws Exception
-    {
+    public void testMapToEnum() throws Exception {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -86,8 +77,7 @@ public class TestEnums
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testMapInvalidEnumValue() throws SQLException
-    {
+    public void testMapInvalidEnumValue() throws SQLException {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
@@ -97,8 +87,7 @@ public class TestEnums
     }
 
     @Test
-    public void testEnumCaseInsensitive() throws Exception
-    {
+    public void testEnumCaseInsensitive() throws Exception {
         assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).findOnly())
             .isEqualTo(SomethingElse.Name.brian);
     }

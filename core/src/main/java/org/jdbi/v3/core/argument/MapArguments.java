@@ -22,20 +22,16 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Binds all entries of a map as arguments.
  */
-public class MapArguments implements NamedArgumentFinder
-{
+public class MapArguments implements NamedArgumentFinder {
     private final Map<String, ?> args;
 
-    public MapArguments(Map<String, ?> args)
-    {
+    public MapArguments(Map<String, ?> args) {
         this.args = args;
     }
 
     @Override
-    public Optional<Argument> find(String name, StatementContext ctx)
-    {
-        if (args.containsKey(name))
-        {
+    public Optional<Argument> find(String name, StatementContext ctx) {
+        if (args.containsKey(name)) {
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();

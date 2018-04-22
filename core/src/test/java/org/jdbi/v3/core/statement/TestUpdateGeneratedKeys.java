@@ -25,24 +25,20 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestUpdateGeneratedKeys
-{
+public class TestUpdateGeneratedKeys {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         try (final Connection conn = dbRule.getConnectionFactory().openConnection();
-             final Statement create = conn.createStatement())
-        {
+             final Statement create = conn.createStatement()) {
             create.execute("create table something_else ( id integer not null generated always as identity, name varchar(50) )");
         }
     }
 
     @Test
-    public void testInsert() throws Exception
-    {
+    public void testInsert() throws Exception {
         Handle h = dbRule.openHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
@@ -60,8 +56,7 @@ public class TestUpdateGeneratedKeys
     }
 
     @Test
-    public void testUpdate() throws Exception
-    {
+    public void testUpdate() throws Exception {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
@@ -79,8 +74,7 @@ public class TestUpdateGeneratedKeys
     }
 
     @Test
-    public void testDelete() throws Exception
-    {
+    public void testDelete() throws Exception {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");

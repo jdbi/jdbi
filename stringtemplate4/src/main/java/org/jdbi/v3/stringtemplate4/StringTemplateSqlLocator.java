@@ -139,8 +139,7 @@ public class StringTemplateSqlLocator {
             STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
             return group;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Unable to read StringTemplate group file at " + path + " on classpath", e);
         }
     }

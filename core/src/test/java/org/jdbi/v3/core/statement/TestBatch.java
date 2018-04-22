@@ -23,14 +23,12 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBatch
-{
+public class TestBatch {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testBasics() throws Exception
-    {
+    public void testBasics() throws Exception {
         Handle h = dbRule.openHandle();
 
         Batch b = h.createBatch();

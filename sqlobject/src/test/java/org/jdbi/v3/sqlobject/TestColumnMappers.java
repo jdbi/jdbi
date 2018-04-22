@@ -32,13 +32,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestColumnMappers
-{
+public class TestColumnMappers {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    public static class SomeBean
-    {
+    public static class SomeBean {
         int primitiveInt;
         Long wrapperLong;
         String string;
@@ -104,8 +102,7 @@ public class TestColumnMappers
         }
     }
 
-    public interface SomeBeanDao
-    {
+    public interface SomeBeanDao {
         @RegisterBeanMapper(SomeBean.class)
         @RegisterColumnMapper(ValueTypeMapper.class)
         @SqlQuery("select * from someBean")

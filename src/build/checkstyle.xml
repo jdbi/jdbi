@@ -50,9 +50,9 @@
 		<module name="ModifierOrder"/>
 		<!--<module name="RedundantModifier"/>-->
 		<!--<module name="EmptyBlock"/>-->
-		<!--<module name="LeftCurly"/>-->
+		<module name="LeftCurly"/>
 		<module name="NeedBraces"/>
-		<!--<module name="RightCurly"/>-->
+		<module name="RightCurly"/>
 		<module name="EmptyStatement"/>
 		<module name="EqualsHashCode"/>
 		<module name="IllegalInstantiation"/>

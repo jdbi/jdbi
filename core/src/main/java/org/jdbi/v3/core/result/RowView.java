@@ -31,16 +31,14 @@ import org.jdbi.v3.core.statement.StatementContext;
  * {@code RowMapper} or {@code ColumnMapper} to extract values.
  * It is not valid outside the scope of the method that receives it.
  */
-public class RowView
-{
+public class RowView {
     private final StatementContext ctx;
     private final ResultSet rs;
 
     private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
     private final Map<Type, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
 
-    RowView(ResultSet rs, StatementContext ctx)
-    {
+    RowView(ResultSet rs, StatementContext ctx) {
         this.rs = rs;
         this.ctx = ctx;
     }
@@ -51,8 +49,7 @@ public class RowView
      * @param rowType the Class of the type
      * @return the materialized T
      */
-    public <T> T getRow(Class<T> rowType)
-    {
+    public <T> T getRow(Class<T> rowType) {
         return rowType.cast(getRow((Type) rowType));
     }
 
@@ -63,8 +60,7 @@ public class RowView
      * @return the materialized T
      */
     @SuppressWarnings("unchecked")
-    public <T> T getRow(GenericType<T> rowType)
-    {
+    public <T> T getRow(GenericType<T> rowType) {
         return (T) getRow(rowType.getType());
     }
 
@@ -73,8 +69,7 @@ public class RowView
      * @param type the type to map
      * @return the materialized object
      */
-    public Object getRow(Type type)
-    {
+    public Object getRow(Type type) {
         try {
             return rowMapperFor(type).map(rs, ctx);
         } catch (SQLException e) {
@@ -102,8 +97,7 @@ public class RowView
      * @param type the Class of the type
      * @return the materialized T
      */
-    public <T> T getColumn(String column, Class<T> type)
-    {
+    public <T> T getColumn(String column, Class<T> type) {
         return type.cast(getColumn(column, (Type) type));
     }
 
@@ -114,8 +108,7 @@ public class RowView
      * @param type the Class of the type
      * @return the materialized T
      */
-    public <T> T getColumn(int column, Class<T> type)
-    {
+    public <T> T getColumn(int column, Class<T> type) {
         return type.cast(getColumn(column, (Type) type));
     }
 
@@ -127,8 +120,7 @@ public class RowView
      * @return the materialized T
      */
     @SuppressWarnings("unchecked")
-    public <T> T getColumn(String column, GenericType<T> type)
-    {
+    public <T> T getColumn(String column, GenericType<T> type) {
         return (T) getColumn(column, type.getType());
     }
 
@@ -140,8 +132,7 @@ public class RowView
      * @return the materialized T
      */
     @SuppressWarnings("unchecked")
-    public <T> T getColumn(int column, GenericType<T> type)
-    {
+    public <T> T getColumn(int column, GenericType<T> type) {
         return (T) getColumn(column, type.getType());
     }
 
@@ -151,8 +142,7 @@ public class RowView
      * @param type the Type of the type
      * @return the materialized object
      */
-    public Object getColumn(String column, Type type)
-    {
+    public Object getColumn(String column, Type type) {
         try {
             return columnMapperFor(type).map(rs, column, ctx);
         } catch (SQLException e) {
@@ -166,8 +156,7 @@ public class RowView
      * @param type the Class of the type
      * @return the materialized object
      */
-    public Object getColumn(int column, Type type)
-    {
+    public Object getColumn(int column, Type type) {
         try {
             return columnMapperFor(type).map(rs, column, ctx);
         } catch (SQLException e) {

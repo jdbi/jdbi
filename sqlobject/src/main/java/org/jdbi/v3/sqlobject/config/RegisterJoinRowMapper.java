@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterJoinRowMapperImpl;
 @ConfiguringAnnotation(RegisterJoinRowMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterJoinRowMapper
-{
+public @interface RegisterJoinRowMapper {
     /**
      * @return the types that will be available on the JoinRows returned.
      */

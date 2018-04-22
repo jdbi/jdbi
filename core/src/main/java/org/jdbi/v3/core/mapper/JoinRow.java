@@ -19,8 +19,7 @@ import java.util.Map;
 /**
  * Holder for a single joined row.
  */
-public class JoinRow
-{
+public class JoinRow {
     private final Map<Type, Object> entries;
 
     JoinRow(Map<Type, Object> entries) {

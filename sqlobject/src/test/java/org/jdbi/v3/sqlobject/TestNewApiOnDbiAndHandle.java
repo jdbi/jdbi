@@ -32,14 +32,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestNewApiOnDbiAndHandle
-{
+public class TestNewApiOnDbiAndHandle {
     private Jdbi db;
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         db = Jdbi.create(ds);
@@ -51,15 +49,13 @@ public class TestNewApiOnDbiAndHandle
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.execute("drop table something");
         handle.close();
     }
 
     @Test
-    public void testOpenNewSpiffy() throws Exception
-    {
+    public void testOpenNewSpiffy() throws Exception {
         final AtomicReference<Connection> c = new AtomicReference<>();
 
         db.useExtension(Spiffy.class, spiffy -> {
@@ -74,8 +70,7 @@ public class TestNewApiOnDbiAndHandle
     }
 
     @Test
-    public void testOnDemandSpiffy() throws Exception
-    {
+    public void testOnDemandSpiffy() throws Exception {
         Spiffy spiffy = db.onDemand(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
@@ -85,8 +80,7 @@ public class TestNewApiOnDbiAndHandle
     }
 
     @Test
-    public void testAttach() throws Exception
-    {
+    public void testAttach() throws Exception {
         Spiffy spiffy = handle.attach(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
@@ -119,8 +113,7 @@ public class TestNewApiOnDbiAndHandle
                 .attach(Spiffy.class);
     }
 
-    public interface Spiffy extends SqlObject
-    {
+    public interface Spiffy extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@BindSomething("it") Something s);
 

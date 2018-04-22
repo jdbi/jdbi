@@ -119,8 +119,7 @@ public final class ClasspathSqlLocator {
         try (InputStream is = openStream(classLoader, path)) {
             // strips away comments
             return SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(is));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Unable to read classpath resource at " + path, e);
         }
     }

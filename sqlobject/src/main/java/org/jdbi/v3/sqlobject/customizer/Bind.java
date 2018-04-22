@@ -26,8 +26,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindFactory.class)
-public @interface Bind
-{
+public @interface Bind {
     String NO_VALUE = "";
 
     /**

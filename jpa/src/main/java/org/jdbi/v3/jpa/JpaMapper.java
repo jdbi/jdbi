@@ -42,8 +42,7 @@ public class JpaMapper<C> implements RowMapper<C> {
     }
 
     @Override
-    public RowMapper<C> specialize(ResultSet rs, StatementContext ctx) throws SQLException
-    {
+    public RowMapper<C> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         Constructor<C> constructor;
         try {
             constructor = clazz.getDeclaredConstructor();
@@ -82,8 +81,7 @@ public class JpaMapper<C> implements RowMapper<C> {
     }
 
     @Override
-    public C map(ResultSet rs, StatementContext ctx) throws SQLException
-    {
+    public C map(ResultSet rs, StatementContext ctx) throws SQLException {
         return specialize(rs, ctx).map(rs, ctx);
     }
 

@@ -25,8 +25,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Base {@link NamedArgumentFinder} implementation that can be used when binding properties of an object, with an
  * optional prefix.
  */
-abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
-{
+abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
     final String prefix;
     final Object object;
 
@@ -36,17 +35,14 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object bind on
      */
-    public ObjectPropertyNamedArgumentFinder(String prefix, Object object)
-    {
+    public ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
         this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
         this.object = object;
     }
 
     @Override
-    public final Optional<Argument> find(String name, StatementContext ctx)
-    {
-        if (name.startsWith(prefix))
-        {
+    public final Optional<Argument> find(String name, StatementContext ctx) {
+        if (name.startsWith(prefix)) {
             final String actualName = name.substring(prefix.length());
 
             int separator = actualName.indexOf('.');

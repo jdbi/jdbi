@@ -28,21 +28,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestInClauseExpansion
-{
+public class TestInClauseExpansion {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins(); // Guava
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInClauseExpansion() throws Exception
-    {
+    public void testInClauseExpansion() throws Exception {
         handle.execute("insert into something (name, id) values ('Brian', 1), ('Jeff', 2), ('Tom', 3)");
 
         DAO dao = handle.attach(DAO.class);
@@ -50,8 +47,7 @@ public class TestInClauseExpansion
         assertThat(dao.findIdsForNames(asList(1, 2))).containsExactly("Brian", "Jeff");
     }
 
-    public interface DAO
-    {
+    public interface DAO {
         @SqlQuery("select name from something where id in (<names>)")
         ImmutableSet<String> findIdsForNames(@BindList List<Integer> names);
     }

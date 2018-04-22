@@ -21,24 +21,20 @@ import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 
-public class RegisterRowMapperFactoryImpl implements Configurer
-{
+public class RegisterRowMapperFactoryImpl implements Configurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
         try {
             mappers.register(registerRowMapperFactory.value().newInstance());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("unable to create a specified row mapper factory", e);
         }
     }

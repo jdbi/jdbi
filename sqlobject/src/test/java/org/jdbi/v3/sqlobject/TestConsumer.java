@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestConsumer
-{
+public class TestConsumer {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -50,8 +49,7 @@ public class TestConsumer
         assertThat(results).containsExactly(thr, two, one);
     }
 
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlQuery("select id, name from something order by id desc")
         @UseRowMapper(SomethingMapper.class)
         void forEach(Consumer<Something> consumer);

@@ -23,14 +23,12 @@ import org.jdbi.v3.core.HandleCallback;
  * explicitly begin or commit a transaction, and will throw a runtime exception
  * when rollback is called to force rollback.
  */
-public class CMTTransactionHandler implements TransactionHandler
-{
+public class CMTTransactionHandler implements TransactionHandler {
     /**
      * Called when a transaction is started
      */
     @Override
-    public void begin(Handle handle)
-    {
+    public void begin(Handle handle) {
         // noop
     }
 
@@ -38,8 +36,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * Called when a transaction is committed
      */
     @Override
-    public void commit(Handle handle)
-    {
+    public void commit(Handle handle) {
         // noop
     }
 
@@ -48,8 +45,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * Will throw a RuntimeException to force transactional rollback
      */
     @Override
-    public void rollback(Handle handle)
-    {
+    public void rollback(Handle handle) {
         throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
     }
 
@@ -57,8 +53,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * Savepoints are not supported.
      */
     @Override
-    public void rollbackToSavepoint(Handle handle, String name)
-    {
+    public void rollbackToSavepoint(Handle handle, String name) {
         throw new UnsupportedOperationException("Savepoints not supported");
     }
 
@@ -66,14 +61,10 @@ public class CMTTransactionHandler implements TransactionHandler
      * Called to test if a handle is in a transaction
      */
     @Override
-    public boolean isInTransaction(Handle handle)
-    {
-        try
-        {
+    public boolean isInTransaction(Handle handle) {
+        try {
             return !handle.getConnection().getAutoCommit();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new TransactionException("Failed to check status of transaction", e);
         }
     }
@@ -82,8 +73,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * Savepoints are not supported.
      */
     @Override
-    public void savepoint(Handle handle, String name)
-    {
+    public void savepoint(Handle handle, String name) {
         throw new UnsupportedOperationException("Savepoints not supported");
     }
 
@@ -91,23 +81,20 @@ public class CMTTransactionHandler implements TransactionHandler
      * Savepoints are not supported.
      */
     @Override
-    public void releaseSavepoint(Handle handle, String savepointName)
-    {
+    public void releaseSavepoint(Handle handle, String savepointName) {
         throw new UnsupportedOperationException("Savepoints not supported");
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         return callback.withHandle(handle);
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         return inTransaction(handle, callback);
     }
 }

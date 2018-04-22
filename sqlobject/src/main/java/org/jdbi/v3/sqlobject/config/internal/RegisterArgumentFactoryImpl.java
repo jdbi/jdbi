@@ -21,25 +21,21 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
-public class RegisterArgumentFactoryImpl implements Configurer
-{
+public class RegisterArgumentFactoryImpl implements Configurer {
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
         Arguments arguments = registry.get(Arguments.class);
 
         try {
             arguments.register(raf.value().newInstance());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("unable to instantiate specified argument factory", e);
         }
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

@@ -25,60 +25,52 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestObjectMethods
-{
+public class TestObjectMethods {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testToString() throws Exception
-    {
+    public void testToString() throws Exception {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao.toString()).contains(DAO.class.getName());
     }
 
     @Test
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao).isEqualTo(dao);
     }
 
     @Test
-    public void testNotEquals() throws Exception
-    {
+    public void testNotEquals() throws Exception {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
         assertThat(dao).isNotEqualTo(oad);
     }
 
     @Test
-    public void testHashCodeDiff() throws Exception
-    {
+    public void testHashCodeDiff() throws Exception {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
         assertThat(dao.hashCode()).isNotEqualTo(oad.hashCode());
     }
 
     @Test
-    public void testHashCodeMatch() throws Exception
-    {
+    public void testHashCodeMatch() throws Exception {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
     }
 
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface DAO
-    {
+    public interface DAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);
     }

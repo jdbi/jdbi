@@ -19,8 +19,7 @@ package org.jdbi.v3.sqlobject.transaction;
  * @param <T> the SqlObject type to provide
  * @param <X> exception thrown
  */
-public interface TransactionalConsumer<T extends Transactional<T>, X extends Exception>
-{
+public interface TransactionalConsumer<T extends Transactional<T>, X extends Exception> {
     /**
      * Execute in a transaction. Will be committed afterwards, or rolled back if an exception is thrown.
      *

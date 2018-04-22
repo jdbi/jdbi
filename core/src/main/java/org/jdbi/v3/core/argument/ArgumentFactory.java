@@ -24,8 +24,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * an {@link Argument} that binds the value to a prepared statement.
  */
 @FunctionalInterface
-public interface ArgumentFactory
-{
+public interface ArgumentFactory {
     /**
      * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.
      *

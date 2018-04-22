@@ -30,20 +30,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestReentrancy
-{
+public class TestReentrancy {
     private Jdbi db;
     private Handle handle;
 
-    private interface TheBasics extends SqlObject
-    {
+    private interface TheBasics extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);
     }
 
     @Test(expected = UnableToCreateStatementException.class)
-    public void testGetHandleProvidesSeperateHandle() throws Exception
-    {
+    public void testGetHandleProvidesSeperateHandle() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
@@ -51,8 +48,7 @@ public class TestReentrancy
     }
 
     @Test
-    public void testHandleReentrant() throws Exception
-    {
+    public void testHandleReentrant() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -65,8 +61,7 @@ public class TestReentrancy
     }
 
     @Test
-    public void testTxnReentrant() throws Exception
-    {
+    public void testTxnReentrant() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -87,8 +82,7 @@ public class TestReentrancy
 
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
@@ -103,8 +97,7 @@ public class TestReentrancy
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.execute("drop table something");
         handle.close();
     }

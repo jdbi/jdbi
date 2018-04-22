@@ -22,8 +22,7 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 
-public class RegisterBeanMapperImpl implements Configurer
-{
+public class RegisterBeanMapperImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
@@ -32,15 +31,13 @@ public class RegisterBeanMapperImpl implements Configurer
         RowMappers mappers = registry.get(RowMappers.class);
         if (prefix.isEmpty()) {
             mappers.register(BeanMapper.factory(beanClass));
-        }
-        else {
+        } else {
             mappers.register(BeanMapper.factory(beanClass, prefix));
         }
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

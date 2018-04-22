@@ -26,38 +26,33 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBindAutomaticNames
-{
+public class TestBindAutomaticNames {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (7, 'Tim')");
     }
 
     @Test
-    public void testAnnotationNoValue() throws Exception
-    {
+    public void testAnnotationNoValue() throws Exception {
         Spiffy spiffy = handle.attach(Spiffy.class);
         Something s = spiffy.findById(7);
         assertThat(s.getName()).isEqualTo("Tim");
     }
 
     @Test
-    public void testNoAnnotation() throws Exception
-    {
+    public void testNoAnnotation() throws Exception {
         Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertThat(s.getName()).isEqualTo("Tim");
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind int id);
 

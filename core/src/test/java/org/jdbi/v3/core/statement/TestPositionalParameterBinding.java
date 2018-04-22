@@ -22,22 +22,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestPositionalParameterBinding
-{
+public class TestPositionalParameterBinding {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         h = dbRule.openHandle();
     }
 
     @Test
-    public void testSetPositionalString() throws Exception
-    {
+    public void testSetPositionalString() throws Exception {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -50,8 +47,7 @@ public class TestPositionalParameterBinding
     }
 
     @Test
-    public void testSetPositionalInteger() throws Exception
-    {
+    public void testSetPositionalInteger() throws Exception {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -63,8 +59,7 @@ public class TestPositionalParameterBinding
     }
 
     @Test(expected = UnableToExecuteStatementException.class)
-    public void testBehaviorOnBadBinding1() throws Exception
-    {
+    public void testBehaviorOnBadBinding1() throws Exception {
         h.createQuery("select * from something where id = ? and name = ?")
                 .bind(0, 1)
                 .mapToBean(Something.class)
@@ -72,8 +67,7 @@ public class TestPositionalParameterBinding
     }
 
     @Test(expected = UnableToExecuteStatementException.class)
-    public void testBehaviorOnBadBinding2() throws Exception
-    {
+    public void testBehaviorOnBadBinding2() throws Exception {
         h.createQuery("select * from something where id = ?")
                 .bind(1, 1)
                 .bind(2, "Hi")
@@ -82,8 +76,7 @@ public class TestPositionalParameterBinding
     }
 
     @Test
-    public void testInsertParamBinding() throws Exception
-    {
+    public void testInsertParamBinding() throws Exception {
         int count = h.createUpdate("insert into something (id, name) values (?, 'eric')")
                 .bind(0, 1)
                 .execute();
@@ -92,8 +85,7 @@ public class TestPositionalParameterBinding
     }
 
     @Test
-    public void testPositionalConvenienceInsert() throws Exception
-    {
+    public void testPositionalConvenienceInsert() throws Exception {
         int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 
         assertThat(count).isEqualTo(1);

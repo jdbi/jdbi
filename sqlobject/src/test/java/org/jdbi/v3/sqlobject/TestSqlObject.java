@@ -45,8 +45,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-public class TestSqlObject
-{
+public class TestSqlObject {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -56,14 +55,12 @@ public class TestSqlObject
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testPassThroughMethod() throws Exception
-    {
+    public void testPassThroughMethod() throws Exception {
         Dao dao = handle.attach(Dao.class);
         dao.insert(3, "Cora");
 
@@ -72,8 +69,7 @@ public class TestSqlObject
     }
 
     @Test
-    public void testUnimplementedMethod() throws Exception
-    {
+    public void testUnimplementedMethod() throws Exception {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Method UnimplementedDao.totallyBroken must be default " +
                 "or be annotated with a SQL method annotation.");
@@ -81,8 +77,7 @@ public class TestSqlObject
     }
 
     @Test
-    public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() throws Exception
-    {
+    public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() throws Exception {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Default method RedundantDao.list has @SqlQuery annotation. " +
                 "SQL object methods may be default, or have a SQL method annotation, but not both.");
@@ -90,8 +85,7 @@ public class TestSqlObject
     }
 
     @Test
-    public void testPassThroughMethodWithDaoInAnotherPackage() throws Exception
-    {
+    public void testPassThroughMethodWithDaoInAnotherPackage() throws Exception {
         SomethingDao dao = handle.attach(SomethingDao.class);
         dao.insert(3, "Cora");
 
@@ -100,29 +94,25 @@ public class TestSqlObject
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
-    {
+    public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception {
         BrokenDao dao = handle.attach(BrokenDao.class);
     }
 
     @Test
-    public void testSimpleTransactionsSucceed() throws Exception
-    {
+    public void testSimpleTransactionsSucceed() throws Exception {
         SomethingDao dao = dbRule.getJdbi().onDemand(SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
 
     @Test
-    public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() throws Exception
-    {
+    public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() throws Exception {
         Dao dao = dbRule.getSharedHandle().attach(Dao.class);
         assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }
 
     @Test
-    public void testNestedTransactionsCollapseIntoSingleTransaction()
-    {
+    public void testNestedTransactionsCollapseIntoSingleTransaction() {
         Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
@@ -206,8 +196,7 @@ public class TestSqlObject
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Dao extends SqlObject
-    {
+    public interface Dao extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         boolean insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -257,17 +246,14 @@ public class TestSqlObject
         }
     }
 
-    public interface UnimplementedDao extends SqlObject
-    {
+    public interface UnimplementedDao extends SqlObject {
         void totallyBroken();
     }
 
-    public interface RedundantDao extends SqlObject
-    {
+    public interface RedundantDao extends SqlObject {
         @SqlQuery("select * from something")
         @RegisterRowMapper(SomethingMapper.class)
-        default List<Something> list()
-        {
+        default List<Something> list() {
             return getHandle().createQuery("select * from something")
                     .map(new SomethingMapper())
                     .list();

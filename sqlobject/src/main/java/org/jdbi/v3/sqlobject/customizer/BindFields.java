@@ -26,8 +26,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindFieldsFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindFieldsFactory.class)
-public @interface BindFields
-{
+public @interface BindFields {
     /**
      * Prefix to apply to each bean field name. If specified, fields will be bound as
      * {@code prefix.propertyName}.

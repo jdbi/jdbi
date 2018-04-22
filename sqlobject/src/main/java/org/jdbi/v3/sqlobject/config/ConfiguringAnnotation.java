@@ -25,8 +25,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface ConfiguringAnnotation
-{
+public @interface ConfiguringAnnotation {
     /**
      * A {@link Configurer} type, which will be used to configure {@link ConfigRegistry} instances.
      *

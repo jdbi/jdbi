@@ -15,73 +15,60 @@ package org.jdbi.v3.core;
 
 import java.util.Objects;
 
-public class Something
-{
+public class Something {
     private int id;
     private String name;
     private Integer integerValue;
     private int intValue;
 
-    public Something()
-    {
+    public Something() {
     }
 
-    public Something(int id, String name)
-    {
+    public Something(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
 
-    public Integer getIntegerValue()
-    {
+    public Integer getIntegerValue() {
         return integerValue;
     }
 
-    public void setIntegerValue(Integer integerValue)
-    {
+    public void setIntegerValue(Integer integerValue) {
         this.integerValue = integerValue;
     }
 
-    public int getIntValue()
-    {
+    public int getIntValue() {
         return intValue;
     }
 
-    public void setIntValue(int intValue)
-    {
+    public void setIntValue(int intValue) {
         this.intValue = intValue;
     }
 
     // Issue #61: @BindBean fails if there is a writable but not readable property, so let's have one...
-    public void setWithoutGetter(String bogus)
-    {
+    public void setWithoutGetter(String bogus) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Something)) return false;
 
@@ -94,14 +81,12 @@ public class Something
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(id, name, integerValue, intValue);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Something{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

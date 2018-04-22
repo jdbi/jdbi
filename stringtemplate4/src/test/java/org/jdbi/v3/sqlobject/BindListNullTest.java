@@ -36,8 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class BindListNullTest
-{
+public class BindListNullTest {
     private static final String SPY = "__test_spy";
     private static Handle handle;
 
@@ -45,8 +44,7 @@ public class BindListNullTest
     public static final H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @BeforeClass
-    public static void init()
-    {
+    public static void init() {
         final Jdbi db = dbRule.getJdbi();
         db.registerRowMapper(new SomethingMapper());
         db.installPlugin(new SqlObjectPlugin());
@@ -63,14 +61,12 @@ public class BindListNullTest
     }
 
     @AfterClass
-    public static void exit()
-    {
+    public static void exit() {
         handle.close();
     }
 
     @Test
-    public void testSomethingByIterableHandleNullWithNull()
-    {
+    public void testSomethingByIterableHandleNullWithNull() {
         final SomethingByIterableHandleNull s = handle.attach(SomethingByIterableHandleNull.class);
 
         final List<Something> out = s.get(null);
@@ -79,8 +75,7 @@ public class BindListNullTest
     }
 
     @Test
-    public void testSomethingByIterableHandleNullWithEmptyList()
-    {
+    public void testSomethingByIterableHandleNullWithEmptyList() {
         final SomethingByIterableHandleNull s = handle.attach(SomethingByIterableHandleNull.class);
 
         final List<Something> out = s.get(new ArrayList<Object>());
@@ -88,8 +83,7 @@ public class BindListNullTest
         assertThat(out).isEmpty();
     }
 
-    public interface SomethingByIterableHandleNull
-    {
+    public interface SomethingByIterableHandleNull {
         @SqlQuery("select id, name from something where name in (<names>)")
         List<Something> get(@BindList(onEmpty = NULL) Iterable<Object> names);
     }
@@ -97,8 +91,7 @@ public class BindListNullTest
     //
 
     @Test
-    public void testSomethingByIterableHandleVoidWithNull()
-    {
+    public void testSomethingByIterableHandleVoidWithNull() {
         final List<String> log = new ArrayList<>();
         handle.setSqlParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
@@ -110,8 +103,7 @@ public class BindListNullTest
     }
 
     @Test
-    public void testSomethingByIterableHandleVoidWithEmptyList()
-    {
+    public void testSomethingByIterableHandleVoidWithEmptyList() {
         final List<String> log = new ArrayList<>();
         handle.setSqlParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
@@ -122,8 +114,7 @@ public class BindListNullTest
         assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
     }
 
-    public interface SomethingByIterableHandleVoid
-    {
+    public interface SomethingByIterableHandleVoid {
         @SqlQuery("select id, name from something where id in (<ids>);")
         List<Something> get(@BindList(onEmpty = VOID) Iterable<Object> ids);
     }

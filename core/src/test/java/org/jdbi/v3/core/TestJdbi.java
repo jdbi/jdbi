@@ -22,14 +22,12 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestJdbi
-{
+public class TestJdbi {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testDataSourceConstructor() throws Exception
-    {
+    public void testDataSourceConstructor() throws Exception {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         try (Handle h = db.open()) {
             assertThat(h).isNotNull();
@@ -37,15 +35,11 @@ public class TestJdbi
     }
 
     @Test
-    public void testConnectionFactoryCtor() throws Exception
-    {
+    public void testConnectionFactoryCtor() throws Exception {
         Jdbi db = Jdbi.create(() -> {
-            try
-            {
+            try {
                 return DriverManager.getConnection(this.dbRule.getConnectionString());
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new ConnectionException(e);
             }
         });
@@ -55,8 +49,7 @@ public class TestJdbi
     }
 
     @Test(expected = ConnectionException.class)
-    public void testCorrectExceptionOnSQLException() throws Exception
-    {
+    public void testCorrectExceptionOnSQLException() throws Exception {
         Jdbi db = Jdbi.create(() -> {
             throw new SQLException();
         });
@@ -65,8 +58,7 @@ public class TestJdbi
     }
 
     @Test
-    public void testWithHandle() throws Exception
-    {
+    public void testWithHandle() throws Exception {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         String value = db.withHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
@@ -76,8 +68,7 @@ public class TestJdbi
     }
 
     @Test
-    public void testUseHandle() throws Exception
-    {
+    public void testUseHandle() throws Exception {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         db.useHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");

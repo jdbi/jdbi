@@ -25,12 +25,10 @@ public class JdbiThreadLocals {
         try {
             threadLocal.set(context);
             return task.call();
-        }
-        finally {
+        } finally {
             if (oldContext == null) {
                 threadLocal.remove();
-            }
-            else {
+            } else {
                 threadLocal.set(oldContext);
             }
         }

@@ -66,9 +66,7 @@ class VavrCollectorFactory implements CollectorFactory {
             SortedMultimap.class, TreeMultimap.class
     );
 
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors;
-
-    {
+    private final Map<Class<?>, Collector<?, ?, ?>> collectors; {
         collectors = HashMap.ofEntries(
                 // Values
                 Tuple.of(Option.class, VavrCollectors.toOption()),

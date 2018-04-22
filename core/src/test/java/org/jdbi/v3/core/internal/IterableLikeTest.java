@@ -57,46 +57,39 @@ public class IterableLikeTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testObjectToIterator()
-    {
+    public void testObjectToIterator() {
         IterableLike.of(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOtherClassToIterator()
-    {
+    public void testOtherClassToIterator() {
         IterableLike.of("bla"); // or any other kind of object that isn't a java.lang.Object
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPrimitiveToIterator()
-    {
+    public void testPrimitiveToIterator() {
         IterableLike.of(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullToIterator()
-    {
+    public void testNullToIterator() {
         IterableLike.of(null);
     }
 
     @Test
-    public void testEmptyArrayToIterator()
-    {
+    public void testEmptyArrayToIterator() {
         final Object[] out = toArray(IterableLike.of(new int[]{}));
         assertThat(out).isEmpty();
     }
 
     @Test
-    public void testEmptyListToIterator()
-    {
+    public void testEmptyListToIterator() {
         final Object[] out = toArray(IterableLike.of(new ArrayList<Integer>()));
         assertThat(out).isEmpty();
     }
 
     @Test
-    public void testListToIterator()
-    {
+    public void testListToIterator() {
         final List<String> in = new ArrayList<String>(2);
         in.add("1");
         in.add("2");
@@ -107,8 +100,7 @@ public class IterableLikeTest {
     }
 
     @Test
-    public void testSetToIterator()
-    {
+    public void testSetToIterator() {
         final Set<String> in = new HashSet<String>(2);
         in.add("1");
         in.add("2");
@@ -119,13 +111,10 @@ public class IterableLikeTest {
     }
 
     @Test
-    public void testIterableToIterator()
-    {
-        final Iterable<String> in = new Iterable<String>()
-        {
+    public void testIterableToIterator() {
+        final Iterable<String> in = new Iterable<String>() {
             @Override
-            public Iterator<String> iterator()
-            {
+            public Iterator<String> iterator() {
                 final List<String> tmp = new ArrayList<String>();
                 tmp.add("1");
                 tmp.add("2");
@@ -140,8 +129,7 @@ public class IterableLikeTest {
     }
 
     @Test
-    public void testStringArrayToIterator()
-    {
+    public void testStringArrayToIterator() {
         final String[] in = new String[]{"1", "2"};
 
         final Object[] out = toArray(IterableLike.of(in));
@@ -150,8 +138,7 @@ public class IterableLikeTest {
     }
 
     @Test
-    public void testPrimitiveArrayToIterator()
-    {
+    public void testPrimitiveArrayToIterator() {
         final int[] in = new int[]{1, 2};
 
         final Object[] out = toArray(IterableLike.of(in));
@@ -159,43 +146,36 @@ public class IterableLikeTest {
         assertThat(out).containsExactly(1, 2);
     }
 
-    private static Object[] toArray(final Iterator<?> iterator)
-    {
+    private static Object[] toArray(final Iterator<?> iterator) {
         final List<Object> out = new ArrayList<Object>();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             out.add(iterator.next());
         }
         return out.toArray();
     }
 
     @Test
-    public void testIsEmptyPrimitiveArray()
-    {
+    public void testIsEmptyPrimitiveArray() {
         assertThat(IterableLike.isEmpty(new int[]{1, 2, 3})).isFalse();
     }
 
     @Test
-    public void testIsEmptyEmptyPrimitiveArray()
-    {
+    public void testIsEmptyEmptyPrimitiveArray() {
         assertThat(IterableLike.isEmpty(new int[]{})).isTrue();
     }
 
     @Test
-    public void testIsEmptyObjectArray()
-    {
+    public void testIsEmptyObjectArray() {
         assertThat(IterableLike.isEmpty(new Object[]{"1", "2", "3"})).isFalse();
     }
 
     @Test
-    public void testIsEmptyEmptyObjectArray()
-    {
+    public void testIsEmptyEmptyObjectArray() {
         assertThat(IterableLike.isEmpty(new Object[]{})).isTrue();
     }
 
     @Test
-    public void testIsEmptyList()
-    {
+    public void testIsEmptyList() {
         final List<String> in = new ArrayList<String>();
         in.add("1");
         in.add("2");
@@ -205,26 +185,22 @@ public class IterableLikeTest {
     }
 
     @Test
-    public void testIsEmptyEmptyList()
-    {
+    public void testIsEmptyEmptyList() {
         assertThat(IterableLike.isEmpty(new ArrayList<String>())).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testIsEmptyObject()
-    {
+    public void testIsEmptyObject() {
         IterableLike.isEmpty(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testIsEmptyPrimitive()
-    {
+    public void testIsEmptyPrimitive() {
         IterableLike.isEmpty(5);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testIsEmptyNull()
-    {
+    public void testIsEmptyNull() {
         IterableLike.isEmpty(null);
     }
 }

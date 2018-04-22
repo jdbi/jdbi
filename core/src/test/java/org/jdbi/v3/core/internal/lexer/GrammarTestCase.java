@@ -18,10 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
 
-public abstract class GrammarTestCase
-{
-    public void expect(String s, int... tokens) throws Exception
-    {
+public abstract class GrammarTestCase {
+    public void expect(String s, int... tokens) throws Exception {
         Lexer lexer = createLexer(s);
         for (int token : tokens) {
             Token t = lexer.nextToken();

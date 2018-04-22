@@ -84,8 +84,7 @@ public class OracleReturning {
         void bind(Binding binding) {
             if (name == null) {
                 binding.addPositional(index, this);
-            }
-            else {
+            } else {
                 binding.addNamed(name, this);
             }
         }

@@ -78,8 +78,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                 batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
                         .map(mapper)
                         .iterator();
-            }
-            else {
+            } else {
                 batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
                         .mapTo(magic.elementType(batch.getContext()))
                         .iterator();
@@ -158,11 +157,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             Class<?> erasedType = GenericTypes.getErasedType(type);
             if (Iterable.class.isAssignableFrom(erasedType)) {
                 return GenericTypes.findGenericParameter(type, Iterable.class).get();
-            }
-            else if (Iterator.class.isAssignableFrom(erasedType)) {
+            } else if (Iterator.class.isAssignableFrom(erasedType)) {
                 return GenericTypes.findGenericParameter(type, Iterator.class).get();
-            }
-            else if (GenericTypes.isArray(type)) {
+            } else if (GenericTypes.isArray(type)) {
                 return ((Class<?>) type).getComponentType();
             }
         }
@@ -182,9 +179,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         if (batchArgs.hasNext()) {
             result = new ResultIterator<Object>() {
                 ResultIterator<?> batchResult;
-                boolean closed = false;
-
-                {
+                boolean closed = false; {
                     hasNext(); // Ensure our batchResult is prepared, so we can get its context
                 }
 
@@ -237,8 +232,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                     batchResult.close();
                 }
             };
-        }
-        else {
+        } else {
             PreparedBatch dummy = handle.prepareBatch(sql);
             result = new ResultIterator<Object>() {
                 @Override

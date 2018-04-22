@@ -39,14 +39,12 @@ public class TestJdbiFactoryBean {
     private Jdbi jdbi;
 
     @Autowired
-    public void setService(Service service)
-    {
+    public void setService(Service service) {
         this.service = service;
     }
 
     @Autowired
-    public void setDataSource(DataSource ds)
-    {
+    public void setDataSource(DataSource ds) {
         this.ds = ds;
     }
 
@@ -56,22 +54,19 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testServiceIsActuallySet() throws Exception
-    {
+    public void testServiceIsActuallySet() throws Exception {
         assertThat(service).isNotNull();
     }
 
     @Test
-    public void testFailsViaException() throws Exception
-    {
+    public void testFailsViaException() throws Exception {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(jdbi -> {
                 Handle h = JdbiUtil.getHandle(jdbi);
                 final int count = h.execute("insert into something (id, name) values (7, 'ignored')");
                 if (count == 1) {
                     throw new ForceRollback();
-                }
-                else {
+                } else {
                     throw new RuntimeException("!ZABAK");
                 }
             });
@@ -102,8 +97,7 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testNested() throws Exception
-    {
+    public void testNested() throws Exception {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(()->{
             service.inPropagationRequired(outer -> {
                 final Handle h = JdbiUtil.getHandle(outer);
@@ -132,8 +126,7 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testRequiresNew() throws Exception
-    {
+    public void testRequiresNew() throws Exception {
 
         service.inPropagationRequired(outer -> {
             final Handle h = JdbiUtil.getHandle(outer);

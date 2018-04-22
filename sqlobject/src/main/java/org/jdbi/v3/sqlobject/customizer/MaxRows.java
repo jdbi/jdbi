@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.MaxRowsFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(MaxRowsFactory.class)
-public @interface MaxRows
-{
+public @interface MaxRows {
     /**
      * The max number of rows to return from the query.
      * @return the max rows

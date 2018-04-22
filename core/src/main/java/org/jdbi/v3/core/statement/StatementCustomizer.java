@@ -19,8 +19,7 @@ import java.sql.SQLException;
 /**
  * Allows tweaking of statement behaviour.
  */
-public interface StatementCustomizer
-{
+public interface StatementCustomizer {
     /**
      * Invoked prior to applying bound parameters to the {@link PreparedStatement}.
      *

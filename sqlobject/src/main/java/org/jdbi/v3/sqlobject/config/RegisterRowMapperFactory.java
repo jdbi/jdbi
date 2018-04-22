@@ -29,7 +29,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperFactoryImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterRowMapperFactories.class)
-public @interface RegisterRowMapperFactory
-{
+public @interface RegisterRowMapperFactory {
     Class<? extends RowMapperFactory> value();
 }

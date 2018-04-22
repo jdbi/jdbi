@@ -23,8 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * Argument factory that matches a specified type and binds
  * it as an {@link ObjectArgument}.
  */
-public class ObjectArgumentFactory implements ArgumentFactory
-{
+public class ObjectArgumentFactory implements ArgumentFactory {
     /**
      * Match the given type and bind as an object without SQL type information.
      * @param type the Java type to match

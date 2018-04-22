@@ -24,8 +24,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface SqlStatementCustomizingAnnotation
-{
+public @interface SqlStatementCustomizingAnnotation {
     /**
      * Specify a sql statement customizer factory which will be used to create
      * sql statement customizers.

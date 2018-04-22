@@ -32,8 +32,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
  * Utility class which constructs an {@link Jdbi} instance which can conveniently participate
  * in Spring's transaction management system.
  */
-public class JdbiFactoryBean implements FactoryBean<Jdbi>
-{
+public class JdbiFactoryBean implements FactoryBean<Jdbi> {
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
@@ -51,8 +50,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * See {@link org.springframework.beans.factory.FactoryBean#getObject}
      */
     @Override
-    public Jdbi getObject() throws Exception
-    {
+    public Jdbi getObject() throws Exception {
         final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
         if (autoInstallPlugins) {
@@ -70,8 +68,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * See {@link org.springframework.beans.factory.FactoryBean#getObjectType}
      */
     @Override
-    public Class<Jdbi> getObjectType()
-    {
+    public Class<Jdbi> getObjectType() {
         return Jdbi.class;
     }
 
@@ -81,8 +78,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * @return false
      */
     @Override
-    public boolean isSingleton()
-    {
+    public boolean isSingleton() {
         return true;
     }
 
@@ -93,8 +89,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * @param dataSource the data source.
      * @return this
      */
-    public JdbiFactoryBean setDataSource(DataSource dataSource)
-    {
+    public JdbiFactoryBean setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         return this;
     }
@@ -105,8 +100,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * @return this
      */
     @Autowired(required = false)
-    public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins)
-    {
+    public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins) {
         this.plugins = new ArrayList<>(plugins);
         return this;
     }
@@ -133,8 +127,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * Verifies that a dataSource has been set
      */
     @PostConstruct
-    private void afterPropertiesSet()
-    {
+    private void afterPropertiesSet() {
         if (dataSource == null) {
             throw new IllegalStateException("'dataSource' property must be set");
         }

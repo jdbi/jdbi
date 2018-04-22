@@ -46,8 +46,7 @@ import org.slf4j.LoggerFactory;
  * Use it to obtain Handle instances and provide configuration
  * for all handles obtained from it.
  */
-public class Jdbi implements Configurable<Jdbi>
-{
+public class Jdbi implements Configurable<Jdbi> {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
 
     private final ConfigRegistry config = new ConfigRegistry();
@@ -58,8 +57,7 @@ public class Jdbi implements Configurable<Jdbi>
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
-    private Jdbi(ConnectionFactory connectionFactory)
-    {
+    private Jdbi(ConnectionFactory connectionFactory) {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
         this.connectionFactory = connectionFactory;
     }
@@ -69,8 +67,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return a Jdbi which uses the given data source as a connection factory.
      */
-    public static Jdbi create(DataSource dataSource)
-    {
+    public static Jdbi create(DataSource dataSource) {
         return create(dataSource::getConnection);
     }
 
@@ -95,8 +92,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
-    public static Jdbi create(final String url)
-    {
+    public static Jdbi create(final String url) {
         Objects.requireNonNull(url, "null url");
         return create(() -> DriverManager.getConnection(url));
     }
@@ -107,8 +103,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
-    public static Jdbi create(final String url, final Properties properties)
-    {
+    public static Jdbi create(final String url, final Properties properties) {
         Objects.requireNonNull(url, "null url");
         Objects.requireNonNull(properties, "null properties");
         return create(() -> DriverManager.getConnection(url, properties));
@@ -121,8 +116,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
-    public static Jdbi create(final String url, final String username, final String password)
-    {
+    public static Jdbi create(final String url, final String username, final String password) {
         Objects.requireNonNull(url, "null url");
         Objects.requireNonNull(username, "null username");
         Objects.requireNonNull(password, "null password");
@@ -136,8 +130,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return Handle using a Connection obtained from the provided DataSource
      */
-    public static Handle open(DataSource dataSource)
-    {
+    public static Handle open(DataSource dataSource) {
         return create(dataSource).open();
     }
 
@@ -148,8 +141,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return Handle using a Connection obtained from the provided connection factory
      */
-    public static Handle open(ConnectionFactory connectionFactory)
-    {
+    public static Handle open(ConnectionFactory connectionFactory) {
         return create(connectionFactory).open();
     }
 
@@ -160,8 +152,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return Handle bound to connection
      */
-    public static Handle open(final Connection connection)
-    {
+    public static Handle open(final Connection connection) {
         Objects.requireNonNull(connection, "null connection");
         return create(() -> connection).open();
     }
@@ -173,8 +164,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return newly opened Handle
      */
-    public static Handle open(final String url)
-    {
+    public static Handle open(final String url) {
         return create(url).open();
     }
 
@@ -187,8 +177,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return newly opened Handle
      */
-    public static Handle open(final String url, final String username, final String password)
-    {
+    public static Handle open(final String url, final String username, final String password) {
         return create(url, username, password).open();
     }
 
@@ -200,8 +189,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @return newly opened Handle
      */
-    public static Handle open(final String url, final Properties props)
-    {
+    public static Handle open(final String url, final Properties props) {
         return create(url, props).open();
     }
 
@@ -211,8 +199,7 @@ public class Jdbi implements Configurable<Jdbi>
      * use at your own risk.
      * @return this
      */
-    public Jdbi installPlugins()
-    {
+    public Jdbi installPlugins() {
         ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
         LOG.debug("Automatically installed plugins {}", plugins);
         return this;
@@ -224,8 +211,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @param plugin the plugin to install
      * @return this
      */
-    public Jdbi installPlugin(JdbiPlugin plugin)
-    {
+    public Jdbi installPlugin(JdbiPlugin plugin) {
         plugin.customizeJdbi(this);
         plugins.add(plugin);
         return this;
@@ -240,8 +226,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @param factory the new statement builder factory.
      * @return this
      */
-    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory)
-    {
+    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory) {
         this.statementBuilderFactory.set(factory);
         return this;
     }
@@ -249,8 +234,7 @@ public class Jdbi implements Configurable<Jdbi>
     /**
      * @return the current {@link StatementBuilderFactory}
      */
-    public StatementBuilderFactory getStatementBuilderFactory()
-    {
+    public StatementBuilderFactory getStatementBuilderFactory() {
         return this.statementBuilderFactory.get();
     }
 
@@ -272,8 +256,7 @@ public class Jdbi implements Configurable<Jdbi>
      *                from this Jdbi
      * @return this
      */
-    public Jdbi setTransactionHandler(TransactionHandler handler)
-    {
+    public Jdbi setTransactionHandler(TransactionHandler handler) {
         Objects.requireNonNull(handler, "null transaction handler");
         this.transactionhandler.set(handler);
         return this;
@@ -282,8 +265,7 @@ public class Jdbi implements Configurable<Jdbi>
     /**
      * @return the {@link TransactionHandler}
      */
-    public TransactionHandler getTransactionHandler()
-    {
+    public TransactionHandler getTransactionHandler() {
         return this.transactionhandler.get();
     }
 
@@ -296,8 +278,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @see #useHandle(HandleConsumer)
      * @see #withHandle(HandleCallback)
      */
-    public Handle open()
-    {
+    public Handle open() {
         try {
             final long start = System.nanoTime();
             Connection conn = connectionFactory.openConnection();
@@ -314,8 +295,7 @@ public class Jdbi implements Configurable<Jdbi>
             }
             LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ConnectionException(e);
         }
     }
@@ -332,8 +312,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X
-    {
+    public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
         try (Handle h = this.open()) {
             return callback.withHandle(h);
         }
@@ -348,9 +327,10 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X
-    {
-        withHandle(h -> { callback.useHandle(h); return null; });
+    public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X {
+        withHandle(h -> {
+            callback.useHandle(h); return null;
+        });
     }
 
     /**
@@ -367,8 +347,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X
-    {
+    public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X {
         return withHandle(handle -> handle.<R, X>inTransaction(callback));
     }
 
@@ -383,8 +362,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X
-    {
+    public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
         useHandle(handle -> handle.useTransaction(callback));
     }
 
@@ -409,8 +387,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X
-    {
+    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X {
         return withHandle(handle -> handle.<R, X>inTransaction(level, callback));
     }
 
@@ -432,8 +409,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useTransaction(final TransactionIsolationLevel level, final HandleConsumer<X> callback) throws X
-    {
+    public <X extends Exception> void useTransaction(final TransactionIsolationLevel level, final HandleConsumer<X> callback) throws X {
         useHandle(handle -> handle.useTransaction(level, callback));
     }
 
@@ -452,8 +428,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @throws X                        if thrown by the callback.
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
-            throws NoSuchExtensionException, X
-    {
+            throws NoSuchExtensionException, X {
         try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config)) {
             E extension = getConfig(Extensions.class)
                     .findFor(extensionType, handle)

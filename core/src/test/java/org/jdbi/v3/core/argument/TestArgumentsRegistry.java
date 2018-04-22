@@ -33,8 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestArgumentsRegistry
-{
+public class TestArgumentsRegistry {
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
 
@@ -47,15 +46,13 @@ public class TestArgumentsRegistry
     public PreparedStatement stmt;
 
     @Test
-    public void testWaffleLong() throws Exception
-    {
+    public void testWaffleLong() throws Exception {
         ctx.findArgumentFor(Object.class, 3L).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
-    public void testWaffleShort() throws Exception
-    {
+    public void testWaffleShort() throws Exception {
         ctx.findArgumentFor(Object.class, (short) 2000).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
@@ -85,8 +82,7 @@ public class TestArgumentsRegistry
     }
 
     @Test
-    public void testPull88WeirdClassArgumentFactory() throws Exception
-    {
+    public void testPull88WeirdClassArgumentFactory() throws Exception {
         handle.registerArgument(new WeirdClassArgumentFactory());
 
         assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
@@ -101,8 +97,7 @@ public class TestArgumentsRegistry
     }
 
     @Test
-    public void testPull88WeirdValueArgumentFactory()
-    {
+    public void testPull88WeirdValueArgumentFactory() {
         handle.registerArgument(new WeirdValueArgumentFactory());
 
         assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
@@ -116,12 +111,10 @@ public class TestArgumentsRegistry
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
-    private static class Weird
-    {
+    private static class Weird {
     }
 
-    private static class WeirdClassArgumentFactory implements ArgumentFactory
-    {
+    private static class WeirdClassArgumentFactory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return getErasedType(expectedType) == Weird.class
@@ -130,8 +123,7 @@ public class TestArgumentsRegistry
         }
     }
 
-    private static class WeirdValueArgumentFactory implements ArgumentFactory
-    {
+    private static class WeirdValueArgumentFactory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return value instanceof Weird
@@ -140,12 +132,10 @@ public class TestArgumentsRegistry
         }
     }
 
-    private static class WeirdArgument implements Argument
-    {
+    private static class WeirdArgument implements Argument {
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-        {
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         }
     }
 }

@@ -26,12 +26,10 @@ import org.jdbi.v3.core.argument.Argument;
 /**
  * Used for invoking stored procedures.
  */
-public class Call extends SqlStatement<Call>
-{
+public class Call extends SqlStatement<Call> {
     private final List<OutParamArgument> params = new ArrayList<>();
 
-    public Call(Handle handle, String sql)
-    {
+    public Call(Handle handle, String sql) {
         super(handle, sql);
     }
 
@@ -41,8 +39,7 @@ public class Call extends SqlStatement<Call>
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @return self
      */
-    public Call registerOutParameter(int position, int sqlType)
-    {
+    public Call registerOutParameter(int position, int sqlType) {
         return registerOutParameter(position, sqlType, null);
     }
 
@@ -53,8 +50,7 @@ public class Call extends SqlStatement<Call>
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
      * @return self
      */
-    public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper)
-    {
+    public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper) {
         getBinding().addPositional(position, new OutParamArgument(sqlType, mapper, null));
         return this;
     }
@@ -65,8 +61,7 @@ public class Call extends SqlStatement<Call>
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @return self
      */
-    public Call registerOutParameter(String name, int sqlType)
-    {
+    public Call registerOutParameter(String name, int sqlType) {
         return registerOutParameter(name, sqlType, null);
     }
 
@@ -77,8 +72,7 @@ public class Call extends SqlStatement<Call>
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
      * @return self
      */
-    public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper)
-    {
+    public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper) {
         getBinding().addNamed(name, new OutParamArgument(sqlType, mapper, name));
         return this;
     }
@@ -87,8 +81,7 @@ public class Call extends SqlStatement<Call>
      * Invoke the callable statement
      * @return the output parameters resulting from the invocation.
      */
-    public OutParameters invoke()
-    {
+    public OutParameters invoke() {
         try {
             final PreparedStatement stmt = this.internalExecute();
             OutParameters out = new OutParameters();
@@ -104,21 +97,18 @@ public class Call extends SqlStatement<Call>
                 }
             }
             return out;
-        }
-        finally {
+        } finally {
             close();
         }
     }
 
-    private class OutParamArgument implements Argument
-    {
+    private class OutParamArgument implements Argument {
         private final int sqlType;
         private final CallableStatementMapper mapper;
         private final String name;
         private int position;
 
-        OutParamArgument(int sqlType, CallableStatementMapper mapper, String name)
-        {
+        OutParamArgument(int sqlType, CallableStatementMapper mapper, String name) {
             this.sqlType = sqlType;
             this.mapper = mapper;
             this.name = name;
@@ -126,14 +116,12 @@ public class Call extends SqlStatement<Call>
         }
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-        {
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
             ((CallableStatement) statement).registerOutParameter(position, sqlType);
             this.position = position;
         }
 
-        public Object map(CallableStatement stmt)
-        {
+        public Object map(CallableStatement stmt) {
             try {
                 if ( mapper != null ) {
                     return mapper.map(position, stmt);

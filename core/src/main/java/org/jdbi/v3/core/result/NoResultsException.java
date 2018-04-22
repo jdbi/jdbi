@@ -19,8 +19,7 @@ import org.jdbi.v3.core.statement.StatementException;
 /**
  * Thrown when no results were found in a context that requires at least one.
  */
-public class NoResultsException extends StatementException
-{
+public class NoResultsException extends StatementException {
     private static final long serialVersionUID = 1L;
 
     public NoResultsException(String msg, Throwable e, StatementContext ctx) {

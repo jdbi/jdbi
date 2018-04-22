@@ -24,14 +24,12 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
-public class MaxRowsFactory implements SqlStatementCustomizerFactory
-{
+public class MaxRowsFactory implements SqlStatementCustomizerFactory {
     // arbitrary number to avoid coincidences
     public static final int DEFAULT_MAX_ROWS = -1;
 
     @Override
-    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         final int maxRows = ((MaxRows) annotation).value();
 
         if (maxRows == DEFAULT_MAX_ROWS) {
@@ -64,8 +62,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                                                               Method method,
                                                               Parameter param,
                                                               int index,
-                                                              Type type)
-    {
+                                                              Type type) {
         int value = ((MaxRows) annotation).value();
         if (value != DEFAULT_MAX_ROWS) {
             throw new IllegalArgumentException(MessageFormat.format(

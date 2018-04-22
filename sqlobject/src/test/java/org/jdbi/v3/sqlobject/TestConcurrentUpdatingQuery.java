@@ -21,22 +21,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestConcurrentUpdatingQuery
-{
+public class TestConcurrentUpdatingQuery {
     @Rule
     public JdbiRule dbRule = JdbiRule.h2();
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getHandle();
     }
 
     @Test
-    public void testConcurrentUpdateableResultSet() throws Exception
-    {
+    public void testConcurrentUpdateableResultSet() throws Exception {
         handle.execute("create table something ( id identity primary key, name varchar(50) )");
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.createQuery("select id, name from something where id = :id")

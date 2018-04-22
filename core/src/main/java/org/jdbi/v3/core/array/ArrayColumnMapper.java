@@ -46,8 +46,7 @@ class ArrayColumnMapper implements ColumnMapper<Object> {
 
         try {
             return buildArray(array, ctx);
-        }
-        finally {
+        } finally {
             array.free();
         }
     }

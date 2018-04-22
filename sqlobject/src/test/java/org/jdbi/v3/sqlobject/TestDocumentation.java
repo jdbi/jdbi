@@ -41,14 +41,12 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class TestDocumentation
-{
+public class TestDocumentation {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testFiveMinuteFluentApi() throws Exception
-    {
+    public void testFiveMinuteFluentApi() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
 
@@ -60,8 +58,7 @@ public class TestDocumentation
         }
     }
 
-    public interface MyDAO
-    {
+    public interface MyDAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -70,8 +67,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testFiveMinuteSqlObjectExample() throws Exception
-    {
+    public void testFiveMinuteSqlObjectExample() throws Exception {
         dbRule.getJdbi().useExtension(MyDAO.class, dao -> {
             dao.insert(2, "Aaron");
 
@@ -83,21 +79,18 @@ public class TestDocumentation
 
 
     @Test
-    public void testObtainHandleViaOpen() throws Exception
-    {
+    public void testObtainHandleViaOpen() throws Exception {
         try (Handle handle = dbRule.getJdbi().open()) { }
     }
 
     @Test
-    public void testObtainHandleInCallback() throws Exception
-    {
+    public void testObtainHandleInCallback() throws Exception {
         Jdbi db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         db.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 
     @Test
-    public void testExecuteSomeStatements() throws Exception
-    {
+    public void testExecuteSomeStatements() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
@@ -107,8 +100,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testFluentUpdate() throws Exception
-    {
+    public void testFluentUpdate() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
@@ -118,8 +110,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testMappingExampleChainedIterator2() throws Exception
-    {
+    public void testMappingExampleChainedIterator2() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
@@ -135,8 +126,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testMappingExampleChainedIterator3() throws Exception
-    {
+    public void testMappingExampleChainedIterator3() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
@@ -147,8 +137,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testAttachToObject() throws Exception
-    {
+    public void testAttachToObject() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             MyDAO dao = h.attach(MyDAO.class);
             dao.insert(1, "test");
@@ -156,14 +145,12 @@ public class TestDocumentation
     }
 
     @Test
-    public void testOnDemandDao() throws Exception
-    {
+    public void testOnDemandDao() throws Exception {
         MyDAO dao = dbRule.getJdbi().onDemand(MyDAO.class);
         dao.insert(2, "test");
     }
 
-    public interface SomeQueries
-    {
+    public interface SomeQueries {
         @SqlQuery("select name from something where id = :id")
         String findName(@Bind("id") int id);
 
@@ -175,8 +162,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testSomeQueriesWorkCorrectly() throws Exception
-    {
+    public void testSomeQueriesWorkCorrectly() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1).bind("name", "Brian").add()
@@ -195,28 +181,24 @@ public class TestDocumentation
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface AnotherQuery
-    {
+    public interface AnotherQuery {
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
     }
 
-    public interface YetAnotherQuery
-    {
+    public interface YetAnotherQuery {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
     }
 
-    public interface BatchInserter
-    {
+    public interface BatchInserter {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something... somethings);
     }
 
     @Test
-    public void testAnotherCoupleInterfaces() throws Exception
-    {
+    public void testAnotherCoupleInterfaces() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                     new Something(3, "Patrick"),
@@ -230,15 +212,13 @@ public class TestDocumentation
         }
     }
 
-    public interface QueryReturningResultIterable
-    {
+    public interface QueryReturningResultIterable {
         @SqlQuery("select name from something where id = :id")
         ResultIterable<String> findById(@Bind("id") int id);
     }
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                                                  new Something(3, "Patrick"),
@@ -251,8 +231,7 @@ public class TestDocumentation
         }
     }
 
-    public interface Update
-    {
+    public interface Update {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -261,8 +240,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testUpdateAPI() throws Exception
-    {
+    public void testUpdateAPI() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             Update u = h.attach(Update.class);
             u.insert(17, "David");
@@ -275,8 +253,7 @@ public class TestDocumentation
         }
     }
 
-    public interface BatchExample
-    {
+    public interface BatchExample {
         @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
         void insertFamily(@Bind("id") List<Integer> ids,
                           @Bind("first") Iterator<String> firstNames,
@@ -288,8 +265,7 @@ public class TestDocumentation
     }
 
     @Test
-    public void testBatchExample() throws Exception
-    {
+    public void testBatchExample() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             BatchExample b = h.attach(BatchExample.class);
 
@@ -306,8 +282,7 @@ public class TestDocumentation
         }
     }
 
-    public interface ChunkedBatchExample
-    {
+    public interface ChunkedBatchExample {
         @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
         @BatchChunkSize(2)
         void insertFamily(@Bind("id") List<Integer> ids,
@@ -321,8 +296,7 @@ public class TestDocumentation
         String findNameById(@Bind("id") int id);
     }
 
-    public interface BindExamples
-    {
+    public interface BindExamples {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -330,8 +304,7 @@ public class TestDocumentation
         void deleteByName(@Bind String name);
     }
 
-    public interface BindBeanExample
-    {
+    public interface BindBeanExample {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something s);
 

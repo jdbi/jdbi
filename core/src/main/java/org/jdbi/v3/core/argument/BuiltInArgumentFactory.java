@@ -117,8 +117,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config)
-    {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         Class<?> expectedClass = getErasedType(expectedType);
 
         if (value != null && expectedClass == Object.class) {

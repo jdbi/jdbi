@@ -16,32 +16,26 @@ package org.jdbi.v3.core.statement;
 /**
  * Thrown when {@code Jdbi} couldn't create a statement.
  */
-public class UnableToCreateStatementException extends StatementException
-{
+public class UnableToCreateStatementException extends StatementException {
     private static final long serialVersionUID = 1L;
 
-    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
-    {
+    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx) {
         super(string, throwable, ctx);
     }
 
-    public UnableToCreateStatementException(String string, Throwable throwable)
-    {
+    public UnableToCreateStatementException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
-    public UnableToCreateStatementException(String string)
-    {
+    public UnableToCreateStatementException(String string) {
         super(string);
     }
 
-    public UnableToCreateStatementException(String string, StatementContext ctx)
-    {
+    public UnableToCreateStatementException(String string, StatementContext ctx) {
         super(string, ctx);
     }
 
-    public UnableToCreateStatementException(Exception e, StatementContext ctx)
-    {
+    public UnableToCreateStatementException(Exception e, StatementContext ctx) {
         super(e, ctx);
     }
 }

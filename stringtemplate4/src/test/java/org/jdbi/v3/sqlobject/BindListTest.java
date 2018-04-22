@@ -35,8 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class BindListTest
-{
+public class BindListTest {
     private static Handle handle;
 
     private static List<Something> expectedSomethings;
@@ -45,8 +44,7 @@ public class BindListTest
     public static final H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @BeforeClass
-    public static void init()
-    {
+    public static void init() {
         final Jdbi db = dbRule.getJdbi();
         db.installPlugin(new SqlObjectPlugin());
         db.registerRowMapper(new SomethingMapper());
@@ -62,16 +60,14 @@ public class BindListTest
     }
 
     @AfterClass
-    public static void exit()
-    {
+    public static void exit() {
         handle.close();
     }
 
     //
 
     @Test
-    public void testSomethingWithExplicitAttributeName()
-    {
+    public void testSomethingWithExplicitAttributeName() {
         final SomethingWithExplicitAttributeName s = handle.attach(SomethingWithExplicitAttributeName.class);
 
         final List<Something> out = s.get(1, 2);
@@ -80,8 +76,7 @@ public class BindListTest
     }
 
     @UseStringTemplateEngine
-    public interface SomethingWithExplicitAttributeName
-    {
+    public interface SomethingWithExplicitAttributeName {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList("ids") int... blarg);
     }
@@ -89,8 +84,7 @@ public class BindListTest
     //
 
     @Test
-    public void testSomethingByVarargsHandleDefaultWithVarargs()
-    {
+    public void testSomethingByVarargsHandleDefaultWithVarargs() {
         final SomethingByVarargsHandleDefault s = handle.attach(SomethingByVarargsHandleDefault.class);
 
         final List<Something> out = s.get(1, 2);
@@ -99,8 +93,7 @@ public class BindListTest
     }
 
     @UseStringTemplateEngine
-    public interface SomethingByVarargsHandleDefault
-    {
+    public interface SomethingByVarargsHandleDefault {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList int... ids);
     }
@@ -108,8 +101,7 @@ public class BindListTest
     //
 
     @Test
-    public void testSomethingByArrayHandleVoidWithArray()
-    {
+    public void testSomethingByArrayHandleVoidWithArray() {
         final SomethingByArrayHandleVoid s = handle.attach(SomethingByArrayHandleVoid.class);
 
         final List<Something> out = s.get(new int[]{1, 2});
@@ -118,8 +110,7 @@ public class BindListTest
     }
 
     @Test
-    public void testSomethingByArrayHandleVoidWithEmptyArray()
-    {
+    public void testSomethingByArrayHandleVoidWithEmptyArray() {
         final SomethingByArrayHandleVoid s = handle.attach(SomethingByArrayHandleVoid.class);
 
         final List<Something> out = s.get(new int[]{});
@@ -128,8 +119,7 @@ public class BindListTest
     }
 
     @Test
-    public void testSomethingByArrayHandleVoidWithNull()
-    {
+    public void testSomethingByArrayHandleVoidWithNull() {
         final SomethingByArrayHandleVoid s = handle.attach(SomethingByArrayHandleVoid.class);
 
         final List<Something> out = s.get(null);
@@ -138,8 +128,7 @@ public class BindListTest
     }
 
     @UseStringTemplateEngine
-    public interface SomethingByArrayHandleVoid
-    {
+    public interface SomethingByArrayHandleVoid {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList(onEmpty = VOID) int[] ids);
     }
@@ -147,24 +136,21 @@ public class BindListTest
     //
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSomethingByArrayHandleThrowWithNull()
-    {
+    public void testSomethingByArrayHandleThrowWithNull() {
         final SomethingByArrayHandleThrow s = handle.attach(SomethingByArrayHandleThrow.class);
 
         s.get(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSomethingByArrayHandleThrowWithEmptyArray()
-    {
+    public void testSomethingByArrayHandleThrowWithEmptyArray() {
         final SomethingByArrayHandleThrow s = handle.attach(SomethingByArrayHandleThrow.class);
 
         s.get(new int[]{});
     }
 
     @UseStringTemplateEngine
-    private interface SomethingByArrayHandleThrow
-    {
+    private interface SomethingByArrayHandleThrow {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList(onEmpty = THROW) int[] ids);
     }
@@ -172,8 +158,7 @@ public class BindListTest
     //
 
     @Test
-    public void testSomethingByIterableHandleDefaultWithIterable()
-    {
+    public void testSomethingByIterableHandleDefaultWithIterable() {
         final SomethingByIterableHandleDefault s = handle.attach(SomethingByIterableHandleDefault.class);
 
         final List<Something> out = s.get(new Iterable<Integer>() {
@@ -187,8 +172,7 @@ public class BindListTest
     }
 
     @Test
-    public void testSomethingByIterableHandleDefaultWithEmptyIterable()
-    {
+    public void testSomethingByIterableHandleDefaultWithEmptyIterable() {
         final SomethingByIterableHandleDefault s = handle.attach(SomethingByIterableHandleDefault.class);
 
         final List<Something> out = s.get(new ArrayList<>());
@@ -197,8 +181,7 @@ public class BindListTest
     }
 
     @UseStringTemplateEngine
-    public interface SomethingByIterableHandleDefault
-    {
+    public interface SomethingByIterableHandleDefault {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList(onEmpty = VOID) Iterable<Integer> ids);
     }
@@ -206,16 +189,14 @@ public class BindListTest
     //
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSomethingByIterableHandleThrowWithEmptyIterable()
-    {
+    public void testSomethingByIterableHandleThrowWithEmptyIterable() {
         final SomethingByIterableHandleThrow s = handle.attach(SomethingByIterableHandleThrow.class);
 
         s.get(new ArrayList<>());
     }
 
     @UseStringTemplateEngine
-    private interface SomethingByIterableHandleThrow
-    {
+    private interface SomethingByIterableHandleThrow {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList(onEmpty = THROW) Iterable<Integer> ids);
     }
@@ -223,16 +204,14 @@ public class BindListTest
     //
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSomethingByIteratorHandleDefault()
-    {
+    public void testSomethingByIteratorHandleDefault() {
         final SomethingByIteratorHandleDefault s = handle.attach(SomethingByIteratorHandleDefault.class);
 
         s.get(Arrays.asList(1, 2).iterator());
     }
 
     @UseStringTemplateEngine
-    private interface SomethingByIteratorHandleDefault
-    {
+    private interface SomethingByIteratorHandleDefault {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList Iterator<Integer> ids);
     }

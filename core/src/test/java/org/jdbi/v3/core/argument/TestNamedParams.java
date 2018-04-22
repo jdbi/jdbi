@@ -27,14 +27,12 @@ import org.jdbi.v3.core.statement.Update;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestNamedParams
-{
+public class TestNamedParams {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testInsert() throws Exception
-    {
+    public void testInsert() throws Exception {
         Handle h = dbRule.openHandle();
         Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
@@ -44,8 +42,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testDemo() throws Exception
-    {
+    public void testDemo() throws Exception {
         Handle h = dbRule.getSharedHandle();
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
@@ -65,8 +62,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testBeanPropertyBinding() throws Exception
-    {
+    public void testBeanPropertyBinding() throws Exception {
         Handle h = dbRule.openHandle();
         Something original = new Something(0, "Keith");
 
@@ -84,8 +80,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testBeanPropertyPrefixBinding() throws Exception
-    {
+    public void testBeanPropertyPrefixBinding() throws Exception {
         Handle h = dbRule.openHandle();
         Something original = new Something(0, "Keith");
 
@@ -103,8 +98,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testBeanPropertyNestedBinding() throws Exception
-    {
+    public void testBeanPropertyNestedBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         Something thing = new Something(0, "Keith");
@@ -127,8 +121,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFieldsBinding() throws Exception
-    {
+    public void testFieldsBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -145,8 +138,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFieldsPrefixBinding() throws Exception
-    {
+    public void testFieldsPrefixBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -163,8 +155,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFieldsNestedBinding() throws Exception
-    {
+    public void testFieldsNestedBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -195,8 +186,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFunctionsBinding() throws Exception
-    {
+    public void testFunctionsBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -213,8 +203,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFunctionsPrefixBinding() throws Exception
-    {
+    public void testFunctionsPrefixBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -231,8 +220,7 @@ public class TestNamedParams
     }
 
     @Test
-    public void testFunctionsNestedBinding() throws Exception
-    {
+    public void testFunctionsNestedBinding() throws Exception {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -271,8 +259,7 @@ public class TestNamedParams
         }
     }
     @Test
-    public void testMapKeyBinding() throws Exception
-    {
+    public void testMapKeyBinding() throws Exception {
         Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
@@ -289,15 +276,13 @@ public class TestNamedParams
     }
 
     @Test
-    public void testCascadedLazyArgs() throws Exception
-    {
+    public void testCascadedLazyArgs() throws Exception {
         Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         s.bindMap(args);
-        s.bindBean(new Object()
-        {
+        s.bindBean(new Object() {
             @SuppressWarnings("unused")
             public String getName() { return "Keith"; }
         });

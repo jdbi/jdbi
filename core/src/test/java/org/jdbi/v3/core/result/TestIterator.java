@@ -26,8 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestIterator
-{
+public class TestIterator {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
@@ -193,8 +192,7 @@ public class TestIterator
             assertThat(it.hasNext()).isTrue();
             it.next();
             assertThat(it.hasNext()).isFalse();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             Assertions.fail("unexpected throwable:" + t.getMessage());
         }
 

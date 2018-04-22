@@ -25,25 +25,21 @@ import org.jdbi.v3.core.config.JdbiConfig;
  * retrying the transaction.  Any HandleCallback used under this runner
  * should be aware that it may be invoked multiple times and should be idempotent.
  */
-public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler
-{
+public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler {
     /* http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html */
     private static final String SQLSTATE_TXN_SERIALIZATION_FAILED = "40001";
 
-    public SerializableTransactionRunner()
-    {
+    public SerializableTransactionRunner() {
         this(new LocalTransactionHandler());
     }
 
-    public SerializableTransactionRunner(TransactionHandler delegate)
-    {
+    public SerializableTransactionRunner(TransactionHandler delegate) {
         super(delegate);
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
@@ -77,16 +73,12 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-        try
-        {
+        try {
             handle.setTransactionIsolation(level);
             return inTransaction(handle, callback);
-        }
-        finally
-        {
+        } finally {
             handle.setTransactionIsolation(initial);
         }
     }
@@ -96,16 +88,12 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      * @param throwable the Throwable to test
      * @return whether the Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
      */
-    protected boolean isSqlState(String expectedSqlState, Throwable throwable)
-    {
-        do
-        {
-            if (throwable instanceof SQLException)
-            {
+    protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
+        do {
+            if (throwable instanceof SQLException) {
                 String sqlState = ((SQLException) throwable).getSQLState();
 
-                if (sqlState != null && sqlState.startsWith(expectedSqlState))
-                {
+                if (sqlState != null && sqlState.startsWith(expectedSqlState)) {
                     return true;
                 }
             }
@@ -117,8 +105,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     /**
      * Configuration for serializable transaction runner
      */
-    public static class Configuration implements JdbiConfig<Configuration>
-    {
+    public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
         private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
@@ -127,8 +114,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param maxRetries number of retry attempts before aborting
          * @return this
          */
-        public Configuration setMaxRetries(int maxRetries)
-        {
+        public Configuration setMaxRetries(int maxRetries) {
             if (maxRetries < 0) {
                 throw new IllegalArgumentException("\"" + maxRetries + " retries\" makes no sense. Set a number >= 0 (default " + DEFAULT_MAX_RETRIES + ").");
             }
@@ -141,8 +127,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param serializationFailureSqlState the SQL state to consider as a serialization failure
          * @return this
          */
-        public Configuration setSerializationFailureSqlState(String serializationFailureSqlState)
-        {
+        public Configuration setSerializationFailureSqlState(String serializationFailureSqlState) {
             this.serializationFailureSqlState = serializationFailureSqlState;
             return this;
         }

@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterObjectArgumentFactoriesImpl
 @ConfiguringAnnotation(RegisterObjectArgumentFactoriesImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RegisterObjectArgumentFactories
-{
+public @interface RegisterObjectArgumentFactories {
     RegisterObjectArgumentFactory[] value();
 }

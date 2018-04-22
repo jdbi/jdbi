@@ -19,21 +19,18 @@ import org.jdbi.v3.core.statement.StatementException;
 /**
  * Wraps exceptions thrown while producing Java result types.
  */
-public class UnableToProduceResultException extends StatementException
-{
+public class UnableToProduceResultException extends StatementException {
     private static final long serialVersionUID = 1L;
 
     public UnableToProduceResultException(Exception e, StatementContext ctx) {
         super(e, ctx);
     }
 
-    public UnableToProduceResultException(String message, StatementContext ctx)
-    {
+    public UnableToProduceResultException(String message, StatementContext ctx) {
         super(message, ctx);
     }
 
-    public UnableToProduceResultException(String string, Throwable throwable, StatementContext ctx)
-    {
+    public UnableToProduceResultException(String string, Throwable throwable, StatementContext ctx) {
         super(string, throwable, ctx);
     }
 }

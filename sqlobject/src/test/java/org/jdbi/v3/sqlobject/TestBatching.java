@@ -36,21 +36,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBatching
-{
+public class TestBatching {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInsertSingleIterable() throws Exception
-    {
+    public void testInsertSingleIterable() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeans(to_insert);
@@ -60,8 +57,7 @@ public class TestBatching
     }
 
     @Test
-    public void testInsertSingleIteratorNoTx() throws Exception
-    {
+    public void testInsertSingleIteratorNoTx() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeansNoTx(to_insert.iterator());
@@ -71,8 +67,7 @@ public class TestBatching
     }
 
     @Test
-    public void testBindConstantValue() throws Exception
-    {
+    public void testBindConstantValue() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
 
@@ -87,8 +82,7 @@ public class TestBatching
     }
 
     @Test
-    public void testZipping() throws Exception
-    {
+    public void testZipping() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
         List<String> names = Arrays.asList("David", "Tim", "Mike");
@@ -104,8 +98,7 @@ public class TestBatching
     }
 
     @Test
-    public void testChunkedBatching() throws Exception
-    {
+    public void testChunkedBatching() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
@@ -117,8 +110,7 @@ public class TestBatching
     }
 
     @Test
-    public void testChunkedBatchingOnParam() throws Exception
-    {
+    public void testChunkedBatchingOnParam() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
@@ -130,46 +122,40 @@ public class TestBatching
     }
 
     @Test(expected = UnableToCreateStatementException.class, timeout=5000)
-    public void testNoIterable() throws Exception
-    {
+    public void testNoIterable() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
         b.insertBeans(new Something(1, "x"));
     }
 
     @Test(expected = UnableToCreateStatementException.class, timeout=5000)
-    public void testNoParameterAtAll() throws Exception
-    {
+    public void testNoParameterAtAll() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
         b.insertBeans();
     }
 
     @Test(timeout=5000, expected=UnableToCreateStatementException.class)
-    public void testForgotIterableInt() throws Exception
-    {
+    public void testForgotIterableInt() throws Exception {
         handle.execute("CREATE TABLE test (id int)");
         UsesBatching b = handle.attach(UsesBatching.class);
         b.invalidInsertInt(1);
     }
 
     @Test(timeout=5000, expected=UnableToCreateStatementException.class)
-    public void testForgotIterableString() throws Exception
-    {
+    public void testForgotIterableString() throws Exception {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
         b.invalidInsertString("bob");
     }
 
     @Test
-    public void testEmptyBatch() throws Exception
-    {
+    public void testEmptyBatch() throws Exception {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThat(b.insertBeans(emptySet())).isEmpty();
     }
 
     @Test
-    public void testBooleanReturn() throws Exception
-    {
+    public void testBooleanReturn() throws Exception {
         BooleanBatchDao dao = handle.attach(BooleanBatchDao.class);
         assertThat(dao.insert(new Something(1, "foo"), new Something(2, "bar"))).containsExactly(true, true);
         assertThat(dao.update(new Something(1, "baz"), new Something(3, "buz"))).containsExactly(true, false);
@@ -177,8 +163,7 @@ public class TestBatching
 
     @BatchChunkSize(4)
     @RegisterRowMapper(SomethingMapper.class)
-    public interface UsesBatching
-    {
+    public interface UsesBatching {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insertBeans(@BindBean Iterable<Something> elements);
 
@@ -208,8 +193,7 @@ public class TestBatching
         void invalidInsertString(@Bind("id") String id);
     }
 
-    public interface BadBatch
-    {
+    public interface BadBatch {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insertBeans(@BindBean Something elements); // whoops, no Iterable!
 

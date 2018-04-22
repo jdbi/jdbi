@@ -29,8 +29,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Binds public methods with no parameters on a specified object.
  */
-public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder
-{
+public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder {
     private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)

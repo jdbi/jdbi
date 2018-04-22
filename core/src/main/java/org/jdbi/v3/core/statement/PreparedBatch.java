@@ -45,14 +45,12 @@ import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
  * An entire batch can be bound and added in one go with {@link PreparedBatch#add(Map)}
  * or {@link PreparedBatch#add(Object...)}.
  */
-public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing
-{
+public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
     private final List<Binding> bindings = new ArrayList<>();
 
-    public PreparedBatch(Handle handle, String sql)
-    {
+    public PreparedBatch(Handle handle, String sql) {
         super(handle, sql);
     }
 
@@ -161,8 +159,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
@@ -174,8 +171,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                     ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
                     stmt.addBatch();
                 }
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
             }
 
@@ -193,12 +189,10 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 getContext().setBinding(new Binding());
 
                 return new ExecutedBatch(stmt, rs);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
-        }
-        finally {
+        } finally {
             bindings.clear();
         }
     }
@@ -207,8 +201,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * Add the current binding as a saved batch and clear the binding.
      * @return this
      */
-    public PreparedBatch add()
-    {
+    public PreparedBatch add() {
         final Binding currentBinding = getBinding();
         if (currentBinding.isEmpty()) {
             throw new IllegalStateException("Attempt to add() a empty batch, you probably didn't mean to do this "
@@ -225,8 +218,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @param args the positional arguments to bind
      * @return this
      */
-    public PreparedBatch add(Object... args)
-    {
+    public PreparedBatch add(Object... args) {
         for (int i = 0; i < args.length; i++) {
             bind(i, args[i]);
         }
@@ -241,8 +233,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @param args map to bind arguments from for named parameters on the statement
      * @return this
      */
-    public PreparedBatch add(Map<String, ?> args)
-    {
+    public PreparedBatch add(Map<String, ?> args) {
         bindMap(args);
         add();
         return this;
@@ -251,8 +242,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     /**
      * @return the number of bindings which are in this batch
      */
-    public int size()
-    {
+    public int size() {
         return bindings.size();
     }
 }

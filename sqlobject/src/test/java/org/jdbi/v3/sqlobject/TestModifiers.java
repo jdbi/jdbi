@@ -34,22 +34,19 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 
-public class TestModifiers
-{
+public class TestModifiers {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test
-    public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
-    {
+    public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -60,8 +57,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
-    {
+    public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -72,8 +68,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testMaxSizeOnMethod() throws Exception
-    {
+    public void testMaxSizeOnMethod() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -84,8 +79,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testMaxSizeOnParam() throws Exception
-    {
+    public void testMaxSizeOnParam() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -96,8 +90,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
-    {
+    public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -108,8 +101,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
-    {
+    public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -120,8 +112,7 @@ public class TestModifiers
     }
 
     @Test
-    public void testIsolationLevel() throws Exception
-    {
+    public void testIsolationLevel() throws Exception {
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
@@ -139,8 +130,7 @@ public class TestModifiers
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Spiffy extends Transactional<Spiffy>
-    {
+    public interface Spiffy extends Transactional<Spiffy> {
         @SqlQuery("select id, name from something where id = :id")
         Something byId(@Bind("id") long id);
 
@@ -171,8 +161,7 @@ public class TestModifiers
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface IsoLevels
-    {
+    public interface IsoLevels {
         @Transaction(READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);

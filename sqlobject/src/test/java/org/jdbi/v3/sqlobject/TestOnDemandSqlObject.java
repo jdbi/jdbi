@@ -49,16 +49,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestOnDemandSqlObject
-{
+public class TestOnDemandSqlObject {
     private Jdbi db;
     private Handle handle;
     private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
@@ -71,14 +69,12 @@ public class TestOnDemandSqlObject
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.close();
     }
 
     @Test
-    public void testAPIWorks() throws Exception
-    {
+    public void testAPIWorks() throws Exception {
         Spiffy s = db.onDemand(Spiffy.class);
 
         s.insert(7, "Bill");
@@ -144,8 +140,7 @@ public class TestOnDemandSqlObject
     }
 
     @Test
-    public void testSqlFromExternalFileWorks() throws Exception
-    {
+    public void testSqlFromExternalFileWorks() throws Exception {
         Spiffy spiffy = db.onDemand(Spiffy.class);
         ExternalSql external = db.onDemand(ExternalSql.class);
 
@@ -156,8 +151,7 @@ public class TestOnDemandSqlObject
         assertThat(all).hasSize(2);
     }
 
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);
 
@@ -175,8 +169,7 @@ public class TestOnDemandSqlObject
 
     }
 
-    public interface TransactionStuff extends Transactional<TransactionStuff>
-    {
+    public interface TransactionStuff extends Transactional<TransactionStuff> {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") long id);
@@ -189,24 +182,20 @@ public class TestOnDemandSqlObject
     }
 
     @UseClasspathSqlLocator
-    public interface ExternalSql
-    {
+    public interface ExternalSql {
         @SqlQuery("all-something")
         @UseRowMapper(SomethingMapper.class)
         List<Something> findAll();
     }
 
-    public static class CrashingMapper implements RowMapper<Something>
-    {
+    public static class CrashingMapper implements RowMapper<Something> {
         @Override
-        public Something map(ResultSet r, StatementContext ctx) throws SQLException
-        {
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException {
             throw new SQLException("fake protocol error");
         }
     }
 
-    static class HandleTracker implements JdbiPlugin
-    {
+    static class HandleTracker implements JdbiPlugin {
         final List<Handle> openedHandle = new ArrayList<>();
 
         @Override
