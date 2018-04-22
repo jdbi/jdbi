@@ -110,8 +110,8 @@ public class StringTemplateSqlLocator {
      *             StringTemplate group file on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(Class<?> type, String templateName) {
-        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type), templateName);
+    public static STGroup findStringTemplateGroup(Class<?> type, String name) {
+        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type), name);
     }
 
     /**
@@ -120,8 +120,8 @@ public class StringTemplateSqlLocator {
      * @param path the resource path on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(String path, String templateName) {
-        return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path, templateName);
+    public static STGroup findStringTemplateGroup(String path, String name) {
+        return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path, name);
     }
 
     /**
@@ -131,22 +131,22 @@ public class StringTemplateSqlLocator {
      * @param path the resource path on the classpath.
      * @return the loaded StringTemplateGroup.
      */
-    public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path, String templateName) {
+    public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path, String name) {
         final STGroup cached = CACHE.get(path);
         if (cached != null) {
             return cached;
         }
         synchronized (SYNC_OBJECT) {
-            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path, templateName));
+            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path, name));
         }
     }
 
-    private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path, String templateName) {
+    private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path, String name) {
         try {
             URL resource = classLoader.getResource(path);
             STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
-            ST st = group.getInstanceOf(templateName);
+            ST st = group.getInstanceOf(name);
             if (st != null) {
                 st.render();
             }
