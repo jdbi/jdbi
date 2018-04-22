@@ -45,7 +45,7 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
         sharedHandle = db.open();
         con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
-            s.execute("create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
+            s.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
         }
     }
 

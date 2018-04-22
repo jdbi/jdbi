@@ -193,7 +193,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                             "parameter names explicitly with @ColumnName",
                         constructor,
                         paramName
-                    )));
+                   )));
 
                 final Type type = parameter.getParameterizedType();
                 mappers[i] = ctx.findColumnMapperFor(type)

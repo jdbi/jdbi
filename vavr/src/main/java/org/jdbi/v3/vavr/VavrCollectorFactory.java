@@ -64,7 +64,7 @@ class VavrCollectorFactory implements CollectorFactory {
             SortedMap.class, TreeMap.class,
             Multimap.class, HashMultimap.class,
             SortedMultimap.class, TreeMultimap.class
-    );
+   );
 
     private final Map<Class<?>, Collector<?, ?, ?>> collectors; {
         collectors = HashMap.ofEntries(
@@ -89,7 +89,7 @@ class VavrCollectorFactory implements CollectorFactory {
                 Tuple.of(HashMultimap.class, HashMultimap.withSeq().collector()),
                 Tuple.of(LinkedHashMultimap.class, LinkedHashMultimap.withSeq().collector()),
                 Tuple.of(TreeMultimap.class, TreeMultimap.withSeq().collector())
-        );
+       );
     }
 
     @Override

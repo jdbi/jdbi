@@ -123,10 +123,10 @@ public class Call extends SqlStatement<Call> {
 
         public Object map(CallableStatement stmt) {
             try {
-                if ( mapper != null ) {
+                if (mapper != null) {
                     return mapper.map(position, stmt);
                 }
-                switch ( sqlType ) {
+                switch (sqlType) {
                     case Types.CLOB:
                     case Types.VARCHAR:
                     case Types.LONGNVARCHAR:

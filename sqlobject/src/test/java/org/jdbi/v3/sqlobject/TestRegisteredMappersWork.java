@@ -75,7 +75,7 @@ public class TestRegisteredMappersWork {
     }
 
     private interface BeanMappingDao extends SqlObject {
-        @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
+        @SqlUpdate("create table beans (name varchar primary key, color varchar)")
         void createBeanTable();
 
         @SqlUpdate("insert into beans (name, color) values (:name, :color)")

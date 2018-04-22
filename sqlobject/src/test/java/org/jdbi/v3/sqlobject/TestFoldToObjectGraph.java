@@ -43,15 +43,15 @@ public class TestFoldToObjectGraph {
     @Before
     public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
-        handle.execute("create table team ( name varchar(100), " +
+        handle.execute("create table team (name varchar(100), " +
                        "                    mascot varchar(100)," +
-                       "                    primary key (name) )");
+                       "                    primary key (name))");
 
-        handle.execute("create table person( name varchar(100), " +
+        handle.execute("create table person(name varchar(100), " +
                        "                     role varchar(100), " +
                        "                     team varchar(100)," +
                        "                     primary key (name)," +
-                       "                     foreign key (team) references team(name) )");
+                       "                     foreign key (team) references team(name))");
 
         handle.prepareBatch("insert into team (name, mascot) values (?, ?)")
               .add("A-Team", "The Van")

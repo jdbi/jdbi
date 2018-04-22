@@ -38,7 +38,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName())
-            );
+           );
         }
         if (maxRows <= 0) {
             throw new IllegalArgumentException(MessageFormat.format(
@@ -47,7 +47,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                 sqlObjectType.getName(),
                 method.getName(),
                 maxRows)
-            );
+           );
         }
 
         return stmt -> ((Query) stmt).setMaxRows(maxRows);
@@ -71,7 +71,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                 sqlObjectType.getName(),
                 method.getName(),
                 param.getName())
-            );
+           );
         }
 
         return (stmt, arg) -> {
@@ -84,7 +84,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                     method.getName(),
                     param.getName(),
                     maxRows)
-                );
+               );
             }
 
             ((Query) stmt).setMaxRows(maxRows);

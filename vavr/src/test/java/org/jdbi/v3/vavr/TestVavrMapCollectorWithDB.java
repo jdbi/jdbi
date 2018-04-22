@@ -151,10 +151,10 @@ public class TestVavrMapCollectorWithDB {
         assertThat(usersByName.apply("alice")).hasSize(2).containsExactly(
                 new User(1, "alice"),
                 new User(3, "alice")
-        );
+       );
         assertThat(usersByName.apply("bob")).hasSize(1).containsExactly(
                 new User(2, "bob")
-        );
+       );
     }
 
     public static class User {

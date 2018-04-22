@@ -118,7 +118,7 @@ public class TestGetGeneratedKeysPostgres {
         @SqlUpdate("create sequence id_sequence INCREMENT 1 START WITH 100")
         void createSequence();
 
-        @SqlUpdate("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY ( id ))")
+        @SqlUpdate("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY (id))")
         void createTable();
 
         @SqlUpdate("insert into something (name, id) values (:name, nextval('id_sequence'))")

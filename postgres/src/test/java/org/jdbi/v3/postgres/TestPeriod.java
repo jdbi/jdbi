@@ -59,7 +59,7 @@ public class TestPeriod {
         assertThat(periods).isEqualTo(ImmutableList.of(
                 Period.of(1, 9, 40),
                 Period.of(0, 0, 7)
-        ));
+       ));
     }
 
     @Test

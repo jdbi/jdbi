@@ -59,7 +59,7 @@ public class TestDuration {
         assertThat(periods).isEqualTo(ImmutableList.of(
                 Duration.ofDays(1).plusHours(15),
                 Duration.ofDays(40).plusMinutes(22)
-        ));
+       ));
     }
 
     @Test

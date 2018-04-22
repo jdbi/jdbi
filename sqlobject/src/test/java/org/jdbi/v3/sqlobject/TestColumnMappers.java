@@ -134,7 +134,7 @@ public class TestColumnMappers {
             "  primitiveChar varchar(1), wrappedChar varchar(1), " +
             "  string varchar(50), valueType varchar(50), " +
             "  uri varchar(50) " +
-            " )").execute();
+            ")").execute();
         dao = h.attach(SomeBeanDao.class);
     }
 

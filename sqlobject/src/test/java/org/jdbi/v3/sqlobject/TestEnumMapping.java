@@ -33,7 +33,7 @@ public class TestEnumMapping {
     @Before
     public void create() {
         dbRule.getHandle().execute(
-                "create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
+                "create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
     }
 
     @Test

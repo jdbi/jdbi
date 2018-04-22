@@ -34,7 +34,7 @@ public class TestConcurrentUpdatingQuery {
 
     @Test
     public void testConcurrentUpdateableResultSet() throws Exception {
-        handle.execute("create table something ( id identity primary key, name varchar(50) )");
+        handle.execute("create table something (id identity primary key, name varchar(50))");
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.createQuery("select id, name from something where id = :id")
                 .bind("id", 7)

@@ -97,7 +97,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     return true;
                 }
             }
-        } while ( (throwable = throwable.getCause()) != null);
+        } while ((throwable = throwable.getCause()) != null);
 
         return false;
     }

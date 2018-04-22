@@ -75,7 +75,7 @@ public class TestHStore {
         assertThat(caps).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
                 ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")
-        ));
+       ));
     }
 
     @Test
