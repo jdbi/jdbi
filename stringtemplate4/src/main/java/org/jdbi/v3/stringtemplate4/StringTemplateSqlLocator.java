@@ -119,6 +119,7 @@ public class StringTemplateSqlLocator {
      * Loads the StringTemplateGroup from the given path on the classpath.
      *
      * @param path the resource path on the classpath.
+     * @param name the template name within the StringTemplate group.
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(String path, String name) {
@@ -130,6 +131,7 @@ public class StringTemplateSqlLocator {
      *
      * @param classLoader the classloader from which to load the resource.
      * @param path the resource path on the classpath.
+     * @param name the template name within the StringTemplate group.
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path, String name) {
