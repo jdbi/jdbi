@@ -92,7 +92,7 @@ public class TestColonPrefixTemplateEngine {
 
     @Test
     public void testBailsOutOnInvalidInput() throws Exception {
-        assertThatThrownBy(() -> render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c"))
+        assertThatThrownBy(() -> render(parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx).getSql()))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
