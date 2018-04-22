@@ -58,6 +58,7 @@ public class StringTemplateSqlLocator {
      */
     public static ST findStringTemplate(Class<?> type, String name) {
         STGroup group = findStringTemplateGroup(type, name);
+
         if (!group.isDefined(name)) {
             throw new IllegalStateException("No StringTemplate group " + name + " for class " + type);
         }
