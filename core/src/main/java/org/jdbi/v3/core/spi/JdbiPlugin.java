@@ -28,19 +28,24 @@ public interface JdbiPlugin {
      * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
      */
-    default void customizeJdbi(Jdbi jdbi) {}
+    default void customizeJdbi(Jdbi jdbi) {
+    }
 
     /**
      * Configure customizations for a new Handle instance.
      * @param handle the handle just created
      * @return the transformed handle
      */
-    default Handle customizeHandle(Handle handle) { return handle; }
+    default Handle customizeHandle(Handle handle) {
+        return handle;
+    }
 
     /**
      * Configure customizations for a newly acquired Connection.
      * @param conn the connection Jdbi acquired
      * @return the transformed connection to use
      */
-    default Connection customizeConnection(Connection conn) { return conn; }
+    default Connection customizeConnection(Connection conn) {
+        return conn;
+    }
 }

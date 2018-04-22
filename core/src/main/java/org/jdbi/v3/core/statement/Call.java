@@ -92,14 +92,14 @@ public class Call extends SqlStatement<Call>
         try {
             final PreparedStatement stmt = this.internalExecute();
             OutParameters out = new OutParameters();
-            for ( OutParamArgument param : params ) {
-                Object obj = param.map((CallableStatement)stmt);
+            for (OutParamArgument param : params) {
+                Object obj = param.map((CallableStatement) stmt);
 
                 // convert from JDBC 1-based position to Jdbi's 0-based
                 int index = param.position - 1;
                 out.getMap().put(index, obj);
 
-                if ( param.name != null ) {
+                if (param.name != null) {
                     out.getMap().put(param.name, obj);
                 }
             }
@@ -115,7 +115,7 @@ public class Call extends SqlStatement<Call>
         private final int sqlType;
         private final CallableStatementMapper mapper;
         private final String name;
-        private int position ;
+        private int position;
 
         OutParamArgument(int sqlType, CallableStatementMapper mapper, String name)
         {
@@ -128,7 +128,7 @@ public class Call extends SqlStatement<Call>
         @Override
         public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
         {
-            ((CallableStatement)statement).registerOutParameter(position, sqlType);
+            ((CallableStatement) statement).registerOutParameter(position, sqlType);
             this.position = position;
         }
 
@@ -139,30 +139,33 @@ public class Call extends SqlStatement<Call>
                     return mapper.map(position, stmt);
                 }
                 switch ( sqlType ) {
-                    case Types.CLOB : case Types.VARCHAR :
-                    case Types.LONGNVARCHAR :
-                    case Types.LONGVARCHAR :
-                    case Types.NCLOB :
-                    case Types.NVARCHAR :
-                        return stmt.getString(position) ;
-                    case Types.BLOB :
-                    case Types.VARBINARY :
-                        return stmt.getBytes(position) ;
-                    case Types.SMALLINT :
+                    case Types.CLOB:
+                    case Types.VARCHAR:
+                    case Types.LONGNVARCHAR:
+                    case Types.LONGVARCHAR:
+                    case Types.NCLOB:
+                    case Types.NVARCHAR:
+                        return stmt.getString(position);
+                    case Types.BLOB:
+                    case Types.VARBINARY:
+                        return stmt.getBytes(position);
+                    case Types.SMALLINT:
                         return stmt.getShort(position);
-                    case Types.INTEGER :
+                    case Types.INTEGER:
                         return stmt.getInt(position);
-                    case Types.BIGINT :
+                    case Types.BIGINT:
                         return stmt.getLong(position);
-                    case Types.TIMESTAMP : case Types.TIME :
-                        return stmt.getTimestamp(position) ;
-                    case Types.DATE :
-                        return stmt.getDate(position) ;
-                    case Types.FLOAT :
+                    case Types.TIMESTAMP:
+                        case Types.TIME:
+                        return stmt.getTimestamp(position);
+                    case Types.DATE:
+                        return stmt.getDate(position);
+                    case Types.FLOAT:
                         return stmt.getFloat(position);
-                    case Types.DECIMAL : case Types.DOUBLE :
+                    case Types.DECIMAL:
+                    case Types.DOUBLE:
                         return stmt.getDouble(position);
-                    default :
+                    default:
                         return stmt.getObject(position);
                 }
             } catch (SQLException e) {

@@ -29,5 +29,6 @@ public interface TimingCollector {
     /**
      * GNDN.
      */
-    TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
+    TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {
+    };
 }

@@ -58,13 +58,18 @@ abstract class TypeVisitor {
     }
   }
 
-  void visitClass(Class<?> t) {}
+  void visitClass(Class<?> t) {
+  }
 
-  void visitGenericArrayType(GenericArrayType t) {}
+  void visitGenericArrayType(GenericArrayType t) {
+  }
 
-  void visitParameterizedType(ParameterizedType t) {}
+  void visitParameterizedType(ParameterizedType t) {
+  }
 
-  void visitTypeVariable(TypeVariable<?> t) {}
+  void visitTypeVariable(TypeVariable<?> t) {
+  }
 
-  void visitWildcardType(WildcardType t) {}
+  void visitWildcardType(WildcardType t) {
+  }
 }

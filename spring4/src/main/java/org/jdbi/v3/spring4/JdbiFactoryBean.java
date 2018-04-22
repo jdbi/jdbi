@@ -104,7 +104,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * @param plugins collection of Jdbi plugins to install.
      * @return this
      */
-    @Autowired(required=false)
+    @Autowired(required = false)
     public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins)
     {
         this.plugins = new ArrayList<>(plugins);

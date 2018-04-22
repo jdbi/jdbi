@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.Closeable;
 import java.lang.reflect.Type;
 import java.sql.Connection;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
-
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
@@ -49,6 +46,8 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The statement context provides access to statement-local configuration.
@@ -273,7 +272,7 @@ public class StatementContext implements Closeable
      * @param containerType the container type.
      * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
-    public Optional<Collector<?,?,?>> findCollectorFor(Type containerType) {
+    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
         return getConfig(JdbiCollectors.class).findFor(containerType);
     }
 

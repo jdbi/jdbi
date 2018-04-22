@@ -310,7 +310,8 @@ public final class TypeResolver {
       }
       for (Type t = arg; t != null; t = mappings.get(TypeVariableKey.forLookup(t))) {
         if (var.equalsType(t)) {
-          for (Type x = arg; x != null; x = mappings.remove(TypeVariableKey.forLookup(x))) {}
+          for (Type x = arg; x != null; x = mappings.remove(TypeVariableKey.forLookup(x))) {
+          }
           return;
         }
       }

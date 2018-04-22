@@ -43,7 +43,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     {
         // Prevent bogus signatures like Update extends SqlStatement<Query>
         // SqlStatement's generic parameter must be supertype of getClass()
-        if(GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
+        if (GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
                 .map(GenericTypes::getErasedType)
                 .map(type -> !type.isAssignableFrom(getClass()))
                 .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯

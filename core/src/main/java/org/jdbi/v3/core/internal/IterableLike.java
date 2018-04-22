@@ -61,15 +61,15 @@ public class IterableLike
             return ((Iterable<Object>) iterable).iterator();
         }
 
-        Class<? extends Object> klass = iterable.getClass();
-        if(!klass.isArray()) {
+        Class<?> klass = iterable.getClass();
+        if (!klass.isArray()) {
             throw new IllegalArgumentException(getTypeWarning(klass));
         }
 
         if (klass.getComponentType().isPrimitive()) {
             return new PrimitiveArrayIterator(iterable);
         }
-        return Arrays.asList((Object[])iterable).iterator();
+        return Arrays.asList((Object[]) iterable).iterator();
     }
 
     /**

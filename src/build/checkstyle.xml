@@ -40,13 +40,13 @@
 		<module name="EmptyForIteratorPad"/>
 		<module name="GenericWhitespace"/>
 		<module name="MethodParamPad"/>
-		<!--<module name="NoWhitespaceAfter"/>-->
-		<!--<module name="NoWhitespaceBefore"/>-->
+		<module name="NoWhitespaceAfter"/>
+		<module name="NoWhitespaceBefore"/>
 		<!--<module name="OperatorWrap"/>-->
 		<!--<module name="ParenPad"/>-->
 		<module name="TypecastParenPad"/>
-		<!--<module name="WhitespaceAfter"/>-->
-		<!--<module name="WhitespaceAround"/>-->
+		<module name="WhitespaceAfter"/>
+		<module name="WhitespaceAround"/>
 		<module name="ModifierOrder"/>
 		<!--<module name="RedundantModifier"/>-->
 		<!--<module name="EmptyBlock"/>-->

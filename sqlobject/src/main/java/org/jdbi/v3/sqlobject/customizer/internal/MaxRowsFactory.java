@@ -32,7 +32,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
     {
-        final int maxRows = ((MaxRows)annotation).value();
+        final int maxRows = ((MaxRows) annotation).value();
 
         if (maxRows == DEFAULT_MAX_ROWS) {
             throw new IllegalArgumentException(MessageFormat.format(
@@ -52,7 +52,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
             );
         }
 
-        return stmt -> ((Query)stmt).setMaxRows(maxRows);
+        return stmt -> ((Query) stmt).setMaxRows(maxRows);
     }
 
     /*

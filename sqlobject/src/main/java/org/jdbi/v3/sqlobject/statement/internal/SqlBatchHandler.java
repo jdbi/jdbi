@@ -64,7 +64,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             if (!returnTypeIsValid(method.getReturnType())) {
                 throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
             }
-            Function<PreparedBatch,ResultIterator<?>> modCounts = PreparedBatch::executeAndGetModCount;
+            Function<PreparedBatch, ResultIterator<?>> modCounts = PreparedBatch::executeAndGetModCount;
             batchIntermediate = method.getReturnType().equals(boolean[].class)
                     ? mapToBoolean(modCounts)
                     : modCounts;

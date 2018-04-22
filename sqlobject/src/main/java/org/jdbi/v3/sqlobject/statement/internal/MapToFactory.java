@@ -35,7 +35,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
             final Type typeArg;
             if (arg instanceof GenericType) {
                 typeArg = ((GenericType<?>) arg).getType();
-            } else if (! (arg instanceof Type)) {
+            } else if (!(arg instanceof Type)) {
                 throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
             } else {
                 typeArg = (Type) arg;

@@ -59,7 +59,7 @@ public class ObjectArgument implements Argument
 
     @Override
     public String toString() {
-        return (value == null ? "NULL" : String.valueOf(value)) +
-                (sqlType == null? "" : " (type " + sqlType + ")");
+        return (value == null ? "NULL" : String.valueOf(value))
+            + (sqlType == null ? "" : " (type " + sqlType + ")");
     }
 }

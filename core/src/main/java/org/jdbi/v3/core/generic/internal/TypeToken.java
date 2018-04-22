@@ -14,10 +14,6 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static java.util.Collections.singletonMap;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
-
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -26,6 +22,10 @@ import java.lang.reflect.WildcardType;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static java.util.Collections.singletonMap;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
 
 public class TypeToken<T> extends TypeCapture<T> {
 
@@ -60,7 +60,7 @@ public class TypeToken<T> extends TypeCapture<T> {
     }
 
     public final <X> TypeToken<T> where(TypeParameter<X> typeParam, TypeToken<X> typeArg) {
-        TypeResolver resolver =new TypeResolver()
+        TypeResolver resolver = new TypeResolver()
                         .where(singletonMap(new TypeResolver.TypeVariableKey(typeParam.typeVariable), typeArg.runtimeType));
         // If there's any type error, we'd report now rather than later.
         return new SimpleTypeToken<T>(resolver.resolveType(runtimeType));

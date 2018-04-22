@@ -17,7 +17,8 @@ package org.jdbi.v3.core.generic.internal;
 import javax.annotation.Nullable;
 
 public final class Preconditions {
-  private Preconditions() {}
+  private Preconditions() {
+  }
 
   public static void checkArgument(
       boolean expression,

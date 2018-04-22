@@ -58,16 +58,16 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
                             duration));
         }
         duration = duration.minusDays(days);
-        final int hours = (int)duration.toHours();
+        final int hours = (int) duration.toHours();
         duration = duration.minusHours(hours);
-        final int minutes = (int)duration.toMinutes();
+        final int minutes = (int) duration.toMinutes();
         duration = duration.minusMinutes(minutes);
         if (duration.getNano() % 1000 != 0) {
             throw new IllegalArgumentException(
                     String.format("duration %s too precise to represented as postgres interval", duration));
         }
         double seconds = duration.getSeconds() + duration.getNano() / 1e9;
-        final PGInterval interval = new PGInterval(0, 0, (int)days, hours, minutes, seconds);
+        final PGInterval interval = new PGInterval(0, 0, (int) days, hours, minutes, seconds);
         if (isNegative) {
             interval.scale(-1);
         }

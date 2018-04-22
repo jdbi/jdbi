@@ -144,7 +144,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         String s = r.getString(i);
         try {
             return (s != null) ? (new URI(s)) : null;
-        } catch(URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new SQLException("Failed to convert data to URI", e);
         }
     }

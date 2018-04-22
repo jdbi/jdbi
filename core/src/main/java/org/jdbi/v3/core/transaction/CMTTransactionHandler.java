@@ -70,7 +70,7 @@ public class CMTTransactionHandler implements TransactionHandler
     {
         try
         {
-            return ! handle.getConnection().getAutoCommit();
+            return !handle.getConnection().getAutoCommit();
         }
         catch (SQLException e)
         {

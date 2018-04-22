@@ -35,7 +35,7 @@ public class JoinRow
      * @return the value for that type
      */
     public <T> T get(Class<T> klass) {
-        return klass.cast(get((Type)klass));
+        return klass.cast(get((Type) klass));
     }
 
     /**

@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -32,6 +29,8 @@ import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
 
 /**
  * Represents a prepared batch statement.  Multiple bindings are added to the
@@ -228,7 +227,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      */
     public PreparedBatch add(Object... args)
     {
-        for(int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             bind(i, args[i]);
         }
         add();

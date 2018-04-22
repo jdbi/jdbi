@@ -55,7 +55,7 @@ public class MapMapper implements RowMapper<Map<String, Object>>
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         ResultSetMetaData m = rs.getMetaData();
         int columnCount = m.getColumnCount();
-        String[] columnNames = new String[columnCount+1];
+        String[] columnNames = new String[columnCount + 1];
 
         for (int i = 1; i <= columnCount; i++) {
             String key = m.getColumnName(i);
