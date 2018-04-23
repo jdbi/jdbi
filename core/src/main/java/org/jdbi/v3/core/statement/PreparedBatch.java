@@ -122,16 +122,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         }
     }
 
-    private static class ExecutedBatch {
-        final PreparedStatement stmt;
-        final int[] updateCounts;
-
-        ExecutedBatch(PreparedStatement stmt, int[] updateCounts) {
-            this.stmt = stmt;
-            this.updateCounts = updateCounts;
-        }
-    }
-
     private ExecutedBatch internalBatchExecute() {
         if (!getBinding().isEmpty()) {
             add();
@@ -244,5 +234,15 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      */
     public int size() {
         return bindings.size();
+    }
+
+    private static class ExecutedBatch {
+        final PreparedStatement stmt;
+        final int[] updateCounts;
+
+        ExecutedBatch(PreparedStatement stmt, int[] updateCounts) {
+            this.stmt = stmt;
+            this.updateCounts = updateCounts;
+        }
     }
 }

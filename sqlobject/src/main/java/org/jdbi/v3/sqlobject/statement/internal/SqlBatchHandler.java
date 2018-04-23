@@ -313,6 +313,25 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         }
     }
 
+    private static boolean returnTypeIsValid(Class<?> type) {
+        if (type.equals(Void.TYPE)) {
+            return true;
+        }
+
+        if (type.isArray()) {
+            Class<?> componentType = type.getComponentType();
+            return componentType.equals(Integer.TYPE) || componentType.equals(Boolean.TYPE);
+        }
+
+        return false;
+    }
+
+    private static String invalidReturnTypeMessage(Method method) {
+        return method.getDeclaringClass() + "." + method.getName() +
+                " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: " +
+                method.getReturnType();
+    }
+
     private interface ChunkSizeFunction {
         int call(Object[] args);
     }
@@ -341,24 +360,5 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         public int call(Object[] args) {
             return (Integer) args[index];
         }
-    }
-
-    private static boolean returnTypeIsValid(Class<?> type) {
-        if (type.equals(Void.TYPE)) {
-            return true;
-        }
-
-        if (type.isArray()) {
-            Class<?> componentType = type.getComponentType();
-            return componentType.equals(Integer.TYPE) || componentType.equals(Boolean.TYPE);
-        }
-
-        return false;
-    }
-
-    private static String invalidReturnTypeMessage(Method method) {
-        return method.getDeclaringClass() + "." + method.getName() +
-                " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: " +
-                method.getReturnType();
     }
 }

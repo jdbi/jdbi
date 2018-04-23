@@ -111,11 +111,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
-    @FunctionalInterface
-    interface ColumnGetter<T> {
-        T get(ResultSet rs, int i) throws SQLException;
-    }
-
     private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
         return (r, i, ctx) -> getter.get(r, i);
     }
@@ -212,5 +207,10 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
                 return present.apply(boxed);
             }
         };
+    }
+
+    @FunctionalInterface
+    interface ColumnGetter<T> {
+        T get(ResultSet rs, int i) throws SQLException;
     }
 }

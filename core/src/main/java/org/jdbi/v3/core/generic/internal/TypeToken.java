@@ -53,12 +53,6 @@ public class TypeToken<T> extends TypeCapture<T> {
         return new SimpleTypeToken<>(type);
     }
 
-    private static final class SimpleTypeToken<T> extends TypeToken<T> {
-        SimpleTypeToken(Type type) {
-            super(type);
-        }
-    }
-
     public final <X> TypeToken<T> where(TypeParameter<X> typeParam, TypeToken<X> typeArg) {
         TypeResolver resolver = new TypeResolver()
                         .where(singletonMap(new TypeResolver.TypeVariableKey(typeParam.typeVariable), typeArg.runtimeType));
@@ -119,5 +113,11 @@ public class TypeToken<T> extends TypeCapture<T> {
         @SuppressWarnings({"unchecked", "rawtypes"})
         Set<Class<? super T>> result = (Set) Collections.unmodifiableSet(builder);
         return result;
+    }
+
+    private static final class SimpleTypeToken<T> extends TypeToken<T> {
+        SimpleTypeToken(Type type) {
+            super(type);
+        }
     }
 }

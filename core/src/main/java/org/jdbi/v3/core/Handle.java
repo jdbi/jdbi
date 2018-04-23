@@ -418,20 +418,6 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
     }
 
-    private class TransactionResetter implements Closeable {
-
-        private final TransactionIsolationLevel initial;
-
-        TransactionResetter(TransactionIsolationLevel initial) {
-            this.initial = initial;
-        }
-
-        @Override
-        public void close() {
-            setTransactionIsolation(initial);
-        }
-    }
-
     /**
      * Executes <code>callback</code> in a transaction.
      *
@@ -518,5 +504,19 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
+    }
+
+    private class TransactionResetter implements Closeable {
+
+        private final TransactionIsolationLevel initial;
+
+        TransactionResetter(TransactionIsolationLevel initial) {
+            this.initial = initial;
+        }
+
+        @Override
+        public void close() {
+            setTransactionIsolation(initial);
+        }
     }
 }

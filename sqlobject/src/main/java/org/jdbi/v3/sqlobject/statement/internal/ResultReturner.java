@@ -99,106 +99,6 @@ abstract class ResultReturner {
 
     protected abstract Type elementType(StatementContext ctx);
 
-    static class VoidReturner extends ResultReturner {
-        @Override
-        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            iterable.stream().forEach(i -> {
-            }); // Make sure to consume the result
-            return null;
-        }
-
-        @Override
-        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
-            throw new UnsupportedOperationException("Cannot return void from a @UseRowReducer method");
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return null;
-        }
-    }
-
-    static class StreamReturner extends ResultReturner {
-        private final Type elementType;
-
-        StreamReturner(Type returnType) {
-            elementType = GenericTypes.findGenericParameter(returnType, Stream.class)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Stream<T> element type T in method return type " + returnType));
-        }
-
-        @Override
-        protected Stream<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return iterable.stream();
-        }
-
-        @Override
-        protected Stream<?> reducedResult(Stream<?> stream, StatementContext ctx) {
-            return stream;
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return elementType;
-        }
-    }
-
-    static class CollectedResultReturner extends ResultReturner {
-        private final Type returnType;
-
-        CollectedResultReturner(Type returnType) {
-            this.returnType = returnType;
-        }
-
-        @Override
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
-            if (collector != null) {
-                return iterable.collect(collector);
-            }
-            return checkResult(iterable.findFirst().orElse(null), returnType);
-        }
-
-        @Override
-        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
-            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
-            if (collector != null) {
-                return stream.collect(collector);
-            }
-            return checkResult(stream.findFirst().orElse(null), returnType);
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.findElementTypeFor(returnType).orElse(returnType);
-        }
-    }
-
-    static class SingleValueReturner extends ResultReturner {
-        private final Type returnType;
-
-        SingleValueReturner(Type returnType) {
-            this.returnType = returnType;
-        }
-
-        @Override
-        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return checkResult(iterable.findFirst().orElse(null), returnType);
-        }
-
-        @Override
-        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
-            return checkResult(stream.findFirst().orElse(null), returnType);
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return returnType;
-        }
-    }
-
     private static Object checkResult(Object result, Type type) {
         if (result == null && getErasedType(type).isPrimitive()) {
             throw new IllegalStateException("SQL method returns primitive " + type + ", but statement returned no results");
@@ -313,6 +213,106 @@ abstract class ResultReturner {
         @Override
         protected Type elementType(StatementContext ctx) {
             return elementType;
+        }
+    }
+
+    static class VoidReturner extends ResultReturner {
+        @Override
+        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            iterable.stream().forEach(i -> {
+            }); // Make sure to consume the result
+            return null;
+        }
+
+        @Override
+        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return void from a @UseRowReducer method");
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return null;
+        }
+    }
+
+    static class StreamReturner extends ResultReturner {
+        private final Type elementType;
+
+        StreamReturner(Type returnType) {
+            elementType = GenericTypes.findGenericParameter(returnType, Stream.class)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect Stream<T> element type T in method return type " + returnType));
+        }
+
+        @Override
+        protected Stream<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return iterable.stream();
+        }
+
+        @Override
+        protected Stream<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            return stream;
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return elementType;
+        }
+    }
+
+    static class CollectedResultReturner extends ResultReturner {
+        private final Type returnType;
+
+        CollectedResultReturner(Type returnType) {
+            this.returnType = returnType;
+        }
+
+        @Override
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            if (collector != null) {
+                return iterable.collect(collector);
+            }
+            return checkResult(iterable.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            if (collector != null) {
+                return stream.collect(collector);
+            }
+            return checkResult(stream.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            // if returnType is not supported by a collector factory, assume it to be a single-value return type.
+            return ctx.findElementTypeFor(returnType).orElse(returnType);
+        }
+    }
+
+    static class SingleValueReturner extends ResultReturner {
+        private final Type returnType;
+
+        SingleValueReturner(Type returnType) {
+            this.returnType = returnType;
+        }
+
+        @Override
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return checkResult(iterable.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            return checkResult(stream.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return returnType;
         }
     }
 }

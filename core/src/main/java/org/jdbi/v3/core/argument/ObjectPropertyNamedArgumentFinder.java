@@ -72,6 +72,8 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
 
     abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
 
+    abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
+
     static class TypedValue {
         public final Type type;
         public final Object value;
@@ -81,6 +83,4 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
             this.value = value;
         }
     }
-
-    abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
 }
