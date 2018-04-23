@@ -68,6 +68,7 @@
 		<module name="UpperEll"/>
 		<module name="NeedBraces"/>
 		<module name="AvoidStarImport"/>
+		<module name="ConstantName"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
