@@ -69,6 +69,7 @@
 		<module name="NeedBraces"/>
 		<module name="AvoidStarImport"/>
 		<module name="ConstantName"/>
+		<!--<module name="DeclarationOrder"/>-->
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
