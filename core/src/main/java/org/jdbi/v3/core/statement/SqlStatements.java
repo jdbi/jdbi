@@ -132,6 +132,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * @return the timing collector
+     *
+     * @deprecated use {@link #getSqlLogger} instead
      */
     @Deprecated
     public TimingCollector getTimingCollector() {
@@ -142,6 +144,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Sets the {@link TimingCollector} used to collect timing about the {@link SqlStatement SQL statements} executed
      * by Jdbi. The default collector does nothing.
      *
+     * @deprecated use {@link #setSqlLogger} instead
      * @param timingCollector the new timing collector
      * @return this
      */

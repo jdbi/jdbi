@@ -99,6 +99,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
      *
+     * @deprecated use {@link #setSqlLogger} instead
      * @param collector timing collector
      * @return this
      */

@@ -16,7 +16,7 @@ package org.jdbi.v3.core.statement;
 /**
  * This class collects timing information for statement execution.
  *
- * Use {@link SqlLogger} instead.
+ * @deprecated Use {@link SqlLogger} instead.
  */
 @FunctionalInterface
 @Deprecated
