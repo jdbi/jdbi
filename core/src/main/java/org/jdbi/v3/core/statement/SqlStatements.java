@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,15 +27,12 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
-    @Deprecated
-    private TimingCollector timingCollector;
     private SqlLogger sqlLogger;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
-        timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
     }
 
@@ -42,7 +40,6 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.attributes = new ConcurrentHashMap<>(that.attributes);
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
-        this.timingCollector = that.timingCollector;
         this.sqlLogger = that.sqlLogger;
     }
 
@@ -137,7 +134,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     @Deprecated
     public TimingCollector getTimingCollector() {
-        return timingCollector;
+        return (elapsed, ctx) -> sqlLogger.logAfterExecution(ctx);
     }
 
     /**
@@ -150,7 +147,12 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     @Deprecated
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
-        this.timingCollector = timingCollector == null ? TimingCollector.NOP_TIMING_COLLECTOR : timingCollector;
+        this.sqlLogger = new SqlLogger() {
+            @Override
+            public void logAfterExecution(StatementContext context) {
+                timingCollector.collect(context.getElapsedTime(ChronoUnit.NANOS), context);
+            }
+        };
         return this;
     }
 
