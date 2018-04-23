@@ -73,6 +73,8 @@
 		<module name="EqualsAvoidNull"/>
 		<!--<module name="HiddenField"/>-->
 		<module name="InnerTypeLast"/>
+		<module name="MissingDeprecated"/>
+		<module name="MissingOverride"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
