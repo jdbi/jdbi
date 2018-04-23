@@ -1457,11 +1457,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             getContext().setCompletionMoment(Instant.now());
             sqlLogger.logAfterExecution(getContext());
 
-            long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
-            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedNanos / 1000000L);
-            getConfig(SqlStatements.class)
-                    .getTimingCollector()
-                    .collect(elapsedNanos, getContext());
+            LOG.trace("Execute SQL \"{}\" in {}ms", sql, getContext().getElapsedTime(ChronoUnit.MILLIS));
         } catch (SQLException e) {
             try {
                 stmt.close();

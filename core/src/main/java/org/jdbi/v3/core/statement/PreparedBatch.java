@@ -191,9 +191,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 getContext().setCompletionMoment(Instant.now());
                 sqlLogger.logAfterExecution(getContext());
 
-                long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
-                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedNanos / 1000000L, parsedSql);
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
+                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), getContext().getElapsedTime(ChronoUnit.MILLIS), parsedSql);
 
                 afterExecution(stmt);
 

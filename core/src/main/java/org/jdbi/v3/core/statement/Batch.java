@@ -92,10 +92,7 @@ public class Batch extends BaseStatement<Batch>
                 getContext().setCompletionMoment(Instant.now());
                 sqlLogger.logAfterExecution(getContext());
 
-                long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
-                LOG.trace("] executed in {}ms", elapsedNanos / 1000000L);
-                // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
+                LOG.trace("] executed in {}ms", getContext().getElapsedTime(ChronoUnit.MILLIS));
 
                 return rs;
             } catch (SQLException e) {
