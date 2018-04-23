@@ -329,7 +329,8 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X {
         withHandle(h -> {
-            callback.useHandle(h); return null;
+            callback.useHandle(h);
+            return null;
         });
     }
 

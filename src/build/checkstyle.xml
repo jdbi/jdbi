@@ -77,6 +77,7 @@
 		<module name="MissingOverride"/>
 		<module name="MutableException"/>
 		<module name="NoFinalizer"/>
+		<module name="OneStatementPerLine"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
