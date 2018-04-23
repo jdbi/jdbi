@@ -66,6 +66,7 @@
 		<module name="ArrayTypeStyle"/>
 		<module name="TodoComment"/>
 		<module name="UpperEll"/>
+		<module name="NeedBraces"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
