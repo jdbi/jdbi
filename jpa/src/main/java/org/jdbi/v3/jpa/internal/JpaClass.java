@@ -65,9 +65,10 @@ public class JpaClass<C> {
 
     private static void inspectSuperclasses(Class<?> clazz,
                                             Map<String, JpaMember> members) {
-        while ((clazz = clazz.getSuperclass()) != null) {
-            if (clazz.isAnnotationPresent(MappedSuperclass.class)) {
-                inspectFields(clazz, members);
+        Class<?> c = clazz;
+        while ((c = c.getSuperclass()) != null) {
+            if (c.isAnnotationPresent(MappedSuperclass.class)) {
+                inspectFields(c, members);
             }
         }
     }
