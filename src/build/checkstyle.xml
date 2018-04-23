@@ -67,6 +67,7 @@
 		<module name="TodoComment"/>
 		<module name="UpperEll"/>
 		<module name="NeedBraces"/>
+		<module name="AvoidStarImport"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
