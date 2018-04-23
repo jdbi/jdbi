@@ -71,6 +71,7 @@
 		<module name="ConstantName"/>
 		<!--<module name="DeclarationOrder"/>-->
 		<module name="EqualsAvoidNull"/>
+		<!--<module name="HiddenField"/>-->
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
