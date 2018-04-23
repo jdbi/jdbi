@@ -15,9 +15,10 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,58 +62,49 @@ public class Batch extends BaseStatement<Batch>
         }
 
         Statement stmt;
-        try
-        {
-            try
-            {
+        try {
+            try {
                 stmt = getHandle().getStatementBuilder().create(getHandle().getConnection(), getContext());
                 addCleanable(stmt::close);
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
             LOG.trace("Execute batch [");
 
-            try
-            {
-                for (String part : parts)
-                {
+            try {
+                for (String part : parts) {
                     final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
-            Long startNanos = null;
-            try
-            {
-                getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+            SqlLogger sqlLogger = getConfig(SqlStatements.class).getSqlLogger();
+            try {
+                getContext().setExecutionMoment(Instant.now());
+                sqlLogger.logBeforeExecution(getContext());
 
-                startNanos = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
-                final long elapsedNanos = System.nanoTime() - startNanos;
 
+                getContext().setCompletionMoment(Instant.now());
+                sqlLogger.logAfterExecution(getContext());
+
+                long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
                 LOG.trace("] executed in {}ms", elapsedNanos / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
-                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
 
                 return rs;
-            }
-            catch (SQLException e)
-            {
-                final long elapsedNanos = System.nanoTime() - startNanos;
-                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
+            } catch (SQLException e) {
+                getContext().setExceptionMoment(Instant.now());
+                sqlLogger.logException(getContext(), e);
+
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
-        }
-        finally {
+        } finally {
             close();
         }
     }

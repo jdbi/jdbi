@@ -14,8 +14,10 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
@@ -32,6 +34,7 @@ public class TestSqlLogger
     private static final String INSERT = "insert into foo(bar) values(1)";
     private static final String INSERT_NULL = "insert into foo(bar) values(null)";
     private static final String INSERT_PREPARED = "insert into foo(bar) values(?)";
+    private static final Predicate<Long> IS_POSITIVE = x -> x >= 0;
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
@@ -57,7 +60,7 @@ public class TestSqlLogger
         h.createUpdate(INSERT).execute();
 
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT, INSERT);
-        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -70,7 +73,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_NULL, INSERT_NULL);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -83,7 +86,7 @@ public class TestSqlLogger
 
         // unfortunately...
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -97,7 +100,7 @@ public class TestSqlLogger
         } catch (RuntimeException e) {
             // unfortunately...
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -109,7 +112,7 @@ public class TestSqlLogger
         h.prepareBatch(INSERT_PREPARED).bind(0, 1).execute();
 
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-        assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
         assertThat(logger.getExceptions()).isEmpty();
     }
 
@@ -122,7 +125,7 @@ public class TestSqlLogger
             Assert.fail();
         } catch (RuntimeException e) {
             assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(x -> x > 0);
+            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
             assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
         }
     }
@@ -152,16 +155,16 @@ public class TestSqlLogger
         }
 
         @Override
-        public void logAfterExecution(StatementContext context, long nanos) {
+        public void logAfterExecution(StatementContext context) {
             rawSql.add(context.getRawSql());
-            timings.add(nanos);
+            timings.add(context.getElapsedTime(ChronoUnit.NANOS));
         }
 
         @Override
-        public void logException(StatementContext context, SQLException ex, long nanos) {
+        public void logException(StatementContext context, SQLException ex) {
             rawSql.add(context.getRawSql());
             exceptions.add(ex);
-            timings.add(nanos);
+            timings.add(context.getElapsedTime(ChronoUnit.NANOS));
         }
 
         public List<String> getRawSql() {

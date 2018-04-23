@@ -16,6 +16,8 @@ package org.jdbi.v3.core.statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,8 +163,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
@@ -174,38 +175,38 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                     ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
                     stmt.addBatch();
                 }
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
             }
 
             beforeExecution(stmt);
 
-            Long startNanos = null;
+            SqlLogger sqlLogger = getConfig(SqlStatements.class).getSqlLogger();
             try {
-                getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+                getContext().setExecutionMoment(Instant.now());
+                sqlLogger.logBeforeExecution(getContext());
 
-                startNanos = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
-                final long elapsedNanos = System.nanoTime() - startNanos;
 
+                getContext().setCompletionMoment(Instant.now());
+                sqlLogger.logAfterExecution(getContext());
+
+                long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
                 LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedNanos / 1000000L, parsedSql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedNanos, getContext());
-                getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
 
                 afterExecution(stmt);
 
                 getContext().setBinding(new Binding());
 
                 return new ExecutedBatch(stmt, rs);
-            }
-            catch (SQLException e) {
-                final long elapsedNanos = System.nanoTime() - startNanos;
-                getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
+            } catch (SQLException e) {
+                getContext().setExceptionMoment(Instant.now());
+                sqlLogger.logException(getContext(), e);
+
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
-        }
-        finally {
+        } finally {
             bindings.clear();
         }
     }

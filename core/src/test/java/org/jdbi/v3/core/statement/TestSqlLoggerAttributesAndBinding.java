@@ -98,13 +98,13 @@ public class TestSqlLoggerAttributesAndBinding
         }
 
         @Override
-        public void logAfterExecution(StatementContext context, long nanos) {
+        public void logAfterExecution(StatementContext context) {
             attributes.add(context.getAttributes());
             context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }
 
         @Override
-        public void logException(StatementContext context, SQLException ex, long nanos) {
+        public void logException(StatementContext context, SQLException ex) {
             attributes.add(context.getAttributes());
             context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }

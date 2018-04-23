@@ -16,16 +16,22 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 
 /**
- * SqlLoggers receive query data before and after a query is executed, and after an exception is thrown by a bad query. The elapsed time in both cases, and the exception in the latter case, are passed as well. Defined attributes (see {@link SqlStatement#define(String, Object)}) and bound {@link org.jdbi.v3.core.argument.Argument}s (see {@link SqlStatement#bind(String, Object)}) are also available.
+ * SqlLoggers receive query data before and after a query is executed, and after an exception is thrown by a bad query.
+ *
+ * Defined attributes (see {@link SqlStatement#define(String, Object)}) and bound {@link org.jdbi.v3.core.argument.Argument}s (see {@link SqlStatement#bind(String, Object)}) are available on the {@link StatementContext}, along with timing information using {@link java.time.Instant}s. It's recommendable to use {@link java.time.temporal.ChronoUnit#between} to measure elapsed time in your unit of choice, as in {@link StatementContext#getElapsedTime}.
  *
  * See also {@link org.jdbi.v3.core.argument.LoggableArgument}. They can enable you to log previously unloggable {@link org.jdbi.v3.core.argument.Argument}s by wrapping them with a value in {@link org.jdbi.v3.core.argument.ArgumentFactory}s.
  */
 public interface SqlLogger {
-    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {};
+    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {
+    };
 
-    default void logBeforeExecution(StatementContext context) {}
+    default void logBeforeExecution(StatementContext context) {
+    }
 
-    default void logAfterExecution(StatementContext context, long nanos) {}
+    default void logAfterExecution(StatementContext context) {
+    }
 
-    default void logException(StatementContext context, SQLException ex, long nanos) {}
+    default void logException(StatementContext context, SQLException ex) {
+    }
 }

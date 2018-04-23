@@ -25,6 +25,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -1445,30 +1447,31 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeExecution(stmt);
 
-        Long startNanos = null;
+        SqlLogger sqlLogger = getConfig(SqlStatements.class).getSqlLogger();
         try {
-            getConfig(SqlStatements.class).getSqlLogger().logBeforeExecution(getContext());
+            getContext().setExecutionMoment(Instant.now());
+            sqlLogger.logBeforeExecution(getContext());
 
-            startNanos = System.nanoTime();
             stmt.execute();
-            final long elapsedNanos = System.nanoTime() - startNanos;
 
+            getContext().setCompletionMoment(Instant.now());
+            sqlLogger.logAfterExecution(getContext());
+
+            long elapsedNanos = getContext().getElapsedTime(ChronoUnit.NANOS);
             LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedNanos / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
                     .collect(elapsedNanos, getContext());
-            getConfig(SqlStatements.class).getSqlLogger().logAfterExecution(getContext(), elapsedNanos);
-        }
-        catch (SQLException e) {
-            final long elapsedNanos = System.nanoTime() - startNanos;
-
+        } catch (SQLException e) {
             try {
                 stmt.close();
             } catch (SQLException e1) {
                 e.addSuppressed(e1);
             }
 
-            getConfig(SqlStatements.class).getSqlLogger().logException(getContext(), e, elapsedNanos);
+            getContext().setExceptionMoment(Instant.now());
+            sqlLogger.logException(getContext(), e);
+
             throw new UnableToExecuteStatementException(e, getContext());
         }
 
