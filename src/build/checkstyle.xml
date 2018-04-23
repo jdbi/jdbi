@@ -75,6 +75,7 @@
 		<module name="InnerTypeLast"/>
 		<module name="MissingDeprecated"/>
 		<module name="MissingOverride"/>
+		<module name="MutableException"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
