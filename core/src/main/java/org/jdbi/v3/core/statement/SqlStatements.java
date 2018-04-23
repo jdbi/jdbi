@@ -147,7 +147,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     @Deprecated
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
-        this.sqlLogger = new SqlLogger() {
+        this.sqlLogger = timingCollector == null ? SqlLogger.NOP_SQL_LOGGER : new SqlLogger() {
             @Override
             public void logAfterExecution(StatementContext context) {
                 timingCollector.collect(context.getElapsedTime(ChronoUnit.NANOS), context);
