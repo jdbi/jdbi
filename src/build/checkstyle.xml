@@ -81,6 +81,7 @@
 		<module name="OneTopLevelClass"/>
 		<module name="OuterTypeFilename"/>
 		<module name="ParameterAssignment"/>
+		<module name="StringLiteralEquality"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
