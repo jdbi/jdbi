@@ -85,6 +85,7 @@
 		<module name="StringLiteralEquality"/>
 		<module name="SuperClone"/>
 		<module name="SuperFinalize"/>
+		<!--<module name="TrailingComment"/>-->
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
