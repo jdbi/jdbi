@@ -76,12 +76,15 @@
 		<module name="MissingDeprecated"/>
 		<module name="MissingOverride"/>
 		<module name="MutableException"/>
+		<module name="NoClone"/>
 		<module name="NoFinalizer"/>
 		<module name="OneStatementPerLine"/>
 		<module name="OneTopLevelClass"/>
 		<module name="OuterTypeFilename"/>
 		<module name="ParameterAssignment"/>
 		<module name="StringLiteralEquality"/>
+		<module name="SuperClone"/>
+		<module name="SuperFinalize"/>
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^ *\t"/>
