@@ -68,12 +68,9 @@ class VavrGenericMapUtil {
     }
 
     private static <K, V> Type resolveMapEntryType(TypeToken<K> keyType, TypeToken<V> valueType) {
-        return new TypeToken<Tuple2<K, V>>() {
-        }
-                .where(new TypeParameter<K>() {
-                }, keyType)
-                .where(new TypeParameter<V>() {
-                }, valueType)
+        return new TypeToken<Tuple2<K, V>>() {}
+                .where(new TypeParameter<K>() {}, keyType)
+                .where(new TypeParameter<V>() {}, valueType)
                 .getType();
     }
 }

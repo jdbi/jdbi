@@ -30,7 +30,6 @@ public abstract class JdbiPreparer implements DatabasePreparer {
 
     public static class None extends JdbiPreparer {
         @Override
-        protected void prepare(Handle handle) {
-        }
+        protected void prepare(Handle handle) {}
     }
 }

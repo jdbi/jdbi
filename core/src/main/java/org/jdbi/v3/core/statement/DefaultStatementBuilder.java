@@ -26,7 +26,7 @@ import java.sql.Statement;
 public class DefaultStatementBuilder implements StatementBuilder {
     public static final StatementBuilderFactory FACTORY = c -> new DefaultStatementBuilder();
 
-    public DefaultStatementBuilder() { }
+    public DefaultStatementBuilder() {}
 
     @Override
     public Statement create(Connection conn, StatementContext ctx) throws SQLException {
@@ -78,8 +78,7 @@ public class DefaultStatementBuilder implements StatementBuilder {
      * No need to do anything on connection close.
      */
     @Override
-    public void close(Connection conn) {
-    }
+    public void close(Connection conn) {}
 
     /**
      * Called each time a Callable statement needs to be created

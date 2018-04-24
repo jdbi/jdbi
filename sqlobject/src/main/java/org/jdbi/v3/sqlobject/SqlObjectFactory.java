@@ -44,7 +44,7 @@ public class SqlObjectFactory implements ExtensionFactory {
     private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
     private final Map<Class<? extends Configurer>, Configurer> configurers = synchronizedMap(new WeakHashMap<>());
 
-    SqlObjectFactory() { }
+    SqlObjectFactory() {}
 
     @Override
     public boolean accepts(Class<?> extensionType) {
@@ -113,7 +113,7 @@ public class SqlObjectFactory implements ExtensionFactory {
             handlers.putAll(handlerEntry((t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
             try {
                 handlers.putAll(handlerEntry((t, a, h) -> null, sqlObjectType, "finalize"));
-            } catch (IllegalStateException expected) { } // optional implementation
+            } catch (IllegalStateException expected) {} // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
                 handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry, decorators));

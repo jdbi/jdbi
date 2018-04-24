@@ -40,8 +40,7 @@ public class StringTemplateSqlLocator {
 
     private static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
-    private StringTemplateSqlLocator() {
-    }
+    private StringTemplateSqlLocator() {}
 
     /**
      * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of

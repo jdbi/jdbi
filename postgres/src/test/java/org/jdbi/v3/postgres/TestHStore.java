@@ -39,8 +39,7 @@ import org.junit.rules.ExpectedException;
 
 public class TestHStore {
 
-    private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {
-    };
+    private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {};
 
     @ClassRule
     public static JdbiRule postgresDbRule = PostgresDbRule.rule();

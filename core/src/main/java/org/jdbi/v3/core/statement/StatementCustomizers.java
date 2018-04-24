@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * Some simple {@link StatementCustomizer}s you might find handy.
  */
 public final class StatementCustomizers {
-    private StatementCustomizers() { }
+    private StatementCustomizers() {}
 
     /**
      * Set a timeout on the statement.

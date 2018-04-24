@@ -156,9 +156,7 @@ public class TestMixinInterfaces {
         }
     }
 
-    private interface WithGetHandle extends SqlObject {
-
-    }
+    private interface WithGetHandle extends SqlObject {}
 
     private interface TransactionStuff extends Transactional<TransactionStuff> {
 

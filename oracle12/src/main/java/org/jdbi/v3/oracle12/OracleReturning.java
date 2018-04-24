@@ -93,8 +93,7 @@ public class OracleReturning {
     public static class ReturnParameters implements StatementCustomizer {
         private final List<ReturnParam> returnParams = new ArrayList<>();
 
-        ReturnParameters() {
-        }
+        ReturnParameters() {}
 
         @Override
         public void beforeBinding(PreparedStatement stmt, StatementContext ctx) throws SQLException {

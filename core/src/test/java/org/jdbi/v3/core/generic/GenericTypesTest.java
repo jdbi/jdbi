@@ -24,8 +24,7 @@ import org.junit.Test;
 
 public class GenericTypesTest {
 
-    class Foo<T> {
-    }
+    class Foo<T> {}
 
     @SuppressWarnings("rawtypes")
     Foo raw() {
@@ -72,8 +71,7 @@ public class GenericTypesTest {
                 .contains(methodReturnType("generic"));
     }
 
-    class Bar<T> extends Foo<T> {
-    }
+    class Bar<T> extends Foo<T> {}
 
     Bar<Integer> subTypeGeneric() {
         return null;
@@ -85,8 +83,7 @@ public class GenericTypesTest {
                 .isEqualTo(Optional.of(Integer.class));
     }
 
-    class Baz<T> extends Bar<T> {
-    }
+    class Baz<T> extends Bar<T> {}
 
     Baz<String> descendentTypeGeneric() {
         return null;
@@ -108,8 +105,7 @@ public class GenericTypesTest {
         abstract class A<T> {
             abstract T a();
         }
-        abstract class B extends A<String> {
-        }
+        abstract class B extends A<String> {}
 
         assertThat(GenericTypes.resolveType(A.class.getDeclaredMethod("a").getGenericReturnType(), B.class))
                 .isEqualTo(String.class);
@@ -123,8 +119,7 @@ public class GenericTypesTest {
         abstract class A2<T> {
             abstract T a();
         }
-        abstract class B extends A2<String> {
-        }
+        abstract class B extends A2<String> {}
 
         Type t = A1.class.getDeclaredMethod("a").getGenericReturnType();
         assertThat(GenericTypes.resolveType(t, B.class)).isEqualTo(t);

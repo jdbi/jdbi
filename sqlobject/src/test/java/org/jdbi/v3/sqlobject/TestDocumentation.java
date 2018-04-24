@@ -80,7 +80,7 @@ public class TestDocumentation {
 
     @Test
     public void testObtainHandleViaOpen() throws Exception {
-        try (Handle handle = dbRule.getJdbi().open()) { }
+        try (Handle handle = dbRule.getJdbi().open()) {}
     }
 
     @Test

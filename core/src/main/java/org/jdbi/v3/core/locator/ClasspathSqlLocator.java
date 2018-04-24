@@ -51,8 +51,7 @@ public final class ClasspathSqlLocator {
 
     private static final String SQL_EXTENSION = ".sql";
 
-    private ClasspathSqlLocator() {
-    }
+    private ClasspathSqlLocator() {}
 
     /**
      * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of

@@ -39,8 +39,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi> {
     private boolean autoInstallPlugins = false;
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
 
-    public JdbiFactoryBean() {
-    }
+    public JdbiFactoryBean() {}
 
     public JdbiFactoryBean(DataSource dataSource) {
         this.dataSource = dataSource;

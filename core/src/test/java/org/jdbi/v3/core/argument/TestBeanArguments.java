@@ -100,8 +100,7 @@ public class TestBeanArguments {
     public void testBindNoGetter() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         exception.expect(UnableToCreateStatementException.class);
@@ -117,8 +116,7 @@ public class TestBeanArguments {
             }
 
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         exception.expect(UnableToCreateStatementException.class);

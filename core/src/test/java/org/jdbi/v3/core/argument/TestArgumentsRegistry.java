@@ -111,8 +111,7 @@ public class TestArgumentsRegistry {
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
-    private static class Weird {
-    }
+    private static class Weird {}
 
     private static class WeirdClassArgumentFactory implements ArgumentFactory {
         @Override
@@ -135,7 +134,6 @@ public class TestArgumentsRegistry {
     private static class WeirdArgument implements Argument {
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        }
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {}
     }
 }

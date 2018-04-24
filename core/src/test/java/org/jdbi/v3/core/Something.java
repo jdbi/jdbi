@@ -21,8 +21,7 @@ public class Something {
     private Integer integerValue;
     private int intValue;
 
-    public Something() {
-    }
+    public Something() {}
 
     public Something(int id, String name) {
         this.id = id;

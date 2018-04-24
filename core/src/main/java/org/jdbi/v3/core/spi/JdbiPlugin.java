@@ -28,8 +28,7 @@ public interface JdbiPlugin {
      * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
      */
-    default void customizeJdbi(Jdbi jdbi) {
-    }
+    default void customizeJdbi(Jdbi jdbi) {}
 
     /**
      * Configure customizations for a new Handle instance.

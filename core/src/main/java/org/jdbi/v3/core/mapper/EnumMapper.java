@@ -25,8 +25,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @param <E> the enum type mapped
  */
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
-    EnumMapper() {
-    }
+    EnumMapper() {}
 
     /**
      * @param <E> the enum type to map

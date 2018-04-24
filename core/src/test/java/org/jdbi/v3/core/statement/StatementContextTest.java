@@ -42,8 +42,7 @@ public class StatementContextTest {
         context.setReturningGeneratedKeys(true);
     }
 
-    private static class Foo {
-    }
+    private static class Foo {}
 
     private static class FooMapper implements ColumnMapper<Foo> {
         @Override

@@ -123,8 +123,7 @@ public class IntroductionTest {
         private int id;
         private String name;
 
-        public User() {
-        }
+        public User() {}
 
         public User(int id, String name) {
             this.id = id;

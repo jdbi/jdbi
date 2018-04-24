@@ -146,8 +146,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     }
 
     @Override
-    void configureReturner(PreparedBatch stmt, SqlObjectStatementConfiguration cfg) {
-    }
+    void configureReturner(PreparedBatch stmt, SqlObjectStatementConfiguration cfg) {}
 
     @Override
     Type getParameterType(Parameter parameter) {

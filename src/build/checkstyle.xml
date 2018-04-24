@@ -11,8 +11,6 @@
 
 	<module name="RegexpSingleline">
 		<property name="format" value="\s+$"/>
-		<property name="minimum" value="0"/>
-		<property name="maximum" value="0"/>
 		<property name="message" value="Line has trailing whitespace."/>
 	</module>
 
@@ -46,7 +44,12 @@
 		<module name="ParenPad"/>
 		<module name="TypecastParenPad"/>
 		<module name="WhitespaceAfter"/>
-		<module name="WhitespaceAround"/>
+		<module name="WhitespaceAround">
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+        </module>
 		<module name="ModifierOrder"/>
 		<!--<module name="RedundantModifier"/>-->
 		<!--<module name="EmptyBlock"/>-->

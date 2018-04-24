@@ -27,7 +27,7 @@ public interface StatementCustomizer {
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for Jdbi to handle
      */
-    default void beforeBinding(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
+    default void beforeBinding(PreparedStatement stmt, StatementContext ctx) throws SQLException {}
 
     /**
      * Make the changes you need to inside this method. It will be invoked prior to execution of
@@ -37,7 +37,7 @@ public interface StatementCustomizer {
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for Jdbi to handle
      */
-    default void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
+    default void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {}
 
     /**
      * This will be invoked after execution of the prepared statement, but before any results
@@ -47,5 +47,5 @@ public interface StatementCustomizer {
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for Jdbi to handle
      */
-    default void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
+    default void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {}
 }

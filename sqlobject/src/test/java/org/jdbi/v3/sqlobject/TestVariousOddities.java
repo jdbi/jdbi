@@ -120,7 +120,5 @@ public class TestVariousOddities {
     /**
      * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
      */
-    public interface SpiffyConcurrent extends SqlObject {
-
-    }
+    public interface SpiffyConcurrent extends SqlObject {}
 }

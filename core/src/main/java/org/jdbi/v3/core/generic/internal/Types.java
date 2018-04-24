@@ -248,8 +248,7 @@ public class Types {
         static {
             if (AnnotatedElement.class.isAssignableFrom(TypeVariable.class)) {
                 CURRENT = JAVA8;
-            } else if (new TypeCapture<int[]>() {
-            }.capture() instanceof Class) {
+            } else if (new TypeCapture<int[]>() {}.capture() instanceof Class) {
                 CURRENT = JAVA7;
             } else {
                 CURRENT = JAVA6;
@@ -279,8 +278,7 @@ public class Types {
                         .equals(newArtificialTypeVariable(NativeTypeVariableEquals.class, "X"));
     }
 
-    private Types() {
-    }
+    private Types() {}
 
     private enum ClassOwnership {
         OWNED_BY_ENCLOSING_CLASS {
@@ -309,10 +307,8 @@ public class Types {
 
         @SuppressFBWarnings
         private static ClassOwnership detectJvmBehavior() {
-            class LocalClass<T> {
-            }
-            Class<?> subclass = new LocalClass<String>() {
-            }.getClass();
+            class LocalClass<T> {}
+            Class<?> subclass = new LocalClass<String>() {}.getClass();
             ParameterizedType parameterizedType = (ParameterizedType) subclass.getGenericSuperclass();
             for (ClassOwnership behavior : ClassOwnership.values()) {
                 if (behavior.getOwnerType(LocalClass.class) == parameterizedType.getOwnerType()) {
