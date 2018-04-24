@@ -111,9 +111,33 @@ public class StringTemplateSqlLocator {
      *             StringTemplate group file on the classpath.
      * @return the loaded StringTemplateGroup.
      */
+    public static STGroup findStringTemplateGroup(Class<?> type) {
+        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type), null);
+    }
+
+    /**
+     * Loads the StringTemplateGroup for the given type. Example: Given a type <code>com.foo.Bar</code>, returns a
+     * StringTemplateGroup loaded from the resource named <code>com/foo/Bar.sql.stg</code> on the classpath.
+     *
+     * @param type the type that "owns" the given StringTemplate group file. Dictates the filename of the
+     *             StringTemplate group file on the classpath.
+     * @param name the template name within the StringTemplate group.
+     * @return the loaded StringTemplateGroup.
+     */
     public static STGroup findStringTemplateGroup(Class<?> type, String name) {
         return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type), name);
     }
+
+    /**
+     * Loads the StringTemplateGroup from the given path on the classpath.
+     *
+     * @param path the resource path on the classpath.
+     * @return the loaded StringTemplateGroup.
+     */
+    public static STGroup findStringTemplateGroup(String path) {
+        return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path, null);
+    }
+
 
     /**
      * Loads the StringTemplateGroup from the given path on the classpath.
@@ -124,6 +148,23 @@ public class StringTemplateSqlLocator {
      */
     public static STGroup findStringTemplateGroup(String path, String name) {
         return findStringTemplateGroup(Thread.currentThread().getContextClassLoader(), path, name);
+    }
+
+    /**
+     * Loads the StringTemplateGroup from the given path on the classpath.
+     *
+     * @param classLoader the classloader from which to load the resource.
+     * @param path the resource path on the classpath.
+     * @return the loaded StringTemplateGroup.
+     */
+    public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
+        final STGroup cached = CACHE.get(path);
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (SYNC_OBJECT) {
+            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path, null));
+        }
     }
 
     /**
@@ -149,9 +190,11 @@ public class StringTemplateSqlLocator {
             URL resource = classLoader.getResource(path);
             STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
             group.load();
-            ST st = group.getInstanceOf(name);
-            if (st != null) {
-                st.render();
+            if (name != null) {
+                ST st = group.getInstanceOf(name);
+                if (st != null) {
+                    st.render();
+                }
             }
             return group;
         }
