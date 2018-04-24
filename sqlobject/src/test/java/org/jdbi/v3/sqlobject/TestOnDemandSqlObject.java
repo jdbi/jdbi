@@ -13,20 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
@@ -48,6 +40,14 @@ import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class TestOnDemandSqlObject {
     private Jdbi db;
@@ -84,7 +84,7 @@ public class TestOnDemandSqlObject {
         assertThat(bill).isEqualTo("Bill");
     }
 
-    @Test(expected=TransactionException.class)
+    @Test
     public void testExceptionOnClose() throws Exception {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
@@ -98,7 +98,7 @@ public class TestOnDemandSqlObject {
         db.installPlugin(plugin);
 
         Spiffy s = db.onDemand(Spiffy.class);
-        s.insert(1, "Tom");
+        assertThatThrownBy(() -> s.insert(1, "Tom")).isInstanceOf(TransactionException.class);
     }
 
     @Test

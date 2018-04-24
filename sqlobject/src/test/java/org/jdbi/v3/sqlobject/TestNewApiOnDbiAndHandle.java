@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.Handle;
@@ -31,6 +28,9 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestNewApiOnDbiAndHandle {
     private Jdbi db;
@@ -89,28 +89,28 @@ public class TestNewApiOnDbiAndHandle {
         assertThat(spiffy.findNameById(2)).isEqualTo("Diego");
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test
     public void testCorrectExceptionIfUnableToConnectOnDemand(){
-        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-                .installPlugin(new SqlObjectPlugin())
-                .onDemand(Spiffy.class)
-                .findNameById(1);
+        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+            .installPlugin(new SqlObjectPlugin())
+            .onDemand(Spiffy.class)
+            .findNameById(1)).isInstanceOf(ConnectionException.class);
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test
     public void testCorrectExceptionIfUnableToConnectOnOpen(){
-        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-                .installPlugin(new SqlObjectPlugin())
-                .open()
-                .attach(Spiffy.class);
+        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+            .installPlugin(new SqlObjectPlugin())
+            .open()
+            .attach(Spiffy.class)).isInstanceOf(ConnectionException.class);
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test
     public void testCorrectExceptionIfUnableToConnectOnAttach(){
-        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-                .installPlugin(new SqlObjectPlugin())
-                .open()
-                .attach(Spiffy.class);
+        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+            .installPlugin(new SqlObjectPlugin())
+            .open()
+            .attach(Spiffy.class)).isInstanceOf(ConnectionException.class);
     }
 
     public interface Spiffy extends SqlObject {

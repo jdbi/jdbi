@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlMethodAnnotations {
     @Rule
@@ -38,9 +39,9 @@ public class TestSqlMethodAnnotations {
         handle = dbRule.getSharedHandle();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testMutuallyExclusiveAnnotations() {
-        handle.attach(Broken.class);
+        assertThatThrownBy(() -> handle.attach(Broken.class)).isInstanceOf(IllegalStateException.class);
     }
 
     public interface Broken {

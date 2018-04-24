@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableList;
 import java.time.Period;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestPeriod {
     @ClassRule
@@ -92,12 +91,12 @@ public class TestPeriod {
         assertThat(p).isEqualTo(testPeriod);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testInvalidPeriod() {
-        handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 3) // The bad one.
-                .mapTo(Period.class)
-                .findOnly();
+        assertThatThrownBy(() -> handle.createQuery("select foo from intervals where id=?")
+            .bind(0, 3) // The bad one.
+            .mapTo(Period.class)
+            .findOnly()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

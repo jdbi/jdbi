@@ -96,5 +96,10 @@
 			<property name="message" value="Line contains leading tabs (instead of spaces)."/>
 			<property name="ignoreComments" value="true"/>
 		</module>
+
+        <!--<module name="RegexpSinglelineJava">-->
+            <!--<property name="format" value="@(org\.junit\.)?Test\s*\(\s*expected\s*="/>-->
+            <!--<property name="message" value="Use AssertJ's assertThatThrownBy instead of @Test.expected"/>-->
+        <!--</module>-->
 	</module>
 </module>

@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // TODO consider removing this since its mostly redunant with other test class
 public class TestVavrTupleMapperWithDB {
@@ -78,12 +79,12 @@ public class TestVavrTupleMapperWithDB {
         assertThat(tupleProjection).containsOnlyElementsOf(firstColumnTuples);
     }
 
-    @Test(expected = ResultSetException.class)
+    @Test
     public void testTuple1CollectorWithMultiSelect_shouldFail() {
         // first selection is not projectable to tuple param
-        dbRule.getSharedHandle()
-                .createQuery("select t2, t3 from tuples")
-                .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+            .createQuery("select t2, t3 from tuples")
+            .collectInto(new GenericType<List<Tuple1<Integer>>>() {})).isInstanceOf(ResultSetException.class);
     }
 
     @Test

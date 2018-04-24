@@ -13,16 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
-import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -44,6 +35,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TestSqlObject {
     @Rule
@@ -93,9 +93,9 @@ public class TestSqlObject {
         assertThat(c).isEqualTo(new Something(3, "Cora"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception {
-        BrokenDao dao = handle.attach(BrokenDao.class);
+        assertThatThrownBy(() -> handle.attach(BrokenDao.class)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -135,12 +135,12 @@ public class TestSqlObject {
         verify(handle, times(1)).commit();
     }
 
-    @Test(expected = TransactionException.class)
+    @Test
     public void testNestedTransactionWithDifferentIsoltion() {
         Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
-        dao.nestedTransactionWithDifferentIsolation();
+        assertThatThrownBy(dao::nestedTransactionWithDifferentIsolation).isInstanceOf(TransactionException.class);
     }
 
     @Test

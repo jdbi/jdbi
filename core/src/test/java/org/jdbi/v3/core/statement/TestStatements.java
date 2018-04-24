@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -24,6 +22,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatements {
     @Rule
@@ -69,9 +70,9 @@ public class TestStatements {
         assertThat(eric.getName()).isEqualTo("cire");
     }
 
-    @Test(expected = NoResultsException.class)
+    @Test
     public void testStatementWithRequiredResults() throws Exception {
-        assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
+        assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst()).isInstanceOf(NoResultsException.class);
     }
 
     @Test

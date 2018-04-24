@@ -39,6 +39,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class TestTransactional {
     private Jdbi db;
     private Handle handle;
@@ -62,13 +64,13 @@ public class TestTransactional {
         });
     }
 
-    @Test(expected = TransactionException.class)
+    @Test
     public void testOnDemandBeginTransaction() throws Exception {
         // Calling methods like begin() on an on-demand Transactional SQL object makes no sense--the transaction would
         // begin and the connection would just close.
         // Jdbi should identify this scenario and throw an exception informing the user that they're not managing their
         // transactions correctly.
-        db.onDemand(Transactional.class).begin();
+        assertThatThrownBy(db.onDemand(Transactional.class)::begin).isInstanceOf(TransactionException.class);
     }
 
     @Before

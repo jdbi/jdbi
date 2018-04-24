@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.core.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IterableLikeTest {
     @Test
@@ -39,41 +39,41 @@ public class IterableLikeTest {
         assertThat(it).isEmpty();
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void testOverflow() {
         final Iterator<?> it = IterableLike.of(new int[]{1});
 
         assertThat(it.hasNext()).isTrue();
         assertThat(it.next()).isEqualTo(1);
 
-        it.next();
+        assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void testOverflowOnEmpty() {
         final Iterator<?> it = IterableLike.of(new int[]{});
 
-        it.next();
+        assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testObjectToIterator() {
-        IterableLike.of(new Object());
+        assertThatThrownBy(() -> IterableLike.of(new Object())).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testOtherClassToIterator() {
-        IterableLike.of("bla"); // or any other kind of object that isn't a java.lang.Object
+        assertThatThrownBy(() -> IterableLike.of("bla")).isInstanceOf(IllegalArgumentException.class); // or any other kind of object that isn't a java.lang.Object
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPrimitiveToIterator() {
-        IterableLike.of(1);
+        assertThatThrownBy(() -> IterableLike.of(1)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNullToIterator() {
-        IterableLike.of(null);
+        assertThatThrownBy(() -> IterableLike.of(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -189,18 +189,18 @@ public class IterableLikeTest {
         assertThat(IterableLike.isEmpty(new ArrayList<String>())).isTrue();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIsEmptyObject() {
-        IterableLike.isEmpty(new Object());
+        assertThatThrownBy(() -> IterableLike.isEmpty(new Object())).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIsEmptyPrimitive() {
-        IterableLike.isEmpty(5);
+        assertThatThrownBy(() -> IterableLike.isEmpty(5)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIsEmptyNull() {
-        IterableLike.isEmpty(null);
+        assertThatThrownBy(() -> IterableLike.isEmpty(null)).isInstanceOf(IllegalArgumentException.class);
     }
 }

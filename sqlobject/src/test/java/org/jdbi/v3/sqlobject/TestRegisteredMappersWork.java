@@ -36,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestRegisteredMappersWork {
     @Rule
@@ -159,13 +160,13 @@ public class TestRegisteredMappersWork {
         assertThat(henning).isEqualTo(new Something(1, "Henning"));
     }
 
-    @Test(expected = NoSuchMapperException.class)
+    @Test
     public void testNoRootRegistrations() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Henning')");
-            h.createQuery("select id, name from something where id = 1")
-                                 .mapTo(Something.class)
-                                 .findFirst();
+            assertThatThrownBy(() -> h.createQuery("select id, name from something where id = 1")
+                .mapTo(Something.class)
+                .findFirst()).isInstanceOf(NoSuchMapperException.class);
         }
     }
 
@@ -181,12 +182,12 @@ public class TestRegisteredMappersWork {
 
     }
 
-    @Test(expected = ResultSetException.class)
+    @Test
     public void testIteratorCloses() throws Exception {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
-        itty.hasNext();
+        assertThatThrownBy(itty::hasNext).isInstanceOf(ResultSetException.class);
     }
 
     public interface Spiffy {

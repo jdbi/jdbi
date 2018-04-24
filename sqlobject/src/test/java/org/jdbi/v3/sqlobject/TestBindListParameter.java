@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class TestBindListParameter {
 
     private Jdbi db;
@@ -50,9 +52,9 @@ public class TestBindListParameter {
         handle.close();
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
+    @Test
     public void testBrokenSyntax() {
-        dao.broken();
+        assertThatThrownBy(dao::broken).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

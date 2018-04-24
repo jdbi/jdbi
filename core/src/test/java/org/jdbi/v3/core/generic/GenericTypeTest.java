@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.generic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class GenericTypeTest {
 
@@ -24,10 +25,8 @@ public class GenericTypeTest {
         assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
     }
 
-    @SuppressWarnings("rawtypes")
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void raw() {
-        new GenericType() {};
+        assertThatThrownBy(() -> new GenericType() {}).isInstanceOf(UnsupportedOperationException.class);
     }
-
 }

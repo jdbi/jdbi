@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class TestColonPrefixTemplateEngine {
     private TemplateEngine templateEngine;
@@ -91,9 +90,10 @@ public class TestColonPrefixTemplateEngine {
         assertThat(parsed.getSql()).isEqualTo(doubleColon);
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
+    @Test
     public void testBailsOutOnInvalidInput() throws Exception {
-        render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c");
+        assertThatThrownBy(() -> render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c"))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -106,9 +106,10 @@ public class TestColonPrefixTemplateEngine {
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
+    @Test
     public void testUndefinedAttribute() throws Exception {
-        render("select * from <table>", Collections.emptyMap());
+        assertThatThrownBy(() -> render("select * from <table>", Collections.emptyMap()))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

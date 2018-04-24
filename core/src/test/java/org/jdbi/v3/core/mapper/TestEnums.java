@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.SQLException;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestEnums {
     @Rule
@@ -76,14 +76,14 @@ public class TestEnums {
         assertThat(results).containsExactly(SomethingElse.Name.eric, SomethingElse.Name.brian);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMapInvalidEnumValue() throws SQLException {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
-        h.createQuery("select * from something order by id")
-                .mapToBean(SomethingElse.class)
-                .findFirst();
+        assertThatThrownBy(() -> h.createQuery("select * from something order by id")
+            .mapToBean(SomethingElse.class)
+            .findFirst()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

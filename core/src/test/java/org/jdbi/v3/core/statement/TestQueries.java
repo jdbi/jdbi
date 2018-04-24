@@ -13,21 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-
+import com.google.common.collect.Maps;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
-import com.google.common.collect.Maps;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -39,6 +30,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
 public class TestQueries {
     @Rule
@@ -164,9 +162,10 @@ public class TestQueries {
                 .hasMessageContaining("no named parameter matches 'name'");
     }
 
-    @Test(expected = UnableToExecuteStatementException.class)
+    @Test
     public void testHelpfulErrorOnNothingSet() throws Exception {
-        h.createQuery("select * from something where name = :name").mapToMap().list();
+        assertThatThrownBy(() -> h.createQuery("select * from something where name = :name").mapToMap().list())
+            .isInstanceOf(UnableToExecuteStatementException.class);
     }
 
     @Test

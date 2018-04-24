@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestDefineListParameter {
     @Rule
@@ -113,12 +114,12 @@ public class TestDefineListParameter {
         testDao.defaultedInsert("test", testColumns, values);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testEmptyList() {
         TestDao testDao = handle.attach(TestDao.class);
         List<String> noColumns = new ArrayList<>();
         Something something = new Something(1, "Some Pig");
-        testDao.insert("test", noColumns, something);
+        assertThatThrownBy(() -> testDao.insert("test", noColumns, something)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @RegisterRowMapper(SomethingMapper.class)

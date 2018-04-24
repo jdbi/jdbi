@@ -13,20 +13,19 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.io.IOException;
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestTransactions {
     @Rule
@@ -147,10 +146,10 @@ public class TestTransactions {
         h.rollback();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception {
-        h.inTransaction(handle -> {
+        assertThatThrownBy(() -> h.inTransaction(handle -> {
             throw new IllegalArgumentException();
-        });
+        })).isInstanceOf(IllegalArgumentException.class);
     }
 }

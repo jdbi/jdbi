@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.UUID;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -30,6 +27,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class TestReentrancy {
     private Jdbi db;
     private Handle handle;
@@ -39,12 +39,13 @@ public class TestReentrancy {
         int insert(@BindBean Something something);
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
+    @Test
     public void testGetHandleProvidesSeperateHandle() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
-        h.execute("insert into something (id, name) values (1, 'Stephen')");
+        assertThatThrownBy(() -> h.execute("insert into something (id, name) values (1, 'Stephen')"))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -79,7 +80,6 @@ public class TestReentrancy {
             return null;
         });
     }
-
 
     @Before
     public void setUp() throws Exception {

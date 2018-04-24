@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestJdbi {
     @Rule
@@ -48,13 +48,13 @@ public class TestJdbi {
         }
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test
     public void testCorrectExceptionOnSQLException() throws Exception {
         Jdbi db = Jdbi.create(() -> {
             throw new SQLException();
         });
 
-        db.open();
+        assertThatThrownBy(db::open).isInstanceOf(ConnectionException.class);
     }
 
     @Test

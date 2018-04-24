@@ -13,13 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -32,6 +29,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BindBeanListTest {
     private static Handle handle;
@@ -95,11 +95,11 @@ public class BindBeanListTest {
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByVarargsWithEmptyVarargs() {
         final SomethingByVarargs s = handle.attach(SomethingByVarargs.class);
 
-        final List<Something> out = s.get();
+        assertThatThrownBy(s::get).isInstanceOf(IllegalArgumentException.class);
     }
 
     @UseStringTemplateEngine
@@ -110,18 +110,18 @@ public class BindBeanListTest {
 
     //
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByArrayWithNull() {
         final SomethingByArray s = handle.attach(SomethingByArray.class);
 
-        s.get(null);
+        assertThatThrownBy(() -> s.get(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByArrayWithEmptyArray() {
         final SomethingByArray s = handle.attach(SomethingByArray.class);
 
-        s.get(new SomethingKey[]{});
+        assertThatThrownBy(() -> s.get(new SomethingKey[]{})).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -154,13 +154,11 @@ public class BindBeanListTest {
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByIterableWithEmptyIterable() {
         final SomethingByIterable s = handle.attach(SomethingByIterable.class);
 
-        final List<Something> out = s.get(new ArrayList<>());
-
-        assertThat(out).isEmpty();
+        assertThatThrownBy(() -> s.get(new ArrayList<>())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @UseStringTemplateEngine

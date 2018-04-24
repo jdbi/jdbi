@@ -13,14 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestPositionalParameterBinding {
     @Rule
@@ -58,21 +59,21 @@ public class TestPositionalParameterBinding {
         assertThat(eric.getId()).isEqualTo(1);
     }
 
-    @Test(expected = UnableToExecuteStatementException.class)
+    @Test
     public void testBehaviorOnBadBinding1() throws Exception {
-        h.createQuery("select * from something where id = ? and name = ?")
-                .bind(0, 1)
-                .mapToBean(Something.class)
-                .list();
+        assertThatThrownBy(() -> h.createQuery("select * from something where id = ? and name = ?")
+            .bind(0, 1)
+            .mapToBean(Something.class)
+            .list()).isInstanceOf(UnableToExecuteStatementException.class);
     }
 
-    @Test(expected = UnableToExecuteStatementException.class)
+    @Test
     public void testBehaviorOnBadBinding2() throws Exception {
-        h.createQuery("select * from something where id = ?")
-                .bind(1, 1)
-                .bind(2, "Hi")
-                .mapToBean(Something.class)
-                .list();
+        assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
+            .bind(1, 1)
+            .bind(2, "Hi")
+            .mapToBean(Something.class)
+            .list()).isInstanceOf(UnableToExecuteStatementException.class);
     }
 
     @Test

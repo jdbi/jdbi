@@ -14,13 +14,9 @@
 package org.jdbi.v3.sqlobject;
 
 
-import static java.util.Collections.emptySet;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -35,6 +31,10 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBatching {
     @Rule
@@ -121,30 +121,30 @@ public class TestBatching {
         assertThat(counts).hasSize(5).containsOnly(1);
     }
 
-    @Test(expected = UnableToCreateStatementException.class, timeout=5000)
+    @Test(timeout=5000)
     public void testNoIterable() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
-        b.insertBeans(new Something(1, "x"));
+        assertThatThrownBy(() -> b.insertBeans(new Something(1, "x"))).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(expected = UnableToCreateStatementException.class, timeout=5000)
+    @Test(timeout=5000)
     public void testNoParameterAtAll() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
-        b.insertBeans();
+        assertThatThrownBy(b::insertBeans).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout=5000, expected=UnableToCreateStatementException.class)
+    @Test(timeout=5000)
     public void testForgotIterableInt() throws Exception {
         handle.execute("CREATE TABLE test (id int)");
         UsesBatching b = handle.attach(UsesBatching.class);
-        b.invalidInsertInt(1);
+        assertThatThrownBy(() -> b.invalidInsertInt(1)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout=5000, expected=UnableToCreateStatementException.class)
+    @Test(timeout=5000)
     public void testForgotIterableString() throws Exception {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
-        b.invalidInsertString("bob");
+        assertThatThrownBy(() -> b.invalidInsertString("bob")).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

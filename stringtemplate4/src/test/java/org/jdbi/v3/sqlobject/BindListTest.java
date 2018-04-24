@@ -13,20 +13,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
@@ -34,6 +29,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListTest {
     private static Handle handle;
@@ -135,18 +135,18 @@ public class BindListTest {
 
     //
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByArrayHandleThrowWithNull() {
         final SomethingByArrayHandleThrow s = handle.attach(SomethingByArrayHandleThrow.class);
 
-        s.get(null);
+        assertThatThrownBy(() -> s.get(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByArrayHandleThrowWithEmptyArray() {
         final SomethingByArrayHandleThrow s = handle.attach(SomethingByArrayHandleThrow.class);
 
-        s.get(new int[]{});
+        assertThatThrownBy(() -> s.get(new int[]{})).isInstanceOf(IllegalArgumentException.class);
     }
 
     @UseStringTemplateEngine
@@ -188,11 +188,11 @@ public class BindListTest {
 
     //
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByIterableHandleThrowWithEmptyIterable() {
         final SomethingByIterableHandleThrow s = handle.attach(SomethingByIterableHandleThrow.class);
 
-        s.get(new ArrayList<>());
+        assertThatThrownBy(() -> s.get(new ArrayList<>())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @UseStringTemplateEngine
@@ -203,11 +203,11 @@ public class BindListTest {
 
     //
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSomethingByIteratorHandleDefault() {
         final SomethingByIteratorHandleDefault s = handle.attach(SomethingByIteratorHandleDefault.class);
 
-        s.get(Arrays.asList(1, 2).iterator());
+        assertThatThrownBy(() -> s.get(Arrays.asList(1, 2).iterator())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @UseStringTemplateEngine

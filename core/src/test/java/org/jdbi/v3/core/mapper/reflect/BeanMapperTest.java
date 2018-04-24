@@ -14,15 +14,10 @@
 
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
-
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
@@ -40,6 +35,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 public class BeanMapperTest {
 
@@ -161,13 +160,13 @@ public class BeanMapperTest {
         assertThat(sampleBean.getLongField()).isEqualTo(expected);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnTotalMismatch() throws Exception {
         mockColumns("somethingElseEntirely");
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnProtectedSetter() throws Exception {
         mockColumns("protectedStringField");
 
@@ -175,27 +174,27 @@ public class BeanMapperTest {
         when(resultSet.getString(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnPackagePrivateSetter() throws Exception {
         mockColumns("packagePrivateIntField");
 
         when(resultSet.getInt(1)).thenReturn(200);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnPrivateSetter() throws Exception {
         mockColumns("privateBigDecimalField");
 
         when(resultSet.getBigDecimal(1)).thenReturn(BigDecimal.ONE);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -234,7 +233,7 @@ public class BeanMapperTest {
         assertThat(sampleBean.getValueTypeField()).isEqualTo(ValueType.valueOf("foo"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
         mockColumns("longField", "valueTypeField");
 
@@ -242,7 +241,7 @@ public class BeanMapperTest {
         when(resultSet.getObject(2)).thenReturn(new Object());
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -258,11 +257,11 @@ public class BeanMapperTest {
         assertThat(sampleBean.getLongField()).isEqualTo(expected);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnMismatchedColumnsStrictMatch() throws Exception {
         ctx.getConfig(ReflectionMappers.class).setStrictMatching(true);
         mockColumns("longField", "misspelledField");
-        mapper.map(resultSet, ctx);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
     static class ColumnNameBean {
