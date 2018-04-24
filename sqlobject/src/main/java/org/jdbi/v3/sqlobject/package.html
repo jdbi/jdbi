@@ -21,8 +21,7 @@
     the generation of sql statements and queries on your behalf when needed. Take the following interface:
 </p>
 <pre>
-    public interface TheBasics
-    {
+    public interface TheBasics {
         &#64;SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(&#64;BindBean Something something);
 
@@ -63,8 +62,7 @@
             handle is closed.
         </p>
         <pre>
-            try (Handle handle = jdbi.open())
-            {
+            try (Handle handle = jdbi.open()) {
                 TheBasics attached = handle.attach(TheBasics.class);
                 attached.insert(new Something(2, "Bob");
                 Something result = attached.findById(2);
@@ -95,16 +93,14 @@
     You can declare default methods on your interface, which can call other methods of the interface:
 </p>
 <pre>
-    public interface DefaultMethods
-    {
+    public interface DefaultMethods {
         &#64;SqlQuery("select * from folders where id = :id")
         Folder getFolderById(int id);
 
         &#64;SqlQuery("select * from documents where folder_id = :folderId")
         List&lt;Document&gt; getDocuments(int folderId);
 
-        default Node getFolderByIdWithDocuments(int id)
-        {
+        default Node getFolderByIdWithDocuments(int id) {
             Node result = getById(id);
             result.setChildren(listByParendId(id));
             return result;
@@ -119,11 +115,9 @@
     scenarios not directly supported by SQL Object:
 </p>
 <pre>
-    public interface UsingMixins extends SqlObject
-    {
+    public interface UsingMixins extends SqlObject {
         &#64;RegisterBeanMapper(value={Folder.class, Document.class}, prefix={"f", "d"})
-        default Folder getFolder(int id)
-        {
+        default Folder getFolder(int id) {
             return getHandle().createQuery(
                 "select f.id f_id, f.name f_name, " +
                     "d.id d_id, d.name d_name, d.contents d_contents " +
@@ -152,8 +146,7 @@
     This is most commonly used on interface default methods to roll up multiple method calls:
 </p>
 <pre>
-    public interface TransactionAnnotation
-    {
+    public interface TransactionAnnotation {
         &#64;SqlUpdate("insert into folders (id, name) values (:id, :name)")
         void insertFolder(&#64;BindBean Folder folder)
 
@@ -162,8 +155,7 @@
         void insertDocuments(int folderId, &#64;BindBean List&lt;Document&gt; documents);
 
         &#64;Transaction
-        default void insertFolderWithDocuments(Folder folder)
-        {
+        default void insertFolderWithDocuments(Folder folder) {
             insertFolder(folder);
             insertDocuments(folder.getId(), folder.getDocuments());
         }
@@ -174,8 +166,7 @@
     callers may invoke method from that interface to manage transactions:
 </p>
 <pre>
-    public interface TransactionalWithDefaultMethods extends Transactional
-    {
+    public interface TransactionalWithDefaultMethods extends Transactional {
         &#64;SqlUpdate("insert into folders (id, name) values (:id, :name)")
         void insertFolder(&#64;BindBean Folder folder)
 

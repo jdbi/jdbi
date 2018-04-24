@@ -27,8 +27,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * keys are column names, while map values are the values in those columns. Map keys are converted to lowercase by
  * default.
  */
-public class MapMapper implements RowMapper<Map<String, Object>>
-{
+public class MapMapper implements RowMapper<Map<String, Object>> {
     private final boolean foldCase;
 
     /**
@@ -55,7 +54,7 @@ public class MapMapper implements RowMapper<Map<String, Object>>
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         ResultSetMetaData m = rs.getMetaData();
         int columnCount = m.getColumnCount();
-        String[] columnNames = new String[columnCount+1];
+        String[] columnNames = new String[columnCount + 1];
 
         for (int i = 1; i <= columnCount; i++) {
             String key = m.getColumnName(i);

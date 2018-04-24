@@ -45,11 +45,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * @param <T> the type of argument supported by this factory.
  */
 public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
-
-    private interface ArgumentPredicate {
-        boolean test(Type type, Object value);
-    }
-
     private final int sqlType;
     private final ArgumentPredicate isInstance;
 
@@ -92,4 +87,8 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
      * @return an {@link Argument} for the given {@code value}.
      */
     protected abstract Argument build(T value, ConfigRegistry config);
+
+    private interface ArgumentPredicate {
+        boolean test(Type type, Object value);
+    }
 }

@@ -37,8 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestTransactionAnnotation
-{
+public class TestTransactionAnnotation {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -48,36 +47,31 @@ public class TestTransactionAnnotation
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testTx() throws Exception
-    {
+    public void testTx() throws Exception {
         Dao dao = handle.attach(Dao.class);
         Something s = dao.insertAndFetch(1, "Ian");
         assertThat(s).isEqualTo(new Something(1, "Ian"));
     }
 
     @Test
-    public void testTxFail() throws Exception
-    {
+    public void testTxFail() throws Exception {
         Dao dao = handle.attach(Dao.class);
 
         exception.expectMessage("woof");
         try {
             dao.failed(1, "Ian");
-        }
-        finally {
+        } finally {
             assertThat(dao.findById(1)).isNull();
         }
     }
 
     @Test
-    public void testTxActuallyCommits() throws Exception
-    {
+    public void testTxActuallyCommits() throws Exception {
         Handle h2 = this.dbRule.openHandle();
         Dao one = handle.attach(Dao.class);
         Dao two = h2.attach(Dao.class);
@@ -91,8 +85,7 @@ public class TestTransactionAnnotation
     }
 
     @Test
-    public void testConcurrent() throws Exception
-    {
+    public void testConcurrent() throws Exception {
         ExecutorService es = Executors.newFixedThreadPool(3);
 
         final CountDownLatch inserted = new CountDownLatch(1);
@@ -105,8 +98,7 @@ public class TestTransactionAnnotation
                 committed.countDown();
 
                 return null;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 fail(e.getMessage());
                 return null;
@@ -121,8 +113,7 @@ public class TestTransactionAnnotation
                 Something s2 = o.find(1);
                 assertThat(s2).isEqualTo(new Something(1, "diwaker"));
                 return null;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 fail(e.getMessage());
                 return null;
@@ -136,11 +127,9 @@ public class TestTransactionAnnotation
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Other
-    {
+    public interface Other {
         @Transaction
-        default void insert(CountDownLatch inserted, int id, String name) throws InterruptedException
-        {
+        default void insert(CountDownLatch inserted, int id, String name) throws InterruptedException {
             reallyInsert(id, name);
             inserted.countDown();
         }
@@ -153,8 +142,7 @@ public class TestTransactionAnnotation
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Dao
-    {
+    public interface Dao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -162,15 +150,13 @@ public class TestTransactionAnnotation
         Something findById(@Bind("id") int id);
 
         @Transaction(TransactionIsolationLevel.READ_COMMITTED)
-        default Something insertAndFetch(int id, String name)
-        {
+        default Something insertAndFetch(int id, String name) {
             insert(id, name);
             return findById(id);
         }
 
         @Transaction
-        default Something failed(int id, String name) throws IOException
-        {
+        default Something failed(int id, String name) throws IOException {
             insert(id, name);
             throw new IOException("woof");
         }

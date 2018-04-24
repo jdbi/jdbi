@@ -164,7 +164,6 @@ public class TestVavrValueArgumentFactory {
         assertThat(arg).isEmpty();
     }
 
-    private static class TestSpecificException extends RuntimeException {
-    }
+    private static class TestSpecificException extends RuntimeException {}
 
 }

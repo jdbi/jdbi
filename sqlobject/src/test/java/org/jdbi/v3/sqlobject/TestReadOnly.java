@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestReadOnly {
     // H2 does not support the readOnly connection hint.
@@ -61,11 +61,12 @@ public class TestReadOnly {
         }
     }
 
-    @Test(expected=TransactionException.class)
+    @Test
     public void testReadOnlyOuter() {
         try (Handle h = db.openHandle()) {
             RODao dao = h.attach(RODao.class);
-            dao.readTxn(() -> dao.writeTxn(() -> {}));
+
+            assertThatThrownBy(() ->  dao.readTxn(() -> dao.writeTxn(() -> {}))).isInstanceOf(TransactionException.class);
         }
     }
 

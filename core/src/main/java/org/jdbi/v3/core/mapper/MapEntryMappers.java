@@ -19,8 +19,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
  * Configuration class for MapEntryMapper.
  */
 public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryConfig<MapEntryMappers> {
-    public MapEntryMappers() {
-    }
+    public MapEntryMappers() {}
 
     private MapEntryMappers(MapEntryMappers that) {
         this.keyColumn = that.keyColumn;

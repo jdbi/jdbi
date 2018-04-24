@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -41,10 +38,12 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * The BuiltInArgumentFactory provides instances of {@link Argument} for
@@ -118,8 +117,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config)
-    {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         Class<?> expectedClass = getErasedType(expectedType);
 
         if (value != null && expectedClass == Object.class) {
@@ -140,7 +138,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         }
 
         if (value instanceof Optional) {
-            Object nestedValue = ((Optional<?>)value).orElse(null);
+            Object nestedValue = ((Optional<?>) value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
             return config.get(Arguments.class).findFor(nestedType, nestedValue);
         }

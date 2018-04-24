@@ -21,15 +21,13 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestUri
-{
+public class TestUri {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testUri() throws Exception
-    {
+    public void testUri() throws Exception {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();

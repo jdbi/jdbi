@@ -32,14 +32,12 @@ import org.jdbi.v3.core.statement.StatementContext;
  * The <code>remove()</code> operation is not supported in the default
  * version, and will raise an <code>UnsupportedOperationException</code>
  */
-public interface ResultIterator<T> extends Iterator<T>, Closeable
-{
+public interface ResultIterator<T> extends Iterator<T>, Closeable {
     @Override
     default void forEachRemaining(Consumer<? super T> action) {
         try {
             Iterator.super.forEachRemaining(action);
-        }
-        finally {
+        } finally {
             close();
         }
     }

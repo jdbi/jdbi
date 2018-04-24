@@ -14,16 +14,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class StatementsTest
-{
+public class StatementsTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle handle;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
         handle.execute("INSERT INTO user VALUES (1, 'Alice')");
@@ -32,8 +30,7 @@ public class StatementsTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testQuery() throws Exception
-    {
+    public void testQuery() throws Exception {
         // tag::query[]
         List<Map<String, Object>> users =
             handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
@@ -47,8 +44,7 @@ public class StatementsTest
     }
 
     @Test
-    public void testUpdate() throws Exception
-    {
+    public void testUpdate() throws Exception {
         // tag::update[]
         int count = handle.createUpdate("INSERT INTO user(id, name) VALUES(:id, :name)")
             .bind("id", 3)
@@ -64,8 +60,7 @@ public class StatementsTest
     }
 
     @Test
-    public void testScript() throws Exception
-    {
+    public void testScript() throws Exception {
         // tag::script[]
         int[] results = handle.createScript(
                 "INSERT INTO user VALUES(3, 'Charlie');" +
@@ -77,12 +72,10 @@ public class StatementsTest
     }
 
     @Test
-    public void testBatch() throws Exception
-    {
+    public void testBatch() throws Exception {
         // tag::batch[]
         PreparedBatch batch = handle.prepareBatch("INSERT INTO user(id, name) VALUES(:id, :name)");
-        for (int i = 100; i < 5000; i++)
-        {
+        for (int i = 100; i < 5000; i++) {
             batch.bind("id", i).bind("name", "User:" + i).add();
         }
         int[] counts = batch.execute();
@@ -93,8 +86,7 @@ public class StatementsTest
         assertThat(counts).isEqualTo(expected);
     }
 
-    static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2)
-    {
+    static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2) {
         HashMap<K, V> h = new HashMap<>();
         h.put(k1, v1);
         h.put(k2, v2);

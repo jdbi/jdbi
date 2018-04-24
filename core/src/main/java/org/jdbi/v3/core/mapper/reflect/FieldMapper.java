@@ -40,8 +40,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * The mapped class must have a default constructor.
  */
-public class FieldMapper<T> implements RowMapper<T>
-{
+public class FieldMapper<T> implements RowMapper<T> {
     /**
      * Returns a mapper factory that maps to the given bean class
      *
@@ -92,8 +91,7 @@ public class FieldMapper<T> implements RowMapper<T>
     private final String prefix;
     private final Map<Field, FieldMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
-    private FieldMapper(Class<T> type, String prefix)
-    {
+    private FieldMapper(Class<T> type, String prefix) {
         this.type = type;
         this.prefix = prefix.toLowerCase();
     }
@@ -193,8 +191,7 @@ public class FieldMapper<T> implements RowMapper<T>
     private T construct() {
         try {
             return type.newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             String message = String.format(
                 "A type, %s, was mapped which was not instantiable",
                 type.getName());

@@ -42,8 +42,7 @@ class CollectorColumnMapper<T, A, R> implements ColumnMapper<R> {
 
         try {
             return buildFromResultSet(array, ctx);
-        }
-        finally {
+        } finally {
             array.free();
         }
     }

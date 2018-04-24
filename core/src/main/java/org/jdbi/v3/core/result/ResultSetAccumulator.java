@@ -25,8 +25,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * each method invocation, so don't call {@link ResultSet#next()} please.
  */
 @FunctionalInterface
-public interface ResultSetAccumulator<T>
-{
+public interface ResultSetAccumulator<T> {
     /**
      * Extract a single row from the result set, and combine it with the
      * accumulator to produce a result.

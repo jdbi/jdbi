@@ -29,14 +29,6 @@ import static java.util.Objects.requireNonNull;
 public class JpaMember {
     private static final Logger LOGGER = LoggerFactory.getLogger(JpaMember.class);
 
-    interface Getter {
-        Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
-    }
-
-    interface Setter {
-        void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
-    }
-
     private final Class<?> clazz;
     private final String columnName;
     private final Type type;
@@ -92,5 +84,13 @@ public class JpaMember {
                 .map(Column::name)
                 .filter(name -> name.length() > 0)
                 .orElse(memberName);
+    }
+
+    interface Getter {
+        Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
+    }
+
+    interface Setter {
+        void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
     }
 }

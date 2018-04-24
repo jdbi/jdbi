@@ -20,8 +20,7 @@ import java.sql.Connection;
  * whenever the Jdbi instance is used to create a Handle the factory will be used to create a
  * StatementBuilder for that specific handle.
  */
-public interface StatementBuilderFactory
-{
+public interface StatementBuilderFactory {
     /**
      * @param conn the connection to create a statement builder for
      * @return a StatementBuilder, called when a new handle is opened

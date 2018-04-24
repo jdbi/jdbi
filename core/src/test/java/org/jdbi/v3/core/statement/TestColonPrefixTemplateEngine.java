@@ -13,35 +13,31 @@
  */
 package org.jdbi.v3.core.statement;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
-
-public class TestColonPrefixTemplateEngine
-{
+public class TestColonPrefixTemplateEngine {
     private TemplateEngine templateEngine;
     private SqlParser parser;
     private StatementContext ctx;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         templateEngine = new DefinedAttributeTemplateEngine();
         parser = new ColonPrefixSqlParser();
         ctx = mock(StatementContext.class);
     }
 
-    private String render(String sql)
-    {
+    private String render(String sql) {
         return render(sql, Collections.emptyMap());
     }
 
@@ -52,64 +48,56 @@ public class TestColonPrefixTemplateEngine
     }
 
     @Test
-    public void testNewlinesOkay() throws Exception
-    {
+    public void testNewlinesOkay() throws Exception {
         ParsedSql parsed = parser.parse("select * from something\n where id = :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
-    public void testOddCharacters() throws Exception
-    {
+    public void testOddCharacters() throws Exception {
         ParsedSql parsed = parser.parse("~* :boo ':nope' _%&^& *@ :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("~* ? ':nope' _%&^& *@ ?");
     }
 
     @Test
-    public void testNumbers() throws Exception
-    {
+    public void testNumbers() throws Exception {
         ParsedSql parsed = parser.parse(":bo0 ':nope' _%&^& *@ :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("? ':nope' _%&^& *@ ?");
     }
 
     @Test
-    public void testDollarSignOkay() throws Exception
-    {
+    public void testDollarSignOkay() throws Exception {
         ParsedSql parsed = parser.parse("select * from v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
-    public void testHashInColumnNameOkay() throws Exception
-    {
+    public void testHashInColumnNameOkay() throws Exception {
         ParsedSql parsed = parser.parse("select column# from thetable where id = :id", ctx);
        assertThat(parsed.getSql()).isEqualTo("select column# from thetable where id = ?");
     }
 
     @Test
-    public void testBacktickOkay() throws Exception
-    {
+    public void testBacktickOkay() throws Exception {
         ParsedSql parsed = parser.parse("select * from `v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test
-    public void testDoubleColon() throws Exception
-    {
+    public void testDoubleColon() throws Exception {
         final String doubleColon = "select 1::int";
         ParsedSql parsed = parser.parse(doubleColon, ctx);
         assertThat(parsed.getSql()).isEqualTo(doubleColon);
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
-    public void testBailsOutOnInvalidInput() throws Exception
-    {
-        render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c");
+    @Test
+    public void testBailsOutOnInvalidInput() throws Exception {
+        assertThatThrownBy(() -> render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c"))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testSubstitutesDefinedAttributes() throws Exception
-    {
+    public void testSubstitutesDefinedAttributes() throws Exception {
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
@@ -118,29 +106,26 @@ public class TestColonPrefixTemplateEngine
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
-    public void testUndefinedAttribute() throws Exception
-    {
-        render("select * from <table>", Collections.emptyMap());
+    @Test
+    public void testUndefinedAttribute() throws Exception {
+        assertThatThrownBy(() -> render("select * from <table>", Collections.emptyMap()))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testLeaveEnquotedTokensIntact() throws Exception
-    {
+    public void testLeaveEnquotedTokensIntact() throws Exception {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
         assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
     }
 
     @Test
-    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
-    {
+    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception {
         String sql = "select * from foo where end_date < ? and start_date > ?";
         assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
-    public void testCachesRewrittenStatements() throws Exception
-    {
+    public void testCachesRewrittenStatements() throws Exception {
         parser = spy(parser);
 
         String sql = "insert into something (id, name) values (:id, :name)";
@@ -149,8 +134,7 @@ public class TestColonPrefixTemplateEngine
     }
 
     @Test
-    public void testCommentQuote() throws Exception
-    {
+    public void testCommentQuote() throws Exception {
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(render(sql)).isEqualTo(sql);
     }

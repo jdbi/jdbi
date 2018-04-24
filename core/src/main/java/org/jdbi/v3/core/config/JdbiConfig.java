@@ -37,5 +37,5 @@ public interface JdbiConfig<This extends JdbiConfig<This>> {
      * You will get a new registry after being copied.
      * @param registry the registry that owns this configuration object
      */
-    default void setRegistry(ConfigRegistry registry) { }
+    default void setRegistry(ConfigRegistry registry) {}
 }

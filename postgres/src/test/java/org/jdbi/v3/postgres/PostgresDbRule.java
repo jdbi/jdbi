@@ -17,7 +17,7 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.JdbiRule;
 
 public class PostgresDbRule {
-    private PostgresDbRule() { }
+    private PostgresDbRule() {}
 
     public static JdbiRule rule() {
         return JdbiRule.embeddedPostgres().withPlugin(new SqlObjectPlugin()).withPlugin(new PostgresPlugin());

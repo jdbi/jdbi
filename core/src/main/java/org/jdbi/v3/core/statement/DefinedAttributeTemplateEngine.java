@@ -64,8 +64,7 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
                 t = lexer.nextToken();
             }
             return b.toString();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
         }
     }

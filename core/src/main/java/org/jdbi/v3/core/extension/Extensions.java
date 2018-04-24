@@ -29,8 +29,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Create an empty {@link ExtensionFactory} configuration.
      */
-    public Extensions() {
-    }
+    public Extensions() {}
 
     /**
      * Create an extension configuration by cloning another

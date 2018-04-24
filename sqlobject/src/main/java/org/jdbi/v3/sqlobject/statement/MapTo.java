@@ -27,5 +27,4 @@ import org.jdbi.v3.sqlobject.statement.internal.MapToFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 @SqlStatementCustomizingAnnotation(MapToFactory.class)
-public @interface MapTo {
-}
+public @interface MapTo {}

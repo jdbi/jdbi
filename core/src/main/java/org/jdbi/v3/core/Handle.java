@@ -43,8 +43,7 @@ import org.slf4j.LoggerFactory;
  * a JDBC Connection object.  Handle provides essential methods for transaction
  * management, statement creation, and other operations tied to the database session.
  */
-public class Handle implements Closeable, Configurable<Handle>
-{
+public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
     private final TransactionHandler transactions;
@@ -141,8 +140,7 @@ public class Handle implements Closeable, Configurable<Handle>
                                 "Jdbi has rolled back this transaction automatically. " +
                                 "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
                     }
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     throw new CloseException("Unable to close Connection", e);
                 } finally {
                     LOG.trace("Handle [{}] released", this);
@@ -420,20 +418,6 @@ public class Handle implements Closeable, Configurable<Handle>
         }
     }
 
-    private class TransactionResetter implements Closeable {
-
-        private final TransactionIsolationLevel initial;
-
-        TransactionResetter(TransactionIsolationLevel initial) {
-            this.initial = initial;
-        }
-
-        @Override
-        public void close() {
-            setTransactionIsolation(initial);
-        }
-    }
-
     /**
      * Executes <code>callback</code> in a transaction.
      *
@@ -475,8 +459,7 @@ public class Handle implements Closeable, Configurable<Handle>
                 return;
             }
             connection.setTransactionIsolation(level);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException(level, e);
         }
     }
@@ -489,8 +472,7 @@ public class Handle implements Closeable, Configurable<Handle>
     public TransactionIsolationLevel getTransactionIsolationLevel() {
         try {
             return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
         }
     }
@@ -522,5 +504,19 @@ public class Handle implements Closeable, Configurable<Handle>
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
+    }
+
+    private class TransactionResetter implements Closeable {
+
+        private final TransactionIsolationLevel initial;
+
+        TransactionResetter(TransactionIsolationLevel initial) {
+            this.initial = initial;
+        }
+
+        @Override
+        public void close() {
+            setTransactionIsolation(initial);
+        }
     }
 }

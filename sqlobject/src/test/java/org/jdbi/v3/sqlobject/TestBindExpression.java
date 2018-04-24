@@ -41,14 +41,12 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-public class TestBindExpression
-{
+public class TestBindExpression {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface DB
-    {
+    public interface DB {
         @SqlBatch("insert into something (id, name) values(:id, :name)")
         void insert(@BindBean Something... things);
 
@@ -57,8 +55,7 @@ public class TestBindExpression
     }
 
     @Test
-    public void testExpression() throws Exception
-    {
+    public void testExpression() throws Exception {
         DB db = dbRule.getSharedHandle().attach(DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something with_syrup = db.findByBreakfast(new Breakfast());
@@ -67,20 +64,17 @@ public class TestBindExpression
 
     @Retention(RetentionPolicy.RUNTIME)
     @SqlStatementCustomizingAnnotation(BindRoot.BindExpressionCustomizerFactory.class)
-    public @interface BindRoot
-    {
+    public @interface BindRoot {
         String value();
 
-        class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory
-        {
+        class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory {
             @Override
             public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                                       Class<?> sqlObjectType,
                                                                       Method method,
                                                                       Parameter param,
                                                                       int index,
-                                                                      Type type)
-            {
+                                                                      Type type) {
                 final String rootName = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();
                 return (q, root) -> q.bindNamedArgumentFinder((name, context) -> {
@@ -95,30 +89,25 @@ public class TestBindExpression
     }
 
 
-    public static class Breakfast
-    {
+    public static class Breakfast {
         private final Waffle waffle = new Waffle();
 
-        public Waffle getWaffle()
-        {
+        public Waffle getWaffle() {
             return waffle;
         }
     }
 
-    public static class Waffle
-    {
+    public static class Waffle {
         private final String topping = "syrup";
 
-        public String getTopping()
-        {
+        public String getTopping() {
             return topping;
         }
     }
 
 
     @Test
-    public void testJexl() throws Exception
-    {
+    public void testJexl() throws Exception {
         JexlEngine engine = new JexlEngine();
         Object topping = engine.createExpression("breakfast.waffle.topping")
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));

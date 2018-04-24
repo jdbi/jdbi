@@ -13,10 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -32,14 +29,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMixinInterfaces
-{
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class TestMixinInterfaces {
     private Jdbi db;
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         db = Jdbi.create(ds);
@@ -50,15 +47,13 @@ public class TestMixinInterfaces
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.execute("drop table something");
         handle.close();
     }
 
     @Test
-    public void testGetHandle() throws Exception
-    {
+    public void testGetHandle() throws Exception {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         Handle h = g.getHandle();
 
@@ -66,8 +61,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testWithHandle() throws Exception
-    {
+    public void testWithHandle() throws Exception {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         String name = g.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (8, 'Mike')");
@@ -79,8 +73,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testUseHandle() throws Exception
-    {
+    public void testUseHandle() throws Exception {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         g.useHandle(handle -> handle.execute("insert into something(id, name) values (9, 'James')"));
 
@@ -91,8 +84,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testBeginAndCommitTransaction() throws Exception
-    {
+    public void testBeginAndCommitTransaction() throws Exception {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
 
         txl.insert(8, "Mike");
@@ -106,8 +98,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testInTransaction() throws Exception
-    {
+    public void testInTransaction() throws Exception {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
@@ -117,8 +108,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testInTransactionWithLevel() throws Exception
-    {
+    public void testInTransactionWithLevel() throws Exception {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
@@ -132,8 +122,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testTransactionIsolationActuallyHappens() throws Exception
-    {
+    public void testTransactionIsolationActuallyHappens() throws Exception {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         db.useExtension(TransactionStuff.class, tx2 -> {
             txl.insert(8, "Mike");
@@ -151,8 +140,7 @@ public class TestMixinInterfaces
     }
 
     @Test
-    public void testJustJdbiTransactions() throws Exception
-    {
+    public void testJustJdbiTransactions() throws Exception {
         try (Handle h1 = db.open();
              Handle h2 = db.open()) {
             h1.execute("insert into something (id, name) values (8, 'Mike')");
@@ -168,13 +156,9 @@ public class TestMixinInterfaces
         }
     }
 
-    private interface WithGetHandle extends SqlObject
-    {
+    private interface WithGetHandle extends SqlObject {}
 
-    }
-
-    private interface TransactionStuff extends Transactional<TransactionStuff>
-    {
+    private interface TransactionStuff extends Transactional<TransactionStuff> {
 
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)

@@ -39,22 +39,21 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
-public class TestTransactional
-{
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestTransactional {
     private Jdbi db;
     private Handle handle;
     private final AtomicBoolean inTransaction = new AtomicBoolean();
 
-    public interface TheBasics extends Transactional<TheBasics>
-    {
+    public interface TheBasics extends Transactional<TheBasics> {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         @Transaction(TransactionIsolationLevel.SERIALIZABLE)
         int insert(@BindBean Something something);
     }
 
     @Test
-    public void testDoublyTransactional() throws Exception
-    {
+    public void testDoublyTransactional() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
         dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
             transactional.insert(new Something(1, "2"));
@@ -65,24 +64,22 @@ public class TestTransactional
         });
     }
 
-    @Test(expected = TransactionException.class)
+    @Test
     public void testOnDemandBeginTransaction() throws Exception {
         // Calling methods like begin() on an on-demand Transactional SQL object makes no sense--the transaction would
         // begin and the connection would just close.
         // Jdbi should identify this scenario and throw an exception informing the user that they're not managing their
         // transactions correctly.
-        db.onDemand(Transactional.class).begin();
+        assertThatThrownBy(db.onDemand(Transactional.class)::begin).isInstanceOf(TransactionException.class);
     }
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Connection getConnection() throws SQLException
-            {
+            public Connection getConnection() throws SQLException {
                 final Connection real = super.getConnection();
                 return (Connection) Proxy.newProxyInstance(real.getClass().getClassLoader(), new Class<?>[] {Connection.class}, new TxnIsolationCheckingInvocationHandler(real));
             }
@@ -99,8 +96,7 @@ public class TestTransactional
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.execute("drop table something");
         handle.close();
     }
@@ -114,18 +110,15 @@ public class TestTransactional
         }
     }
 
-    private class TxnIsolationCheckingInvocationHandler implements InvocationHandler
-    {
+    private class TxnIsolationCheckingInvocationHandler implements InvocationHandler {
         private final Connection real;
 
-        public TxnIsolationCheckingInvocationHandler(Connection real)
-        {
+        public TxnIsolationCheckingInvocationHandler(Connection real) {
             this.real = real;
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-        {
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (CHECKED_METHODS.contains(method) && inTransaction.get()) {
                 throw new SQLException("PostgreSQL would not let you set the transaction isolation here");
             }

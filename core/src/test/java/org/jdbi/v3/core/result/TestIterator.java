@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.core.result;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -26,8 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestIterator
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestIterator {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
@@ -174,7 +173,7 @@ public class TestIterator
         assertThat(it.hasNext()).isFalse();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testExplodeIterator() throws Exception {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -193,15 +192,14 @@ public class TestIterator
             assertThat(it.hasNext()).isTrue();
             it.next();
             assertThat(it.hasNext()).isFalse();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             Assertions.fail("unexpected throwable:" + t.getMessage());
         }
 
-        it.next();
+        assertThatThrownBy(it::next).isInstanceOf(IllegalStateException.class);
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void testEmptyExplosion() throws Exception {
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
@@ -209,7 +207,7 @@ public class TestIterator
             .mapToMap()
             .iterator();
 
-        it.next();
+        assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

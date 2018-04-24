@@ -26,8 +26,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
-public @interface BatchChunkSize
-{
+public @interface BatchChunkSize {
     /**
      * The batch chunk size. Defaults to -1 which will raise an error, so
      * do not use the default. It is present for when the annotation is used

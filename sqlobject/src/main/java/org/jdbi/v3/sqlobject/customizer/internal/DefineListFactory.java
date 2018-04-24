@@ -25,8 +25,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
-public final class DefineListFactory implements SqlStatementCustomizerFactory
-{
+public final class DefineListFactory implements SqlStatementCustomizerFactory {
 
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
@@ -34,8 +33,7 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory
                                                               Method method,
                                                               Parameter param,
                                                               int index,
-                                                              Type type)
-    {
+                                                              Type type) {
         final DefineList d = (DefineList) annotation;
         final String name = ParameterUtil.findParameterName(d.value(), param)
                 .orElseThrow(() -> new UnsupportedOperationException("A @DefineList parameter was not given a name, " +

@@ -13,24 +13,22 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBatch
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestBatch {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testBasics() throws Exception
-    {
+    public void testBasics() throws Exception {
         Handle h = dbRule.openHandle();
 
         Batch b = h.createBatch();
@@ -43,11 +41,11 @@ public class TestBatch
         assertThat(r).hasSize(3);
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testEmptyBatchThrows() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
-            b.add(); // No parameters written yet
+            assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet
         }
     }
 }

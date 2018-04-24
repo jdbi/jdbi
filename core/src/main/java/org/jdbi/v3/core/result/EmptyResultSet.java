@@ -52,8 +52,7 @@ class EmptyResultSet implements ResultSet {
     }
 
     @Override
-    public void close() throws SQLException {
-    }
+    public void close() throws SQLException {}
 
     @Override
     public boolean wasNull() throws SQLException {
@@ -296,12 +295,10 @@ class EmptyResultSet implements ResultSet {
     }
 
     @Override
-    public void beforeFirst() throws SQLException {
-    }
+    public void beforeFirst() throws SQLException {}
 
     @Override
-    public void afterLast() throws SQLException {
-    }
+    public void afterLast() throws SQLException {}
 
     @Override
     public boolean first() throws SQLException {
@@ -334,8 +331,7 @@ class EmptyResultSet implements ResultSet {
     }
 
     @Override
-    public void setFetchDirection(int direction) throws SQLException {
-    }
+    public void setFetchDirection(int direction) throws SQLException {}
 
     @Override
     public int getFetchDirection() throws SQLException {
@@ -343,8 +339,7 @@ class EmptyResultSet implements ResultSet {
     }
 
     @Override
-    public void setFetchSize(int rows) throws SQLException {
-    }
+    public void setFetchSize(int rows) throws SQLException {}
 
     @Override
     public int getFetchSize() throws SQLException {

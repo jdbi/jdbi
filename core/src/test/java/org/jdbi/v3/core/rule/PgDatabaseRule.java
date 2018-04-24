@@ -27,8 +27,7 @@ import org.junit.runners.model.Statement;
 import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
 import com.opentable.db.postgres.junit.PreparedDbRule;
 
-public class PgDatabaseRule extends ExternalResource implements DatabaseRule
-{
+public class PgDatabaseRule extends ExternalResource implements DatabaseRule {
     private Jdbi db;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
     private JdbiPreparer preparer;
@@ -44,26 +43,22 @@ public class PgDatabaseRule extends ExternalResource implements DatabaseRule
     }
 
     @Override
-    protected void before() throws Throwable
-    {
+    protected void before() throws Throwable {
         db = Jdbi.create(innerRule.getTestDatabase());
         plugins.forEach(db::installPlugin);
     }
 
     @Override
-    protected void after()
-    {
+    protected void after() {
         db = null;
     }
 
     @Override
-    public Jdbi getJdbi()
-    {
+    public Jdbi getJdbi() {
         return db;
     }
 
-    public Handle openHandle()
-    {
+    public Handle openHandle() {
         return getJdbi().open();
     }
 

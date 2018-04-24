@@ -56,8 +56,7 @@ public class GenericDaoUsageTest {
     public static class UserModel implements Model<Integer> {
         private int id;
 
-        public UserModel() {
-        }
+        public UserModel() {}
 
         public UserModel(int id) {
             this.id = id;

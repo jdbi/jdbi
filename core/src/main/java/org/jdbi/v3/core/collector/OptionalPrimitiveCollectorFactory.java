@@ -28,9 +28,7 @@ import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalLong;
 
 class OptionalPrimitiveCollectorFactory implements CollectorFactory {
     private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTORS = new HashMap<>();
-    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new HashMap<>();
-
-    {
+    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new HashMap<>(); {
         COLLECTORS.put(OptionalInt.class, toOptionalInt());
         ELEMENT_TYPES.put(OptionalInt.class, Integer.class);
 

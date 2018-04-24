@@ -13,15 +13,10 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
+import com.google.common.collect.ImmutableMap;
 import java.beans.ConstructorProperties;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
@@ -31,8 +26,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestPreparedBatch
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
+public class TestPreparedBatch {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
@@ -49,8 +46,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testBindBatch() throws Exception
-    {
+    public void testBindBatch() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -64,13 +60,11 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testBigishBatch() throws Exception
-    {
+    public void testBigishBatch() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
-        for (int i = 0; i < count; ++i)
-        {
+        for (int i = 0; i < count; ++i) {
             b.bind("id", i).bind("name", "A Name").add();
 
         }
@@ -82,8 +76,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testBindProperties() throws Exception
-    {
+    public void testBindProperties() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -98,8 +91,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testBindMaps() throws Exception
-    {
+    public void testBindMaps() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -114,8 +106,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testMixedModeBatch() throws Exception
-    {
+    public void testMixedModeBatch() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -127,8 +118,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testPositionalBinding() throws Exception
-    {
+    public void testPositionalBinding() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -138,8 +128,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testForgotFinalAdd() throws Exception
-    {
+    public void testForgotFinalAdd() throws Exception {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -157,8 +146,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testContextGetsBinding() throws Exception
-    {
+    public void testContextGetsBinding() throws Exception {
         try {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 0)
@@ -176,8 +164,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testMultipleExecuteBindBean()
-    {
+    public void testMultipleExecuteBindBean() {
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bindBean(new Something(1, "Eric")).add();
@@ -197,8 +184,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testMultipleExecuteBind()
-    {
+    public void testMultipleExecuteBind() {
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -218,8 +204,7 @@ public class TestPreparedBatch
     }
 
     @Test
-    public void testMultipleExecuteBindFields()
-    {
+    public void testMultipleExecuteBindFields() {
         h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 

@@ -25,14 +25,12 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSqlObjectMethodBehavior
-{
+public class TestSqlObjectMethodBehavior {
     private UselessDao dao;
     private UselessDao anotherDao;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         HandleSupplier handleSupplier = new HandleSupplier() {
             @Override
             public ConfigRegistry getConfig() {
@@ -54,8 +52,7 @@ public class TestSqlObjectMethodBehavior
         anotherDao = factory.attach(UselessDao.class, handleSupplier);
     }
 
-    public interface UselessDao extends SqlObject
-    {
+    public interface UselessDao extends SqlObject {
         void finalize();
     }
 
@@ -66,28 +63,24 @@ public class TestSqlObjectMethodBehavior
      * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
      */
     @Test
-    public void testFinalizeDoesntConnect() throws Exception
-    {
+    public void testFinalizeDoesntConnect() throws Exception {
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 
     @Test
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         assertThat(dao).isEqualTo(dao);
         assertThat(dao).isNotEqualTo(anotherDao);
     }
 
     @Test
-    public void testHashCode() throws Exception
-    {
+    public void testHashCode() throws Exception {
         assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
         assertThat(dao.hashCode()).isNotEqualTo(anotherDao.hashCode());
     }
 
     @Test
-    public void testToStringDoesntConnect() throws Exception
-    {
+    public void testToStringDoesntConnect() throws Exception {
         dao.toString();
     }
 }

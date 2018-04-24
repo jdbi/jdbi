@@ -32,8 +32,7 @@ import org.junit.Test;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class TestRegisterJoinRowMapper
-{
+public class TestRegisterJoinRowMapper {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -45,8 +44,7 @@ public class TestRegisterJoinRowMapper
     }
 
     @Test
-    public void testSqlObjectJoinRow()
-    {
+    public void testSqlObjectJoinRow() {
         Handle handle = dbRule.getSharedHandle();
 
         // tag::joinrowusage[]
@@ -61,8 +59,7 @@ public class TestRegisterJoinRowMapper
     }
 
     // tag::joinrowdao[]
-    public interface UserArticleDao
-    {
+    public interface UserArticleDao {
         @RegisterJoinRowMapper({User.class, Article.class})
         @SqlQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
         Stream<JoinRow> getAuthorship();

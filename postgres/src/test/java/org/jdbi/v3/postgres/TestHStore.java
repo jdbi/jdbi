@@ -39,8 +39,7 @@ import org.junit.rules.ExpectedException;
 
 public class TestHStore {
 
-    private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {
-    };
+    private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {};
 
     @ClassRule
     public static JdbiRule postgresDbRule = PostgresDbRule.rule();
@@ -75,7 +74,7 @@ public class TestHStore {
         assertThat(caps).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
                 ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")
-        ));
+       ));
     }
 
     @Test

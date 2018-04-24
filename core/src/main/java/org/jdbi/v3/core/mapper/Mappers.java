@@ -33,8 +33,7 @@ public class Mappers implements JdbiConfig<Mappers> {
     private RowMappers rowMappers;
     private ColumnMappers columnMappers;
 
-    public Mappers() {
-    }
+    public Mappers() {}
 
     @Override
     public void setRegistry(ConfigRegistry registry) {

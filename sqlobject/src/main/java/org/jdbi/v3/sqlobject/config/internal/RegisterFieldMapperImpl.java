@@ -22,8 +22,7 @@ import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
 
-public class RegisterFieldMapperImpl implements Configurer
-{
+public class RegisterFieldMapperImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
@@ -32,15 +31,13 @@ public class RegisterFieldMapperImpl implements Configurer
         RowMappers mappers = registry.get(RowMappers.class);
         if (prefix.isEmpty()) {
             mappers.register(FieldMapper.factory(type));
-        }
-        else {
+        } else {
             mappers.register(FieldMapper.factory(type, prefix));
         }
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

@@ -35,22 +35,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStringTemplateSqlLocator
-{
+public class TestStringTemplateSqlLocator {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Wombat wombat = handle.attach(Wombat.class);
         wombat.insert(new Something(7, "Henning"));
 
@@ -62,8 +59,7 @@ public class TestStringTemplateSqlLocator
     }
 
     @Test
-    public void testBam() throws Exception
-    {
+    public void testBam() throws Exception {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
         Something s = handle.attach(Wombat.class).findById(6L);
@@ -71,16 +67,14 @@ public class TestStringTemplateSqlLocator
     }
 
     @Test
-    public void testBap() throws Exception
-    {
+    public void testBap() throws Exception {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
         Wombat w = handle.attach(Wombat.class);
         assertThat(w.findNameFor(2)).isEqualTo("Bean");
     }
 
     @Test
-    public void testDefines() throws Exception
-    {
+    public void testDefines() throws Exception {
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
@@ -91,8 +85,7 @@ public class TestStringTemplateSqlLocator
     }
 
     @Test
-    public void testBatching() throws Exception
-    {
+    public void testBatching() throws Exception {
         Wombat roo = handle.attach(Wombat.class);
         roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
 
@@ -102,8 +95,7 @@ public class TestStringTemplateSqlLocator
 
     @UseStringTemplateSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Wombat
-    {
+    public interface Wombat {
         @SqlUpdate
         void insert(@BindBean Something s);
 
@@ -124,11 +116,9 @@ public class TestStringTemplateSqlLocator
         void insertBunches(@BindBean Something... somethings);
     }
 
-    public static class SomethingMapper implements RowMapper<Something>
-    {
+    public static class SomethingMapper implements RowMapper<Something> {
         @Override
-        public Something map(ResultSet r, StatementContext ctx) throws SQLException
-        {
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException {
             return new Something(r.getInt("id"), r.getString("name"));
         }
     }

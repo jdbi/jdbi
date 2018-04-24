@@ -26,20 +26,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestEnumMapping
-{
+public class TestEnumMapping {
     @Rule
     public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void create() {
         dbRule.getHandle().execute(
-                "create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
+                "create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
     }
 
     @Test
-    public void testEnums() throws Exception
-    {
+    public void testEnums() throws Exception {
         Spiffy spiffy = dbRule.attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
@@ -50,8 +48,7 @@ public class TestEnumMapping
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlUpdate("insert into something(name) values(:name)")
         @GetGeneratedKeys
         int addCoolName(@Bind("name") CoolName coolName);
@@ -60,8 +57,7 @@ public class TestEnumMapping
         CoolName findById(@Bind("id") int id);
     }
 
-    public enum CoolName
-    {
+    public enum CoolName {
         BOB, FRANK, JOE
     }
 }

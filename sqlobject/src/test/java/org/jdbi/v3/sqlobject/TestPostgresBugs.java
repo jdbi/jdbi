@@ -32,14 +32,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestPostgresBugs
-{
+public class TestPostgresBugs {
     @Rule
     public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         dbRule.getJdbi().useHandle(handle -> {
             handle.execute("create table if not exists something (id int primary key, name varchar(100))");
             handle.execute("delete from something");
@@ -47,8 +45,7 @@ public class TestPostgresBugs
     }
 
     @Test
-    public void testConnected() throws Exception
-    {
+    public void testConnected() throws Exception {
         int four = dbRule.getJdbi().withHandle(handle ->
                 handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
 
@@ -56,8 +53,7 @@ public class TestPostgresBugs
     }
 
     @Test
-    public void testTransactions() throws Exception
-    {
+    public void testTransactions() throws Exception {
         Dao dao = dbRule.getJdbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
@@ -65,8 +61,7 @@ public class TestPostgresBugs
     }
 
     @Test
-    public void testExplicitTransaction() throws Exception
-    {
+    public void testExplicitTransaction() throws Exception {
         Dao dao = dbRule.getJdbi().onDemand(Dao.class);
 
         Something s = dao.inTransaction(transactional -> {
@@ -79,8 +74,7 @@ public class TestPostgresBugs
 
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Dao extends Transactional<Dao>
-    {
+    public interface Dao extends Transactional<Dao> {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -88,15 +82,13 @@ public class TestPostgresBugs
         Something findById(@Bind("id") int id);
 
         @Transaction(TransactionIsolationLevel.READ_COMMITTED)
-        default Something insertAndFetch(int id, String name)
-        {
+        default Something insertAndFetch(int id, String name) {
             insert(id, name);
             return findById(id);
         }
 
         @Transaction
-        default Something failed(int id, String name) throws IOException
-        {
+        default Something failed(int id, String name) throws IOException {
             insert(id, name);
             throw new IOException("woof");
         }

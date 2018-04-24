@@ -18,8 +18,7 @@ package org.jdbi.v3.core;
  * Handle may not remain valid past return from the consumer.
  */
 @FunctionalInterface
-public interface HandleConsumer<X extends Exception>
-{
+public interface HandleConsumer<X extends Exception> {
     /**
      * Will be invoked with an open Handle. The handle may be closed when this callback returns.
      *

@@ -19,74 +19,62 @@ import org.jdbi.v3.core.HandleCallback;
 /**
  * Simple delegating subclass that just invokes its delegate.
  */
-public class DelegatingTransactionHandler implements TransactionHandler
-{
+public class DelegatingTransactionHandler implements TransactionHandler {
     private final TransactionHandler delegate;
 
-    public DelegatingTransactionHandler(TransactionHandler delegate)
-    {
+    public DelegatingTransactionHandler(TransactionHandler delegate) {
         this.delegate = delegate;
     }
 
-    protected TransactionHandler getDelegate()
-    {
+    protected TransactionHandler getDelegate() {
         return delegate;
     }
 
     @Override
-    public void begin(Handle handle)
-    {
+    public void begin(Handle handle) {
         delegate.begin(handle);
     }
 
     @Override
-    public void commit(Handle handle)
-    {
+    public void commit(Handle handle) {
         delegate.commit(handle);
     }
 
     @Override
-    public void rollback(Handle handle)
-    {
+    public void rollback(Handle handle) {
         delegate.rollback(handle);
     }
 
     @Override
-    public void rollbackToSavepoint(Handle handle, String name)
-    {
+    public void rollbackToSavepoint(Handle handle, String name) {
         delegate.rollbackToSavepoint(handle, name);
     }
 
     @Override
-    public boolean isInTransaction(Handle handle)
-    {
+    public boolean isInTransaction(Handle handle) {
         return delegate.isInTransaction(handle);
     }
 
     @Override
-    public void savepoint(Handle handle, String name)
-    {
+    public void savepoint(Handle handle, String name) {
         delegate.savepoint(handle, name);
     }
 
     @Override
-    public void releaseSavepoint(Handle handle, String name)
-    {
+    public void releaseSavepoint(Handle handle, String name) {
         delegate.releaseSavepoint(handle, name);
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         return delegate.inTransaction(handle, callback);
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         return delegate.inTransaction(handle, level, callback);
     }
 }

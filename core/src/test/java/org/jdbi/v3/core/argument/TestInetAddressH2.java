@@ -24,8 +24,7 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestInetAddressH2
-{
+public class TestInetAddressH2 {
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();
 
@@ -53,8 +52,7 @@ public class TestInetAddressH2
         });
     }
 
-    protected String getInetType()
-    {
+    protected String getInetType() {
         return "VARCHAR";
     }
 }

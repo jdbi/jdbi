@@ -27,7 +27,6 @@ import org.jdbi.v3.sqlobject.customizer.internal.FetchSizeFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(FetchSizeFactory.class)
-public @interface FetchSize
-{
+public @interface FetchSize {
     int value() default 0;
 }

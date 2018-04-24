@@ -36,8 +36,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
  */
-public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
-{
+public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder {
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
         .builder()
         .expiration(10, TimeUnit.MINUTES)
@@ -47,8 +46,7 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
                 BeanInfo info = Introspector.getBeanInfo(type);
                 return Stream.of(info.getPropertyDescriptors())
                     .collect(toMap(PropertyDescriptor::getName, Function.identity()));
-            }
-            catch (IntrospectionException e) {
+            } catch (IntrospectionException e) {
                 throw new UnableToCreateStatementException(
                     "Failed to introspect object which is supposed to be used to " +
                     "set named args for a statement via JavaBean properties", e);
@@ -62,8 +60,7 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param bean the bean to inspect and bind
      */
-    public BeanPropertyArguments(String prefix, Object bean)
-    {
+    public BeanPropertyArguments(String prefix, Object bean) {
         super(prefix, bean);
 
         this.propertyDescriptors = CLASS_PROPERTY_DESCRIPTORS.get(bean.getClass());

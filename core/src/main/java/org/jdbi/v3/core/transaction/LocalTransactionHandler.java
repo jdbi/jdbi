@@ -28,71 +28,59 @@ import org.jdbi.v3.core.HandleCallback;
  * demarcated explicitly on the handle and passed through to be handled
  * directly on the JDBC Connection instance.
  */
-public class LocalTransactionHandler implements TransactionHandler
-{
+public class LocalTransactionHandler implements TransactionHandler {
     private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<>();
     private final ThreadLocal<Boolean> didTxnRollback = ThreadLocal.withInitial(() -> false);
 
     @Override
-    public void begin(Handle handle)
-    {
+    public void begin(Handle handle) {
         try {
             if (!localStuff.containsKey(handle)) {
                 boolean initial = handle.getConnection().getAutoCommit();
                 localStuff.putIfAbsent(handle, new LocalStuff(initial));
                 handle.getConnection().setAutoCommit(false);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException("Failed to start transaction", e);
         }
     }
 
     @Override
-    public void commit(Handle handle)
-    {
+    public void commit(Handle handle) {
         try {
             handle.getConnection().commit();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException("Failed to commit transaction", e);
-        }
-        finally {
+        } finally {
             restoreAutoCommitState(handle);
         }
     }
 
     @Override
-    public void rollback(Handle handle)
-    {
+    public void rollback(Handle handle) {
         didTxnRollback.set(true);
         try {
             handle.getConnection().rollback();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException("Failed to rollback transaction", e);
-        }
-        finally {
+        } finally {
             restoreAutoCommitState(handle);
         }
     }
 
     @Override
-    public void savepoint(Handle handle, String name)
-    {
+    public void savepoint(Handle handle, String name) {
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = conn.setSavepoint(name);
             localStuff.get(handle).getSavepoints().put(name, savepoint);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException(String.format("Unable to create savepoint '%s'", name), e);
         }
     }
 
     @Override
-    public void releaseSavepoint(Handle handle, String name)
-    {
+    public void releaseSavepoint(Handle handle, String name) {
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
@@ -101,15 +89,13 @@ public class LocalTransactionHandler implements TransactionHandler
                                                              name));
             }
             conn.releaseSavepoint(savepoint);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
         }
     }
 
     @Override
-    public void rollbackToSavepoint(Handle handle, String name)
-    {
+    public void rollbackToSavepoint(Handle handle, String name) {
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
@@ -118,19 +104,16 @@ public class LocalTransactionHandler implements TransactionHandler
                                                              name));
             }
             conn.rollback(savepoint);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
         }
     }
 
     @Override
-    public boolean isInTransaction(Handle handle)
-    {
+    public boolean isInTransaction(Handle handle) {
         try {
             return !handle.getConnection().getAutoCommit();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new TransactionException("Failed to test for transaction status", e);
         }
     }
@@ -138,8 +121,7 @@ public class LocalTransactionHandler implements TransactionHandler
     @SuppressWarnings("unchecked")
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         if (isInTransaction(handle)) {
             throw new IllegalStateException("Already in transaction");
         }
@@ -151,8 +133,7 @@ public class LocalTransactionHandler implements TransactionHandler
             if (!didTxnRollback.get()) {
                 handle.commit();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             try {
                 handle.rollback();
             } catch (Exception rollback) {
@@ -168,14 +149,12 @@ public class LocalTransactionHandler implements TransactionHandler
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X
-    {
+                                                    HandleCallback<R, X> callback) throws X {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try {
             handle.setTransactionIsolation(level);
             return inTransaction(handle, callback);
-        }
-        finally {
+        } finally {
             handle.setTransactionIsolation(initial);
         }
     }
@@ -196,23 +175,19 @@ public class LocalTransactionHandler implements TransactionHandler
     }
 
 
-    private static class LocalStuff
-    {
+    private static class LocalStuff {
         private final Map<String, Savepoint> savepoints = new HashMap<>();
         private final boolean initialAutocommit;
 
-        LocalStuff(boolean initial)
-        {
+        LocalStuff(boolean initial) {
             this.initialAutocommit = initial;
         }
 
-        Map<String, Savepoint> getSavepoints()
-        {
+        Map<String, Savepoint> getSavepoints() {
             return savepoints;
         }
 
-        boolean getInitialAutocommit()
-        {
+        boolean getInitialAutocommit() {
             return initialAutocommit;
         }
     }

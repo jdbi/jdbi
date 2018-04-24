@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.spring4;
 
-public class ForceRollback extends RuntimeException
-{
+public class ForceRollback extends RuntimeException {
     private static final long serialVersionUID = 1L;
 }

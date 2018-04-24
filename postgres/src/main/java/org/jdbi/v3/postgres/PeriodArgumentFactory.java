@@ -26,7 +26,7 @@ import java.time.Period;
  */
 public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
 
-    public PeriodArgumentFactory(){
+    public PeriodArgumentFactory() {
         super(Types.OTHER);
     }
 

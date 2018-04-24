@@ -44,7 +44,7 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
             if (!(obj instanceof PGInterval)) {
                 throw new IllegalArgumentException(String.format("got non-pginterval %s", obj));
             }
-            final PGInterval interval = (PGInterval)obj;
+            final PGInterval interval = (PGInterval) obj;
             if (interval.getYears() != 0 || interval.getMonths() != 0) {
                 throw new IllegalArgumentException(
                         String.format("pginterval \"%s\" not representable as duration", interval.getValue()));
@@ -55,8 +55,8 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
                         String.format("pginterval \"%s\" has seconds too extreme to represent as duration",
                                 interval.getValue()));
             }
-            final long secondsLong = (long)seconds;
-            final long nanos = (long)((seconds - secondsLong) * 1e9);
+            final long secondsLong = (long) seconds;
+            final long nanos = (long) ((seconds - secondsLong) * 1e9);
             return Duration.ofDays(interval.getDays())
                     .plusHours(interval.getHours())
                     .plusMinutes(interval.getMinutes())

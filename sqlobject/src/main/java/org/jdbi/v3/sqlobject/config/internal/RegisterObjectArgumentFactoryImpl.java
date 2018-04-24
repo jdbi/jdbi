@@ -22,11 +22,9 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactory;
 
-public class RegisterObjectArgumentFactoryImpl implements Configurer
-{
+public class RegisterObjectArgumentFactoryImpl implements Configurer {
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
         Arguments arguments = registry.get(Arguments.class);
 
@@ -41,8 +39,7 @@ public class RegisterObjectArgumentFactoryImpl implements Configurer
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

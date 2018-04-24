@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterConstructorMapperImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterConstructorMappers.class)
-public @interface RegisterConstructorMapper
-{
+public @interface RegisterConstructorMapper {
     /**
      * The mapped type.
      * @return the mapped type.

@@ -52,8 +52,7 @@ public interface ResultBearing {
             public <R> R scanResultSet(ResultSetScanner<R> mapper) {
                 try {
                     return mapper.scanResultSet(resultSetSupplier, ctx);
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
                 }
             }
@@ -180,11 +179,9 @@ public interface ResultBearing {
                     reducer.accumulate(container, rowView);
                 }
                 return reducer.stream(container);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -223,11 +220,9 @@ public interface ResultBearing {
                     result = accumulator.apply(result, rv);
                 }
                 return result;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -250,11 +245,9 @@ public interface ResultBearing {
                     result = accumulator.apply(result, rs, ctx);
                 }
                 return result;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -283,11 +276,9 @@ public interface ResultBearing {
                 }
 
                 return collector.finisher().apply(acc);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });

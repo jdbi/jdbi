@@ -23,30 +23,23 @@ import java.lang.reflect.Method;
  * Base {@link NamedArgumentFinder} implementation that can be used for bindings that use the return value
  * of an object's method as an argument.
  */
-abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedArgumentFinder
-{
+abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedArgumentFinder {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind methods on
      */
-    MethodReturnValueNamedArgumentFinder(String prefix, Object object)
-    {
+    MethodReturnValueNamedArgumentFinder(String prefix, Object object) {
         super(prefix, object);
     }
 
     Object invokeMethod(Method method, StatementContext ctx) {
-        try
-        {
+        try {
             return method.invoke(object);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw new UnableToCreateStatementException(String.format("Access exception invoking " +
                             "method [%s] on [%s]",
                     method.getName(), object), e, ctx);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
                             "method [%s] on [%s]",
                     method.getName(), object), e, ctx);

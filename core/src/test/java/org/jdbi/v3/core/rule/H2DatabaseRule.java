@@ -27,8 +27,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
-public class H2DatabaseRule extends ExternalResource implements DatabaseRule
-{
+public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
     private Jdbi db;
@@ -37,8 +36,7 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule
     private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
-    protected void before() throws Throwable
-    {
+    protected void before() throws Throwable {
         db = Jdbi.create(uri);
         if (installPlugins) {
             db.installPlugins();
@@ -47,13 +45,12 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule
         sharedHandle = db.open();
         con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
-            s.execute("create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
+            s.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
         }
     }
 
     @Override
-    protected void after()
-    {
+    protected void after() {
         try {
             con.close();
         } catch (SQLException e) {
@@ -61,41 +58,34 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule
         }
     }
 
-    public H2DatabaseRule withPlugins()
-    {
+    public H2DatabaseRule withPlugins() {
         installPlugins = true;
         return this;
     }
 
-    public H2DatabaseRule withPlugin(JdbiPlugin plugin)
-    {
+    public H2DatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;
     }
 
-    public String getConnectionString()
-    {
+    public String getConnectionString() {
         return uri;
     }
 
     @Override
-    public Jdbi getJdbi()
-    {
+    public Jdbi getJdbi() {
         return db;
     }
 
-    public Handle getSharedHandle()
-    {
+    public Handle getSharedHandle() {
         return sharedHandle;
     }
 
-    public Handle openHandle()
-    {
+    public Handle openHandle() {
         return getJdbi().open();
     }
 
-    public ConnectionFactory getConnectionFactory()
-    {
+    public ConnectionFactory getConnectionFactory() {
         return () -> DriverManager.getConnection(getConnectionString());
     }
 }

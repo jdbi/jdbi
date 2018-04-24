@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterBeanMapperImpl;
 @ConfiguringAnnotation(RegisterBeanMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterBeanMappers.class)
-public @interface RegisterBeanMapper
-{
+public @interface RegisterBeanMapper {
     /**
      * The mapped bean class.
      * @return the mapped bean class.

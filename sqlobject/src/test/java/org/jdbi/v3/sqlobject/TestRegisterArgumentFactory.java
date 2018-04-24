@@ -32,21 +32,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterArgumentFactory
-{
+public class TestRegisterArgumentFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         db = dbRule.getJdbi();
     }
 
     @Test
-    public void testSingleAnnotation() throws Exception
-    {
+    public void testSingleAnnotation() throws Exception {
         db.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
@@ -55,8 +52,7 @@ public class TestRegisterArgumentFactory
     }
 
     @Test
-    public void testMultipleAnnotations() throws Exception
-    {
+    public void testMultipleAnnotations() throws Exception {
         db.useExtension(ShortStack.class, s -> {
             s.insert(1, new Name("George", "Takei"));
 
@@ -65,8 +61,7 @@ public class TestRegisterArgumentFactory
     }
 
     @RegisterArgumentFactory(NameAF.class)
-    public interface Waffle
-    {
+    public interface Waffle {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") Name name);
 
@@ -76,8 +71,7 @@ public class TestRegisterArgumentFactory
 
     @RegisterArgumentFactory(NameAF.class)
     @RegisterArgumentFactory(LazyAF.class)
-    public interface ShortStack
-    {
+    public interface ShortStack {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") Name name);
 
@@ -92,8 +86,7 @@ public class TestRegisterArgumentFactory
         }
     }
 
-    public static class NameAF implements ArgumentFactory
-    {
+    public static class NameAF implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
@@ -104,26 +97,22 @@ public class TestRegisterArgumentFactory
         }
     }
 
-    public static class Name
-    {
+    public static class Name {
         private final String first;
         private final String last;
 
-        public Name(String first, String last)
-        {
+        public Name(String first, String last) {
 
             this.first = first;
             this.last = last;
         }
 
-        public String getFullName()
-        {
+        public String getFullName() {
             return first + " " + last;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "<Name first=" + first + " last=" + last + " >";
         }
     }

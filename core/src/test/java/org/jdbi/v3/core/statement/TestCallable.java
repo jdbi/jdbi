@@ -26,8 +26,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestCallable
-{
+public class TestCallable {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
