@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,7 +39,6 @@ public class TestReturningQueryResults {
         handle = dbRule.getSharedHandle();
     }
 
-
     @Test
     public void testSingleValue() throws Exception {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -61,7 +59,6 @@ public class TestReturningQueryResults {
             assertThat(itty).containsOnlyOnce(new Something(7, "Tim"), new Something(3, "Diego"));
         });
     }
-
 
     @Test
     public void testList() throws Exception {

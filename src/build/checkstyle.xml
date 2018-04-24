@@ -21,6 +21,11 @@
         <property name="message" value="Line has CRLF or CR line ending."/>
     </module>
 
+    <module name="RegexpMultiline">
+        <property name="format" value="\n{3,}"/>
+        <property name="message" value="Don't leave more than 1 open line.."/>
+    </module>
+
     <module name="TreeWalker">
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>

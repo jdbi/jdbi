@@ -44,7 +44,6 @@ public class Something {
         this.name = name;
     }
 
-
     public Integer getIntegerValue() {
         return integerValue;
     }

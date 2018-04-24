@@ -97,7 +97,6 @@ public class GenericTypesTest {
         return getClass().getDeclaredMethod(methodName).getGenericReturnType();
     }
 
-
     @Test
     public void resolveType() throws Exception {
         abstract class A<T> {

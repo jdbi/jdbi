@@ -141,7 +141,6 @@ public class TestModifiers {
         @FetchSize(2)
         List<Something> findAll();
 
-
         @SqlQuery("select id, name from something")
         List<Something> findAllWithMaxRows(@MaxRows int fetchSize);
 

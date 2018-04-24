@@ -75,7 +75,6 @@ public class TestDocumentation {
         });
     }
 
-
     @Test
     public void testObtainHandleViaOpen() throws Exception {
         try (Handle handle = dbRule.getJdbi().open()) {
@@ -259,7 +258,6 @@ public class TestDocumentation {
                           @Bind("first") Iterator<String> firstNames,
                           @Bind("last") String lastName);
 
-
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);
     }
@@ -312,5 +310,4 @@ public class TestDocumentation {
         void update(@BindBean("s") Something something);
     }
 }
-
 

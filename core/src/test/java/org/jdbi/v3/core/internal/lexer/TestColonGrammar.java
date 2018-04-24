@@ -24,7 +24,6 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
 
-
 public class TestColonGrammar extends GrammarTestCase {
     @Test
     public void testNamedOnly() throws Exception {
@@ -88,7 +87,6 @@ public class TestColonGrammar extends GrammarTestCase {
         }
         return String.valueOf(type);
     }
-
 
     @Override
     protected Lexer createLexer(String s) {

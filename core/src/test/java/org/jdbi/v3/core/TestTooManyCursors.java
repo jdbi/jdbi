@@ -66,7 +66,6 @@ public class TestTooManyCursors {
         }
     }
 
-
     private static class ConnectionInvocationHandler implements InvocationHandler {
         private final Connection connection;
         private final int numSuccessfulStatements;

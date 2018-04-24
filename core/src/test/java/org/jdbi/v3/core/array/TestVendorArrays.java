@@ -21,7 +21,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
 
-
 public class TestVendorArrays {
 
     private void init(Jdbi db) {

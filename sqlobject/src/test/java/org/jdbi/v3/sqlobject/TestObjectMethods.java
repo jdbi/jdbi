@@ -68,7 +68,6 @@ public class TestObjectMethods {
         assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
     }
 
-
     @RegisterRowMapper(SomethingMapper.class)
     public interface DAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

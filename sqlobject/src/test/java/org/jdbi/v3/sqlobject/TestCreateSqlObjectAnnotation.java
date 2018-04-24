@@ -45,7 +45,6 @@ public class TestCreateSqlObjectAnnotation {
         handle.registerRowMapper(new SomethingMapper());
     }
 
-
     @Test
     public void testSimpleCreate() throws Exception {
         Foo foo = handle.attach(Foo.class);

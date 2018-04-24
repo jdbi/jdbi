@@ -62,7 +62,6 @@ public class TestRegisterRowMapperFactory {
         void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
-
     public static class MyFactory implements RowMapperFactory {
         @Override
         public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {

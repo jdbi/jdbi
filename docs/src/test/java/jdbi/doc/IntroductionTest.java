@@ -118,7 +118,6 @@ public class IntroductionTest {
         // end::sqlobject-usage[]
     }
 
-
     public static class User {
         private int id;
         private String name;

@@ -49,7 +49,6 @@ public class TestPrintfGrammar extends GrammarTestCase {
         return "unknown";
     }
 
-
     @Override
     protected Lexer createLexer(String s) {
         return new FormatterStatementLexer(new ANTLRStringStream(s));

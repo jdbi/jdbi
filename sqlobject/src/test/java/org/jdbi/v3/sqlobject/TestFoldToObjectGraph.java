@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
@@ -76,7 +75,6 @@ public class TestFoldToObjectGraph {
         this.expected = ImmutableMap.of("Hogan's Heroes", hogans,
                                         "A-Team", ateam);
 
-
     }
 
     @Test
@@ -108,7 +106,6 @@ public class TestFoldToObjectGraph {
             return acc;
         }
     }
-
 
     public static class Team {
         private final String name;

@@ -77,7 +77,6 @@ public class TestTimestamped {
         dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
                 assertThat(ctx.getBinding().findForName("createdAt", ctx)).isPresent());
 
-
         personDAO.insertWithCustomTimestampFields(p);
 
         dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);

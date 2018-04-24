@@ -44,7 +44,6 @@ public class TestBatchingSingleValue {
         b = handle.attach(SingleValueBatching.class);
     }
 
-
     @Test
     public void testSingleValueArray() throws Exception {
         final int[] ids = IntStream.range(0, 10).toArray();

@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StatementContextTest {
 
-
     @Test
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();

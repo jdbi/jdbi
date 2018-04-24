@@ -42,7 +42,6 @@ public class TestRegisteredMappersWork {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-
     public interface BooleanDao {
         @SqlQuery("select 1+1 = 2")
         boolean fetchABoolean();
@@ -201,7 +200,6 @@ public class TestRegisteredMappersWork {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);
     }
-
 
     @RegisterRowMapper(MySomethingMapper.class)
     public interface Kabob {

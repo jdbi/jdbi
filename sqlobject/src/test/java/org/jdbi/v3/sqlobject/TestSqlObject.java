@@ -203,7 +203,6 @@ public class TestSqlObject {
         @SqlUpdate("update something set name=:name where id=:id")
         boolean update(int id, String name);
 
-
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
 

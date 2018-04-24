@@ -99,7 +99,6 @@ public class StatementContext implements Closeable {
         return config.get(configClass);
     }
 
-
     /**
      * @return the {@code ConfigRegistry} this context owns
      */

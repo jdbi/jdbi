@@ -86,7 +86,6 @@ public class TestBindExpression {
         }
     }
 
-
     public static class Breakfast {
         private final Waffle waffle = new Waffle();
 
@@ -103,7 +102,6 @@ public class TestBindExpression {
         }
     }
 
-
     @Test
     public void testJexl() throws Exception {
         JexlEngine engine = new JexlEngine();
@@ -111,6 +109,5 @@ public class TestBindExpression {
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));
         assertThat(topping).isEqualTo("syrup");
     }
-
 
 }

@@ -58,7 +58,6 @@ public class TestTimingCollector {
         dao = db.onDemand(DAO.class);
     }
 
-
     @Test
     public void testInsert() {
         dao.insert(1, "Brian");

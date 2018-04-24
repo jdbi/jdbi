@@ -43,5 +43,4 @@ public interface SomethingDao {
         insertInSingleTransaction(id, name);
     }
 
-
 }

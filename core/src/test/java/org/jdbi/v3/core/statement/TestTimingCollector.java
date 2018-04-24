@@ -41,7 +41,6 @@ public class TestTimingCollector {
         return dbRule.getJdbi().open();
     }
 
-
     @Before
     public void setUp() throws Exception {
         h = openHandle();

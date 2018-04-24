@@ -285,7 +285,6 @@ public class TestQueries {
          .add(3, "Eric")
          .execute();
 
-
         assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)
                 .withStream(stream -> stream.limit(1).count())

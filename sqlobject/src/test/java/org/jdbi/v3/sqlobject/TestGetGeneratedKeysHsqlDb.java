@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
