@@ -85,6 +85,16 @@ public class TestUseCustomHandlerFactory {
 
         @Transaction
         Something insertAndFind(Something s);
+
+        @SuppressWarnings("unused")
+        class DefaultImpls {
+            private DefaultImpls() {}
+
+            public static Something insertAndFind(SomethingDao dao, Something s) {
+                dao.insert(s);
+                return dao.findById(s.getId());
+            }
+        }
     }
 
 }

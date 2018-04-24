@@ -97,4 +97,10 @@ public class TestCallable {
         String out = ret.getString("y");
         assertThat(out).isNull();
     }
+
+    // used by the db in this test
+    @SuppressWarnings("unused")
+    public static void testProcedure(String in, String[] out) {
+        // TODO do something
+    }
 }
