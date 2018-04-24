@@ -11,30 +11,30 @@ cache:
     - '$HOME/.m2/repository'
 
 before_install:
-  - ./ci-pre-install.sh
+  - src/build/ci-pre-install.sh
 
 install:
-  - ./ci-install.sh
+  - src/build/ci-install.sh
 
 matrix:
   include:
     - env:
         - TESTS=Y
       script:
-        - ./ci-test.sh
+        - src/build/ci-test.sh
       jdk: oraclejdk8
     - env:
         - TESTS=Y
       script:
-        - ./ci-test.sh
+        - src/build/ci-test.sh
       jdk: oraclejdk9
     - env:
         - DOCUMENTATION=Y
       script:
-        - ./ci-doc.sh
+        - src/build/ci-doc.sh
       jdk: oraclejdk8
     - env:
         - CODE_STYLE=Y
       script:
-        - ./ci-code-style.sh
+        - src/build/ci-code-style.sh
       jdk: oraclejdk8
