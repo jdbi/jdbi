@@ -30,8 +30,12 @@ public class ValueTypeEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ValueTypeEntity that = (ValueTypeEntity) o;
         return Objects.equals(stringValue, that.stringValue) &&
                 Objects.equals(longValue, that.longValue);

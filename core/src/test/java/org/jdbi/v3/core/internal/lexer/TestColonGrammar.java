@@ -13,11 +13,16 @@
  */
 package org.jdbi.v3.core.internal.lexer;
 
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*;
-
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
 import org.junit.Test;
+
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.ESCAPED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
 
 
 public class TestColonGrammar extends GrammarTestCase {
@@ -78,6 +83,8 @@ public class TestColonGrammar extends GrammarTestCase {
                 return "NAMED_PARAM";
             case EOF:
                 return "EOF";
+            default:
+                break;
         }
         return String.valueOf(type);
     }

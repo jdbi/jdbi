@@ -14,15 +14,12 @@
 
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
@@ -38,6 +35,8 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBeanMapper {
     @Rule
@@ -62,7 +61,7 @@ public class TestBeanMapper {
         List<TestBean> listBeans();
 
         @SqlQuery("select valueType as bean_value_type from testBean")
-        @RegisterBeanMapper(value=TestBean.class, prefix="bean_")
+        @RegisterBeanMapper(value = TestBean.class, prefix = "bean_")
         List<TestBean> listBeansPrefix();
     }
 

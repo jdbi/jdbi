@@ -14,12 +14,9 @@
 package org.jdbi.v3.sqlobject;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -27,6 +24,8 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGetGeneratedKeysHsqlDb {
 
@@ -55,11 +54,11 @@ public class TestGetGeneratedKeysHsqlDb {
     @Test
     public void testFoo() throws Exception {
         db.useExtension(DAO.class, dao -> {
-            long brian_id = dao.insert("Brian");
-            long keith_id = dao.insert("Keith");
+            long brianId = dao.insert("Brian");
+            long keithId = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
-            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
+            assertThat(dao.findNameById(brianId)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keithId)).isEqualTo("Keith");
         });
     }
 

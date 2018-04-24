@@ -35,8 +35,8 @@ public class TestVavrValueArgumentFactoryWithDB {
             "where :name is null or name = :name " +
             "order by id";
 
-    private static final Something ERIC_SOMETHING = new Something(1, "eric");
-    private static final Something BRIAN_SOMETHING = new Something(2, "brian");
+    private static final Something ERICSOMETHING = new Something(1, "eric");
+    private static final Something BRIANSOMETHING = new Something(2, "brian");
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
@@ -49,17 +49,17 @@ public class TestVavrValueArgumentFactoryWithDB {
     }
 
     @Test
-    public void testGetOption_shouldReturnCorrectRow() {
+    public void testGetOptionShouldReturnCorrectRow() {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Option.of("eric"))
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertThat(result).isEqualTo(ERIC_SOMETHING);
+        assertThat(result).isEqualTo(ERICSOMETHING);
     }
 
     @Test
-    public void testGetOptionEmpty_shouldReturnAllRows() {
+    public void testGetOptionEmptyShouldReturnAllRows() {
         List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Option.none())
                 .mapToBean(Something.class)
@@ -69,27 +69,27 @@ public class TestVavrValueArgumentFactoryWithDB {
     }
 
     @Test
-    public void testGetLazy_shouldReturnCorrectRow() {
+    public void testGetLazyShouldReturnCorrectRow() {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Lazy.of(() -> "brian"))
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertThat(result).isEqualTo(BRIAN_SOMETHING);
+        assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
-    public void testGetTrySuccess_shouldReturnCorrectRow() {
+    public void testGetTrySuccessShouldReturnCorrectRow() {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Try.success("brian"))
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertThat(result).isEqualTo(BRIAN_SOMETHING);
+        assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
-    public void testGetTryFailure_shouldReturnAllRows() {
+    public void testGetTryFailureShouldReturnAllRows() {
         List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Try.failure(new Throwable()))
                 .mapToBean(Something.class)
@@ -99,17 +99,17 @@ public class TestVavrValueArgumentFactoryWithDB {
     }
 
     @Test
-    public void testGetEitherRight_shouldReturnCorrectRow() {
+    public void testGetEitherRightShouldReturnCorrectRow() {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Either.right("brian"))
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertThat(result).isEqualTo(BRIAN_SOMETHING);
+        assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
-    public void testGetEitherLeft_shouldReturnAllRows() {
+    public void testGetEitherLeftShouldReturnAllRows() {
         List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Either.left("eric"))
                 .mapToBean(Something.class)
@@ -119,17 +119,17 @@ public class TestVavrValueArgumentFactoryWithDB {
     }
 
     @Test
-    public void testGetValidationValid_shouldReturnCorrectRow() {
+    public void testGetValidationValidShouldReturnCorrectRow() {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Validation.valid("brian"))
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertThat(result).isEqualTo(BRIAN_SOMETHING);
+        assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
-    public void testGetValidationInvalid_shouldReturnAllRows() {
+    public void testGetValidationInvalidShouldReturnAllRows() {
         List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Validation.invalid("eric"))
                 .mapToBean(Something.class)

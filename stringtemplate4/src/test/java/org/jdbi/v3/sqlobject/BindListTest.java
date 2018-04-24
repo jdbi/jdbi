@@ -41,11 +41,11 @@ public class BindListTest {
     private static List<Something> expectedSomethings;
 
     @ClassRule
-    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
+    public static final H2DatabaseRule DB_RULE = new H2DatabaseRule();
 
     @BeforeClass
     public static void init() {
-        final Jdbi db = dbRule.getJdbi();
+        final Jdbi db = DB_RULE.getJdbi();
         db.installPlugin(new SqlObjectPlugin());
         db.registerRowMapper(new SomethingMapper());
         handle = db.open();

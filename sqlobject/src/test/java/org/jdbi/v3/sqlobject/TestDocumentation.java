@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -38,8 +36,8 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDocumentation {
     @Rule
@@ -80,7 +78,9 @@ public class TestDocumentation {
 
     @Test
     public void testObtainHandleViaOpen() throws Exception {
-        try (Handle handle = dbRule.getJdbi().open()) {}
+        try (Handle handle = dbRule.getJdbi().open()) {
+            // TODO?
+        }
     }
 
     @Test
@@ -270,9 +270,9 @@ public class TestDocumentation {
             BatchExample b = h.attach(BatchExample.class);
 
             List<Integer> ids = asList(1, 2, 3, 4, 5);
-            Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();
+            Iterator<String> firstNames = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();
 
-            b.insertFamily(ids, first_names, "McCallister");
+            b.insertFamily(ids, firstNames, "McCallister");
 
             assertThat(b.findNameById(1)).isEqualTo("Tip McCallister");
             assertThat(b.findNameById(2)).isEqualTo("Jane McCallister");

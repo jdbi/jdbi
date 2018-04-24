@@ -54,8 +54,12 @@ public class PhoneBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PhoneBean phoneBean = (PhoneBean) o;
         return id == phoneBean.id &&
                 Objects.equals(name, phoneBean.name) &&

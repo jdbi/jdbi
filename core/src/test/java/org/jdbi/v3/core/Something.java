@@ -68,8 +68,12 @@ public class Something {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Something)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Something)) {
+            return false;
+        }
 
         Something that = (Something) o;
 

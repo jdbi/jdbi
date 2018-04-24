@@ -122,7 +122,7 @@ public class TestDuration {
 
     @Test
     public void testWriteDurationTooBig() {
-        assertThatThrownBy(() -> handle.execute("insert into intervals(id, foo) values(?, ?)", 9, Duration.ofDays((long)Integer.MAX_VALUE + 1)))
+        assertThatThrownBy(() -> handle.execute("insert into intervals(id, foo) values(?, ?)", 9, Duration.ofDays((long) Integer.MAX_VALUE + 1)))
             .isInstanceOf(IllegalArgumentException.class);
     }
 

@@ -13,21 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jdbi.v3.core.statement.ColonPrefixSqlParser;
-import org.jdbi.v3.core.statement.ParsedSql;
-import org.jdbi.v3.core.statement.SqlParser;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.ColonPrefixSqlParser;
+import org.jdbi.v3.core.statement.ParsedSql;
+import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -36,16 +31,20 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
+
 public class BindListNullTest {
     private static final String SPY = "__test_spy";
     private static Handle handle;
 
     @ClassRule
-    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
+    public static final H2DatabaseRule DB_RULE = new H2DatabaseRule();
 
     @BeforeClass
     public static void init() {
-        final Jdbi db = dbRule.getJdbi();
+        final Jdbi db = DB_RULE.getJdbi();
         db.registerRowMapper(new SomethingMapper());
         db.installPlugin(new SqlObjectPlugin());
         handle = db.open();

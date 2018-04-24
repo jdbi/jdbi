@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -26,6 +23,8 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestArgumentFactory {
     @Rule
@@ -41,9 +40,9 @@ public class TestArgumentFactory {
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name).isEqualTo("Brian McCallister");
+            assertThat(fullName).isEqualTo("Brian McCallister");
         }
     }
 
@@ -56,9 +55,9 @@ public class TestArgumentFactory {
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name).isEqualTo("Brian McCallister");
+            assertThat(fullName).isEqualTo("Brian McCallister");
         }
     }
 

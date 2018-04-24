@@ -13,6 +13,15 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,16 +30,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 public class TestTransactionsAutoCommit {
 
@@ -53,7 +52,7 @@ public class TestTransactionsAutoCommit {
         doThrow(new SQLException("infrastructure error")).when(connection).commit();
 
         h.begin();
-        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             h.execute(SAMPLE_SQL, 1L, "Tom");
 
             // throws exception on commit

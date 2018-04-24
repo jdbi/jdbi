@@ -63,7 +63,7 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     @Test
-    public void testToConcreteCollectionTypes_shouldSucceed() {
+    public void testToConcreteCollectionTypesShouldSucceed() {
         testType(new GenericType<Array<Integer>>() {});
         testType(new GenericType<Vector<Integer>>() {});
         testType(new GenericType<List<Integer>>() {});
@@ -82,7 +82,7 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     @Test
-    public void testToAbstractCollectionTypes_shouldSucceed() {
+    public void testToAbstractCollectionTypesShouldSucceed() {
         testType(new GenericType<Traversable<Integer>>() {});
         testType(new GenericType<Seq<Integer>>() {});
         testType(new GenericType<IndexedSeq<Integer>>() {});
@@ -109,7 +109,7 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     @Test
-    public void testMapCollectorReversed_shouldFail() {
+    public void testMapCollectorReversedShouldFail() {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
                 .createQuery("select intValue, name from something")
                 .collectInto(new GenericType<HashMap<String, Integer>>() {}))
@@ -117,7 +117,7 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     @Test
-    public void testMultimapValues_addAnotherDataSet_shouldHave2ValuesForEachKey() {
+    public void testMultimapValuesAddAnotherDataSetShouldHave2ValuesForEachKey() {
         final int offset = 10;
         for (Integer i : expected) {
             dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i + offset) + "asString", i);

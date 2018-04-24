@@ -50,8 +50,8 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testFoo() throws Exception {
-        boolean world_is_right = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
-        assertThat(world_is_right).isTrue();
+        boolean worldIsRight = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
+        assertThat(worldIsRight).isTrue();
     }
 
     public static class Bean {
@@ -106,9 +106,9 @@ public class TestRegisteredMappersWork {
 
         bdb.insertBean(lima);
 
-        Bean another_lima = bdb.findByName("lima");
-        assertThat(another_lima.getName()).isEqualTo(lima.getName());
-        assertThat(another_lima.getColor()).isEqualTo(lima.getColor());
+        Bean anotherLima = bdb.findByName("lima");
+        assertThat(anotherLima.getName()).isEqualTo(lima.getName());
+        assertThat(anotherLima.getColor()).isEqualTo(lima.getColor());
     }
 
     @Test

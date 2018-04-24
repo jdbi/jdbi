@@ -55,7 +55,7 @@ public class TestVavrCollectorFactory {
     }
 
     @Test
-    public void testAcceptCollectionImplementationTypes_shouldSucceed() {
+    public void testAcceptCollectionImplementationTypesShouldSucceed() {
         assertTrue(unit.accepts(new GenericType<Array<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<Vector<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<List<?>>() {}.getType()));
@@ -74,13 +74,13 @@ public class TestVavrCollectorFactory {
     }
 
     @Test
-    public void testAcceptNonVavrCollection_shouldFail() {
+    public void testAcceptNonVavrCollectionShouldFail() {
         assertFalse(unit.accepts(new GenericType<java.util.List<?>>() {}.getType()));
         assertFalse(unit.accepts(new GenericType<java.util.Map<?, ?>>() {}.getType()));
     }
 
     @Test
-    public void testAcceptCollectionSuperTypes_shouldSucceed() {
+    public void testAcceptCollectionSuperTypesShouldSucceed() {
         assertTrue(unit.accepts(new GenericType<Traversable<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<Seq<?>>() {}.getType()));
         assertTrue(unit.accepts(new GenericType<IndexedSeq<?>>() {}.getType()));

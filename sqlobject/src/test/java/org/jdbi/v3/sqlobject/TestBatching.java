@@ -49,8 +49,8 @@ public class TestBatching {
     @Test
     public void testInsertSingleIterable() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
-        List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
-        int[] counts = b.insertBeans(to_insert);
+        List<Something> toInsert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
+        int[] counts = b.insertBeans(toInsert);
 
         assertThat(counts).containsExactly(1, 1);
         assertThat(b.size()).isEqualTo(2);
@@ -59,8 +59,8 @@ public class TestBatching {
     @Test
     public void testInsertSingleIteratorNoTx() throws Exception {
         UsesBatching b = handle.attach(UsesBatching.class);
-        List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
-        int[] counts = b.insertBeansNoTx(to_insert.iterator());
+        List<Something> toInsert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
+        int[] counts = b.insertBeansNoTx(toInsert.iterator());
 
         assertThat(counts).containsExactly(1, 1);
         assertThat(b.size()).isEqualTo(2);
@@ -91,10 +91,10 @@ public class TestBatching {
 
         assertThat(b.size()).isEqualTo(3);
 
-        List<String> ins_names = handle.createQuery("select distinct name from something order by name")
+        List<String> insNames = handle.createQuery("select distinct name from something order by name")
                                        .mapTo(String.class)
                                        .list();
-        assertThat(ins_names).containsExactly("David", "Mike", "Tim");
+        assertThat(insNames).containsExactly("David", "Mike", "Tim");
     }
 
     @Test
@@ -121,26 +121,26 @@ public class TestBatching {
         assertThat(counts).hasSize(5).containsOnly(1);
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 5000)
     public void testNoIterable() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(() -> b.insertBeans(new Something(1, "x"))).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 5000)
     public void testNoParameterAtAll() throws Exception {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(b::insertBeans).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 5000)
     public void testForgotIterableInt() throws Exception {
         handle.execute("CREATE TABLE test (id int)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThatThrownBy(() -> b.invalidInsertInt(1)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout=5000)
+    @Test(timeout = 5000)
     public void testForgotIterableString() throws Exception {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);

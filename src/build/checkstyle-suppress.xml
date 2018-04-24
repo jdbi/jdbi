@@ -17,9 +17,5 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress checks=".*" files="SqlScriptLexer\.java$"/>
-    <suppress checks=".*" files="DefineStatementLexer\.java$"/>
-    <suppress checks=".*" files="ColonStatementLexer\.java$"/>
-    <suppress checks=".*" files="FormatterStatementLexer\.java$"/>
-    <suppress checks=".*" files="HashStatementLexer\.java$"/>
+    <suppress checks="InnerTypeLast|VariableDeclarationUsageDistance|NoFinalizer" files="[A-z]*Test[A-z]*\.java$"/>
 </suppressions>

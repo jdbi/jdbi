@@ -214,6 +214,7 @@
                     <configuration>
                         <configLocation>/src/build/checkstyle.xml</configLocation>
                         <suppressionsLocation>/src/build/checkstyle-suppress.xml</suppressionsLocation>
+                        <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
                     </configuration>
                 </plugin>
                 <plugin>

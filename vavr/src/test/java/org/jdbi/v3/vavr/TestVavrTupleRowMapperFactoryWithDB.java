@@ -45,7 +45,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple1WithNameOnlyUsingColumnMapper_shouldSucceed() throws SQLException {
+    public void testMapTuple1WithNameOnlyUsingColumnMapperShouldSucceed() throws SQLException {
         Tuple1<String> result = dbRule.getSharedHandle()
                 .createQuery("select name from something where id = 1")
                 .mapTo(new GenericType<Tuple1<String>>() {})
@@ -55,7 +55,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple1UsingRegisteredRowMapper_shouldSucceed() throws SQLException {
+    public void testMapTuple1UsingRegisteredRowMapperShouldSucceed() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
 
@@ -68,7 +68,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple2UsingRegisteredRowMappers_shouldSucceed() throws SQLException {
+    public void testMapTuple2UsingRegisteredRowMappersShouldSucceed() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         handle.registerRowMapper(SomethingValues.class,
@@ -85,7 +85,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple2HavingOnlyOneRowMapper_shouldFail() throws SQLException {
+    public void testMapTuple2HavingOnlyOneRowMapperShouldFail() throws SQLException {
         final Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
 
@@ -98,7 +98,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple3WithExtraSpecifiedColumn_shouldSucceed() throws SQLException {
+    public void testMapTuple3WithExtraSpecifiedColumnShouldSucceed() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         handle.configure(TupleMappers.class, c ->
@@ -115,7 +115,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple3WithAllSpecifiedColumns_shouldRespectConfiguration() throws SQLException {
+    public void testMapTuple3WithAllSpecifiedColumnsShouldRespectConfiguration() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.configure(TupleMappers.class, c ->
                 c.setColumn(1, "integerValue")
@@ -133,7 +133,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple3WithoutSpecifiedColumn_shouldFail() throws SQLException {
+    public void testMapTuple3WithoutSpecifiedColumnShouldFail() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
 
@@ -146,7 +146,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple3WithOnlyOneSpecifiedColumn_shouldFail() throws SQLException {
+    public void testMapTuple3WithOnlyOneSpecifiedColumnShouldFail() throws SQLException {
         Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         handle.configure(TupleMappers.class, c ->
@@ -161,7 +161,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple2SelectedColumns_shouldSucceed() throws SQLException {
+    public void testMapTuple2SelectedColumnsShouldSucceed() throws SQLException {
         Tuple2<Integer, String> result = dbRule.getSharedHandle()
                 .createQuery("select intValue, name from something where id = 2")
                 .mapTo(new GenericType<Tuple2<Integer, String>>() {})
@@ -172,7 +172,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     }
 
     @Test
-    public void testMapTuple4AllColumns_shouldSucceed() throws SQLException {
+    public void testMapTuple4AllColumnsShouldSucceed() throws SQLException {
         Tuple4<Integer, String, Integer, Integer> result = dbRule.getSharedHandle()
                 .createQuery("select * from something where id = 2")
                 .mapTo(new GenericType<Tuple4<Integer, String, Integer, Integer>>() {})
@@ -195,12 +195,18 @@ public class TestVavrTupleRowMapperFactoryWithDB {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             SomethingValues that = (SomethingValues) o;
 
-            if (integerValue != that.integerValue) return false;
+            if (integerValue != that.integerValue) {
+                return false;
+            }
             return intValue == that.intValue;
         }
 

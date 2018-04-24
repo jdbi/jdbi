@@ -13,16 +13,12 @@
  */
 package org.jdbi.v3.core.result;
 
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -30,6 +26,9 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestReducing {
     @Rule
@@ -136,7 +135,7 @@ public class TestReducing {
             if (!(other instanceof SomethingWithLocations)) {
                 return false;
             }
-            SomethingWithLocations o = (SomethingWithLocations)other;
+            SomethingWithLocations o = (SomethingWithLocations) other;
             return o.something.equals(something) && o.locations.equals(locations);
         }
 

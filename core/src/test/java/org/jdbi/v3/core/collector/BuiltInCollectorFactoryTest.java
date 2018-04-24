@@ -97,7 +97,7 @@ public class BuiltInCollectorFactoryTest {
         testMapType(new GenericType<WeakHashMap<Long, String>>() {});
     }
 
-    private <M extends Map<Long,String>> void testMapType(GenericType<M> genericType) {
+    private <M extends Map<Long, String>> void testMapType(GenericType<M> genericType) {
         Type containerType = genericType.getType();
         Class<?> erasedType = getErasedType(containerType);
         assertThat(factory.accepts(containerType)).isTrue();

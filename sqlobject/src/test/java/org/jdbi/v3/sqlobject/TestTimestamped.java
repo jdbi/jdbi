@@ -13,13 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TimingCollector;
@@ -34,6 +31,8 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for the {@link Timestamped} annotation
@@ -145,7 +144,7 @@ public class TestTimestamped {
         Person get(@Bind("id") int id);
     }
 
-    public final static class PersonRowMapper implements RowMapper<Person> {
+    public static final class PersonRowMapper implements RowMapper<Person> {
 
         @Override
         public Person map(ResultSet resultSet, StatementContext statementContext) throws SQLException {
@@ -160,7 +159,7 @@ public class TestTimestamped {
     /**
      * Person JavaBean for tests
      */
-    public final static class Person {
+    public static final class Person {
         private int id;
 
         private String firstName;
@@ -218,14 +217,22 @@ public class TestTimestamped {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Person person = (Person) o;
 
-            if (id != person.id) return false;
-            if (!firstName.equals(person.firstName)) return false;
-            return lastName != null ? lastName.equals(person.lastName) : person.lastName== null;
+            if (id != person.id) {
+                return false;
+            }
+            if (!firstName.equals(person.firstName)) {
+                return false;
+            }
+            return lastName != null ? lastName.equals(person.lastName) : person.lastName == null;
         }
 
         @Override

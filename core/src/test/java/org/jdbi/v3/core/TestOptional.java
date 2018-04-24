@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Objects;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -218,6 +219,11 @@ public class TestOptional {
 
         Name(String value) {
             this.value = value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
 
         @Override

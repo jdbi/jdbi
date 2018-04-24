@@ -43,7 +43,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMapped_shouldSucceed() throws SQLException {
+    public void testOptionMappedShouldSucceed() throws SQLException {
         final Set<Option<String>> result = dbRule.getSharedHandle()
                 .createQuery("select name from something")
                 .collectInto(new GenericType<Set<Option<String>>>() {});
@@ -53,7 +53,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithoutGenericParameter_shouldFail() throws SQLException {
+    public void testOptionMappedWithoutGenericParameterShouldFail() throws SQLException {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select name from something")
@@ -63,7 +63,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithoutNestedMapper_shouldFail() throws SQLException {
+    public void testOptionMappedWithoutNestedMapperShouldFail() throws SQLException {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
                 .createQuery("select id, name from something")
                 .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
@@ -72,7 +72,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithinObjectIfPresent_shouldContainValue() throws SQLException {
+    public void testOptionMappedWithinObjectIfPresentShouldContainValue() throws SQLException {
         final SomethingWithOption result = dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 1")
@@ -84,7 +84,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionWithinObjectIfMissing_shouldBeNone() throws SQLException {
+    public void testOptionWithinObjectIfMissingShouldBeNone() throws SQLException {
         final SomethingWithOption result = dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 2")
@@ -110,8 +110,12 @@ public class TestVavrOptionMapperWithDB {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             SomethingWithOption that = (SomethingWithOption) o;
             return id == that.id &&
                     Objects.equals(name, that.name);

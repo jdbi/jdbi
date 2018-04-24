@@ -123,8 +123,8 @@ public class TestModifiers {
 
                 spiffy.rollback();
 
-                Something not_tom = iso.findById(1);
-                assertThat(not_tom).isNull();
+                Something notTom = iso.findById(1);
+                assertThat(notTom).isNull();
             });
         });
     }

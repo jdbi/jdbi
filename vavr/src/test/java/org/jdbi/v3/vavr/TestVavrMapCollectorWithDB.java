@@ -61,7 +61,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
-    public void testMapCollectorWithGlobalKeyValue_shouldSucceed() {
+    public void testMapCollectorWithGlobalKeyValueShouldSucceed() {
         Jdbi jdbiWithKeyColAndValCol = dbRule.getJdbi()
                 .setMapKeyColumn("key_c")
                 .setMapValueColumn("val_c");
@@ -77,7 +77,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
-    public void testMapCollectorWithTupleConfig_shouldSucceed() {
+    public void testMapCollectorWithTupleConfigShouldSucceed() {
         HashMap<String, String> valueMap = dbRule.getSharedHandle()
                 .configure(TupleMappers.class, c -> c.setKeyColumn("key_c").setValueColumn("val_c"))
                 .createQuery("select val_c, key_c from keyval")
@@ -87,7 +87,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
-    public void testMapCollectorWithCorrespondingTupleCols_shouldSucceed() {
+    public void testMapCollectorWithCorrespondingTupleColsShouldSucceed() {
         HashMap<String, String> valueMap = dbRule.getSharedHandle()
                 .configure(TupleMappers.class, c -> c.setColumn(1, "key_c").setColumn(2, "val_c"))
                 .createQuery("select val_c, key_c from keyval")
@@ -97,7 +97,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
-    public void testSingleInstanceAssignmentWithSelectedKeyValue_shouldSucceed() {
+    public void testSingleInstanceAssignmentWithSelectedKeyValueShouldSucceed() {
         Handle handle = dbRule.getSharedHandle().configure(MapEntryMappers.class, c -> c.setKeyColumn("key_c").setValueColumn("val_c"));
         Optional<Tuple2<String, String>> valueMap = handle.createQuery("select val_c, key_c from keyval")
                 .mapTo(new GenericType<Tuple2<String, String>>() {})
@@ -134,7 +134,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
-    public void testNonUniqueIndex_withMultimap() {
+    public void testNonUniqueIndexWithMultimap() {
         Handle h = dbRule.getSharedHandle();
         h.execute("create table user (id int, name varchar)");
         h.prepareBatch("insert into user (id, name) values (?, ?)")
@@ -168,8 +168,12 @@ public class TestVavrMapCollectorWithDB {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             User user = (User) o;
             return id == user.id &&
                     Objects.equals(name, user.name);

@@ -199,8 +199,12 @@ public class TestReturningMap {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             User user = (User) o;
             return id == user.id &&
                     Objects.equals(name, user.name);
@@ -239,8 +243,12 @@ public class TestReturningMap {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Phone phone1 = (Phone) o;
             return id == phone1.id &&
                     Objects.equals(phone, phone1.phone);

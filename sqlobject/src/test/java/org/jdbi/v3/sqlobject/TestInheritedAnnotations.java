@@ -133,8 +133,12 @@ public class TestInheritedAnnotations {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+          return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+          return false;
+      }
       Character character = (Character) o;
       return id == character.id &&
           Objects.equals(name, character.name) &&

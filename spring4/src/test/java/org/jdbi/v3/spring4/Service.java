@@ -24,6 +24,6 @@ public interface Service {
 
     void inNested(Callback c);
 
-    @Transactional(propagation= Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     void inRequiresNewReadUncommitted(Callback c);
 }

@@ -13,20 +13,18 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.ParsedSql;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
     @Rule
@@ -51,7 +49,9 @@ public class TestTimingCollector {
 
     @After
     public void doTearDown() throws Exception {
-        if (h != null) h.close();
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test

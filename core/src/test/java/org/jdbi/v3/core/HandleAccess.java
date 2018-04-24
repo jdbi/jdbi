@@ -23,6 +23,7 @@ import org.mockito.Mockito;
  * Utilities for testing jdbi internal classes.
  */
 public class HandleAccess {
+    private HandleAccess() {}
     /**
      * Create a handle with a fake connection,
      * useful for tests that do not actually hit

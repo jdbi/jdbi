@@ -65,7 +65,6 @@ public class TestUseCustomHandlerFactory {
             }
         };
 
-
         db.configure(Handlers.class, c -> c.register(defaultHandlerFactory));
         handle = db.open();
     }
@@ -77,7 +76,6 @@ public class TestUseCustomHandlerFactory {
         assertThat(s.getName()).isEqualTo("Joy");
     }
 
-
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -88,13 +86,6 @@ public class TestUseCustomHandlerFactory {
 
         @Transaction
         Something insertAndFind(Something s);
-
-        class DefaultImpls {
-            public static Something insertAndFind(SomethingDao dao, Something s) {
-                dao.insert(s);
-                return dao.findById(s.getId());
-            }
-        }
     }
 
 }

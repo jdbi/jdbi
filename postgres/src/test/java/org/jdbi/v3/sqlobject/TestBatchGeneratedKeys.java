@@ -13,24 +13,23 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.postgres.PostgresPlugin;
-import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 // This test arguably should be in jdbi-sqlobject but it needs Postgres
 // features to test generated keys
@@ -76,7 +75,7 @@ public class TestBatchGeneratedKeys {
     }
 
     private String nameByIndex(int i) {
-        return String.valueOf((char)('a' + i));
+        return String.valueOf((char) ('a' + i));
     }
 
     @BatchChunkSize(2)
