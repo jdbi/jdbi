@@ -158,13 +158,7 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
-        final STGroup cached = CACHE.get(path);
-        if (cached != null) {
-            return cached;
-        }
-        synchronized (SYNC_OBJECT) {
-            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path, null));
-        }
+        return findStringTemplateGroup(classLoader, path, null);
     }
 
     /**
