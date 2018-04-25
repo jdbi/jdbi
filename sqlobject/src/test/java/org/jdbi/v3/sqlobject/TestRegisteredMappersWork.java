@@ -89,7 +89,8 @@ public class TestRegisteredMappersWork {
         default Optional<Bean> findByNameDefaultMethod(String name) {
             return getHandle().createQuery("select name, color from beans where name = :name")
                     .bind("name", name)
-                    .mapTo(Bean.class) // uses annotation-registered mapper
+                // uses annotation-registered mapper
+                    .mapTo(Bean.class)
                     .findFirst();
         }
     }

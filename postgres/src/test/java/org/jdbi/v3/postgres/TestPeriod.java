@@ -94,7 +94,8 @@ public class TestPeriod {
     @Test
     public void testInvalidPeriod() {
         assertThatThrownBy(() -> handle.createQuery("select foo from intervals where id=?")
-            .bind(0, 3) // The bad one.
+            // The bad one.
+            .bind(0, 3)
             .mapTo(Period.class)
             .findOnly()).isInstanceOf(IllegalArgumentException.class);
     }

@@ -92,7 +92,8 @@ public class TestJdbiFactoryBean {
     @Test
     public void testGlobalDefinedAttribute() throws Exception {
         assertThat(jdbi.getConfig(SqlStatements.class).getAttribute("foo"))
-                .isEqualTo("bar"); // see test-context.xml
+                // see test-context.xml
+                .isEqualTo("bar");
     }
 
     @Test

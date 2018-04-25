@@ -63,7 +63,8 @@ public class IterableLikeTest {
 
     @Test
     public void testOtherClassToIterator() {
-        assertThatThrownBy(() -> IterableLike.of("bla")).isInstanceOf(IllegalArgumentException.class); // or any other kind of object that isn't a java.lang.Object
+        // or any other kind of object that isn't a java.lang.Object
+        assertThatThrownBy(() -> IterableLike.of("bla")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

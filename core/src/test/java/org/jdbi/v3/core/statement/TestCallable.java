@@ -75,7 +75,8 @@ public class TestCallable {
     }
 
     @Test
-    @Ignore // TODO(scs): how do we test out parameters with h2?
+    // TODO(scs): how do we test out parameters with h2?
+    @Ignore
     public void testWithNullReturn() throws Exception {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
                 .bind(0, (String) null)
@@ -87,7 +88,8 @@ public class TestCallable {
     }
 
     @Test
-    @Ignore // TODO(scs): how do we test out parameters with h2?
+    // TODO(scs): how do we test out parameters with h2?
+    @Ignore
     public void testWithNullReturnWithNamedParam() throws Exception {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
                 .bind("x", (String) null)
@@ -100,7 +102,5 @@ public class TestCallable {
 
     // used by the db in this test
     @SuppressWarnings("unused")
-    public static void testProcedure(String in, String[] out) {
-        // TODO do something
-    }
+    public static void testProcedure(String in, String[] out) {}
 }

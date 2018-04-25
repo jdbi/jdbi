@@ -296,7 +296,8 @@ public class FieldMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
 
-        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+        // three, sir!
+        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)");
 
         assertThat(handle
             .createQuery("select id nested_id, name nested_name, integerValue from something")

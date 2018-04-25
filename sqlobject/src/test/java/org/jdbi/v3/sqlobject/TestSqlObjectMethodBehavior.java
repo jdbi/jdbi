@@ -63,7 +63,8 @@ public class TestSqlObjectMethodBehavior {
      */
     @Test
     public void testFinalizeDoesntConnect() throws Exception {
-        dao.finalize(); // Normally GC would do this, but just fake it
+        // Normally GC would do this, but just fake it
+        dao.finalize();
     }
 
     @Test
