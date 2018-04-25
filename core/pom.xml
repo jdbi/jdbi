@@ -33,7 +33,7 @@
     <url>http://jdbi.org/</url>
 
     <properties>
-      <basepom.check.phase-license>validate</basepom.check.phase-license>
+        <basepom.check.phase-license>validate</basepom.check.phase-license>
     </properties>
 
     <licenses>

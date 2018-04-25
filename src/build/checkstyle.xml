@@ -104,5 +104,10 @@
             <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing whitespace."/>
         </module>
+
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="^ {6}\S"/>
+            <property name="message" value="Indent of 6 spaces is suspicious. We indent with multiples of 4."/>
+        </module>
     </module>
 </module>

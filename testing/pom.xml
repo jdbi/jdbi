@@ -23,9 +23,7 @@
 
     <artifactId>jdbi3-testing</artifactId>
     <name>jdbi3 Test Helpers</name>
-    <description>
-      Utilities for testing Jdbi
-    </description>
+    <description>Utilities for testing Jdbi</description>
 
     <licenses>
         <license>

@@ -17,47 +17,49 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 class OptionalBuilder<T, O> {
-  private final Supplier<O> empty;
-  private final Function<T, O> factory;
+    private final Supplier<O> empty;
+    private final Function<T, O> factory;
 
-  boolean set;
-  T value;
+    boolean set;
+    T value;
 
-  OptionalBuilder(Supplier<O> empty, Function<T, O> factory) {
-    this.empty = empty;
-    this.factory = factory;
-  }
-
-  void set(T value) {
-    if (set) {
-      throw tooManyValues(this.value, value);
+    OptionalBuilder(Supplier<O> empty, Function<T, O> factory) {
+        this.empty = empty;
+        this.factory = factory;
     }
 
-    this.value = value;
-    this.set = true;
-  }
+    void set(T value) {
+        if (set) {
+            throw tooManyValues(this.value, value);
+        }
 
-  O build() {
-    return value == null ? empty.get() : factory.apply(value);
-  }
-
-  static <T, OPT_T> OptionalBuilder<T, OPT_T> combine(OptionalBuilder<T, OPT_T> left,
-                                                      OptionalBuilder<T, OPT_T> right) {
-    if (left.set && right.set) {
-      throw tooManyValues(left.value, right.value);
+        this.value = value;
+        this.set = true;
     }
 
-    return left.set ? left : right;
-  }
+    O build() {
+        return value == null ? empty.get() : factory.apply(value);
+    }
 
-  private static <T> IllegalStateException tooManyValues(T first, T second) {
-    return new IllegalStateException(
-        String.format("Multiple values for optional: [%s, %s, ...]",
-            stringify(first),
-            stringify(second)));
-  }
+    static <T, OPT_T> OptionalBuilder<T, OPT_T> combine(
+        OptionalBuilder<T, OPT_T> left,
+        OptionalBuilder<T, OPT_T> right
+    ) {
+        if (left.set && right.set) {
+            throw tooManyValues(left.value, right.value);
+        }
 
-  private static String stringify(Object value) {
-    return value == null ? null : "'" + value + "'";
-  }
+        return left.set ? left : right;
+    }
+
+    private static <T> IllegalStateException tooManyValues(T first, T second) {
+        return new IllegalStateException(
+            String.format("Multiple values for optional: [%s, %s, ...]",
+                stringify(first),
+                stringify(second)));
+    }
+
+    private static String stringify(Object value) {
+        return value == null ? null : "'" + value + "'";
+    }
 }
