@@ -113,7 +113,7 @@ public class TestTransactional {
     private class TxnIsolationCheckingInvocationHandler implements InvocationHandler {
         private final Connection real;
 
-        public TxnIsolationCheckingInvocationHandler(Connection real) {
+        TxnIsolationCheckingInvocationHandler(Connection real) {
             this.real = real;
         }
 

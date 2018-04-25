@@ -55,7 +55,7 @@ public class ArgumentsTest {
     static class UUIDArgument implements Argument {
         private UUID uuid;
 
-        public UUIDArgument(UUID uuid) {
+        UUIDArgument(UUID uuid) {
             this.uuid = uuid;
         }
 
@@ -79,7 +79,7 @@ public class ArgumentsTest {
 
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
-        public UUIDArgumentFactory() {
+        UUIDArgumentFactory() {
             // <1>
             super(Types.VARCHAR);
         }

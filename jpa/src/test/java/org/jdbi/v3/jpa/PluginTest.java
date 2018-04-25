@@ -34,9 +34,9 @@ public class PluginTest {
         private int id;
         private String name;
 
-        public Thing() {}
+        Thing() {}
 
-        public Thing(int id, String name) {
+        Thing(int id, String name) {
             setId(id);
             setName(name);
         }

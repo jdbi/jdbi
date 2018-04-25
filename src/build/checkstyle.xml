@@ -53,7 +53,7 @@
             <property name="allowEmptyTypes" value="true"/>
         </module>
         <module name="ModifierOrder"/>
-        <!--<module name="RedundantModifier"/>-->
+        <module name="RedundantModifier"/>
         <module name="EmptyCatchBlock"/>
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>

@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Date;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiPreparer;
 import org.jdbi.v3.core.Something;
@@ -26,6 +23,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPreparedBatchGenerateKeysPostgres {
 
@@ -84,7 +83,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
         final Integer id;
         final Date createTime;
 
-        public IdCreateTime(Integer id, Date createTime) {
+        IdCreateTime(Integer id, Date createTime) {
             this.id = id;
             this.createTime = createTime;
         }

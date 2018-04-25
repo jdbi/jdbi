@@ -36,10 +36,10 @@ public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
     private static final String SELECT_BY_PROPERTY_NAME = "select id, name from something";
 
-    public static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
-    public static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
-    public static final String ID_ANNOTATION_NAME = "foo";
-    public static final String NAME_ANNOTATION_NAME = "bar";
+    private static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
+    private static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
+    private static final String ID_ANNOTATION_NAME = "foo";
+    private static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -55,9 +55,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public EntityThing() {}
+        EntityThing() {}
 
-        public EntityThing(int id, String name) {
+        EntityThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -109,9 +109,9 @@ public class JpaTest {
         @Column
         private String name;
 
-        public FieldThing() {}
+        FieldThing() {}
 
-        public FieldThing(int id, String name) {
+        FieldThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -162,9 +162,9 @@ public class JpaTest {
         @Column(name = "bar")
         private String name;
 
-        public NamedFieldThing() {}
+        NamedFieldThing() {}
 
-        public NamedFieldThing(int id, String name) {
+        NamedFieldThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -214,9 +214,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public GetterThing() {}
+        GetterThing() {}
 
-        public GetterThing(int id, String name) {
+        GetterThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -268,9 +268,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedGetterThing() {}
+        NamedGetterThing() {}
 
-        public NamedGetterThing(int id, String name) {
+        NamedGetterThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -322,9 +322,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public SetterThing() {}
+        SetterThing() {}
 
-        public SetterThing(int id, String name) {
+        SetterThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -376,9 +376,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedSetterThing() {}
+        NamedSetterThing() {}
 
-        public NamedSetterThing(int id, String name) {
+        NamedSetterThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -439,9 +439,9 @@ public class JpaTest {
 
     @Entity
     static class ExtendsMappedSuperclassThing extends MappedSuperclassThing implements Thing {
-        public ExtendsMappedSuperclassThing() {}
+        ExtendsMappedSuperclassThing() {}
 
-        public ExtendsMappedSuperclassThing(int id, String name) {
+        ExtendsMappedSuperclassThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -485,9 +485,9 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public AnnotationPriorityThing() {}
+        AnnotationPriorityThing() {}
 
-        public AnnotationPriorityThing(int id, String name) {
+        AnnotationPriorityThing(int id, String name) {
             setId(id);
             setName(name);
         }
@@ -606,9 +606,9 @@ public class JpaTest {
 
     @Entity
     static class OverridingSubclassThing extends OverriddenSuperclassThing {
-        public OverridingSubclassThing() {}
+        OverridingSubclassThing() {}
 
-        public OverridingSubclassThing(int id, String name) {
+        OverridingSubclassThing(int id, String name) {
             setId(id);
             setName(name);
         }

@@ -37,7 +37,7 @@ public class TestGetGeneratedKeys {
 
         @SqlUpdate("insert into something (name) values (:it)")
         @GetGeneratedKeys
-        public String generatedKeyReturnType(@Bind String name);
+        String generatedKeyReturnType(@Bind String name);
     }
 
     @Test

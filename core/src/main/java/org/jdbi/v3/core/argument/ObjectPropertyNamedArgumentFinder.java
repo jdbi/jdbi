@@ -35,7 +35,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object bind on
      */
-    public ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
+    ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
         this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
         this.object = object;
     }
@@ -78,7 +78,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
         public final Type type;
         public final Object value;
 
-        public TypedValue(Type type, Object value) {
+        TypedValue(Type type, Object value) {
             this.type = type;
             this.value = value;
         }
