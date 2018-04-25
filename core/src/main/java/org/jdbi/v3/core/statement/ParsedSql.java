@@ -55,8 +55,8 @@ public class ParsedSql {
             return false;
         }
         ParsedSql that = (ParsedSql) o;
-        return Objects.equals(sql, that.sql) &&
-                Objects.equals(parameters, that.parameters);
+        return Objects.equals(sql, that.sql)
+            && Objects.equals(parameters, that.parameters);
     }
 
     @Override
@@ -66,10 +66,10 @@ public class ParsedSql {
 
     @Override
     public String toString() {
-        return "ParsedSql{" +
-                "sql='" + sql + '\'' +
-                ", parameters=" + parameters +
-                '}';
+        return "ParsedSql{"
+            + "sql='" + sql + '\''
+            + ", parameters=" + parameters
+            + '}';
     }
 
     /**

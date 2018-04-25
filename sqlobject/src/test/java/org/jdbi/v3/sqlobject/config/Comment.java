@@ -57,8 +57,8 @@ public class Comment {
             return false;
         }
         Comment comment = (Comment) o;
-        return id == comment.id &&
-                Objects.equals(content, comment.content);
+        return id == comment.id
+                && Objects.equals(content, comment.content);
     }
 
     @Override
@@ -68,9 +68,9 @@ public class Comment {
 
     @Override
     public String toString() {
-        return "Comment{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                '}';
+        return "Comment{"
+                + "id=" + id
+                + ", content='" + content + '\''
+                + '}';
     }
 }

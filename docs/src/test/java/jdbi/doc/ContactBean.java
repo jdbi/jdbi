@@ -51,8 +51,8 @@ public class ContactBean {
             return false;
         }
         ContactBean that = (ContactBean) o;
-        return id == that.id &&
-                Objects.equals(name, that.name);
+        return id == that.id
+                && Objects.equals(name, that.name);
     }
 
     @Override
@@ -62,9 +62,9 @@ public class ContactBean {
 
     @Override
     public String toString() {
-        return "ContactBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return "ContactBean{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
     }
 }

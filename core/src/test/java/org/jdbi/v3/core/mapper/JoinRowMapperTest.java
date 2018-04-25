@@ -35,18 +35,18 @@ public class JoinRowMapperTest {
     @Before
     public void setUp() {
         h = dbRule.getSharedHandle();
-        h.execute("CREATE TABLE user (" +
-                    "uid INTEGER NOT NULL," +
-                    "name VARCHAR NOT NULL" +
-                  ")");
-        h.execute("CREATE TABLE article (" +
-                    "aid INTEGER NOT NULL," +
-                    "title VARCHAR NOT NULL" +
-                  ")");
-        h.execute("CREATE TABLE author (" +
-                    "uid INTEGER NOT NULL," +
-                    "aid INTEGER NOT NULL" +
-                  ")");
+        h.execute("CREATE TABLE user ("
+            + "uid INTEGER NOT NULL,"
+            + "name VARCHAR NOT NULL"
+            + ")");
+        h.execute("CREATE TABLE article ("
+            + "aid INTEGER NOT NULL,"
+            + "title VARCHAR NOT NULL"
+            + ")");
+        h.execute("CREATE TABLE author ("
+            + "uid INTEGER NOT NULL,"
+            + "aid INTEGER NOT NULL"
+            + ")");
 
         IntStream.rangeClosed(1, 3).forEach(u ->
             h.execute("INSERT INTO user (uid, name) VALUES (?, ?)", u, "u" + u));

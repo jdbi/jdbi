@@ -35,9 +35,9 @@ public class IterableLike {
      * @return whether {@code IterableLike} can iterate over the given object
      */
     public static boolean isIterable(Object maybeIterable) {
-        return  maybeIterable instanceof Iterator<?> ||
-                maybeIterable instanceof Iterable<?> ||
-                maybeIterable.getClass().isArray();
+        return  maybeIterable instanceof Iterator<?>
+            || maybeIterable instanceof Iterable<?>
+            || maybeIterable.getClass().isArray();
     }
 
     /**

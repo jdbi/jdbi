@@ -117,8 +117,8 @@ public class TestVavrOptionMapperWithDB {
                 return false;
             }
             SomethingWithOption that = (SomethingWithOption) o;
-            return id == that.id &&
-                    Objects.equals(name, that.name);
+            return id == that.id
+                    && Objects.equals(name, that.name);
         }
 
         @Override

@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
 import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import org.jdbi.v3.core.Handle;
@@ -26,6 +23,9 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestGuavaCollectors {
 
@@ -92,8 +92,8 @@ public class TestGuavaCollectors {
                 return false;
             }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                && Objects.equals(name, user.name);
         }
 
         @Override
@@ -103,10 +103,10 @@ public class TestGuavaCollectors {
 
         @Override
         public String toString() {
-            return "User{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    '}';
+            return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 }

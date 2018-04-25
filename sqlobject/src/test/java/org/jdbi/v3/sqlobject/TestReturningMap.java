@@ -163,16 +163,16 @@ public class TestReturningMap {
         void insertPhone(int userId, @BindBean Phone... phones);
 
         // tag::joinRow[]
-        @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
-                "from user u left join phone p on u.id = p.user_id")
+        @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
+            + "from user u left join phone p on u.id = p.user_id")
         @RegisterConstructorMapper(value = User.class, prefix = "u")
         @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Map<User, Phone> getMap();
         // end::joinRow[]
 
         // tag::joinRowMultimap[]
-        @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
-                "from user u left join phone p on u.id = p.user_id")
+        @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
+            + "from user u left join phone p on u.id = p.user_id")
         @RegisterConstructorMapper(value = User.class, prefix = "u")
         @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Multimap<User, Phone> getMultimap();
@@ -206,8 +206,8 @@ public class TestReturningMap {
                 return false;
             }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                && Objects.equals(name, user.name);
         }
 
         @Override
@@ -217,10 +217,10 @@ public class TestReturningMap {
 
         @Override
         public String toString() {
-            return "User{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    '}';
+            return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -250,8 +250,8 @@ public class TestReturningMap {
                 return false;
             }
             Phone phone1 = (Phone) o;
-            return id == phone1.id &&
-                    Objects.equals(phone, phone1.phone);
+            return id == phone1.id
+                && Objects.equals(phone, phone1.phone);
         }
 
         @Override
@@ -261,10 +261,10 @@ public class TestReturningMap {
 
         @Override
         public String toString() {
-            return "Phone{" +
-                    "id=" + id +
-                    ", phone='" + phone + '\'' +
-                    '}';
+            return "Phone{"
+                + "id=" + id
+                + ", phone='" + phone + '\''
+                + '}';
         }
     }
 }

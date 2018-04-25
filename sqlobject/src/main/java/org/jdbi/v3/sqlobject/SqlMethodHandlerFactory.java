@@ -44,8 +44,8 @@ class SqlMethodHandlerFactory implements HandlerFactory {
 
         if (method.isDefault() && !method.isSynthetic()) {
             throw new IllegalStateException(String.format(
-                    "Default method %s.%s has @%s annotation. " +
-                            "SQL object methods may be default, or have a SQL method annotation, but not both.",
+                    "Default method %s.%s has @%s annotation. "
+                            + "SQL object methods may be default, or have a SQL method annotation, but not both.",
                     sqlObjectType.getSimpleName(),
                     method.getName(),
                     sqlMethodAnnotations.get(0).getSimpleName()));
@@ -83,8 +83,8 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         } catch (InvocationTargetException e) {
             throw toUnchecked(e.getCause());
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. " +
-                    "Expected a constructor with parameters (Class, Method), (Method), or ().", e);
+            throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. "
+                    + "Expected a constructor with parameters (Class, Method), (Method), or ().", e);
         }
     }
 

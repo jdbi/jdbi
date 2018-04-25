@@ -73,10 +73,10 @@ class DefaultMethodHandler implements Handler {
                     constructor.setAccessible(true);
                 }
                 return constructor.newInstance(type,
-                        MethodHandles.Lookup.PUBLIC |
-                        MethodHandles.Lookup.PRIVATE |
-                        MethodHandles.Lookup.PROTECTED |
-                        MethodHandles.Lookup.PACKAGE);
+                        MethodHandles.Lookup.PUBLIC
+                            | MethodHandles.Lookup.PRIVATE
+                            | MethodHandles.Lookup.PROTECTED
+                            | MethodHandles.Lookup.PACKAGE);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }

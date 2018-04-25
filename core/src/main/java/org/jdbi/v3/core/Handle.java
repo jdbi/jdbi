@@ -133,11 +133,11 @@ public class Handle implements Closeable, Configurable<Handle> {
                 try {
                     connection.close();
                     if (wasInTransaction) {
-                        throw new TransactionException("Improper transaction handling detected: A Handle with an open " +
-                                "transaction was closed. Transactions must be explicitly committed or rolled back " +
-                                "before closing the Handle. " +
-                                "Jdbi has rolled back this transaction automatically. " +
-                                "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
+                        throw new TransactionException("Improper transaction handling detected: A Handle with an open "
+                            + "transaction was closed. Transactions must be explicitly committed or rolled back "
+                            + "before closing the Handle. "
+                            + "Jdbi has rolled back this transaction automatically. "
+                            + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
                     }
                 } catch (SQLException e) {
                     throw new CloseException("Unable to close Connection", e);

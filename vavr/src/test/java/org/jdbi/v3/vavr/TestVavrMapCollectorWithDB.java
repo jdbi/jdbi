@@ -49,11 +49,11 @@ public class TestVavrMapCollectorWithDB {
 
     @Before
     public void addData() {
-        dbRule.getSharedHandle().execute("create table keyval (" +
-                "idx int, " +
-                "val_c varchar(10), " +
-                "key_c varchar(10)" +
-                ")");
+        dbRule.getSharedHandle().execute("create table keyval ("
+                + "idx int, "
+                + "val_c varchar(10), "
+                + "key_c varchar(10)"
+                + ")");
 
         for (Integer i : expected) {
             dbRule.getSharedHandle().execute("insert into keyval(idx, val_c, key_c) values (?, ?, ?)", i, VAL_PREFIX + Integer.toString(i + 1), KEY_PREFIX + Integer.toString(i));
@@ -175,8 +175,8 @@ public class TestVavrMapCollectorWithDB {
                 return false;
             }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                    && Objects.equals(name, user.name);
         }
 
         @Override
@@ -186,10 +186,10 @@ public class TestVavrMapCollectorWithDB {
 
         @Override
         public String toString() {
-            return "User{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    '}';
+            return "User{"
+                    + "id=" + id
+                    + ", name='" + name + '\''
+                    + '}';
         }
     }
 }

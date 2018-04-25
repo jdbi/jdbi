@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVavrValueArgumentFactoryWithDB {
 
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+            + "where :name is null or name = :name "
+            + "order by id";
 
     private static final Something ERICSOMETHING = new Something(1, "eric");
     private static final Something BRIANSOMETHING = new Something(2, "brian");

@@ -52,8 +52,8 @@ public class LongValue implements Serializable {
 
     @Override
     public String toString() {
-        return "LongValue{" +
-                "value=" + value +
-                '}';
+        return "LongValue{"
+                + "value=" + value
+                + '}';
     }
 }

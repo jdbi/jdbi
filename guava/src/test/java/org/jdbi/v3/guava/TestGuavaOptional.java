@@ -32,9 +32,9 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGuavaOptional {
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+        + "where :name is null or name = :name "
+        + "order by id";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();

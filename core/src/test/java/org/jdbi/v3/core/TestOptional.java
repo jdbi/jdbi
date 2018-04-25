@@ -35,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+        + "where :name is null or name = :name "
+        + "order by id";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();

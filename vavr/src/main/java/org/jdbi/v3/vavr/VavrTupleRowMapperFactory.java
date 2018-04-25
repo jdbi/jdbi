@@ -67,9 +67,9 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
             boolean anyColumnSet = withConfiguredColumnName.map(t -> t._3).exists(Option::isDefined);
             if (anyColumnSet) {
                 Array<Optional<RowMapper<?>>> mappers = withConfiguredColumnName
-                        .map(t -> t._3.isDefined() ?
-                                getColumnMapperForDefinedColumn(t._1, t._3.get(), config) :
-                                getRowMapper(t._1, config));
+                        .map(t -> t._3.isDefined()
+                            ? getColumnMapperForDefinedColumn(t._1, t._3.get(), config)
+                            : getRowMapper(t._1, config));
 
                 boolean mappableWithConfigured = mappers.forAll(Optional::isPresent);
                 if (mappableWithConfigured) {
@@ -78,11 +78,11 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
 
                 Array<String> configuredColumns = withConfiguredColumnName
                         .map(t -> t._2 + ": " + t._3.getOrNull());
-                throw new NoSuchMapperException(type + " cannot be mapped. " +
-                        "If tuple columns are configured (TupleMappers config class), " +
-                        "each tuple entry must be mappable via " +
-                        "specified column name or existing RowMapper. " +
-                        "Currently configured: " + configuredColumns.mkString(", "));
+                throw new NoSuchMapperException(type + " cannot be mapped. "
+                        + "If tuple columns are configured (TupleMappers config class), "
+                        + "each tuple entry must be mappable via "
+                        + "specified column name or existing RowMapper. "
+                        + "Currently configured: " + configuredColumns.mkString(", "));
             } else {
                 Array<Optional<RowMapper<?>>> colMappers = tupleTypes
                         .map(t -> getColumnMapper(t._1, t._2, config));
@@ -100,10 +100,10 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
                     return buildMapper(tupleClass, rowMappers);
                 }
 
-                throw new NoSuchMapperException(type + " cannot be mapped. " +
-                        "All tuple elements must be mappable by ColumnMapper or all by RowMapper. " +
-                        "If you want to mix column- and rowmapped entries, you must configure " +
-                        "columns via TupleMappers config class");
+                throw new NoSuchMapperException(type + " cannot be mapped. "
+                        + "All tuple elements must be mappable by ColumnMapper or all by RowMapper. "
+                        + "If you want to mix column- and rowmapped entries, you must configure "
+                        + "columns via TupleMappers config class");
             }
         }
 

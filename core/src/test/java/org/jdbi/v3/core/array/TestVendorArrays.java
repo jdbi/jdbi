@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.core.array;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVendorArrays {
 
@@ -34,10 +33,10 @@ public class TestVendorArrays {
         init(db);
 
         try (Handle handle = db.open()) {
-            handle.execute("create table player_stats (" +
-                    "name varchar(64) primary key, " +
-                    "seasons varchar(36) array, " +
-                    "points int array)");
+            handle.execute("create table player_stats ("
+                + "name varchar(64) primary key, "
+                + "seasons varchar(36) array, "
+                + "points int array)");
             handle.createUpdate("insert into player_stats (name,seasons,points) values (?,?,?)")
                     .bind(0, "Jack Johnson")
                     .bind(1, new String[]{"2013-2014", "2014-2015", "2015-2016"})

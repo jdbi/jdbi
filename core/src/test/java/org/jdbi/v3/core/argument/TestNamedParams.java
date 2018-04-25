@@ -50,9 +50,9 @@ public class TestNamedParams {
         h.execute("insert into something (id, name) values (?, ?)", 2, "Eric");
         h.execute("insert into something (id, name) values (?, ?)", 3, "Erin");
 
-        List<Something> r = h.createQuery("select id, name from something " +
-                                          "where name like :name " +
-                                          "order by id")
+        List<Something> r = h.createQuery("select id, name from something "
+            + "where name like :name "
+            + "order by id")
                 .bind("name", "Eri%")
                 .mapToBean(Something.class)
                 .list();

@@ -89,11 +89,11 @@ public class Something {
 
     @Override
     public String toString() {
-        return "Something{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", integerValue=" + integerValue +
-                ", intValue=" + intValue +
-                '}';
+        return "Something{"
+            + "id=" + id
+            + ", name='" + name + '\''
+            + ", integerValue=" + integerValue
+            + ", intValue=" + intValue
+            + '}';
     }
 }

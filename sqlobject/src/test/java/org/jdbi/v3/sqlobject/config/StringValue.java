@@ -51,8 +51,8 @@ public class StringValue implements Serializable {
 
     @Override
     public String toString() {
-        return "StringValue{" +
-                "value='" + value + '\'' +
-                '}';
+        return "StringValue{"
+                + "value='" + value + '\''
+                + '}';
     }
 }

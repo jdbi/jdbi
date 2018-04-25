@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.assertj.guava.api.Assertions.assertThat;
-
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Objects;
@@ -25,6 +23,8 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class MultimapEntryMapperTest {
     @Rule
@@ -100,8 +100,8 @@ public class MultimapEntryMapperTest {
                 .execute();
 
         // tag::joinRow[]
-        String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
-                "from user u left join phone p on u.id = p.user_id";
+        String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
+            + "from user u left join phone p on u.id = p.user_id";
         Multimap<User, Phone> map = h.createQuery(sql)
                 .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
                 .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
@@ -133,8 +133,8 @@ public class MultimapEntryMapperTest {
                 return false;
             }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                && Objects.equals(name, user.name);
         }
 
         @Override
@@ -144,10 +144,10 @@ public class MultimapEntryMapperTest {
 
         @Override
         public String toString() {
-            return "User{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    '}';
+            return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -169,8 +169,8 @@ public class MultimapEntryMapperTest {
                 return false;
             }
             Phone phone1 = (Phone) o;
-            return id == phone1.id &&
-                    Objects.equals(phone, phone1.phone);
+            return id == phone1.id
+                && Objects.equals(phone, phone1.phone);
         }
 
         @Override
@@ -180,10 +180,10 @@ public class MultimapEntryMapperTest {
 
         @Override
         public String toString() {
-            return "Phone{" +
-                    "id=" + id +
-                    ", phone='" + phone + '\'' +
-                    '}';
+            return "Phone{"
+                + "id=" + id
+                + ", phone='" + phone + '\''
+                + '}';
         }
     }
 }

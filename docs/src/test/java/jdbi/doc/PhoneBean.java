@@ -61,9 +61,9 @@ public class PhoneBean {
             return false;
         }
         PhoneBean phoneBean = (PhoneBean) o;
-        return id == phoneBean.id &&
-                Objects.equals(name, phoneBean.name) &&
-                Objects.equals(number, phoneBean.number);
+        return id == phoneBean.id
+                && Objects.equals(name, phoneBean.name)
+                && Objects.equals(number, phoneBean.number);
     }
 
     @Override
@@ -73,10 +73,10 @@ public class PhoneBean {
 
     @Override
     public String toString() {
-        return "PhoneBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", number='" + number + '\'' +
-                '}';
+        return "PhoneBean{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", number='" + number + '\''
+                + '}';
     }
 }

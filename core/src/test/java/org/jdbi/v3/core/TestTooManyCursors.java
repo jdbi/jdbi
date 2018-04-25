@@ -85,9 +85,9 @@ public class TestTooManyCursors {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             try {
-                if ("createStatement".equals(method.getName()) ||
-                    "prepareCall".equals(method.getName()) ||
-                    "prepareStatement".equals(method.getName())) {
+                if ("createStatement".equals(method.getName())
+                    || "prepareCall".equals(method.getName())
+                    || "prepareStatement".equals(method.getName())) {
                     if (++numStatements > numSuccessfulStatements) {
                         throw new SQLException("Fake 'maximum open cursors exceeded' error");
                     }

@@ -109,8 +109,8 @@ public class FieldMapper<T> implements RowMapper<T> {
 
         RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
+            && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
             throw new IllegalArgumentException(String.format(
                 "Mapping type %s could not match fields for columns: %s",
                 type.getSimpleName(),
@@ -158,8 +158,8 @@ public class FieldMapper<T> implements RowMapper<T> {
         }
 
         if (mappers.isEmpty() && columnNames.size() > 0) {
-            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
-                "didn't find any matching columns in result set", type));
+            throw new IllegalArgumentException(String.format("Mapping fields for type %s "
+                + "didn't find any matching columns in result set", type));
         }
 
         return (r, c) -> {
@@ -203,8 +203,8 @@ public class FieldMapper<T> implements RowMapper<T> {
             field.setAccessible(true);
             field.set(obj, value);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format("Unable to access " +
-                "property, %s", field.getName()), e);
+            throw new IllegalArgumentException(String.format("Unable to access "
+                + "property, %s", field.getName()), e);
         }
     }
 }

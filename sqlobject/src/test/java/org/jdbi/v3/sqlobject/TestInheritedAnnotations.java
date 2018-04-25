@@ -141,10 +141,10 @@ public class TestInheritedAnnotations {
                 return false;
             }
             Character character = (Character) o;
-            return id == character.id &&
-                Objects.equals(name, character.name) &&
-                Objects.equals(created, character.created) &&
-                Objects.equals(modified, character.modified);
+            return id == character.id
+                && Objects.equals(name, character.name)
+                && Objects.equals(created, character.created)
+                && Objects.equals(modified, character.modified);
         }
 
         @Override
@@ -154,12 +154,12 @@ public class TestInheritedAnnotations {
 
         @Override
         public String toString() {
-            return "Character{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", created=" + created +
-                ", modified=" + modified +
-                '}';
+            return "Character{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", created=" + created
+                + ", modified=" + modified
+                + '}';
         }
     }
 

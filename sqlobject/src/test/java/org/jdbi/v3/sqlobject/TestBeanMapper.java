@@ -134,9 +134,9 @@ public class TestBeanMapper {
                 return false;
             }
             Document that = (Document) obj;
-            return this.id == that.id &&
-                    Objects.equals(this.name, that.name) &&
-                    Objects.equals(this.contents, that.contents);
+            return this.id == that.id
+                && Objects.equals(this.name, that.name)
+                && Objects.equals(this.contents, that.contents);
         }
 
         @Override
@@ -146,11 +146,11 @@ public class TestBeanMapper {
 
         @Override
         public String toString() {
-            return "Document{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", contents='" + contents + '\'' +
-                    '}';
+            return "Document{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", contents='" + contents + '\''
+                + '}';
         }
     }
 
@@ -197,9 +197,9 @@ public class TestBeanMapper {
                 return false;
             }
             Folder that = (Folder) obj;
-            return this.id == that.id &&
-                    Objects.equals(this.name, that.name) &&
-                    Objects.equals(this.documents, that.documents);
+            return this.id == that.id
+                && Objects.equals(this.name, that.name)
+                && Objects.equals(this.documents, that.documents);
         }
 
         @Override
@@ -209,11 +209,11 @@ public class TestBeanMapper {
 
         @Override
         public String toString() {
-            return "Folder{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", documents=" + documents +
-                    '}';
+            return "Folder{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", documents=" + documents
+                + '}';
         }
     }
 
@@ -224,22 +224,22 @@ public class TestBeanMapper {
         @SqlBatch("insert into documents (id, folder_id, name, contents) values (:d.id, :f.id, :d.name, :d.contents)")
         void insertDocuments(@BindBean("f") Folder folder, @BindBean("d") Document... documents);
 
-        @SqlQuery("select f.id f_id, f.name f_name, " +
-                "d.id d_id, d.name d_name, d.contents d_contents " +
-                "from folders f left join documents d " +
-                "on f.id = d.folder_id " +
-                "where f.id = :folderId")
+        @SqlQuery("select f.id f_id, f.name f_name, "
+            + "d.id d_id, d.name d_name, d.contents d_contents "
+            + "from folders f left join documents d "
+            + "on f.id = d.folder_id "
+            + "where f.id = :folderId")
         @RegisterBeanMapper(value = Folder.class, prefix = "f")
         @RegisterBeanMapper(value = Document.class, prefix = "d")
         @UseRowReducer(FolderDocReducer.class)
         Optional<Folder> getFolder(int folderId);
 
-        @SqlQuery("select " +
-                "f.id f_id, f.name f_name, " +
-                "d.id d_id, d.name d_name, d.contents d_contents " +
-                "from folders f left join documents d " +
-                "on f.id = d.folder_id " +
-                "order by f.name, d.name")
+        @SqlQuery("select "
+                + "f.id f_id, f.name f_name, "
+                + "d.id d_id, d.name d_name, d.contents d_contents "
+                + "from folders f left join documents d "
+                + "on f.id = d.folder_id "
+                + "order by f.name, d.name")
         @RegisterBeanMapper(value = Folder.class, prefix = "f")
         @RegisterBeanMapper(value = Document.class, prefix = "d")
         @UseRowReducer(FolderDocReducer.class)
