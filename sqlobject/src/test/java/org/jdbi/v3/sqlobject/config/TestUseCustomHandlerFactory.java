@@ -52,7 +52,7 @@ public class TestUseCustomHandlerFactory {
             @Override
             public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
                 return getImplementation(sqlObjectType, method).map(m ->
-                        (Handler) (target, args, handle) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
+                        (target, args, h) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
                );
             }
 

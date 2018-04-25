@@ -88,11 +88,11 @@ public class TestOnDemandSqlObject {
     public void testExceptionOnClose() throws Exception {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
-            public Handle customizeHandle(Handle handle) {
-                Handle h = spy(handle);
-                when(h.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doThrow(new CloseException("already closed", null)).when(h).close();
-                return h;
+            public Handle customizeHandle(Handle h) {
+                Handle spy = spy(h);
+                when(spy.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
+                doThrow(new CloseException("already closed", null)).when(spy).close();
+                return spy;
             }
         };
         db.installPlugin(plugin);

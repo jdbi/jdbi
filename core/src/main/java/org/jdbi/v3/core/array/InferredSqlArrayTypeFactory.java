@@ -13,12 +13,11 @@
  */
 package org.jdbi.v3.core.array;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
+
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
 /**
  * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType SqlArrayType<T>} and maps
@@ -36,8 +35,8 @@ class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
     }
 
     @Override
-    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
-        return this.elementType.equals(elementType)
+    public Optional<SqlArrayType<?>> build(Type type, ConfigRegistry config) {
+        return this.elementType.equals(type)
                 ? Optional.of(arrayType)
                 : Optional.empty();
     }

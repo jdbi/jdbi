@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
-import static java.util.stream.Stream.concat;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -26,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -43,6 +40,8 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
+
+import static java.util.stream.Stream.concat;
 
 /**
  * Base handler for annotations' implementation classes.
@@ -81,21 +80,21 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     private Stream<BoundCustomizer> parameterCustomizers(Class<?> type,
-                                                         Method method) {
-        final Parameter[] parameters = method.getParameters();
+                                                         Method m) {
+        final Parameter[] parameters = m.getParameters();
 
         return IntStream.range(0, parameters.length)
                 .mapToObj(Integer::valueOf)
-                .flatMap(i -> eachParameterCustomizers(type, method, parameters[i], i));
+                .flatMap(i -> eachParameterCustomizers(type, m, parameters[i], i));
     }
 
     private Stream<BoundCustomizer> eachParameterCustomizers(Class<?> type,
-                                                             Method method,
+                                                             Method m,
                                                              Parameter parameter,
                                                              Integer i) {
 
         List<BoundCustomizer> customizers = annotationsFor(parameter)
-                .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameter, i, getParameterType(parameter)))
+                .map(a -> instantiateFactory(a).createForParameter(a, type, m, parameter, i, getParameterType(parameter)))
                 .<BoundCustomizer>map(c -> (stmt, args) -> c.apply(stmt, args[i])).collect(Collectors.toList());
 
         if (!customizers.isEmpty()) {
@@ -103,25 +102,25 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         }
 
         if (parameter.getType() == Consumer.class) {
-            if (method.getReturnType() != Void.TYPE) {
+            if (m.getReturnType() != Void.TYPE) {
                 throw new IllegalStateException(
                   "SQL Object methods with a Consumer parameter must have void return type.");
             }
             return Stream.empty();
         }
 
-        return Stream.of(defaultParameterCustomizer(type, method, parameter, i));
+        return Stream.of(defaultParameterCustomizer(type, m, parameter, i));
     }
 
     /**
      * Default parameter customizer for parameters with no annotations.
      */
     private BoundCustomizer defaultParameterCustomizer(Class<?> type,
-                                                       Method method,
+                                                       Method m,
                                                        Parameter parameter,
                                                        Integer i) {
         return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
-                .createForParameter(type, method, parameter, i, getParameterType(parameter))
+                .createForParameter(type, m, parameter, i, getParameterType(parameter))
                 .apply(stmt, args[i]);
     }
 
