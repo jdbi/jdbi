@@ -33,7 +33,7 @@ public class UseStringTemplateSqlLocatorImpl implements Configurer {
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         SqlLocator locator = (type, method, config) -> {
             String templateName = SqlAnnotations.getAnnotationValue(method, sql -> sql).orElseGet(method::getName);
-            STGroup group = findStringTemplateGroup(type, templateName);
+            STGroup group = findStringTemplateGroup(type);
             if (!group.isDefined(templateName)) {
                 throw new IllegalStateException("No StringTemplate group " + templateName + " for class " + sqlObjectType);
             }
@@ -41,7 +41,7 @@ public class UseStringTemplateSqlLocatorImpl implements Configurer {
             return templateName;
         };
         TemplateEngine templateEngine = (templateName, ctx) -> {
-            STGroup group = findStringTemplateGroup(sqlObjectType, templateName);
+            STGroup group = findStringTemplateGroup(sqlObjectType);
             ST template = group.getInstanceOf(templateName);
             ctx.getAttributes().forEach(template::add);
             return template.render();
