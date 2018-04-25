@@ -24,6 +24,7 @@ public interface TimingCollector {
     /**
      * Called after a statement completes with how long it took to execute.
      *
+     * @deprecated Use {@link SqlLogger#logAfterExecution} instead.
      * @param elapsedNs the elapsed time in nanoseconds.
      * @param ctx the context of the just completed statement
      */
@@ -32,6 +33,8 @@ public interface TimingCollector {
 
     /**
      * GNDN.
+     *
+     * @deprecated Use {@link SqlLogger#NOP_SQL_LOGGER} instead.
      */
     @Deprecated
     TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
