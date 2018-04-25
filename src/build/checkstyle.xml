@@ -38,7 +38,6 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
         <module name="MethodLength"/>
-        <module name="EmptyForIteratorPad"/>
         <module name="GenericWhitespace"/>
         <module name="MethodParamPad"/>
         <module name="NoWhitespaceAfter"/>
@@ -55,7 +54,10 @@
         </module>
         <module name="ModifierOrder"/>
         <!--<module name="RedundantModifier"/>-->
-        <!--<module name="EmptyBlock"/>-->
+        <module name="EmptyCatchBlock"/>
+        <module name="EmptyForInitializerPad"/>
+        <module name="EmptyForIteratorPad"/>
+        <module name="EmptyStatement"/>
         <module name="LeftCurly"/>
         <module name="NeedBraces"/>
         <module name="RightCurly"/>
