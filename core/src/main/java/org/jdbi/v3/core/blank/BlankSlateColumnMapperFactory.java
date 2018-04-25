@@ -11,22 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.nothing;
+package org.jdbi.v3.core.blank;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-import java.util.function.Function;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
-public class SupportNothingArgumentFactory extends SupportNothingBase implements ArgumentFactory {
-    public SupportNothingArgumentFactory(Function<Class<?>, ? extends RuntimeException> provider) {
-        super(provider);
-    }
+public class BlankSlateColumnMapperFactory implements ColumnMapperFactory {
+    public BlankSlateColumnMapperFactory() {}
 
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        throw super.provider.apply(getClass());
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        throw new BlankSlateException(ColumnMapperFactory.class, type);
     }
 }

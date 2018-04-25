@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.nothing;
+package org.jdbi.v3.core.blank;
 
 import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -22,7 +22,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestSupportNothing {
+public class TestBlankSlate {
     @Rule
     public DatabaseRule db = new H2DatabaseRule();
 
@@ -43,21 +43,19 @@ public class TestSupportNothing {
 
     @Test
     public void testArgument() {
-        db.getJdbi().installPlugin(new SupportNothingPlugin());
+        db.getJdbi().installPlugin(new BlankSlatePlugin());
 
         assertThatThrownBy(() -> db.getJdbi().useHandle(h -> h.createUpdate("insert into foo(id) values(?)").bind(0, "one")))
-            .isInstanceOf(UnsupportedOperationException.class)
-            .hasMessageContaining("You've installed ");
+            .isInstanceOf(BlankSlateException.class);
     }
 
     @Test
     public void testMapper() {
         db.getJdbi().useHandle(h -> h.createUpdate("insert into foo(id) values(?)").bind(0, "one").execute());
 
-        db.getJdbi().installPlugin(new SupportNothingPlugin());
+        db.getJdbi().installPlugin(new BlankSlatePlugin());
 
         assertThatThrownBy(() -> db.getJdbi().withHandle(h -> h.createQuery("select id from foo").mapTo(String.class)))
-            .isInstanceOf(UnsupportedOperationException.class)
-            .hasMessageContaining("You've installed ");
+            .isInstanceOf(BlankSlateException.class);
     }
 }

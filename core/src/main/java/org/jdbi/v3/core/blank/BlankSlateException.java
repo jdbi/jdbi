@@ -11,14 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.nothing;
+package org.jdbi.v3.core.blank;
 
-import java.util.function.Function;
+import java.lang.reflect.Type;
+import java.text.MessageFormat;
 
-abstract class SupportNothingBase {
-    protected final Function<Class<?>, ? extends RuntimeException> provider;
+public class BlankSlateException extends UnsupportedOperationException {
+    public BlankSlateException(Class<?> function, Type type) {
+        super(MessageFormat.format("BlankSlate {0} for type {1}", function, type));
+    }
 
-    protected SupportNothingBase(Function<Class<?>, ? extends RuntimeException> provider) {
-        this.provider = provider;
+    public BlankSlateException(Class<?> function, Type type, Object value) {
+        super(MessageFormat.format("BlankSlate {0} for type {1} and value {2}", function, type, value));
     }
 }

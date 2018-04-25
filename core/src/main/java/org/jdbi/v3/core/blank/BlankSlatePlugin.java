@@ -11,22 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.nothing;
+package org.jdbi.v3.core.blank;
 
-import java.util.function.Function;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public class SupportNothingPlugin extends SupportNothingBase implements JdbiPlugin {
-    public SupportNothingPlugin() {
-        this((clazz) -> new UnsupportedOperationException("You've installed " + clazz.getSimpleName() + " — operation denied"));
-    }
-
-    public SupportNothingPlugin(Function<Class<?>, ? extends RuntimeException> provider) {
-        super(provider);
-    }
+public class BlankSlatePlugin implements JdbiPlugin {
+    public BlankSlatePlugin() {}
 
     @Override
     public void customizeJdbi(Jdbi jdbi) {
@@ -39,9 +32,9 @@ public class SupportNothingPlugin extends SupportNothingBase implements JdbiPlug
     }
 
     private <T extends Configurable<T>> T configure(T configurable) {
-        configurable.registerArgument(new SupportNothingArgumentFactory(super.provider));
-        configurable.registerRowMapper(new SupportNothingRowMapperFactory(super.provider));
-        configurable.registerColumnMapper(new SupportNothingColumnMapperFactory(super.provider));
+        configurable.registerArgument(new BlankSlateArgumentFactory());
+        configurable.registerRowMapper(new BlankSlateRowMapperFactory());
+        configurable.registerColumnMapper(new BlankSlateColumnMapperFactory());
 
         return configurable;
     }
