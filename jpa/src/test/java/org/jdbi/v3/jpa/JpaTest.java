@@ -55,8 +55,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public EntityThing() {
-        }
+        public EntityThing() {}
 
         public EntityThing(int id, String name) {
             setId(id);
@@ -110,8 +109,7 @@ public class JpaTest {
         @Column
         private String name;
 
-        public FieldThing() {
-        }
+        public FieldThing() {}
 
         public FieldThing(int id, String name) {
             setId(id);
@@ -164,8 +162,7 @@ public class JpaTest {
         @Column(name = "bar")
         private String name;
 
-        public NamedFieldThing() {
-        }
+        public NamedFieldThing() {}
 
         public NamedFieldThing(int id, String name) {
             setId(id);
@@ -217,8 +214,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public GetterThing() {
-        }
+        public GetterThing() {}
 
         public GetterThing(int id, String name) {
             setId(id);
@@ -272,8 +268,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedGetterThing() {
-        }
+        public NamedGetterThing() {}
 
         public NamedGetterThing(int id, String name) {
             setId(id);
@@ -327,8 +322,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public SetterThing() {
-        }
+        public SetterThing() {}
 
         public SetterThing(int id, String name) {
             setId(id);
@@ -382,8 +376,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedSetterThing() {
-        }
+        public NamedSetterThing() {}
 
         public NamedSetterThing(int id, String name) {
             setId(id);
@@ -446,8 +439,7 @@ public class JpaTest {
 
     @Entity
     static class ExtendsMappedSuperclassThing extends MappedSuperclassThing implements Thing {
-        public ExtendsMappedSuperclassThing() {
-        }
+        public ExtendsMappedSuperclassThing() {}
 
         public ExtendsMappedSuperclassThing(int id, String name) {
             setId(id);
@@ -493,8 +485,7 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public AnnotationPriorityThing() {
-        }
+        public AnnotationPriorityThing() {}
 
         public AnnotationPriorityThing(int id, String name) {
             setId(id);
@@ -615,8 +606,7 @@ public class JpaTest {
 
     @Entity
     static class OverridingSubclassThing extends OverriddenSuperclassThing {
-        public OverridingSubclassThing() {
-        }
+        public OverridingSubclassThing() {}
 
         public OverridingSubclassThing(int id, String name) {
             setId(id);

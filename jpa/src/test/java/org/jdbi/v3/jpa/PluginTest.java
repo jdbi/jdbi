@@ -34,8 +34,7 @@ public class PluginTest {
         private int id;
         private String name;
 
-        public Thing() {
-        }
+        public Thing() {}
 
         public Thing(int id, String name) {
             setId(id);

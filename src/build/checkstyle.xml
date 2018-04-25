@@ -17,6 +17,11 @@
         <property name="message" value="Don't leave more than 1 open line."/>
     </module>
 
+    <module name="RegexpMultiline">
+        <property name="format" value="\{\s+\}"/>
+        <property name="message" value="Tighten empty braces."/>
+    </module>
+
     <module name="TreeWalker">
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>

@@ -96,8 +96,7 @@ public class TestInheritedAnnotations {
     }
 
     @RegisterConstructorMapper(Character.class)
-    public interface CharacterDao extends CrudDao<Character, Integer> {
-    }
+    public interface CharacterDao extends CrudDao<Character, Integer> {}
 
     public static class Character {
         public final int id;

@@ -56,8 +56,7 @@ public class TestSqlLocator {
     public static class TestConfig implements JdbiConfig<TestConfig> {
         String sql;
 
-        public TestConfig() {
-        }
+        public TestConfig() {}
 
         private TestConfig(TestConfig that) {
             this.sql = that.sql;
