@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.sql.Types;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -33,6 +30,9 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBindBean {
     @Rule
@@ -91,10 +91,10 @@ public class TestBindBean {
         handle.execute("create table beans (id integer, value_type varchar, fromField varchar, fromGetter varchar)");
         handle.registerArgument(new ValueTypeArgumentFactory());
 
-        BeanDao dao = handle.attach(BeanDao.class);
+        BeanDao d = handle.attach(BeanDao.class);
 
-        dao.insert(new Bean(1, ValueType.valueOf("foo")));
-        assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType)
+        d.insert(new Bean(1, ValueType.valueOf("foo")));
+        assertThat(d.getById(1)).extracting(Bean::getId, Bean::getValueType)
                 .containsExactly(1, ValueType.valueOf("foo"));
     }
 

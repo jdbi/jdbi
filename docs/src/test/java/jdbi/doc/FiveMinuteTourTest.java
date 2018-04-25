@@ -13,13 +13,9 @@
  */
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -27,6 +23,9 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class FiveMinuteTourTest {
     private Jdbi jdbi;
@@ -36,24 +35,24 @@ public class FiveMinuteTourTest {
     public void setUp() {
         // tag::createJdbi[]
         // H2 in-memory database
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
+        Jdbi j = Jdbi.create("jdbc:h2:mem:test");
         // end::createJdbi[]
 
         // shared handle to keep database open
-        this.jdbi = jdbi;
-        this.handle = jdbi.open();
+        this.jdbi = j;
+        this.handle = j.open();
 
         // tag::useHandle[]
-        jdbi.useHandle(handle -> {
-            handle.execute("create table contacts (id int primary key, name varchar(100))");
-            handle.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
-            handle.execute("insert into contacts (id, name) values (?, ?)", 2, "Bob");
+        j.useHandle(h -> {
+            h.execute("create table contacts (id int primary key, name varchar(100))");
+            h.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
+            h.execute("insert into contacts (id, name) values (?, ?)", 2, "Bob");
         });
         // end::useHandle[]
 
         // tag::withHandle[]
-        List<String> names = jdbi.withHandle(handle ->
-            handle.createQuery("select name from contacts")
+        List<String> names = j.withHandle(h ->
+            h.createQuery("select name from contacts")
                   .mapTo(String.class)
                   .list());
         assertThat(names).contains("Alice", "Bob");

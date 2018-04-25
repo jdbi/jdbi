@@ -271,16 +271,16 @@ public class TestBeanMapper {
         Document doc2 = new Document(5, "doc2.txt", "foo");
         Document doc3 = new Document(6, "doc3.txt", "bar");
 
-        DocumentDao dao = h.attach(DocumentDao.class);
-        dao.insertFolders(folder1, folder2, folder3);
-        dao.insertDocuments(folder2, doc1);
-        dao.insertDocuments(folder3, doc2, doc3);
+        DocumentDao d = h.attach(DocumentDao.class);
+        d.insertFolders(folder1, folder2, folder3);
+        d.insertDocuments(folder2, doc1);
+        d.insertDocuments(folder3, doc2, doc3);
 
-        assertThat(dao.getFolder(1)).contains(new Folder(1, "folder1"));
-        assertThat(dao.getFolder(2)).contains(new Folder(2, "folder2", doc1));
-        assertThat(dao.getFolder(3)).contains(new Folder(3, "folder3", doc2, doc3));
+        assertThat(d.getFolder(1)).contains(new Folder(1, "folder1"));
+        assertThat(d.getFolder(2)).contains(new Folder(2, "folder2", doc1));
+        assertThat(d.getFolder(3)).contains(new Folder(3, "folder3", doc2, doc3));
 
-        assertThat(dao.listFolders()).containsExactly(
+        assertThat(d.listFolders()).containsExactly(
                 new Folder(1, "folder1"),
                 new Folder(2, "folder2", doc1),
                 new Folder(3, "folder3", doc2, doc3));

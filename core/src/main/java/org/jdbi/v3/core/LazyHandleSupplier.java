@@ -52,13 +52,13 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
                 throw new IllegalStateException("Handle is closed");
             }
 
-            Handle handle = db.open();
+            Handle h = db.open();
             // share extension method thread local with handle,
             // so extension methods set in other threads are preserved
-            handle.setExtensionMethodThreadLocal(extensionMethod);
-            handle.setConfigThreadLocal(config);
+            h.setExtensionMethodThreadLocal(extensionMethod);
+            h.setConfigThreadLocal(config);
 
-            this.handle = handle;
+            this.handle = h;
         }
     }
 

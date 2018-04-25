@@ -40,10 +40,10 @@ public class TestHashPrefixSqlParser {
     }
 
     private String render(String sql, Map<String, Object> attributes) {
-        StatementContext ctx = StatementContextAccess.createContext();
-        attributes.forEach(ctx::define);
+        StatementContext context = StatementContextAccess.createContext();
+        attributes.forEach(context::define);
 
-        return templateEngine.render(sql, ctx);
+        return templateEngine.render(sql, context);
     }
 
     @Test

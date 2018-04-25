@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -30,13 +27,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -156,8 +155,8 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
-                        Type type = descriptor.getReadMethod().getGenericReturnType();
-                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
+                        Type t = descriptor.getReadMethod().getGenericReturnType();
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(t)
                             .orElse((r, n, c) -> r.getObject(n));
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));

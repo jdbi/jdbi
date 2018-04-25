@@ -208,9 +208,9 @@ public class BeanMapperTest {
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        RowMapper<DerivedBean> mapper = BeanMapper.of(DerivedBean.class);
+        RowMapper<DerivedBean> m = BeanMapper.of(DerivedBean.class);
 
-        DerivedBean derivedBean = mapper.map(resultSet, ctx);
+        DerivedBean derivedBean = m.map(resultSet, ctx);
 
         assertThat(derivedBean.getLongField()).isEqualTo(aLongVal);
         assertThat(derivedBean.getBlongField()).isEqualTo(bLongVal);
@@ -289,12 +289,12 @@ public class BeanMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
-        Handle handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
+        Handle h = dbRule.getSharedHandle();
+        h.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+        h.execute("insert into something (id, name) values (1, 'foo')");
 
-        ColumnNameBean bean = handle.createQuery("select * from something")
+        ColumnNameBean bean = h.createQuery("select * from something")
                 .mapTo(ColumnNameBean.class)
                 .findOnly();
 
@@ -304,12 +304,12 @@ public class BeanMapperTest {
 
     @Test
     public void testNested() {
-        Handle handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
+        Handle h = dbRule.getSharedHandle();
+        h.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+        h.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(h
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
             .findOnly())
@@ -319,20 +319,20 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedStrict() {
-        Handle handle = dbRule.getSharedHandle();
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
+        Handle h = dbRule.getSharedHandle();
+        h.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        h.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+        h.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(h
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
             .findOnly())
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> h
             .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedBean.class)
             .findOnly())
@@ -355,12 +355,12 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedPrefix() {
-        Handle handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+        Handle h = dbRule.getSharedHandle();
+        h.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+        h.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(h
             .createQuery("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
@@ -370,28 +370,28 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        Handle handle = dbRule.getSharedHandle();
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+        Handle h = dbRule.getSharedHandle();
+        h.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        h.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
         // three, sir!
-        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)");
+        h.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)");
 
-        assertThat(handle
+        assertThat(h
             .createQuery("select id nested_id, name nested_name, integerValue from something")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
             .extracting("nested.id", "nested.name", "integerValue")
             .containsExactly(1, "foo", 5);
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> h
             .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> h
             .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
             .mapTo(NestedPrefixBean.class)
             .findOnly())

@@ -13,14 +13,10 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
+import java.util.List;
+import java.util.Map;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -36,6 +32,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHStore {
 
@@ -68,10 +66,10 @@ public class TestHStore {
 
     @Test
     public void testReadsViaFluentAPI() {
-        List<Map<String, String>> caps = handle.createQuery("select caps from campaigns order by id")
+        List<Map<String, String>> c = handle.createQuery("select caps from campaigns order by id")
                 .mapTo(STRING_MAP)
                 .list();
-        assertThat(caps).isEqualTo(ImmutableList.of(
+        assertThat(c).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
                 ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")
        ));

@@ -1334,14 +1334,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
                 .parse(renderedSql, getContext());
-        String sql = parsedSql.getSql();
+        String s = parsedSql.getSql();
         getContext().setParsedSql(parsedSql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), s, getContext());
             } else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), s, getContext());
             }
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, getContext());
@@ -1363,7 +1363,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             final long start = System.nanoTime();
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
-            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
+            LOG.trace("Execute SQL \"{}\" in {}ms", s, elapsedTime / 1000000L);
             getConfig(SqlStatements.class)
                     .getTimingCollector()
                     .collect(elapsedTime, getContext());
