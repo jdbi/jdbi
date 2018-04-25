@@ -84,47 +84,6 @@ public class Types {
                 ClassOwnership.JVM_BEHAVIOR.getOwnerType(rawType), rawType, arguments);
     }
 
-    private enum ClassOwnership {
-        OWNED_BY_ENCLOSING_CLASS {
-            @Nullable
-            @Override
-            Class<?> getOwnerType(Class<?> rawType) {
-                return rawType.getEnclosingClass();
-            }
-        },
-        LOCAL_CLASS_HAS_NO_OWNER {
-            @Nullable
-            @Override
-            Class<?> getOwnerType(Class<?> rawType) {
-                if (rawType.isLocalClass()) {
-                    return null;
-                } else {
-                    return rawType.getEnclosingClass();
-                }
-            }
-        };
-
-        @Nullable
-        abstract Class<?> getOwnerType(Class<?> rawType);
-
-        static final ClassOwnership JVM_BEHAVIOR = detectJvmBehavior();
-
-        @SuppressFBWarnings
-        private static ClassOwnership detectJvmBehavior() {
-            class LocalClass<T> {
-            }
-            Class<?> subclass = new LocalClass<String>() {
-            }.getClass();
-            ParameterizedType parameterizedType = (ParameterizedType) subclass.getGenericSuperclass();
-            for (ClassOwnership behavior : ClassOwnership.values()) {
-                if (behavior.getOwnerType(LocalClass.class) == parameterizedType.getOwnerType()) {
-                    return behavior;
-                }
-            }
-            throw new AssertionError();
-        }
-    }
-
     static Class<?> getArrayClass(Class<?> componentType) {
         // TODO(user): This is not the most efficient way to handle generic
         // arrays, but is there another way to extract the array class in a
@@ -197,45 +156,320 @@ public class Types {
         return new WildcardTypeImpl(new Type[]{lowerBound}, new Type[]{Object.class});
     }
 
-    private static final class TypeVariableInvocationHandler implements InvocationHandler {
-        private static final Map<String, Method> TYPE_VARIABLE_METHODS;
+    private static <D extends GenericDeclaration> TypeVariable<D> newTypeVariableImpl(
+            D genericDeclaration, String name, Type[] bounds) {
+        TypeVariableImpl<D> typeVariableImpl =
+                new TypeVariableImpl<D>(genericDeclaration, name, bounds);
+        @SuppressWarnings("unchecked")
+        TypeVariable<D> typeVariable =
+                Reflection.newProxy(
+                        TypeVariable.class, new TypeVariableInvocationHandler(typeVariableImpl));
+        return typeVariable;
+    }
 
-        static {
-            Map<String, Method> builder = new LinkedHashMap<>();
-            for (Method method : TypeVariableImpl.class.getMethods()) {
-                if (method.getDeclaringClass().equals(TypeVariableImpl.class)) {
-                    try {
-                        method.setAccessible(true);
-                    } catch (AccessControlException e) {
-                        // OK: the method is accessible to us anyway. The setAccessible call is only for
-                        // unusual execution environments where that might not be true.
+    private static Type[] toArray(Collection<Type> types) {
+        return types.toArray(new Type[types.size()]);
+    }
+
+    private static Iterable<Type> filterUpperBounds(Collection<Type> bounds) {
+        Predicate<Type> isObjectClass = Object.class::equals;
+        return bounds.stream().filter(isObjectClass.negate()).collect(toList());
+    }
+
+    private static void disallowPrimitiveType(Type[] types, String usedAs) {
+        for (Type type : types) {
+            if (type instanceof Class) {
+                Class<?> cls = (Class<?>) type;
+                checkArgument(!cls.isPrimitive(), "Primitive type '%s' used as %s", cls, usedAs);
+            }
+        }
+    }
+
+    enum JavaVersion {
+        JAVA6 {
+            @Override
+            GenericArrayType newArrayType(Type componentType) {
+                return new Types.GenericArrayTypeImpl(componentType);
+            }
+
+            @Override
+            Type usedInGenericType(Type type) {
+                checkNotNull(type, "type");
+                if (type instanceof Class) {
+                    Class<?> cls = (Class<?>) type;
+                    if (cls.isArray()) {
+                        return new Types.GenericArrayTypeImpl(cls.getComponentType());
                     }
-                    builder.put(method.getName(), method);
+                }
+                return type;
+            }
+        },
+        JAVA7 {
+            @Override
+            Type newArrayType(Type componentType) {
+                if (componentType instanceof Class) {
+                    return getArrayClass((Class<?>) componentType);
+                } else {
+                    return new Types.GenericArrayTypeImpl(componentType);
                 }
             }
-            TYPE_VARIABLE_METHODS = Collections.unmodifiableMap(builder);
+
+            @Override
+            Type usedInGenericType(Type type) {
+                return checkNotNull(type, "type");
+            }
+        },
+        JAVA8 {
+            @Override
+            Type newArrayType(Type componentType) {
+                return JAVA7.newArrayType(componentType);
+            }
+
+            @Override
+            Type usedInGenericType(Type type) {
+                return JAVA7.usedInGenericType(type);
+            }
+
+            @Override
+            String typeName(Type type) {
+                try {
+                    Method getTypeName = Type.class.getMethod("getTypeName");
+                    return (String) getTypeName.invoke(type);
+                } catch (NoSuchMethodException e) {
+                    throw new AssertionError("Type.getTypeName should be available in Java 8");
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        static final JavaVersion CURRENT;
+
+        static {
+            if (AnnotatedElement.class.isAssignableFrom(TypeVariable.class)) {
+                CURRENT = JAVA8;
+            } else if (new TypeCapture<int[]>() {}.capture() instanceof Class) {
+                CURRENT = JAVA7;
+            } else {
+                CURRENT = JAVA6;
+            }
         }
 
-        private final TypeVariableImpl<?> typeVariableImpl;
+        abstract Type newArrayType(Type componentType);
 
-        TypeVariableInvocationHandler(TypeVariableImpl<?> typeVariableImpl) {
-            this.typeVariableImpl = typeVariableImpl;
+        abstract Type usedInGenericType(Type type);
+
+        String typeName(Type type) {
+            return Types.toString(type);
+        }
+
+        final List<Type> usedInGenericType(Type[] types) {
+            List<Type> builder = new ArrayList<>();
+            for (Type type : types) {
+                builder.add(usedInGenericType(type));
+            }
+            return unmodifiableList(builder);
+        }
+    }
+
+    static final class NativeTypeVariableEquals<X> {
+        static final boolean NATIVE_TYPE_VARIABLE_ONLY =
+                !NativeTypeVariableEquals.class.getTypeParameters()[0]
+                        .equals(newArtificialTypeVariable(NativeTypeVariableEquals.class, "X"));
+    }
+
+    private Types() {}
+
+    private enum ClassOwnership {
+        OWNED_BY_ENCLOSING_CLASS {
+            @Nullable
+            @Override
+            Class<?> getOwnerType(Class<?> rawType) {
+                return rawType.getEnclosingClass();
+            }
+        },
+        LOCAL_CLASS_HAS_NO_OWNER {
+            @Nullable
+            @Override
+            Class<?> getOwnerType(Class<?> rawType) {
+                if (rawType.isLocalClass()) {
+                    return null;
+                } else {
+                    return rawType.getEnclosingClass();
+                }
+            }
+        };
+
+        @Nullable
+        abstract Class<?> getOwnerType(Class<?> rawType);
+
+        static final ClassOwnership JVM_BEHAVIOR = detectJvmBehavior();
+
+        @SuppressFBWarnings
+        private static ClassOwnership detectJvmBehavior() {
+            class LocalClass<T> {}
+            Class<?> subclass = new LocalClass<String>() {}.getClass();
+            ParameterizedType parameterizedType = (ParameterizedType) subclass.getGenericSuperclass();
+            for (ClassOwnership behavior : ClassOwnership.values()) {
+                if (behavior.getOwnerType(LocalClass.class) == parameterizedType.getOwnerType()) {
+                    return behavior;
+                }
+            }
+            throw new AssertionError();
+        }
+    }
+
+    private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
+
+        private final Type ownerType;
+        private final List<Type> argumentsList;
+        private final Class<?> rawType;
+
+        ParameterizedTypeImpl(@Nullable Type ownerType, Class<?> rawType, Type[] typeArguments) {
+            checkNotNull(rawType, "rawType");
+            checkArgument(typeArguments.length == rawType.getTypeParameters().length,
+                "Expected %s type parameters but got %s", rawType.getTypeParameters().length, typeArguments.length);
+            disallowPrimitiveType(typeArguments, "type parameter");
+            this.ownerType = ownerType;
+            this.rawType = rawType;
+            this.argumentsList = JavaVersion.CURRENT.usedInGenericType(typeArguments);
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            String methodName = method.getName();
-            Method typeVariableMethod = TYPE_VARIABLE_METHODS.get(methodName);
-            if (typeVariableMethod == null) {
-                throw new UnsupportedOperationException(methodName);
-            } else {
-                try {
-                    return typeVariableMethod.invoke(typeVariableImpl, args);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
+        public Type[] getActualTypeArguments() {
+            return toArray(argumentsList);
         }
+
+        @Override
+        public Type getRawType() {
+            return rawType;
+        }
+
+        @Override
+        public Type getOwnerType() {
+            return ownerType;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            if (ownerType != null) {
+                builder.append(JavaVersion.CURRENT.typeName(ownerType)).append('.');
+            }
+            return builder
+                .append(rawType.getName())
+                .append('<')
+                .append(argumentsList.stream().map(TYPE_NAME).collect(joining(", ")))
+                .append('>')
+                .toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return (ownerType == null ? 0 : ownerType.hashCode())
+                ^ argumentsList.hashCode()
+                ^ rawType.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof ParameterizedType)) {
+                return false;
+            }
+            ParameterizedType that = (ParameterizedType) other;
+            return getRawType().equals(that.getRawType())
+                && Objects.equals(getOwnerType(), that.getOwnerType())
+                && Arrays.equals(getActualTypeArguments(), that.getActualTypeArguments());
+        }
+
+        private static final long serialVersionUID = 0;
+    }
+
+    private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
+
+        private final Type componentType;
+
+        GenericArrayTypeImpl(Type componentType) {
+            this.componentType = JavaVersion.CURRENT.usedInGenericType(componentType);
+        }
+
+        @Override
+        public Type getGenericComponentType() {
+            return componentType;
+        }
+
+        @Override
+        public String toString() {
+            return Types.toString(componentType) + "[]";
+        }
+
+        @Override
+        public int hashCode() {
+            return componentType.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof GenericArrayType) {
+                GenericArrayType that = (GenericArrayType) obj;
+                return Objects.equals(getGenericComponentType(), that.getGenericComponentType());
+            }
+            return false;
+        }
+
+        private static final long serialVersionUID = 0;
+    }
+
+    static final class WildcardTypeImpl implements WildcardType, Serializable {
+
+        private final List<Type> lowerBounds;
+        private final List<Type> upperBounds;
+
+        WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
+            disallowPrimitiveType(lowerBounds, "lower bound for wildcard");
+            disallowPrimitiveType(upperBounds, "upper bound for wildcard");
+            this.lowerBounds = JavaVersion.CURRENT.usedInGenericType(lowerBounds);
+            this.upperBounds = JavaVersion.CURRENT.usedInGenericType(upperBounds);
+        }
+
+        @Override
+        public Type[] getLowerBounds() {
+            return toArray(lowerBounds);
+        }
+
+        @Override
+        public Type[] getUpperBounds() {
+            return toArray(upperBounds);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof WildcardType) {
+                WildcardType that = (WildcardType) obj;
+                return lowerBounds.equals(Arrays.asList(that.getLowerBounds()))
+                    && upperBounds.equals(Arrays.asList(that.getUpperBounds()));
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return lowerBounds.hashCode() ^ upperBounds.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder("?");
+            for (Type lowerBound : lowerBounds) {
+                builder.append(" super ").append(JavaVersion.CURRENT.typeName(lowerBound));
+            }
+            for (Type upperBound : filterUpperBounds(upperBounds)) {
+                builder.append(" extends ").append(JavaVersion.CURRENT.typeName(upperBound));
+            }
+            return builder.toString();
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
     private static final class TypeVariableImpl<D extends GenericDeclaration> {
@@ -283,14 +517,14 @@ public class Types {
             if (NativeTypeVariableEquals.NATIVE_TYPE_VARIABLE_ONLY) {
                 // equal only to our TypeVariable implementation with identical bounds
                 if (obj != null
-                        && Proxy.isProxyClass(obj.getClass())
-                        && Proxy.getInvocationHandler(obj) instanceof TypeVariableInvocationHandler) {
+                    && Proxy.isProxyClass(obj.getClass())
+                    && Proxy.getInvocationHandler(obj) instanceof TypeVariableInvocationHandler) {
                     TypeVariableInvocationHandler typeVariableInvocationHandler =
-                            (TypeVariableInvocationHandler) Proxy.getInvocationHandler(obj);
+                        (TypeVariableInvocationHandler) Proxy.getInvocationHandler(obj);
                     TypeVariableImpl<?> that = typeVariableInvocationHandler.typeVariableImpl;
                     return name.equals(that.getName())
-                            && genericDeclaration.equals(that.getGenericDeclaration())
-                            && bounds.equals(that.bounds);
+                        && genericDeclaration.equals(that.getGenericDeclaration())
+                        && bounds.equals(that.bounds);
                 }
                 return false;
             } else {
@@ -298,290 +532,51 @@ public class Types {
                 if (obj instanceof TypeVariable) {
                     TypeVariable<?> that = (TypeVariable<?>) obj;
                     return name.equals(that.getName())
-                            && genericDeclaration.equals(that.getGenericDeclaration());
+                        && genericDeclaration.equals(that.getGenericDeclaration());
                 }
                 return false;
             }
         }
     }
 
-    static final class WildcardTypeImpl implements WildcardType, Serializable {
-
-        private final List<Type> lowerBounds;
-        private final List<Type> upperBounds;
-
-        WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
-            disallowPrimitiveType(lowerBounds, "lower bound for wildcard");
-            disallowPrimitiveType(upperBounds, "upper bound for wildcard");
-            this.lowerBounds = JavaVersion.CURRENT.usedInGenericType(lowerBounds);
-            this.upperBounds = JavaVersion.CURRENT.usedInGenericType(upperBounds);
-        }
-
-        @Override
-        public Type[] getLowerBounds() {
-            return toArray(lowerBounds);
-        }
-
-        @Override
-        public Type[] getUpperBounds() {
-            return toArray(upperBounds);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof WildcardType) {
-                WildcardType that = (WildcardType) obj;
-                return lowerBounds.equals(Arrays.asList(that.getLowerBounds()))
-                        && upperBounds.equals(Arrays.asList(that.getUpperBounds()));
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return lowerBounds.hashCode() ^ upperBounds.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder("?");
-            for (Type lowerBound : lowerBounds) {
-                builder.append(" super ").append(JavaVersion.CURRENT.typeName(lowerBound));
-            }
-            for (Type upperBound : filterUpperBounds(upperBounds)) {
-                builder.append(" extends ").append(JavaVersion.CURRENT.typeName(upperBound));
-            }
-            return builder.toString();
-        }
-
-        private static final long serialVersionUID = 0;
-    }
-
-    private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
-
-        private final Type componentType;
-
-        GenericArrayTypeImpl(Type componentType) {
-            this.componentType = JavaVersion.CURRENT.usedInGenericType(componentType);
-        }
-
-        @Override
-        public Type getGenericComponentType() {
-            return componentType;
-        }
-
-        @Override
-        public String toString() {
-            return Types.toString(componentType) + "[]";
-        }
-
-        @Override
-        public int hashCode() {
-            return componentType.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof GenericArrayType) {
-                GenericArrayType that = (GenericArrayType) obj;
-                return Objects.equals(getGenericComponentType(), that.getGenericComponentType());
-            }
-            return false;
-        }
-
-        private static final long serialVersionUID = 0;
-    }
-
-    private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
-
-        private final Type ownerType;
-        private final List<Type> argumentsList;
-        private final Class<?> rawType;
-
-        ParameterizedTypeImpl(@Nullable Type ownerType, Class<?> rawType, Type[] typeArguments) {
-            checkNotNull(rawType, "rawType");
-            checkArgument(typeArguments.length == rawType.getTypeParameters().length,
-                    "Expected %s type parameters but got %s", rawType.getTypeParameters().length, typeArguments.length);
-            disallowPrimitiveType(typeArguments, "type parameter");
-            this.ownerType = ownerType;
-            this.rawType = rawType;
-            this.argumentsList = JavaVersion.CURRENT.usedInGenericType(typeArguments);
-        }
-
-        @Override
-        public Type[] getActualTypeArguments() {
-            return toArray(argumentsList);
-        }
-
-        @Override
-        public Type getRawType() {
-            return rawType;
-        }
-
-        @Override
-        public Type getOwnerType() {
-            return ownerType;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            if (ownerType != null) {
-                builder.append(JavaVersion.CURRENT.typeName(ownerType)).append('.');
-            }
-            return builder
-                    .append(rawType.getName())
-                    .append('<')
-                    .append(argumentsList.stream().map(TYPE_NAME).collect(joining(", ")))
-                    .append('>')
-                    .toString();
-        }
-
-        @Override
-        public int hashCode() {
-            return (ownerType == null ? 0 : ownerType.hashCode())
-                    ^ argumentsList.hashCode()
-                    ^ rawType.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (!(other instanceof ParameterizedType)) {
-                return false;
-            }
-            ParameterizedType that = (ParameterizedType) other;
-            return getRawType().equals(that.getRawType())
-                    && Objects.equals(getOwnerType(), that.getOwnerType())
-                    && Arrays.equals(getActualTypeArguments(), that.getActualTypeArguments());
-        }
-
-        private static final long serialVersionUID = 0;
-    }
-
-    private static <D extends GenericDeclaration> TypeVariable<D> newTypeVariableImpl(
-            D genericDeclaration, String name, Type[] bounds) {
-        TypeVariableImpl<D> typeVariableImpl =
-                new TypeVariableImpl<D>(genericDeclaration, name, bounds);
-        @SuppressWarnings("unchecked")
-        TypeVariable<D> typeVariable =
-                Reflection.newProxy(
-                        TypeVariable.class, new TypeVariableInvocationHandler(typeVariableImpl));
-        return typeVariable;
-    }
-
-    private static Type[] toArray(Collection<Type> types) {
-        return types.toArray(new Type[types.size()]);
-    }
-
-    private static Iterable<Type> filterUpperBounds(Collection<Type> bounds) {
-        Predicate<Type> isObjectClass = Object.class::equals;
-        return bounds.stream().filter(isObjectClass.negate()).collect(toList());
-    }
-
-    private static void disallowPrimitiveType(Type[] types, String usedAs) {
-        for (Type type : types) {
-            if (type instanceof Class) {
-                Class<?> cls = (Class<?>) type;
-                checkArgument(!cls.isPrimitive(), "Primitive type '%s' used as %s", cls, usedAs);
-            }
-        }
-    }
-
-    enum JavaVersion {
-        JAVA6 {
-            @Override
-            GenericArrayType newArrayType(Type componentType) {
-                return new GenericArrayTypeImpl(componentType);
-            }
-
-            @Override
-            Type usedInGenericType(Type type) {
-                checkNotNull(type, "type");
-                if (type instanceof Class) {
-                    Class<?> cls = (Class<?>) type;
-                    if (cls.isArray()) {
-                        return new GenericArrayTypeImpl(cls.getComponentType());
-                    }
-                }
-                return type;
-            }
-        },
-        JAVA7 {
-            @Override
-            Type newArrayType(Type componentType) {
-                if (componentType instanceof Class) {
-                    return getArrayClass((Class<?>) componentType);
-                } else {
-                    return new GenericArrayTypeImpl(componentType);
-                }
-            }
-
-            @Override
-            Type usedInGenericType(Type type) {
-                return checkNotNull(type, "type");
-            }
-        },
-        JAVA8 {
-            @Override
-            Type newArrayType(Type componentType) {
-                return JAVA7.newArrayType(componentType);
-            }
-
-            @Override
-            Type usedInGenericType(Type type) {
-                return JAVA7.usedInGenericType(type);
-            }
-
-            @Override
-            String typeName(Type type) {
-                try {
-                    Method getTypeName = Type.class.getMethod("getTypeName");
-                    return (String) getTypeName.invoke(type);
-                } catch (NoSuchMethodException e) {
-                    throw new AssertionError("Type.getTypeName should be available in Java 8");
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-
-        static final JavaVersion CURRENT;
+    private static final class TypeVariableInvocationHandler implements InvocationHandler {
+        private static final Map<String, Method> TYPE_VARIABLE_METHODS;
 
         static {
-            if (AnnotatedElement.class.isAssignableFrom(TypeVariable.class)) {
-                CURRENT = JAVA8;
-            } else if (new TypeCapture<int[]>() {
-            }.capture() instanceof Class) {
-                CURRENT = JAVA7;
+            Map<String, Method> builder = new LinkedHashMap<>();
+            for (Method method : TypeVariableImpl.class.getMethods()) {
+                if (method.getDeclaringClass().equals(TypeVariableImpl.class)) {
+                    try {
+                        method.setAccessible(true);
+                    } catch (AccessControlException e) {
+                        // OK: the method is accessible to us anyway. The setAccessible call is only for
+                        // unusual execution environments where that might not be true.
+                    }
+                    builder.put(method.getName(), method);
+                }
+            }
+            TYPE_VARIABLE_METHODS = Collections.unmodifiableMap(builder);
+        }
+
+        private final TypeVariableImpl<?> typeVariableImpl;
+
+        TypeVariableInvocationHandler(TypeVariableImpl<?> typeVariableImpl) {
+            this.typeVariableImpl = typeVariableImpl;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            String methodName = method.getName();
+            Method typeVariableMethod = TYPE_VARIABLE_METHODS.get(methodName);
+            if (typeVariableMethod == null) {
+                throw new UnsupportedOperationException(methodName);
             } else {
-                CURRENT = JAVA6;
+                try {
+                    return typeVariableMethod.invoke(typeVariableImpl, args);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
-
-        abstract Type newArrayType(Type componentType);
-
-        abstract Type usedInGenericType(Type type);
-
-        String typeName(Type type) {
-            return Types.toString(type);
-        }
-
-        final List<Type> usedInGenericType(Type[] types) {
-            List<Type> builder = new ArrayList<>();
-            for (Type type : types) {
-                builder.add(usedInGenericType(type));
-            }
-            return unmodifiableList(builder);
-        }
     }
-
-    static final class NativeTypeVariableEquals<X> {
-        static final boolean NATIVE_TYPE_VARIABLE_ONLY =
-                !NativeTypeVariableEquals.class.getTypeParameters()[0]
-                        .equals(newArtificialTypeVariable(NativeTypeVariableEquals.class, "X"));
-    }
-
-    private Types() {}
 }

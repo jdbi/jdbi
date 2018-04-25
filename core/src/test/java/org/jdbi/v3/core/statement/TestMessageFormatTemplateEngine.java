@@ -23,15 +23,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestMessageFormatTemplateEngine
-{
+public class TestMessageFormatTemplateEngine {
     private TemplateEngine templateEngine;
     private StatementContext ctx;
     private Map<String, Object> attributes;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         templateEngine = MessageFormatTemplateEngine.INSTANCE;
         attributes = new HashMap<>();
         ctx = mock(StatementContext.class);
@@ -39,16 +37,14 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testNoPlaceholdersNoValues()
-    {
+    public void testNoPlaceholdersNoValues() {
         attributes.clear();
 
         assertThat(templateEngine.render("foo bar", ctx)).isEqualTo("foo bar");
     }
 
     @Test
-    public void testWithPlaceholdersAndValues()
-    {
+    public void testWithPlaceholdersAndValues() {
         attributes.put("02", "!");
         attributes.put("000", "hello");
         attributes.put("01", "world");
@@ -57,8 +53,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testManyValues()
-    {
+    public void testManyValues() {
         attributes.put("000", "a");
         attributes.put("001", "b");
         attributes.put("002", "c");
@@ -75,8 +70,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testNoPlaceholdersButWithValues()
-    {
+    public void testNoPlaceholdersButWithValues() {
         attributes.put("0", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("foo bar", ctx))
@@ -85,8 +79,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testWithPlaceholdersButNoValues()
-    {
+    public void testWithPlaceholdersButNoValues() {
         attributes.clear();
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
@@ -95,8 +88,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testNegativeKey()
-    {
+    public void testNegativeKey() {
         attributes.put("-1", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
@@ -105,8 +97,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testDuplicateKey()
-    {
+    public void testDuplicateKey() {
         attributes.put("0", "hello");
         attributes.put("00", "world");
 
@@ -116,8 +107,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testSkippedKey()
-    {
+    public void testSkippedKey() {
         attributes.put("0", "hello");
         attributes.put("2", "world");
 
@@ -127,8 +117,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testNonNumericKey()
-    {
+    public void testNonNumericKey() {
         attributes.put("abc", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
@@ -137,8 +126,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testWhitespaceInKey()
-    {
+    public void testWhitespaceInKey() {
         attributes.put(" 1 ", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
@@ -147,8 +135,7 @@ public class TestMessageFormatTemplateEngine
     }
 
     @Test
-    public void testBlankKey()
-    {
+    public void testBlankKey() {
         attributes.put(" ", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))

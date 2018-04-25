@@ -58,16 +58,14 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         when(mockExtensionFactory.accepts(UselessDao.class)).thenReturn(true);
 
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Connection getConnection() throws SQLException
-            {
+            public Connection getConnection() throws SQLException {
                 throw new UnsupportedOperationException();
             }
         };
@@ -78,24 +76,21 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Test
-    public void testEqualsDoesntAttach() throws Exception
-    {
+    public void testEqualsDoesntAttach() throws Exception {
         assertThat(onDemand).isEqualTo(onDemand);
         assertThat(onDemand).isNotEqualTo(anotherOnDemand);
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testHashCodeDoesntAttach() throws Exception
-    {
+    public void testHashCodeDoesntAttach() throws Exception {
         assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
         assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testToStringDoesntAttach() throws Exception
-    {
+    public void testToStringDoesntAttach() throws Exception {
         assertThat(onDemand.toString()).isNotNull();
         verify(mockExtensionFactory, never()).attach(any(), any());
     }

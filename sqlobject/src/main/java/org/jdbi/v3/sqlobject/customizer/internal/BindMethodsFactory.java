@@ -34,8 +34,7 @@ public class BindMethodsFactory implements SqlStatementCustomizerFactory {
             final String prefix = ((BindMethods) annotation).value();
             if (prefix.isEmpty()) {
                 stmt.bindMethods(bean);
-            }
-            else {
+            } else {
                 stmt.bindMethods(prefix, bean);
             }
         };

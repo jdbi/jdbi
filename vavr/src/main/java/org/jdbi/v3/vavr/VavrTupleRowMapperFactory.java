@@ -117,7 +117,7 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
         withConfiguredColumnName = Array.of(
                 Tuple.of(keyType._1, keyType._2, Option.of(config.get(TupleMappers.class).getKeyColumn())),
                 Tuple.of(valueType._1, valueType._2, Option.of(config.get(TupleMappers.class).getValueColumn()))
-        );
+       );
         return withConfiguredColumnName;
     }
 

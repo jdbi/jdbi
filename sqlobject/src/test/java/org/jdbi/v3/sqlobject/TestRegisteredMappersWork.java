@@ -13,14 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -38,8 +35,10 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisteredMappersWork
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestRegisteredMappersWork {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -50,41 +49,34 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         boolean world_is_right = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(world_is_right).isTrue();
     }
 
-    public static class Bean
-    {
+    public static class Bean {
         private String name;
         private String color;
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
-        public void setName(String name)
-        {
+        public void setName(String name) {
             this.name = name;
         }
 
-        public String getColor()
-        {
+        public String getColor() {
             return color;
         }
 
-        public void setColor(String color)
-        {
+        public void setColor(String color) {
             this.color = color;
         }
     }
 
-    private interface BeanMappingDao extends SqlObject
-    {
-        @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
+    private interface BeanMappingDao extends SqlObject {
+        @SqlUpdate("create table beans (name varchar primary key, color varchar)")
         void createBeanTable();
 
         @SqlUpdate("insert into beans (name, color) values (:name, :color)")
@@ -104,8 +96,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testBeanMapperFactory() throws Exception
-    {
+    public void testBeanMapperFactory() throws Exception {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -121,8 +112,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testBeanMapperFactoryDefaultMethod() throws Exception
-    {
+    public void testBeanMapperFactoryDefaultMethod() throws Exception {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -140,8 +130,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testRegistered() throws Exception
-    {
+    public void testRegistered() throws Exception {
         dbRule.getSharedHandle().registerRowMapper(new SomethingMapper());
 
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
@@ -153,8 +142,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testBuiltIn() throws Exception
-    {
+    public void testBuiltIn() throws Exception {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
@@ -163,8 +151,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testRegisterRowMapperAnnotationWorks() throws Exception
-    {
+    public void testRegisterRowMapperAnnotationWorks() throws Exception {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
@@ -173,20 +160,18 @@ public class TestRegisteredMappersWork
         assertThat(henning).isEqualTo(new Something(1, "Henning"));
     }
 
-    @Test(expected = NoSuchMapperException.class)
-    public void testNoRootRegistrations() throws Exception
-    {
+    @Test
+    public void testNoRootRegistrations() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Henning')");
-            h.createQuery("select id, name from something where id = 1")
-                                 .mapTo(Something.class)
-                                 .findFirst();
+            assertThatThrownBy(() -> h.createQuery("select id, name from something where id = 1")
+                .mapTo(Something.class)
+                .findFirst()).isInstanceOf(NoSuchMapperException.class);
         }
     }
 
     @Test
-    public void testNoErrorOnNoData() throws Exception
-    {
+    public void testNoErrorOnNoData() throws Exception {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
@@ -197,17 +182,15 @@ public class TestRegisteredMappersWork
 
     }
 
-    @Test(expected = ResultSetException.class)
-    public void testIteratorCloses() throws Exception
-    {
+    @Test
+    public void testIteratorCloses() throws Exception {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
-        itty.hasNext();
+        assertThatThrownBy(itty::hasNext).isInstanceOf(ResultSetException.class);
     }
 
-    public interface Spiffy
-    {
+    public interface Spiffy {
 
         @SqlQuery("select id, name from something where id = :id")
         Something byId(@Bind("id") long id);
@@ -221,8 +204,7 @@ public class TestRegisteredMappersWork
 
 
     @RegisterRowMapper(MySomethingMapper.class)
-    public interface Kabob
-    {
+    public interface Kabob {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -236,11 +218,9 @@ public class TestRegisteredMappersWork
         Iterator<Something> iterateAll();
     }
 
-    public static class MySomethingMapper implements RowMapper<Something>
-    {
+    public static class MySomethingMapper implements RowMapper<Something> {
         @Override
-        public Something map(ResultSet r, StatementContext ctx) throws SQLException
-        {
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException {
             return new Something(r.getInt("id"), r.getString("name"));
         }
     }

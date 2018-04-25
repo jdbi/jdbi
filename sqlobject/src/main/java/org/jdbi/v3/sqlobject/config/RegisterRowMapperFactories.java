@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperFactoriesImpl;
 @ConfiguringAnnotation(RegisterRowMapperFactoriesImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterRowMapperFactories
-{
+public @interface RegisterRowMapperFactories {
     RegisterRowMapperFactory[] value();
 }

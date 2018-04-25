@@ -19,11 +19,9 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class SomethingMapper implements RowMapper<Something>
-{
+public class SomethingMapper implements RowMapper<Something> {
     @Override
-    public Something map(ResultSet r, StatementContext ctx) throws SQLException
-    {
+    public Something map(ResultSet r, StatementContext ctx) throws SQLException {
         return new Something(r.getInt("id"), r.getString("name"));
     }
 }

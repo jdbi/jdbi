@@ -16,12 +16,10 @@ package org.jdbi.v3.core;
 /**
  * Thrown when an exception occurs while attempting to close a database resource.
  */
-public class CloseException extends JdbiException
-{
+public class CloseException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
-    public CloseException(String string, Throwable throwable)
-    {
+    public CloseException(String string, Throwable throwable) {
         super(string, throwable);
     }
 }

@@ -47,27 +47,28 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
 
     @Override
     public Argument build(Duration duration, ConfigRegistry config) {
-        final boolean isNegative = duration.isNegative();
+        Duration d = duration;
+        final boolean isNegative = d.isNegative();
         if (isNegative) {
-            duration = duration.negated();
+            d = d.negated();
         }
-        final long days = duration.toDays();
+        final long days = d.toDays();
         if (days > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(
                     String.format("duration %s too large to be represented unambiguously as postgres interval",
-                            duration));
+                            d));
         }
-        duration = duration.minusDays(days);
-        final int hours = (int)duration.toHours();
-        duration = duration.minusHours(hours);
-        final int minutes = (int)duration.toMinutes();
-        duration = duration.minusMinutes(minutes);
-        if (duration.getNano() % 1000 != 0) {
+        d = d.minusDays(days);
+        final int hours = (int) d.toHours();
+        d = d.minusHours(hours);
+        final int minutes = (int) d.toMinutes();
+        d = d.minusMinutes(minutes);
+        if (d.getNano() % 1000 != 0) {
             throw new IllegalArgumentException(
-                    String.format("duration %s too precise to represented as postgres interval", duration));
+                    String.format("duration %s too precise to represented as postgres interval", d));
         }
-        double seconds = duration.getSeconds() + duration.getNano() / 1e9;
-        final PGInterval interval = new PGInterval(0, 0, (int)days, hours, minutes, seconds);
+        double seconds = d.getSeconds() + d.getNano() / 1e9;
+        final PGInterval interval = new PGInterval(0, 0, (int) days, hours, minutes, seconds);
         if (isNegative) {
             interval.scale(-1);
         }

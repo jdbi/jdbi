@@ -29,8 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestMapArguments
-{
+public class TestMapArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
@@ -40,8 +39,7 @@ public class TestMapArguments
     StatementContext ctx = StatementContextAccess.createContext();
 
     @Test
-    public void testBind() throws Exception
-    {
+    public void testBind() throws Exception {
         Map<String, Object> args = Collections.singletonMap("foo", BigDecimal.ONE);
         new MapArguments(args).find("foo", ctx).get().apply(5, stmt, null);
 
@@ -49,8 +47,7 @@ public class TestMapArguments
     }
 
     @Test
-    public void testNullBinding() throws Exception
-    {
+    public void testNullBinding() throws Exception {
         Map<String, Object> args = Collections.singletonMap("foo", null);
         new MapArguments(args).find("foo", ctx).get().apply(3, stmt, null);
 

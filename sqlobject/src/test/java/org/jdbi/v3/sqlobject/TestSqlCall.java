@@ -33,29 +33,25 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestSqlCall
-{
+public class TestSqlCall {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.execute("CREATE ALIAS stored_insert FOR \"org.jdbi.v3.sqlobject.TestSqlCall.insertSomething\";");
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.close();
     }
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Dao dao = handle.attach(Dao.class);
 //        OutParameters out = handle.createCall(":num = call stored_insert(:id, :name)")
 //                                  .bind("id", 1)
@@ -67,8 +63,7 @@ public class TestSqlCall
         assertThat(handle.attach(Dao.class).findById(1)).isEqualTo(new Something(1, "Jeff"));
     }
 
-    public interface Dao
-    {
+    public interface Dao {
         @SqlCall("call stored_insert(:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -78,8 +73,7 @@ public class TestSqlCall
     }
 
 
-    public static int insertSomething(Connection conn, int id, String name) throws SQLException
-    {
+    public static int insertSomething(Connection conn, int id, String name) throws SQLException {
 
         PreparedStatement stmt = conn.prepareStatement("insert into something (id, name) values (?, ?)");
         stmt.setInt(1, id);

@@ -60,8 +60,7 @@ import static java.util.Objects.requireNonNull;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext implements Closeable
-{
+public class StatementContext implements Closeable {
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
@@ -84,13 +83,11 @@ public class StatementContext implements Closeable
         this(new ConfigRegistry());
     }
 
-    StatementContext(ConfigRegistry config)
-    {
+    StatementContext(ConfigRegistry config) {
         this(config, null);
     }
 
-    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod)
-    {
+    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
     }
@@ -276,7 +273,7 @@ public class StatementContext implements Closeable
      * @param containerType the container type.
      * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
-    public Optional<Collector<?,?,?>> findCollectorFor(Type containerType) {
+    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
         return getConfig(JdbiCollectors.class).findFor(containerType);
     }
 
@@ -290,8 +287,7 @@ public class StatementContext implements Closeable
         return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
-    StatementContext setRawSql(String rawSql)
-    {
+    StatementContext setRawSql(String rawSql) {
         this.rawSql = rawSql;
         return this;
     }
@@ -301,13 +297,11 @@ public class StatementContext implements Closeable
      *
      * @return the initial sql
      */
-    public String getRawSql()
-    {
+    public String getRawSql() {
         return rawSql;
     }
 
-    void setRenderedSql(String renderedSql)
-    {
+    void setRenderedSql(String renderedSql) {
         this.renderedSql = renderedSql;
     }
 
@@ -319,8 +313,7 @@ public class StatementContext implements Closeable
      *
      * @return the sql statement after processing template directives.
      */
-    public String getRenderedSql()
-    {
+    public String getRenderedSql() {
         return renderedSql;
     }
 
@@ -340,8 +333,7 @@ public class StatementContext implements Closeable
         return parsedSql;
     }
 
-    void setStatement(PreparedStatement stmt)
-    {
+    void setStatement(PreparedStatement stmt) {
         statement = stmt;
     }
 
@@ -353,13 +345,11 @@ public class StatementContext implements Closeable
      *
      * @return Obtain the actual prepared statement being used.
      */
-    public PreparedStatement getStatement()
-    {
+    public PreparedStatement getStatement() {
         return statement;
     }
 
-    StatementContext setConnection(Connection connection)
-    {
+    StatementContext setConnection(Connection connection) {
         this.connection = connection;
         return this;
     }
@@ -369,13 +359,11 @@ public class StatementContext implements Closeable
      *
      * @return the JDBC connection
      */
-    public Connection getConnection()
-    {
+    public Connection getConnection() {
         return connection;
     }
 
-    StatementContext setBinding(Binding b)
-    {
+    StatementContext setBinding(Binding b) {
         this.binding = b;
         return this;
     }
@@ -383,8 +371,7 @@ public class StatementContext implements Closeable
     /**
      * @return the statement binding
      */
-    public Binding getBinding()
-    {
+    public Binding getBinding() {
         return binding;
     }
 
@@ -392,8 +379,7 @@ public class StatementContext implements Closeable
      * Sets whether the current statement returns generated keys.
      * @param b return generated keys?
      */
-    public void setReturningGeneratedKeys(boolean b)
-    {
+    public void setReturningGeneratedKeys(boolean b) {
         if (isConcurrentUpdatable() && b) {
             throw new IllegalArgumentException("Cannot create a result set that is concurrent "
                     + "updatable and is returning generated keys.");
@@ -404,16 +390,14 @@ public class StatementContext implements Closeable
     /**
      * @return whether the statement being generated is expected to return generated keys.
      */
-    public boolean isReturningGeneratedKeys()
-    {
+    public boolean isReturningGeneratedKeys() {
         return returningGeneratedKeys || generatedKeysColumnNames.length > 0;
     }
 
     /**
      * @return the generated key column names, if any
      */
-    public String[] getGeneratedKeysColumnNames()
-    {
+    public String[] getGeneratedKeysColumnNames() {
         return Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
@@ -421,8 +405,7 @@ public class StatementContext implements Closeable
      * Set the generated key column names.
      * @param generatedKeysColumnNames the generated key column names
      */
-    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames)
-    {
+    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames) {
         this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
@@ -502,8 +485,7 @@ public class StatementContext implements Closeable
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         SQLException exception = null;
         try {
             List<Cleanable> cleanables = new ArrayList<>(this.cleanables);
@@ -527,8 +509,7 @@ public class StatementContext implements Closeable
         }
     }
 
-    public ExtensionMethod getExtensionMethod()
-    {
+    public ExtensionMethod getExtensionMethod() {
         return extensionMethod;
     }
 }

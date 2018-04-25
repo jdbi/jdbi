@@ -48,7 +48,7 @@ class SqlArrayArgument<T> implements Argument {
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         SqlArrayArgumentStrategy argumentStyle = ctx.getSqlArrayArgumentStrategy();
-        switch(argumentStyle) {
+        switch (argumentStyle) {
             case SQL_ARRAY:
                 java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
                 ctx.addCleanable(sqlArray::free);

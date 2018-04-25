@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlScripts {
     @Rule
@@ -36,10 +36,10 @@ public class TestSqlScripts {
 
     private interface Scriptacular {
         // tag::scripts[]
-        @SqlScript("CREATE TABLE <name> ( pk int primary key )")
+        @SqlScript("CREATE TABLE <name> (pk int primary key)")
         void createTable(@Define String name);
 
-        @SqlScript("INSERT INTO cool_table VALUES ( 5 ), ( 6 ), ( 7 )")
+        @SqlScript("INSERT INTO cool_table VALUES (5), (6), (7)")
         @SqlScript("DELETE FROM cool_table WHERE pk > 5")
         int[] doSomeUpdates(); // returns [ 3, 2 ]
 

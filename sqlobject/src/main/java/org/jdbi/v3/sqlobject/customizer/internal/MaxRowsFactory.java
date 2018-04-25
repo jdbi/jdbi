@@ -24,15 +24,13 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
-public class MaxRowsFactory implements SqlStatementCustomizerFactory
-{
+public class MaxRowsFactory implements SqlStatementCustomizerFactory {
     // arbitrary number to avoid coincidences
     public static final int DEFAULT_MAX_ROWS = -1;
 
     @Override
-    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
-        final int maxRows = ((MaxRows)annotation).value();
+    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        final int maxRows = ((MaxRows) annotation).value();
 
         if (maxRows == DEFAULT_MAX_ROWS) {
             throw new IllegalArgumentException(MessageFormat.format(
@@ -40,7 +38,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName())
-            );
+           );
         }
         if (maxRows <= 0) {
             throw new IllegalArgumentException(MessageFormat.format(
@@ -49,10 +47,10 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                 sqlObjectType.getName(),
                 method.getName(),
                 maxRows)
-            );
+           );
         }
 
-        return stmt -> ((Query)stmt).setMaxRows(maxRows);
+        return stmt -> ((Query) stmt).setMaxRows(maxRows);
     }
 
     /*
@@ -64,8 +62,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                                                               Method method,
                                                               Parameter param,
                                                               int index,
-                                                              Type type)
-    {
+                                                              Type type) {
         int value = ((MaxRows) annotation).value();
         if (value != DEFAULT_MAX_ROWS) {
             throw new IllegalArgumentException(MessageFormat.format(
@@ -74,7 +71,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                 sqlObjectType.getName(),
                 method.getName(),
                 param.getName())
-            );
+           );
         }
 
         return (stmt, arg) -> {
@@ -87,7 +84,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory
                     method.getName(),
                     param.getName(),
                     maxRows)
-                );
+               );
             }
 
             ((Query) stmt).setMaxRows(maxRows);

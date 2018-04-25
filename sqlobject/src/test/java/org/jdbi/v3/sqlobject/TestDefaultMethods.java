@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestDefaultMethods
-{
+public class TestDefaultMethods {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -52,8 +51,7 @@ public class TestDefaultMethods
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
-    private interface Spiffy
-    {
+    private interface Spiffy {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") int id);
@@ -67,16 +65,14 @@ public class TestDefaultMethods
         }
     }
 
-    public interface SpiffyOverride extends Spiffy
-    {
+    public interface SpiffyOverride extends Spiffy {
         @Override
         @UseRowMapper(SomethingMapper.class)
         @SqlQuery("select id, name from something where id = :id")
         Something insertAndReturn(@Bind int id, @Bind String name);
     }
 
-    public interface SpiffyOverrideWithDefault extends SpiffyOverride
-    {
+    public interface SpiffyOverrideWithDefault extends SpiffyOverride {
         @Override
         default Something insertAndReturn(int id, String name) {
             return new Something(-6, "what");

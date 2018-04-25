@@ -29,13 +29,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestFieldMapper
-{
+public class TestFieldMapper {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    public static class TestObject
-    {
+    public static class TestObject {
         ValueType valueType;
 
         public ValueType getValueType() {
@@ -44,8 +42,7 @@ public class TestFieldMapper
     }
 
     @RegisterColumnMapper(ValueTypeMapper.class)
-    public interface TestDao
-    {
+    public interface TestDao {
         @SqlQuery("select * from testBean")
         @RegisterFieldMapper(TestObject.class)
         List<TestObject> listBeans();

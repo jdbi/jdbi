@@ -19,8 +19,7 @@ import java.util.Map;
 /**
  * Holder for a single joined row.
  */
-public class JoinRow
-{
+public class JoinRow {
     private final Map<Type, Object> entries;
 
     JoinRow(Map<Type, Object> entries) {
@@ -35,7 +34,7 @@ public class JoinRow
      * @return the value for that type
      */
     public <T> T get(Class<T> klass) {
-        return klass.cast(get((Type)klass));
+        return klass.cast(get((Type) klass));
     }
 
     /**

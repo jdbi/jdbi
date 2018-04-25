@@ -42,8 +42,7 @@ public class TestMaxRows {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.openHandle();
     }
 

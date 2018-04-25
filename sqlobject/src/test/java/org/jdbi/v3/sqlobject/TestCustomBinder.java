@@ -25,14 +25,12 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestCustomBinder
-{
+public class TestCustomBinder {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
@@ -41,8 +39,7 @@ public class TestCustomBinder
     }
 
     @Test
-    public void testCustomBindingAnnotation() throws Exception
-    {
+    public void testCustomBindingAnnotation() throws Exception {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
@@ -50,8 +47,7 @@ public class TestCustomBinder
         assertThat(s.findNameById(2)).isEqualTo("Keith");
     }
 
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlQuery("select id, name from something where id = :it.id")
         @UseRowMapper(SomethingMapper.class)
         Something findSame(@BindSomething("it") Something something);

@@ -29,22 +29,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestDefineParameter
-{
+public class TestDefineParameter {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testDefineParameter() throws Exception
-    {
+    public void testDefineParameter() throws Exception {
         handle.execute("create table stuff (id identity primary key, name varchar(50))");
         handle.execute("create table junk  (id identity primary key, name varchar(50))");
 
@@ -64,8 +61,7 @@ public class TestDefineParameter
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface HoneyBadger
-    {
+    public interface HoneyBadger {
         @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
         void insert(@Define("table") String ermahgerd, @BindBean Something s);
 

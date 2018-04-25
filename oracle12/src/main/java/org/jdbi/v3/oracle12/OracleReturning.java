@@ -84,8 +84,7 @@ public class OracleReturning {
         void bind(Binding binding) {
             if (name == null) {
                 binding.addPositional(index, this);
-            }
-            else {
+            } else {
                 binding.addNamed(name, this);
             }
         }
@@ -94,8 +93,7 @@ public class OracleReturning {
     public static class ReturnParameters implements StatementCustomizer {
         private final List<ReturnParam> returnParams = new ArrayList<>();
 
-        ReturnParameters() {
-        }
+        ReturnParameters() {}
 
         @Override
         public void beforeBinding(PreparedStatement stmt, StatementContext ctx) throws SQLException {

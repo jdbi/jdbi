@@ -50,12 +50,10 @@ class ConstantHandleSupplier implements HandleSupplier {
             try {
                 handle.setConfig(config);
                 return task.call();
-            }
-            finally {
+            } finally {
                 handle.setConfig(oldConfig);
             }
-        }
-        finally {
+        } finally {
             handle.setExtensionMethod(oldExtensionMethod);
         }
     }

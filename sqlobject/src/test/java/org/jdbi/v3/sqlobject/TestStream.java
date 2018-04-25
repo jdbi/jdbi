@@ -27,8 +27,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStream
-{
+public class TestStream {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -49,8 +48,7 @@ public class TestStream
 
     }
 
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlQuery("select id, name from something order by id desc")
         @UseRowMapper(SomethingMapper.class)
         Stream<Something> stream();

@@ -26,14 +26,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request".
  */
-public class Batch extends BaseStatement<Batch>
-{
+public class Batch extends BaseStatement<Batch> {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();
 
-    public Batch(Handle handle)
-    {
+    public Batch(Handle handle) {
         super(handle);
     }
 
@@ -43,8 +41,7 @@ public class Batch extends BaseStatement<Batch>
      * @param sql SQL to be added to the batch, possibly a named statement
      * @return the same Batch statement
      */
-    public Batch add(String sql)
-    {
+    public Batch add(String sql) {
         parts.add(sql);
         return this;
     }
@@ -54,8 +51,7 @@ public class Batch extends BaseStatement<Batch>
      *
      * @return an array of integers representing the return values from each statement's execution
      */
-    public int[] execute()
-    {
+    public int[] execute() {
         // short circuit empty batch
         if (parts.size() == 0) {
             return new int[] {};

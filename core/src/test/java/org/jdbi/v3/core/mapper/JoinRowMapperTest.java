@@ -28,16 +28,14 @@ import org.junit.Test;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class JoinRowMapperTest
-{
+public class JoinRowMapperTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE user (" +
                     "uid INTEGER NOT NULL," +
@@ -71,8 +69,7 @@ public class JoinRowMapperTest
     }
 
     @Test
-    public void testCartesianProduct() throws Exception
-    {
+    public void testCartesianProduct() throws Exception {
         Multimap<User, Article> product = HashMultimap.create();
         h.createQuery("SELECT * FROM user, article")
             .map(JoinRowMapper.forTypes(User.class, Article.class))
@@ -87,8 +84,7 @@ public class JoinRowMapperTest
     }
 
     @Test
-    public void testJoin() throws Exception
-    {
+    public void testJoin() throws Exception {
        // tag::multimap[]
         Multimap<User, Article> joined = HashMultimap.create();
         h.createQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
@@ -99,8 +95,7 @@ public class JoinRowMapperTest
         assertThat(joined).isEqualTo(getExpected());
     }
 
-    public static Multimap<User, Article> getExpected()
-    {
+    public static Multimap<User, Article> getExpected() {
         Multimap<User, Article> expected = HashMultimap.create();
         expected.put(u(1), a(2));
         expected.put(u(3), a(1));
@@ -116,8 +111,7 @@ public class JoinRowMapperTest
         return new Article(aid, "a" + aid);
     }
 
-    public static class User
-    {
+    public static class User {
         private final int uid;
         private final String name;
 
@@ -127,10 +121,8 @@ public class JoinRowMapperTest
         public int hashCode() { return Objects.hash(uid, name); }
 
         @Override
-        public boolean equals(Object obj)
-        {
-            if(obj instanceof User)
-            {
+        public boolean equals(Object obj) {
+            if(obj instanceof User) {
                 User that = (User) obj;
                 return Objects.equals(uid, that.uid) && Objects.equals(name, that.name);
             }
@@ -138,8 +130,7 @@ public class JoinRowMapperTest
         }
     }
 
-    public static class Article
-    {
+    public static class Article {
         private final int aid;
         private final String title;
 
@@ -149,10 +140,8 @@ public class JoinRowMapperTest
         public int hashCode() { return Objects.hash(aid, title); }
 
         @Override
-        public boolean equals(Object obj)
-        {
-            if(obj instanceof Article)
-            {
+        public boolean equals(Object obj) {
+            if(obj instanceof Article) {
                 Article that = (Article) obj;
                 return Objects.equals(aid, that.aid) && Objects.equals(title, that.title);
             }

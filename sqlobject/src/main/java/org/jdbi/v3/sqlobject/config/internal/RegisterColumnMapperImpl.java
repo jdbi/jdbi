@@ -21,23 +21,19 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 
-public class RegisterColumnMapperImpl implements Configurer
-{
+public class RegisterColumnMapperImpl implements Configurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
         ColumnMappers mappers = registry.get(ColumnMappers.class);
         try {
             mappers.register(registerColumnMapper.value().newInstance());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("unable to create a specified column mapper", e);
         }
     }

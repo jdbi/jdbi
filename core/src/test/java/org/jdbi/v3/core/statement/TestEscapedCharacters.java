@@ -19,31 +19,26 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class TestEscapedCharacters
-{
+public class TestEscapedCharacters {
     private final ColonPrefixSqlParser parser = new ColonPrefixSqlParser();
 
-    private String parseString(final String src)
-    {
+    private String parseString(final String src) {
         return parser.parse(src, mock(StatementContext.class)).getSql();
     }
 
     @Test
-    public void testSimpleString()
-    {
+    public void testSimpleString() {
         assertThat(parseString("hello, world")).isEqualTo("hello, world");
     }
 
     @Test
-    public void testSimpleSql()
-    {
+    public void testSimpleSql() {
         assertThat(parseString("insert into foo (xyz) values (:bar)"))
                 .isEqualTo("insert into foo (xyz) values (?)");
     }
 
     @Test
-    public void testEscapedSql()
-    {
+    public void testEscapedSql() {
         assertThat(parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"))
         .isEqualTo("insert into foo (xyz) values (?::some_strange_type)");
     }

@@ -13,37 +13,36 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class StatementContextTest {
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
 
         context.setReturningGeneratedKeys(true);
-        context.setConcurrentUpdatable(true);
+        assertThatThrownBy(() -> context.setConcurrentUpdatable(true)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
 
         context.setConcurrentUpdatable(true);
-        context.setReturningGeneratedKeys(true);
+        assertThatThrownBy(() -> context.setReturningGeneratedKeys(true)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    private static class Foo {
-    }
+    private static class Foo {}
 
     private static class FooMapper implements ColumnMapper<Foo> {
         @Override

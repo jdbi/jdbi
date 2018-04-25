@@ -26,8 +26,7 @@ import java.util.NoSuchElementException;
  * have a more specific type than Object. Note that its elements will be returned as
  * Object, primitives included (will be autoboxed).
  */
-public class IterableLike
-{
+public class IterableLike {
     private IterableLike() {
         throw new UnsupportedOperationException("utility class");
     }
@@ -35,8 +34,7 @@ public class IterableLike
     /**
      * @return whether {@code IterableLike} can iterate over the given object
      */
-    public static boolean isIterable(Object maybeIterable)
-    {
+    public static boolean isIterable(Object maybeIterable) {
         return  maybeIterable instanceof Iterator<?> ||
                 maybeIterable instanceof Iterable<?> ||
                 maybeIterable.getClass().isArray();
@@ -49,27 +47,25 @@ public class IterableLike
      * @return an iterator of the given array's elements
      */
     @SuppressWarnings("unchecked")
-    public static Iterator<Object> of(Object iterable)
-    {
+    public static Iterator<Object> of(Object iterable) {
         if (iterable == null) {
             throw new IllegalArgumentException("can't iterate null");
         }
         if (iterable instanceof Iterator<?>) {
             return (Iterator<Object>) iterable;
-        }
-        else if (iterable instanceof Iterable<?>) {
+        } else if (iterable instanceof Iterable<?>) {
             return ((Iterable<Object>) iterable).iterator();
         }
 
-        Class<? extends Object> klass = iterable.getClass();
-        if(!klass.isArray()) {
+        Class<?> klass = iterable.getClass();
+        if (!klass.isArray()) {
             throw new IllegalArgumentException(getTypeWarning(klass));
         }
 
         if (klass.getComponentType().isPrimitive()) {
             return new PrimitiveArrayIterator(iterable);
         }
-        return Arrays.asList((Object[])iterable).iterator();
+        return Arrays.asList((Object[]) iterable).iterator();
     }
 
     /**
@@ -120,33 +116,27 @@ public class IterableLike
         /**
          * @throws IllegalArgumentException if obj is not an array
          */
-        PrimitiveArrayIterator(final Object obj)
-        {
+        PrimitiveArrayIterator(final Object obj) {
             size = Array.getLength(obj);
             arr = obj;
         }
 
         @Override
-        public boolean hasNext()
-        {
+        public boolean hasNext() {
             return index < size;
         }
 
         @Override
-        public Object next()
-        {
-            if (hasNext())
-            {
+        public Object next() {
+            if (hasNext()) {
                 return Array.get(arr, index++);
-            } else
-            {
+            } else {
                 throw new NoSuchElementException("only " + size + " elements available");
             }
         }
 
         @Override
-        public void remove()
-        {
+        public void remove() {
             throw new UnsupportedOperationException();
         }
     }

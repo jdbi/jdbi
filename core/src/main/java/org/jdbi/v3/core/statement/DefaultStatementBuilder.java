@@ -23,15 +23,13 @@ import java.sql.Statement;
 /**
  * A StatementBuilder which will always create a new PreparedStatement.
  */
-public class DefaultStatementBuilder implements StatementBuilder
-{
+public class DefaultStatementBuilder implements StatementBuilder {
     public static final StatementBuilderFactory FACTORY = c -> new DefaultStatementBuilder();
 
-    public DefaultStatementBuilder() { }
+    public DefaultStatementBuilder() {}
 
     @Override
-    public Statement create(Connection conn, StatementContext ctx) throws SQLException
-    {
+    public Statement create(Connection conn, StatementContext ctx) throws SQLException {
         return conn.createStatement();
     }
 
@@ -46,19 +44,16 @@ public class DefaultStatementBuilder implements StatementBuilder
      * @return a new PreparedStatement
      */
     @Override
-    public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
-    {
+    public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException {
         if (ctx.isReturningGeneratedKeys()) {
             String[] columnNames = ctx.getGeneratedKeysColumnNames();
             if (columnNames != null && columnNames.length > 0) {
                 return conn.prepareStatement(sql, columnNames);
             }
             return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        }
-        else if (ctx.isConcurrentUpdatable()) {
+        } else if (ctx.isConcurrentUpdatable()) {
             return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-        }
-        else {
+        } else {
             return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         }
     }
@@ -73,8 +68,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      * @throws java.sql.SQLException if anything goes wrong closing the statement
      */
     @Override
-    public void close(Connection conn, String sql, Statement stmt) throws SQLException
-    {
+    public void close(Connection conn, String sql, Statement stmt) throws SQLException {
         if (stmt != null) {
             stmt.close();
         }
@@ -84,9 +78,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      * No need to do anything on connection close.
      */
     @Override
-    public void close(Connection conn)
-    {
-    }
+    public void close(Connection conn) {}
 
     /**
      * Called each time a Callable statement needs to be created
@@ -96,8 +88,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      * @param ctx Statement context associated with the SqlStatement this is building for
      */
     @Override
-    public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
-    {
+    public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException {
         return conn.prepareCall(sql);
     }
 }

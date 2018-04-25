@@ -31,16 +31,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBatchingSingleValue
-{
+public class TestBatchingSingleValue {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new H2DatabasePlugin());
     private Handle handle;
     private SingleValueBatching b;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.execute("create table batching (id integer, values array)");
         b = handle.attach(SingleValueBatching.class);
@@ -48,8 +46,7 @@ public class TestBatchingSingleValue
 
 
     @Test
-    public void testSingleValueArray() throws Exception
-    {
+    public void testSingleValueArray() throws Exception {
         final int[] ids = IntStream.range(0, 10).toArray();
         final int[] values = IntStream.range(50, 60).toArray();
 
@@ -63,8 +60,7 @@ public class TestBatchingSingleValue
 
     @BatchChunkSize(4)
     @RegisterConstructorMapper(BatchingRow.class)
-    public interface SingleValueBatching
-    {
+    public interface SingleValueBatching {
         @SqlBatch("insert into batching (id, values) values (:id, :values)")
         int[] insertValues(int[] id, @SingleValue int[] values);
 
@@ -72,22 +68,18 @@ public class TestBatchingSingleValue
         List<BatchingRow> select();
     }
 
-    public static class BatchingRow
-    {
+    public static class BatchingRow {
         final int id;
         final int[] values;
 
-        public BatchingRow(int id, int[] values)
-        {
+        public BatchingRow(int id, int[] values) {
             this.id = id;
             this.values = values;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
-            if (obj instanceof BatchingRow)
-            {
+        public boolean equals(Object obj) {
+            if (obj instanceof BatchingRow) {
                 BatchingRow other = (BatchingRow) obj;
                 return id == other.id && Arrays.equals(values, other.values);
             }
@@ -95,14 +87,12 @@ public class TestBatchingSingleValue
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return id ^ Arrays.hashCode(values);
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return String.format("%s %s", id, Arrays.toString(values));
         }
     }

@@ -26,8 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestSerializableTransactionRunner
-{
+public class TestSerializableTransactionRunner {
     private static final int RETRIES = 5;
 
     @Rule
@@ -36,8 +35,7 @@ public class TestSerializableTransactionRunner
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         db = Jdbi.create(dbRule.getConnectionFactory());
         db.setTransactionHandler(new SerializableTransactionRunner());
         db.getConfig(SerializableTransactionRunner.Configuration.class).setMaxRetries(RETRIES);
@@ -60,14 +58,12 @@ public class TestSerializableTransactionRunner
     }
 
     @Test
-    public void testEventuallySucceeds() throws Exception
-    {
+    public void testEventuallySucceeds() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(RETRIES / 2);
         Handle handle = db.open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
-            if (remaining.decrementAndGet() == 0)
-            {
+            if (remaining.decrementAndGet() == 0) {
                 return null;
             }
             throw new SQLException("serialization", "40001");

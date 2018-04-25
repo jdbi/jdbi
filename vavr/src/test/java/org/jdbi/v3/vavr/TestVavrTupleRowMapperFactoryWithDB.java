@@ -93,7 +93,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
                 .findOnly()
-        ).isInstanceOf(NoSuchMapperException.class)
+       ).isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("SomethingValues");
     }
 

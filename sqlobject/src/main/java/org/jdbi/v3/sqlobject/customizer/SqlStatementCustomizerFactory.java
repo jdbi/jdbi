@@ -22,8 +22,7 @@ import java.lang.reflect.Type;
  * Interface used in conjunction with {@link SqlStatementCustomizingAnnotation} to generate
  * {@link SqlStatementCustomizer} instances.
  */
-public interface SqlStatementCustomizerFactory
-{
+public interface SqlStatementCustomizerFactory {
     /**
      * Used to create customizers for annotations on sql object interfaces
      *
@@ -31,8 +30,7 @@ public interface SqlStatementCustomizerFactory
      * @param sqlObjectType sql object class (interface)
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-    {
+    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
         throw new UnsupportedOperationException("Not supported for type");
     }
 
@@ -44,8 +42,7 @@ public interface SqlStatementCustomizerFactory
      * @param method the method which was annotated
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    default SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");
     }
 
@@ -65,8 +62,7 @@ public interface SqlStatementCustomizerFactory
                                                                Method method,
                                                                Parameter param,
                                                                int index,
-                                                               Type paramType)
-    {
+                                                               Type paramType) {
         throw new UnsupportedOperationException("Not supported for parameter");
     }
 }

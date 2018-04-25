@@ -17,8 +17,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface Service
-{
+public interface Service {
     void inPropagationRequired(Callback c);
 
     void inRequiresNew(Callback c);

@@ -23,16 +23,14 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
-public class DefineFactory implements SqlStatementCustomizerFactory
-{
+public class DefineFactory implements SqlStatementCustomizerFactory {
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
                                                               Method method,
                                                               Parameter param,
                                                               int index,
-                                                              Type type)
-    {
+                                                              Type type) {
         Define define = (Define) annotation;
 
         final String name = ParameterUtil.findParameterName(define.value(), param)

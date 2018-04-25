@@ -30,8 +30,7 @@ class OnDemandExtensions {
             EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
             HASHCODE_METHOD = Object.class.getMethod("hashCode");
             TOSTRING_METHOD = Object.class.getMethod("toString");
-        }
-        catch (NoSuchMethodException wat) {
+        } catch (NoSuchMethodException wat) {
             throw new IllegalStateException("JVM error", wat);
         }
     }

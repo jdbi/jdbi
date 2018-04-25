@@ -23,13 +23,11 @@ import org.jdbi.v3.core.internal.SqlScriptParser;
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.
  */
-public class Script extends SqlStatement<Script>
-{
+public class Script extends SqlStatement<Script> {
     private final Handle handle;
     private final String sql;
 
-    public Script(Handle h, String sql)
-    {
+    public Script(Handle h, String sql) {
         super(h, sql);
         this.handle = h;
         this.sql = sql;

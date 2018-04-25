@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // TODO consider removing this since its mostly redunant with other test class
 public class TestVavrTupleMapperWithDB {
@@ -52,8 +53,7 @@ public class TestVavrTupleMapperWithDB {
     public void testMapToTuple1_shouldSucceed() {
         Tuple1<String> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t2 from tuples order by t1 asc")
-                .mapTo(new GenericType<Tuple1<String>>() {
-                })
+                .mapTo(new GenericType<Tuple1<String>>() {})
                 .findFirst().get();
 
         assertThat(tupleProjection).isEqualTo(Tuple.of("t20"));
@@ -64,8 +64,7 @@ public class TestVavrTupleMapperWithDB {
         List<Tuple1<String>> expectedTuples = expected.map(i -> new Tuple1<>("t2" + i));
         List<Tuple1<String>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t2 from tuples")
-                .collectInto(new GenericType<List<Tuple1<String>>>() {
-                });
+                .collectInto(new GenericType<List<Tuple1<String>>>() {});
 
         assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
     }
@@ -75,18 +74,17 @@ public class TestVavrTupleMapperWithDB {
         List<Tuple1<Integer>> firstColumnTuples = expected.map(Tuple1::new);
         List<Tuple1<Integer>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select * from tuples")
-                .collectInto(new GenericType<List<Tuple1<Integer>>>() {
-                });
+                .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
 
         assertThat(tupleProjection).containsOnlyElementsOf(firstColumnTuples);
     }
 
-    @Test(expected = ResultSetException.class)
+    @Test
     public void testTuple1CollectorWithMultiSelect_shouldFail() {
         // first selection is not projectable to tuple param
-        dbRule.getSharedHandle()
-                .createQuery("select t2, t3 from tuples")
-                .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+            .createQuery("select t2, t3 from tuples")
+            .collectInto(new GenericType<List<Tuple1<Integer>>>() {})).isInstanceOf(ResultSetException.class);
     }
 
     @Test

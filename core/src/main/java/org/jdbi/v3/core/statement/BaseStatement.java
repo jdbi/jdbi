@@ -18,14 +18,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.generic.GenericTypes;
 
-abstract class BaseStatement<This> implements Closeable, Configurable<This>
-{
+abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     @SuppressWarnings("unchecked")
     final This typedThis = (This) this;
 
@@ -33,20 +31,16 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     private final StatementContext ctx;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
-    BaseStatement(Handle handle)
-    {
+    BaseStatement(Handle handle) {
         this.handle = handle;
-        this.ctx = new StatementContext(
-                handle.getConfig().createCopy(), handle.getExtensionMethod());
-    }
+        this.ctx = new StatementContext(handle.getConfig().createCopy(), handle.getExtensionMethod());
 
-    {
         // Prevent bogus signatures like Update extends SqlStatement<Query>
         // SqlStatement's generic parameter must be supertype of getClass()
-        if(GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
-                .map(GenericTypes::getErasedType)
-                .map(type -> !type.isAssignableFrom(getClass()))
-                .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯
+        if (GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
+            .map(GenericTypes::getErasedType)
+            .map(type -> !type.isAssignableFrom(getClass()))
+            .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯
             throw new IllegalStateException("inconsistent SqlStatement hierarchy");
         }
     }
@@ -63,8 +57,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     /**
      * @return the statement context associated with this statement
      */
-    public final StatementContext getContext()
-    {
+    public final StatementContext getContext() {
         return ctx;
     }
 
@@ -74,14 +67,12 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
      * @param cleanable the cleanable to register
      * @return this
      */
-    This addCleanable(Cleanable cleanable)
-    {
+    This addCleanable(Cleanable cleanable) {
         getContext().addCleanable(cleanable);
         return typedThis;
     }
 
-    void addCustomizers(final Collection<StatementCustomizer> customizers)
-    {
+    void addCustomizers(final Collection<StatementCustomizer> customizers) {
         this.customizers.addAll(customizers);
     }
 
@@ -92,8 +83,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
      * @param customizer instance to be used to customize a statement
      * @return this
      */
-    public final This addCustomizer(final StatementCustomizer customizer)
-    {
+    public final This addCustomizer(final StatementCustomizer customizer) {
         this.customizers.add(customizer);
         return typedThis;
     }
@@ -102,40 +92,34 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         for (StatementCustomizer customizer : customizers) {
             try {
                 customizer.beforeBinding(stmt, ctx);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
         }
     }
 
-    final void beforeExecution(final PreparedStatement stmt)
-    {
+    final void beforeExecution(final PreparedStatement stmt) {
         for (StatementCustomizer customizer : customizers) {
             try {
                 customizer.beforeExecution(stmt, ctx);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
         }
     }
 
-    final void afterExecution(final PreparedStatement stmt)
-    {
+    final void afterExecution(final PreparedStatement stmt) {
         for (StatementCustomizer customizer : customizers) {
             try {
                 customizer.afterExecution(stmt, ctx);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
         }
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         getContext().close();
     }
 }

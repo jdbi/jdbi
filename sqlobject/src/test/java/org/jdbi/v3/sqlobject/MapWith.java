@@ -19,7 +19,6 @@ import java.lang.annotation.RetentionPolicy;
 import org.jdbi.v3.core.mapper.RowMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MapWith
-{
+public @interface MapWith {
     Class<? extends RowMapper<?>> value();
 }

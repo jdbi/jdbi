@@ -23,8 +23,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * statement is executed to bind the parameter.
  */
 @FunctionalInterface
-public interface Argument
-{
+public interface Argument {
     /**
      * Apply the argument to the given prepared statement.
      *

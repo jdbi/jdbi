@@ -27,8 +27,7 @@ import java.sql.Statement;
  *
  * @see StatementBuilderFactory
  */
-public interface StatementBuilder
-{
+public interface StatementBuilder {
     /**
      * Called each time a statement needs to be created.
      * @param conn the JDBC Connection the statement is being created for

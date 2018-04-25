@@ -28,22 +28,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBeanBinder
-{
+public class TestBeanBinder {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInsert() throws Exception
-    {
+    public void testInsert() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
@@ -52,8 +49,7 @@ public class TestBeanBinder
     }
 
     @Test
-    public void testRead() throws Exception
-    {
+    public void testRead() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         handle.execute("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
@@ -74,8 +70,7 @@ public class TestBeanBinder
     }
 
     @Test
-    public void testBindingPrivateTypeUsingPublicInterface() throws Exception
-    {
+    public void testBindingPrivateTypeUsingPublicInterface() throws Exception {
         Spiffy s = handle.attach(Spiffy.class);
         assertThat(s.selectPublicInterfaceValue(PrivateImplementationFactory.create())).isEqualTo("IShouldBind");
     }

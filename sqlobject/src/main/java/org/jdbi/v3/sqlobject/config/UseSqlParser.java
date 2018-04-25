@@ -33,8 +33,7 @@ import org.jdbi.v3.sqlobject.config.internal.UseSqlParserImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @ConfiguringAnnotation(UseSqlParserImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseSqlParser
-{
+public @interface UseSqlParser {
     /**
      * Specify the SqlParser class to use.
      * @return the SqlParser class to use.

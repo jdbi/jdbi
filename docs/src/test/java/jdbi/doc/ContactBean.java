@@ -19,8 +19,7 @@ public class ContactBean {
     int id;
     String name;
 
-    public ContactBean() {
-    }
+    public ContactBean() {}
 
     public ContactBean(int id, String name) {
         this.id = id;

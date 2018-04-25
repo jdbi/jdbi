@@ -44,5 +44,4 @@ import org.jdbi.v3.sqlobject.locator.internal.UseClasspathSqlLocatorImpl;
 @ConfiguringAnnotation(UseClasspathSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface UseClasspathSqlLocator {
-}
+public @interface UseClasspathSqlLocator {}

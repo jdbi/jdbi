@@ -74,8 +74,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         // once created, the handle owns cleanup of the threadlocals
         if (handle != null) {
             handle.close();
-        }
-        else {
+        } else {
             config.remove();
             extensionMethod.remove();
         }

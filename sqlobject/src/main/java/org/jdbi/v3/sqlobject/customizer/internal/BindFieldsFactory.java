@@ -35,8 +35,7 @@ public class BindFieldsFactory implements SqlStatementCustomizerFactory {
             String prefix = bind.value();
             if (prefix.isEmpty()) {
                 stmt.bindFields(bean);
-            }
-            else {
+            } else {
                 stmt.bindFields(prefix, bean);
             }
         };

@@ -71,5 +71,5 @@ public class TestUseClasspathSqlLocator {
 
     @RegisterRowMapper(SomethingMapper.class)
     @UseClasspathSqlLocator
-    public interface SubCromulence extends Cromulence { }
+    public interface SubCromulence extends Cromulence {}
 }
