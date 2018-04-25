@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -34,7 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
  */
 public class StringTemplateSqlLocator {
-    private static final Map<String, STGroup> CACHE = ExpiringMap.builder()
+    private static final Map<String, ThreadLocal<STGroup>> CACHE = ExpiringMap.builder()
             .expiration(10, TimeUnit.MINUTES)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .build();
@@ -131,13 +130,7 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
-        final STGroup cached = CACHE.get(path);
-        if (cached != null) {
-            return cached;
-        }
-        synchronized (StringTemplateSqlLocator.class) {
-            return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path));
-        }
+        return CACHE.computeIfAbsent(path, p -> ThreadLocal.withInitial(() -> readStringTemplateGroup(classLoader, path))).get();
     }
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
