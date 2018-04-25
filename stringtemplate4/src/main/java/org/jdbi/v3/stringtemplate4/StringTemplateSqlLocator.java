@@ -33,7 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
  */
 public class StringTemplateSqlLocator {
-    private static final Map<String, STGroup> CACHE = ExpiringMap.builder()
+    private static final Map<String, ThreadLocal<STGroup>> CACHE = ExpiringMap.builder()
             .expiration(10, TimeUnit.MINUTES)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .build();
@@ -129,7 +129,7 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
-        return CACHE.computeIfAbsent(path, p -> readStringTemplateGroup(classLoader, path));
+        return CACHE.computeIfAbsent(path, p -> ThreadLocal.withInitial(() -> readStringTemplateGroup(classLoader, path))).get();
     }
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
