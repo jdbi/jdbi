@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.argument.qualified.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
@@ -75,11 +78,11 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
     abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
 
     static class TypedValue {
-        public final Type type;
+        public final QualifiedType type;
         public final Object value;
 
-        public TypedValue(Type type, Object value) {
-            this.type = type;
+        public TypedValue(Type type, Set<Annotation> qualifiers, Object value) {
+            this.type = QualifiedType.of(type, qualifiers);
             this.value = value;
         }
     }

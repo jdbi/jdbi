@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -25,6 +27,7 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.argument.qualified.Qualifiers.getQualifyingAnnotations;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -60,9 +63,10 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         Type type = method.getGenericReturnType();
+        Set<Annotation> qualifiers = getQualifyingAnnotations(method);
         Object value = invokeMethod(method, ctx);
 
-        return Optional.of(new TypedValue(type, value));
+        return Optional.of(new TypedValue(type, qualifiers, value));
     }
 
     @Override

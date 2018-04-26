@@ -14,11 +14,14 @@
 package org.jdbi.v3.core.argument;
 
 import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.argument.qualified.Qualifiers.getQualifyingAnnotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -62,9 +65,10 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
         try {
             Type type = field.getGenericType();
+            Set<Annotation> qualifiers = getQualifyingAnnotations(field);
             Object value = field.get(object);
 
-            return Optional.of(new TypedValue(type, value));
+            return Optional.of(new TypedValue(type, qualifiers, value));
         } catch (IllegalAccessException e) {
             throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
                     "bean property [%s] on [%s]",

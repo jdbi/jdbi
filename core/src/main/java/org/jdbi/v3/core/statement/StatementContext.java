@@ -33,6 +33,7 @@ import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.qualified.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypes;
@@ -144,6 +145,17 @@ public class StatementContext implements Closeable {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return getConfig(Arguments.class).findFor(type, value);
+    }
+
+    /**
+     * Obtain an argument for given value in this context
+     *
+     * @param type  the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    public Optional<Argument> findArgumentFor(QualifiedType type, Object value) {
         return getConfig(Arguments.class).findFor(type, value);
     }
 
