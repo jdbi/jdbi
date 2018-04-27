@@ -148,7 +148,7 @@ public class TestSqlLogger
     private static class TalkativeSqlLogger implements SqlLogger {
         private final List<String> rawSql = new ArrayList<>();
         private final List<Long> timings = new ArrayList<>();
-        private final List<Exception> exceptions = new ArrayList<>();
+        private final List<SQLException> exceptions = new ArrayList<>();
 
         @Override
         public void logBeforeExecution(StatementContext context) {
@@ -162,7 +162,7 @@ public class TestSqlLogger
         }
 
         @Override
-        public <X extends Exception> void logException(StatementContext context, X ex) {
+        public void logException(StatementContext context, SQLException ex) {
             rawSql.add(context.getRawSql());
             exceptions.add(ex);
             timings.add(context.getElapsedTime(ChronoUnit.NANOS));
@@ -176,7 +176,7 @@ public class TestSqlLogger
             return timings;
         }
 
-        public List<Exception> getExceptions() {
+        public List<SQLException> getExceptions() {
             return exceptions;
         }
     }

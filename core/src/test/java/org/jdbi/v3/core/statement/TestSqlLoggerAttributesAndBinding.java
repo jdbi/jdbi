@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class TestSqlLoggerAttributesAndBinding
         }
 
         @Override
-        public <X extends Exception> void logException(StatementContext context, X ex) {
+        public void logException(StatementContext context, SQLException ex) {
             attributes.add(context.getAttributes());
             context.getBinding().findForPosition(0).ifPresent(a -> bindings.add(a.toString()));
         }
