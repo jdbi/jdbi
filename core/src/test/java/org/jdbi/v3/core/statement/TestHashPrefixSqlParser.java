@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,17 +28,6 @@ public class TestHashPrefixSqlParser {
     public void setUp() throws Exception {
         this.parser = new HashPrefixSqlParser();
         ctx = mock(StatementContext.class);
-    }
-
-    private String render(String sql) {
-        return render(sql, Collections.emptyMap());
-    }
-
-    private String render(String sql, Map<String, Object> attributes) {
-        StatementContext context = StatementContextAccess.createContext();
-        attributes.forEach(context::define);
-
-        return templateEngine.render(sql, context);
     }
 
     @Test
