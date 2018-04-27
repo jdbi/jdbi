@@ -9,6 +9,7 @@
   - add SqlLogger to log queries, timing, and exceptions, with matching LoggableArgument for use in custom ArgumentFactories
   - StringTemplate no longer shares template groups across threads, to work around concurrency issues
   - added SqliteDatabaseRule for testing convenience
+  - DefineStatementLexer handles predicates that look like definitions better
 
 3.1.1
   - Improve IBM JDK compatibility with default methods

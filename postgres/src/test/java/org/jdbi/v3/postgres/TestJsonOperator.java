@@ -31,4 +31,14 @@ public class TestJsonOperator {
                 .findOnly())
             .isEqualTo(true);
     }
+
+    @Test
+    public void testJsonQueryWithBindedInput() throws Exception {
+        assertThat(db.getHandle()
+            .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
+            .bind("key", "a")
+            .mapTo(boolean.class)
+            .findOnly())
+            .isEqualTo(true);
+    }
 }
