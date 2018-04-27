@@ -1,9 +1,21 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jdbi.v3.core.statement;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -26,8 +38,8 @@ public class TestSqlLoggerToString {
     public DatabaseRule db = new SqliteDatabaseRule();
 
     private Handle handle;
-    private MutableObject<String> positional = new MutableObject<>();
-    private MutableObject<String> named = new MutableObject<>();
+    private String positional = null;
+    private String named = null;
 
     @Before
     public void before() {
@@ -38,8 +50,8 @@ public class TestSqlLoggerToString {
         handle.setSqlLogger(new SqlLogger() {
             @Override
             public void logBeforeExecution(StatementContext context) {
-                context.getBinding().findForPosition(0).ifPresent(value -> positional.setValue(Objects.toString(value)));
-                context.getBinding().findForName(NAME, context).ifPresent(value -> named.setValue(Objects.toString(value)));
+                context.getBinding().findForPosition(0).ifPresent(value -> positional = Objects.toString(value));
+                context.getBinding().findForName(NAME, context).ifPresent(value -> named = Objects.toString(value));
             }
         });
     }
@@ -48,21 +60,21 @@ public class TestSqlLoggerToString {
     public void testInt() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, 1).execute();
 
-        assertThat(positional.getValue()).isEqualTo("1");
+        assertThat(positional).isEqualTo("1");
     }
 
     @Test
     public void testString() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, "herp").execute();
 
-        assertThat(positional.getValue()).isEqualTo("herp");
+        assertThat(positional).isEqualTo("herp");
     }
 
     @Test
     public void testBean() {
         handle.createUpdate(INSERT_NAMED).bindBean(new StringXBean("herp")).execute();
 
-        assertThat(named.getValue()).isEqualTo("herp");
+        assertThat(named).isEqualTo("herp");
     }
 
     @Test
@@ -70,14 +82,14 @@ public class TestSqlLoggerToString {
     public void testArgument() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, (position, statement, ctx) -> statement.setString(1, "derp")).execute();
 
-        assertThat(positional.getValue()).isNotEqualTo("derp");
+        assertThat(positional).isNotEqualTo("derp");
     }
 
     @Test
     public void testLoggableArgument() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, new LoggableArgument("derp", (position, statement, ctx) -> statement.setString(1, "derp"))).execute();
 
-        assertThat(positional.getValue()).isEqualTo("derp");
+        assertThat(positional).isEqualTo("derp");
     }
 
     @Test
@@ -87,7 +99,7 @@ public class TestSqlLoggerToString {
 
         handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
 
-        assertThat(positional.getValue()).isEqualTo("I'm a foo");
+        assertThat(positional).isEqualTo("I'm a foo");
     }
 
     public static class StringXBean {
