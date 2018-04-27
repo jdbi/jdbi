@@ -27,8 +27,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestSqlLoggerAttributesAndBinding
-{
+public class TestSqlLoggerAttributesAndBinding {
     private static final String CREATE = "create table <x>(bar int primary key not null)";
 
     @Rule
@@ -78,7 +77,7 @@ public class TestSqlLoggerAttributesAndBinding
         h.prepareBatch("insert into <x>(bar) values(?)")
             .define("x", "foo")
             // a bit verbose because we're operating without a LoggableArgument ArgumentFactory
-            .bind(0, new LoggableArgument(id, ((position, statement, ctx) -> statement.setInt(1, id)) ))
+            .bind(0, new LoggableArgument(id, ((position, statement, ctx) -> statement.setInt(1, id))))
             .execute();
 
         assertThat(logger.getAttributes()).hasSize(2);

@@ -28,8 +28,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestSqlLogger
-{
+public class TestSqlLoggerCallPoints {
     private static final String CREATE = "create table foo(bar int primary key not null)";
     private static final String INSERT = "insert into foo(bar) values(1)";
     private static final String INSERT_NULL = "insert into foo(bar) values(null)";
