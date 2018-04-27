@@ -3678,6 +3678,10 @@ It also configures SQL array type support for `int`, `long`, `float`, `double`,
 See the link:{jdbidocs}/postgres/package-summary.html[javadoc^] for an
 exhaustive list.
 
+TIP: Some Postgres operators, for example the `?` query operator, collide
+with `jdbi` or `JDBC` special characters.  In such cases, you may need to
+escape operators to e.g. `??` or `\:`.
+
 [reftext="PostgreSQL-hstore"]
 ==== hstore
 

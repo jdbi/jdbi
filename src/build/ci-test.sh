@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OPTS="-DskipTests=true -Dbasepom.check.skip-all=true -B"
+OPTS="-Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -B"
 
 PROFILES="toolchains"
 
@@ -9,4 +9,4 @@ PROFILES="toolchains"
 #  PROFILES="$PROFILES,oracle"
 #fi
 
-mvn ${OPTS} -P${PROFILES} verify
+exec mvn ${OPTS} -P${PROFILES} verify

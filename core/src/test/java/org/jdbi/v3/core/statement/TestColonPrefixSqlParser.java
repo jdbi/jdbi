@@ -25,26 +25,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class TestColonPrefixTemplateEngine {
-    private TemplateEngine templateEngine;
+public class TestColonPrefixSqlParser {
     private SqlParser parser;
     private StatementContext ctx;
 
     @Before
     public void setUp() throws Exception {
-        templateEngine = new DefinedAttributeTemplateEngine();
         parser = new ColonPrefixSqlParser();
         ctx = mock(StatementContext.class);
-    }
-
-    private String render(String sql) {
-        return render(sql, Collections.emptyMap());
-    }
-
-    private String render(String sql, Map<String, Object> attributes) {
-        attributes.forEach((key, value) -> when(ctx.getAttribute(key)).thenReturn(value));
-
-        return templateEngine.render(sql, ctx);
     }
 
     @Test
@@ -92,36 +80,15 @@ public class TestColonPrefixTemplateEngine {
 
     @Test
     public void testBailsOutOnInvalidInput() throws Exception {
-        assertThatThrownBy(() -> render("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c"))
+        assertThatThrownBy(() -> parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx).getSql())
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testSubstitutesDefinedAttributes() throws Exception {
-        Map<String, Object> attributes = ImmutableMap.of(
-                "column", "foo",
-                "table", "bar");
-        String rendered = render("select <column> from <table> where <column> = :someValue", attributes);
-        ParsedSql parsed = parser.parse(rendered, ctx);
+        String sql = "select foo from bar where foo = :someValue";
+        ParsedSql parsed = parser.parse(sql, ctx);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
-    }
-
-    @Test
-    public void testUndefinedAttribute() throws Exception {
-        assertThatThrownBy(() -> render("select * from <table>", Collections.emptyMap()))
-            .isInstanceOf(UnableToCreateStatementException.class);
-    }
-
-    @Test
-    public void testLeaveEnquotedTokensIntact() throws Exception {
-        String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
-    }
-
-    @Test
-    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception {
-        String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
@@ -134,14 +101,13 @@ public class TestColonPrefixTemplateEngine {
     }
 
     @Test
-    public void testCommentQuote() throws Exception {
-        String sql = "select 1 /* ' \" <foo> */";
-        assertThat(render(sql)).isEqualTo(sql);
-    }
+    public void testEscapedQuestionMark() throws Exception {
+        String sql = "SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key";
+        ParsedSql parsed = parser.parse(sql, ctx);
 
-    @Test
-    public void testColonInComment() throws Exception {
-        String sql = "/* comment with : colons :: inside it */ select 1";
-        assertThat(render(sql)).isEqualTo(sql);
+        assertThat(parsed).isEqualTo(ParsedSql.builder()
+            .append("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? ")
+            .appendNamedParameter("key")
+            .build());
     }
 }

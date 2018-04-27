@@ -24,13 +24,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class TestHashPrefixSqlParser {
-    private TemplateEngine templateEngine;
     private SqlParser parser;
     private StatementContext ctx;
 
     @Before
     public void setUp() throws Exception {
-        this.templateEngine = new DefinedAttributeTemplateEngine();
         this.parser = new HashPrefixSqlParser();
         ctx = mock(StatementContext.class);
     }
@@ -90,35 +88,25 @@ public class TestHashPrefixSqlParser {
 
     @Test
     public void testSubstitutesDefinedAttributes() throws Exception {
-        Map<String, Object> attributes = ImmutableMap.of(
-                "column", "foo",
-                "table", "bar");
-        String rendered = render("select <column> from <table> where <column> = #someValue", attributes);
-        ParsedSql parsed = parser.parse(rendered, ctx);
+        String sql = "select foo from bar where foo = #someValue";
+        ParsedSql parsed = parser.parse(sql, ctx);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
-    }
-
-    @Test
-    public void testUndefinedAttribute() throws Exception {
-        assertThatThrownBy(() -> render("select * from <table>", Collections.emptyMap()))
-            .isInstanceOf(UnableToCreateStatementException.class);
-    }
-
-    @Test
-    public void testLeaveEnquotedTokensIntact() throws Exception {
-        String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
-    }
-
-    @Test
-    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception {
-        String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
     public void testCommentQuote() throws Exception {
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(parser.parse(sql, ctx).getSql()).isEqualTo(sql);
+    }
+
+    @Test
+    public void testEscapedQuestionMark() throws Exception {
+        String sql = "SELECT '{\"a\":1, \"b\":2}'::jsonb ?? #key";
+        ParsedSql parsed = parser.parse(sql, ctx);
+
+        assertThat(parsed).isEqualTo(ParsedSql.builder()
+            .append("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? ")
+            .appendNamedParameter("key")
+            .build());
     }
 }
