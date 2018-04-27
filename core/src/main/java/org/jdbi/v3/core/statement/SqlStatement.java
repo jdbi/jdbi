@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +47,6 @@ import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.joining;
 
@@ -59,10 +56,8 @@ import static java.util.stream.Collectors.joining;
  * used by its subclasses.
  */
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
-    private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
-
-    private final Handle  handle;
-    private final String  sql;
+    private final Handle handle;
+    private final String sql;
 
     /**
      * This will be set on execution, not before
@@ -1369,8 +1364,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
             getContext().setCompletionMoment(Instant.now());
             sqlLogger.logAfterExecution(getContext());
-
-            LOG.trace("Execute SQL \"{}\" in {}ms", sql, getContext().getElapsedTime(ChronoUnit.MILLIS));
         } catch (SQLException e) {
             try {
                 stmt.close();

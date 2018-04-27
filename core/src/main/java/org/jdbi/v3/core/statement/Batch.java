@@ -16,7 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
@@ -87,8 +86,6 @@ public class Batch extends BaseStatement<Batch> {
 
                 getContext().setCompletionMoment(Instant.now());
                 sqlLogger.logAfterExecution(getContext());
-
-                LOG.trace("] executed in {}ms", getContext().getElapsedTime(ChronoUnit.MILLIS));
 
                 return rs;
             } catch (SQLException e) {
