@@ -16,7 +16,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlLoggerToString {
     private static final String INSERT_POSITIONAL = "insert into foo(bar) values(?)";
@@ -64,19 +63,6 @@ public class TestSqlLoggerToString {
         handle.createUpdate(INSERT_NAMED).bindBean(new StringXBean("herp")).execute();
 
         assertThat(named.getValue()).isEqualTo("herp");
-    }
-
-    @Test
-    public void testObjectWithToString() {
-        Object x = new Object() {
-            @Override
-            public String toString() {
-                return "I'm an object";
-            }
-        };
-
-        assertThatThrownBy(() -> handle.createUpdate(INSERT_POSITIONAL).bindByType(0, x, Object.class).execute())
-            .hasMessage("No argument factory registered for 'I'm an object' of type class java.lang.Object");
     }
 
     @Test
