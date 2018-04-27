@@ -59,8 +59,8 @@ import static java.util.stream.Collectors.joining;
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
-    private final Handle  handle;
-    private final String  sql;
+    private final Handle handle;
+    private final String sql;
 
     /**
      * This will be set on execution, not before
@@ -1049,7 +1049,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
             if (params.length > 0) {
                 return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
-                    + "'.  To bind a generic type, prefer using bindByType.");
+                    + "'. To bind a generic type, prefer using bindByType.");
             }
         }
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);

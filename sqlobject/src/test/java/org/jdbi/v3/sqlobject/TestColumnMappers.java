@@ -129,10 +129,10 @@ public class TestColumnMappers {
         h = dbRule.openHandle();
         h.createUpdate(
             "create table someBean ("
-                + "  primitiveInt integer, wrapperLong bigint, "
-                + "  primitiveChar varchar(1), wrappedChar varchar(1), "
-                + "  string varchar(50), valueType varchar(50), "
-                + "  uri varchar(50) "
+                + " primitiveInt integer, wrapperLong bigint, "
+                + " primitiveChar varchar(1), wrappedChar varchar(1), "
+                + " string varchar(50), valueType varchar(50), "
+                + " uri varchar(50) "
                 + ")").execute();
         dao = h.attach(SomeBeanDao.class);
     }

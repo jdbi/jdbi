@@ -169,7 +169,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             try {
                 final long start = System.nanoTime();
-                final int[] rs =  stmt.executeBatch();
+                final int[] rs = stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());

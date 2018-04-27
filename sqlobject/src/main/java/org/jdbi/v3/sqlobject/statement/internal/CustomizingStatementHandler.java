@@ -57,11 +57,11 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
         // Include annotations on the interface's supertypes
         final Stream<BoundCustomizer> typeCustomizers = concat(Stream.of(type.getInterfaces()), Stream.of(type))
-            .flatMap(t -> annotationsFor(t))
+            .flatMap(CustomizingStatementHandler::annotationsFor)
             .map(a -> instantiateFactory(a).createForType(a, type))
             .map(BoundCustomizer::of);
 
-        final Stream<BoundCustomizer> methodCustomizers =  annotationsFor(method)
+        final Stream<BoundCustomizer> methodCustomizers = annotationsFor(method)
             .map(a -> instantiateFactory(a).createForMethod(a, type, method))
             .map(BoundCustomizer::of);
 
@@ -84,7 +84,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final Parameter[] parameters = m.getParameters();
 
         return IntStream.range(0, parameters.length)
-                .mapToObj(Integer::valueOf)
+                .boxed()
                 .flatMap(i -> eachParameterCustomizers(type, m, parameters[i], i));
     }
 

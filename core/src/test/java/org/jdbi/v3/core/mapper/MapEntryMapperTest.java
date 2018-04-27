@@ -108,7 +108,7 @@ public class MapEntryMapperTest {
 
         assertThat(map).containsOnly(
                 entry(new User(1, "alice"), new Phone(10, "555-0001")),
-                entry(new User(2, "bob"),   new Phone(20, "555-0002")),
+                entry(new User(2, "bob"), new Phone(20, "555-0002")),
                 entry(new User(3, "cathy"), new Phone(30, "555-0003")));
     }
 
@@ -141,7 +141,7 @@ public class MapEntryMapperTest {
                             .collectInto(new GenericType<Map<User, Phone>>() {});
                     assertThat(map).containsOnly(
                             entry(new User(1, "alice"), new Phone(10, "555-0001")),
-                            entry(new User(2, "bob"),   new Phone(20, "555-0002")),
+                            entry(new User(2, "bob"), new Phone(20, "555-0002")),
                             entry(new User(3, "cathy"), new Phone(30, "555-0003")));
                 });
     }

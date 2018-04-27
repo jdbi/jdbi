@@ -41,14 +41,14 @@ public class TestFoldToObjectGraph {
     public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.execute("create table team (name varchar(100), "
-            + "                    mascot varchar(100),"
-            + "                    primary key (name))");
+            + " mascot varchar(100),"
+            + " primary key (name))");
 
         handle.execute("create table person(name varchar(100), "
-            + "                     role varchar(100), "
-            + "                     team varchar(100),"
-            + "                     primary key (name),"
-            + "                     foreign key (team) references team(name))");
+            + " role varchar(100), "
+            + " team varchar(100),"
+            + " primary key (name),"
+            + " foreign key (team) references team(name))");
 
         handle.prepareBatch("insert into team (name, mascot) values (?, ?)")
               .add("A-Team", "The Van")
@@ -83,9 +83,9 @@ public class TestFoldToObjectGraph {
 
     public interface Dao {
         @SqlQuery("select t.name as teamName, "
-            + "       t.mascot as mascot, "
-            + "       p.name as personName, "
-            + "       p.role as role "
+            + " t.mascot as mascot, "
+            + " p.name as personName, "
+            + " p.role as role "
             + "from team t inner join person p on (t.name = p.team)")
         @RegisterBeanMapper(TeamPersonJoinRow.class)
         Iterator<TeamPersonJoinRow> findAllTeamsAndPeople();

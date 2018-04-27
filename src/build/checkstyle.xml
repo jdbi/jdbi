@@ -121,5 +121,11 @@
             <property name="format" value="^ {6}\S"/>
             <property name="message" value="Indent of 6 spaces is suspicious. We indent with multiples of 4."/>
         </module>
+
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="\S {2,}\S"/>
+            <property name="message" value="Multiple consecutive space characters found."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
     </module>
 </module>

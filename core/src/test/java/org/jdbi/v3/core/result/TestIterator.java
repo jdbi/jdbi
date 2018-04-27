@@ -262,7 +262,7 @@ public class TestIterator {
                 .cleanupHandleRollback()
                 .mapToMap()
                 .iterator()) {
-            final Map<String, Object> result =  it.next();
+            final Map<String, Object> result = it.next();
             assertThat(result).containsEntry("id", 1L).containsEntry("name", "eric");
 
             assertThat(h.isClosed()).isFalse();
