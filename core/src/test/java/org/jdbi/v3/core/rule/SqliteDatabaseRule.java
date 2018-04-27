@@ -16,19 +16,20 @@ package org.jdbi.v3.core.rule;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
 import org.jdbi.v3.core.ConnectionFactory;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
-public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
-    private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
+/**
+ * convenient database to test with if you specifically do not want to deal with data type and relation constraints: sqlite does not give a f***
+ */
+public class SqliteDatabaseRule extends ExternalResource implements DatabaseRule {
+    // no unique name needed: https://www.sqlite.org/inmemorydb.html
+    private final String uri = "jdbc:sqlite::memory:";
     private Connection con;
     private Jdbi db;
     private Handle sharedHandle;
@@ -36,7 +37,7 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
     private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
-    protected void before() throws Throwable {
+    protected void before() {
         db = Jdbi.create(uri);
         if (installPlugins) {
             db.installPlugins();
@@ -44,10 +45,6 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
         plugins.forEach(db::installPlugin);
         sharedHandle = db.open();
         con = sharedHandle.getConnection();
-        try (Statement s = con.createStatement()) {
-            // TODO legacy...
-            s.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
-        }
     }
 
     @Override
@@ -59,12 +56,12 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
         }
     }
 
-    public H2DatabaseRule withPlugins() {
+    public SqliteDatabaseRule withPlugins() {
         installPlugins = true;
         return this;
     }
 
-    public H2DatabaseRule withPlugin(JdbiPlugin plugin) {
+    public SqliteDatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;
     }
