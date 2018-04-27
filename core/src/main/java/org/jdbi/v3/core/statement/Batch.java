@@ -15,7 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
@@ -77,21 +76,9 @@ public class Batch extends BaseStatement<Batch> {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
-            SqlLogger sqlLogger = getConfig(SqlStatements.class).getSqlLogger();
             try {
-                getContext().setExecutionMoment(Instant.now());
-                sqlLogger.logBeforeExecution(getContext());
-
-                final int[] rs = stmt.executeBatch();
-
-                getContext().setCompletionMoment(Instant.now());
-                sqlLogger.logAfterExecution(getContext());
-
-                return rs;
+                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
             } catch (SQLException e) {
-                getContext().setExceptionMoment(Instant.now());
-                sqlLogger.logException(getContext(), e);
-
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         } finally {

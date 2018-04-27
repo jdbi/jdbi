@@ -25,7 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -1355,24 +1354,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeExecution(stmt);
 
-        SqlLogger sqlLogger = getConfig(SqlStatements.class).getSqlLogger();
         try {
-            getContext().setExecutionMoment(Instant.now());
-            sqlLogger.logBeforeExecution(getContext());
-
-            stmt.execute();
-
-            getContext().setCompletionMoment(Instant.now());
-            sqlLogger.logAfterExecution(getContext());
+            getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::execute, getContext());
         } catch (SQLException e) {
             try {
                 stmt.close();
             } catch (SQLException e1) {
                 e.addSuppressed(e1);
             }
-
-            getContext().setExceptionMoment(Instant.now());
-            sqlLogger.logException(getContext(), e);
 
             throw new UnableToExecuteStatementException(e, getContext());
         }

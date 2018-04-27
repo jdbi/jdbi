@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
+import java.time.Instant;
 
 /**
  * SqlLoggers receive query data before and after a query is executed, and after an exception is thrown by a bad query.
@@ -33,5 +34,23 @@ public interface SqlLogger {
     }
 
     default void logException(StatementContext context, SQLException ex) {
+    }
+
+    default <T> T wrap(SqlLoggable<T> r, StatementContext ctx) throws SQLException {
+        try {
+            ctx.setExecutionMoment(Instant.now());
+            logBeforeExecution(ctx);
+
+            T result = r.invoke();
+
+            ctx.setCompletionMoment(Instant.now());
+            logAfterExecution(ctx);
+
+            return result;
+        } catch (SQLException e) {
+            ctx.setExceptionMoment(Instant.now());
+            logException(ctx, e);
+            throw e;
+        }
     }
 }
