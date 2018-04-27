@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.SQLException;
-
 @FunctionalInterface
-public interface SqlLoggable<T> {
-    T invoke() throws SQLException;
+public interface SqlLoggable<T, X extends Exception> {
+    T invoke() throws X;
 }

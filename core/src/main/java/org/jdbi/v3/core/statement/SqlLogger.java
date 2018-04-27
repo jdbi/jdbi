@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.SQLException;
 import java.time.Instant;
 
 /**
@@ -33,10 +32,10 @@ public interface SqlLogger {
     default void logAfterExecution(StatementContext context) {
     }
 
-    default void logException(StatementContext context, SQLException ex) {
+    default <X extends Exception> void logException(StatementContext context, X ex) {
     }
 
-    default <T> T wrap(SqlLoggable<T> r, StatementContext ctx) throws SQLException {
+    default <T, X extends Exception> T wrap(SqlLoggable<T, X> r, StatementContext ctx) throws X {
         try {
             ctx.setExecutionMoment(Instant.now());
             logBeforeExecution(ctx);
@@ -47,10 +46,10 @@ public interface SqlLogger {
             logAfterExecution(ctx);
 
             return result;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             ctx.setExceptionMoment(Instant.now());
-            logException(ctx, e);
-            throw e;
+            logException(ctx, (X) e);
+            throw (X) e;
         }
     }
 }
