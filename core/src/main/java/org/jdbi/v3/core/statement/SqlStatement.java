@@ -37,6 +37,7 @@ import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
+import org.jdbi.v3.core.argument.LoggableArgument;
 import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
@@ -1035,8 +1036,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value)
-                .orElseThrow(() -> factoryNotFound(type, value));
+        return new LoggableArgument(value, getConfig(Arguments.class).findFor(type, value)
+            .orElseThrow(() -> factoryNotFound(type, value)));
     }
 
     private UnsupportedOperationException factoryNotFound(Type type, Object value) {
