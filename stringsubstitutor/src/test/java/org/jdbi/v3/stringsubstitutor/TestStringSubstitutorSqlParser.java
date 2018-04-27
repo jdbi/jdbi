@@ -16,15 +16,18 @@ package org.jdbi.v3.stringsubstitutor;
 import org.jdbi.v3.core.statement.ParsedSql;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TestStringSubstitutorSqlParser {
+    @Rule
+    public MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private StatementContext ctx;
 
