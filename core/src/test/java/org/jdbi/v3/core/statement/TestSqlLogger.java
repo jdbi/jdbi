@@ -34,6 +34,7 @@ public class TestSqlLogger
     private static final String INSERT = "insert into foo(bar) values(1)";
     private static final String INSERT_NULL = "insert into foo(bar) values(null)";
     private static final String INSERT_PREPARED = "insert into foo(bar) values(?)";
+    // TODO can apparently be changed to > 0 with jdk9
     private static final Predicate<Long> IS_POSITIVE = x -> x >= 0;
 
     @Rule
