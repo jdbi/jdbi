@@ -20,6 +20,9 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import net.jodah.expiringmap.ExpirationPolicy;
@@ -58,7 +61,10 @@ public class FreemarkerSqlLocator {
             try {
                 if (templateFile.exists()) {
                     Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
-                    configuration.setClassForTemplateLoading(type, String.format("/%s", getPath(type)));
+                    ClassTemplateLoader ctl1 = new ClassTemplateLoader(type, "/");
+                    ClassTemplateLoader ctl2 = new ClassTemplateLoader(type, "/" + getPath(type));
+                    MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {ctl1, ctl2});
+                    configuration.setTemplateLoader(mtl);
                     return new Template(templateName, new FileReader(templateFile), configuration);
                 }
                 ex = new IllegalArgumentException("Template file " + templateFile.getPath() + " does not exist");
