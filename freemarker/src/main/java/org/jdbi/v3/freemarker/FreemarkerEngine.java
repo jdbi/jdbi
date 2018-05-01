@@ -30,7 +30,7 @@ public class FreemarkerEngine implements TemplateEngine {
     @Override
     public String render(String sql, StatementContext ctx) {
         try {
-            Template template = new Template("noname", sql, null);
+            Template template = new Template(null, sql, null);
             StringWriter writer = new StringWriter();
             template.process(ctx.getAttributes(), writer);
             return writer.toString();

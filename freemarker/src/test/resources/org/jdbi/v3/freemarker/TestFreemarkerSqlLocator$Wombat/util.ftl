@@ -13,5 +13,6 @@
     limitations under the License.
 
 -->
-<#include "util.ftl">
-select name from something where id in (<#list somethings as something>${something.id}<#sep>, </#list>) <@orderBy field="name" />
+<#macro orderBy field order="ASC">
+  ORDER BY ${field} ${order}
+</#macro>

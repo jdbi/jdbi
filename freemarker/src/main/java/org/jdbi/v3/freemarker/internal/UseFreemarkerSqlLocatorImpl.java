@@ -14,9 +14,7 @@
 package org.jdbi.v3.freemarker.internal;
 
 import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplateOrFail;
-import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplateDirectory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -38,16 +36,11 @@ public class UseFreemarkerSqlLocatorImpl implements Configurer {
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         SqlLocator locator = (type, method, config) -> {
             String templateName = SqlAnnotations.getAnnotationValue(method, sql -> sql).orElseGet(method::getName);
-            File templateDirectory = findTemplateDirectory(sqlObjectType);
-            if (templateDirectory == null || !templateDirectory.exists()) {
-                throw new IllegalStateException("No template directory found for class " + sqlObjectType);
-            }
-            findTemplateOrFail(templateDirectory, templateName);
+            findTemplateOrFail(sqlObjectType, templateName);
             return templateName;
         };
         TemplateEngine templateEngine = (templateName, ctx) -> {
-            File templateDirectory = findTemplateDirectory(sqlObjectType);
-            Template template = findTemplateOrFail(templateDirectory, templateName);
+            Template template = findTemplateOrFail(sqlObjectType, templateName);
             StringWriter writer = new StringWriter();
             try {
                 template.process(ctx.getAttributes(), writer);

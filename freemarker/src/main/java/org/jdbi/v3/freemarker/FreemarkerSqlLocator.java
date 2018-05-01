@@ -34,13 +34,11 @@ public class FreemarkerSqlLocator {
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .build();
 
-    private static final Configuration CONFIGURATION = new Configuration(Configuration.VERSION_2_3_28);
-
     private FreemarkerSqlLocator() {}
 
-    public static File findTemplateDirectory(Class<?> type) {
+    private static File findTemplateDirectory(Class<?> type) {
         try {
-            String classFolder = type.getName().replace(".", "/");
+            String classFolder = getPath(type);
             URL resource = type.getClassLoader().getResource(classFolder);
             if (resource != null) {
                 return new File(resource.toURI());
@@ -49,13 +47,19 @@ public class FreemarkerSqlLocator {
         return null;
     }
 
-    public static Template findTemplateOrFail(File templateDirectory, String templateName) {
+    public static Template findTemplateOrFail(Class<?> type, String templateName) {
+        File templateDirectory = findTemplateDirectory(type);
+        if (templateDirectory == null) {
+            throw new IllegalStateException("No template directory found for class " + type);
+        }
         File templateFile = new File(templateDirectory, templateName + ".sql.ftl");
         return CACHE.computeIfAbsent(templateFile.getPath(), (p) -> {
             Exception ex;
             try {
                 if (templateFile.exists()) {
-                    return new Template(templateName, new FileReader(templateFile), CONFIGURATION);
+                    Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
+                    configuration.setClassForTemplateLoading(type, String.format("/%s", getPath(type)));
+                    return new Template(templateName, new FileReader(templateFile), configuration);
                 }
                 ex = new IllegalArgumentException("Template file " + templateFile.getPath() + " does not exist");
             } catch (Exception templateLoadingException) {
@@ -63,5 +67,9 @@ public class FreemarkerSqlLocator {
             }
             throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + templateDirectory.getAbsolutePath(), ex);
         });
+    }
+
+    private static String getPath(Class<?> type) {
+        return type.getName().replace(".", "/");
     }
 }
