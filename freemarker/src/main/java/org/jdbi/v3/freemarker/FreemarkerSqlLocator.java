@@ -38,10 +38,6 @@ public class FreemarkerSqlLocator {
 
     private FreemarkerSqlLocator() {}
 
-    public static Template findStringTemplate(Class<?> type, String name) {
-        return null;
-    }
-
     public static File findTemplateDirectory(Class<?> type) {
         try {
             String classFolder = type.getName().replace(".", "/");

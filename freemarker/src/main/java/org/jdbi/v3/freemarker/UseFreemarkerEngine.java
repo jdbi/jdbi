@@ -23,9 +23,8 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.Define;
 
 /**
- * Configures a SQL object class or method to rewrite SQL statements using StringTemplate. Method parameters annotated
- * with {@link Define @Define} are passed to the StringTemplate as template
- * attributes.
+ * Configures a SQL object class or method to rewrite SQL statements using Freemarker. Method parameters annotated
+ * with {@link Define @Define} are passed to the Freemarker as template attributes.
  */
 @ConfiguringAnnotation(UseFreemarkerEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
