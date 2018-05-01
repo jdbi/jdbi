@@ -60,7 +60,7 @@ public class FreemarkerSqlLocator {
             Exception ex;
             try {
                 if (templateFile.exists()) {
-                    Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
+                    Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
                     ClassTemplateLoader ctl1 = new ClassTemplateLoader(type, "/");
                     ClassTemplateLoader ctl2 = new ClassTemplateLoader(type, "/" + getPath(type));
                     MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {ctl1, ctl2});
