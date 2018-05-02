@@ -14,6 +14,7 @@
 package org.jdbi.v3.freemarker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
@@ -70,6 +71,15 @@ public class BindListNullPostgresTest {
         final List<Something> out = s.get(new ArrayList<Object>());
 
         Assert.assertEquals(0, out.size());
+    }
+
+    @Test
+    public void testSomethingByIterableHandleNormalList() {
+        final SomethingByIterableHandleNull s = handle.attach(SomethingByIterableHandleNull.class);
+
+        final List<Something> out = s.get(Arrays.asList("bla", "null"));
+
+        Assert.assertEquals(2, out.size());
     }
 
     @UseFreemarkerEngine
