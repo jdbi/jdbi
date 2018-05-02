@@ -50,7 +50,7 @@ public class FreemarkerSqlLocator {
         return null;
     }
 
-    public static Template findTemplateOrFail(Class<?> type, String templateName) {
+    public static Template findTemplate(Class<?> type, String templateName) {
         File templateDirectory = findTemplateDirectory(type);
         if (templateDirectory == null) {
             throw new IllegalStateException("No template directory found for class " + type);
