@@ -75,8 +75,7 @@ public class FreemarkerSqlLocatorTest {
 
         List<String> s = handle.attach(Wombat.class).findNamesForIds(Arrays.asList(6,7));
         assertThat(s.size()).isEqualTo(2);
-        assertThat(s.get(0)).isEqualTo("Martin");
-        assertThat(s.get(1)).isEqualTo("Peter");
+        assertThat(s).containsExactly("Martin", "Peter");
     }
 
     @Test
@@ -86,8 +85,7 @@ public class FreemarkerSqlLocatorTest {
 
         List<String> s = handle.attach(Wombat.class).findNamesForSomethings(Arrays.asList(new Something(6, "Martin"), new Something(7, "Peter")));
         assertThat(s.size()).isEqualTo(2);
-        assertThat(s.get(0)).isEqualTo("Martin");
-        assertThat(s.get(1)).isEqualTo("Peter");
+        assertThat(s).containsExactly("Martin", "Peter");
     }
 
     @Test
