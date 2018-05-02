@@ -15,9 +15,11 @@
 -->
 <html><body>
 <p>
-<code>freemarker</code> provides advanced string template processing
-that <code>Jdbi</code> can drive with the statement's bound parameters
-and context to drive statement generation that may need to bind
-variable number of parameters or other advanced use cases.
+<code>freemarker</code> provides advanced string template processing.
+Defined attributes can be accessed in the templates via standard Freemarker
+variable markers e.g. <code>${...}</code>.
+Use <code>&lt;#include "someFile.ftl" &gt;</code> statements for both relative
+and absolute include statements.
+Only templates located with <code>FreemarkerSqlLocator</code> can have includes.
 </p>
 </body></html>
