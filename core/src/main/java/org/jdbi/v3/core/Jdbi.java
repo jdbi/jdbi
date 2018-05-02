@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -33,6 +34,7 @@ import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
@@ -241,6 +243,25 @@ public class Jdbi implements Configurable<Jdbi> {
     @Override
     public ConfigRegistry getConfig() {
         return config;
+    }
+
+    /**
+     * Returns the attributes applied in this context.
+     *
+     * @return the defined attributes.
+     */
+    public Map<String, Object> getAttributes() {
+        return getConfig(SqlStatements.class).getAttributes();
+    }
+
+    /**
+     * Obtain the value of an attribute
+     *
+     * @param key the name of the attribute
+     * @return the value of the attribute
+     */
+    public Object getAttribute(String key) {
+        return getConfig(SqlStatements.class).getAttribute(key);
     }
 
     /**

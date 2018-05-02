@@ -66,6 +66,18 @@ public class TestJdbi {
         });
         assertThat(value).isEqualTo("Brian");
     }
+    @Test
+    public void testWithAttribute() throws Exception {
+        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        db.define("table_thingie", "something");
+        String value = db.withHandle(handle -> {
+            handle.execute("insert into <table_thingie> (id, name) values (1, 'Brian')");
+            return handle.createQuery("select name from <table_thingie> where id = 1").mapToBean(Something.class).findOnly().getName();
+        });
+        assertThat(value).isEqualTo("Brian");
+        assertThat(db.getAttribute("table_thingie")).isEqualTo("something");
+        assertThat(db.getAttributes()).hasSize(1);
+    }
 
     @Test
     public void testUseHandle() throws Exception {
