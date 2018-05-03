@@ -21,6 +21,11 @@ package org.jdbi.v3.core.statement;
 @FunctionalInterface
 public interface TemplateEngine {
     /**
+     * Convenience constant that returns the input template.
+     */
+    TemplateEngine NOP = (template, ctx) -> template;
+
+    /**
      * Renders an SQL statement from the given template, using the statement
      * context as needed.
      *
