@@ -52,7 +52,7 @@ public class TestStringSubstitutorTemplateEngine {
     public void testCustomPrefixSuffix() {
         attributes.put("name", "foo");
 
-        StringSubstitutorTemplateEngine engine = StringSubstitutorTemplateEngine.BETWEEN.apply("<", ">");
+        StringSubstitutorTemplateEngine engine = BaseStringSubstitutorTemplateEngine.between('<', '>');
 
         assertThat(engine.render("create table <name>;", ctx))
             .isEqualTo("create table foo;");
