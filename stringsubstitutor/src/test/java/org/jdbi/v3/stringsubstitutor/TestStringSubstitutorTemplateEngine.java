@@ -15,7 +15,6 @@ package org.jdbi.v3.stringsubstitutor;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.text.StringSubstitutor;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,10 +52,7 @@ public class TestStringSubstitutorTemplateEngine {
     public void testCustomPrefixSuffix() {
         attributes.put("name", "foo");
 
-        StringSubstitutorTemplateEngine engine = (StringSubstitutor substitutor) -> {
-            substitutor.setVariablePrefix('<');
-            substitutor.setVariableSuffix('>');
-        };
+        StringSubstitutorTemplateEngine engine = StringSubstitutorTemplateEngine.BETWEEN.apply("<", ">");
 
         assertThat(engine.render("create table <name>;", ctx))
             .isEqualTo("create table foo;");

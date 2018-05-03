@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.stringsubstitutor;
 
+import java.util.function.BiFunction;
 import org.apache.commons.text.StringSubstitutor;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
@@ -20,6 +21,11 @@ import org.jdbi.v3.core.statement.TemplateEngine;
 @FunctionalInterface
 public interface StringSubstitutorTemplateEngine extends TemplateEngine {
     StringSubstitutorTemplateEngine DEFAULTS = substitutor -> {};
+
+    BiFunction<String, String, StringSubstitutorTemplateEngine> BETWEEN = (prefix, suffix) -> substitutor -> {
+        substitutor.setVariablePrefix(prefix);
+        substitutor.setVariableSuffix(suffix);
+    };
 
     void customize(StringSubstitutor substitutor);
 
