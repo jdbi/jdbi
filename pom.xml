@@ -286,22 +286,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>findbugs-annotations</artifactId>
-                <version>${findbugs.version}</version>
-                <scope>provided</scope>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${findbugs.version}</version>
-                <scope>provided</scope>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
@@ -359,6 +343,22 @@
                 <groupId>com.nhaarman</groupId>
                 <artifactId>mockito-kotlin</artifactId>
                 <version>1.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>findbugs-annotations</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
             </dependency>
 
         </dependencies>
@@ -455,6 +455,7 @@
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                     <sortProperties>true</sortProperties>
                     <keepBlankLines>true</keepBlankLines>
+                    <sortDependencies>scope</sortDependencies>
                 </configuration>
             </plugin>
         </plugins>

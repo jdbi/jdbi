@@ -57,6 +57,10 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -78,10 +82,6 @@
             <groupId>com.nhaarman</groupId>
             <artifactId>mockito-kotlin</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
         </dependency>
 
         <dependency>
