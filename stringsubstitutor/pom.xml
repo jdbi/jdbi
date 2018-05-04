@@ -21,8 +21,19 @@
         <version>3.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>jdbi3-stringsubstitutor</artifactId>
+
+    <name>jdbi3 StringSubstitutor integration</name>
+    <description>Provides features implemented with Apache Commons Text.</description>
+    <url>http://jdbi.org/</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>
