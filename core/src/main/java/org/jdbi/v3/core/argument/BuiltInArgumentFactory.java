@@ -37,6 +37,9 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
@@ -111,6 +114,28 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
+
+        register(map, OptionalInt.class, Types.INTEGER, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setInt(i, v.getAsInt());
+            } else {
+                p.setNull(i, Types.INTEGER);
+            }
+        });
+        register(map, OptionalLong.class, Types.BIGINT, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setLong(i, v.getAsLong());
+            } else {
+                p.setNull(i, Types.BIGINT);
+            }
+        });
+        register(map, OptionalDouble.class, Types.DOUBLE, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setDouble(i, v.getAsDouble());
+            } else {
+                p.setNull(i, Types.DOUBLE);
+            }
+        });
 
         return Collections.unmodifiableMap(map);
     }
