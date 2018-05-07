@@ -13,48 +13,39 @@
  */
 package org.jdbi.v3.stringsubstitutor;
 
-import java.util.function.Consumer;
-import org.apache.commons.text.StringSubstitutor;
-
-public class BaseStringSubstitutorTemplateEngine implements StringSubstitutorTemplateEngine {
-    private final Consumer<StringSubstitutor> customizer;
-
-    private BaseStringSubstitutorTemplateEngine(Consumer<StringSubstitutor> customizer) {
-        this.customizer = customizer;
-    }
-
-    @Override
-    public void customize(StringSubstitutor substitutor) {
-        customizer.accept(substitutor);
-    }
+/**
+ * Convenient semantic factory for common {@link StringSubstitutorTemplateEngine} instances.
+ */
+public class StringSubstitutorTemplateEngineFactory {
+    private StringSubstitutorTemplateEngineFactory() {}
 
     public static StringSubstitutorTemplateEngine between(char prefix, char suffix) {
-        return new BaseStringSubstitutorTemplateEngine(substitutor -> {
+        return substitutor -> {
             substitutor.setVariablePrefix(prefix);
             substitutor.setVariableSuffix(suffix);
-        });
+        };
     }
 
     public static StringSubstitutorTemplateEngine between(String prefix, String suffix) {
-        return new BaseStringSubstitutorTemplateEngine(substitutor -> {
+        return substitutor -> {
             substitutor.setVariablePrefix(prefix);
             substitutor.setVariableSuffix(suffix);
-        });
+        };
     }
 
     public static StringSubstitutorTemplateEngine between(char prefix, char suffix, char escape) {
-        return new BaseStringSubstitutorTemplateEngine(substitutor -> {
+        return substitutor -> {
             substitutor.setVariablePrefix(prefix);
             substitutor.setVariableSuffix(suffix);
             substitutor.setEscapeChar(escape);
-        });
+        };
     }
 
     public static StringSubstitutorTemplateEngine between(String prefix, String suffix, char escape) {
-        return new BaseStringSubstitutorTemplateEngine(substitutor -> {
+        return substitutor -> {
             substitutor.setVariablePrefix(prefix);
             substitutor.setVariableSuffix(suffix);
             substitutor.setEscapeChar(escape);
-        });
+        };
     }
 }

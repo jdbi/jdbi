@@ -17,10 +17,19 @@ import org.apache.commons.text.StringSubstitutor;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
 
+/**
+ * Register an instance of this interface ({@link org.jdbi.v3.core.statement.SqlStatements#setTemplateEngine}) to use an Apache Commons Text {@link StringSubstitutor} as a {@link TemplateEngine}. This lets you use any pair of strings as variable delimiters, enabling the use of syntax like <pre>select * from ${foo}</pre>, <pre>select * from &lt;foo&gt;</pre>, <pre>select * from %foo%</pre>, etc.
+ */
 @FunctionalInterface
 public interface StringSubstitutorTemplateEngine extends TemplateEngine {
+    /**
+     * Convenience constant that uses a {@link StringSubstitutor} set to defaults. At the time of writing, that means <pre>${foo}</pre> syntax.
+     */
     StringSubstitutorTemplateEngine DEFAULTS = substitutor -> {};
 
+    /**
+     * Customize the given {@link StringSubstitutor} instance to set your preferred prefix, suffix, escape character, and perhaps other configuration. The instance is created by Jdbi, and is not shared nor re-used.
+     */
     void customize(StringSubstitutor substitutor);
 
     @Override
