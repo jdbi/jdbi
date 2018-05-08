@@ -136,7 +136,7 @@ public class TestSqlLoggerToString {
     }
 
     @Test
-    public void testBothHaveToString_ArgumentWins() {
+    public void testBothHaveToStringAndArgumentWins() {
         handle.registerArgument(new ToStringFooArgumentFactory());
 
         handle.createUpdate(INSERT_POSITIONAL).bind(0, new ToStringFoo()).execute();

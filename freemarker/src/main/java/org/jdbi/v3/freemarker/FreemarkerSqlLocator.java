@@ -46,7 +46,9 @@ public class FreemarkerSqlLocator {
             if (resource != null) {
                 return new File(resource.toURI());
             }
-        } catch (URISyntaxException ignored) { }
+        } catch (URISyntaxException ignored) {
+            // TODO checkstyle fix
+        }
         return null;
     }
 

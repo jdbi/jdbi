@@ -215,8 +215,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalInt()
-    {
+    public void testBindOptionalInt() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalInt.empty())
                 .collectInto(OptionalInt.class))
@@ -229,8 +228,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalLong()
-    {
+    public void testBindOptionalLong() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalLong.empty())
                 .collectInto(OptionalLong.class))
@@ -243,8 +241,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalDouble()
-    {
+    public void testBindOptionalDouble() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalDouble.empty())
                 .collectInto(OptionalDouble.class))

@@ -24,17 +24,13 @@ import java.time.Instant;
  * Note that if you {@code bind} an {@link org.jdbi.v3.core.argument.Argument} instance directly, it must implement {@link Object#toString} if you want to be able to log it in any meaningful way. You can also implement log censorship that way, e.g. to hide sensitive content like passwords.
  */
 public interface SqlLogger {
-    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {
-    };
+    SqlLogger NOP_SQL_LOGGER = new SqlLogger() {};
 
-    default void logBeforeExecution(StatementContext context) {
-    }
+    default void logBeforeExecution(StatementContext context) {}
 
-    default void logAfterExecution(StatementContext context) {
-    }
+    default void logAfterExecution(StatementContext context) {}
 
-    default void logException(StatementContext context, SQLException ex) {
-    }
+    default void logException(StatementContext context, SQLException ex) {}
 
     default <T> T wrap(SqlLoggable<T> r, StatementContext ctx) throws SQLException {
         try {

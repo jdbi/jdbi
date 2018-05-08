@@ -51,10 +51,14 @@
             <property name="allowEmptyConstructors" value="true"/>
             <property name="allowEmptyLambdas" value="true"/>
             <property name="allowEmptyTypes" value="true"/>
+            <!-- TODO why can't this be enabled? -->
+            <!--<property name="allowEmptyCatches" value="true"/>-->
         </module>
         <module name="ModifierOrder"/>
         <module name="RedundantModifier"/>
-        <module name="EmptyCatchBlock"/>
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignored?"/>
+        </module>
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>
         <module name="EmptyStatement"/>
