@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -16,22 +16,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
+        <groupId>org.jdbi</groupId>
         <version>3.2.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-bom</artifactId>
-    <name>jdbi3 BOM</name>
     <packaging>pom</packaging>
-    <description>
-        Jdbi is designed to provide convenient tabular data access in
+    <name>jdbi3 BOM</name>
+    <description>Jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
         results, provides a convenient means of externalizing sql
         statements, and provides named parameter support for any database
-        being used.
-    </description>
+        being used.</description>
     <url>http://jdbi.org/</url>
 
     <licenses>
