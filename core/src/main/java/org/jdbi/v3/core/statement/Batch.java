@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,14 +77,7 @@ public class Batch extends BaseStatement<Batch> {
             }
 
             try {
-                final long start = System.nanoTime();
-                final int[] rs = stmt.executeBatch();
-                final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
-                // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
-                return rs;
-
+                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }

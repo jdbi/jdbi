@@ -6,7 +6,9 @@
   - add a TemplateEngine based on java.text.MessageFormat
   - allow absence of 'value' on @MaxRows and validate its (lack of) use on SqlObjects
   - fix SqlObject getting confused about result types due to bridge methods
+  - add SqlLogger to log queries, timing, and exceptions
   - StringTemplate no longer shares template groups across threads, to work around concurrency issues
+  - added SqliteDatabaseRule for testing convenience
   - DefineStatementLexer handles predicates that look like definitions better
 
 3.1.1
@@ -157,7 +159,7 @@
   - expose Script.getStatements()
 
 2.77
-  - Improved BindIn functionality: can now process Iterables and arrays/varargs 
+  - Improved BindIn functionality: can now process Iterables and arrays/varargs
     of any type, and has configurable handling for a null/empty argument.
     Check the source code comments or your IDE hints for details.
 
