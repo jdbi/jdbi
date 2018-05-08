@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
+        <groupId>org.jdbi</groupId>
         <version>3.2.0-SNAPSHOT</version>
     </parent>
 
@@ -39,12 +39,6 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -57,18 +51,24 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.28</version>
         </dependency>
-        
+
         <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>expiringmap</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
