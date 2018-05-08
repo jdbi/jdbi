@@ -45,6 +45,7 @@
         <module>core</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>
+        <module>freemarker</module>
         <module>guava</module>
         <module>jodatime2</module>
         <module>jpa</module>
