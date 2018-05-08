@@ -27,8 +27,6 @@ import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
 
@@ -46,8 +44,6 @@ import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
  * or {@link PreparedBatch#add(Object...)}.
  */
 public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing {
-    private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
-
     private final List<Binding> bindings = new ArrayList<>();
 
     public PreparedBatch(Handle handle, String sql) {
@@ -168,11 +164,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution(stmt);
 
             try {
-                final long start = System.nanoTime();
-                final int[] rs =  stmt.executeBatch();
-                final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
+                final int[] rs = getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
 
                 afterExecution(stmt);
 
