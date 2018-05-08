@@ -347,6 +347,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>3.8.11.2</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>findbugs-annotations</artifactId>
                 <version>${findbugs.version}</version>
@@ -360,12 +366,6 @@
                 <version>${findbugs.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>org.xerial</groupId>
-                <artifactId>sqlite-jdbc</artifactId>
-                <version>3.8.11.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
