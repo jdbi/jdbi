@@ -88,7 +88,7 @@ public class TestSqlLoggerAttributesAndBinding {
 
                 @Override
                 public String toString() {
-                    return Objects.toString(1);
+                    return Objects.toString(id);
                 }
             })
             .execute();
