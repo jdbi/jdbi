@@ -57,6 +57,8 @@ public class TestSqlLoggerToString {
         });
     }
 
+    // basic types
+
     @Test
     public void testInt() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, 1).execute();
@@ -73,10 +75,12 @@ public class TestSqlLoggerToString {
 
     @Test
     public void testBean() {
-        handle.createUpdate(INSERT_NAMED).bindBean(new StringXBean("herp")).execute();
+        handle.createUpdate(INSERT_NAMED).bindBean(new StringBean("herp")).execute();
 
         assertThat(named).isEqualTo("herp");
     }
+
+    // Arguments
 
     @Test
     public void testArgumentWithoutToString() {
@@ -95,27 +99,55 @@ public class TestSqlLoggerToString {
 
             @Override
             public String toString() {
-                return "derp";
+                return "toString for derp";
             }
         }).execute();
 
-        assertThat(positional).isEqualTo("derp");
+        assertThat(positional).isEqualTo("toString for derp");
     }
 
+    // factories
+
     @Test
-    // this is why SqlStatement#toArgument wraps found Arguments
-    public void testFoo() {
+    public void testNeitherHasToString() {
         handle.registerArgument(new FooArgumentFactory());
 
         handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
 
-        assertThat(positional).isEqualTo("I'm a foo");
+        assertThat(positional).containsPattern("@[0-9a-f]{8}$");
     }
 
-    public static class StringXBean {
+    @Test
+    public void testObjectHasToString() {
+        handle.registerArgument(new FooArgumentFactory());
+
+        handle.createUpdate(INSERT_POSITIONAL).bind(0, new ToStringFoo()).execute();
+
+        assertThat(positional).isEqualTo("I'm a Foo");
+    }
+
+    @Test
+    public void testArgumentHasToString() {
+        handle.registerArgument(new ToStringFooArgumentFactory());
+
+        handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
+
+        assertThat(positional).isEqualTo("this is a Foo");
+    }
+
+    @Test
+    public void testBothHaveToString_ArgumentWins() {
+        handle.registerArgument(new ToStringFooArgumentFactory());
+
+        handle.createUpdate(INSERT_POSITIONAL).bind(0, new ToStringFoo()).execute();
+
+        assertThat(positional).isEqualTo("this is a Foo");
+    }
+
+    public static class StringBean {
         private final String x;
 
-        private StringXBean(String x) {
+        private StringBean(String x) {
             this.x = x;
         }
 
@@ -124,10 +156,12 @@ public class TestSqlLoggerToString {
         }
     }
 
-    private static class Foo {
+    private static class Foo {}
+
+    private static class ToStringFoo extends Foo {
         @Override
         public String toString() {
-            return "I'm a foo";
+            return "I'm a Foo";
         }
     }
 
@@ -135,7 +169,28 @@ public class TestSqlLoggerToString {
         @Override
         public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
             if (value instanceof Foo) {
-                return Optional.of((position, statement, ctx) -> statement.setString(1, "foo"));
+                return Optional.of((position, statement, ctx) -> statement.setObject(1, value));
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    private static class ToStringFooArgumentFactory implements ArgumentFactory {
+        @Override
+        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+            if (value instanceof Foo) {
+                return Optional.of(new Argument() {
+                    @Override
+                    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                        statement.setObject(1, value);
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "this is a Foo";
+                    }
+                });
             } else {
                 return Optional.empty();
             }

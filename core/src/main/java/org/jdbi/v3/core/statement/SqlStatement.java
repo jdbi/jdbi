@@ -1038,19 +1038,27 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         Argument arg = getConfig(Arguments.class).findFor(type, value)
             .orElseThrow(() -> factoryNotFound(type, value));
 
-        // TODO reflection-check existing toString method
+        try {
+            boolean toStringIsImplementedInArgument = arg.getClass().getMethod("toString").getDeclaringClass() != Object.class;
 
-        return new Argument() {
-            @Override
-            public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-                arg.apply(position, statement, ctx);
-            }
+            if (toStringIsImplementedInArgument) {
+                return arg;
+            } else {
+                return new Argument() {
+                    @Override
+                    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                        arg.apply(position, statement, ctx);
+                    }
 
-            @Override
-            public String toString() {
-                return Objects.toString(value);
+                    @Override
+                    public String toString() {
+                        return Objects.toString(value);
+                    }
+                };
             }
-        };
+        } catch (NoSuchMethodException e) {
+            throw new Error("toString method does not exist, Object hierarchy is corrupt", e);
+        }
     }
 
     private UnsupportedOperationException factoryNotFound(Type type, Object value) {
