@@ -16,6 +16,7 @@ package org.jdbi.v3.stringsubstitutor;
 import java.util.HashMap;
 import java.util.Map;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class TestStringSubstitutorTemplateEngine {
     public void testDefaults() {
         attributes.put("name", "foo");
 
-        assertThat(StringSubstitutorTemplateEngine.DEFAULTS.render("create table ${name};", ctx))
+        assertThat(StringSubstitutorTemplateEngine.defaults().render("create table ${name};", ctx))
             .isEqualTo("create table foo;");
     }
 
@@ -52,9 +53,19 @@ public class TestStringSubstitutorTemplateEngine {
     public void testCustomPrefixSuffix() {
         attributes.put("name", "foo");
 
-        StringSubstitutorTemplateEngine engine = StringSubstitutorTemplateEngineFactory.between('<', '>');
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
         assertThat(engine.render("create table <name>;", ctx))
             .isEqualTo("create table foo;");
+    }
+
+    @Test
+    public void testEscapeCharacter() {
+        attributes.put("name", "foo");
+
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>', '@');
+
+        assertThat(engine.render("create table @<name>;", ctx))
+            .isEqualTo("create table <name>;");
     }
 }

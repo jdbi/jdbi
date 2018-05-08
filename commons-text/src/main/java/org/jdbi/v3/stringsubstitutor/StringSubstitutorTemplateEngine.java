@@ -13,29 +13,69 @@
  */
 package org.jdbi.v3.stringsubstitutor;
 
+import java.util.function.Consumer;
 import org.apache.commons.text.StringSubstitutor;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
 
 /**
- * Register an instance of this interface ({@link org.jdbi.v3.core.statement.SqlStatements#setTemplateEngine}) to use an Apache Commons Text {@link StringSubstitutor} as a {@link TemplateEngine}. This lets you use any pair of strings as variable delimiters, enabling the use of syntax like <pre>select * from ${foo}</pre>, <pre>select * from &lt;foo&gt;</pre>, <pre>select * from %foo%</pre>, etc.
+ * Register an instance of this class ({@link org.jdbi.v3.core.statement.SqlStatements#setTemplateEngine}) to use an Apache Commons Text {@link StringSubstitutor} as a {@link TemplateEngine}. This lets you use any pair of strings as variable delimiters, enabling the use of syntax like <pre>select * from ${foo}</pre>, <pre>select * from &lt;foo&gt;</pre>, <pre>select * from %foo%</pre>, etc.
  */
-@FunctionalInterface
-public interface StringSubstitutorTemplateEngine extends TemplateEngine {
-    /**
-     * Convenience constant that uses a {@link StringSubstitutor} set to defaults. At the time of writing, that means <pre>${foo}</pre> syntax.
-     */
-    StringSubstitutorTemplateEngine DEFAULTS = substitutor -> {};
+public class StringSubstitutorTemplateEngine implements TemplateEngine {
+    private final Consumer<StringSubstitutor> customizer;
 
-    /**
-     * Customize the given {@link StringSubstitutor} instance to set your preferred prefix, suffix, escape character, and perhaps other configuration. The instance is created by Jdbi, and is not shared nor re-used.
-     */
-    void customize(StringSubstitutor substitutor);
+    private StringSubstitutorTemplateEngine(Consumer<StringSubstitutor> customizer) {
+        this.customizer = customizer;
+    }
 
     @Override
-    default String render(String template, StatementContext ctx) {
+    public String render(String template, StatementContext ctx) {
         StringSubstitutor substitutor = new StringSubstitutor(ctx.getAttributes());
-        customize(substitutor);
+        customizer.accept(substitutor);
         return substitutor.replace(template);
+    }
+
+    /**
+     * At the time of writing, defaults means <pre>${foo}</pre> syntax.
+     */
+    public static StringSubstitutorTemplateEngine defaults() {
+        return new StringSubstitutorTemplateEngine(substitutor -> {});
+    }
+
+    /**
+     * Customize the given {@link StringSubstitutor} instance to set your preferred prefix, suffix, escape character, and perhaps other configuration. The instance is created by Jdbi, and is not shared nor re-used. Your customizer function however will be re-used for all instances.
+     */
+    public static StringSubstitutorTemplateEngine withCustomizer(Consumer<StringSubstitutor> customizer) {
+        return new StringSubstitutorTemplateEngine(customizer);
+    }
+
+    public static StringSubstitutorTemplateEngine between(char prefix, char suffix) {
+        return new StringSubstitutorTemplateEngine(substitutor -> {
+            substitutor.setVariablePrefix(prefix);
+            substitutor.setVariableSuffix(suffix);
+        });
+    }
+
+    public static StringSubstitutorTemplateEngine between(String prefix, String suffix) {
+        return new StringSubstitutorTemplateEngine(substitutor -> {
+            substitutor.setVariablePrefix(prefix);
+            substitutor.setVariableSuffix(suffix);
+        });
+    }
+
+    public static StringSubstitutorTemplateEngine between(char prefix, char suffix, char escape) {
+        return new StringSubstitutorTemplateEngine(substitutor -> {
+            substitutor.setVariablePrefix(prefix);
+            substitutor.setVariableSuffix(suffix);
+            substitutor.setEscapeChar(escape);
+        });
+    }
+
+    public static StringSubstitutorTemplateEngine between(String prefix, String suffix, char escape) {
+        return new StringSubstitutorTemplateEngine(substitutor -> {
+            substitutor.setVariablePrefix(prefix);
+            substitutor.setVariableSuffix(suffix);
+            substitutor.setEscapeChar(escape);
+        });
     }
 }
