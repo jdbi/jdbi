@@ -21,9 +21,9 @@
         <version>3.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>jdbi3-stringsubstitutor</artifactId>
+    <artifactId>jdbi3-commons-text</artifactId>
 
-    <name>jdbi3 StringSubstitutor integration</name>
+    <name>jdbi3 Apache Commons Text integration</name>
     <description>Provides features implemented with Apache Commons Text.</description>
     <url>http://jdbi.org/</url>
 
