@@ -21,7 +21,7 @@ import java.time.Instant;
  *
  * Defined attributes (see {@link SqlStatement#define(String, Object)}) and bound {@link org.jdbi.v3.core.argument.Argument}s (see {@link SqlStatement#bind(String, Object)}) are available on the {@link StatementContext}, along with timing information using {@link java.time.Instant}s. It's recommendable to use {@link java.time.temporal.ChronoUnit#between} to measure elapsed time in your unit of choice, as in {@link StatementContext#getElapsedTime}.
  *
- * See also {@link org.jdbi.v3.core.argument.LoggableArgument}. They can enable you to log previously unloggable {@link org.jdbi.v3.core.argument.Argument}s by wrapping them with a value in {@link org.jdbi.v3.core.argument.ArgumentFactory}s.
+ * Note that if you {@code bind} an {@link org.jdbi.v3.core.argument.Argument} instance directly, it must implement {@link Object#toString} if you want to be able to log it in any meaningful way. You can also implement log censorship that way, e.g. to hide sensitive content like passwords.
  */
 public interface SqlLogger {
     SqlLogger NOP_SQL_LOGGER = new SqlLogger() {

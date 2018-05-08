@@ -6,7 +6,7 @@
   - add a TemplateEngine based on java.text.MessageFormat
   - allow absence of 'value' on @MaxRows and validate its (lack of) use on SqlObjects
   - fix SqlObject getting confused about result types due to bridge methods
-  - add SqlLogger to log queries, timing, and exceptions, with matching LoggableArgument for use in custom ArgumentFactories
+  - add SqlLogger to log queries, timing, and exceptions
   - StringTemplate no longer shares template groups across threads, to work around concurrency issues
   - added SqliteDatabaseRule for testing convenience
   - DefineStatementLexer handles predicates that look like definitions better

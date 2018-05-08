@@ -14,12 +14,13 @@
 package org.jdbi.v3.core.statement;
 
 import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.LoggableArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
@@ -78,22 +79,31 @@ public class TestSqlLoggerToString {
     }
 
     @Test
-    // this is why we need LoggableArgument
-    public void testArgument() {
+    public void testArgumentWithoutToString() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, (position, statement, ctx) -> statement.setString(1, "derp")).execute();
 
         assertThat(positional).isNotEqualTo("derp");
     }
 
     @Test
-    public void testLoggableArgument() {
-        handle.createUpdate(INSERT_POSITIONAL).bind(0, new LoggableArgument("derp", (position, statement, ctx) -> statement.setString(1, "derp"))).execute();
+    public void testArgumentWithToString() {
+        handle.createUpdate(INSERT_POSITIONAL).bind(0, new Argument() {
+            @Override
+            public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                statement.setString(1, "derp");
+            }
+
+            @Override
+            public String toString() {
+                return "derp";
+            }
+        }).execute();
 
         assertThat(positional).isEqualTo("derp");
     }
 
     @Test
-    // this is why SqlStatement#toArgument uses LoggableArgument
+    // this is why SqlStatement#toArgument wraps found Arguments
     public void testFoo() {
         handle.registerArgument(new FooArgumentFactory());
 

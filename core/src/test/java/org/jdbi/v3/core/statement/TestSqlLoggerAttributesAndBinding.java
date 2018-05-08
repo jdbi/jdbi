@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.argument.LoggableArgument;
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
@@ -52,18 +54,20 @@ public class TestSqlLoggerAttributesAndBinding {
     public void testStatement() {
         h.createUpdate(CREATE).define("x", "foo").execute();
 
-        assertThat(logger.getAttributes()).hasSize(2);
-        assertThat(logger.getAttributes()).allMatch(x -> x.get("x").equals("foo"));
-        assertThat(logger.getAttributes()).allMatch(x -> x.size() == 1);
+        assertThat(logger.getAttributes())
+            .hasSize(2)
+            .allMatch(x -> x.get("x").equals("foo"))
+            .allMatch(x -> x.size() == 1);
     }
 
     @Test
     public void testBatch() {
         h.createBatch().add(CREATE).define("x", "foo").execute();
 
-        assertThat(logger.getAttributes()).hasSize(2);
-        assertThat(logger.getAttributes()).allMatch(x -> x.get("x").equals("foo"));
-        assertThat(logger.getAttributes()).allMatch(x -> x.size() == 1);
+        assertThat(logger.getAttributes())
+            .hasSize(2)
+            .allMatch(x -> x.get("x").equals("foo"))
+            .allMatch(x -> x.size() == 1);
     }
 
     @Test
@@ -76,13 +80,23 @@ public class TestSqlLoggerAttributesAndBinding {
 
         h.prepareBatch("insert into <x>(bar) values(?)")
             .define("x", "foo")
-            // a bit verbose because we're operating without a LoggableArgument ArgumentFactory
-            .bind(0, new LoggableArgument(id, ((position, statement, ctx) -> statement.setInt(1, id))))
+            .bind(0, new Argument() {
+                @Override
+                public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                    statement.setInt(1, id);
+                }
+
+                @Override
+                public String toString() {
+                    return Objects.toString(1);
+                }
+            })
             .execute();
 
-        assertThat(logger.getAttributes()).hasSize(2);
-        assertThat(logger.getAttributes()).allMatch(x -> x.get("x").equals("foo"));
-        assertThat(logger.getAttributes()).allMatch(x -> x.size() == 1);
+        assertThat(logger.getAttributes())
+            .hasSize(2)
+            .allMatch(x -> x.get("x").equals("foo"))
+            .allMatch(x -> x.size() == 1);
         assertThat(logger.getBindings()).containsExactly(String.valueOf(id), String.valueOf(id));
     }
 
