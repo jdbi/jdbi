@@ -29,7 +29,7 @@ import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 
 /**
- * Locates SQL in <code>.sql.ftl/code> Freemarker files on the classpath.
+ * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
  */
 public class FreemarkerSqlLocator {
     private static final Map<String, Template> CACHE = ExpiringMap.builder()
