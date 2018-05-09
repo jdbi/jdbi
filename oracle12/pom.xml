@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
+        <groupId>org.jdbi</groupId>
         <version>3.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-oracle12</artifactId>
     <name>jdbi3 Oracle 12</name>
-    <description>
-        Jdbi Oracle-specific features
-    </description>
+    <description>Jdbi Oracle-specific features</description>
     <url>http://jdbi.org/</url>
 
     <licenses>
@@ -36,23 +34,16 @@
         </license>
     </licenses>
 
-    <repositories>
-        <repository>
-            <id>maven.oracle.com</id>
-            <name>oracle-maven-repo</name>
-            <url>https://maven.oracle.com</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.jdbc</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <version>12.1.0.2</version>
         </dependency>
 
         <dependency>
@@ -67,13 +58,20 @@
             <artifactId>jdbi3-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.oracle.jdbc</groupId>
-            <artifactId>ojdbc7</artifactId>
-            <version>12.1.0.2</version>
-        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <id>maven.oracle.com</id>
+            <name>oracle-maven-repo</name>
+            <url>https://maven.oracle.com</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>
