@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.0</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-jodatime2</artifactId>
