@@ -142,6 +142,9 @@
     <profiles>
         <profile>
             <id>jdk8</id>
+            <activation>
+                <jdk>[8,9)</jdk>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
