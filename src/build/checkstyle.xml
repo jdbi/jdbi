@@ -51,13 +51,14 @@
             <property name="allowEmptyConstructors" value="true"/>
             <property name="allowEmptyLambdas" value="true"/>
             <property name="allowEmptyTypes" value="true"/>
-            <!-- TODO why can't this be enabled? -->
-            <!--<property name="allowEmptyCatches" value="true"/>-->
+            <property name="allowEmptyCatches" value="true"/>
         </module>
         <module name="ModifierOrder"/>
         <module name="RedundantModifier"/>
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="expected|ignored?"/>
+            <!-- this value is a message to readers that also serves to "disable" the check, we don't expect this literal text in a comment inside the catch... -->
+            <property name="commentFormat" value="please always name the exception correctly and write a comment if necessary"/>
         </module>
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>

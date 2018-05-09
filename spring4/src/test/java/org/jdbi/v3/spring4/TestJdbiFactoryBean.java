@@ -71,7 +71,7 @@ public class TestJdbiFactoryBean {
             });
         });
 
-        try (final Handle h = Jdbi.open(ds)) {
+        try (Handle h = Jdbi.open(ds)) {
             int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
             assertThat(count).isEqualTo(0);
         }

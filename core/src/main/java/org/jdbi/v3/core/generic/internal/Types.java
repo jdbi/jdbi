@@ -548,7 +548,7 @@ public class Types {
                 if (method.getDeclaringClass().equals(TypeVariableImpl.class)) {
                     try {
                         method.setAccessible(true);
-                    } catch (AccessControlException e) {
+                    } catch (AccessControlException ignored) {
                         // OK: the method is accessible to us anyway. The setAccessible call is only for
                         // unusual execution environments where that might not be true.
                     }

@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 class SqlMethodHandlerFactory implements HandlerFactory {
     @Override
@@ -66,7 +66,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
         } catch (InvocationTargetException e) {
             throw toUnchecked(e.getCause());
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
 
@@ -74,7 +74,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
             return handlerType.getConstructor(Method.class).newInstance(method);
         } catch (InvocationTargetException e) {
             throw toUnchecked(e.getCause());
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
 

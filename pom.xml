@@ -87,6 +87,8 @@
         <findbugs.version>3.0.1</findbugs.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>1.8</project.build.targetJdk>
+        <dep.checkstyle.version>8.10</dep.checkstyle.version>
+        <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
     </properties>
 
     <dependencyManagement>

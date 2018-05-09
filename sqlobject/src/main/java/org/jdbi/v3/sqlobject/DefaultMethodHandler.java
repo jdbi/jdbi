@@ -32,7 +32,7 @@ class DefaultMethodHandler implements Handler {
     private static Method privateLookupIn() {
         try {
             return MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
             // Method was added in JDK 9
             return null;
         }
