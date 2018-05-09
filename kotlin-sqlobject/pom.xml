@@ -138,7 +138,7 @@
         <profile>
             <id>jdk8</id>
             <activation>
-                <jdk>[8,9)</jdk>
+                <jdk>[1.8,1.9)</jdk>
             </activation>
             <build>
                 <plugins>
