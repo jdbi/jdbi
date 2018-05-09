@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.stringsubstitutor;
+package org.jdbi.v3.commonstext;
 
 import java.util.function.Consumer;
 import org.apache.commons.text.StringSubstitutor;
