@@ -14,19 +14,8 @@
 package org.jdbi.v3.core;
 
 import org.immutables.value.Value;
-import org.jdbi.v3.core.mapper.Nested;
 
 @Value.Immutable
-public interface SampleImmutable {
-    @Value.Default
-    default long id() {
-        return 0;
-    }
-
-    String getName();
-
-    int valueInt();
-
-    @Nested("inner_")
-    InnerSampleImmutable inner();
+public interface InnerSampleImmutable {
+    int id();
 }
