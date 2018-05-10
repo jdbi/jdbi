@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-kotlin</artifactId>
@@ -142,6 +142,9 @@
     <profiles>
         <profile>
             <id>jdk8</id>
+            <activation>
+                <jdk>[1.8,1.9)</jdk>
+            </activation>
             <build>
                 <plugins>
                     <plugin>

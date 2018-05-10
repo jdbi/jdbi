@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-spring4</artifactId>
@@ -92,7 +92,7 @@
         <profile>
             <id>jdk9</id>
             <activation>
-                <jdk>[9,</jdk>
+                <jdk>[1.9,</jdk>
             </activation>
             <dependencies>
                 <dependency>
