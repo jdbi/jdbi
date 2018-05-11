@@ -273,6 +273,11 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                 return Character.toLowerCase(name.charAt(3)) + name.substring(4);
             }
         }
+        if (name.startsWith("is")) {
+            if (Character.isUpperCase(name.charAt(2))) {
+                return Character.toLowerCase(name.charAt(2)) + name.substring(3);
+            }
+        }
         return name;
     }
 }
