@@ -37,143 +37,70 @@ import static org.mockito.Mockito.when;
 public class ImmutableTest {
 
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-    @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
-
-    @Mock
-    ResultSet resultSet;
-
-    @Mock
-    ResultSetMetaData resultSetMetaData;
-
-    Handle handle = HandleAccess.createHandle();
-    StatementContext ctx = StatementContextAccess.createContext(handle);
 
     RowMapper<SampleImmutable> mapper = ImmutableMapper.of(SampleImmutable.class);
 
     @Before
-    public void setUpMocks() throws SQLException {
-        when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
+    public void setUp() throws Exception {
+        dbRule.getSharedHandle()
+            .registerRowMapper(ImmutableMapper.factory(SampleImmutable.class));
+        dbRule.getSharedHandle().execute("CREATE TABLE immutable_bean (id bigint, name varchar, valueInt integer, inner_id integer)");
+
+        dbRule.getSharedHandle().execute("INSERT INTO immutable_bean VALUES(100, 'Foo', 42, 69)");
     }
 
-    private void mockColumns(String... columns) throws SQLException {
-        when(resultSetMetaData.getColumnCount()).thenReturn(columns.length);
-        for (int i = 0; i < columns.length; i++) {
-            when(resultSetMetaData.getColumnLabel(i + 1)).thenReturn(columns[i]);
-        }
-    }
-
-    private void mockAllNullsResult() throws SQLException {
-        when(resultSet.wasNull()).thenReturn(true);
+    public SampleImmutable execute(String query) {
+        return dbRule.getSharedHandle().createQuery(query).mapTo(SampleImmutable.class).findOnly();
     }
 
     @Test
-    public void shouldSetValueWithBuilder() throws Exception {
-        int aIntVal1 = 42;
-        long aLongVal = 100L;
-        String aStringValue = "Foo";
-        int aIntVal2 = 42;
+    public void simpleTest() {
+        SampleImmutable sampleImmutable = execute("SELECT id, name, valueInt, inner_id FROM immutable_bean");
 
-        mockColumns("id", "name", "valueInt", "inner_id");
-
-        when(resultSet.getLong(1)).thenReturn(aLongVal);
-        when(resultSet.getString(2)).thenReturn(aStringValue);
-        when(resultSet.getInt(3)).thenReturn(aIntVal1);
-        when(resultSet.getInt(4)).thenReturn(aIntVal2);
-        when(resultSet.wasNull()).thenReturn(false);
-
-        SampleImmutable sampleImmutable = mapper.map(resultSet, ctx);
-
-        assertThat(sampleImmutable.id()).isEqualTo(aLongVal);
-        assertThat(sampleImmutable.getName()).isEqualTo(aStringValue);
-        assertThat(sampleImmutable.valueInt()).isEqualTo(aIntVal1);
-        assertThat(sampleImmutable.inner().id()).isEqualTo(aIntVal2);
+        assertThat(sampleImmutable.id()).isEqualTo(100);
+        assertThat(sampleImmutable.getName()).isEqualTo("Foo");
+        assertThat(sampleImmutable.valueInt()).isEqualTo(42);
+        assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
     @Test(expected = IllegalStateException.class)
     public void expectedValueNotSet() throws Exception {
-        mockColumns("id", "valueInt", "inner_id");
-
-        when(resultSet.getLong(1)).thenReturn(100L);
-        when(resultSet.getInt(2)).thenReturn(42);
-        when(resultSet.getInt(3)).thenReturn(69);
-
-        mapper.map(resultSet, ctx);
+        execute("SELECT id, valueInt, inner_id FROM immutable_bean");
     }
 
     @Test
-    public void expectedValueNotSetWithDefault() throws Exception {
-        String aStringValue = "Foo";
-        int aIntVal1 = 42;
-        int aIntVal2 = 42;
-
-        mockColumns("name", "valueInt", "inner_id");
-
-        when(resultSet.getString(1)).thenReturn(aStringValue);
-        when(resultSet.getInt(2)).thenReturn(aIntVal1);
-        when(resultSet.getInt(3)).thenReturn(aIntVal2);
-        when(resultSet.wasNull()).thenReturn(false);
-
-        SampleImmutable sampleImmutable = mapper.map(resultSet, ctx);
+    public void expectedValueNotSetWithDefault() {
+        SampleImmutable sampleImmutable = execute("SELECT name, valueInt, inner_id FROM immutable_bean");
 
         assertThat(sampleImmutable.id()).isEqualTo(0);
-        assertThat(sampleImmutable.valueInt()).isEqualTo(aIntVal1);
-        assertThat(sampleImmutable.getName()).isEqualTo(aStringValue);
-        assertThat(sampleImmutable.inner().id()).isEqualTo(aIntVal2);
+        assertThat(sampleImmutable.getName()).isEqualTo("Foo");
+        assertThat(sampleImmutable.valueInt()).isEqualTo(42);
+        assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
     @Test
-    public void shouldHandleColumNameWithUnderscores() throws Exception {
-        int aIntVal1 = 42;
-        long aLongVal = 100L;
-        String aStringValue = "Foo";
-        int aIntVal2 = 42;
+    public void shouldHandleColumNameWithUnderscores() {
+        SampleImmutable sampleImmutable = execute("SELECT id, name, valueInt AS \"value_int\", inner_id FROM immutable_bean");
 
-        mockColumns("id", "name", "value_int", "inner_id");
-
-        when(resultSet.getLong(1)).thenReturn(aLongVal);
-        when(resultSet.getString(2)).thenReturn(aStringValue);
-        when(resultSet.getInt(3)).thenReturn(aIntVal1);
-        when(resultSet.getInt(4)).thenReturn(aIntVal2);
-        when(resultSet.wasNull()).thenReturn(false);
-
-        SampleImmutable sampleImmutable = mapper.map(resultSet, ctx);
-
-        assertThat(sampleImmutable.id()).isEqualTo(aLongVal);
-        assertThat(sampleImmutable.getName()).isEqualTo(aStringValue);
-        assertThat(sampleImmutable.valueInt()).isEqualTo(aIntVal1);
-        assertThat(sampleImmutable.inner().id()).isEqualTo(aIntVal2);
+        assertThat(sampleImmutable.id()).isEqualTo(100);
+        assertThat(sampleImmutable.getName()).isEqualTo("Foo");
+        assertThat(sampleImmutable.valueInt()).isEqualTo(42);
+        assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
     @Test
-    public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() throws Exception {
-        int aIntVal = 42;
-        long aLongVal = 100L;
-        String aStringValue = "Foo";
-        int aIntVal2 = 42;
+    public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() {
+        SampleImmutable sampleImmutable = execute("SELECT id, name, valueInt AS \"VaLUe_iNt\", inner_id FROM immutable_bean");
 
-        mockColumns("id", "name", "VaLUe_iNt", "inner_id");
-
-        when(resultSet.getLong(1)).thenReturn(aLongVal);
-        when(resultSet.getString(2)).thenReturn(aStringValue);
-        when(resultSet.getInt(3)).thenReturn(aIntVal);
-        when(resultSet.getInt(4)).thenReturn(aIntVal2);
-        when(resultSet.wasNull()).thenReturn(false);
-
-        SampleImmutable sampleImmutable = mapper.map(resultSet, ctx);
-
-        assertThat(sampleImmutable.id()).isEqualTo(aLongVal);
-        assertThat(sampleImmutable.getName()).isEqualTo(aStringValue);
-        assertThat(sampleImmutable.valueInt()).isEqualTo(aIntVal);
-        assertThat(sampleImmutable.inner().id()).isEqualTo(aIntVal2);
+        assertThat(sampleImmutable.id()).isEqualTo(100);
+        assertThat(sampleImmutable.getName()).isEqualTo("Foo");
+        assertThat(sampleImmutable.valueInt()).isEqualTo(42);
+        assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldntHandleEmptyResult() throws Exception {
-        mockColumns();
-
-        mapper.map(resultSet, ctx);
+        execute("SELECT id, name, valueInt AS \"VaLUe_iNt\", inner_id FROM immutable_bean WHERE FALSE");
     }
 }
