@@ -64,9 +64,14 @@ public class ImmutableTest {
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void expectedValueNotSet() throws Exception {
-        execute("SELECT id, valueInt, inner_id FROM immutable_bean");
+        SampleImmutable sampleImmutable = execute("SELECT id, valueInt, inner_id FROM immutable_bean");
+
+        assertThat(sampleImmutable.id()).isEqualTo(100);
+        assertThat(sampleImmutable.getName()).isEqualTo("Foo");
+        assertThat(sampleImmutable.valueInt()).isEqualTo(42);
+        assertThat(sampleImmutable.inner().id()).isEqualTo(69);
     }
 
     @Test

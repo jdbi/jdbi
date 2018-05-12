@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import org.immutables.value.Value;
 
-@Value.Immutable
 public interface InnerSampleImmutable {
     int id();
 }

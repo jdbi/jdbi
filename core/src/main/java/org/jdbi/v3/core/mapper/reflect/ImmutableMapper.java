@@ -19,10 +19,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -85,8 +82,6 @@ public class ImmutableMapper<T> implements RowMapper<T> {
     }
 
     private final Class<? extends T> type;
-    private final Class<? extends T> implementation;
-    private final Method builderCreationMethod;
     private final String prefix;
     private final List<PropertyDescriptor> info;
     private final Map<PropertyDescriptor, ImmutableMapper<?>> nestedMappers = new ConcurrentHashMap<>();
@@ -95,31 +90,8 @@ public class ImmutableMapper<T> implements RowMapper<T> {
 
         this.type = type;
         this.prefix = prefix;
-        this.implementation = getImplementationFromType(type);
 
-        try {
-            builderCreationMethod = this.implementation.getMethod("builder");
-        } catch (NoSuchMethodException e) {
-            throw new MappingException("The ImmutableImplementation of your ImmutableInterface needs a public static builder() " +
-                "method returning a Builder for your Immutable", e);
-        }
-        info = getInformation(type, (Class) builderCreationMethod.getGenericReturnType());
-    }
-
-    private Class<? extends T> getImplementationFromType(final Class<T> type) {
-        ImmutableImplementation implementationAnnotation = type.getAnnotation(ImmutableImplementation.class);
-        if (Objects.nonNull(implementationAnnotation)) {
-            return (Class<? extends T>) implementationAnnotation.value();
-        }
-        Package immutablePackage = type.getPackage();
-        String immutableName = type.getSimpleName();
-        String implementationName = "Immutable" + immutableName;
-        try {
-            return (Class<? extends T>) Class.forName(immutablePackage.getName() + "." + implementationName);
-        } catch (ClassNotFoundException e) {
-            throw new MappingException("The Immutable implementation for `" + immutableName + "` should be called `" +
-                implementationName + "` and lie in the package " + immutablePackage.getName(), e);
-        }
+        info = getInformation(type);
     }
 
     @Override
@@ -194,41 +166,44 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                 "didn't find any matching columns in result set", type));
         }
 
+        Constructor<MethodHandles.Lookup> constructorTemp = null;
+        try {
+            constructorTemp = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            constructorTemp.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        final Constructor<MethodHandles.Lookup> constructor = constructorTemp;
+
         return (r, c) -> {
-            Object builder = null;
-            try {
-                builder = builderCreationMethod.invoke(null);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new MappingException("Could not create Builder", e);
-            }
+            final Map<Method, Object> invocations = new HashMap<>();
             for (int i = 0; i < mappers.size(); i++) {
                 RowMapper<?> mapper = mappers.get(i);
                 PropertyDescriptor property = properties.get(i);
-
                 Object value = mapper.map(r, ctx);
+                invocations.put(property.getReadMethod(), value);
+            }
 
-                try {
-                    MethodHandles.lookup().unreflect(property.getWriteMethod()).bindTo(builder).invokeWithArguments(value);
-                } catch (IllegalAccessException e) {
-                    throw new MappingException("Setter for the builder should be public", e);
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Throwable e) {
-                    throw new MappingException("Immutable build failed with exception", e);
+            return (T) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{type}, new InvocationHandler() {
+                private final Map<Method, Object> invocationMap = invocations;
+
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    Object returnObj = invocationMap.get(method);
+                    if (returnObj == null) {
+                        if (method.isDefault() && constructor != null) {
+                            final Class<?> declaringClass = method.getDeclaringClass();
+                            return constructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE)
+                                .unreflectSpecial(method, declaringClass)
+                                .bindTo(proxy)
+                                .invokeWithArguments(args);
+                        } else {
+                            throw new UnsupportedOperationException();
+                        }
+                    }
+                    return invocationMap.get(method);
                 }
-            }
-            try {
-                return (T) MethodHandles.lookup().findVirtual(builder.getClass(),
-                    "build",
-                    MethodType.methodType(implementation)).bindTo(builder).invokeWithArguments();
-            } catch (NoSuchMethodException | IllegalAccessException e) {
-                throw new MappingException("Expected to find a Builder with public build() method", e);
-            } catch (Throwable e) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new MappingException("Immutable build failed with exception", e);
-            }
+            });
         };
     }
 
@@ -246,23 +221,17 @@ public class ImmutableMapper<T> implements RowMapper<T> {
         return String.format("%s.%s", type.getSimpleName(), descriptor.getName());
     }
 
-    private List<PropertyDescriptor> getInformation(Class immutable, Class builder) {
+    private List<PropertyDescriptor> getInformation(Class<T> immutable) {
         List<Method> getter = Arrays.asList(immutable.getMethods());
-        List<Method> setter = Arrays.asList(builder.getMethods());
 
         return getter.stream().map(g -> {
             String rawName = getRawName(g.getName());
-
             try {
                 return new PropertyDescriptor(rawName,
                     g,
-                    setter.stream().filter(s -> {
-                        String setterName = s.getName();
-                        return setterName.equals(rawName)
-                            || setterName.equals("set" + Character.toUpperCase(rawName.charAt(0)) + rawName.substring(1));
-                    }).findFirst().orElse(null));
+                    null);
             } catch (IntrospectionException e) {
-                throw new IllegalArgumentException(e);
+                throw new MappingException(e);
             }
         }).collect(Collectors.toList());
     }
