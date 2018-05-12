@@ -1303,14 +1303,11 @@ List<User> users = handle
 ----
 
 ===== ImmutableMapper
-link:{jdbidocs}/mapper/reflect/ImmutableMapper.html[ImmutableMapper^] uses reflection to map database columns to immutables,
-created by the link:immutables.github.io[Immutables Api] or any other Api that creates the Immutable Implementation analog to this api
+link:{jdbidocs}/mapper/reflect/ImmutableMapper.html[ImmutableMapper^] uses reflection to map database columns to immutables.
 [source,java]
 ----
-@Value.Immutable
 public interface Sample {
 
-    @Value.Default
     default long id() {
         return 0;
     }
