@@ -13,6 +13,6 @@
     limitations under the License.
 
 -->
-<#include "org/jdbi/v3/freemarker/util.ftl">
+<#include "/org/jdbi/v3/freemarker/util.ftl">
 <#include "util2.ftl">
 select name from something where id in (<#list somethings as something>${something.id}<#sep>, </#list>) <@groupBy field="name" /> <@orderBy field="name" />

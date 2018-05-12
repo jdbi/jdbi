@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.1-SNAPSHOT</version>
+        <version>3.2.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-docs</artifactId>
@@ -111,6 +111,11 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
@@ -128,11 +133,6 @@
             <artifactId>jdbi3-postgres</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
 
         <dependency>

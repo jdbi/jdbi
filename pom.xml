@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
