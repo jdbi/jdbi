@@ -21,8 +21,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
-public class RegisterImmutableMappersImpl implements Configurer
-{
+public class RegisterImmutableMappersImpl implements Configurer {
+
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         Configurer delegate = new RegisterImmutableMapperImpl();
