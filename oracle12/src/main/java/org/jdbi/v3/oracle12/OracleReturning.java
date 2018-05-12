@@ -48,8 +48,43 @@ import oracle.jdbc.OraclePreparedStatement;
  * This class still is beta, and may be changed incompatibly or removed at any time.
  */
 public class OracleReturning {
+    private OracleReturning() {}
+
     public static ReturnParameters returnParameters() {
         return new ReturnParameters();
+    }
+
+    /**
+     * Result producer that returns a {@link ResultBearing} over the statement "DML returning" parameters. Used in
+     * conjunction with {@link #returnParameters()} to register return parameters.
+     *
+     * @return ResultBearing of returned columns.
+     * @see OraclePreparedStatement#getReturnResultSet()
+     */
+    public static ResultProducer<ResultBearing> returningDml() {
+        return (supplier, ctx) -> ResultBearing.of(getReturnResultSet(supplier, ctx), ctx);
+    }
+
+    private static Supplier<ResultSet> getReturnResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
+        return () -> {
+            PreparedStatement stmt = supplier.get();
+            try {
+                if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+                    throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+                }
+
+                OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
+
+                ResultSet rs = statement.getReturnResultSet();
+                if (rs != null) {
+                    ctx.addCleanable(rs::close);
+                }
+
+                return rs;
+            } catch (SQLException e) {
+                throw new ResultSetException("Unable to retrieve return result set", e, ctx);
+            }
+        };
     }
 
     static class ReturnParam implements Argument {
@@ -125,38 +160,5 @@ public class OracleReturning {
             returnParams.add(new ReturnParam(name, oracleType));
             return this;
         }
-    }
-
-    /**
-     * Result producer that returns a {@link ResultBearing} over the statement "DML returning" parameters. Used in
-     * conjunction with {@link #returnParameters()} to register return parameters.
-     *
-     * @return ResultBearing of returned columns.
-     * @see OraclePreparedStatement#getReturnResultSet()
-     */
-    public static ResultProducer<ResultBearing> returningDml() {
-        return (supplier, ctx) -> ResultBearing.of(getReturnResultSet(supplier, ctx), ctx);
-    }
-
-    private static Supplier<ResultSet> getReturnResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
-        return () -> {
-            PreparedStatement stmt = supplier.get();
-            try {
-                if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
-                    throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
-                }
-
-                OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
-
-                ResultSet rs = statement.getReturnResultSet();
-                if (rs != null) {
-                    ctx.addCleanable(rs::close);
-                }
-
-                return rs;
-            } catch (SQLException e) {
-                throw new ResultSetException("Unable to retrieve return result set", e, ctx);
-            }
-        };
     }
 }

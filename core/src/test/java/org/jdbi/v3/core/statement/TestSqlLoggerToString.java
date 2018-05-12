@@ -114,7 +114,7 @@ public class TestSqlLoggerToString {
 
         handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
 
-        assertThat(positional).containsPattern("@[0-9a-f]{8}$");
+        assertThat(positional).containsPattern("@[0-9a-f]{1,8}$");
     }
 
     @Test

@@ -13,69 +13,39 @@
  */
 package org.jdbi.v3.freemarker;
 
-import java.io.File;
-import java.io.FileReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 
 /**
- * Locates SQL in <code>.sql.ftl/code> Freemarker files on the classpath.
+ * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
  */
 public class FreemarkerSqlLocator {
-    private static final Map<String, Template> CACHE = ExpiringMap.builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .build();
+    private static final Configuration CONFIGURATION;
 
     private FreemarkerSqlLocator() {}
 
-    private static File findTemplateDirectory(Class<?> type) {
-        try {
-            String classFolder = getPath(type);
-            URL resource = type.getClassLoader().getResource(classFolder);
-            if (resource != null) {
-                return new File(resource.toURI());
-            }
-        } catch (URISyntaxException ignored) {}
-        return null;
+    static {
+        Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        c.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
+        CONFIGURATION = c;
+    }
+
+    private static ClassLoader selectClassLoader() {
+        return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
+            .orElseGet(FreemarkerSqlLocator.class::getClassLoader);
     }
 
     public static Template findTemplate(Class<?> type, String templateName) {
-        File templateDirectory = findTemplateDirectory(type);
-        if (templateDirectory == null) {
-            throw new IllegalStateException("No template directory found for class " + type);
+        String path = type.getName().replace(".", "/") + "/" + templateName + ".sql.ftl";
+
+        try {
+            return CONFIGURATION.getTemplate(path);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + path, e);
         }
-        File templateFile = new File(templateDirectory, templateName + ".sql.ftl");
-        return CACHE.computeIfAbsent(templateFile.getPath(), (p) -> {
-            Exception ex;
-            try {
-                if (templateFile.exists()) {
-                    Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-                    ClassTemplateLoader ctl1 = new ClassTemplateLoader(type, "/");
-                    ClassTemplateLoader ctl2 = new ClassTemplateLoader(type, "/" + getPath(type));
-                    MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {ctl1, ctl2});
-                    configuration.setTemplateLoader(mtl);
-                    return new Template(templateName, new FileReader(templateFile), configuration);
-                }
-                ex = new IllegalArgumentException("Template file " + templateFile.getPath() + " does not exist");
-            } catch (Exception templateLoadingException) {
-                ex = templateLoadingException;
-            }
-            throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + templateDirectory.getAbsolutePath(), ex);
-        });
     }
 
-    private static String getPath(Class<?> type) {
-        return type.getName().replace(".", "/");
-    }
 }

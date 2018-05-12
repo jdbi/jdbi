@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.2.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-docs</artifactId>
@@ -35,6 +35,14 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-commons-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-freemarker</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -58,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
         </dependency>
         <dependency>
@@ -66,11 +78,11 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-vavr</artifactId>
+            <artifactId>jdbi3-testing</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi3-vavr</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -92,17 +104,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlite</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -123,17 +135,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -293,10 +294,16 @@
     <profiles>
         <profile>
             <id>oracle</id>
+            <activation>
+                <file>
+                    <exists>../.build-oracle</exists>
+                </file>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.jdbi</groupId>
                     <artifactId>jdbi3-oracle12</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>

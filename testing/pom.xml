@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.2.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-testing</artifactId>
@@ -42,13 +42,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
