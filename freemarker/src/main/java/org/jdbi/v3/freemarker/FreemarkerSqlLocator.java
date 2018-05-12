@@ -13,47 +13,39 @@
  */
 package org.jdbi.v3.freemarker;
 
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 
 /**
  * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
  */
 public class FreemarkerSqlLocator {
-    private static final Map<String, Template> CACHE = ExpiringMap.builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .build();
+    private static final Configuration CONFIGURATION;
 
     private FreemarkerSqlLocator() {}
 
+    static {
+        Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        c.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
+        CONFIGURATION = c;
+    }
+
+    private static ClassLoader selectClassLoader() {
+        return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
+            .orElseGet(FreemarkerSqlLocator.class::getClassLoader);
+    }
+
     public static Template findTemplate(Class<?> type, String templateName) {
-        String path = getPath(type);
+        String path = type.getName().replace(".", "/") + "/" + templateName + ".sql.ftl";
 
-        return CACHE.computeIfAbsent(path + "#" + templateName, k -> {
-            try {
-                Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-                ClassTemplateLoader ctl1 = new ClassTemplateLoader(type, "/");
-                ClassTemplateLoader ctl2 = new ClassTemplateLoader(type, "/" + path);
-                MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {ctl1, ctl2});
-                configuration.setTemplateLoader(mtl);
-                return configuration.getTemplate(templateName + ".sql.ftl");
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + path, e);
-            }
-
-        });
+        try {
+            return CONFIGURATION.getTemplate(path);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + path, e);
+        }
     }
 
-    private static String getPath(Class<?> type) {
-        return type.getName().replace(".", "/");
-    }
 }

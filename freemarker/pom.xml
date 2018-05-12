@@ -53,10 +53,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>expiringmap</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <classifier>tests</classifier>
