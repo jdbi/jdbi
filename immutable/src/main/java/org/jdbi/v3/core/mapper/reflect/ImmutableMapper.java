@@ -142,6 +142,7 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                                      List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PropertyDescriptor> properties = new ArrayList<>();
+        final List<PropertyDescriptor> unmatchedDescriptors = new ArrayList<>(info);
 
         for (PropertyDescriptor descriptor : info) {
             Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
@@ -164,6 +165,7 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                         properties.add(descriptor);
 
                         unmatchedColumns.remove(columnNames.get(index));
+                        unmatchedDescriptors.remove(descriptor);
                     });
             } else {
                 String nestedPrefix = prefix + anno.value();
@@ -174,6 +176,7 @@ public class ImmutableMapper<T> implements RowMapper<T> {
 
                 mappers.add(nestedMapper);
                 properties.add(descriptor);
+                unmatchedDescriptors.remove(descriptor);
             }
         }
 
@@ -181,15 +184,6 @@ public class ImmutableMapper<T> implements RowMapper<T> {
             throw new MappingException(String.format("Mapping immutable type %s " +
                 "didn't find any matching columns in result set", type));
         }
-
-        Constructor<MethodHandles.Lookup> constructorTemp = null;
-        try {
-            constructorTemp = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-            constructorTemp.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        final Constructor<MethodHandles.Lookup> constructor = constructorTemp;
 
         return (r, c) -> {
             final Map<Method, Object> invocations = new HashMap<>();
@@ -200,19 +194,16 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                 invocations.put(property.getReadMethod(), value);
             }
 
-            return (T) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{type}, new InvocationHandler() {
+            Object proxy = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{type}, new InvocationHandler() {
                 private final Map<Method, Object> invocationMap = invocations;
 
                 @Override
                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                     Object returnObj = invocationMap.get(method);
                     if (returnObj == null) {
-                        if (method.isDefault() && constructor != null) {
+                        if (method.isDefault()) {
                             final Class<?> declaringClass = method.getDeclaringClass();
-                            return constructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE)
-                                .unreflectSpecial(method, declaringClass)
-                                .bindTo(proxy)
-                                .invokeWithArguments(args);
+                            return invokeDefault(method, proxy, declaringClass, args);
                         } else {
                             Class<?> returnType = method.getReturnType();
                             if (returnType.equals(Map.class)) {
@@ -230,6 +221,20 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                     return invocationMap.get(method);
                 }
             });
+
+            if (!unmatchedDescriptors.isEmpty()) {
+                for (PropertyDescriptor descriptor : unmatchedDescriptors) {
+                    final Method method = descriptor.getReadMethod();
+                    if (!method.isDefault()) {
+                        Class<?> returnType = method.getReturnType();
+                        if (!returnType.equals(Map.class) && !returnType.equals(List.class) && !returnType.equals(Set.class)) {
+                            throw new MappingException("Found Method without default implementation in Immutable");
+                        }
+                    }
+                }
+            }
+
+            return (T) proxy;
         };
     }
 
@@ -248,9 +253,9 @@ public class ImmutableMapper<T> implements RowMapper<T> {
     }
 
     private List<PropertyDescriptor> getInformation(Class<T> immutable) {
-        List<Method> getter = Arrays.asList(immutable.getMethods());
+        final List<Method> getter = Arrays.asList(immutable.getMethods());
 
-        return getter.stream().map(g -> {
+        return getter.stream().filter(g -> g.getParameterCount() == 0).map(g -> {
             String rawName = getRawName(g.getName());
             try {
                 return new PropertyDescriptor(rawName,
@@ -274,5 +279,30 @@ public class ImmutableMapper<T> implements RowMapper<T> {
             }
         }
         return name;
+    }
+
+    private Object invokeDefault(Method method, Object proxy, Class<?> declaringClass, Object[] args) throws Throwable {
+        try {
+            String javaVersion = System.getProperty("java.version");
+            if (javaVersion.startsWith("1.8")) {
+                final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+                constructor.setAccessible(true);
+
+                return constructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE)
+                    .unreflectSpecial(method, declaringClass)
+                    .bindTo(proxy)
+                    .invokeWithArguments(args);
+            }
+            if (javaVersion.startsWith("9") || javaVersion.startsWith("10")) {
+                Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+                constructor.setAccessible(true);
+                return constructor.newInstance(declaringClass).unreflectSpecial(method, type).bindTo(proxy).invokeWithArguments(args);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+            throw new MappingException(e);
+        } catch (Throwable throwable) {
+            throw throwable;
+        }
+        throw new UnsupportedOperationException("The Default Method Reflection is not posible in your Version of Java");
     }
 }

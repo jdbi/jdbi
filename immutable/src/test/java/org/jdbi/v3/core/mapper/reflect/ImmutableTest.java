@@ -13,26 +13,15 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleImmutable;
+import org.jdbi.v3.core.mapper.MappingException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class ImmutableTest {
 
@@ -62,9 +51,11 @@ public class ImmutableTest {
         assertThat(sampleImmutable.getName()).isEqualTo("Foo");
         assertThat(sampleImmutable.valueInt()).isEqualTo(42);
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
+        assertThat(sampleImmutable.doSomething(2)).isEqualTo(84);
+        assertThat(sampleImmutable.doSomething(4)).isEqualTo(168);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = MappingException.class)
     public void expectedValueNotSet() throws Exception {
         SampleImmutable sampleImmutable = execute("SELECT id, valueInt, inner_id FROM immutable_bean");
 
@@ -72,6 +63,8 @@ public class ImmutableTest {
         assertThat(sampleImmutable.getName()).isEqualTo("Foo");
         assertThat(sampleImmutable.valueInt()).isEqualTo(42);
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
+        assertThat(sampleImmutable.doSomething(2)).isEqualTo(84);
+        assertThat(sampleImmutable.doSomething(4)).isEqualTo(168);
     }
 
     @Test
@@ -82,6 +75,8 @@ public class ImmutableTest {
         assertThat(sampleImmutable.getName()).isEqualTo("Foo");
         assertThat(sampleImmutable.valueInt()).isEqualTo(42);
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
+        assertThat(sampleImmutable.doSomething(2)).isEqualTo(84);
+        assertThat(sampleImmutable.doSomething(4)).isEqualTo(168);
     }
 
     @Test
@@ -92,6 +87,8 @@ public class ImmutableTest {
         assertThat(sampleImmutable.getName()).isEqualTo("Foo");
         assertThat(sampleImmutable.valueInt()).isEqualTo(42);
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
+        assertThat(sampleImmutable.doSomething(2)).isEqualTo(84);
+        assertThat(sampleImmutable.doSomething(4)).isEqualTo(168);
     }
 
     @Test
@@ -102,6 +99,8 @@ public class ImmutableTest {
         assertThat(sampleImmutable.getName()).isEqualTo("Foo");
         assertThat(sampleImmutable.valueInt()).isEqualTo(42);
         assertThat(sampleImmutable.inner().id()).isEqualTo(69);
+        assertThat(sampleImmutable.doSomething(2)).isEqualTo(84);
+        assertThat(sampleImmutable.doSomething(4)).isEqualTo(168);
     }
 
     @Test(expected = IllegalStateException.class)

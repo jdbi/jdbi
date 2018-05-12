@@ -11,20 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.rule;
 
-import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.Jdbi;
+import org.junit.rules.TestRule;
 
-public interface SampleImmutable {
-
-    default long id() {
-        return 0;
-    }
-
-    String getName();
-
-    int valueInt();
-
-    @Nested("inner_")
-    InnerSampleImmutable inner();
+public interface DatabaseRule extends TestRule
+{
+    Jdbi getJdbi();
 }

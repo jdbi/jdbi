@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import org.immutables.value.Value;
-
-@Value.Immutable
 public interface Book {
     int id();
     String name();

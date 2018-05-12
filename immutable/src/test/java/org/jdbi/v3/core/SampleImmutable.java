@@ -11,18 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.config;
+package org.jdbi.v3.core;
 
-import org.jdbi.v3.sqlobject.config.internal.RegisterImmutableMappersImpl;
+import org.jdbi.v3.core.mapper.Nested;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public interface SampleImmutable {
 
-@Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterImmutableMappersImpl.class)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterImmutableMappers {
-    RegisterImmutableMapper[] value();
+    default long id() {
+        return 0;
+    }
+
+    String getName();
+
+    int valueInt();
+
+    @Nested("inner_")
+    InnerSampleImmutable inner();
+
+    default int doSomething(int i) {
+        return valueInt() * i;
+    }
 }

@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.config;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.mapper.reflect.ImmutableMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -70,8 +71,8 @@ public class TestRegisterImmutableMapper {
     }
 
     private interface PrivateBookDao extends SqlObject {
-        @SqlQuery("select id, name from bookshelfs order by id")
         @RegisterImmutableMapper(Bookshelf.class)
+        @SqlQuery("select id, name from bookshelfs order by id")
         List<Bookshelf> listBookshelfs();
 
         @RegisterImmutableMapper(value = Bookshelf.class, prefix = "bookshelf")

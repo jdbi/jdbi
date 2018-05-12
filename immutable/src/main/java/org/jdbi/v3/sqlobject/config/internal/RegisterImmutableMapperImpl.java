@@ -3,6 +3,12 @@ package org.jdbi.v3.sqlobject.config.internal;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.ImmutableMapper;
+import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.sqlobject.config.RegisterImmutableMapper;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +22,6 @@ import org.jdbi.v3.core.mapper.reflect.ImmutableMapper;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterImmutableMapper;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 public class RegisterImmutableMapperImpl implements Configurer {
 
