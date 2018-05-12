@@ -32,8 +32,7 @@ public class RegisterImmutableMappersImpl implements Configurer
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

@@ -25,8 +25,7 @@ import java.lang.annotation.Target;
 @ConfiguringAnnotation(RegisterImmutableMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterImmutableMappers.class)
-public @interface RegisterImmutableMapper
-{
+public @interface RegisterImmutableMapper {
     /**
      * The mapped immutable class.
      * @return the mapped immutable class.
