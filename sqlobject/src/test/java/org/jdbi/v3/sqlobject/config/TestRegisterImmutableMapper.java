@@ -91,15 +91,30 @@ public class TestRegisterImmutableMapper {
                 id)
                 .reduceRows(Optional.<Bookshelf>empty(),
                     (acc, rv) -> {
-                        Bookshelf a = acc.orElseGet(() -> rv.getRow(Bookshelf.class));
+                        final Bookshelf a = acc.orElseGet(() -> rv.getRow(Bookshelf.class));
 
-                        List<Book> books = new LinkedList<>();
+                        final List<Book> books = new LinkedList<>();
                         books.addAll(a.books());
                         if (rv.getColumn("bookshelf_id", Long.class) != null) {
                             books.add(rv.getRow(Book.class));
                         }
 
-                        return Optional.of(ImmutableBookshelf.builder().from(a).books(books).build());
+                        return Optional.of(new Bookshelf() {
+                            @Override
+                            public int id() {
+                                return a.id();
+                            }
+
+                            @Override
+                            public String name() {
+                                return a.name();
+                            }
+
+                            @Override
+                            public List<Book> books() {
+                                return books;
+                            }
+                        });
                     });
         }
     }

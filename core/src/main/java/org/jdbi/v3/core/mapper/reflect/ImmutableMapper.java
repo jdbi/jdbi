@@ -198,7 +198,17 @@ public class ImmutableMapper<T> implements RowMapper<T> {
                                 .bindTo(proxy)
                                 .invokeWithArguments(args);
                         } else {
-                            throw new UnsupportedOperationException();
+                            Class<?> returnType = method.getReturnType();
+                            if (returnType.equals(Map.class)) {
+                                return new HashMap<>(); // TODO IMMUTABLE MAP
+                            }
+                            if (returnType.equals(List.class)) {
+                                return new ArrayList<>(); // TODO IMMUTABLE LIST
+                            }
+                            if (returnType.equals(Set.class)) {
+                                return new HashSet<>(); // TODO IMMUTABLE SET
+                            }
+                            throw new UnsupportedOperationException(method.getName());
                         }
                     }
                     return invocationMap.get(method);
