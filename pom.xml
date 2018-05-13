@@ -487,5 +487,6 @@
         <module>vavr</module>
         <module>sqlite</module>
         <module>testing</module>
+        <module>immutable</module>
     </modules>
 </project>

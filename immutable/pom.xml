@@ -23,6 +23,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jdbi3-immutable</artifactId>
+    <name>jdbi3 Immutable</name>
+    <description>
+        jdbi is designed to provide convenient tabular data access in
+        Java(tm). It uses the Java collections framework for query
+        results, provides a convenient means of externalizing sql
+        statements, and provides named parameter support for any database
+        being used.
+    </description>
+    <url>http://jdbi.org/</url>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
