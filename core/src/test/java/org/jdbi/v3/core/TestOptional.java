@@ -213,6 +213,48 @@ public class TestOptional {
                 .list();
     }
 
+    @Test
+    public void testBindOptionalInt()
+    {
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalInt.empty())
+                .collectInto(OptionalInt.class))
+                .isEmpty();
+
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalInt.of(123))
+                .collectInto(OptionalInt.class))
+                .hasValue(123);
+    }
+
+    @Test
+    public void testBindOptionalLong()
+    {
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalLong.empty())
+                .collectInto(OptionalLong.class))
+                .isEmpty();
+
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalLong.of(123))
+                .collectInto(OptionalLong.class))
+                .hasValue(123);
+    }
+
+    @Test
+    public void testBindOptionalDouble()
+    {
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalDouble.empty())
+                .collectInto(OptionalDouble.class))
+                .isEmpty();
+
+        assertThat(handle.createQuery("SELECT :value")
+                .bind("value", OptionalDouble.of(123.45))
+                .collectInto(OptionalDouble.class))
+                .hasValue(123.45);
+    }
+
     class Name {
         final String value;
 

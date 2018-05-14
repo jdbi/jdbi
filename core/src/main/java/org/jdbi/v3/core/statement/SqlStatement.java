@@ -48,8 +48,6 @@ import org.jdbi.v3.core.argument.qualified.QualifiedTypes;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.joining;
 
@@ -59,10 +57,8 @@ import static java.util.stream.Collectors.joining;
  * used by its subclasses.
  */
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
-    private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
-
-    private final Handle  handle;
-    private final String  sql;
+    private final Handle handle;
+    private final String sql;
 
     /**
      * This will be set on execution, not before
@@ -1083,8 +1079,30 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value)
-                .orElseThrow(() -> factoryNotFound(type, value));
+        Argument arg = getConfig(Arguments.class).findFor(type, value)
+            .orElseThrow(() -> factoryNotFound(type, value));
+
+        try {
+            boolean toStringIsImplementedInArgument = arg.getClass().getMethod("toString").getDeclaringClass() != Object.class;
+
+            if (toStringIsImplementedInArgument) {
+                return arg;
+            } else {
+                return new Argument() {
+                    @Override
+                    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                        arg.apply(position, statement, ctx);
+                    }
+
+                    @Override
+                    public String toString() {
+                        return Objects.toString(value);
+                    }
+                };
+            }
+        } catch (NoSuchMethodException e) {
+            throw new Error("toString method does not exist, Object hierarchy is corrupt", e);
+        }
     }
 
     private Argument toArgument(QualifiedType type, Object value) {
@@ -1421,19 +1439,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         beforeExecution(stmt);
 
         try {
-            final long start = System.nanoTime();
-            stmt.execute();
-            final long elapsedTime = System.nanoTime() - start;
-            LOG.trace("Execute SQL \"{}\" in {}ms", sql, elapsedTime / 1000000L);
-            getConfig(SqlStatements.class)
-                    .getTimingCollector()
-                    .collect(elapsedTime, getContext());
+            getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::execute, getContext());
         } catch (SQLException e) {
             try {
                 stmt.close();
             } catch (SQLException e1) {
                 e.addSuppressed(e1);
             }
+
             throw new UnableToExecuteStatementException(e, getContext());
         }
 

@@ -20,6 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,6 +77,8 @@ public class StatementContext implements Closeable {
     private boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];
     private boolean concurrentUpdatable = false;
+
+    private Instant executionMoment, completionMoment, exceptionMoment;
 
     StatementContext() {
         this(new ConfigRegistry());
@@ -445,6 +449,37 @@ public class StatementContext implements Closeable {
                     + "updatable and is returning generated keys.");
         }
         this.concurrentUpdatable = concurrentUpdatable;
+    }
+
+    public Instant getExecutionMoment() {
+        return executionMoment;
+    }
+
+    public void setExecutionMoment(Instant executionMoment) {
+        this.executionMoment = executionMoment;
+    }
+
+    public Instant getCompletionMoment() {
+        return completionMoment;
+    }
+
+    public void setCompletionMoment(Instant completionMoment) {
+        this.completionMoment = completionMoment;
+    }
+
+    public Instant getExceptionMoment() {
+        return exceptionMoment;
+    }
+
+    public void setExceptionMoment(Instant exceptionMoment) {
+        this.exceptionMoment = exceptionMoment;
+    }
+
+    /**
+     * Convenience method to measure elapsed time between start of query execution and completion or exception as appropriate. Do not call with a null argument or before a query has executed/exploded.
+     */
+    public long getElapsedTime(ChronoUnit unit) {
+        return unit.between(executionMoment, completionMoment == null ? exceptionMoment : completionMoment);
     }
 
     /**
