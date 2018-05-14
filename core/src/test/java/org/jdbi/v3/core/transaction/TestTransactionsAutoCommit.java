@@ -32,14 +32,12 @@ import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-public class TestTransactionsAutoCommit
-{
+public class TestTransactionsAutoCommit {
 
     public static final String SAMPLE_SQL = "insert into something (id, name) values (?, ?)";
 
     @Test
-    public void restoreAutoCommitInitialStateOnUnexpectedError() throws Exception
-    {
+    public void restoreAutoCommitInitialStateOnUnexpectedError() throws Exception {
 
         final Connection connection = mock(Connection.class);
         final PreparedStatement statement = mock(PreparedStatement.class);

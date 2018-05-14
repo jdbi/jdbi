@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class TestBindBeanList {
@@ -43,17 +44,17 @@ public class TestBindBeanList {
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 3, "foo3", "bar3", "baz3");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void bindBeanListWithNoValues() throws Exception {
-        handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
-                .bindBeanList("keys", Collections.emptyList(), Arrays.asList("foo", "bar"));
+        assertThatThrownBy(() -> handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
+            .bindBeanList("keys", Collections.emptyList(), Arrays.asList("foo", "bar"))).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void bindBeanListWithNoProperties() throws Exception {
         ThingKey thingKey = new ThingKey("a", "b");
-        handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
-                .bindBeanList("keys", Collections.singletonList(thingKey), Collections.emptyList());
+        assertThatThrownBy(() -> handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
+            .bindBeanList("keys", Collections.singletonList(thingKey), Collections.emptyList())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

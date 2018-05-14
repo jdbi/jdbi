@@ -21,8 +21,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class Handles implements JdbiConfig<Handles> {
     private boolean forceEndTransactions = true;
 
-    public Handles() {
-    }
+    public Handles() {}
 
     private Handles(Handles that) {
         this.forceEndTransactions = that.forceEndTransactions;

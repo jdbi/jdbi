@@ -22,26 +22,22 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 
-public class RegisterConstructorMapperImpl implements Configurer
-{
+public class RegisterConstructorMapperImpl implements Configurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
         Class<?> type = registerConstructorMapper.value();
         String prefix = registerConstructorMapper.prefix();
         if (prefix.isEmpty()) {
             mappers.register(ConstructorMapper.factory(type));
-        }
-        else {
+        } else {
             mappers.register(ConstructorMapper.factory(type, prefix));
         }
     }

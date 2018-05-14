@@ -51,8 +51,7 @@ public final class ClasspathSqlLocator {
 
     private static final String SQL_EXTENSION = ".sql";
 
-    private ClasspathSqlLocator() {
-    }
+    private ClasspathSqlLocator() {}
 
     /**
      * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
@@ -119,8 +118,7 @@ public final class ClasspathSqlLocator {
         try (InputStream is = openStream(classLoader, path)) {
             // strips away comments
             return SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(is));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Unable to read classpath resource at " + path, e);
         }
     }

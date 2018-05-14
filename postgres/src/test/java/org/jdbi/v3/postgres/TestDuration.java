@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestDuration {
     @ClassRule
@@ -59,7 +58,7 @@ public class TestDuration {
         assertThat(periods).isEqualTo(ImmutableList.of(
                 Duration.ofDays(1).plusHours(15),
                 Duration.ofDays(40).plusMinutes(22)
-        ));
+       ));
     }
 
     @Test
@@ -92,12 +91,12 @@ public class TestDuration {
         assertThat(d).isEqualTo(testDuration);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testInvalidDuration() {
-        handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 3) // The bad one.
-                .mapTo(Duration.class)
-                .findOnly();
+        assertThatThrownBy(() -> handle.createQuery("select foo from intervals where id=?")
+            .bind(0, 3) // The bad one.
+            .mapTo(Duration.class)
+            .findOnly()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -121,20 +120,20 @@ public class TestDuration {
         assertThat(d).isEqualTo(Duration.ofDays(-3).plusMinutes(2));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWriteDurationTooBig() {
-        handle.execute("insert into intervals(id, foo) values(?, ?)",
-                9, Duration.ofDays((long)Integer.MAX_VALUE + 1));
+        assertThatThrownBy(() -> handle.execute("insert into intervals(id, foo) values(?, ?)", 9, Duration.ofDays((long)Integer.MAX_VALUE + 1)))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     /**
      * This is admittedly a test of an implementation detail, but this detail is documented in
      * {@link DurationArgumentFactory}, so this test failing is a good signal to update the documentation there.
      */
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testWriteDurationTooSmall() {
-        handle.execute("insert into intervals(id, foo) values(?, ?)",
-                10, Duration.ofSeconds(Long.MIN_VALUE));
+        assertThatThrownBy(() -> handle.execute("insert into intervals(id, foo) values(?, ?)",
+            10, Duration.ofSeconds(Long.MIN_VALUE))).isInstanceOf(ArithmeticException.class);
     }
 
     @Test
@@ -147,10 +146,10 @@ public class TestDuration {
         assertThat(d).isEqualTo(Duration.ofNanos(13_000));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testDurationTooPrecise() {
-        handle.execute("insert into intervals(id, foo) values(?, ?)",
-                12, Duration.ofNanos(100));
+        assertThatThrownBy(() -> handle.execute("insert into intervals(id, foo) values(?, ?)", 12, Duration.ofNanos(100)))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     // We guard against reading intervals with seconds too big or too small (i.e., more extreme than Long minimum and

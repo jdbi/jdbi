@@ -12,8 +12,7 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class CallTest
-{
+public class CallTest {
     @Rule
     public JdbiRule db = PostgresDbRule.rule();
 

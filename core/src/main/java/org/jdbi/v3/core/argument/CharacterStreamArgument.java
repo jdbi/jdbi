@@ -22,8 +22,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Bind a {@link Reader} as a character stream parameter.
  */
-public class CharacterStreamArgument implements Argument
-{
+public class CharacterStreamArgument implements Argument {
     private final Reader value;
     private final int length;
 
@@ -31,15 +30,13 @@ public class CharacterStreamArgument implements Argument
      * @param reader the character stream to bind
      * @param length the length of the stream
      */
-    public CharacterStreamArgument(Reader reader, int length)
-    {
+    public CharacterStreamArgument(Reader reader, int length) {
         this.value = reader;
         this.length = length;
     }
 
     @Override
-    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
+    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         statement.setCharacterStream(position, value, length);
     }
 }

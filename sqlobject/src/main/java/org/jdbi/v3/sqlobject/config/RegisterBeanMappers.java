@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterBeanMappersImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @ConfiguringAnnotation(RegisterBeanMappersImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterBeanMappers
-{
+public @interface RegisterBeanMappers {
     RegisterBeanMapper[] value();
 }

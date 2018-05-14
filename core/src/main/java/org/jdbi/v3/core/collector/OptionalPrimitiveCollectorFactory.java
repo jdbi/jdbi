@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core.collector;
 
-import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalDouble;
-import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalInt;
-import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalLong;
-
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,33 +22,35 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.stream.Collector;
 
+import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalDouble;
+import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalInt;
+import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalLong;
+
 class OptionalPrimitiveCollectorFactory implements CollectorFactory {
-    static final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
-    static final Map<Class<?>, Class<?>> elementTypes = new HashMap<>();
+    private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTORS = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new HashMap<>(); {
+        COLLECTORS.put(OptionalInt.class, toOptionalInt());
+        ELEMENT_TYPES.put(OptionalInt.class, Integer.class);
 
-    {
-        collectors.put(OptionalInt.class, toOptionalInt());
-        elementTypes.put(OptionalInt.class, Integer.class);
+        COLLECTORS.put(OptionalLong.class, toOptionalLong());
+        ELEMENT_TYPES.put(OptionalLong.class, Long.class);
 
-        collectors.put(OptionalLong.class, toOptionalLong());
-        elementTypes.put(OptionalLong.class, Long.class);
-
-        collectors.put(OptionalDouble.class, toOptionalDouble());
-        elementTypes.put(OptionalDouble.class, Double.class);
+        COLLECTORS.put(OptionalDouble.class, toOptionalDouble());
+        ELEMENT_TYPES.put(OptionalDouble.class, Double.class);
     }
 
     @Override
     public boolean accepts(Type containerType) {
-        return collectors.containsKey(containerType);
+        return COLLECTORS.containsKey(containerType);
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        return Optional.of(elementTypes.get(containerType));
+        return Optional.of(ELEMENT_TYPES.get(containerType));
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        return collectors.get(containerType);
+        return COLLECTORS.get(containerType);
     }
 }

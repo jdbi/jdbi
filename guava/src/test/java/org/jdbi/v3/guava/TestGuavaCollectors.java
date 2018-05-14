@@ -13,17 +13,17 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.entry;
-
+import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -34,12 +34,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-
 import java.util.stream.Stream;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.generic.GenericType;
@@ -47,6 +41,11 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.entry;
 
 public class TestGuavaCollectors {
     @Rule
@@ -114,10 +113,10 @@ public class TestGuavaCollectors {
         assertThat(shouldBeAbsent).isAbsent();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void optionalMultiple() {
-        dbRule.getSharedHandle().createQuery("select intValue from something")
-                .collectInto(new GenericType<Optional<Integer>>(){});
+        assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("select intValue from something")
+            .collectInto(new GenericType<Optional<Integer>>() {})).isInstanceOf(IllegalStateException.class);
     }
 
     @Test

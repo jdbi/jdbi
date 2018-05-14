@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +24,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request".
  */
-public class Batch extends BaseStatement<Batch>
-{
+public class Batch extends BaseStatement<Batch> {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();
 
-    public Batch(Handle handle)
-    {
+    public Batch(Handle handle) {
         super(handle);
     }
 
@@ -42,8 +39,7 @@ public class Batch extends BaseStatement<Batch>
      * @param sql SQL to be added to the batch, possibly a named statement
      * @return the same Batch statement
      */
-    public Batch add(String sql)
-    {
+    public Batch add(String sql) {
         parts.add(sql);
         return this;
     }
@@ -53,59 +49,39 @@ public class Batch extends BaseStatement<Batch>
      *
      * @return an array of integers representing the return values from each statement's execution
      */
-    public int[] execute()
-    {
+    public int[] execute() {
         // short circuit empty batch
         if (parts.size() == 0) {
             return new int[] {};
         }
 
         Statement stmt;
-        try
-        {
-            try
-            {
+        try {
+            try {
                 stmt = getHandle().getStatementBuilder().create(getHandle().getConnection(), getContext());
                 addCleanable(stmt::close);
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
             LOG.trace("Execute batch [");
 
-            try
-            {
-                for (String part : parts)
-                {
+            try {
+                for (String part : parts) {
                     final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
-            try
-            {
-                final long start = System.nanoTime();
-                final int[] rs = stmt.executeBatch();
-                final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
-                // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
-                return rs;
-
-            }
-            catch (SQLException e)
-            {
+            try {
+                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+            } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
-        }
-        finally {
+        } finally {
             close();
         }
     }

@@ -26,10 +26,8 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 /**
  * Statement providing convenience result handling for SQL queries.
  */
-public class Query extends SqlStatement<Query> implements ResultBearing
-{
-    public Query(Handle handle, String sql)
-    {
+public class Query extends SqlStatement<Query> implements ResultBearing {
+    public Query(Handle handle, String sql) {
         super(handle, sql);
     }
 
@@ -40,8 +38,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      * @param producer the result producer.
      * @return value returned by the result producer.
      */
-    public <R> R execute(ResultProducer<R> producer)
-    {
+    public <R> R execute(ResultProducer<R> producer) {
         try {
             return producer.produce(this::internalExecute, getContext());
         } catch (SQLException e) {
@@ -69,8 +66,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      *
      * @return the modified query
      */
-    public Query setFetchSize(final int fetchSize)
-    {
+    public Query setFetchSize(final int fetchSize) {
         return addCustomizer(StatementCustomizers.fetchSize(fetchSize));
     }
 
@@ -82,8 +78,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      *
      * @return modified query
      */
-    public Query setMaxRows(final int maxRows)
-    {
+    public Query setMaxRows(final int maxRows) {
         return addCustomizer(StatementCustomizers.maxRows(maxRows));
     }
 
@@ -95,8 +90,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      *
      * @return modified query
      */
-    public Query setMaxFieldSize(final int maxFields)
-    {
+    public Query setMaxFieldSize(final int maxFields) {
         return addCustomizer(StatementCustomizers.maxFieldSize(maxFields));
     }
 

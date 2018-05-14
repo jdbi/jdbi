@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperFactoriesImpl;
 @ConfiguringAnnotation(RegisterColumnMapperFactoriesImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterColumnMapperFactories
-{
+public @interface RegisterColumnMapperFactories {
     RegisterColumnMapperFactory[] value();
 }

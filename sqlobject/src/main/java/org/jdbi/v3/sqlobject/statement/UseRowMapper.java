@@ -26,8 +26,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface UseRowMapper
-{
+public @interface UseRowMapper {
     /**
      * The class implementing {@link RowMapper}. It must have a no-arg constructor.
      * @return the class of row mapper to use.

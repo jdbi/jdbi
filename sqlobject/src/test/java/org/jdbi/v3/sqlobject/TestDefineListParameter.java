@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestDefineListParameter
-{
+public class TestDefineListParameter {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -44,8 +44,7 @@ public class TestDefineListParameter
     private List<String> testColumns;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
         handle.execute("create table test (id identity primary key, name varchar(50))");
         handle.execute("create table testNullable (id identity primary key, name varchar(50) null)");
@@ -55,8 +54,7 @@ public class TestDefineListParameter
     }
 
     @Test
-    public void testWithBindList() throws Exception
-    {
+    public void testWithBindList() throws Exception {
         TestDao testDao = handle.attach(TestDao.class);
 
         List<Object> values = new ArrayList<>();
@@ -81,8 +79,7 @@ public class TestDefineListParameter
     }
 
     @Test
-    public void testWithBindBean() throws Exception
-    {
+    public void testWithBindBean() throws Exception {
         TestDao testDao = handle.attach(TestDao.class);
 
         Something something = new Something(1, "Some Pig");
@@ -99,8 +96,7 @@ public class TestDefineListParameter
     }
 
     @Test
-    public void testArray()
-    {
+    public void testArray() {
         TestDao testDao = handle.attach(TestDao.class);
         String[] columnsArray = {"id", "name"};
         List<Object> values = new ArrayList<>();
@@ -110,8 +106,7 @@ public class TestDefineListParameter
     }
 
     @Test
-    public void testDefaultedNameInsert()
-    {
+    public void testDefaultedNameInsert() {
         TestDao testDao = handle.attach(TestDao.class);
         List<Object> values = new ArrayList<>();
         values.add(1);
@@ -119,18 +114,16 @@ public class TestDefineListParameter
         testDao.defaultedInsert("test", testColumns, values);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyList()
-    {
+    @Test
+    public void testEmptyList() {
         TestDao testDao = handle.attach(TestDao.class);
         List<String> noColumns = new ArrayList<>();
         Something something = new Something(1, "Some Pig");
-        testDao.insert("test", noColumns, something);
+        assertThatThrownBy(() -> testDao.insert("test", noColumns, something)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface TestDao
-    {
+    public interface TestDao {
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
         void insert(@Define("table") String table, @DefineList("columns") List<String> columns, @BindList List<Object> values);
 

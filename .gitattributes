@@ -1,0 +1,22 @@
+# auto-detect text files and autocrlf them to protect the repo
+* text=auto
+
+# force lf on known file types
+*.java text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.sql text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+*.kt text eol=lf
+*.g text eol=lf
+
+# force lf on individual files
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.travis.yml text eol=lf
+CONTRIBUTORS text eol=lf
+LICENSE text eol=lf
+NOTICE text eol=lf
+RELEASE_NOTES text eol=lf

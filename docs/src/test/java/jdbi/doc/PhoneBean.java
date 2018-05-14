@@ -20,8 +20,7 @@ public class PhoneBean {
     String name;
     String number;
 
-    public PhoneBean() {
-    }
+    public PhoneBean() {}
 
     public PhoneBean(int id, String name, String number) {
         this.id = id;

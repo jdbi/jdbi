@@ -1,57 +1,49 @@
-body
-{
+body {
     font-family: verdana, sans-serif;
     font-size: 11px;
     background: #f3f3f3;
 }
 
-td
-{
+td {
     font-family: verdana, sans-serif;
     font-size: 11px;
 }
-	
-#container
-{
+
+#container {
     padding: 30px;
     border: 1px solid #ccc;
     margin: 2% 5%;
     background: #fcfcfc;
 }
 
-.code
-{ 
+.code {
     font-family: courier, mono;
     background: #fafafa;
     padding: 5px;
-    border: 1px solid #ccc;	
+    border: 1px solid #ccc;
 }
 
-#testcontainer
-{
+#testcontainer {
     padding: 30px;
     border: 1px solid #ccc;
     background: #fff;
 }
 
-#tabs
-{
+#tabs {
 	height: 20px;
 	margin: 0;
 	padding-left: 10px;
 	background: url(tab_bottom.gif) repeat-x bottom;
 }
 
-#tabs li
-{
-	margin: 0; 
+#tabs li {
+	margin: 0;
 	padding: 0;
   	display: inline;
   	list-style-type: none;
 }
-	
-#tabs a:link, #tabs a:visited
-{
+
+#tabs a:link, #tabs a:visited {
 	float: left;
 	background: #f3f3f3;
 	font-size: 10px;
@@ -64,25 +56,21 @@ td
 	color: #666;
 }
 
-#tabs a:link.active, #tabs a:visited.active
-{
+#tabs a:link.active, #tabs a:visited.active {
 	border-bottom: 1px solid #fff;
 	background: #fff;
 	color: #000;
 }
 
-#tabs a:hover
-{
+#tabs a:hover {
 	background: #fff;
 }
 
-.subnav
-{
-    float: right;   
+.subnav {
+    float: right;
 }
 
-#footer 
-{
+#footer  {
         color: #006;
         border-top: 1px solid #006;
         font-size: 11px;

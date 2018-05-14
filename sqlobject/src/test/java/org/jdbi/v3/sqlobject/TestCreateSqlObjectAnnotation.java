@@ -32,16 +32,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestCreateSqlObjectAnnotation
-{
+public class TestCreateSqlObjectAnnotation {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         dbRule.getJdbi().registerRowMapper(new SomethingMapper());
         handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
@@ -49,8 +47,7 @@ public class TestCreateSqlObjectAnnotation
 
 
     @Test
-    public void testSimpleCreate() throws Exception
-    {
+    public void testSimpleCreate() throws Exception {
         Foo foo = handle.attach(Foo.class);
         foo.insert(1, "Stephane");
         Something s = foo.createBar().findById(1);
@@ -58,16 +55,14 @@ public class TestCreateSqlObjectAnnotation
     }
 
     @Test
-    public void testInsertAndFind() throws Exception
-    {
+    public void testInsertAndFind() throws Exception {
         Foo foo = handle.attach(Foo.class);
         Something s = foo.insertAndFind(1, "Stephane");
         assertThat(s).isEqualTo(new Something(1, "Stephane"));
     }
 
     @Test
-    public void testTransactionPropagates() throws Exception
-    {
+    public void testTransactionPropagates() throws Exception {
         Foo foo = dbRule.getJdbi().open().attach(Foo.class);
 
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
@@ -76,8 +71,7 @@ public class TestCreateSqlObjectAnnotation
         assertThat(n).isNull();
     }
 
-    public interface Foo
-    {
+    public interface Foo {
         @CreateSqlObject
         Bar createBar();
 
@@ -97,13 +91,11 @@ public class TestCreateSqlObjectAnnotation
         }
     }
 
-    public interface Bar
-    {
+    public interface Bar {
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
 
-        default Something explode()
-        {
+        default Something explode() {
             throw new RuntimeException();
         }
 

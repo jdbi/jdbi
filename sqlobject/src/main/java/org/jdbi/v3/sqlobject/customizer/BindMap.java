@@ -26,8 +26,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindMapFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindMapFactory.class)
-public @interface BindMap
-{
+public @interface BindMap {
     /**
      * Prefix to apply to each map key. If specified, map keys will be bound as {@code prefix.key}.
      * @return the prefix

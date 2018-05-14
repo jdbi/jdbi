@@ -30,5 +30,4 @@ import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateEngineImpl;
 @ConfiguringAnnotation(UseStringTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UseStringTemplateEngine {
-}
+public @interface UseStringTemplateEngine {}

@@ -23,8 +23,7 @@ import org.jdbi.v3.core.HandleConsumer;
  *
  * Custom mixins may be written as subinterfaces of this class with default methods.
  */
-public interface SqlObject
-{
+public interface SqlObject {
     /**
      * @return the handle open in the current sql object context.
      */

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+<module name="Checker">
+	<property name="fileExtensions" value="java,properties,xml"/>
+
+	<module name="NewlineAtEndOfFile">
+		<property name="lineSeparator" value="lf"/>
+	</module>
+	<module name="Translation"/>
+	<module name="FileLength"/>
+
+	<module name="RegexpSingleline">
+		<property name="format" value="\s+$"/>
+		<property name="message" value="Line has trailing whitespace."/>
+	</module>
+
+	<module name="RegexpMultiline">
+		<property name="format" value="(?s:(\r\n|\r).*)"/>
+		<property name="message" value="Line has CRLF or CR line ending."/>
+	</module>
+
+	<module name="TreeWalker">
+		<module name="ConstantName"/>
+		<module name="LocalFinalVariableName"/>
+		<module name="LocalVariableName"/>
+		<module name="MemberName"/>
+		<module name="MethodName"/>
+		<module name="PackageName"/>
+		<module name="ParameterName"/>
+		<module name="StaticVariableName"/>
+		<module name="TypeName"/>
+		<module name="AvoidStarImport"/>
+		<!-- defaults to sun.* packages -->
+		<module name="IllegalImport"/>
+		<module name="RedundantImport"/>
+		<module name="UnusedImports"/>
+		<module name="MethodLength"/>
+		<module name="EmptyForIteratorPad"/>
+		<module name="GenericWhitespace"/>
+		<module name="MethodParamPad"/>
+		<module name="NoWhitespaceAfter"/>
+		<module name="NoWhitespaceBefore"/>
+		<!--<module name="OperatorWrap"/>-->
+		<module name="ParenPad"/>
+		<module name="TypecastParenPad"/>
+		<module name="WhitespaceAfter"/>
+		<module name="WhitespaceAround">
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+        </module>
+		<module name="ModifierOrder"/>
+		<!--<module name="RedundantModifier"/>-->
+		<!--<module name="EmptyBlock"/>-->
+		<module name="LeftCurly"/>
+		<module name="NeedBraces"/>
+		<module name="RightCurly"/>
+		<module name="EmptyStatement"/>
+		<module name="EqualsHashCode"/>
+		<module name="IllegalInstantiation"/>
+		<!--<module name="InnerAssignment"/>-->
+		<module name="MissingSwitchDefault"/>
+		<module name="SimplifyBooleanExpression"/>
+		<module name="SimplifyBooleanReturn"/>
+		<module name="HideUtilityClassConstructor"/>
+		<module name="InterfaceIsType"/>
+		<!--<module name="VisibilityModifier"/>-->
+		<module name="ArrayTypeStyle"/>
+		<module name="TodoComment"/>
+		<module name="UpperEll"/>
+		<module name="NeedBraces"/>
+		<module name="AvoidStarImport"/>
+		<module name="ConstantName"/>
+		<!--<module name="DeclarationOrder"/>-->
+		<module name="EqualsAvoidNull"/>
+		<!--<module name="HiddenField"/>-->
+		<module name="InnerTypeLast"/>
+		<module name="MissingDeprecated"/>
+		<module name="MissingOverride"/>
+		<module name="MutableException"/>
+		<module name="NoClone"/>
+		<module name="NoFinalizer"/>
+		<module name="OneStatementPerLine"/>
+		<module name="OneTopLevelClass"/>
+		<module name="OuterTypeFilename"/>
+		<module name="ParameterAssignment"/>
+		<module name="StringLiteralEquality"/>
+		<module name="SuperClone"/>
+		<module name="SuperFinalize"/>
+		<!--<module name="TrailingComment"/>-->
+		<module name="VariableDeclarationUsageDistance"/>
+
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="^ *\t"/>
+			<property name="message" value="Line contains leading tabs (instead of spaces)."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+
+        <!--<module name="RegexpSinglelineJava">-->
+            <!--<property name="format" value="@(org\.junit\.)?Test\s*\(\s*expected\s*="/>-->
+            <!--<property name="message" value="Use AssertJ's assertThatThrownBy instead of @Test.expected"/>-->
+        <!--</module>-->
+	</module>
+</module>

@@ -14,13 +14,17 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
+
 public class Reflection {
+    private Reflection() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     public static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {
         checkNotNull(handler, "handler");
         checkArgument(interfaceType.isInterface(), "%s is not an interface", interfaceType);

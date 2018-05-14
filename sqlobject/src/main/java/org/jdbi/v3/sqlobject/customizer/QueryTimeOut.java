@@ -26,7 +26,6 @@ import org.jdbi.v3.sqlobject.customizer.internal.QueryTimeOutFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(QueryTimeOutFactory.class)
-public @interface QueryTimeOut
-{
+public @interface QueryTimeOut {
     int value() default Integer.MAX_VALUE;
 }

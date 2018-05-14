@@ -27,14 +27,12 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestArgumentFactory
-{
+public class TestArgumentFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testRegisterOnJdbi() throws Exception
-    {
+    public void testRegisterOnJdbi() throws Exception {
         final Jdbi db = dbRule.getJdbi();
         db.registerArgument(new NameAF());
         try (Handle h = db.open()) {
@@ -50,8 +48,7 @@ public class TestArgumentFactory
     }
 
     @Test
-    public void testRegisterOnHandle() throws Exception
-    {
+    public void testRegisterOnHandle() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
@@ -66,8 +63,7 @@ public class TestArgumentFactory
     }
 
     @Test
-    public void testRegisterOnStatement() throws Exception
-    {
+    public void testRegisterOnStatement() throws Exception {
         dbRule.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
          .registerArgument(new NameAF())
          .bind("id", 1)
@@ -76,8 +72,7 @@ public class TestArgumentFactory
     }
 
     @Test
-    public void testOnPreparedBatch() throws Exception
-    {
+    public void testOnPreparedBatch() throws Exception {
         Handle h = dbRule.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());
@@ -94,8 +89,7 @@ public class TestArgumentFactory
         assertThat(rs.get(1)).isEqualTo("Henning S");
     }
 
-    public static class NameAF implements ArgumentFactory
-    {
+    public static class NameAF implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
@@ -106,25 +100,21 @@ public class TestArgumentFactory
         }
     }
 
-    public static class Name
-    {
+    public static class Name {
         private final String first;
         private final String last;
 
-        public Name(String first, String last)
-        {
+        public Name(String first, String last) {
             this.first = first;
             this.last = last;
         }
 
-        public String getFullName()
-        {
+        public String getFullName() {
             return first + " " + last;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "<Name first=" + first + " last=" + last + " >";
         }
     }

@@ -21,10 +21,11 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Represents an argument to a prepared statement. It will be called right before the
  * statement is executed to bind the parameter.
+ *
+ * Make sure to override {@link Object#toString} if you want to be able to log values with an {@link org.jdbi.v3.core.statement.SqlLogger}.
  */
 @FunctionalInterface
-public interface Argument
-{
+public interface Argument {
     /**
      * Apply the argument to the given prepared statement.
      *

@@ -17,6 +17,10 @@ import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 public class ParameterUtil {
+    private ParameterUtil() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     public static Optional<String> findParameterName(String nameFromAnnotation,
                                                      Parameter parameter) {
         if (!nameFromAnnotation.isEmpty()) {

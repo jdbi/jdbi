@@ -22,8 +22,7 @@ import java.util.Map;
  * Represents output from a Call (CallableStatement).
  * @see Call
  */
-public class OutParameters
-{
+public class OutParameters {
     private final Map<Object, Object> map = new HashMap<>();
 
     /**
@@ -112,8 +111,7 @@ public class OutParameters
         }
         if (obj instanceof byte[]) {
             return (byte[]) obj;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter %s is not byte[] but %s", name, obj.getClass()));
         }
     }
@@ -130,8 +128,7 @@ public class OutParameters
 
         if (obj instanceof byte[]) {
             return (byte[]) obj;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter at %d is not byte[] but %s", pos, obj.getClass()));
         }
     }
@@ -228,8 +225,7 @@ public class OutParameters
 
         if (obj instanceof Number) {
             return (Number) obj;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter %s is not a number but %s", name, obj.getClass()));
         }
     }
@@ -245,8 +241,7 @@ public class OutParameters
         }
         if (obj instanceof Number) {
             return (Number) obj;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter at %d is not a number but %s", pos, obj.getClass()));
         }
     }
@@ -264,8 +259,7 @@ public class OutParameters
 
         if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter %s is not Date but %s", name, obj.getClass()));
         }
     }
@@ -282,8 +276,7 @@ public class OutParameters
 
         if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Parameter at %d is not Date but %s", pos, obj.getClass()));
         }
     }

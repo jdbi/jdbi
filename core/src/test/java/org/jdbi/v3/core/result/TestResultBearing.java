@@ -21,25 +21,21 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestResultBearing
-{
+public class TestResultBearing {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         Handle h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE reduce (u INT)");
-        for (int u = 0; u < 5; u++)
-        {
+        for (int u = 0; u < 5; u++) {
             h.execute("INSERT INTO reduce VALUES (?)", u);
         }
     }
 
     @Test
-    public void testReduceBiFunction() throws Exception
-    {
+    public void testReduceBiFunction() throws Exception {
         assertThat(
             dbRule.getSharedHandle().createQuery("SELECT * FROM reduce")
                 .mapTo(Integer.class)
@@ -47,8 +43,7 @@ public class TestResultBearing
             .isEqualTo(10);
     }
 
-    public static Integer add(Integer u, Integer v)
-    {
+    public static Integer add(Integer u, Integer v) {
         return u + v;
     }
 }

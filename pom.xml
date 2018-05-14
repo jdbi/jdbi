@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -16,23 +16,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
+        <groupId>org.basepom</groupId>
         <version>19</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <name>jdbi3 Parent</name>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <description>
-        Jdbi is designed to provide convenient tabular data access in
+    <name>jdbi3 Parent</name>
+    <description>Jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
         results, provides a convenient means of externalizing sql
         statements, and provides named parameter support for any database
-        being used.
-    </description>
+        being used.</description>
     <url>http://jdbi.org/</url>
 
     <licenses>
@@ -43,138 +41,55 @@
         </license>
     </licenses>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com/</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <modules>
+        <module>core</module>
+        <module>sqlobject</module>
+        <module>stringtemplate4</module>
+        <module>commons-text</module>
+        <module>freemarker</module>
+        <module>guava</module>
+        <module>jodatime2</module>
+        <module>jpa</module>
+        <module>postgres</module>
+        <module>spring4</module>
+        <module>docs</module>
+        <module>kotlin</module>
+        <module>kotlin-sqlobject</module>
+        <module>bom</module>
+        <module>noparameters</module>
+        <module>vavr</module>
+        <module>sqlite</module>
+        <module>testing</module>
+        <module>immutable</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <url>https://github.com/jdbi/jdbi/</url>
         <tag>HEAD</tag>
+        <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 
     <properties>
-        <project.build.targetJdk>1.8</project.build.targetJdk>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
-        <basepom.maven.version>3.2.5</basepom.maven.version>
-        <findbugs.version>3.0.1</findbugs.version>
-
-        <dep.antlr.version>3.4</dep.antlr.version>
-        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
-        <dep.slf4j.version>1.7.25</dep.slf4j.version>
-        <dep.kotlin.version>1.1.0</dep.kotlin.version>
-        <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
-        <dep.dokka.version>0.9.13</dep.dokka.version>
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
+        <basepom.maven.version>3.2.5</basepom.maven.version>
 
         <basepom.release.profiles>basepom.oss-release,oracle</basepom.release.profiles>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
+
+        <dep.antlr.version>3.4</dep.antlr.version>
+        <dep.dokka.version>0.9.16</dep.dokka.version>
+        <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
+        <dep.kotlin.version>1.2.31</dep.kotlin.version>
+        <dep.slf4j.version>1.7.25</dep.slf4j.version>
+        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
+        <findbugs.version>3.0.1</findbugs.version>
+        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <project.build.targetJdk>1.8</project.build.targetJdk>
     </properties>
-
-    <profiles>
-      <profile>
-        <id>toolchains</id>
-        <build>
-         <pluginManagement>
-           <plugins>
-             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-toolchains-plugin</artifactId>
-               <version>1.1</version>
-               <configuration>
-                 <toolchains>
-                   <jdk>
-                     <version>${project.build.targetJdk}</version>
-                     <vendor>oracle</vendor>
-                   </jdk>
-                 </toolchains>
-               </configuration>
-             </plugin>
-           </plugins>
-         </pluginManagement>
-         <plugins>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-toolchains-plugin</artifactId>
-             <executions>
-               <execution>
-                 <goals>
-                   <goal>toolchain</goal>
-                 </goals>
-               </execution>
-             </executions>
-           </plugin>
-         </plugins>
-        </build>
-      </profile>
-      <profile>
-        <id>oracle</id>
-        <activation>
-          <file>
-            <exists>.build-oracle</exists>
-          </file>
-        </activation>
-        <modules>
-          <module>oracle12</module>
-        </modules>
-        <dependencyManagement>
-          <dependencies>
-            <dependency>
-              <groupId>org.jdbi</groupId>
-              <artifactId>jdbi3-oracle12</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>
-        </dependencyManagement>
-      </profile>
-    </profiles>
-
-    <build>
-      <pluginManagement>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-release-plugin</artifactId>
-            <configuration>
-              <tagNameFormat>v@{project.version}</tagNameFormat>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <source>${project.build.targetJdk}</source>
-              <target>${project.build.targetJdk}</target>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>com.mycila</groupId>
-            <artifactId>license-maven-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>src/build/*</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.jetbrains.dokka</groupId>
-            <artifactId>dokka-maven-plugin</artifactId>
-            <version>${dep.dokka.version}</version>
-            <configuration>
-              <jdkVersion>8</jdkVersion>
-            </configuration>
-          </plugin>
-        </plugins>
-      </pluginManagement>
-    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -192,12 +107,17 @@
 
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-guava</artifactId>
+                <artifactId>jdbi3-commons-text</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-sqlite</artifactId>
+                <artifactId>jdbi3-freemarker</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -208,6 +128,16 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-kotlin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-kotlin-sqlobject</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -227,19 +157,14 @@
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-kotlin</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+                <artifactId>jdbi3-sqlite</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -260,12 +185,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-vavr</artifactId>
+                <artifactId>jdbi3-testing</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-testing</artifactId>
+                <artifactId>jdbi3-vavr</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -325,10 +250,10 @@
                 <artifactId>commons-jexl</artifactId>
                 <version>2.1.1</version>
                 <exclusions>
-                  <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                  </exclusion>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -371,22 +296,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${dep.slf4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>findbugs-annotations</artifactId>
-                <version>${findbugs.version}</version>
-                <scope>provided</scope>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${findbugs.version}</version>
-                <scope>provided</scope>
-                <optional>true</optional>
             </dependency>
 
             <dependency>
@@ -449,6 +358,40 @@
                 <version>1.3.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.3</version>
+            </dependency>
+
+            <!-- commons-text 1.3 wants 3.5, but otj-pg-embedded 0.11.3 wants 3.7 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>3.8.11.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>findbugs-annotations</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${findbugs.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -469,24 +412,201 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+  
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
-    <modules>
-        <module>core</module>
-        <module>sqlobject</module>
-        <module>stringtemplate4</module>
-        <module>guava</module>
-        <module>jodatime2</module>
-        <module>jpa</module>
-        <module>postgres</module>
-        <module>spring4</module>
-        <module>docs</module>
-        <module>kotlin</module>
-        <module>kotlin-sqlobject</module>
-        <module>bom</module>
-        <module>noparameters</module>
-        <module>vavr</module>
-        <module>sqlite</module>
-        <module>testing</module>
-        <module>immutable</module>
-    </modules>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <tagNameFormat>v@{project.version}</tagNameFormat>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <configLocation>/src/build/checkstyle.xml</configLocation>
+                        <suppressionsLocation>/src/build/checkstyle-suppress.xml</suppressionsLocation>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${project.build.targetJdk}</source>
+                        <target>${project.build.targetJdk}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>src/build/*</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jetbrains.dokka</groupId>
+                    <artifactId>dokka-maven-plugin</artifactId>
+                    <version>${dep.dokka.version}</version>
+                    <configuration>
+                        <jdkVersion>8</jdkVersion>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.github.ekryd.sortpom</groupId>
+                <artifactId>sortpom-maven-plugin</artifactId>
+                <version>2.8.0</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sort</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <createBackupFile>false</createBackupFile>
+                    <lineSeparator>\n</lineSeparator>
+                    <nrOfIndentSpace>4</nrOfIndentSpace>
+                    <sortProperties>true</sortProperties>
+                    <keepBlankLines>true</keepBlankLines>
+                    <sortDependencies>scope</sortDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>[1.8,1.9)</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-toolchains-plugin</artifactId>
+                            <version>1.1</version>
+                            <configuration>
+                                <toolchains>
+                                    <jdk>
+                                        <version>1.8</version>
+                                        <vendor>oracle</vendor>
+                                    </jdk>
+                                </toolchains>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk9</id>
+            <activation>
+                <jdk>[1.9,</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-toolchains-plugin</artifactId>
+                            <version>1.1</version>
+                            <configuration>
+                                <toolchains>
+                                    <jdk>
+                                        <version>1.9</version>
+                                        <vendor>oracle</vendor>
+                                    </jdk>
+                                </toolchains>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.ow2.asm</groupId>
+                                    <artifactId>asm</artifactId>
+                                    <version>6.1</version>
+                                </dependency>
+                            </dependencies>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>2.21.0</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+            <properties>
+                <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
+                <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+                <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+                <project.build.targetJdk>9</project.build.targetJdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>toolchains</id>
+            <activation>
+                <property>
+                    <name>toolchain</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-toolchains-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>toolchain</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>oracle</id>
+            <activation>
+                <file>
+                    <exists>.build-oracle</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>oracle12</module>
+            </modules>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jdbi</groupId>
+                        <artifactId>jdbi3-oracle12</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
 </project>

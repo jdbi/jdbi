@@ -23,8 +23,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindMethodsFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindMethodsFactory.class)
-public @interface BindMethods
-{
+public @interface BindMethods {
     /**
      * Prefix to apply to each fluent accessor name. If specified, properties will be bound as
      * {@code prefix.accessorName}.

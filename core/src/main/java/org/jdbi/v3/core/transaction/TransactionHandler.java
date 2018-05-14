@@ -26,8 +26,7 @@ import org.jdbi.v3.core.HandleCallback;
  * the transactions on the underlying JDBC <code>Connection</code>.
  * </p>
  */
-public interface TransactionHandler
-{
+public interface TransactionHandler {
     /**
      * Begin a transaction.
      *

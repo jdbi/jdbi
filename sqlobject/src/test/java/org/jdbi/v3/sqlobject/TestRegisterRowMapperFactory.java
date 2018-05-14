@@ -35,14 +35,12 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterRowMapperFactory
-{
+public class TestRegisterRowMapperFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testSimple() throws Exception
-    {
+    public void testSimple() throws Exception {
         FooDao fooDao = dbRule.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
@@ -56,8 +54,7 @@ public class TestRegisterRowMapperFactory
     }
 
     @RegisterRowMapperFactory(MyFactory.class)
-    public interface FooDao
-    {
+    public interface FooDao {
         @SqlQuery("select * from something")
         List<Foo> select();
 
@@ -66,8 +63,7 @@ public class TestRegisterRowMapperFactory
     }
 
 
-    public static class MyFactory implements RowMapperFactory
-    {
+    public static class MyFactory implements RowMapperFactory {
         @Override
         public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
             Class<?> erasedType = getErasedType(type);
@@ -83,32 +79,26 @@ public class TestRegisterRowMapperFactory
     }
 
     @MapWith(FooMapper.class)
-    public static class Foo
-    {
+    public static class Foo {
         private final int    id;
         private final String name;
 
-        Foo(final int id, final String name)
-        {
+        Foo(final int id, final String name) {
             this.id = id;
             this.name = name;
         }
 
-        public int getId()
-        {
+        public int getId() {
             return id;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
-        public static class FooMapper implements RowMapper<Foo>
-        {
+        public static class FooMapper implements RowMapper<Foo> {
             @Override
-            public Foo map(final ResultSet r, final StatementContext ctx) throws SQLException
-            {
+            public Foo map(final ResultSet r, final StatementContext ctx) throws SQLException {
                 return new Foo(r.getInt("id"), r.getString("name"));
             }
         }

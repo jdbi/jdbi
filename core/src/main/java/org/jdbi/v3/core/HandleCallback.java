@@ -19,8 +19,7 @@ package org.jdbi.v3.core;
  * valid past the return from the callback.
  */
 @FunctionalInterface
-public interface HandleCallback<T, X extends Exception>
-{
+public interface HandleCallback<T, X extends Exception> {
     /**
      * Will be invoked with an open Handle. The handle may be closed when this callback returns.
      *

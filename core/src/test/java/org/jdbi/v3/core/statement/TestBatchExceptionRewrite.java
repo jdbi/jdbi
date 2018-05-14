@@ -13,30 +13,27 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-public class TestBatchExceptionRewrite
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+public class TestBatchExceptionRewrite {
     @Rule
     public PgDatabaseRule dbRule = new PgDatabaseRule();
 
     @Before
     public void createTable() {
-        dbRule.getJdbi().useHandle(h -> h.execute("create table something ( id int primary key, name varchar(50), integerValue integer, intValue integer )"));
+        dbRule.getJdbi().useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
     }
 
     @Test
-    public void testSimpleBatch() throws Exception
-    {
+    public void testSimpleBatch() throws Exception {
         Batch b = dbRule.openHandle().createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (0, 'Keith')");
@@ -46,8 +43,7 @@ public class TestBatchExceptionRewrite
     }
 
     @Test
-    public void testPreparedBatch() throws Exception
-    {
+    public void testPreparedBatch() throws Exception {
         PreparedBatch b = dbRule.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");

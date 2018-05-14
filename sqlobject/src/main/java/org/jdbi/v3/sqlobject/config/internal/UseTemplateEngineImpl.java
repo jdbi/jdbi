@@ -23,52 +23,44 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
-public class UseTemplateEngineImpl implements Configurer
-{
+public class UseTemplateEngineImpl implements Configurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseTemplateEngine anno = (UseTemplateEngine) annotation;
         try {
             final TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, method);
             registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         UseTemplateEngine anno = (UseTemplateEngine) annotation;
         try {
             final TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, null);
             registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     private TemplateEngine instantiate(Class<? extends TemplateEngine> value,
                                        Class<?> sqlObjectType,
-                                       Method m) throws Exception
-    {
+                                       Method m) throws Exception {
         try {
-            Constructor<? extends TemplateEngine> no_arg = value.getConstructor();
-            return no_arg.newInstance();
-        }
-        catch (NoSuchMethodException e) {
+            Constructor<? extends TemplateEngine> noArg = value.getConstructor();
+            return noArg.newInstance();
+        } catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends TemplateEngine> class_arg = value.getConstructor(Class.class);
-                return class_arg.newInstance(sqlObjectType);
-            }
-            catch (NoSuchMethodException e1) {
+                Constructor<? extends TemplateEngine> classArg = value.getConstructor(Class.class);
+                return classArg.newInstance(sqlObjectType);
+            } catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends TemplateEngine> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends TemplateEngine> constructor = value.getConstructor(Class.class,
                                                                                             Method.class);
-                    return c_m_arg.newInstance(sqlObjectType, m);
+                    return constructor.newInstance(sqlObjectType, m);
                 }
                 throw new IllegalStateException("Unable to instantiate, no viable constructor " + value.getName());
             }

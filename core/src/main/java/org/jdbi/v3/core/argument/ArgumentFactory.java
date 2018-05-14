@@ -22,10 +22,11 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Inspect a value with optional static type information and produce
  * an {@link Argument} that binds the value to a prepared statement.
+ *
+ * Make sure to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an {@link org.jdbi.v3.core.statement.SqlLogger}.
  */
 @FunctionalInterface
-public interface ArgumentFactory
-{
+public interface ArgumentFactory {
     /**
      * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.
      *

@@ -47,8 +47,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * The mapped class must have a default constructor.
  */
-public class BeanMapper<T> implements RowMapper<T>
-{
+public class BeanMapper<T> implements RowMapper<T> {
     /**
      * Returns a mapper factory that maps to the given bean class
      *
@@ -100,15 +99,12 @@ public class BeanMapper<T> implements RowMapper<T>
     private final BeanInfo info;
     private final Map<PropertyDescriptor, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
-    private BeanMapper(Class<T> type, String prefix)
-    {
+    private BeanMapper(Class<T> type, String prefix) {
         this.type = type;
         this.prefix = prefix.toLowerCase();
-        try
-        {
+        try {
             info = Introspector.getBeanInfo(type);
-        }
-        catch (IntrospectionException e) {
+        } catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -202,8 +198,7 @@ public class BeanMapper<T> implements RowMapper<T>
         };
     }
 
-    private static String paramName(PropertyDescriptor descriptor)
-    {
+    private static String paramName(PropertyDescriptor descriptor) {
         return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
                 .filter(Objects::nonNull)
                 .map(method -> method.getAnnotation(ColumnName.class))
@@ -220,8 +215,7 @@ public class BeanMapper<T> implements RowMapper<T>
     private T construct() {
         try {
             return type.newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
                 "which was not instantiable", type.getName()), e);
         }
@@ -230,16 +224,13 @@ public class BeanMapper<T> implements RowMapper<T>
     private static void writeProperty(Object bean, PropertyDescriptor property, Object value) {
         try {
             property.getWriteMethod().invoke(bean, value);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(String.format("Unable to access setter for " +
                 "property, %s", property.getName()), e);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
                 "invoker setter for the %s property", property.getName()), e);
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             throw new IllegalArgumentException(String.format("No appropriate method to " +
                 "write property %s", property.getName()), e);
         }

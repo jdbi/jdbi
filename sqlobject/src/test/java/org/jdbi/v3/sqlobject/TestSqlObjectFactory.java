@@ -37,17 +37,14 @@ public class TestSqlObjectFactory {
         abstract String foo(String id);
     }
 
-    interface NonPublicSqlObject extends SqlObject {
-    }
+    interface NonPublicSqlObject extends SqlObject {}
 
-    public abstract class SqlObjectClass implements SqlObject {
-    }
+    public abstract class SqlObjectClass implements SqlObject {}
 
     public interface HasAnnotatedMethod {
         @SqlQuery("select foo from bar")
         String foo();
     }
 
-    public interface ExtendsSqlObject extends SqlObject {
-    }
+    public interface ExtendsSqlObject extends SqlObject {}
 }

@@ -28,22 +28,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestReturningQuery
-{
+public class TestReturningQuery {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
 
     }
 
     @Test
-    public void testWithRegisteredMapper() throws Exception
-    {
+    public void testWithRegisteredMapper() throws Exception {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
@@ -54,8 +51,7 @@ public class TestReturningQuery
     }
 
     @Test
-    public void testWithExplicitMapper() throws Exception
-    {
+    public void testWithExplicitMapper() throws Exception {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy2.class, spiffy -> {
@@ -66,14 +62,12 @@ public class TestReturningQuery
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Spiffy
-    {
+    public interface Spiffy {
         @SqlQuery("select id, name from something where id = :id")
         ResultIterable<Something> findById(@Bind("id") int id);
     }
 
-    public interface Spiffy2
-    {
+    public interface Spiffy2 {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
         ResultIterable<Something> findByIdWithExplicitMapper(@Bind("id") int id);

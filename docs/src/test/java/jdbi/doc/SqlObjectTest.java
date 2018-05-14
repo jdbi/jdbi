@@ -17,15 +17,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class SqlObjectTest
-{
+public class SqlObjectTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     // tag::defn[]
     @RegisterRowMapper(SomethingMapper.class)
-    public interface SomethingDao
-    {
+    public interface SomethingDao {
         @SqlUpdate("INSERT INTO something (id, name) VALUES (:s.id, :s.name)")
         int insert(@BindBean("s") Something s);
 
@@ -37,15 +35,13 @@ public class SqlObjectTest
     SomethingDao dao;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         final Handle handle = dbRule.getSharedHandle();
         dao = handle.attach(SomethingDao.class);
     }
 
     @Test
-    public void testFindById() throws Exception
-    {
+    public void testFindById() throws Exception {
         // tag::find-by-id[]
         dao.insert(new Something(1, "apple"));
         dao.insert(new Something(2, "bison"));

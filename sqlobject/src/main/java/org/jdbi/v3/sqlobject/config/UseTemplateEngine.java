@@ -34,8 +34,7 @@ import org.jdbi.v3.sqlobject.config.internal.UseTemplateEngineImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @ConfiguringAnnotation(UseTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseTemplateEngine
-{
+public @interface UseTemplateEngine {
     /**
      * Specify the TemplateEngine class to use.
      * @return the TemplateEngine class to use.

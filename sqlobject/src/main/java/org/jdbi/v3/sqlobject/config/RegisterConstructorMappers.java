@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterConstructorMappersImpl;
 @ConfiguringAnnotation(RegisterConstructorMappersImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterConstructorMappers
-{
+public @interface RegisterConstructorMappers {
     RegisterConstructorMapper[] value();
 }

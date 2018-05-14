@@ -1,4 +1,5 @@
 lexer grammar DefineStatementLexer;
+options {filter=true;}
 
 @header {
     package org.jdbi.v3.core.internal.lexer;

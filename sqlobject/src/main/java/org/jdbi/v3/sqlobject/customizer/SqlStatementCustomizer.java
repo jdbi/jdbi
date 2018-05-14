@@ -22,8 +22,7 @@ import org.jdbi.v3.core.statement.SqlStatement;
  * customize sql statements via annotations.
  */
 @FunctionalInterface
-public interface SqlStatementCustomizer
-{
+public interface SqlStatementCustomizer {
     /**
      * Invoked to customize the sql statement
      * @param q the statement being customized

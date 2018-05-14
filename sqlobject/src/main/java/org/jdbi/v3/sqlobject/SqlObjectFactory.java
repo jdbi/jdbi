@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Collections.synchronizedMap;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
@@ -27,13 +25,14 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+
+import static java.util.Collections.synchronizedMap;
 
 /**
  * Creates implementations for SqlObject interfaces.
@@ -44,7 +43,7 @@ public class SqlObjectFactory implements ExtensionFactory {
     private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
     private final Map<Class<? extends Configurer>, Configurer> configurers = synchronizedMap(new WeakHashMap<>());
 
-    SqlObjectFactory() { }
+    SqlObjectFactory() {}
 
     @Override
     public boolean accepts(Class<?> extensionType) {
@@ -113,7 +112,9 @@ public class SqlObjectFactory implements ExtensionFactory {
             handlers.putAll(handlerEntry((t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
             try {
                 handlers.putAll(handlerEntry((t, a, h) -> null, sqlObjectType, "finalize"));
-            } catch (IllegalStateException expected) { } // optional implementation
+            } catch (IllegalStateException expected) {
+                // optional implementation
+            }
 
             for (Method method : sqlObjectType.getMethods()) {
                 handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry, decorators));

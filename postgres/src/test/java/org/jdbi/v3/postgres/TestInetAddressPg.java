@@ -16,13 +16,10 @@ package org.jdbi.v3.postgres;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.argument.TestInetAddressH2;
 
-public class TestInetAddressPg extends TestInetAddressH2
-{
-    { dbRule = new PgDatabaseRule().withPlugin(new PostgresPlugin()); }
+public class TestInetAddressPg extends TestInetAddressH2 { { dbRule = new PgDatabaseRule().withPlugin(new PostgresPlugin()); }
 
     @Override
-    protected String getInetType()
-    {
+    protected String getInetType() {
         return "INET";
     }
 }

@@ -15,12 +15,10 @@ package org.jdbi.v3.core.statement;
 
 import java.util.HashMap;
 
-public class HandyMapThing<K> extends HashMap<K, Object>
-{
+public class HandyMapThing<K> extends HashMap<K, Object> {
     private static final long serialVersionUID = 1L;
 
-    public HandyMapThing<K> add(K k, Object v)
-    {
+    public HandyMapThing<K> add(K k, Object v) {
         this.put(k, v);
         return this;
     }

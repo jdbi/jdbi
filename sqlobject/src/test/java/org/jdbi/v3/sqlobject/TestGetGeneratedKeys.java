@@ -24,13 +24,11 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestGetGeneratedKeys
-{
+public class TestGetGeneratedKeys {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    public interface DAO
-    {
+    public interface DAO {
         @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
         long insert(@Bind("name") String name);
@@ -44,8 +42,7 @@ public class TestGetGeneratedKeys
     }
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");

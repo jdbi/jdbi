@@ -40,8 +40,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * case insensitive mapping between the constructor parameter names and the column labels,
  * also considering camel-case to underscores conversion.
  */
-public class ConstructorMapper<T> implements RowMapper<T>
-{
+public class ConstructorMapper<T> implements RowMapper<T> {
     /**
      * Use the only declared constructor to map a class.
      *
@@ -194,7 +193,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
                             "parameter names explicitly with @ColumnName",
                         constructor,
                         paramName
-                    )));
+                   )));
 
                 final Type type = parameter.getParameterizedType();
                 mappers[i] = ctx.findColumnMapperFor(type)

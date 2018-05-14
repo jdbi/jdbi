@@ -18,8 +18,7 @@ import java.sql.Connection;
 /**
  * Supported transaction isolation levels.
  */
-public enum TransactionIsolationLevel
-{
+public enum TransactionIsolationLevel {
     NONE(Connection.TRANSACTION_NONE),
     READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
     READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
@@ -30,13 +29,11 @@ public enum TransactionIsolationLevel
 
     private final int value;
 
-    TransactionIsolationLevel(int value)
-    {
+    TransactionIsolationLevel(int value) {
         this.value = value;
     }
 
-    public int intValue()
-    {
+    public int intValue() {
         return this.value;
     }
 
