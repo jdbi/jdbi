@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -40,11 +37,16 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * The BuiltInArgumentFactory provides instances of {@link Argument} for
@@ -107,19 +109,40 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
 
         register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
-        register(map, LocalDate.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v.atStartOfDay())));
+        register(map, LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
         register(map, LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
         register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
+
+        register(map, OptionalInt.class, Types.INTEGER, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setInt(i, v.getAsInt());
+            } else {
+                p.setNull(i, Types.INTEGER);
+            }
+        });
+        register(map, OptionalLong.class, Types.BIGINT, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setLong(i, v.getAsLong());
+            } else {
+                p.setNull(i, Types.BIGINT);
+            }
+        });
+        register(map, OptionalDouble.class, Types.DOUBLE, (p, i, v) -> {
+            if (v.isPresent()) {
+                p.setDouble(i, v.getAsDouble());
+            } else {
+                p.setNull(i, Types.DOUBLE);
+            }
+        });
 
         return Collections.unmodifiableMap(map);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config)
-    {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         Class<?> expectedClass = getErasedType(expectedType);
 
         if (value != null && expectedClass == Object.class) {
@@ -140,7 +163,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         }
 
         if (value instanceof Optional) {
-            Object nestedValue = ((Optional<?>)value).orElse(null);
+            Object nestedValue = ((Optional<?>) value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
             return config.get(Arguments.class).findFor(nestedType, nestedValue);
         }

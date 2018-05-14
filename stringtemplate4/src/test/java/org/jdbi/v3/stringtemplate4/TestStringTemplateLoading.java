@@ -30,21 +30,18 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestStringTemplateLoading
-{
+public class TestStringTemplateLoading {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
-    public void testBaz(int id)
-    {
+    public void testBaz(int id) {
         Wombat wombat = handle.attach(Wombat.class);
         wombat.insert(new Something(id, "Doo" + id));
 
@@ -56,8 +53,7 @@ public class TestStringTemplateLoading
     }
 
     @Test
-    public void testConcurrentLoading() throws InterruptedException, ExecutionException
-    {
+    public void testConcurrentLoading() throws InterruptedException, ExecutionException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
         IntStream
             .range(1, 10)

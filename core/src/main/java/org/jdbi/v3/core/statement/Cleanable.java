@@ -24,8 +24,7 @@ import java.sql.SQLException;
  * @see StatementContext#addCleanable(Cleanable)
  */
 @FunctionalInterface
-public interface Cleanable extends AutoCloseable
-{
+public interface Cleanable extends AutoCloseable {
     @Override
     void close() throws SQLException;
 }

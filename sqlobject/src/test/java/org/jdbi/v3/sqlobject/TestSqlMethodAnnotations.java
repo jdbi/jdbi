@@ -26,24 +26,22 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestSqlMethodAnnotations
-{
+public class TestSqlMethodAnnotations {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testMutuallyExclusiveAnnotations()
-    {
-        handle.attach(Broken.class);
+    @Test
+    public void testMutuallyExclusiveAnnotations() {
+        assertThatThrownBy(() -> handle.attach(Broken.class)).isInstanceOf(IllegalStateException.class);
     }
 
     public interface Broken {

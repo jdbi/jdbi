@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import java.beans.ConstructorProperties;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -23,7 +21,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.beans.ConstructorProperties;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ConstructorMapperTest {
 
@@ -84,14 +83,14 @@ public class ConstructorMapperTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testDuplicate() throws Exception {
-        execute("SELECT i, s, s FROM bean");
+        assertThatThrownBy(() -> execute("SELECT i, s, s FROM bean")).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMismatch() throws Exception {
-        execute("SELECT i, '7' FROM bean");
+        assertThatThrownBy(() -> execute("SELECT i, '7' FROM bean")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

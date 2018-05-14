@@ -41,5 +41,4 @@ import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl;
 @ConfiguringAnnotation(UseStringTemplateSqlLocatorImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface UseStringTemplateSqlLocator {
-}
+public @interface UseStringTemplateSqlLocator {}

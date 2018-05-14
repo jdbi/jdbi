@@ -18,8 +18,7 @@ import org.jdbi.v3.core.JdbiException;
 /**
  * Superclass for exceptions thrown while trying to execute a statement.
  */
-public abstract class StatementException extends JdbiException
-{
+public abstract class StatementException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
     private final StatementContext statementContext;
@@ -59,8 +58,7 @@ public abstract class StatementException extends JdbiException
         StatementContext ctx = getStatementContext();
         if (ctx == null) {
             return base;
-        }
-        else {
+        } else {
             return String.format("%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]",
                                  base,
                                  ctx.getRawSql(),

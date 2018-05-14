@@ -13,30 +13,21 @@
  */
 package org.jdbi.v3.jpa.internal;
 
-import static java.util.Objects.requireNonNull;
-
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import javax.persistence.Column;
-
 import org.jdbi.v3.jpa.EntityMemberAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Objects.requireNonNull;
+
 public class JpaMember {
-
-    interface Getter {
-        Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
-    }
-
-    interface Setter {
-        void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(JpaMember.class);
 
     private final Class<?> clazz;
     private final String columnName;
@@ -79,7 +70,7 @@ public class JpaMember {
     }
 
     public void write(Object obj, Object value) {
-        logger.debug("write {}/{}/{}/{}", clazz, columnName, type, value);
+        LOGGER.debug("write {}/{}/{}/{}", clazz, columnName, type, value);
 
         try {
             mutator.set(obj, value);
@@ -95,5 +86,11 @@ public class JpaMember {
                 .orElse(memberName);
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(JpaMember.class);
+    interface Getter {
+        Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
+    }
+
+    interface Setter {
+        void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
+    }
 }

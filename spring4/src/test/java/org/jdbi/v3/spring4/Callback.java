@@ -15,7 +15,6 @@ package org.jdbi.v3.spring4;
 
 import org.jdbi.v3.core.Jdbi;
 
-public interface Callback
-{
+public interface Callback {
     void call(Jdbi db);
 }

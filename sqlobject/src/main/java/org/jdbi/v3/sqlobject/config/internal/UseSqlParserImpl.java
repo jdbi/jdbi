@@ -22,52 +22,44 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
-public class UseSqlParserImpl implements Configurer
-{
+public class UseSqlParserImpl implements Configurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseSqlParser anno = (UseSqlParser) annotation;
         try {
             final SqlParser parser = instantiate(anno.value(), sqlObjectType, method);
             registry.get(SqlStatements.class).setSqlParser(parser);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         UseSqlParser anno = (UseSqlParser) annotation;
         try {
             final SqlParser parser = instantiate(anno.value(), sqlObjectType, null);
             registry.get(SqlStatements.class).setSqlParser(parser);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     private SqlParser instantiate(Class<? extends SqlParser> value,
                                   Class<?> sqlObjectType,
-                                  Method m) throws Exception
-    {
+                                  Method m) throws Exception {
         try {
-            Constructor<? extends SqlParser> no_arg = value.getConstructor();
-            return no_arg.newInstance();
-        }
-        catch (NoSuchMethodException e) {
+            Constructor<? extends SqlParser> noArg = value.getConstructor();
+            return noArg.newInstance();
+        } catch (NoSuchMethodException e) {
             try {
-                Constructor<? extends SqlParser> class_arg = value.getConstructor(Class.class);
-                return class_arg.newInstance(sqlObjectType);
-            }
-            catch (NoSuchMethodException e1) {
+                Constructor<? extends SqlParser> classArg = value.getConstructor(Class.class);
+                return classArg.newInstance(sqlObjectType);
+            } catch (NoSuchMethodException e1) {
                 if (m != null) {
-                    Constructor<? extends SqlParser> c_m_arg = value.getConstructor(Class.class,
+                    Constructor<? extends SqlParser> constructor = value.getConstructor(Class.class,
                                                                                             Method.class);
-                    return c_m_arg.newInstance(sqlObjectType, m);
+                    return constructor.newInstance(sqlObjectType, m);
                 }
                 throw new IllegalStateException("Unable to instantiate, no viable constructor " + value.getName());
             }

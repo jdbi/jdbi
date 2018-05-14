@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterFieldMapperImpl;
 @ConfiguringAnnotation(RegisterFieldMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterFieldMappers.class)
-public @interface RegisterFieldMapper
-{
+public @interface RegisterFieldMapper {
     /**
      * The type to map with FieldMapper.
      * @return the mapped type.

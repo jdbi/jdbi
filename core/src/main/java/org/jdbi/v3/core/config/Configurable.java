@@ -32,6 +32,7 @@ import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
@@ -98,11 +99,17 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
      *
+     * @deprecated use {@link #setSqlLogger} instead
      * @param collector timing collector
      * @return this
      */
+    @Deprecated
     default This setTimingCollector(TimingCollector collector) {
         return configure(SqlStatements.class, c -> c.setTimingCollector(collector));
+    }
+
+    default This setSqlLogger(SqlLogger sqlLogger) {
+        return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
     }
 
     /**

@@ -18,11 +18,9 @@ import org.jdbi.v3.core.collector.NoSuchCollectorException;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -54,8 +52,7 @@ public interface ResultBearing {
             public <R> R scanResultSet(ResultSetScanner<R> mapper) {
                 try {
                     return mapper.scanResultSet(resultSetSupplier, ctx);
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
                 }
             }
@@ -77,8 +74,8 @@ public interface ResultBearing {
      * @param <T>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     @SuppressWarnings("unchecked")
@@ -93,8 +90,8 @@ public interface ResultBearing {
      * @param <T>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     @SuppressWarnings("unchecked")
@@ -108,8 +105,8 @@ public interface ResultBearing {
      * @param type the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default ResultIterable<?> mapTo(Type type) {
@@ -182,11 +179,9 @@ public interface ResultBearing {
                     reducer.accumulate(container, rowView);
                 }
                 return reducer.stream(container);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -225,11 +220,9 @@ public interface ResultBearing {
                     result = accumulator.apply(result, rv);
                 }
                 return result;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -252,11 +245,9 @@ public interface ResultBearing {
                     result = accumulator.apply(result, rs, ctx);
                 }
                 return result;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });
@@ -285,11 +276,9 @@ public interface ResultBearing {
                 }
 
                 return collector.finisher().apply(acc);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
-            }
-            finally {
+            } finally {
                 ctx.close();
             }
         });

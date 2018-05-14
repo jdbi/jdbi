@@ -23,18 +23,15 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
-public class QueryTimeOutFactory implements SqlStatementCustomizerFactory
-{
+public class QueryTimeOutFactory implements SqlStatementCustomizerFactory {
     @Override
-    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-    {
+    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
         int queryTimeout = ((QueryTimeOut) annotation).value();
         return stmt -> stmt.setQueryTimeout(queryTimeout);
     }
 
     @Override
-    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         return createForType(annotation, sqlObjectType);
     }
 
@@ -44,8 +41,7 @@ public class QueryTimeOutFactory implements SqlStatementCustomizerFactory
                                                               Method method,
                                                               Parameter param,
                                                               int index,
-                                                              Type type)
-    {
+                                                              Type type) {
         return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
     }
 }

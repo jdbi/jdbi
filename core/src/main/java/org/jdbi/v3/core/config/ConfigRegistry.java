@@ -29,8 +29,7 @@ public class ConfigRegistry {
     /**
      * Creates a new config registry.
      */
-    public ConfigRegistry() {
-    }
+    public ConfigRegistry() {}
 
     private ConfigRegistry(ConfigRegistry that) {
         that.cache.forEach((type, config) -> {

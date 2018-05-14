@@ -13,21 +13,24 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+
 /**
  * Provide ArgumentFactory instances that understand Guava types.
  */
 public class GuavaArguments {
+    private GuavaArguments() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * Returns an {@link ArgumentFactory} which understands Guava types.
      *

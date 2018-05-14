@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.UUID;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -30,29 +27,29 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestReentrancy
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestReentrancy {
     private Jdbi db;
     private Handle handle;
 
-    private interface TheBasics extends SqlObject
-    {
+    private interface TheBasics extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);
     }
 
-    @Test(expected = UnableToCreateStatementException.class)
-    public void testGetHandleProvidesSeperateHandle() throws Exception
-    {
+    @Test
+    public void testGetHandleProvidesSeperateHandle() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
-        h.execute("insert into something (id, name) values (1, 'Stephen')");
+        assertThatThrownBy(() -> h.execute("insert into something (id, name) values (1, 'Stephen')"))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testHandleReentrant() throws Exception
-    {
+    public void testHandleReentrant() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -65,8 +62,7 @@ public class TestReentrancy
     }
 
     @Test
-    public void testTxnReentrant() throws Exception
-    {
+    public void testTxnReentrant() throws Exception {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -85,10 +81,8 @@ public class TestReentrancy
         });
     }
 
-
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
@@ -103,8 +97,7 @@ public class TestReentrancy
     }
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         handle.execute("drop table something");
         handle.close();
     }

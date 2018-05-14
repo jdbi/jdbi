@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <groupId>org.jdbi</groupId>
+        <version>3.2.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-stringtemplate4</artifactId>
     <name>jdbi3 String Template 4 integration</name>
-    <description>
-        jdbi-stringtemplate4 locates SQL statements in StringTemplate 4 files on the classpath
-    </description>
+    <description>jdbi-stringtemplate4 locates SQL statements in StringTemplate 4 files on the classpath</description>
     <url>http://jdbi.org/</url>
 
     <licenses>
@@ -40,12 +38,6 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
-            <classifier>tests</classifier>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -68,6 +60,12 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

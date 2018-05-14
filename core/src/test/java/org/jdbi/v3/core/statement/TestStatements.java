@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -25,42 +23,39 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStatements
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class TestStatements {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         h = dbRule.openHandle();
     }
 
     @After
-    public void doTearDown() throws Exception
-    {
+    public void doTearDown() throws Exception {
         if (h != null) h.close();
     }
 
     @Test
-    public void testStatement() throws Exception
-    {
+    public void testStatement() throws Exception {
         int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isEqualTo(1);
     }
 
     @Test
-    public void testSimpleInsert() throws Exception
-    {
+    public void testSimpleInsert() throws Exception {
         int c = h.execute("insert into something (id, name) values (1, 'eric')");
         assertThat(c).isEqualTo(1);
     }
 
     @Test
-    public void testUpdate() throws Exception
-    {
+    public void testUpdate() throws Exception {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.createUpdate("update something set name = 'ERIC' where id = 1").execute();
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
@@ -68,17 +63,16 @@ public class TestStatements
     }
 
     @Test
-    public void testSimpleUpdate() throws Exception
-    {
+    public void testSimpleUpdate() throws Exception {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("update something set name = 'cire' where id = 1");
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("cire");
     }
 
-    @Test(expected = NoResultsException.class)
+    @Test
     public void testStatementWithRequiredResults() throws Exception {
-        assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
+        assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst()).isInstanceOf(NoResultsException.class);
     }
 
     @Test

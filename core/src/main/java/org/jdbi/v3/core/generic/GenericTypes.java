@@ -36,6 +36,10 @@ public class GenericTypes {
         VALUE = mapParams[1];
     }
 
+    private GenericTypes() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * Returns the erased class for the given type.
      *

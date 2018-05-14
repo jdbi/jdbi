@@ -58,8 +58,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.DefineListFactory;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 @SqlStatementCustomizingAnnotation(DefineListFactory.class)
-public @interface DefineList
-{
+public @interface DefineList {
     /**
      * The attribute name to define. If omitted, the name of the annotated
      * parameter is used. It is an error to omit the name when there is no

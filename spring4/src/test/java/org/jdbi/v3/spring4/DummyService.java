@@ -18,40 +18,34 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public class DummyService implements Service
-{
+public class DummyService implements Service {
     private final Jdbi jdbi;
 
-    public DummyService(Jdbi jdbi)
-    {
+    public DummyService(Jdbi jdbi) {
         this.jdbi = jdbi;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void inPropagationRequired(Callback c)
-    {
+    public void inPropagationRequired(Callback c) {
         c.call(jdbi);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void inRequiresNew(Callback c)
-    {
+    public void inRequiresNew(Callback c) {
         c.call(jdbi);
     }
 
     @Override
     @Transactional(propagation = Propagation.NESTED)
-    public void inNested(Callback c)
-    {
+    public void inNested(Callback c) {
         c.call(jdbi);
     }
 
     @Override
     @Transactional(propagation=Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
-    public void inRequiresNewReadUncommitted(Callback c)
-    {
+    public void inRequiresNewReadUncommitted(Callback c) {
         c.call(jdbi);
     }
 }

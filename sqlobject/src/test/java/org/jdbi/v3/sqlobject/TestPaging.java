@@ -33,22 +33,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestPaging
-{
+public class TestPaging {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void pagingExample() throws Exception
-    {
+    public void pagingExample() throws Exception {
         Sql sql = handle.attach(Sql.class);
 
         int[] rs = sql.insert(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
@@ -74,8 +71,7 @@ public class TestPaging
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Sql
-    {
+    public interface Sql {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
 

@@ -25,4 +25,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(CONSTRUCTOR)
-public @interface JdbiConstructor { }
+public @interface JdbiConstructor {}

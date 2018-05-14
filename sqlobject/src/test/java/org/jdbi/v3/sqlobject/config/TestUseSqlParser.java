@@ -32,16 +32,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestUseSqlParser
-{
+public class TestUseSqlParser {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         Jdbi db = dbRule.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
@@ -50,8 +48,7 @@ public class TestUseSqlParser
     }
 
     @Test
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
 
         Hashed h = handle.attach(Hashed.class);
@@ -63,8 +60,7 @@ public class TestUseSqlParser
 
     @UseSqlParser(HashPrefixSqlParser.class)
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Hashed
-    {
+    public interface Hashed {
         @SqlUpdate("insert into something (id, name) values (#id, #name)")
         void insert(@BindBean Something s);
 

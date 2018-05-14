@@ -47,14 +47,12 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 /**
  * Base handler for annotations' implementation classes.
  */
-abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
-{
+abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler {
     private final List<BoundCustomizer> statementCustomizers;
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class<?> type, Method method)
-    {
+    CustomizingStatementHandler(Class<?> type, Method method) {
         this.sqlObjectType = type;
         this.method = method;
 
@@ -170,23 +168,19 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
     abstract StatementType createStatement(Handle handle, String locatedSql);
 
-    String locateSql(final Handle h)
-    {
+    String locateSql(final Handle h) {
         return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method, h.getConfig());
     }
 
-    Method getMethod()
-    {
+    Method getMethod() {
         return method;
     }
 
-    static RowMapper<?> rowMapperFor(UseRowMapper annotation)
-    {
+    static RowMapper<?> rowMapperFor(UseRowMapper annotation) {
         Class<? extends RowMapper<?>> mapperClass = annotation.value();
         try {
             return mapperClass.getConstructor().newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new UnableToCreateStatementException("Could not create mapper " + mapperClass.getName(), e, null);
         }
     }
@@ -195,8 +189,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         Class<? extends RowReducer<?, ?>> reducerClass = annotation.value();
         try {
             return reducerClass.getConstructor().newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new UnableToCreateStatementException("Could not create reducer " + reducerClass.getName(), e, null);
         }
     }

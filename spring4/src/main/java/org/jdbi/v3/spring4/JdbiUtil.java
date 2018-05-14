@@ -24,9 +24,12 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /**
  * Utility for working with Jdbi and Spring transaction bound resources
  */
-public class JdbiUtil
-{
+public class JdbiUtil {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
+
+    private JdbiUtil() {
+        throw new UnsupportedOperationException("utility class");
+    }
 
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,
@@ -35,8 +38,7 @@ public class JdbiUtil
      *
      * @return the Handle instance
      */
-    public static Handle getHandle(Jdbi jdbi)
-    {
+    public static Handle getHandle(Jdbi jdbi) {
         Handle bound = (Handle) TransactionSynchronizationManager.getResource(jdbi);
         if (bound == null) {
             bound = jdbi.open();
@@ -53,10 +55,8 @@ public class JdbiUtil
      * Close a handle if it is not transactionally bound, otherwise no-op
      * @param handle the handle to consider closing
      */
-    public static void closeIfNeeded(Handle handle)
-    {
-        if (!TRANSACTIONAL_HANDLES.contains(handle))
-        {
+    public static void closeIfNeeded(Handle handle) {
+        if (!TRANSACTIONAL_HANDLES.contains(handle)) {
             handle.close();
         }
     }
@@ -71,20 +71,17 @@ public class JdbiUtil
         }
 
         @Override
-        public void resume()
-        {
+        public void resume() {
             TransactionSynchronizationManager.bindResource(db, handle);
         }
 
         @Override
-        public void suspend()
-        {
+        public void suspend() {
             TransactionSynchronizationManager.unbindResource(db);
         }
 
         @Override
-        public void beforeCompletion()
-        {
+        public void beforeCompletion() {
             TRANSACTIONAL_HANDLES.remove(handle);
             TransactionSynchronizationManager.unbindResource(db);
         }

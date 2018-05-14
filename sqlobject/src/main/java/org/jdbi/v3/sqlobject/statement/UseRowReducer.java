@@ -26,8 +26,7 @@ import org.jdbi.v3.core.result.RowReducer;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface UseRowReducer
-{
+public @interface UseRowReducer {
     /**
      * The class implementing {@link RowReducer}. It must have a no-arg constructor.
      * @return the class of row reducer to use.

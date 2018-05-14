@@ -19,14 +19,12 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestHandle
-{
+public class TestHandle {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testInTransaction() throws Exception
-    {
+    public void testInTransaction() throws Exception {
         Handle h = dbRule.openHandle();
 
         String value = h.inTransaction(handle -> {
@@ -37,8 +35,7 @@ public class TestHandle
     }
 
     @Test
-    public void testSillyNumberOfCallbacks() throws Exception
-    {
+    public void testSillyNumberOfCallbacks() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Keith')");
         }
@@ -52,8 +49,7 @@ public class TestHandle
 
     @SuppressWarnings("resource")
     @Test
-    public void testIsClosed() throws Exception
-    {
+    public void testIsClosed() throws Exception {
         Handle h = dbRule.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();

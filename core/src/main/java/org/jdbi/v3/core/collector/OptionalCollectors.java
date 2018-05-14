@@ -25,7 +25,11 @@ import java.util.stream.Collector;
  * Factory methods for {@link Collector collectors} of optional types.
  */
 public class OptionalCollectors {
-  /**
+    private OptionalCollectors() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
+    /**
    * Returns a {@code Collector} that accumulates 0 or 1 input elements into an {@code Optional<T>}.
    * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements
    * are present in a stream. Null elements are mapped to {@code Optional.empty()}.

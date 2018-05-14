@@ -22,24 +22,20 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
-public class RegisterColumnMapperFactoryImpl implements Configurer
-{
+public class RegisterColumnMapperFactoryImpl implements Configurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
         try {
             ColumnMapperFactory factory = registerColumnMapperFactory.value().newInstance();
             registry.get(ColumnMappers.class).register(factory);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("unable to create a specified column mapper factory", e);
         }
     }

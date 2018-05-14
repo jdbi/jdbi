@@ -21,8 +21,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * A typed SQL null argument.
  */
-public class NullArgument implements Argument
-{
+public class NullArgument implements Argument {
     private final int sqlType;
 
     /**
@@ -34,8 +33,7 @@ public class NullArgument implements Argument
     }
 
     @Override
-    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
+    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         statement.setNull(position, sqlType);
     }
 

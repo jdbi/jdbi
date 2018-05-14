@@ -73,68 +73,15 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
  * </ul>
  */
 public class GuavaCollectors {
+    private GuavaCollectors() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */
     public static CollectorFactory factory() {
         return new Factory();
-    }
-
-    private static class Factory implements CollectorFactory {
-        private final TypeVariable<Class<Multimap>> multimapKey;
-        private final TypeVariable<Class<Multimap>> multimapValue;
-
-        public Factory() {
-            TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
-            multimapKey = multimapParams[0];
-            multimapValue = multimapParams[1];
-        }
-
-        private final Map<Class<?>, Collector<?, ?, ?>> collectors =
-                ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
-                        .put(ImmutableList.class, ImmutableList.toImmutableList())
-                        .put(ImmutableSet.class, ImmutableSet.toImmutableSet())
-                        .put(ImmutableSortedSet.class, ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()))
-                        .put(Optional.class, toOptional())
-                        .put(ImmutableMap.class, toImmutableMap())
-                        .put(BiMap.class, toHashBiMap())
-                        .put(ImmutableMultimap.class, toImmutableListMultimap())
-                        .put(ImmutableListMultimap.class, toImmutableListMultimap())
-                        .put(ImmutableSetMultimap.class, toImmutableSetMultimap())
-                        .put(Multimap.class, toImmutableListMultimap())
-                        .put(ListMultimap.class, toImmutableListMultimap())
-                        .put(ArrayListMultimap.class, toArrayListMultimap())
-                        .put(LinkedListMultimap.class, toLinkedListMultimap())
-                        .put(SetMultimap.class, toImmutableSetMultimap())
-                        .put(HashMultimap.class, toHashMultimap())
-                        .put(TreeMultimap.class, toTreeMultimap())
-                        .build();
-
-        @Override
-        public boolean accepts(Type containerType) {
-            Class<?> erasedType = getErasedType(containerType);
-            return collectors.containsKey(erasedType) && containerType instanceof ParameterizedType;
-        }
-
-        @Override
-        public java.util.Optional<Type> elementType(Type containerType) {
-            Class<?> erasedType = getErasedType(containerType);
-
-            if (Multimap.class.isAssignableFrom(erasedType)) {
-                Type keyType = resolveType(multimapKey, containerType);
-                Type valueType = resolveType(multimapValue, containerType);
-                return java.util.Optional.of(resolveMapEntryType(keyType, valueType));
-            } else if (Map.class.isAssignableFrom(erasedType)) {
-                return java.util.Optional.of(resolveMapEntryType(containerType));
-            }
-
-            return findGenericParameter(containerType, erasedType);
-        }
-
-        @Override
-        public Collector<?, ?, ?> build(Type containerType) {
-            return collectors.get(getErasedType(containerType));
-        }
     }
 
     /**
@@ -291,5 +238,62 @@ public class GuavaCollectors {
     private static <K, V, MB extends ImmutableMultimap.Builder<K, V>> MB combine(MB a, MB b) {
         a.putAll(b.build());
         return a;
+    }
+
+    private static class Factory implements CollectorFactory {
+        private final TypeVariable<Class<Multimap>> multimapKey;
+        private final TypeVariable<Class<Multimap>> multimapValue;
+
+        public Factory() {
+            TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
+            multimapKey = multimapParams[0];
+            multimapValue = multimapParams[1];
+        }
+
+        private final Map<Class<?>, Collector<?, ?, ?>> collectors =
+            ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
+                .put(ImmutableList.class, ImmutableList.toImmutableList())
+                .put(ImmutableSet.class, ImmutableSet.toImmutableSet())
+                .put(ImmutableSortedSet.class, ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()))
+                .put(Optional.class, toOptional())
+                .put(ImmutableMap.class, toImmutableMap())
+                .put(BiMap.class, toHashBiMap())
+                .put(ImmutableMultimap.class, toImmutableListMultimap())
+                .put(ImmutableListMultimap.class, toImmutableListMultimap())
+                .put(ImmutableSetMultimap.class, toImmutableSetMultimap())
+                .put(Multimap.class, toImmutableListMultimap())
+                .put(ListMultimap.class, toImmutableListMultimap())
+                .put(ArrayListMultimap.class, toArrayListMultimap())
+                .put(LinkedListMultimap.class, toLinkedListMultimap())
+                .put(SetMultimap.class, toImmutableSetMultimap())
+                .put(HashMultimap.class, toHashMultimap())
+                .put(TreeMultimap.class, toTreeMultimap())
+                .build();
+
+        @Override
+        public boolean accepts(Type containerType) {
+            Class<?> erasedType = getErasedType(containerType);
+            return collectors.containsKey(erasedType) && containerType instanceof ParameterizedType;
+        }
+
+        @Override
+        public java.util.Optional<Type> elementType(Type containerType) {
+            Class<?> erasedType = getErasedType(containerType);
+
+            if (Multimap.class.isAssignableFrom(erasedType)) {
+                Type keyType = resolveType(multimapKey, containerType);
+                Type valueType = resolveType(multimapValue, containerType);
+                return java.util.Optional.of(resolveMapEntryType(keyType, valueType));
+            } else if (Map.class.isAssignableFrom(erasedType)) {
+                return java.util.Optional.of(resolveMapEntryType(containerType));
+            }
+
+            return findGenericParameter(containerType, erasedType);
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return collectors.get(getErasedType(containerType));
+        }
     }
 }

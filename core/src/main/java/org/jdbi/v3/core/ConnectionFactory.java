@@ -20,8 +20,7 @@ import java.sql.SQLException;
  * Supplies {@link Connection} instances to a created {@link Handle}.
  */
 @FunctionalInterface
-public interface ConnectionFactory
-{
+public interface ConnectionFactory {
     /**
      * @return a Connection
      * @throws SQLException if anything goes wrong

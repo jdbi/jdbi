@@ -1,7 +1,32 @@
 3.2.0
-  - add a 'testing' artifact with a JdbiRule for JUnit tests
-  - @SqlScript to execute multiple statements
-  - add a ResultProducers allowNoResults option in case you may or may not get a result set
+  - New modules:
+    - jdbi3-testing - JdbiRule test rule for JUnit tests
+    - jdbi3-freemarker - render SQL templates using FreeMarker
+    - jdbi3-commons-text - render SQL templates using Apache commons-text StringSubstitutor
+    - jdbi3-sqlite - plugin for use with SQLite database
+  - New API
+    - @SqlScript annotation to execute multiple statements
+    - SqlLogger for logging queries, timing, and exceptions. Replacing TimingCollector, which
+      is now deprecated
+    - Add ResultProducers.allowNoResults configuration option in case you may or may not get a
+      result set
+    - MessageFormatTemplateEngine template engine, renders SQL using java.text.MessageFormat
+    - SqliteDatabaseRule test rule (in jdbi3-core test jar)
+  - Improvements
+    - @MaxRows.value() may now be omitted when used as a parameter annotation
+    - SerializableTransactionRunner 'max retries' handling throws more meaningful exceptions
+    - Postgres operators like '?' and '?|' may now be used without being mistaken for a positional
+      parameter. Escape them in your SQL statements as '??' and '??|', respectively.
+    - Support for binding OptionalInt, OptionalLong, and OptionalDouble parameters.
+  - Bug fixes:
+    - SqlObject default methods now work in JDK 9
+    - SqlObject no longer gets confused about result types due to bridge methods
+    - StringTemplate no longer shares template groups across threads, to work around concurrency
+      issues in StringTemplate project
+    - DefineStatementLexer handles predicates that look like definitions better. No more errors
+      on unmatched "<" when you really meant "less than!"
+    - LocalDate binding should store the correct date when the server and database are running
+      in different time zones.
 
 3.1.1
   - Improve IBM JDK compatibility with default methods
@@ -151,7 +176,7 @@
   - expose Script.getStatements()
 
 2.77
-  - Improved BindIn functionality: can now process Iterables and arrays/varargs 
+  - Improved BindIn functionality: can now process Iterables and arrays/varargs
     of any type, and has configurable handling for a null/empty argument.
     Check the source code comments or your IDE hints for details.
 

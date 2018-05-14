@@ -27,8 +27,7 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 /**
  * Represents the arguments bound to a particular statement.
  */
-public class Binding
-{
+public class Binding {
     private final Map<Integer, Argument> positionals = new HashMap<>();
     private final Map<String, Argument> named = new HashMap<>();
     private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
@@ -131,8 +130,7 @@ public class Binding
     /**
      * Remove all bindings from this Binding.
      */
-    public void clear()
-    {
+    public void clear() {
         positionals.clear();
         named.clear();
         namedArgumentFinder.clear();
@@ -141,8 +139,7 @@ public class Binding
     /**
      * @return true if there are no bindings yet
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return positionals.isEmpty() && named.isEmpty() && namedArgumentFinder.isEmpty();
     }
 }

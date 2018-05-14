@@ -30,8 +30,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterArgumentFactoryImpl;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(RegisterArgumentFactories.class)
-public @interface RegisterArgumentFactory
-{
+public @interface RegisterArgumentFactory {
     /**
      * The argument factory classes to register
      * @return one or more argument factory classes.

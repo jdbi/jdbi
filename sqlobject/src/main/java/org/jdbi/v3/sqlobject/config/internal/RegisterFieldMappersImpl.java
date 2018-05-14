@@ -20,8 +20,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMappers;
 
-public class RegisterFieldMappersImpl implements Configurer
-{
+public class RegisterFieldMappersImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         Configurer delegate = new RegisterFieldMapperImpl();
@@ -31,8 +30,7 @@ public class RegisterFieldMappersImpl implements Configurer
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

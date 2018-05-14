@@ -16,24 +16,21 @@ package org.jdbi.v3.core;
 /**
  * Base unchecked exception for exceptions thrown from jdbi.
  */
-public abstract class JdbiException extends RuntimeException
-{
+public abstract class JdbiException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
      * @param message the exception message
      * @param cause the optional cause
      */
-    public JdbiException(String message, Throwable cause)
-    {
+    public JdbiException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
      * @param cause the cause of this exception
      */
-    public JdbiException(Throwable cause)
-    {
+    public JdbiException(Throwable cause) {
         super(cause);
     }
 
@@ -45,8 +42,7 @@ public abstract class JdbiException extends RuntimeException
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public JdbiException(String message)
-    {
+    public JdbiException(String message) {
         super(message);
     }
 }

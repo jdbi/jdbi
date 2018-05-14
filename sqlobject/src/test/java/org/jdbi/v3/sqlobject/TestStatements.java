@@ -22,14 +22,12 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStatements
-{
+public class TestStatements {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testInsert() throws Exception
-    {
+    public void testInsert() throws Exception {
         dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
@@ -42,8 +40,7 @@ public class TestStatements
     }
 
     @Test
-    public void testInsertWithVoidReturn() throws Exception
-    {
+    public void testInsertWithVoidReturn() throws Exception {
         dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
@@ -55,13 +52,11 @@ public class TestStatements
     }
 
     @Test
-    public void testDoubleArgumentBind() throws Exception
-    {
+    public void testDoubleArgumentBind() throws Exception {
         dbRule.getJdbi().useExtension(Doubler.class, d -> assertThat(d.doubleTest("wooooot")).isTrue());
     }
 
-    public interface Inserter
-    {
+    public interface Inserter {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") long id, @Bind("name") String name);
 
@@ -69,8 +64,7 @@ public class TestStatements
         void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
     }
 
-    public interface Doubler
-    {
+    public interface Doubler {
         @SqlQuery("select :test = :test")
         boolean doubleTest(@Bind("test") String test);
     }

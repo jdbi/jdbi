@@ -29,5 +29,4 @@ import org.jdbi.v3.sqlobject.locator.internal.UseAnnotationSqlLocatorImpl;
 @ConfiguringAnnotation(UseAnnotationSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface UseAnnotationSqlLocator {
-}
+public @interface UseAnnotationSqlLocator {}

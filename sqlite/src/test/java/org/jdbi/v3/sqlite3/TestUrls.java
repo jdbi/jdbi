@@ -13,19 +13,17 @@
  */
 package org.jdbi.v3.sqlite3;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.jdbi.v3.sqlite3.SQLitePlugin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestUrls {
 
@@ -57,13 +55,14 @@ public class TestUrls {
         Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
     }
 
-    @Test(expected = ResultSetException.class)
+    @Test
     public void testMapNullUrlThrowsException() {
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
                 .bind("url", ((URL) null))
                 .execute();
 
-        handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
+        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly())
+            .isInstanceOf(ResultSetException.class);
     }
 
     @Test
@@ -78,13 +77,14 @@ public class TestUrls {
         Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
     }
 
-    @Test(expected = ResultSetException.class)
+    @Test
     public void testInsertNullUrlUsingBindByType() {
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
                 .bindByType("url", null, URL.class)
                 .execute();
 
-        handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
+        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly())
+            .isInstanceOf(ResultSetException.class);
     }
 
 }

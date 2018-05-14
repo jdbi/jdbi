@@ -20,17 +20,14 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMappers;
 
-public class RegisterColumnMappersImpl implements Configurer
-{
+public class RegisterColumnMappersImpl implements Configurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         Configurer delegate = new RegisterColumnMapperImpl();
 
         RegisterColumnMappers registerColumnMappers = (RegisterColumnMappers) annotation;

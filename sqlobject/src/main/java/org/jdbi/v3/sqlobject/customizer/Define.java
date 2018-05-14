@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.DefineFactory;
 @SqlStatementCustomizingAnnotation(DefineFactory.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Define
-{
+public @interface Define {
     /**
      * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
      * the name when there is no parameter naming information in your class files.

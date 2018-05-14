@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterColumnMappers.class)
-public @interface RegisterColumnMapper
-{
+public @interface RegisterColumnMapper {
     /**
      * The column mapper class to register
      * @return the column mapper class

@@ -55,8 +55,7 @@ public class OracleDatabaseRule extends ExternalResource implements DatabaseRule
 
         try {
             sharedHandle = db.open();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assumeNoException("Oracle database not available", e);
         }
 

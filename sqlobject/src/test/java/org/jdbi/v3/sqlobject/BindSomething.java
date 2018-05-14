@@ -30,8 +30,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindSomething.Factory.class)
-public @interface BindSomething
-{
+public @interface BindSomething {
     String value();
 
     class Factory implements SqlStatementCustomizerFactory {

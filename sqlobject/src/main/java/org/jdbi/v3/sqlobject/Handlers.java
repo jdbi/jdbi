@@ -34,6 +34,7 @@ public class Handlers implements JdbiConfig<Handlers> {
     public Handlers() {
         register(new DefaultMethodHandlerFactory());
         register(new SqlMethodHandlerFactory());
+        register(new BridgeMethodHandlerFactory());
     }
 
     private Handlers(Handlers that) {

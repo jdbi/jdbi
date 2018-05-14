@@ -29,8 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestBeanArguments
-{
+public class TestBeanArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
@@ -43,8 +42,7 @@ public class TestBeanArguments
     StatementContext ctx = StatementContextAccess.createContext();
 
     @Test
-    public void testBindBare() throws Exception
-    {
+    public void testBindBare() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public BigDecimal getFoo() {
@@ -58,8 +56,7 @@ public class TestBeanArguments
     }
 
     @Test
-    public void testBindNull() throws Exception
-    {
+    public void testBindNull() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public BigDecimal getFoo() {
@@ -73,8 +70,7 @@ public class TestBeanArguments
     }
 
     @Test
-    public void testBindPrefix() throws Exception
-    {
+    public void testBindPrefix() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public String getBar() {
@@ -88,8 +84,7 @@ public class TestBeanArguments
     }
 
     @Test
-    public void testBindIllegalAccess() throws Exception
-    {
+    public void testBindIllegalAccess() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public String getBar() throws IllegalAccessException {
@@ -102,12 +97,10 @@ public class TestBeanArguments
     }
 
     @Test
-    public void testBindNoGetter() throws Exception
-    {
+    public void testBindNoGetter() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         exception.expect(UnableToCreateStatementException.class);
@@ -115,8 +108,7 @@ public class TestBeanArguments
     }
 
     @Test
-    public void testBindNonPublicGetter() throws Exception
-    {
+    public void testBindNonPublicGetter() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             protected String getBar() {
@@ -124,8 +116,7 @@ public class TestBeanArguments
             }
 
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         exception.expect(UnableToCreateStatementException.class);

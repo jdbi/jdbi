@@ -28,8 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestClosingHandle
-{
+public class TestClosingHandle {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 

@@ -29,8 +29,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperFactoryImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterColumnMapperFactories.class)
-public @interface RegisterColumnMapperFactory
-{
+public @interface RegisterColumnMapperFactory {
     /**
      * The column mapper factory class to register
      * @return the column mapper factory class

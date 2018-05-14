@@ -22,21 +22,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisteredMappers
-{
+public class TestRegisteredMappers {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         db = dbRule.getJdbi();
     }
 
     @Test
-    public void testRegisterInferredOnJdbi() throws Exception
-    {
+    public void testRegisterInferredOnJdbi() throws Exception {
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (18, 'Sam')");
