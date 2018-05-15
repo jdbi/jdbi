@@ -142,4 +142,12 @@ public class TestMessageFormatTemplateEngine {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("\" \"");
     }
+
+    @Test
+    public void testEscaping() {
+        attributes.put("0", "foo");
+
+        assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx))
+            .isEqualTo("select * from foo where name = 'john' and stuff = '{0}'");
+    }
 }
