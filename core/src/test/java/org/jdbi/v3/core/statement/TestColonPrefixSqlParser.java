@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class TestColonPrefixSqlParser {
     private SqlParser parser;
@@ -33,6 +29,13 @@ public class TestColonPrefixSqlParser {
     public void setUp() throws Exception {
         parser = new ColonPrefixSqlParser();
         ctx = mock(StatementContext.class);
+    }
+
+    @Test
+    public void testSubstitutesDefinedAttributes() throws Exception {
+        String sql = "select foo from bar where foo = :someValue";
+        ParsedSql parsed = parser.parse(sql, ctx);
+        assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test
@@ -82,13 +85,6 @@ public class TestColonPrefixSqlParser {
     public void testBailsOutOnInvalidInput() throws Exception {
         assertThatThrownBy(() -> parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx).getSql())
             .isInstanceOf(UnableToCreateStatementException.class);
-    }
-
-    @Test
-    public void testSubstitutesDefinedAttributes() throws Exception {
-        String sql = "select foo from bar where foo = :someValue";
-        ParsedSql parsed = parser.parse(sql, ctx);
-        assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test

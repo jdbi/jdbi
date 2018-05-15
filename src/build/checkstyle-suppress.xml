@@ -20,6 +20,7 @@
     <suppress checks=".*" files="SqlScriptLexer\.java$"/>
     <suppress checks=".*" files="DefineStatementLexer\.java$"/>
     <suppress checks=".*" files="ColonStatementLexer\.java$"/>
+    <suppress checks=".*" files="DollarStatementLexer\.java$"/>
     <suppress checks=".*" files="FormatterStatementLexer\.java$"/>
     <suppress checks=".*" files="HashStatementLexer\.java$"/>
 </suppressions>
