@@ -36,7 +36,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         .entryLoader((Class<?> type) ->
             Stream.of(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
-                .collect(toMap(Method::getName, Function.identity())))
+                .collect(toMap(Method::getName, Function.identity(), ObjectMethodArguments::boundMethodMerge)))
         .build();
 
     private final Map<String, Method> methods;
@@ -73,5 +73,21 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     @Override
     public String toString() {
         return "{lazy object functions arguments \"" + object + "\"";
+    }
+
+    private static Method boundMethodMerge(Method a, Method b) {
+        final Class<?> aClazz = a.getReturnType();
+        final Class<?> bClazz = b.getReturnType();
+
+        final Method ret;
+        if (aClazz.isAssignableFrom(bClazz)) {
+            ret = b;
+        } else if (bClazz.isAssignableFrom(aClazz)) {
+            ret = a;
+        } else {
+            throw new IllegalStateException("Method return conflict");
+        }
+
+        return ret;
     }
 }
