@@ -236,7 +236,7 @@ class EmptyResultSet implements ResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        throw new UnsupportedOperationException();
+        return EmptyResultSetMetaData.INSTANCE;
     }
 
     @Override

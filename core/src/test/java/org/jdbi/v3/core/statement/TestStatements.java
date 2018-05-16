@@ -80,4 +80,16 @@ public class TestStatements {
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
     }
+
+    @Test
+    public void testStatementWithOptionalBeanResults() {
+        h.getConfig(ResultProducers.class).allowNoResults(true);
+        assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testStatementWithOptionalMapResults() {
+        h.getConfig(ResultProducers.class).allowNoResults(true);
+        assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
+    }
 }
