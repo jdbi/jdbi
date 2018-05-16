@@ -15,16 +15,15 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -34,9 +33,9 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
         .entryLoader((Class<?> type) ->
-            Stream.of(type.getMethods())
+            Arrays.stream(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
-                .collect(toMap(Method::getName, Function.identity(), ObjectMethodArguments::boundMethodMerge)))
+                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge)))
         .build();
 
     private final Map<String, Method> methods;
@@ -75,7 +74,22 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         return "{lazy object functions arguments \"" + object + "\"";
     }
 
-    private static Method boundMethodMerge(Method a, Method b) {
+    private static Method bridgeMethodMerge(Method a, Method b) {
+        final Method ret;
+
+        if (a.isBridge()) {
+            // It is possible to have multiple bridge methods for a single
+            // match, see TestBindMethods for how that can occur. This ensures
+            // we have consistent choices for multi-bridge scenarios.
+            ret = (b.isBridge()) ? chooseMostSpecificReturnType(a, b) : b;
+        } else {
+            ret = a;
+        }
+
+        return ret;
+    }
+
+    private static Method chooseMostSpecificReturnType(Method a, Method b) {
         final Class<?> aClazz = a.getReturnType();
         final Class<?> bClazz = b.getReturnType();
 
@@ -85,7 +99,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         } else if (bClazz.isAssignableFrom(aClazz)) {
             ret = a;
         } else {
-            throw new IllegalStateException("Method return conflict");
+            throw new IllegalStateException("Method return type conflict");
         }
 
         return ret;
