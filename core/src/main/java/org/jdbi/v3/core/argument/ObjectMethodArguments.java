@@ -75,33 +75,6 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     private static Method bridgeMethodMerge(Method a, Method b) {
-        final Method ret;
-
-        if (a.isBridge()) {
-            // It is possible to have multiple bridge methods for a single
-            // match, see TestBindMethods for how that can occur. This ensures
-            // we have consistent choices for multi-bridge scenarios.
-            ret = (b.isBridge()) ? chooseMostSpecificReturnType(a, b) : b;
-        } else {
-            ret = a;
-        }
-
-        return ret;
-    }
-
-    private static Method chooseMostSpecificReturnType(Method a, Method b) {
-        final Class<?> aClazz = a.getReturnType();
-        final Class<?> bClazz = b.getReturnType();
-
-        final Method ret;
-        if (aClazz.isAssignableFrom(bClazz)) {
-            ret = b;
-        } else if (bClazz.isAssignableFrom(aClazz)) {
-            ret = a;
-        } else {
-            throw new IllegalStateException("Method return type conflict");
-        }
-
-        return ret;
+        return (a.isBridge()) ? b : a;
     }
 }

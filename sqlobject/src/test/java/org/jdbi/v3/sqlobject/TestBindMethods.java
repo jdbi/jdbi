@@ -94,7 +94,7 @@ public class TestBindMethods {
     }
 
     @Test
-    public void testSanity() throws InstantiationException, IllegalAccessException {
+    public void testSanity() {
         final String methodName = "getColumnValue";
 
         // Only one bridge method expected.
