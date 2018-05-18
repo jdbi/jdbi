@@ -15,8 +15,8 @@ package org.jdbi.v3.core.result;
 
 import java.sql.ResultSetMetaData;
 
-public class EmptyResultSetMetaData implements ResultSetMetaData {
-    public static final EmptyResultSetMetaData INSTANCE = new EmptyResultSetMetaData();
+class EmptyResultSetMetaData implements ResultSetMetaData {
+    static final EmptyResultSetMetaData INSTANCE = new EmptyResultSetMetaData();
 
     private EmptyResultSetMetaData() {}
 
