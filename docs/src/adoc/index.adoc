@@ -327,9 +327,9 @@ You can bind multiple arguments at once from the entries of a `Map`:
 
 [source,java]
 ----
-Map<String, Object> params = new HashMap<>();
-params.put("id", 2)
-params.put("name", "Bob");
+Map<String, Object> contact = new HashMap<>();
+contact.put("id", 2)
+contact.put("name", "Bob");
 
 handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
       .bindMap(contact)
