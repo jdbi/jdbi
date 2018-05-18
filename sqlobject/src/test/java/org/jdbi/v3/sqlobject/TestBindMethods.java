@@ -219,7 +219,6 @@ public class TestBindMethods {
         public String toString() {
             return Objects.toString(this.value);
         }
-
     }
 
     public static final class BigIntNumberArgumentFactory extends AbstractArgumentFactory<Number> {
@@ -232,6 +231,5 @@ public class TestBindMethods {
         protected Argument build(final Number value, final ConfigRegistry config) {
             return new BigIntNumberArgument(value);
         }
-
     }
 }
