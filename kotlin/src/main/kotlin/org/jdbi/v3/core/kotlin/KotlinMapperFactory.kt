@@ -23,7 +23,7 @@ import java.util.*
 class KotlinMapperFactory : RowMapperFactory {
 
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
-        val erasedType = getErasedType(type);
+        val erasedType = getErasedType(type)
 
         return if (erasedType.isKotlinClass()) {
             Optional.of(KotlinMapper(erasedType))

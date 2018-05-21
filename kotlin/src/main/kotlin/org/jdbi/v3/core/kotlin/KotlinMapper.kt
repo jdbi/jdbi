@@ -16,6 +16,7 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.RowMapperFactory
 import org.jdbi.v3.core.mapper.SingleColumnMapper
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
@@ -38,22 +39,49 @@ import kotlin.reflect.jvm.jvmErasure
 
 private val nullValueRowMapper = RowMapper<Any?> { rs, ctx -> null }
 
-class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
-    private val kClass: KClass<*> = clazz.kotlin
+class KotlinMapper<T: Any>(clazz: Class<T>, private val prefix: String = "") : RowMapper<T> {
+
+    companion object {
+
+        /**
+         * Returns a mapper factory that maps to the given kotlin class
+         *
+         * @param type the mapped class
+         * @return a mapper factory that maps to the given kotlin class
+         */
+        fun factory(type: Class<*>): RowMapperFactory {
+            return RowMapperFactory.of(type, KotlinMapper(type))
+        }
+
+        /**
+         * Returns a mapper factory that maps to the given kotlin class
+         *
+         * @param type the mapped class
+         * @param prefix the column name prefix for each mapped kotlin property
+         * @return a mapper factory that maps to the given kotlin class
+         */
+        fun factory(type: Class<*>, prefix: String): RowMapperFactory {
+            return RowMapperFactory.of(type, KotlinMapper(type, prefix))
+        }
+
+
+    }
+
+    private val kClass = clazz.kotlin
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
     private val memberProperties = kClass.memberProperties.mapNotNull { it as? KMutableProperty1<*, *>}.filter { property ->
         !constructorParameters.any { parameter -> parameter.paramName() == property.propName() }
     }
 
-    private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
-    private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
+    private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper<*>>()
+    private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper<*>>()
 
-    override fun map(rs: ResultSet, ctx: StatementContext): Any {
+    override fun map(rs: ResultSet, ctx: StatementContext): T {
         return specialize(rs, ctx).map(rs, ctx)
     }
 
-    override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<Any> {
+    override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<T> {
         val columnNames = getColumnNames(rs)
         val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
         val unmatchedColumns = columnNames.toMutableSet()
@@ -77,7 +105,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                             columnNames: List<String>,
                             columnNameMatchers: List<ColumnNameMatcher>,
                             unmatchedColumns: MutableSet<String>
-    ): RowMapper<Any> {
+    ): RowMapper<T> {
         val constructorParameterMappers = constructorParameters.associate { parameter ->
             parameter to getConstructorParameterProvider(rs, ctx, parameter, columnNames, columnNameMatchers, unmatchedColumns)
         }
@@ -201,14 +229,15 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         val annotation = this.javaField?.getAnnotation(ColumnName::class.java)
         return prefix + (annotation?.value ?: name)
     }
-}
 
-private fun <C : Any> findConstructor(kClass: KClass<C>) = kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
+    private fun <T : Any> findConstructor(kClass: KClass<T>) = kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
 
-private fun <C : Any> findSecondaryConstructor(kClass: KClass<C>): KFunction<C> {
-    if (kClass.constructors.size == 1) {
-        return kClass.constructors.first()
-    } else {
-        throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (cannot find appropriate constructor)")
+    private fun <T : Any> findSecondaryConstructor(kClass: KClass<T>): KFunction<T> {
+        if (kClass.constructors.size == 1) {
+            return kClass.constructors.first()
+        } else {
+            throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (cannot find appropriate constructor)")
+        }
     }
+
 }
