@@ -43,6 +43,15 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     /**
+     * Create a JdbiRule with an embedded Postgres instance that will be prepared by Flyway.<br>
+     * Your project must depend on the {@code otj-pg-embedded} artifact.
+     * @param migrationLocations classpath locations to scan recursively for flyway migrations. (default: db/migration)
+     */
+    public static JdbiRule preparedEmbeddedPostgres(final String... migrationLocations) {
+        return new PreparedEmbeddedPostgresJdbiRule(migrationLocations);
+    }
+
+    /**
      * Create a JdbiRule with an in-memory H2 database instance.
      * Your project must depend on the {@code h2} database artifact.
      */
