@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
+import org.flywaydb.core.Flyway;
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -30,9 +34,14 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private boolean installPlugins;
+    private String migrationScriptPath;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
-    protected abstract Jdbi createJdbi();
+    protected Jdbi createJdbi() {
+        return Jdbi.create(createDataSource());
+    }
+
+    protected abstract DataSource createDataSource();
 
     /**
      * Create a JdbiRule with an embedded Postgres instance.
@@ -49,10 +58,19 @@ public abstract class JdbiRule extends ExternalResource {
     public static JdbiRule h2() {
         return new JdbiRule() {
             @Override
-            protected Jdbi createJdbi() {
-                return Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
+            protected DataSource createDataSource() {
+                return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
             }
         };
+    }
+
+    public JdbiRule withFlywayMigration() {
+        return withFlywayMigration("db/migration");
+    }
+
+    public JdbiRule withFlywayMigration(String migrationScriptPath) {
+        this.migrationScriptPath = migrationScriptPath;
+        return this;
     }
 
     /**
@@ -74,6 +92,13 @@ public abstract class JdbiRule extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
+        if (migrationScriptPath != null) {
+            Flyway flyway = new Flyway();
+            flyway.setDataSource(createDataSource());
+            flyway.setLocations(migrationScriptPath);
+            flyway.migrate();
+        }
+
         jdbi = createJdbi();
         if (installPlugins) {
             jdbi.installPlugins();
