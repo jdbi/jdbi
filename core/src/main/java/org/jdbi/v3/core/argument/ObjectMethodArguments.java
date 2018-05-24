@@ -15,16 +15,15 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -34,9 +33,9 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
         .entryLoader((Class<?> type) ->
-            Stream.of(type.getMethods())
+            Arrays.stream(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
-                .collect(toMap(Method::getName, Function.identity())))
+                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge)))
         .build();
 
     private final Map<String, Method> methods;
@@ -73,5 +72,9 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     @Override
     public String toString() {
         return "{lazy object functions arguments \"" + object + "\"";
+    }
+
+    private static Method bridgeMethodMerge(Method a, Method b) {
+        return (a.isBridge()) ? b : a;
     }
 }
