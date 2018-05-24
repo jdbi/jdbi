@@ -31,17 +31,48 @@ import org.junit.rules.ExternalResource;
  */
 public abstract class JdbiRule extends ExternalResource {
 
+    private volatile DataSource dataSource;
     private Jdbi jdbi;
     private Handle handle;
     private boolean installPlugins;
     private String migrationScriptPath;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
-    protected Jdbi createJdbi() {
-        return Jdbi.create(createDataSource());
+    private Object mutex = new Object();
+
+    public JdbiRule() {
+        if (!(isOverridden("createJdbi") || isOverridden("createDataSource"))) {
+            throw new IllegalStateException("JdbiRule implementations must override at least one of createDataSource() (preferred) or createJdbi()");
+        }
     }
 
-    protected abstract DataSource createDataSource();
+    private boolean isOverridden(String methodName) {
+        try {
+            getClass().getDeclaredMethod(methodName);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    protected Jdbi createJdbi() {
+        return Jdbi.create(getDataSource());
+    }
+
+    protected DataSource createDataSource() {
+        throw new UnsupportedOperationException("JdbiRule must override createDataSource() to support this feature");
+    }
+
+    DataSource getDataSource() {
+        if (dataSource == null) {
+            synchronized (mutex) {
+                if (dataSource == null) {
+                    dataSource = createDataSource();
+                }
+            }
+        }
+        return dataSource;
+    }
 
     /**
      * Create a JdbiRule with an embedded Postgres instance.
@@ -64,12 +95,20 @@ public abstract class JdbiRule extends ExternalResource {
         };
     }
 
-    public JdbiRule withFlywayMigration() {
-        return withFlywayMigration("db/migration");
+    /**
+     * Run database migration scripts from {@code db/migration} on the classpath, using Flyway.
+     * @return this
+     */
+    public JdbiRule migrateWithFlyway() {
+        return migrateWithFlyway("db/migration");
     }
 
-    public JdbiRule withFlywayMigration(String migrationScriptPath) {
-        this.migrationScriptPath = migrationScriptPath;
+    /**
+     * Run database migration scripts from the given location on the classpath, using Flyway.
+     * @return this
+     */
+    public JdbiRule migrateWithFlyway(String location) {
+        this.migrationScriptPath = location;
         return this;
     }
 
@@ -94,7 +133,7 @@ public abstract class JdbiRule extends ExternalResource {
     protected void before() throws Throwable {
         if (migrationScriptPath != null) {
             Flyway flyway = new Flyway();
-            flyway.setDataSource(createDataSource());
+            flyway.setDataSource(getDataSource());
             flyway.setLocations(migrationScriptPath);
             flyway.migrate();
         }
@@ -111,6 +150,7 @@ public abstract class JdbiRule extends ExternalResource {
     protected void after() {
         handle.close();
         jdbi = null;
+        dataSource = null;
     }
 
     /**
