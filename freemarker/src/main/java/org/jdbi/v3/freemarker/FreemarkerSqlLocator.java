@@ -30,6 +30,7 @@ public class FreemarkerSqlLocator {
     static {
         Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         c.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
+        c.setNumberFormat("computer");
         CONFIGURATION = c;
     }
 
