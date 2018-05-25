@@ -58,12 +58,7 @@ public class ReflectionMapperUtil {
      * @param debugName          name of the parameter to use for debugging purposes (ie: when throwing exceptions)
      * @return {@link OptionalInt} with the found index, {@link OptionalInt#empty()} otherwise.
      */
-    public static OptionalInt findColumnIndex(
-        String paramName,
-        List<String> columnNames,
-        List<ColumnNameMatcher> columnNameMatchers,
-        Supplier<String> debugName
-    ) {
+    public static OptionalInt findColumnIndex(String paramName, List<String> columnNames, List<ColumnNameMatcher> columnNameMatchers, Supplier<String> debugName) {
         OptionalInt result = OptionalInt.empty();
 
         for (int i = 0; i < columnNames.size(); i++) {

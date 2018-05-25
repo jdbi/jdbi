@@ -19,11 +19,7 @@ import javax.annotation.Nullable;
 public final class Preconditions {
     private Preconditions() {}
 
-    public static void checkArgument(
-        boolean expression,
-        @Nullable String errorMessageTemplate,
-        @Nullable Object... errorMessageArgs
-    ) {
+    public static void checkArgument(boolean expression, @Nullable String errorMessageTemplate, @Nullable Object... errorMessageArgs) {
         if (!expression) {
             throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
         }
@@ -37,11 +33,7 @@ public final class Preconditions {
         return reference;
     }
 
-    public static void checkState(
-        boolean expression,
-        @Nullable String errorMessageTemplate,
-        @Nullable Object... errorMessageArgs
-    ) {
+    public static void checkState(boolean expression, @Nullable String errorMessageTemplate, @Nullable Object... errorMessageArgs) {
         if (!expression) {
             throw new IllegalStateException(format(errorMessageTemplate, errorMessageArgs));
         }

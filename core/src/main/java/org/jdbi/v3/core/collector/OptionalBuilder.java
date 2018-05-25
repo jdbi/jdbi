@@ -41,10 +41,7 @@ class OptionalBuilder<T, O> {
         return value == null ? empty.get() : factory.apply(value);
     }
 
-    static <T, OPT_T> OptionalBuilder<T, OPT_T> combine(
-        OptionalBuilder<T, OPT_T> left,
-        OptionalBuilder<T, OPT_T> right
-    ) {
+    static <T, OPT_T> OptionalBuilder<T, OPT_T> combine(OptionalBuilder<T, OPT_T> left, OptionalBuilder<T, OPT_T> right) {
         if (left.set && right.set) {
             throw tooManyValues(left.value, right.value);
         }

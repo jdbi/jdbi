@@ -61,8 +61,7 @@ public final class TypeResolver {
     return new TypeResolver(typeTable.where(mappings));
   }
 
-  private static void populateTypeMappings(
-      final Map<TypeVariableKey, Type> mappings, Type from, final Type to) {
+  private static void populateTypeMappings(final Map<TypeVariableKey, Type> mappings, Type from, final Type to) {
     if (from.equals(to)) {
       return;
     }
