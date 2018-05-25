@@ -17,21 +17,21 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 @SqlStatementCustomizingAnnotation(BindTime.Factory.class)
 public @interface BindTime {
 
-  class Factory implements SqlStatementCustomizerFactory {
-    @Override
-    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-      return stmt -> stmt.bind("now", OffsetDateTime.now(stmt.getConfig(Config.class).clock));
+    class Factory implements SqlStatementCustomizerFactory {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return stmt -> stmt.bind("now", OffsetDateTime.now(stmt.getConfig(Config.class).clock));
+        }
     }
-  }
 
-  class Config implements JdbiConfig<Config> {
-    public Clock clock;
+    class Config implements JdbiConfig<Config> {
+        public Clock clock;
 
-    @Override
-    public Config createCopy() {
-      Config copy = new Config();
-      copy.clock = this.clock;
-      return copy;
+        @Override
+        public Config createCopy() {
+            Config copy = new Config();
+            copy.clock = this.clock;
+            return copy;
+        }
     }
-  }
 }
