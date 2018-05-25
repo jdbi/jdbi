@@ -45,19 +45,19 @@ public class TestStatements {
     }
 
     @Test
-    public void testStatement() throws Exception {
+    public void testStatement() {
         int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isEqualTo(1);
     }
 
     @Test
-    public void testSimpleInsert() throws Exception {
+    public void testSimpleInsert() {
         int c = h.execute("insert into something (id, name) values (1, 'eric')");
         assertThat(c).isEqualTo(1);
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.createUpdate("update something set name = 'ERIC' where id = 1").execute();
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
@@ -65,7 +65,7 @@ public class TestStatements {
     }
 
     @Test
-    public void testSimpleUpdate() throws Exception {
+    public void testSimpleUpdate() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("update something set name = 'cire' where id = 1");
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
@@ -73,13 +73,25 @@ public class TestStatements {
     }
 
     @Test
-    public void testStatementWithRequiredResults() throws Exception {
+    public void testStatementWithRequiredResults() {
         assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst()).isInstanceOf(NoResultsException.class);
     }
 
     @Test
-    public void testStatementWithOptionalResults() throws Exception {
+    public void testStatementWithOptionalResults() {
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testStatementWithOptionalBeanResults() {
+        h.getConfig(ResultProducers.class).allowNoResults(true);
+        assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testStatementWithOptionalMapResults() {
+        h.getConfig(ResultProducers.class).allowNoResults(true);
+        assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
     }
 }
