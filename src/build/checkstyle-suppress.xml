@@ -17,5 +17,5 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress checks="InnerTypeLast|VariableDeclarationUsageDistance|NoFinalizer" files="[A-z]*Test[A-z]*\.java$"/>
+    <suppress checks="InnerTypeLast|VariableDeclarationUsageDistance|NoFinalizer" files="[A-z0-9_]*Test[A-z0-9_]*\.java$"/>
 </suppressions>
