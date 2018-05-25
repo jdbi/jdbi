@@ -30,17 +30,6 @@ public class TestHashPrefixSqlParser {
         ctx = mock(StatementContext.class);
     }
 
-    private String render(String sql) {
-        return render(sql, Collections.emptyMap());
-    }
-
-    private String render(String sql, Map<String, Object> attributes) {
-        StatementContext ctx = StatementContextAccess.createContext();
-        attributes.forEach(ctx::define);
-
-        return templateEngine.render(sql, ctx);
-    }
-
     @Test
     public void testNewlinesOkay() throws Exception {
         ParsedSql parsed = parser.parse("select * from something\n where id = #id", ctx);
