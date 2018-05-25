@@ -25,9 +25,9 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,15 +36,15 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListTest {
-    private static Handle handle;
+    private Handle handle;
 
-    private static List<Something> expectedSomethings;
+    private List<Something> expectedSomethings;
 
-    @ClassRule
-    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
+    @Rule
+    public final H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @BeforeClass
-    public static void init() {
+    @Before
+    public void before() {
         final Jdbi db = dbRule.getJdbi();
         db.installPlugin(new SqlObjectPlugin());
         db.registerRowMapper(new SomethingMapper());
@@ -59,8 +59,8 @@ public class BindListTest {
         expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
     }
 
-    @AfterClass
-    public static void exit() {
+    @After
+    public void after() {
         handle.close();
     }
 
