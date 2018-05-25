@@ -38,6 +38,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class TestDocumentation {
     @Rule
@@ -77,9 +78,7 @@ public class TestDocumentation {
 
     @Test
     public void testObtainHandleViaOpen() throws Exception {
-        try (Handle handle = dbRule.getJdbi().open()) {
-            // TODO?
-        }
+        assertThatCode(dbRule.getJdbi()::open).doesNotThrowAnyException();
     }
 
     @Test
