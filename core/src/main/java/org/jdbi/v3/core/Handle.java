@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -34,8 +37,6 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * This represents a connection to the database system. It is a wrapper around
@@ -77,8 +78,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.config.set(config);
     }
 
-    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> conf) {
-        this.config = conf;
+    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
+        this.config = config;
     }
 
     /**
@@ -501,8 +502,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.extensionMethod.set(extensionMethod);
     }
 
-    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> method) {
-        this.extensionMethod = requireNonNull(method);
+    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
+        this.extensionMethod = requireNonNull(extensionMethod);
     }
 
     private class TransactionResetter implements Closeable {

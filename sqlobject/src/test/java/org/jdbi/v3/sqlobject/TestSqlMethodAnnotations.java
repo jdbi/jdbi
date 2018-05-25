@@ -66,7 +66,7 @@ public class TestSqlMethodAnnotations {
     public @interface Foo {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier h) throws Exception {
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
                 return "foo";
             }
         }

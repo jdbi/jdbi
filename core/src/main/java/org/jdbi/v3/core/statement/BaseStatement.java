@@ -73,8 +73,8 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         return typedThis;
     }
 
-    void addCustomizers(final Collection<StatementCustomizer> cust) {
-        this.customizers.addAll(cust);
+    void addCustomizers(final Collection<StatementCustomizer> customizers) {
+        this.customizers.addAll(customizers);
     }
 
     /**

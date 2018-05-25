@@ -63,9 +63,9 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     }
 
     @Override
-    public <V> V invokeInContext(ExtensionMethod method, ConfigRegistry conf, Callable<V> task) throws Exception {
-        return JdbiThreadLocals.invokeInContext(this.extensionMethod, method,
-                () -> JdbiThreadLocals.invokeInContext(this.config, conf, task));
+    public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
+        return JdbiThreadLocals.invokeInContext(this.extensionMethod, extensionMethod,
+                () -> JdbiThreadLocals.invokeInContext(this.config, config, task));
     }
 
     @Override

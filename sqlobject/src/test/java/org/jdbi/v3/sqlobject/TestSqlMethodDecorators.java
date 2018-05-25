@@ -98,9 +98,9 @@ public class TestSqlMethodDecorators {
     public void testRegisteredDecorator() {
         handle.getConfig(HandlerDecorators.class).register(
                 (base, sqlObjectType, method) ->
-                        (obj, args, h) -> {
+                        (obj, args, handle) -> {
                             invoked("custom");
-                            return base.invoke(obj, args, h);
+                            return base.invoke(obj, args, handle);
                         });
 
         handle.attach(Dao.class).orderedFooBar();
@@ -167,9 +167,9 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, h) -> {
+                return (obj, args, handle) -> {
                     invoked("foo");
-                    return base.invoke(obj, args, h);
+                    return base.invoke(obj, args, handle);
                 };
             }
         }
@@ -182,9 +182,9 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, h) -> {
+                return (obj, args, handle) -> {
                     invoked("bar");
-                    return base.invoke(obj, args, h);
+                    return base.invoke(obj, args, handle);
                 };
             }
         }
@@ -196,7 +196,7 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, h) -> {
+                return (obj, args, handle) -> {
                     invoked("abort");
                     return null;
                 };
@@ -209,7 +209,7 @@ public class TestSqlMethodDecorators {
     public @interface CustomSqlOperation {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier h) throws Exception {
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
                 invoked("method");
                 return null;
             }

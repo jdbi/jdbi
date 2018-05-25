@@ -20,20 +20,20 @@ class OptionalBuilder<T, O> {
     private final Supplier<O> empty;
     private final Function<T, O> factory;
 
-    private boolean set;
-    private T value;
+    boolean set;
+    T value;
 
     OptionalBuilder(Supplier<O> empty, Function<T, O> factory) {
         this.empty = empty;
         this.factory = factory;
     }
 
-    void set(T val) {
+    void set(T value) {
         if (set) {
-            throw tooManyValues(this.value, val);
+            throw tooManyValues(this.value, value);
         }
 
-        this.value = val;
+        this.value = value;
         this.set = true;
     }
 
