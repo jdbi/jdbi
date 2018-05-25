@@ -1352,14 +1352,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
                 .parse(renderedSql, getContext());
-        String s = parsedSql.getSql();
+        String sql = parsedSql.getSql();
         getContext().setParsedSql(parsedSql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), s, getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, getContext());
             } else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), s, getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
             }
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, getContext());

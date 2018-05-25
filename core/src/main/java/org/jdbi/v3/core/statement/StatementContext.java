@@ -487,10 +487,10 @@ public class StatementContext implements Closeable {
     public void close() {
         SQLException exception = null;
         try {
-            List<Cleanable> clnables = new ArrayList<>(this.cleanables);
+            List<Cleanable> cleanables = new ArrayList<>(this.cleanables);
             this.cleanables.clear();
-            Collections.reverse(clnables);
-            for (Cleanable cleanable : clnables) {
+            Collections.reverse(cleanables);
+            for (Cleanable cleanable : cleanables) {
                 try {
                     cleanable.close();
                 } catch (SQLException e) {

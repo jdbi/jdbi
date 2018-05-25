@@ -55,12 +55,12 @@ public class TestGuavaCollectors {
 
     @Before
     public void addData() {
-        ImmutableList.Builder<Integer> ints = ImmutableList.builder();
+        ImmutableList.Builder<Integer> expected = ImmutableList.builder();
         for (int i = 0; i < 10; i++) {
             dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
-            ints.add(i);
+            expected.add(i);
         }
-        this.expected = ints.build();
+        this.expected = expected.build();
     }
 
     @Test

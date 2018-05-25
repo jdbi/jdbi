@@ -84,9 +84,7 @@
         <module name="ConstantName"/>
         <!--<module name="DeclarationOrder"/>-->
         <module name="EqualsAvoidNull"/>
-        <module name="HiddenField">
-            <property name="tokens" value="VARIABLE_DEF,LAMBDA"/>
-        </module>
+        <!--<module name="HiddenField"/>-->
         <module name="InnerTypeLast"/>
         <module name="MissingDeprecated"/>
         <module name="MissingOverride"/>

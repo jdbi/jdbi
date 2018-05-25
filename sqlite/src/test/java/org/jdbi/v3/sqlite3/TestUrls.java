@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestUrls {
 
-    private Handle handle;
+    Handle handle;
 
     @Before
     public void setUp() throws Exception {
         Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
         jdbi.installPlugin(new SQLitePlugin());
         handle = jdbi.open();
-        handle.useTransaction(h -> h.execute("CREATE TABLE foo(url URL);"));
+        handle.useTransaction(handle -> handle.execute("CREATE TABLE foo(url URL);"));
     }
 
     @After

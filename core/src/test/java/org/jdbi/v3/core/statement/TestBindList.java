@@ -13,7 +13,11 @@
  */
 package org.jdbi.v3.core.statement;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
@@ -21,9 +25,6 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class TestBindList {
     @Rule
@@ -62,14 +63,14 @@ public class TestBindList {
     public void testBindListWithHashPrefixParser() throws Exception {
         Jdbi jdbi = Jdbi.create(dbRule.getConnectionFactory());
         jdbi.setSqlParser(new HashPrefixSqlParser());
-        jdbi.useHandle(h -> {
-            h.registerRowMapper(FieldMapper.factory(Thing.class));
-            h.createUpdate("insert into thing (<columns>) values (<values>)")
+        jdbi.useHandle(handle -> {
+            handle.registerRowMapper(FieldMapper.factory(Thing.class));
+            handle.createUpdate("insert into thing (<columns>) values (<values>)")
                   .defineList("columns", "id", "foo")
                   .bindList("values", 3, "abc")
                   .execute();
 
-            List<Thing> list = h.createQuery("select id, foo from thing where id in (<ids>)")
+            List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
                                      .bindList("ids", 1, 3)
                                      .mapTo(Thing.class)
                                      .list();
