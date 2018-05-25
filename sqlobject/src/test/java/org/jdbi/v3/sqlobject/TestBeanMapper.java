@@ -235,11 +235,11 @@ public class TestBeanMapper {
         Optional<Folder> getFolder(int folderId);
 
         @SqlQuery("select "
-                + "f.id f_id, f.name f_name, "
-                + "d.id d_id, d.name d_name, d.contents d_contents "
-                + "from folders f left join documents d "
-                + "on f.id = d.folder_id "
-                + "order by f.name, d.name")
+            + "f.id f_id, f.name f_name, "
+            + "d.id d_id, d.name d_name, d.contents d_contents "
+            + "from folders f left join documents d "
+            + "on f.id = d.folder_id "
+            + "order by f.name, d.name")
         @RegisterBeanMapper(value = Folder.class, prefix = "f")
         @RegisterBeanMapper(value = Document.class, prefix = "d")
         @UseRowReducer(FolderDocReducer.class)
