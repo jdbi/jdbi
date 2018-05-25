@@ -76,9 +76,8 @@ public class TypeToken<T> extends TypeCapture<T> {
     public final Class<? super T> getRawType() {
         // For wildcard or type variable, the first bound determines the runtime type.
         Class<?> rawType = getRawTypes().iterator().next();
-        // raw type is |T|
-        @SuppressWarnings("unchecked")
-        Class<? super T> result = (Class<? super T>) rawType;
+        @SuppressWarnings("unchecked") // raw type is |T|
+                Class<? super T> result = (Class<? super T>) rawType;
         return result;
     }
 

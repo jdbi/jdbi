@@ -179,8 +179,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             result = new ResultIterator<Object>() {
                 ResultIterator<?> batchResult;
                 boolean closed = false; {
-                    // Ensure our batchResult is prepared, so we can get its context
-                    hasNext();
+                    hasNext(); // Ensure our batchResult is prepared, so we can get its context
                 }
 
                 @Override
@@ -207,8 +206,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                         batch.add();
                     }
                     batchResult = executeBatch(handle, batch);
-                    // recurse to ensure we actually got elements
-                    return hasNext();
+                    return hasNext(); // recurse to ensure we actually got elements
                 }
 
                 @Override

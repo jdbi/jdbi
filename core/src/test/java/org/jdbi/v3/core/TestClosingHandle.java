@@ -13,9 +13,13 @@
  */
 package org.jdbi.v3.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
@@ -23,9 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestClosingHandle {
     @Rule
@@ -165,8 +166,7 @@ public class TestClosingHandle {
     @Test
     public void testCloseWithOpenContainerManagedTransaction() throws Exception {
         try (Connection conn = dbRule.getConnectionFactory().openConnection()) {
-            // open transaction
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // open transaction
 
             Handle handle = Jdbi.open(conn);
             handle.close();

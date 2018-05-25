@@ -13,21 +13,22 @@
  */
 package jdbi.doc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
-import org.jdbi.v3.core.Handle;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.argument.Argument;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArgumentsTest {
 
@@ -62,8 +63,7 @@ public class ArgumentsTest {
         @Override
         public void apply(int position, PreparedStatement statement, StatementContext ctx)
         throws SQLException {
-            // <1>
-            statement.setString(position, uuid.toString());
+            statement.setString(position, uuid.toString()); // <1>
         }
     }
 
@@ -79,15 +79,13 @@ public class ArgumentsTest {
 
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
-        UUIDArgumentFactory() {
-            // <1>
-            super(Types.VARCHAR);
+        public UUIDArgumentFactory() {
+            super(Types.VARCHAR); // <1>
         }
 
         @Override
         protected Argument build(UUID value, ConfigRegistry config) {
-            // <2>
-            return (position, statement, ctx) -> statement.setString(position, value.toString());
+            return (position, statement, ctx) -> statement.setString(position, value.toString()); // <2>
         }
     }
 

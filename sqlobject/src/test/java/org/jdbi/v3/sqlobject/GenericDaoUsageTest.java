@@ -37,8 +37,7 @@ public class GenericDaoUsageTest {
 
     @Test
     public void testSqlObjectUseGenericDaoInterface() {
-        // widening conversion
-        Dao<UserModel, Integer> dao = dbRule.getJdbi().onDemand(UserDao.class);
+        Dao<UserModel, Integer> dao = dbRule.getJdbi().onDemand(UserDao.class); // widening conversion
         dao.getById(1);
     }
 

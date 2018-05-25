@@ -13,17 +13,18 @@
  */
 package org.jdbi.v3.core.locator;
 
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jdbi.v3.core.Handle;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
 public class TestClasspathSqlLocator {
     @Rule
@@ -98,8 +99,7 @@ public class TestClasspathSqlLocator {
         assertThat(loadCount.get()).isEqualTo(1);
 
         findSqlOnClasspath("caches-result-after-first-lookup");
-        // has not increased since previous
-        assertThat(loadCount.get()).isEqualTo(1);
+        assertThat(loadCount.get()).isEqualTo(1); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(classLoader);
     }

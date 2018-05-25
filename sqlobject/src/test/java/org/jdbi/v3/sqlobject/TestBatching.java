@@ -194,12 +194,10 @@ public class TestBatching {
 
     public interface BadBatch {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
-        // whoops, no Iterable!
-        int[] insertBeans(@BindBean Something elements);
+        int[] insertBeans(@BindBean Something elements); // whoops, no Iterable!
 
         @SqlBatch("insert into something (id, name) values (0, '')")
-        // whoops, no parameters at all!
-        int[] insertBeans();
+        int[] insertBeans(); // whoops, no parameters at all!
     }
 
     public interface BooleanBatchDao {

@@ -45,8 +45,7 @@ public class TestBatch {
     public void testEmptyBatchThrows() throws Exception {
         try (Handle h = dbRule.openHandle()) {
             final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
-            // No parameters written yet
-            assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet
         }
     }
 }

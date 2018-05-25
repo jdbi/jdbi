@@ -41,15 +41,11 @@ public class TestSqlScripts {
 
         @SqlScript("INSERT INTO cool_table VALUES (5), (6), (7)")
         @SqlScript("DELETE FROM cool_table WHERE pk > 5")
-        // returns [ 3, 2 ]
-        int[] doSomeUpdates();
+        int[] doSomeUpdates(); // returns [ 3, 2 ]
 
-        // load external SQL!
-        @UseClasspathSqlLocator
-        // use the method name
-        @SqlScript
-        // or specify it yourself
-        @SqlScript("secondScript")
+        @UseClasspathSqlLocator // load external SQL!
+        @SqlScript // use the method name
+        @SqlScript("secondScript") // or specify it yourself
         int[] externalScript();
         // end::scripts[]
     }

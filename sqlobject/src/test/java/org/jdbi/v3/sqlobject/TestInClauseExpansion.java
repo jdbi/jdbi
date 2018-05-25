@@ -13,23 +13,24 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.google.common.collect.ImmutableSet;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
-import org.jdbi.v3.core.Handle;
+
+import com.google.common.collect.ImmutableSet;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class TestInClauseExpansion {
     @Rule
-    // Guava
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins(); // Guava
     private Handle handle;
 
     @Before

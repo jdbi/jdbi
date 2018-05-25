@@ -98,7 +98,7 @@
         <module name="StringLiteralEquality"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
-        <module name="TrailingComment"/>
+        <!--<module name="TrailingComment"/>-->
         <module name="VariableDeclarationUsageDistance"/>
 
         <module name="RegexpSinglelineJava">

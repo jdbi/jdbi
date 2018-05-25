@@ -109,8 +109,7 @@ abstract class ResultReturner {
     static class VoidReturner extends ResultReturner {
         @Override
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            // Make sure to consume the result
-            iterable.stream().forEach(i -> {});
+            iterable.stream().forEach(i -> {}); // Make sure to consume the result
             return null;
         }
 

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -21,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -34,8 +37,6 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
@@ -214,8 +215,7 @@ public class TestSqlArrays {
         assertThat(dao.getByIds(3)).containsExactly(c);
         assertThat(dao.getByIds(4)).containsExactly(d);
         assertThat(dao.getByIds(5)).containsExactly(e);
-        // Three, sir!
-        assertThat(dao.getByIds(1, 2, 5))
+        assertThat(dao.getByIds(1, 2, 5)) // Three, sir!
                 .containsExactly(a, b, e);
     }
 

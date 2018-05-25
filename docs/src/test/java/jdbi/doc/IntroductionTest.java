@@ -13,8 +13,11 @@
  */
 package jdbi.doc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Objects;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -24,15 +27,12 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class IntroductionTest {
 
     @Test
     public void core() {
         // tag::core[]
-        // (H2 in-memory database)
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
+        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test"); // (H2 in-memory database)
 
         List<User> users = jdbi.withHandle(handle -> {
             handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
@@ -42,8 +42,7 @@ public class IntroductionTest {
 
             // Positional parameters
             handle.createUpdate("INSERT INTO user(id, name) VALUES (?, ?)")
-                    // 0-based parameter indexes
-                    .bind(0, 1)
+                    .bind(0, 1) // 0-based parameter indexes
                     .bind(1, "Bob")
                     .execute();
 

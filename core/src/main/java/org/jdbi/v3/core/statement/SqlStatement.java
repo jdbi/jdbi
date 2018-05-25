@@ -1062,8 +1062,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private UnsupportedOperationException factoryNotFound(Type type, Object value) {
-        // not a ParameterizedType
-        if (type instanceof Class<?>) {
+        if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
             if (params.length > 0) {
                 return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)

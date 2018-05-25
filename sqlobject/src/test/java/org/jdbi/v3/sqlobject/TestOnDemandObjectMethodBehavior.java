@@ -52,8 +52,7 @@ public class TestOnDemandObjectMethodBehavior {
      */
     @Test
     public void testFinalizeDoesntConnect() throws Exception {
-        // Normally GC would do this, but just fake it
-        dao.finalize();
+        dao.finalize(); // Normally GC would do this, but just fake it
     }
 
 }

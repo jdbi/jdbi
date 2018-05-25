@@ -40,8 +40,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         if (GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
             .map(GenericTypes::getErasedType)
             .map(type -> !type.isAssignableFrom(getClass()))
-            // subclass is raw type.. ¯\_(ツ)_/¯
-            .orElse(false)) {
+            .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯
             throw new IllegalStateException("inconsistent SqlStatement hierarchy");
         }
     }
