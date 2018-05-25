@@ -26,9 +26,9 @@ import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,15 +36,14 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListNullTest {
-    private static final String SPY = "__test_spy";
-    private static Handle handle;
+    private Handle handle;
 
-    @ClassRule
-    public static final H2DatabaseRule DB_RULE = new H2DatabaseRule();
+    @Rule
+    public final H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @BeforeClass
-    public static void init() {
-        final Jdbi db = DB_RULE.getJdbi();
+    @Before
+    public void before() {
+        final Jdbi db = dbRule.getJdbi();
         db.registerRowMapper(new SomethingMapper());
         db.installPlugin(new SqlObjectPlugin());
         handle = db.open();
@@ -59,8 +58,8 @@ public class BindListNullTest {
         handle.execute("insert into something(id, name) values(7, '')");
     }
 
-    @AfterClass
-    public static void exit() {
+    @After
+    public void after() {
         handle.close();
     }
 
