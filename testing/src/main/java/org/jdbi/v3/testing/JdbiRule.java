@@ -14,6 +14,7 @@
 package org.jdbi.v3.testing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private boolean installPlugins;
-    private String migrationScriptPath;
+    private String[] migrationScriptPaths;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
     private Object mutex = new Object();
@@ -107,8 +108,8 @@ public abstract class JdbiRule extends ExternalResource {
      * Run database migration scripts from the given location on the classpath, using Flyway.
      * @return this
      */
-    public JdbiRule migrateWithFlyway(String location) {
-        this.migrationScriptPath = location;
+    public JdbiRule migrateWithFlyway(String... locations) {
+        this.migrationScriptPaths = locations;
         return this;
     }
 
@@ -131,10 +132,10 @@ public abstract class JdbiRule extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        if (migrationScriptPath != null) {
+        if (migrationScriptPaths != null) {
             Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
-            flyway.setLocations(migrationScriptPath);
+            flyway.setLocations(migrationScriptPaths);
             flyway.migrate();
         }
 
