@@ -27,7 +27,7 @@ import org.junit.runners.model.Statement;
 
 public class JdbiRuleTest {
   @Test
-  public void migrateWithFlwayDefaultLocation() throws Throwable {
+  public void migrateWithFlywayDefaultLocation() throws Throwable {
     JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway();
 
     Statement statement =
