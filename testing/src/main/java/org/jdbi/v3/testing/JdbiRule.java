@@ -37,7 +37,7 @@ public abstract class JdbiRule extends ExternalResource {
     private String[] migrationScriptPaths;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
-    private Object mutex = new Object();
+    private final Object mutex = new Object();
 
     public JdbiRule() {
         if (!(isOverridden("createJdbi") || isOverridden("createDataSource"))) {
@@ -62,7 +62,7 @@ public abstract class JdbiRule extends ExternalResource {
         throw new UnsupportedOperationException("JdbiRule must override createDataSource() to support this feature");
     }
 
-    DataSource getDataSource() {
+    private DataSource getDataSource() {
         if (dataSource == null) {
             synchronized (mutex) {
                 if (dataSource == null) {
