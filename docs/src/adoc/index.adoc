@@ -327,16 +327,16 @@ You can bind multiple arguments at once from the entries of a `Map`:
 
 [source,java]
 ----
-Map<String, Object> params = new HashMap<>();
-params.put("id", 2)
-params.put("name", "Bob");
+Map<String, Object> contact = new HashMap<>();
+contact.put("id", 2)
+contact.put("name", "Bob");
 
 handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
       .bindMap(contact)
       .execute();
 ----
 
-You can bind multiple values at once, from either a `List<T>` or a list of arguments. Note that this requires your binding to be written using the `<boundValue>` form (as opposed to ``:boundValue` for most of the other bindings.)
+You can bind multiple values at once, from either a `List<T>` or a list of arguments. Note that this requires your binding to be written using the `<boundValue>` form (as opposed to `:boundValue` for most of the other bindings.)
 
 [source,java]
 ----
@@ -348,8 +348,8 @@ handle.createQuery("SELECT value FROM items WHERE kind in (<listOfKinds>)")
       .bindList("listOfKinds", keys)
       .mapTo(String.class)
       .list();
-     
-// Or, using the `vararg` definition
+
+// Or, using the 'vararg' definition
 handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)")
       .bindList("varargListOfKinds", "user_name", "docs", "street", "library")
       .mapTo(String.class)
@@ -1913,7 +1913,7 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 Updates are operations that return an integer number of rows modified, such
 as a database *INSERT*, *UPDATE*, or *DELETE*.
 
-You can execute a simple update with `Handle`'s `int execute(String sql, Object... args)`
+You can execute a simple update with ``Handle``'s `int execute(String sql, Object... args)`
 method which binds simple positional parameters.
 
 [source,java,indent=0]
@@ -4012,7 +4012,7 @@ The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional libra
   It is possible to collect into a `Traversable<T>`, in this case a `List<T>`
   will be returned.
   For all interface types a sensible default implementation will be used
-  (e.q. `List<T>` for `Seq<T>`). Furthermore `Multimap<K, T>`s are backed by a `Seq<T>`
+  (e.q. `List<T>` for `Seq<T>`). Furthermore ``Multimap<K, T>``s are backed by a `Seq<T>`
   as default value container.
 * Columns can be mapped into Vavr's `Option<T>` type.
 * Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
