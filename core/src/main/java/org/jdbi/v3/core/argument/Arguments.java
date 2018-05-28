@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.core.argument.qualified.BuiltInQualifiedArgumentFactory;
-import org.jdbi.v3.core.argument.qualified.QualifiedArgumentFactory;
-import org.jdbi.v3.core.argument.qualified.QualifiedType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -36,8 +34,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
  * The factories are consulted in reverse order of registration (i.e. last-registered wins).
  */
 public class Arguments implements JdbiConfig<Arguments> {
-    private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
-    private final List<QualifiedArgumentFactory> qualifiedArgumentFactories = new CopyOnWriteArrayList<>();
+    private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
@@ -55,20 +52,24 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     private Arguments(Arguments that) {
-        argumentFactories.addAll(that.argumentFactories);
-        qualifiedArgumentFactories.addAll(that.qualifiedArgumentFactories);
+        factories.addAll(that.factories);
         untypedNullArgument = that.untypedNullArgument;
     }
 
     /**
-     * Registers the given argument factory.
+     * Registers the given argument factory for unqualified types.
      * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
      * @param factory the factory to add
      * @return this
      */
     public Arguments register(ArgumentFactory factory) {
-        argumentFactories.add(0, factory);
-        return this;
+        return register(adaptToQualified(factory));
+    }
+
+    private QualifiedArgumentFactory adaptToQualified(ArgumentFactory factory) {
+        return (type, value, config) -> type.getQualifiers().isEmpty()
+                ? factory.build(type.getType(), value, config)
+                : Optional.empty();
     }
 
     /**
@@ -78,7 +79,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return this
      */
     public Arguments register(QualifiedArgumentFactory factory) {
-        qualifiedArgumentFactories.add(0, factory);
+        factories.add(0, factory);
         return this;
     }
 
@@ -90,9 +91,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findFor(Type type, Object value) {
-        return argumentFactories.stream()
-                .flatMap(factory -> toStream(factory.build(type, value, registry)))
-                .findFirst();
+        return findFor(QualifiedType.of(type), value);
     }
 
     /**
@@ -103,11 +102,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findFor(QualifiedType type, Object value) {
-        if (type.getQualifiers().isEmpty()) {
-            return findFor(type.getType(), value);
-        }
-
-        return qualifiedArgumentFactories.stream()
+        return factories.stream()
             .flatMap(factory -> toStream(factory.build(type, value, registry)))
             .findFirst();
     }

@@ -11,13 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.qualified;
+package org.jdbi.v3.core.qualifier;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class QualifiedTypes {
+    private QualifiedTypes() {}
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface Qualifier {}
+    public static final QualifiedType NVARCHAR = QualifiedType.of(String.class, Qualifiers.NVARCHAR);
+}

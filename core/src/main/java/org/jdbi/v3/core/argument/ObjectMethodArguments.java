@@ -27,7 +27,7 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.argument.qualified.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 /**
  * Binds public methods with no parameters on a specified object.

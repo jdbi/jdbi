@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.argument.qualified.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

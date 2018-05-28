@@ -35,7 +35,7 @@ import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.argument.qualified.QualifiedType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypes;

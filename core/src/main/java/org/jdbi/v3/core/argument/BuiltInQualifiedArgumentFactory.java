@@ -11,11 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.qualified;
+package org.jdbi.v3.core.argument;
 
 import java.util.Optional;
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.QualifiedTypes;
 
 /**
  * Provides instances of {@link Argument} for qualified types:
@@ -24,7 +25,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * <li>{@code @NVarchar String} - bind the annotated element as NVARCHAR instead of VARCHAR</li>
  * </ul>
  */
-public enum BuiltInQualifiedArgumentFactory implements QualifiedArgumentFactory {
+enum BuiltInQualifiedArgumentFactory implements QualifiedArgumentFactory {
     INSTANCE;
 
     @Override

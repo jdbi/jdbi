@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.qualified;
+package org.jdbi.v3.core.qualifier;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -42,7 +42,7 @@ public class Qualifiers {
 
         @Override
         public String toString() {
-            return "@org.jdbi.v3.core.argument.qualified.NVarchar()";
+            return "@org.jdbi.v3.core.qualifier.NVarchar()";
         }
     };
 
