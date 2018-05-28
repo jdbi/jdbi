@@ -85,6 +85,8 @@
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
+        <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
+        <dep.pmd.version>6.0.1</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <findbugs.version>3.0.1</findbugs.version>
@@ -489,6 +491,27 @@
                     <sortProperties>true</sortProperties>
                     <keepBlankLines>true</keepBlankLines>
                     <sortDependencies>scope</sortDependencies>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <analysisCache>true</analysisCache>
+                    <verbose>true</verbose>
+                    <rulesets>
+                        <ruleset>${maven.multiModuleProjectDirectory}/src/build/pmd.xml</ruleset>
+                    </rulesets>
                 </configuration>
             </plugin>
         </plugins>
