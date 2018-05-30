@@ -14,7 +14,11 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.function.Consumer;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -43,7 +47,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
-        X stack = null;
+        Deque<X> stack = new ArrayDeque<>();
         while (true) {
             try {
                 return getDelegate().inTransaction(handle, callback);
@@ -55,16 +59,16 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     throw last;
                 }
 
-                // keep all exceptions thrown in the loop as a stack
-                if (stack == null) {
-                    stack = x;
-                } else {
-                    stack.addSuppressed(last);
-                }
+                stack.push(x);
+                config.onFailure.accept(new ArrayList<>(stack));
 
                 // no more attempts left? Throw ALL the exceptions! \o/
                 if (--attempts <= 0) {
-                    throw stack;
+                    X toThrow = stack.removeFirst();
+                    while (!stack.isEmpty()) {
+                        toThrow.addSuppressed(stack.removeFirst());
+                    }
+                    throw toThrow;
                 }
             }
         }
@@ -109,8 +113,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      */
     public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
+        private static final Consumer<List<Exception>> NOP = list -> {};
+
         private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
+        private Consumer<List<Exception>> onFailure = NOP;
 
         /**
          * @param maxRetries number of retry attempts before aborting
@@ -134,11 +141,21 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             return this;
         }
 
+        /**
+         * @param onFailure consumer to handle the list of failures so far (e.g. for logging). Will not be called with an empty list, nor with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * @return this
+         */
+        public Configuration setOnFailure(Consumer<List<Exception>> onFailure) {
+            this.onFailure = onFailure;
+            return this;
+        }
+
         @Override
         public Configuration createCopy() {
             return new Configuration()
                     .setMaxRetries(maxRetries)
-                    .setSerializationFailureSqlState(serializationFailureSqlState);
+                    .setSerializationFailureSqlState(serializationFailureSqlState)
+                    .setOnFailure(onFailure);
         }
     }
 }
