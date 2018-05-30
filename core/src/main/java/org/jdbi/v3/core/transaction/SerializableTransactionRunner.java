@@ -50,7 +50,9 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         Deque<X> stack = new ArrayDeque<>();
         while (true) {
             try {
-                return getDelegate().inTransaction(handle, callback);
+                R result = getDelegate().inTransaction(handle, callback);
+                config.onSuccess.accept(new ArrayList<>(stack));
+                return result;
             } catch (Exception last) {
                 X x = (X) last;
 
@@ -117,7 +119,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
 
         private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
-        private Consumer<List<Exception>> onFailure = NOP;
+        private Consumer<List<Exception>> onFailure = NOP, onSuccess = NOP;
 
         /**
          * @param maxRetries number of retry attempts before aborting
@@ -150,12 +152,22 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             return this;
         }
 
+        /**
+         * @param onSuccess consumer to handle the list of failures that occurred during a transaction run, after the run has completed successfully (e.g. for logging). Will hopefully be called with an empty list, but with the same list of exceptions as the one passed to onFailure otherwise. Will not be called with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * @return this
+         */
+        public Configuration setOnSuccess(Consumer<List<Exception>> onSuccess) {
+            this.onSuccess = onSuccess;
+            return this;
+        }
+
         @Override
         public Configuration createCopy() {
             return new Configuration()
                     .setMaxRetries(maxRetries)
                     .setSerializationFailureSqlState(serializationFailureSqlState)
-                    .setOnFailure(onFailure);
+                    .setOnFailure(onFailure)
+                    .setOnSuccess(onSuccess);
         }
     }
 }

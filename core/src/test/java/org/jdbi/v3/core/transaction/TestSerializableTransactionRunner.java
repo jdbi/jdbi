@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class TestSerializableTransactionRunner {
     private static final int RETRIES = 5;
@@ -41,6 +42,8 @@ public class TestSerializableTransactionRunner {
     public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
     private Consumer<List<Exception>> onFailure;
+    @Mock
+    private Consumer<List<Exception>> onSuccess;
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
@@ -50,7 +53,8 @@ public class TestSerializableTransactionRunner {
         dbRule.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
         dbRule.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
             .setMaxRetries(RETRIES)
-            .setOnFailure(onFailure);
+            .setOnFailure(onFailure)
+            .setOnSuccess(onSuccess);
     }
 
     @Test
@@ -92,7 +96,7 @@ public class TestSerializableTransactionRunner {
     }
 
     @Test
-    public void testOnFailureCallback() throws SQLException {
+    public void testFailureAndSuccessCallback() throws SQLException {
         AtomicInteger remaining = new AtomicInteger(4);
         AtomicInteger expectedExceptions = new AtomicInteger(1);
 
@@ -103,6 +107,12 @@ public class TestSerializableTransactionRunner {
             return null;
         }).when(onFailure).accept(anyList());
 
+        doAnswer(invocation -> {
+            assertThat((List<Exception>) invocation.getArgument(0))
+                .hasSize(3);
+            return null;
+        }).when(onSuccess).accept(anyList());
+
         dbRule.getJdbi().open().inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             if (remaining.decrementAndGet() == 0) {
                 return null;
@@ -111,6 +121,9 @@ public class TestSerializableTransactionRunner {
         });
 
         verify(onFailure, times(3)).accept(anyList());
+        verifyNoMoreInteractions(onFailure);
+        verify(onSuccess, times(1)).accept(anyList());
+        verifyNoMoreInteractions(onSuccess);
         assertThat(expectedExceptions.get()).isEqualTo(4);
     }
 }
