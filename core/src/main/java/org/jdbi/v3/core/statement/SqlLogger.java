@@ -27,15 +27,27 @@ public interface SqlLogger {
     SqlLogger NOP_SQL_LOGGER = new SqlLogger() {
     };
 
+    /**
+     * Will be called before a query is executed. Note that no timing information will be available in the {@link StatementContext} yet.
+     */
     default void logBeforeExecution(StatementContext context) {
     }
 
+    /**
+     * Will be called after a query has been executed. The {@link StatementContext} will contain a start {@link StatementContext#getExecutionMoment} and end {@link StatementContext#getCompletionMoment} time.
+     */
     default void logAfterExecution(StatementContext context) {
     }
 
+    /**
+     * Will be called after a query has failed. The {@link StatementContext} will contain a start {@link StatementContext#getExecutionMoment} and failure {@link StatementContext#getExceptionMoment} time.
+     */
     default void logException(StatementContext context, SQLException ex) {
     }
 
+    /**
+     * It's probably best not to override this method. It's only here due to architectural trade-off choices.
+     */
     default <T> T wrap(SqlLoggable<T> r, StatementContext ctx) throws SQLException {
         try {
             ctx.setExecutionMoment(Instant.now());
