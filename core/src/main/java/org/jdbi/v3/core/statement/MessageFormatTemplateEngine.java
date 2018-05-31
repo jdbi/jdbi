@@ -38,8 +38,10 @@ import java.util.Set;
  *         .invoke());
  * }</pre>
  */
-public enum MessageFormatTemplateEngine implements TemplateEngine {
-    INSTANCE;
+public class MessageFormatTemplateEngine implements TemplateEngine {
+    public static final TemplateEngine INSTANCE = new MessageFormatTemplateEngine();
+
+    private MessageFormatTemplateEngine() {}
 
     @Override
     public String render(String template, StatementContext ctx) {
