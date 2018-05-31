@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.testing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.sql.DataSource;
-
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
+
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * JUnit {@code @Rule} to manage a Jdbi instance pointed to a managed database.
@@ -35,10 +34,10 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private boolean installPlugins;
-    private String migrationScriptPath;
+    private String[] migrationScriptPaths;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
-    private Object mutex = new Object();
+    private final Object mutex = new Object();
 
     public JdbiRule() {
         if (!(isOverridden("createJdbi") || isOverridden("createDataSource"))) {
@@ -63,7 +62,7 @@ public abstract class JdbiRule extends ExternalResource {
         throw new UnsupportedOperationException("JdbiRule must override createDataSource() to support this feature");
     }
 
-    DataSource getDataSource() {
+    private DataSource getDataSource() {
         if (dataSource == null) {
             synchronized (mutex) {
                 if (dataSource == null) {
@@ -107,8 +106,8 @@ public abstract class JdbiRule extends ExternalResource {
      * Run database migration scripts from the given location on the classpath, using Flyway.
      * @return this
      */
-    public JdbiRule migrateWithFlyway(String location) {
-        this.migrationScriptPath = location;
+    public JdbiRule migrateWithFlyway(String... locations) {
+        this.migrationScriptPaths = locations;
         return this;
     }
 
@@ -131,10 +130,10 @@ public abstract class JdbiRule extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        if (migrationScriptPath != null) {
+        if (migrationScriptPaths != null) {
             Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
-            flyway.setLocations(migrationScriptPath);
+            flyway.setLocations(migrationScriptPaths);
             flyway.migrate();
         }
 

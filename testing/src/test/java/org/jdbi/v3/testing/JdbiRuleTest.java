@@ -27,7 +27,7 @@ import org.junit.runners.model.Statement;
 
 public class JdbiRuleTest {
   @Test
-  public void migrateWithFlwayDefaultLocation() throws Throwable {
+  public void migrateWithFlywayDefaultLocation() throws Throwable {
     JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway();
 
     Statement statement =
@@ -60,6 +60,28 @@ public class JdbiRuleTest {
                         .mapTo(String.class)
                         .findOnly())
                 .isEqualTo("inserted in migration script in a custom location");
+          }
+        };
+
+    rule.apply(statement, Description.EMPTY).evaluate();
+  }
+
+  @Test
+  public void migrateWithMultipleFlywayCustomLocations() throws Throwable {
+    JdbiRule rule = JdbiRule.embeddedPostgres()
+        .migrateWithFlyway("custom/migration/location", "custom/migration/otherlocation");
+
+    Statement statement =
+        new Statement() {
+          @Override
+          public void evaluate() {
+            assertThat(
+                    rule.getHandle()
+                        .select("select value from custom_migration_location")
+                        .mapTo(String.class)
+                        .list())
+                .containsOnly("inserted in migration script in a custom location",
+                    "inserted in migration script in another custom location");
           }
         };
 
