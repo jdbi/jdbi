@@ -67,9 +67,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                 // no more attempts left? Throw ALL the exceptions! \o/
                 if (--attempts <= 0) {
                     X toThrow = stack.removeFirst();
-                    while (!stack.isEmpty()) {
-                        toThrow.addSuppressed(stack.removeFirst());
-                    }
+                    stack.forEach(toThrow::addSuppressed);
                     throw toThrow;
                 }
             }
