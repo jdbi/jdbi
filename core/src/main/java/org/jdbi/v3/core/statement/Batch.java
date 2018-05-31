@@ -77,7 +77,7 @@ public class Batch extends BaseStatement<Batch> {
             }
 
             try {
-                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }

@@ -1,3 +1,7 @@
+3.3.0
+  - New API
+    - added informative callbacks to SerializableTransactionRunner
+
 3.2.0
   - New modules:
     - jdbi3-testing - JdbiRule test rule for JUnit tests
