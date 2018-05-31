@@ -47,11 +47,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
-        Deque<X> stack = new ArrayDeque<>();
+        Deque<X> failures = new ArrayDeque<>();
         while (true) {
             try {
                 R result = getDelegate().inTransaction(handle, callback);
-                config.onSuccess.accept(new ArrayList<>(stack));
+                config.onSuccess.accept(new ArrayList<>(failures));
                 return result;
             } catch (Exception last) {
                 X x = (X) last;
@@ -61,13 +61,15 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     throw last;
                 }
 
-                stack.push(x);
-                config.onFailure.accept(new ArrayList<>(stack));
+                failures.addLast(x);
+                config.onFailure.accept(new ArrayList<>(failures));
 
                 // no more attempts left? Throw ALL the exceptions! \o/
                 if (--attempts <= 0) {
-                    X toThrow = stack.removeFirst();
-                    stack.forEach(toThrow::addSuppressed);
+                    X toThrow = failures.removeLast();
+                    while (!failures.isEmpty()) {
+                        toThrow.addSuppressed(failures.removeLast());
+                    }
                     throw toThrow;
                 }
             }

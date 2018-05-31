@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class TestSerializableTransactionRunner {
-    private static final int RETRIES = 5;
+    private static final int MAX_RETRIES = 5;
 
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
@@ -52,7 +53,7 @@ public class TestSerializableTransactionRunner {
     public void setUp() throws Exception {
         dbRule.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
         dbRule.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
-            .setMaxRetries(RETRIES)
+            .setMaxRetries(MAX_RETRIES)
             .setOnFailure(onFailure)
             .setOnSuccess(onSuccess);
     }
@@ -63,19 +64,24 @@ public class TestSerializableTransactionRunner {
         Handle handle = dbRule.getJdbi().open();
 
         assertThatExceptionOfType(SQLException.class)
-                .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
-                        conn -> {
-                            attempts.incrementAndGet();
-                            throw new SQLException("serialization", "40001");
-                        }))
-                .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"))
-                .satisfies(e -> assertThat(e.getSuppressed()).hasSize(RETRIES));
-        assertThat(attempts.get()).isEqualTo(1 + RETRIES);
+            .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
+                conn -> {
+                    attempts.incrementAndGet();
+                    throw new SQLException("serialization", "40001", attempts.get());
+                }))
+            .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"))
+            .satisfies(e -> assertThat(e.getSuppressed())
+                .hasSize(MAX_RETRIES)
+                .describedAs("suppressed are ordered reverse chronologically, like a stack")
+                .isSortedAccordingTo(Comparator.comparing(ex -> ((SQLException) ex).getErrorCode()).reversed()))
+            .describedAs("thrown exception is chronologically last")
+            .satisfies(e -> assertThat(e.getErrorCode()).isEqualTo(((SQLException) e.getSuppressed()[0]).getErrorCode() + 1));
+        assertThat(attempts.get()).isEqualTo(1 + MAX_RETRIES);
     }
 
     @Test
     public void testEventuallySucceeds() throws Exception {
-        final AtomicInteger remaining = new AtomicInteger(RETRIES / 2);
+        final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
         Handle handle = dbRule.getJdbi().open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
@@ -97,33 +103,38 @@ public class TestSerializableTransactionRunner {
 
     @Test
     public void testFailureAndSuccessCallback() throws SQLException {
-        AtomicInteger remaining = new AtomicInteger(4);
+        AtomicInteger remainingAttempts = new AtomicInteger(MAX_RETRIES);
         AtomicInteger expectedExceptions = new AtomicInteger(1);
 
         doAnswer(invocation -> {
             assertThat((List<Exception>) invocation.getArgument(0))
-                .describedAs("should be called with " + expectedExceptions.get() + " exceptions")
-                .hasSize(expectedExceptions.getAndIncrement());
+                .hasSize(expectedExceptions.getAndIncrement())
+                .describedAs("ordered chronologically")
+                .isSortedAccordingTo(Comparator.comparing(e -> ((SQLException) e).getErrorCode()));
             return null;
         }).when(onFailure).accept(anyList());
 
         doAnswer(invocation -> {
             assertThat((List<Exception>) invocation.getArgument(0))
-                .hasSize(3);
+                .hasSize(MAX_RETRIES - 1)
+                .describedAs("ordered chronologically")
+                .isSortedAccordingTo(Comparator.comparing(e -> ((SQLException) e).getErrorCode()));
             return null;
         }).when(onSuccess).accept(anyList());
 
         dbRule.getJdbi().open().inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
-            if (remaining.decrementAndGet() == 0) {
+            if (remainingAttempts.decrementAndGet() == 0) {
                 return null;
             }
-            throw new SQLException("serialization", "40001");
+            // use vendor error code as order number
+            throw new SQLException("serialization", "40001", expectedExceptions.get());
         });
 
-        verify(onFailure, times(3)).accept(anyList());
+        assertThat(remainingAttempts.get()).isZero();
+        verify(onFailure, times(MAX_RETRIES - 1)).accept(anyList());
         verifyNoMoreInteractions(onFailure);
         verify(onSuccess, times(1)).accept(anyList());
         verifyNoMoreInteractions(onSuccess);
-        assertThat(expectedExceptions.get()).isEqualTo(4);
+        assertThat(expectedExceptions.get()).isEqualTo(MAX_RETRIES);
     }
 }
