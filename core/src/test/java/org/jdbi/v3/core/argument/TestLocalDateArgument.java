@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -50,7 +50,7 @@ public class TestLocalDateArgument {
         LocalDate date = LocalDate.of(2001, 1, 1);
 
         Optional<Argument> optionalArgument = factory.build(LocalDate.class, date, null);
-        assertTrue(optionalArgument.isPresent());
+        assertThat(optionalArgument).isPresent();
 
         Argument argument = optionalArgument.get();
         argument.apply(5, stmt, ctx);
