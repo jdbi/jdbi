@@ -1,6 +1,12 @@
 3.3.0
   - New API
     - added informative callbacks to SerializableTransactionRunner
+    - removed the wrap method on SqlLogger that was not supposed to be overridden by implementors
+  - Improvements
+    - MessageFormatTemplateEngine is not an enum anymore but a regular singleton
+    - added some extra javadoc to SqlLogger
+  - Bug fixes:
+    - mapToMap() no longer throws an exception on empty resultsets
 
 3.2.0
   - New modules:
