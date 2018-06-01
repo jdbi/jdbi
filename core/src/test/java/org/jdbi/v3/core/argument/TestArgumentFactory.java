@@ -85,8 +85,7 @@ public class TestArgumentFactory {
                            .mapTo(String.class)
                            .list();
 
-        assertThat(rs.get(0)).isEqualTo("Brian McCallister");
-        assertThat(rs.get(1)).isEqualTo("Henning S");
+        assertThat(rs).containsExactly("Brian McCallister", "Henning S");
     }
 
     public static class NameAF implements ArgumentFactory {
