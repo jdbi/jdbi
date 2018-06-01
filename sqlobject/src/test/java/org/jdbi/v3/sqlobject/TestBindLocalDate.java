@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Check that {@code LocalDate} values are correctly bound both as parameters
@@ -67,7 +67,7 @@ public class TestBindLocalDate {
         long id = dao.insert(date);
 
         LocalDate inserted = dao.findById(id);
-        assertEquals(date, inserted);
+        assertThat(inserted).isEqualTo(date);
     }
 
     /**
@@ -83,7 +83,7 @@ public class TestBindLocalDate {
         long id = dao.insert(date);
 
         Timestamp inserted = dao.findByIdAsTimestamp(id);
-        assertEquals(Timestamp.valueOf(date.atStartOfDay()), inserted);
+        assertThat(inserted).isEqualTo(Timestamp.valueOf(date.atStartOfDay()));
     }
 
     public interface Dao {
