@@ -1,9 +1,11 @@
 3.3.0
-  - JdbiRule.migrateWithFlyway() chaining method to run Flyway migrations on the test database
-    prior to running tests.
-  - [breaking] Refactored JdbiRule to have an abstract createDataSource() method instead of
-    createJdbi(). This was necessary to facilitate the migrateWithFlyway() feature above,
-    and pave the way for future additions.
+  - New API
+    - added informative callbacks to SerializableTransactionRunner
+    - JdbiRule.migrateWithFlyway() chaining method to run Flyway migrations on the test database
+      prior to running tests.
+    - [breaking] Refactored JdbiRule to have an abstract createDataSource() method instead of
+      createJdbi(). This was necessary to facilitate the migrateWithFlyway() feature above,
+      and pave the way for future additions.
 
 3.2.1
   - Fix IllegalArgumentException "URI is not hierarchical" in FreemarkerSqlLocator.

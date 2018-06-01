@@ -1377,7 +1377,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         beforeExecution(stmt);
 
         try {
-            getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::execute, getContext());
+            SqlLoggerUtil.wrap(stmt::execute, getContext(), getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
             try {
                 stmt.close();

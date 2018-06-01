@@ -80,10 +80,10 @@ public class FreemarkerSqlLocatorTest {
 
     @Test
     public void testDefinedBeanList() throws Exception {
-        handle.execute("insert into something (id, name) values (6, 'Martin')");
+        handle.execute("insert into something (id, name) values (6666666, 'Martin')");
         handle.execute("insert into something (id, name) values (7, 'Peter')");
 
-        List<String> s = handle.attach(Wombat.class).findNamesForSomethings(Arrays.asList(new Something(6, "Martin"), new Something(7, "Peter")));
+        List<String> s = handle.attach(Wombat.class).findNamesForSomethings(Arrays.asList(new Something(6666666, "Martin"), new Something(7, "Peter")));
         assertThat(s.size()).isEqualTo(2);
         assertThat(s).containsExactly("Martin", "Peter");
     }

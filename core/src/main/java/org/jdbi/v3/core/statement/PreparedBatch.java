@@ -164,7 +164,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution(stmt);
 
             try {
-                final int[] rs = getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+                final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
 
                 afterExecution(stmt);
 
