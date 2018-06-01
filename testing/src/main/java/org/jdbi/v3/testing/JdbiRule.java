@@ -39,28 +39,7 @@ public abstract class JdbiRule extends ExternalResource {
 
     private final Object mutex = new Object();
 
-    public JdbiRule() {
-        if (!(isOverridden("createJdbi") || isOverridden("createDataSource"))) {
-            throw new IllegalStateException("JdbiRule implementations must override at least one of createDataSource() (preferred) or createJdbi()");
-        }
-    }
-
-    private boolean isOverridden(String methodName) {
-        try {
-            getClass().getDeclaredMethod(methodName);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
-    protected Jdbi createJdbi() {
-        return Jdbi.create(getDataSource());
-    }
-
-    protected DataSource createDataSource() {
-        throw new UnsupportedOperationException("JdbiRule must override createDataSource() to support this feature");
-    }
+    protected abstract DataSource createDataSource();
 
     private DataSource getDataSource() {
         if (dataSource == null) {
@@ -137,7 +116,7 @@ public abstract class JdbiRule extends ExternalResource {
             flyway.migrate();
         }
 
-        jdbi = createJdbi();
+        jdbi = Jdbi.create(getDataSource());
         if (installPlugins) {
             jdbi.installPlugins();
         }
