@@ -57,7 +57,7 @@ public class TestBatchGeneratedKeys {
     @Test
     public void testBeanReturn() throws Exception {
         Something[] people = b.insertNamesToBean(Arrays.asList("a", "b", "c", "d", "e"));
-        assertThat(people.length).isEqualTo(5);
+        assertThat(people).hasSize(5);
         for (int i = 0; i < people.length; i++) {
             assertThat(people[i].getId()).isEqualTo(i + 1);
             assertThat(people[i].getName()).isEqualTo(nameByIndex(i));
@@ -67,7 +67,7 @@ public class TestBatchGeneratedKeys {
     @Test
     public void testVarargsList() throws Exception {
         List<Something> people = b.insertVarargs("a", "b", "c", "d", "e");
-        assertThat(people.size()).isEqualTo(5);
+        assertThat(people).hasSize(5);
         for (int i = 0; i < people.size(); i++) {
             assertThat(people.get(i).getId()).isEqualTo(i + 1);
             assertThat(people.get(i).getName()).isEqualTo(nameByIndex(i));

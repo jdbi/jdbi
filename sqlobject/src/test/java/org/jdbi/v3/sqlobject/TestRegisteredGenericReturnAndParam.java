@@ -45,7 +45,7 @@ public class TestRegisteredGenericReturnAndParam {
         R restriction = provider.getRestriction();
         food.insertTopping(id, topping);
         List<Topping<T>> toppings = food.getToppings(id, restriction);
-        assertThat(toppings.size()).isEqualTo(1);
+        assertThat(toppings).hasSize(1);
         assertThat(toppings.get(0).value).isEqualTo(topping);
     }
 

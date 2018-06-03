@@ -77,7 +77,7 @@ public class TestQueries {
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
-        assertThat(r.get(0)).isEqualTo(new Something(1, "eric"));
+        assertThat(r).startsWith(new Something(1, "eric"));
     }
 
     @Test
@@ -111,8 +111,8 @@ public class TestQueries {
 
         ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
-        String name = query.list().get(0);
-        assertThat(name).isEqualTo("eric");
+        List<String> r = query.list();
+        assertThat(r).startsWith("eric");
     }
 
     @Test

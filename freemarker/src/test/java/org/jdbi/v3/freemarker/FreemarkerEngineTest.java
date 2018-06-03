@@ -63,9 +63,7 @@ public class FreemarkerEngineTest {
         handle.execute("insert into something (id, name) values (7, 'Wolf')");
 
         List<String> s = handle.attach(Wombat.class).findNamesByDefinedIds(Arrays.asList(6L, 7L));
-        assertThat(s.size()).isEqualTo(2);
-        assertThat(s.get(0)).isEqualTo("Jack");
-        assertThat(s.get(1)).isEqualTo("Wolf");
+        assertThat(s).containsExactly("Jack", "Wolf");
     }
 
     @UseFreemarkerEngine

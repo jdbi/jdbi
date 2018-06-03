@@ -25,10 +25,11 @@ import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BindListNullPostgresTest {
     @Rule
@@ -59,7 +60,7 @@ public class BindListNullPostgresTest {
 
         final List<Something> out = s.get(null);
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @Test
@@ -68,7 +69,7 @@ public class BindListNullPostgresTest {
 
         final List<Something> out = s.get(new ArrayList<Object>());
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @Test
@@ -77,7 +78,7 @@ public class BindListNullPostgresTest {
 
         final List<Something> out = s.get(Arrays.asList("bla", "null"));
 
-        Assert.assertEquals(2, out.size());
+        assertThat(out).hasSize(2);
     }
 
     @UseFreemarkerEngine
