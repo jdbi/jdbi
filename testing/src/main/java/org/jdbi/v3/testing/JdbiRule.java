@@ -82,7 +82,7 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     /**
-     * Run database migration scripts from the given location on the classpath, using Flyway.
+     * Run database migration scripts from the given locations on the classpath, using Flyway.
      * @return this
      */
     public JdbiRule migrateWithFlyway(String... locations) {
