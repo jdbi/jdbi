@@ -24,76 +24,77 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 public class JdbiRuleTest {
-  @Test
-  public void migrateWithFlywayDefaultLocation() throws Throwable {
-    JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway();
+    @Test
+    public void migrateWithFlywayDefaultLocation() throws Throwable {
+        JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway();
 
-    Statement statement =
-        new Statement() {
+        Statement statement =
+            new Statement() {
+              @Override
+              public void evaluate() {
+                assertThat(
+                        rule.getHandle()
+                            .select("select value from standard_migration_location")
+                            .mapTo(String.class)
+                            .findOnly())
+                    .isEqualTo("inserted in migration script in the default location");
+              }
+            };
+
+        rule.apply(statement, Description.EMPTY).evaluate();
+    }
+
+    @Test
+    public void migrateWithFlywayCustomLocation() throws Throwable {
+        JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway("custom/migration/location");
+
+        Statement statement =
+            new Statement() {
+              @Override
+              public void evaluate() {
+                assertThat(
+                        rule.getHandle()
+                            .select("select value from custom_migration_location")
+                            .mapTo(String.class)
+                            .findOnly())
+                    .isEqualTo("inserted in migration script in a custom location");
+              }
+            };
+
+        rule.apply(statement, Description.EMPTY).evaluate();
+    }
+
+    @Test
+    public void migrateWithMultipleFlywayCustomLocations() throws Throwable {
+        JdbiRule rule =
+            JdbiRule.embeddedPostgres()
+                .migrateWithFlyway("custom/migration/location", "custom/migration/otherlocation");
+
+        Statement statement =
+            new Statement() {
+              @Override
+              public void evaluate() {
+                assertThat(
+                        rule.getHandle()
+                            .select("select value from custom_migration_location")
+                            .mapTo(String.class)
+                            .list())
+                    .containsOnly(
+                        "inserted in migration script in a custom location",
+                        "inserted in migration script in another custom location");
+              }
+            };
+
+        rule.apply(statement, Description.EMPTY).evaluate();
+    }
+
+    @Test
+    public void subclassOverridingCreatedataSource() {
+        new JdbiRule() {
           @Override
-          public void evaluate() {
-            assertThat(
-                    rule.getHandle()
-                        .select("select value from standard_migration_location")
-                        .mapTo(String.class)
-                        .findOnly())
-                .isEqualTo("inserted in migration script in the default location");
+          protected DataSource createDataSource() {
+            return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
           }
         };
-
-    rule.apply(statement, Description.EMPTY).evaluate();
-  }
-
-  @Test
-  public void migrateWithFlywayCustomLocation() throws Throwable {
-    JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway("custom/migration/location");
-
-    Statement statement =
-        new Statement() {
-          @Override
-          public void evaluate() {
-            assertThat(
-                    rule.getHandle()
-                        .select("select value from custom_migration_location")
-                        .mapTo(String.class)
-                        .findOnly())
-                .isEqualTo("inserted in migration script in a custom location");
-          }
-        };
-
-    rule.apply(statement, Description.EMPTY).evaluate();
-  }
-
-  @Test
-  public void migrateWithMultipleFlywayCustomLocations() throws Throwable {
-    JdbiRule rule = JdbiRule.embeddedPostgres()
-        .migrateWithFlyway("custom/migration/location", "custom/migration/otherlocation");
-
-    Statement statement =
-        new Statement() {
-          @Override
-          public void evaluate() {
-            assertThat(
-                    rule.getHandle()
-                        .select("select value from custom_migration_location")
-                        .mapTo(String.class)
-                        .list())
-                .containsOnly(
-                    "inserted in migration script in a custom location",
-                    "inserted in migration script in another custom location");
-          }
-        };
-
-    rule.apply(statement, Description.EMPTY).evaluate();
-  }
-
-  @Test
-  public void subclassOverridingCreatedataSource() {
-    new JdbiRule() {
-      @Override
-      protected DataSource createDataSource() {
-        return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
-      }
-    };
-  }
+    }
 }
