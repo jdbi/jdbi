@@ -13,15 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -31,6 +27,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestCreateSqlObjectAnnotation {
     @Rule
@@ -44,7 +43,6 @@ public class TestCreateSqlObjectAnnotation {
         handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
-
 
     @Test
     public void testSimpleCreate() throws Exception {
@@ -107,8 +105,8 @@ public class TestCreateSqlObjectAnnotation {
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() throws Exception {
         expectedException.expect(UnableToCreateSqlObjectException.class);
-        expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
-                "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
+        expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
+            + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
 
         dbRule.getJdbi().open().attach(BogusSqlUpdateDao.class);
     }
@@ -121,8 +119,8 @@ public class TestCreateSqlObjectAnnotation {
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() throws Exception {
         expectedException.expect(UnableToCreateSqlObjectException.class);
-        expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
-                "so should return void, int[], or boolean[] but is returning: int");
+        expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
+            + "so should return void, int[], or boolean[] but is returning: int");
 
         dbRule.getJdbi().open().attach(BogusSqlBatchDao.class);
     }

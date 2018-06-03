@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -71,7 +70,6 @@ public class TestPostgresBugs {
 
         assertThat(s).isEqualTo(new Something(1, "Brian"));
     }
-
 
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends Transactional<Dao> {

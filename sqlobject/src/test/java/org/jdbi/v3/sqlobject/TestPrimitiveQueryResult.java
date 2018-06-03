@@ -34,8 +34,8 @@ public class TestPrimitiveQueryResult {
 
     @Before
     public void setUp() {
-      dao = dbRule.getSharedHandle().attach(PrimitiveDao.class);
-      dao.insert(1, "foo");
+        dao = dbRule.getSharedHandle().attach(PrimitiveDao.class);
+        dao.insert(1, "foo");
     }
 
     @Test

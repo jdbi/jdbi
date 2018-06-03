@@ -80,9 +80,11 @@
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>3.4</dep.antlr.version>
+        <dep.checkstyle.version>8.10</dep.checkstyle.version>
         <dep.dokka.version>0.9.16</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
+        <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <findbugs.version>3.0.1</findbugs.version>
@@ -437,6 +439,7 @@
                     <configuration>
                         <configLocation>/src/build/checkstyle.xml</configLocation>
                         <suppressionsLocation>/src/build/checkstyle-suppress.xml</suppressionsLocation>
+                        <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
                     </configuration>
                 </plugin>
                 <plugin>

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Objects;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -34,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+        + "where :name is null or name = :name "
+        + "order by id";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
@@ -214,8 +215,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalInt()
-    {
+    public void testBindOptionalInt() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalInt.empty())
                 .collectInto(OptionalInt.class))
@@ -228,8 +228,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalLong()
-    {
+    public void testBindOptionalLong() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalLong.empty())
                 .collectInto(OptionalLong.class))
@@ -242,8 +241,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalDouble()
-    {
+    public void testBindOptionalDouble() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalDouble.empty())
                 .collectInto(OptionalDouble.class))
@@ -260,6 +258,11 @@ public class TestOptional {
 
         Name(String value) {
             this.value = value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
 
         @Override

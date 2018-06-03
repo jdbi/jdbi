@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

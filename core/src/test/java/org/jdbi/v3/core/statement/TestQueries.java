@@ -54,7 +54,9 @@ public class TestQueries {
 
     @After
     public void doTearDown() throws Exception {
-        if (h != null) h.close();
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test
@@ -282,7 +284,6 @@ public class TestQueries {
          .add(2, "Keith")
          .add(3, "Eric")
          .execute();
-
 
         assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)

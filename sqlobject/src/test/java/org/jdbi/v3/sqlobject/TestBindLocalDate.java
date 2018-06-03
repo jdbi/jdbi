@@ -46,10 +46,9 @@ public class TestBindLocalDate {
     public void setUp() {
         handle = rule.getSharedHandle();
         dao = handle.attach(Dao.class);
-        handle.execute("" +
-            "create table bind_local_date_test (" +
-            "   id int auto_increment primary key," +
-            "   date_column timestamp not null)");
+        handle.execute("create table bind_local_date_test ("
+            + " id int auto_increment primary key,"
+            + " date_column timestamp not null)");
     }
 
     @After

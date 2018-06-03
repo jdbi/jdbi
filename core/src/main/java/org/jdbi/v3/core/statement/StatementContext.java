@@ -66,12 +66,12 @@ public class StatementContext implements Closeable {
 
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
-    private String            rawSql;
-    private String            renderedSql;
-    private ParsedSql         parsedSql;
+    private String rawSql;
+    private String renderedSql;
+    private ParsedSql parsedSql;
     private PreparedStatement statement;
-    private Connection        connection;
-    private Binding           binding = new Binding();
+    private Connection connection;
+    private Binding binding = new Binding();
 
     private boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];
@@ -102,7 +102,6 @@ public class StatementContext implements Closeable {
     public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
         return config.get(configClass);
     }
-
 
     /**
      * @return the {@code ConfigRegistry} this context owns

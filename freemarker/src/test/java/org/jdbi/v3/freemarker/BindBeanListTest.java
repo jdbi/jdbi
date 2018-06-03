@@ -22,28 +22,27 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.freemarker.UseFreemarkerEngine;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindBeanList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BindBeanListTest {
-    private static Handle handle;
+    private Handle handle;
 
-    private static List<Something> expectedSomethings;
+    private List<Something> expectedSomethings;
 
-    @ClassRule
-    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
+    @Rule
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @BeforeClass
-    public static void init() {
+    @Before
+    public void before() {
         final Jdbi db = dbRule.getJdbi();
         db.installPlugin(new SqlObjectPlugin());
         db.registerRowMapper(new SomethingMapper());
@@ -58,8 +57,8 @@ public class BindBeanListTest {
         expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
     }
 
-    @AfterClass
-    public static void exit() {
+    @After
+    public void after() {
         handle.close();
     }
 

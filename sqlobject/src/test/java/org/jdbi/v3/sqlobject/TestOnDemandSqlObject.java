@@ -134,7 +134,9 @@ public class TestOnDemandSqlObject {
         Spiffy spiffy = db.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
-        try (ResultIterator<Something> all = spiffy.findAll()) {}
+        try (ResultIterator<Something> all = spiffy.findAll()) {
+            // skip
+        }
 
         assertThat(tracker.hasOpenedHandle()).isFalse();
     }
@@ -206,7 +208,9 @@ public class TestOnDemandSqlObject {
 
         boolean hasOpenedHandle() throws SQLException {
             for (Handle h : openedHandle) {
-                if (!h.getConnection().isClosed()) return true;
+                if (!h.getConnection().isClosed()) {
+                    return true;
+                }
             }
             return false;
         }

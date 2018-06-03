@@ -13,10 +13,7 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Connection;
-
 import org.jdbi.v3.core.Handle;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestLocalTransactionHandler {
     @Rule
@@ -45,8 +44,9 @@ public class TestLocalTransactionHandler {
         Mockito.when(h.rollback()).thenThrow(inner);
 
         try {
-            new LocalTransactionHandler().inTransaction(h,
-                x -> { throw outer; });
+            new LocalTransactionHandler().inTransaction(h, x -> {
+                throw outer;
+            });
         } catch (RuntimeException e) {
             assertThat(e).isSameAs(outer);
             assertThat(e.getSuppressed()).hasSize(1);

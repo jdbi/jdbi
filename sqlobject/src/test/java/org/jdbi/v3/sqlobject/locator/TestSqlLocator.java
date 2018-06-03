@@ -13,10 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.locator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -28,51 +25,53 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestSqlLocator {
-  @Rule
-  public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    @Rule
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
-  @Test
-  public void testLocateConfigDriven() {
-    Jdbi jdbi = dbRule.getJdbi();
-    jdbi.useHandle(h -> {
-      h.execute("create table something (id int, name text)");
+    @Test
+    public void testLocateConfigDriven() {
+        Jdbi jdbi = dbRule.getJdbi();
+        jdbi.useHandle(h -> {
+            h.execute("create table something (id int, name text)");
 
-      h.execute("insert into something (id, name) values (?, ?)", 2, "Alice");
-      h.execute("insert into something (id, name) values (?, ?)", 1, "Bob");
-    });
+            h.execute("insert into something (id, name) values (?, ?)", 2, "Alice");
+            h.execute("insert into something (id, name) values (?, ?)", 1, "Bob");
+        });
 
-    jdbi.getConfig(SqlObjects.class).setSqlLocator(
-        (type, method, config) -> config.get(TestConfig.class).sql);
+        jdbi.getConfig(SqlObjects.class).setSqlLocator(
+            (type, method, config) -> config.get(TestConfig.class).sql);
 
-    jdbi.getConfig(TestConfig.class).sql = "select * from something order by id";
-    assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
-      .containsExactly(new Something(1, "Bob"), new Something(2, "Alice"));
+        jdbi.getConfig(TestConfig.class).sql = "select * from something order by id";
+        assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+            .containsExactly(new Something(1, "Bob"), new Something(2, "Alice"));
 
-    jdbi.getConfig(TestConfig.class).sql = "select * from something order by name";
-    assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
-      .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
-  }
-
-  public static class TestConfig implements JdbiConfig<TestConfig> {
-    String sql;
-
-    public TestConfig() {}
-
-    private TestConfig(TestConfig that) {
-      this.sql = that.sql;
+        jdbi.getConfig(TestConfig.class).sql = "select * from something order by name";
+        assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+            .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
     }
 
-    @Override
-    public TestConfig createCopy() {
-      return new TestConfig(this);
-    }
-  }
+    public static class TestConfig implements JdbiConfig<TestConfig> {
+        String sql;
 
-  @RegisterBeanMapper(Something.class)
-  public interface TestDao {
-    @SqlQuery
-    List<Something> list();
-  }
+        public TestConfig() {}
+
+        private TestConfig(TestConfig that) {
+            this.sql = that.sql;
+        }
+
+        @Override
+        public TestConfig createCopy() {
+            return new TestConfig(this);
+        }
+    }
+
+    @RegisterBeanMapper(Something.class)
+    public interface TestDao {
+        @SqlQuery
+        List<Something> list();
+    }
 
 }

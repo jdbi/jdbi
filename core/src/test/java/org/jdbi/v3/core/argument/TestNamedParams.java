@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -26,6 +23,8 @@ import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestNamedParams {
     @Rule
@@ -51,9 +50,9 @@ public class TestNamedParams {
         h.execute("insert into something (id, name) values (?, ?)", 2, "Eric");
         h.execute("insert into something (id, name) values (?, ?)", 3, "Erin");
 
-        List<Something> r = h.createQuery("select id, name from something " +
-                                          "where name like :name " +
-                                          "order by id")
+        List<Something> r = h.createQuery("select id, name from something "
+            + "where name like :name "
+            + "order by id")
                 .bind("name", "Eri%")
                 .mapToBean(Something.class)
                 .list();
@@ -266,12 +265,12 @@ public class TestNamedParams {
         args.put("id", 0);
         args.put("name", "Keith");
         s.bindMap(args);
-        int insert_count = s.execute();
+        int insertCount = s.execute();
 
         Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
         final Something fromDb = q.mapToBean(Something.class).findOnly();
 
-        assertThat(insert_count).isEqualTo(1);
+        assertThat(insertCount).isEqualTo(1);
         assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
     }
 
@@ -284,10 +283,12 @@ public class TestNamedParams {
         s.bindMap(args);
         s.bindBean(new Object() {
             @SuppressWarnings("unused")
-            public String getName() { return "Keith"; }
+            public String getName() {
+                return "Keith";
+            }
         });
-        int insert_count = s.execute();
-        assertThat(insert_count).isEqualTo(1);
+        int insertCount = s.execute();
+        assertThat(insertCount).isEqualTo(1);
         Something something = h.createQuery("select id, name from something").mapToBean(Something.class).findOnly();
         assertThat(something).isEqualTo(new Something(0, "Keith"));
     }

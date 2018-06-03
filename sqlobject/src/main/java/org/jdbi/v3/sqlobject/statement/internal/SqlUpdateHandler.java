@@ -75,20 +75,19 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     private boolean isNumeric(Class<?> type) {
-        return Number.class.isAssignableFrom(type) ||
-                type.equals(int.class) ||
-                type.equals(long.class) ||
-                type.equals(void.class);
+        return Number.class.isAssignableFrom(type)
+            || type.equals(int.class)
+            || type.equals(long.class)
+            || type.equals(void.class);
     }
 
     private boolean isBoolean(Class<?> type) {
-        return type.equals(boolean.class) ||
-                type.equals(Boolean.class);
+        return type.equals(boolean.class) || type.equals(Boolean.class);
     }
 
     private String invalidReturnTypeMessage(Method method, Type returnType) {
-        return method.getDeclaringClass().getSimpleName() + "." + method.getName() +
-                " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: " +
-                returnType;
+        return method.getDeclaringClass().getSimpleName() + "." + method.getName()
+                + " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: "
+                + returnType;
     }
 }

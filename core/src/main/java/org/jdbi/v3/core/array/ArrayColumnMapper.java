@@ -58,7 +58,7 @@ class ArrayColumnMapper implements ColumnMapper<Object> {
                 if (componentType.equals(ary.getClass().getComponentType())) {
                     return ary;
                 }
-            } catch (SQLFeatureNotSupportedException swallowed) {
+            } catch (SQLFeatureNotSupportedException ignore) {
                 // fall through
             }
         }

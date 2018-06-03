@@ -58,8 +58,8 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
     protected AbstractArgumentFactory(int sqlType) {
         this.sqlType = sqlType;
         Type argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
-                .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName() +
-                        " must extend AbstractArgumentFactory with a concrete T parameter"));
+                .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName()
+                    + " must extend AbstractArgumentFactory with a concrete T parameter"));
 
         if (argumentType instanceof Class) {
             Class<?> argumentClass = (Class<?>) argumentType;

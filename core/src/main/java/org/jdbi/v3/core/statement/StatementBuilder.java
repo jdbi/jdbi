@@ -65,7 +65,6 @@ public interface StatementBuilder {
      */
     CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException;
 
-
     /**
      * Called to close an individual prepared statement created from this builder.
      *

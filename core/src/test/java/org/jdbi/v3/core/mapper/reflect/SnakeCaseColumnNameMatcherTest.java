@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import org.jdbi.v3.core.mapper.reflect.SnakeCaseColumnNameMatcher;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -16,15 +16,13 @@ package org.jdbi.v3.freemarker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.freemarker.FreemarkerSqlLocatorTest.SomethingMapper;
-import org.jdbi.v3.freemarker.UseFreemarkerEngine;
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.After;
 import org.junit.Before;

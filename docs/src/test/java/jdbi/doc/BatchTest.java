@@ -1,10 +1,7 @@
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Collection;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.Batch;
@@ -15,6 +12,8 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchTest {
 
@@ -73,10 +72,16 @@ public class BatchTest {
         private final String name;
 
         Fruit(int id, String name) {
-            this.id = id; this.name = name;
+            this.id = id;
+            this.name = name;
         }
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

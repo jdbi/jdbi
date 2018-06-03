@@ -13,16 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -31,7 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestFoldToObjectGraph {
     @Rule
@@ -43,15 +40,15 @@ public class TestFoldToObjectGraph {
     @Before
     public void setUp() throws Exception {
         handle = dbRule.getSharedHandle();
-        handle.execute("create table team (name varchar(100), " +
-                       "                    mascot varchar(100)," +
-                       "                    primary key (name))");
+        handle.execute("create table team (name varchar(100), "
+            + " mascot varchar(100),"
+            + " primary key (name))");
 
-        handle.execute("create table person(name varchar(100), " +
-                       "                     role varchar(100), " +
-                       "                     team varchar(100)," +
-                       "                     primary key (name)," +
-                       "                     foreign key (team) references team(name))");
+        handle.execute("create table person(name varchar(100), "
+            + " role varchar(100), "
+            + " team varchar(100),"
+            + " primary key (name),"
+            + " foreign key (team) references team(name))");
 
         handle.prepareBatch("insert into team (name, mascot) values (?, ?)")
               .add("A-Team", "The Van")
@@ -76,7 +73,6 @@ public class TestFoldToObjectGraph {
         this.expected = ImmutableMap.of("Hogan's Heroes", hogans,
                                         "A-Team", ateam);
 
-
     }
 
     @Test
@@ -86,11 +82,11 @@ public class TestFoldToObjectGraph {
     }
 
     public interface Dao {
-        @SqlQuery("select t.name as teamName, " +
-                  "       t.mascot as mascot, " +
-                  "       p.name as personName, " +
-                  "       p.role as role " +
-                  "from team t inner join person p on (t.name = p.team)")
+        @SqlQuery("select t.name as teamName, "
+            + " t.mascot as mascot, "
+            + " p.name as personName, "
+            + " p.role as role "
+            + "from team t inner join person p on (t.name = p.team)")
         @RegisterBeanMapper(TeamPersonJoinRow.class)
         Iterator<TeamPersonJoinRow> findAllTeamsAndPeople();
 
@@ -108,7 +104,6 @@ public class TestFoldToObjectGraph {
             return acc;
         }
     }
-
 
     public static class Team {
         private final String name;
@@ -134,8 +129,12 @@ public class TestFoldToObjectGraph {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Team that = (Team) o;
 
@@ -169,8 +168,12 @@ public class TestFoldToObjectGraph {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Person person = (Person) o;
 

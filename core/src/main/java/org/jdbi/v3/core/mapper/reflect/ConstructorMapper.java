@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,12 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
@@ -156,8 +155,8 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
         RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
+            && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
 
             throw new IllegalArgumentException(String.format(
                 "Mapping constructor-injected type %s could not match parameters for columns: %s",
@@ -187,17 +186,17 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                 final int columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
                     () -> debugName(parameter))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Constructor '%s' parameter '%s' has no column in the result set. " +
-                            "Verify that the Java compiler is configured to emit parameter names, " +
-                            "that your result set has the columns expected, or annotate the " +
-                            "parameter names explicitly with @ColumnName",
+                        "Constructor '%s' parameter '%s' has no column in the result set. "
+                            + "Verify that the Java compiler is configured to emit parameter names, "
+                            + "that your result set has the columns expected, or annotate the "
+                            + "parameter names explicitly with @ColumnName",
                         constructor,
                         paramName
                    )));
 
                 final Type type = parameter.getParameterizedType();
                 mappers[i] = ctx.findColumnMapperFor(type)
-                    .map(mapper -> new SingleColumnMapper(mapper, columnIndex + 1))
+                    .map(mapper -> new SingleColumnMapper<>(mapper, columnIndex + 1))
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
                         "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
                         type, paramName, constructor)));
