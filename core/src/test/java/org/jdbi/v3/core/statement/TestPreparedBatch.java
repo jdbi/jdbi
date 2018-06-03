@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class TestPreparedBatch {
     @Rule
@@ -70,9 +71,9 @@ public class TestPreparedBatch {
         }
         b.execute();
 
-        int row_count = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
+        int rowCount = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
 
-        assertThat(row_count).isEqualTo(count);
+        assertThat(rowCount).isEqualTo(count);
     }
 
     @Test
@@ -177,10 +178,8 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+        assertThat(r).extracting(Something::getId, Something::getName)
+                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -197,10 +196,8 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+        assertThat(r).extracting(Something::getId, Something::getName)
+                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -218,10 +215,7 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<PublicSomething> r = h.createQuery("select * from something order by id").mapTo(PublicSomething.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(s -> s.id, s -> s.name).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(s -> s.id, s -> s.name).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(s -> s.id, s -> s.name).containsSequence(3, "Keith");
+        assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     public static class PublicSomething {

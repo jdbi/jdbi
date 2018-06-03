@@ -326,9 +326,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     }
 
     private static String invalidReturnTypeMessage(Method method) {
-        return method.getDeclaringClass() + "." + method.getName() +
-                " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: " +
-                method.getReturnType();
+        return method.getDeclaringClass() + "." + method.getName()
+                + " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: "
+                + method.getReturnType();
     }
 
     private interface ChunkSizeFunction {

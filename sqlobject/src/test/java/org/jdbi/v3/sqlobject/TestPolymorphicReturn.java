@@ -54,7 +54,6 @@ public class TestPolymorphicReturn {
         assertThatThrownBy(() -> dao.getBad("Fluffy is sad :(")).isInstanceOf(UnsupportedOperationException.class);
     }
 
-
     @RegisterBeanMapper(Sheep.class)
     public interface SheepDao {
         @RegisterBeanMapper(FlyingSheep.class)

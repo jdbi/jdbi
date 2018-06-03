@@ -29,7 +29,7 @@ class URLArgumentFactory extends AbstractArgumentFactory<URL> {
     /**
      * Constructs an {@link ArgumentFactory} for type {@code URL}.
      */
-    public URLArgumentFactory() {
+    URLArgumentFactory() {
         super(Types.VARCHAR);
     }
 

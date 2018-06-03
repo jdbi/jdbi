@@ -244,7 +244,7 @@ public class GuavaCollectors {
         private final TypeVariable<Class<Multimap>> multimapKey;
         private final TypeVariable<Class<Multimap>> multimapValue;
 
-        public Factory() {
+        Factory() {
             TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
             multimapKey = multimapParams[0];
             multimapValue = multimapParams[1];

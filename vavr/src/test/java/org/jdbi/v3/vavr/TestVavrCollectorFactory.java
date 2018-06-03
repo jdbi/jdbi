@@ -42,8 +42,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVavrCollectorFactory {
 
@@ -55,42 +54,42 @@ public class TestVavrCollectorFactory {
     }
 
     @Test
-    public void testAcceptCollectionImplementationTypes_shouldSucceed() {
-        assertTrue(unit.accepts(new GenericType<Array<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Vector<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<List<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Stream<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Queue<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<PriorityQueue<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<HashSet<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<LinkedHashSet<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<TreeSet<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<HashMap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<LinkedHashMap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<TreeMap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<HashMultimap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<LinkedHashMultimap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<TreeMultimap<?, ?>>() {}.getType()));
+    public void testAcceptCollectionImplementationTypesShouldSucceed() {
+        assertThat(unit.accepts(new GenericType<Array<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Vector<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<List<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Stream<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Queue<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<PriorityQueue<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<HashSet<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<LinkedHashSet<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<TreeSet<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<HashMap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<LinkedHashMap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<TreeMap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<HashMultimap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<LinkedHashMultimap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<TreeMultimap<?, ?>>() {}.getType())).isTrue();
     }
 
     @Test
-    public void testAcceptNonVavrCollection_shouldFail() {
-        assertFalse(unit.accepts(new GenericType<java.util.List<?>>() {}.getType()));
-        assertFalse(unit.accepts(new GenericType<java.util.Map<?, ?>>() {}.getType()));
+    public void testAcceptNonVavrCollectionShouldFail() {
+        assertThat(unit.accepts(new GenericType<java.util.List<?>>() {}.getType())).isFalse();
+        assertThat(unit.accepts(new GenericType<java.util.Map<?, ?>>() {}.getType())).isFalse();
     }
 
     @Test
-    public void testAcceptCollectionSuperTypes_shouldSucceed() {
-        assertTrue(unit.accepts(new GenericType<Traversable<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Seq<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<IndexedSeq<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<LinearSeq<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Set<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<SortedSet<?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Map<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<SortedMap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<Multimap<?, ?>>() {}.getType()));
-        assertTrue(unit.accepts(new GenericType<SortedMultimap<?, ?>>() {}.getType()));
+    public void testAcceptCollectionSuperTypesShouldSucceed() {
+        assertThat(unit.accepts(new GenericType<Traversable<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Seq<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<IndexedSeq<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<LinearSeq<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Set<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<SortedSet<?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Map<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<SortedMap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<Multimap<?, ?>>() {}.getType())).isTrue();
+        assertThat(unit.accepts(new GenericType<SortedMultimap<?, ?>>() {}.getType())).isTrue();
     }
 
 }

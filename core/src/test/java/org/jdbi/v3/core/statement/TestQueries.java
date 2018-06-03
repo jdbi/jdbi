@@ -54,7 +54,9 @@ public class TestQueries {
 
     @After
     public void doTearDown() throws Exception {
-        if (h != null) h.close();
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test
@@ -75,7 +77,7 @@ public class TestQueries {
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
-        assertThat(r.get(0)).isEqualTo(new Something(1, "eric"));
+        assertThat(r).startsWith(new Something(1, "eric"));
     }
 
     @Test
@@ -109,8 +111,8 @@ public class TestQueries {
 
         ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
-        String name = query.list().get(0);
-        assertThat(name).isEqualTo("eric");
+        List<String> r = query.list();
+        assertThat(r).startsWith("eric");
     }
 
     @Test
@@ -282,7 +284,6 @@ public class TestQueries {
          .add(2, "Keith")
          .add(3, "Eric")
          .execute();
-
 
         assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)

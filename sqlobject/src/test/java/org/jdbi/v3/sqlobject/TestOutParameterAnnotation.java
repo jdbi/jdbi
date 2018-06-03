@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Types;
-
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
+import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOutParameterAnnotation {
     @Rule
@@ -62,7 +61,7 @@ public class TestOutParameterAnnotation {
 
     public interface MyDao {
         @SqlCall("{call set100(:outparam)}")
-        @OutParameter(name="outparam", sqlType = Types.INTEGER)
+        @OutParameter(name = "outparam", sqlType = Types.INTEGER)
         OutParameters callStoredProc();
 
         @SqlCall("{call swap(:a, :b, :c, :d)}")

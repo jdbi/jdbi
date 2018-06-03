@@ -131,7 +131,6 @@ public class TestHStore {
         assertThat(campaignDao.getCampaignsCaps(3)).isEqualTo(caps);
     }
 
-
     public interface CampaignDao {
 
         @SqlQuery("select caps from campaigns where id=:id")

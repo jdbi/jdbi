@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -29,11 +26,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+
+import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 /**
  * Inspect a {@link java.beans} style object and bind parameters
@@ -51,8 +50,8 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
                     .collect(toMap(PropertyDescriptor::getName, Function.identity()));
             } catch (IntrospectionException e) {
                 throw new UnableToCreateStatementException(
-                    "Failed to introspect object which is supposed to be used to " +
-                    "set named args for a statement via JavaBean properties", e);
+                    "Failed to introspect object which is supposed to be used to "
+                        + "set named args for a statement via JavaBean properties", e);
             }
         })
         .build();
@@ -90,8 +89,8 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         Method getter = descriptor.getReadMethod();
 
         if (getter == null) {
-            throw new UnableToCreateStatementException(String.format("No getter method found for " +
-                    "bean property [%s] on [%s]",
+            throw new UnableToCreateStatementException(String.format("No getter method found for "
+                    + "bean property [%s] on [%s]",
                 name, object), ctx);
         }
 

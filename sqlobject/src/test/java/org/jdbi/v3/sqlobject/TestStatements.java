@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestStatements {
     @Rule
@@ -30,11 +30,11 @@ public class TestStatements {
     public void testInsert() throws Exception {
         dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
-            int rows_affected = i.insert(2, "Diego");
+            int rowsAffected = i.insert(2, "Diego");
 
             String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
-            assertThat(rows_affected).isEqualTo(1);
+            assertThat(rowsAffected).isEqualTo(1);
             assertThat(name).isEqualTo("Diego");
         });
     }

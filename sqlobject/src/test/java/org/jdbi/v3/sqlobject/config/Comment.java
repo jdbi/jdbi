@@ -50,11 +50,15 @@ public class Comment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Comment comment = (Comment) o;
-        return id == comment.id &&
-                Objects.equals(content, comment.content);
+        return id == comment.id
+                && Objects.equals(content, comment.content);
     }
 
     @Override
@@ -64,9 +68,9 @@ public class Comment {
 
     @Override
     public String toString() {
-        return "Comment{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                '}';
+        return "Comment{"
+                + "id=" + id
+                + ", content='" + content + '\''
+                + '}';
     }
 }

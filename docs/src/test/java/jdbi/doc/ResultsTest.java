@@ -223,10 +223,10 @@ public class ResultsTest {
         handle.registerRowMapper(BeanMapper.factory(ContactBean.class, "c"));
         handle.registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"));
         handle.registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class));
-        List<JoinRow> contactPhones = handle.select("select " +
-                "c.id cid, c.name cname, " +
-                "p.id pid, p.name pname, p.number pnumber " +
-                "from contacts c left join phones p on c.id = p.contact_id")
+        List<JoinRow> contactPhones = handle.select("select "
+                + "c.id cid, c.name cname, "
+                + "p.id pid, p.name pname, p.number pnumber "
+                + "from contacts c left join phones p on c.id = p.contact_id")
                 .mapTo(JoinRow.class)
                 .list();
         // end::beanMapperPrefix[]

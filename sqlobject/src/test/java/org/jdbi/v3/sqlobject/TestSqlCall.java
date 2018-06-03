@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
@@ -71,7 +70,6 @@ public class TestSqlCall {
         @RegisterRowMapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
     }
-
 
     public static int insertSomething(Connection conn, int id, String name) throws SQLException {
 

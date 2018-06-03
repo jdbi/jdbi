@@ -69,7 +69,7 @@ public class Batch extends BaseStatement<Batch> {
             try {
                 for (String part : parts) {
                     final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
-                    LOG.trace("  {}", sql);
+                    LOG.trace(" {}", sql);
                     stmt.addBatch(sql);
                 }
             } catch (SQLException e) {
@@ -77,7 +77,7 @@ public class Batch extends BaseStatement<Batch> {
             }
 
             try {
-                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }

@@ -38,11 +38,11 @@ public class TestVavrTupleMapperWithDB {
 
     @Before
     public void addData() {
-        dbRule.getSharedHandle().execute("create table tuples (" +
-                "t1 int, " +
-                "t2 varchar(10), " +
-                "t3 varchar(255), " +
-                ")");
+        dbRule.getSharedHandle().execute("create table tuples ("
+                + "t1 int, "
+                + "t2 varchar(10), "
+                + "t3 varchar(255), "
+                + ")");
         for (Integer i : expected) {
             dbRule.getSharedHandle().execute("insert into tuples values (?, ?, ?)",
                     i, "t2" + i, "t3" + (i + 1));
@@ -50,7 +50,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testMapToTuple1_shouldSucceed() {
+    public void testMapToTuple1ShouldSucceed() {
         Tuple1<String> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t2 from tuples order by t1 asc")
                 .mapTo(new GenericType<Tuple1<String>>() {})
@@ -60,7 +60,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testTuple1CollectorWithSingleSelect_shouldSucceed() {
+    public void testTuple1CollectorWithSingleSelectShouldSucceed() {
         List<Tuple1<String>> expectedTuples = expected.map(i -> new Tuple1<>("t2" + i));
         List<Tuple1<String>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t2 from tuples")
@@ -70,7 +70,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testTuple1CollectorWithMultiSelect_shouldSucceed() {
+    public void testTuple1CollectorWithMultiSelectShouldSucceed() {
         List<Tuple1<Integer>> firstColumnTuples = expected.map(Tuple1::new);
         List<Tuple1<Integer>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select * from tuples")
@@ -80,7 +80,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testTuple1CollectorWithMultiSelect_shouldFail() {
+    public void testTuple1CollectorWithMultiSelectShouldFail() {
         // first selection is not projectable to tuple param
         assertThatThrownBy(() -> dbRule.getSharedHandle()
             .createQuery("select t2, t3 from tuples")
@@ -88,7 +88,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testMapToTuple2List_shouldSucceed() {
+    public void testMapToTuple2ListShouldSucceed() {
         List<Tuple2<Integer, String>> expectedTuples = expected.map(i -> new Tuple2<>(i, "t2" + i));
         java.util.List<Tuple2<Integer, String>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t1, t2 from tuples")
@@ -98,7 +98,7 @@ public class TestVavrTupleMapperWithDB {
     }
 
     @Test
-    public void testTuple3CollectorWithSelectedKeyValue_shouldSucceed() {
+    public void testTuple3CollectorWithSelectedKeyValueShouldSucceed() {
         List<Tuple3<Integer, String, String>> expectedTuples = expected.map(i -> new Tuple3<>(i, "t2" + i, "t3" + (i + 1)));
         List<Tuple3<Integer, String, String>> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t1, t2, t3 from tuples")

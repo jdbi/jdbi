@@ -13,22 +13,21 @@
  */
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
-
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.argument.Argument;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArgumentsTest {
 
@@ -56,7 +55,7 @@ public class ArgumentsTest {
     static class UUIDArgument implements Argument {
         private UUID uuid;
 
-        public UUIDArgument(UUID uuid) {
+        UUIDArgument(UUID uuid) {
             this.uuid = uuid;
         }
 
@@ -79,7 +78,7 @@ public class ArgumentsTest {
 
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
-        public UUIDArgumentFactory() {
+        UUIDArgumentFactory() {
             super(Types.VARCHAR); // <1>
         }
 

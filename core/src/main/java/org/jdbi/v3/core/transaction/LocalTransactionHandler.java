@@ -174,7 +174,6 @@ public class LocalTransactionHandler implements TransactionHandler {
         }
     }
 
-
     private static class LocalStuff {
         private final Map<String, Savepoint> savepoints = new HashMap<>();
         private final boolean initialAutocommit;

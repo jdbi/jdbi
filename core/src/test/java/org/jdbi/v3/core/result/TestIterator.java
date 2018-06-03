@@ -258,11 +258,11 @@ public class TestIterator {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        try (final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+        try (ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
                 .cleanupHandleRollback()
                 .mapToMap()
                 .iterator()) {
-            final Map<String, Object> result =  it.next();
+            final Map<String, Object> result = it.next();
             assertThat(result).containsEntry("id", 1L).containsEntry("name", "eric");
 
             assertThat(h.isClosed()).isFalse();

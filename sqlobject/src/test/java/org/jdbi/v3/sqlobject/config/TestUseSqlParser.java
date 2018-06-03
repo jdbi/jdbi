@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Jdbi;
@@ -56,7 +55,6 @@ public class TestUseSqlParser {
         Something s = h.findById(1);
         assertThat(s.getName()).isEqualTo("Joy");
     }
-
 
     @UseSqlParser(HashPrefixSqlParser.class)
     @RegisterRowMapper(SomethingMapper.class)

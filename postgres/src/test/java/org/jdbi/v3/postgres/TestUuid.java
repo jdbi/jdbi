@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Set;
 import java.util.UUID;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -26,6 +23,8 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUuid {
 
@@ -84,7 +83,7 @@ public class TestUuid {
     public void testUuidArray() throws Exception {
         final UuidObject uo = h.attach(UuidObject.class);
 
-        UUID[] ary = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+        UUID[] ary = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
 
         uo.insertArray(ary);
 

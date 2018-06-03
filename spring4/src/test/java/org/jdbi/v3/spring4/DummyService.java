@@ -44,7 +44,7 @@ public class DummyService implements Service {
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     public void inRequiresNewReadUncommitted(Callback c) {
         c.call(jdbi);
     }

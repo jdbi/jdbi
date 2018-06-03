@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.oracle12;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;

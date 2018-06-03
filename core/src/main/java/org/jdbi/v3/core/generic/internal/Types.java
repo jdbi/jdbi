@@ -68,8 +68,7 @@ public class Types {
         return JavaVersion.CURRENT.newArrayType(componentType);
     }
 
-    static ParameterizedType newParameterizedTypeWithOwner(
-            @Nullable Type ownerType, Class<?> rawType, Type... arguments) {
+    static ParameterizedType newParameterizedTypeWithOwner(@Nullable Type ownerType, Class<?> rawType, Type... arguments) {
         if (ownerType == null) {
             return newParameterizedType(rawType, arguments);
         }
@@ -142,10 +141,8 @@ public class Types {
         return null;
     }
 
-    static <D extends GenericDeclaration> TypeVariable<D> newArtificialTypeVariable(
-            D declaration, String name, Type... bounds) {
-        return newTypeVariableImpl(
-                declaration, name, (bounds.length == 0) ? new Type[] {Object.class} : bounds);
+    static <D extends GenericDeclaration> TypeVariable<D> newArtificialTypeVariable(D declaration, String name, Type... bounds) {
+        return newTypeVariableImpl(declaration, name, (bounds.length == 0) ? new Type[] {Object.class} : bounds);
     }
 
     static WildcardType subtypeOf(Type upperBound) {
@@ -156,14 +153,10 @@ public class Types {
         return new WildcardTypeImpl(new Type[]{lowerBound}, new Type[]{Object.class});
     }
 
-    private static <D extends GenericDeclaration> TypeVariable<D> newTypeVariableImpl(
-            D genericDeclaration, String name, Type[] bounds) {
-        TypeVariableImpl<D> typeVariableImpl =
-                new TypeVariableImpl<D>(genericDeclaration, name, bounds);
+    private static <D extends GenericDeclaration> TypeVariable<D> newTypeVariableImpl(D genericDeclaration, String name, Type[] bounds) {
+        TypeVariableImpl<D> typeVariableImpl = new TypeVariableImpl<>(genericDeclaration, name, bounds);
         @SuppressWarnings("unchecked")
-        TypeVariable<D> typeVariable =
-                Reflection.newProxy(
-                        TypeVariable.class, new TypeVariableInvocationHandler(typeVariableImpl));
+        TypeVariable<D> typeVariable = Reflection.newProxy(TypeVariable.class, new TypeVariableInvocationHandler(typeVariableImpl));
         return typeVariable;
     }
 
@@ -548,7 +541,7 @@ public class Types {
                 if (method.getDeclaringClass().equals(TypeVariableImpl.class)) {
                     try {
                         method.setAccessible(true);
-                    } catch (AccessControlException e) {
+                    } catch (AccessControlException ignored) {
                         // OK: the method is accessible to us anyway. The setAccessible call is only for
                         // unusual execution environments where that might not be true.
                     }

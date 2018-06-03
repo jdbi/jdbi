@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -65,7 +64,6 @@ public class TestUseCustomHandlerFactory {
             }
         };
 
-
         db.configure(Handlers.class, c -> c.register(defaultHandlerFactory));
         handle = db.open();
     }
@@ -76,7 +74,6 @@ public class TestUseCustomHandlerFactory {
         Something s = h.insertAndFind(new Something(1, "Joy"));
         assertThat(s.getName()).isEqualTo("Joy");
     }
-
 
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao {
@@ -89,7 +86,10 @@ public class TestUseCustomHandlerFactory {
         @Transaction
         Something insertAndFind(Something s);
 
+        @SuppressWarnings("unused")
         class DefaultImpls {
+            private DefaultImpls() {}
+
             public static Something insertAndFind(SomethingDao dao, Something s) {
                 dao.insert(s);
                 return dao.findById(s.getId());

@@ -38,8 +38,10 @@ public class TestStatements {
     }
 
     @After
-    public void doTearDown() {
-        if (h != null) h.close();
+    public void doTearDown() throws Exception {
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test

@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -25,11 +22,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+
+import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
@@ -70,8 +69,8 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
             return Optional.of(new TypedValue(type, qualifiers, value));
         } catch (IllegalAccessException e) {
-            throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
-                    "bean property [%s] on [%s]",
+            throw new UnableToCreateStatementException(String.format("Access exception getting field for "
+                    + "bean property [%s] on [%s]",
                 name, object), e, ctx);
         }
     }

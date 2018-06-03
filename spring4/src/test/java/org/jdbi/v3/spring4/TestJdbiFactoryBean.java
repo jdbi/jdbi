@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3.spring4;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import javax.sql.DataSource;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -28,6 +24,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/org/jdbi/v3/spring4/test-context.xml")
@@ -72,7 +71,7 @@ public class TestJdbiFactoryBean {
             });
         });
 
-        try (final Handle h = Jdbi.open(ds)) {
+        try (Handle h = Jdbi.open(ds)) {
             int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
             assertThat(count).isEqualTo(0);
         }
@@ -98,12 +97,12 @@ public class TestJdbiFactoryBean {
 
     @Test
     public void testNested() throws Exception {
-        assertThatExceptionOfType(ForceRollback.class).isThrownBy(()->{
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(outer -> {
                 final Handle h = JdbiUtil.getHandle(outer);
                 h.execute("insert into something (id, name) values (7, 'ignored')");
 
-                assertThatExceptionOfType(ForceRollback.class).isThrownBy(()-> {
+                assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
                     service.inNested(inner -> {
                         final Handle h1 = JdbiUtil.getHandle(inner);
                         h1.execute("insert into something (id, name) values (8, 'ignored again')");

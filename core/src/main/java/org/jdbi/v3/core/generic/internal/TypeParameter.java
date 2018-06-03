@@ -14,41 +14,39 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import javax.annotation.Nullable;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
 
 public abstract class TypeParameter<T> extends TypeCapture<T> {
+    final TypeVariable<?> typeVariable;
 
-  final TypeVariable<?> typeVariable;
-
-  protected TypeParameter() {
-    Type type = capture();
-    checkArgument(type instanceof TypeVariable, "%s should be a type variable.", type);
-    this.typeVariable = (TypeVariable<?>) type;
-  }
-
-  @Override
-  public final int hashCode() {
-    return typeVariable.hashCode();
-  }
-
-  @Override
-  @SuppressFBWarnings
-  public final boolean equals(@Nullable Object o) {
-    if (o instanceof TypeParameter) {
-      TypeParameter<?> that = (TypeParameter<?>) o;
-      return typeVariable.equals(that.typeVariable);
+    protected TypeParameter() {
+        Type type = capture();
+        checkArgument(type instanceof TypeVariable, "%s should be a type variable.", type);
+        this.typeVariable = (TypeVariable<?>) type;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return typeVariable.toString();
-  }
+    @Override
+    public final int hashCode() {
+        return typeVariable.hashCode();
+    }
+
+    @Override
+    @SuppressFBWarnings
+    public final boolean equals(@Nullable Object o) {
+        if (o instanceof TypeParameter) {
+            TypeParameter<?> that = (TypeParameter<?>) o;
+            return typeVariable.equals(that.typeVariable);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return typeVariable.toString();
+    }
 }

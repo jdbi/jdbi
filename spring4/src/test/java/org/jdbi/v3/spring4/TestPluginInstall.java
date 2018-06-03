@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.spring4;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.spring4.TestPluginInstall.Config;
@@ -27,8 +25,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=Config.class)
+@ContextConfiguration(classes = Config.class)
 public class TestPluginInstall {
 
     @Configuration

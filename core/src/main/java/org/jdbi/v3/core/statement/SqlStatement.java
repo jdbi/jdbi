@@ -1114,8 +1114,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
             if (params.length > 0) {
-                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params) +
-                        "'.  To bind a generic type, prefer using bindByType.");
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
+                    + "'. To bind a generic type, prefer using bindByType.");
             }
         }
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);
@@ -1439,7 +1439,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         beforeExecution(stmt);
 
         try {
-            getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::execute, getContext());
+            SqlLoggerUtil.wrap(stmt::execute, getContext(), getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
             try {
                 stmt.close();

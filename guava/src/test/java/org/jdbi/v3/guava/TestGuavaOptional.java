@@ -13,28 +13,28 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.base.Optional;
 import java.lang.reflect.Type;
 import java.util.List;
-import com.google.common.base.Optional;
-
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import java.util.Objects;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestGuavaOptional {
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+        + "where :name is null or name = :name "
+        + "order by id";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
@@ -133,6 +133,11 @@ public class TestGuavaOptional {
 
         Name(String value) {
             this.value = value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
 
         @Override

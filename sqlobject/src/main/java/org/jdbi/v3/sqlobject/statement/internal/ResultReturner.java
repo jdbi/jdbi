@@ -106,116 +106,6 @@ abstract class ResultReturner {
         return result;
     }
 
-    static class ResultIterableReturner extends ResultReturner {
-
-        private final Type elementType;
-
-        ResultIterableReturner(Type returnType) {
-            // extract T from Query<T>
-            elementType = GenericTypes.findGenericParameter(returnType, ResultIterable.class)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
-        }
-
-        @Override
-        protected ResultIterable<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return iterable;
-        }
-
-        @Override
-        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
-            throw new UnsupportedOperationException("Cannot return ResultIterable from a @UseRowReducer method");
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return elementType;
-        }
-    }
-
-    static class ResultIteratorReturner extends ResultReturner {
-        private final Type elementType;
-
-        ResultIteratorReturner(Type returnType) {
-            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
-        }
-
-        @Override
-        protected ResultIterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return iterable.iterator();
-        }
-
-        @Override
-        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
-            throw new UnsupportedOperationException("Cannot return ResultIterator from a @UseRowReducer method");
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return elementType;
-        }
-    }
-
-    static class IteratorReturner extends ResultReturner {
-        private final Type elementType;
-
-        IteratorReturner(Type returnType) {
-            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Iterator<T> element type T in method return type " + returnType));
-        }
-
-        @Override
-        protected Iterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return iterable.iterator();
-        }
-
-        @Override
-        protected Iterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
-            return stream.iterator();
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return elementType;
-        }
-    }
-
-    static class ConsumerResultReturner extends ResultReturner {
-        private final int consumerIndex;
-        private final Type elementType;
-
-        ConsumerResultReturner(Method method, int consumerIndex) {
-            this.consumerIndex = consumerIndex;
-            elementType = method.getGenericParameterTypes()[consumerIndex];
-        }
-
-        @Override
-        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            @SuppressWarnings("unchecked")
-            Consumer<Object> consumer = (Consumer<Object>)
-                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
-            iterable.forEach(consumer);
-            return null;
-        }
-
-        @Override
-        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
-            @SuppressWarnings("unchecked")
-            Consumer<Object> consumer = (Consumer<Object>)
-                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
-            stream.forEach(consumer);
-            return null;
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return elementType;
-        }
-    }
-
     static class VoidReturner extends ResultReturner {
         @Override
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
@@ -231,6 +121,33 @@ abstract class ResultReturner {
         @Override
         protected Type elementType(StatementContext ctx) {
             return null;
+        }
+    }
+
+    static class ResultIterableReturner extends ResultReturner {
+
+        private final Type elementType;
+
+        ResultIterableReturner(Type returnType) {
+            // extract T from Query<T>
+            elementType = GenericTypes.findGenericParameter(returnType, ResultIterable.class)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
+        }
+
+        @Override
+        protected ResultIterable<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return iterable;
+        }
+
+        @Override
+        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return ResultIterable from a @UseRowReducer method");
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return elementType;
         }
     }
 
@@ -256,6 +173,79 @@ abstract class ResultReturner {
         @Override
         protected Type elementType(StatementContext ctx) {
             return elementType;
+        }
+    }
+
+    static class ResultIteratorReturner extends ResultReturner {
+        private final Type elementType;
+
+        ResultIteratorReturner(Type returnType) {
+            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
+        }
+
+        @Override
+        protected ResultIterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return iterable.iterator();
+        }
+
+        @Override
+        protected ResultIterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            throw new UnsupportedOperationException("Cannot return ResultIterator from a @UseRowReducer method");
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return elementType;
+        }
+    }
+
+    static class IteratorReturner extends ResultReturner {
+        private final Type elementType;
+
+        IteratorReturner(Type returnType) {
+            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect Iterator<T> element type T in method return type " + returnType));
+        }
+
+        @Override
+        protected Iterator<?> mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return iterable.iterator();
+        }
+
+        @Override
+        protected Iterator<?> reducedResult(Stream<?> stream, StatementContext ctx) {
+            return stream.iterator();
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return elementType;
+        }
+    }
+
+    static class SingleValueReturner extends ResultReturner {
+        private final Type returnType;
+
+        SingleValueReturner(Type returnType) {
+            this.returnType = returnType;
+        }
+
+        @Override
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            return checkResult(iterable.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            return checkResult(stream.findFirst().orElse(null), returnType);
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return returnType;
         }
     }
 
@@ -292,26 +282,36 @@ abstract class ResultReturner {
         }
     }
 
-    static class SingleValueReturner extends ResultReturner {
-        private final Type returnType;
+    static class ConsumerResultReturner extends ResultReturner {
+        private final int consumerIndex;
+        private final Type elementType;
 
-        SingleValueReturner(Type returnType) {
-            this.returnType = returnType;
+        ConsumerResultReturner(Method method, int consumerIndex) {
+            this.consumerIndex = consumerIndex;
+            elementType = method.getGenericParameterTypes()[consumerIndex];
         }
 
         @Override
-        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return checkResult(iterable.findFirst().orElse(null), returnType);
+        protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            @SuppressWarnings("unchecked")
+            Consumer<Object> consumer = (Consumer<Object>)
+                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
+            iterable.forEach(consumer);
+            return null;
         }
 
         @Override
-        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
-            return checkResult(stream.findFirst().orElse(null), returnType);
+        protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
+            @SuppressWarnings("unchecked")
+            Consumer<Object> consumer = (Consumer<Object>)
+                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
+            stream.forEach(consumer);
+            return null;
         }
 
         @Override
         protected Type elementType(StatementContext ctx) {
-            return returnType;
+            return elementType;
         }
     }
 }

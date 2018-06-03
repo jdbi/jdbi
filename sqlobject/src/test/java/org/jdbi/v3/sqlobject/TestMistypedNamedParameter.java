@@ -51,7 +51,6 @@ public class TestMistypedNamedParameter {
                         .startsWith("Unable to execute. The query doesn't have named parameters, but provided binding"));
     }
 
-
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao {
 

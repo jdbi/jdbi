@@ -123,8 +123,8 @@ public class BeanMapper<T> implements RowMapper<T> {
 
         RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
+            && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
 
             throw new IllegalArgumentException(String.format(
                 "Mapping bean type %s could not match properties for columns: %s",
@@ -178,8 +178,8 @@ public class BeanMapper<T> implements RowMapper<T> {
         }
 
         if (mappers.isEmpty() && columnNames.size() > 0) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
-                "didn't find any matching columns in result set", type));
+            throw new IllegalArgumentException(String.format("Mapping bean type %s "
+                + "didn't find any matching columns in result set", type));
         }
 
         return (r, c) -> {
@@ -216,8 +216,8 @@ public class BeanMapper<T> implements RowMapper<T> {
         try {
             return type.newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
-                "which was not instantiable", type.getName()), e);
+            throw new IllegalArgumentException(String.format("A bean, %s, was mapped "
+                + "which was not instantiable", type.getName()), e);
         }
     }
 
@@ -225,14 +225,14 @@ public class BeanMapper<T> implements RowMapper<T> {
         try {
             property.getWriteMethod().invoke(bean, value);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format("Unable to access setter for " +
-                "property, %s", property.getName()), e);
+            throw new IllegalArgumentException(String.format("Unable to access setter for "
+                + "property, %s", property.getName()), e);
         } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
-                "invoker setter for the %s property", property.getName()), e);
+            throw new IllegalArgumentException(String.format("Invocation target exception trying to "
+                + "invoker setter for the %s property", property.getName()), e);
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException(String.format("No appropriate method to " +
-                "write property %s", property.getName()), e);
+            throw new IllegalArgumentException(String.format("No appropriate method to "
+                + "write property %s", property.getName()), e);
         }
     }
 }

@@ -13,22 +13,20 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.LocalTime;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestJsr310 {
     @Rule
@@ -92,7 +90,7 @@ public class TestJsr310 {
     }
 
     @Test
-    public void localTime(){
+    public void localTime() {
         h.execute("create table schedule (start time, end time)");
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime end = LocalTime.of(10, 30, 0);

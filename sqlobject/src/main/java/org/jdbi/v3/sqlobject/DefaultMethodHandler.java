@@ -32,7 +32,7 @@ class DefaultMethodHandler implements Handler {
     private static Method privateLookupIn() {
         try {
             return MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
             // Method was added in JDK 9
             return null;
         }
@@ -73,10 +73,10 @@ class DefaultMethodHandler implements Handler {
                     constructor.setAccessible(true);
                 }
                 return constructor.newInstance(type,
-                        MethodHandles.Lookup.PUBLIC |
-                        MethodHandles.Lookup.PRIVATE |
-                        MethodHandles.Lookup.PROTECTED |
-                        MethodHandles.Lookup.PACKAGE);
+                        MethodHandles.Lookup.PUBLIC
+                            | MethodHandles.Lookup.PRIVATE
+                            | MethodHandles.Lookup.PROTECTED
+                            | MethodHandles.Lookup.PACKAGE);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }

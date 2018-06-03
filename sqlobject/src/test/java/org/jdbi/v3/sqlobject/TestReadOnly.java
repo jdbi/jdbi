@@ -66,7 +66,7 @@ public class TestReadOnly {
         try (Handle h = db.openHandle()) {
             RODao dao = h.attach(RODao.class);
 
-            assertThatThrownBy(() ->  dao.readTxn(() -> dao.writeTxn(() -> {}))).isInstanceOf(TransactionException.class);
+            assertThatThrownBy(() -> dao.readTxn(() -> dao.writeTxn(() -> {}))).isInstanceOf(TransactionException.class);
         }
     }
 

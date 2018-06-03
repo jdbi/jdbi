@@ -13,15 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -35,6 +32,8 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestGetGeneratedKeysPostgres {
     @Rule
     public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -45,11 +44,11 @@ public class TestGetGeneratedKeysPostgres {
             dao.createSequence();
             dao.createTable();
 
-            long brian_id = dao.insert("Brian");
-            long keith_id = dao.insert("Keith");
+            long brianId = dao.insert("Brian");
+            long keithId = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
-            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
+            assertThat(dao.findNameById(brianId)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keithId)).isEqualTo("Keith");
         });
     }
 

@@ -81,13 +81,17 @@ public class Article {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Article article = (Article) o;
-        return id == article.id &&
-                Objects.equals(title, article.title) &&
-                Objects.equals(content, article.content) &&
-                Objects.equals(comments, article.comments);
+        return id == article.id
+                && Objects.equals(title, article.title)
+                && Objects.equals(content, article.content)
+                && Objects.equals(comments, article.comments);
     }
 
     @Override
@@ -97,11 +101,11 @@ public class Article {
 
     @Override
     public String toString() {
-        return "Article{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", comments=" + comments +
-                '}';
+        return "Article{"
+                + "id=" + id
+                + ", title='" + title + '\''
+                + ", content='" + content + '\''
+                + ", comments=" + comments
+                + '}';
     }
 }
