@@ -13,20 +13,11 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import org.jdbi.v3.core.qualifier.Qualifier;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-
-/**
- * A column mapper which maps Postgres' hstore type to Java's {@link Map}.
- */
-public class HStoreColumnMapper implements ColumnMapper<Map<String, String>> {
-    @Override
-    @SuppressWarnings("unchecked")
-    public Map<String, String> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return (Map<String, String>) r.getObject(columnNumber);
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface HStore {
 }

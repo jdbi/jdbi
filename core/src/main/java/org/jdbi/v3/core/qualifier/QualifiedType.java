@@ -14,16 +14,21 @@
 package org.jdbi.v3.core.qualifier;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class QualifiedType {
     private final Type type;
     private final Set<Object> qualifiers;
+
+    public static QualifiedType of(Type type) {
+        return new QualifiedType(
+            type,
+            Collections.emptySet());
+    }
 
     public static QualifiedType of(Type type, Object qualifier) {
         return new QualifiedType(
@@ -34,7 +39,7 @@ public final class QualifiedType {
     public static QualifiedType of(Type type, Object... qualifiers) {
         return new QualifiedType(
             type,
-            Collections.unmodifiableSet(Stream.of(qualifiers).collect(Collectors.toSet())));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(qualifiers))));
     }
 
     public static QualifiedType of(Type type, Set<?> qualifiers) {

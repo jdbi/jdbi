@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
@@ -65,6 +68,10 @@ public class PostgresPlugin implements JdbiPlugin {
 
         db.registerColumnMapper(new JavaTimeMapperFactory());
         db.registerColumnMapper(new HStoreColumnMapper());
+        QualifiedType hstoreMapType = QualifiedType.of(
+            new GenericType<Map<String, String>>() {}.getType(),
+            PostgresQualifiers.HSTORE);
+        db.registerColumnMapper(hstoreMapType, new HStoreColumnMapper());
         db.registerColumnMapper(new DurationColumnMapperFactory());
         db.registerColumnMapper(new PeriodColumnMapperFactory());
     }
