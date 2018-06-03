@@ -190,7 +190,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     @FunctionalInterface
     interface ArgBuilder<T> {
-        Argument build(final T value);
+        Argument build(T value);
     }
 
     static final class BuiltInArgument<T> implements Argument {

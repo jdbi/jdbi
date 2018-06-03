@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Collections.unmodifiableList;
 
 /**
  * The parsed parameters from an SQL statement.
@@ -62,8 +62,8 @@ public class ParsedParameters {
             return false;
         }
         ParsedParameters that = (ParsedParameters) o;
-        return positional == that.positional &&
-                Objects.equals(parameterNames, that.parameterNames);
+        return positional == that.positional
+            && Objects.equals(parameterNames, that.parameterNames);
     }
 
     @Override
@@ -73,9 +73,9 @@ public class ParsedParameters {
 
     @Override
     public String toString() {
-        return "ParsedParameters{" +
-                "positional=" + positional +
-                ", parameterNames=" + parameterNames +
-                '}';
+        return "ParsedParameters{"
+            + "positional=" + positional
+            + ", parameterNames=" + parameterNames
+            + '}';
     }
 }

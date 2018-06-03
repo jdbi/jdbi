@@ -99,7 +99,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(direct.size()).isEqualTo(2);
-        assertThat(direct.stream().filter(m -> m.isBridge()).collect(Collectors.toList()).size()).isEqualTo(1);
+        assertThat(direct.stream().filter(m -> m.isBridge())).hasSize(1);
 
         // This version has multiple bridge methods!
         final List<Method> override = Arrays.stream(DatabaseLongValueWithOverride.class.getMethods())
@@ -107,7 +107,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(override.size()).isEqualTo(3);
-        assertThat(override.stream().filter(m -> m.isBridge()).collect(Collectors.toList()).size()).isEqualTo(2);
+        assertThat(override.stream().filter(m -> m.isBridge())).hasSize(2);
 
         // Only one bridge method expected.
         final List<Method> implicit = Arrays.stream(DatabaseLongValue.class.getMethods())
@@ -115,7 +115,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(implicit.size()).isEqualTo(2);
-        assertThat(implicit.stream().filter(m -> m.isBridge()).collect(Collectors.toList()).size()).isEqualTo(1);
+        assertThat(implicit.stream().filter(m -> m.isBridge())).hasSize(1);
     }
 
     public interface PairRowDAO {

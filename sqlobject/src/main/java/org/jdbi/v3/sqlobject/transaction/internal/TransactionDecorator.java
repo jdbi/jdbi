@@ -37,8 +37,8 @@ public class TransactionDecorator implements HandlerDecorator {
                 // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
                 TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
                 if (currentLevel != isolation && isolation != TransactionIsolationLevel.UNKNOWN) {
-                    throw new TransactionException("Tried to execute nested @Transaction(" + isolation + "), " +
-                            "but already running in a transaction with isolation level " + currentLevel + ".");
+                    throw new TransactionException("Tried to execute nested @Transaction(" + isolation + "), "
+                            + "but already running in a transaction with isolation level " + currentLevel + ".");
                 }
                 if (h.isReadOnly() && !readOnly) {
                     throw new TransactionException("Tried to execute a nested @Transaction(readOnly=false) "

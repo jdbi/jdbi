@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.core.generic;
 
-import static java.util.Optional.empty;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
-
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.junit.Test;
+
+import static java.util.Optional.empty;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypesTest {
 
@@ -98,7 +96,6 @@ public class GenericTypesTest {
     private Type methodReturnType(String methodName) throws NoSuchMethodException {
         return getClass().getDeclaredMethod(methodName).getGenericReturnType();
     }
-
 
     @Test
     public void resolveType() throws Exception {

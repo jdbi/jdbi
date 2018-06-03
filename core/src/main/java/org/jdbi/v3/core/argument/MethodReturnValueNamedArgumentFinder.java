@@ -36,12 +36,12 @@ abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedA
         try {
             return method.invoke(object);
         } catch (IllegalAccessException e) {
-            throw new UnableToCreateStatementException(String.format("Access exception invoking " +
-                            "method [%s] on [%s]",
+            throw new UnableToCreateStatementException(String.format("Access exception invoking "
+                    + "method [%s] on [%s]",
                     method.getName(), object), e, ctx);
         } catch (InvocationTargetException e) {
-            throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
-                            "method [%s] on [%s]",
+            throw new UnableToCreateStatementException(String.format("Invocation target exception invoking "
+                    + "method [%s] on [%s]",
                     method.getName(), object), e, ctx);
         }
     }

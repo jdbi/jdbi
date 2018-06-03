@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.h2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,14 +20,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.h2.H2DatabasePlugin;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestH2SqlArrays {
     private static final GenericType<List<UUID>> UUID_LIST = new GenericType<List<UUID>>() {};

@@ -13,13 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.config.Article.newArticle;
-import static org.jdbi.v3.sqlobject.config.Comment.newComment;
-
 import java.util.List;
 import java.util.Optional;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;
@@ -28,6 +23,10 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.sqlobject.config.Article.newArticle;
+import static org.jdbi.v3.sqlobject.config.Comment.newComment;
 
 public class TestRegisterBeanMapper {
     @Rule
@@ -39,14 +38,14 @@ public class TestRegisterBeanMapper {
     public void setUp() {
         handle = rule.getSharedHandle();
 
-        handle.execute("create table articles (" +
-                "id      integer not null, " +
-                "title   varchar not null, " +
-                "content varchar not null)");
-        handle.execute("create table comments (" +
-                "id         integer not null, " +
-                "article_id integer not null, " +
-                "content    varchar not null)");
+        handle.execute("create table articles ("
+            + "id integer not null, "
+            + "title varchar not null, "
+            + "content varchar not null)");
+        handle.execute("create table comments ("
+            + "id integer not null, "
+            + "article_id integer not null, "
+            + "content varchar not null)");
 
         handle.execute("insert into articles (id, title, content) values (?, ?, ?)", 1, "title 1", "content 1");
         handle.execute("insert into articles (id, title, content) values (?, ?, ?)", 2, "title 2", "content 2");
@@ -80,19 +79,19 @@ public class TestRegisterBeanMapper {
         @RegisterBeanMapper(value = Comment.class, prefix = "c")
         default Optional<Article> getArticleWithComments(long id) {
             return getHandle().select(
-                    "select " +
-                            "  a.id      a_id, " +
-                            "  a.title   a_title, " +
-                            "  a.content a_content, " +
-                            "  c.id      c_id, " +
-                            "  c.content c_content " +
-                            "from articles a " +
-                            "left join comments c " +
-                            "  on a.id = c.article_id " +
-                            "where a.id = ? " +
-                            "order by c.id",
-                    id)
-                    .reduceRows(Optional.<Article>empty(),
+                "select "
+                    + " a.id a_id, "
+                    + " a.title a_title, "
+                    + " a.content a_content, "
+                    + " c.id c_id, "
+                    + " c.content c_content "
+                    + "from articles a "
+                    + "left join comments c "
+                    + " on a.id = c.article_id "
+                    + "where a.id = ? "
+                    + "order by c.id",
+                id)
+                    .reduceRows(Optional.empty(),
                             (acc, rv) -> {
                                 Article a = acc.orElseGet(() -> rv.getRow(Article.class));
 

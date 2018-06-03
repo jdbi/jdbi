@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -40,6 +37,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestTimingCollector {
 
     @Rule
@@ -52,12 +51,11 @@ public class TestTimingCollector {
     @Before
     public void setUp() throws Exception {
         db = dbRule.getJdbi();
-        db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR " +
-                "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));
+        db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR "
+            + "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));
         db.setTimingCollector(timingCollector);
         dao = db.onDemand(DAO.class);
     }
-
 
     @Test
     public void testInsert() {

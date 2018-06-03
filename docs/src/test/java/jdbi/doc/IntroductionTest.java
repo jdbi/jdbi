@@ -118,7 +118,6 @@ public class IntroductionTest {
         // end::sqlobject-usage[]
     }
 
-
     public static class User {
         private int id;
         private String name;
@@ -148,11 +147,15 @@ public class IntroductionTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                    && Objects.equals(name, user.name);
         }
 
         @Override

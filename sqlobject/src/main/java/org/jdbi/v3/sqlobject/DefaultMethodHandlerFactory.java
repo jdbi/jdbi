@@ -34,8 +34,8 @@ class DefaultMethodHandlerFactory implements HandlerFactory {
                 .findFirst()
                 .ifPresent(type -> {
                     throw new IllegalStateException(String.format(
-                            "Default method %s.%s has @%s annotation. Statement customizing annotations don't " +
-                                    "work on default methods.",
+                            "Default method %s.%s has @%s annotation. Statement customizing annotations don't "
+                                    + "work on default methods.",
                             sqlObjectType.getSimpleName(),
                             method.getName(),
                             type.getSimpleName()));
@@ -48,8 +48,8 @@ class DefaultMethodHandlerFactory implements HandlerFactory {
                     .findFirst()
                     .ifPresent(type -> {
                         throw new IllegalStateException(String.format(
-                                "Default method %s.%s parameter %s has @%s annotation. Statement customizing " +
-                                        "annotations don't work on default methods.",
+                                "Default method %s.%s parameter %s has @%s annotation. Statement customizing "
+                                        + "annotations don't work on default methods.",
                                 sqlObjectType.getSimpleName(),
                                 method.getName(),
                                 parameter.getName(),

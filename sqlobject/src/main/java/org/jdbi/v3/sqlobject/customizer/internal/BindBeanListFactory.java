@@ -35,9 +35,9 @@ public final class BindBeanListFactory implements SqlStatementCustomizerFactory 
                                                               Type type) {
         final BindBeanList bindBeanList = (BindBeanList) annotation;
         final String name = ParameterUtil.findParameterName(bindBeanList.value(), param)
-                .orElseThrow(() -> new UnsupportedOperationException("A @BindBeanList parameter was not given a name, " +
-                        "and parameter name data is not present in the class file, for: " +
-                        param.getDeclaringExecutable() + "::" + param));
+                .orElseThrow(() -> new UnsupportedOperationException("A @BindBeanList parameter was not given a name, "
+                        + "and parameter name data is not present in the class file, for: "
+                        + param.getDeclaringExecutable() + "::" + param));
 
         return (stmt, arg) -> {
             if (arg == null) {

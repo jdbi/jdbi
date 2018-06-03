@@ -49,7 +49,7 @@ public class TestBatchExceptionRewrite {
         b.add(0, "a");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
                 .isThrownBy(b::execute)
-                .satisfies(e->assertSuppressions(e.getCause()));
+                .satisfies(e -> assertSuppressions(e.getCause()));
     }
 
     private void assertSuppressions(Throwable cause) {

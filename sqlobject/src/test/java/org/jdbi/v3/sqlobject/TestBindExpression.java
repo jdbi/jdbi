@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -22,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
@@ -39,7 +37,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindExpression {
     @Rule
@@ -58,8 +56,8 @@ public class TestBindExpression {
     public void testExpression() throws Exception {
         DB db = dbRule.getSharedHandle().attach(DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
-        Something with_syrup = db.findByBreakfast(new Breakfast());
-        assertThat(with_syrup).isEqualTo(new Something(1, "syrup"));
+        Something withSyrup = db.findByBreakfast(new Breakfast());
+        assertThat(withSyrup).isEqualTo(new Something(1, "syrup"));
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -88,7 +86,6 @@ public class TestBindExpression {
         }
     }
 
-
     public static class Breakfast {
         private final Waffle waffle = new Waffle();
 
@@ -105,7 +102,6 @@ public class TestBindExpression {
         }
     }
 
-
     @Test
     public void testJexl() throws Exception {
         JexlEngine engine = new JexlEngine();
@@ -113,6 +109,5 @@ public class TestBindExpression {
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));
         assertThat(topping).isEqualTo("syrup");
     }
-
 
 }

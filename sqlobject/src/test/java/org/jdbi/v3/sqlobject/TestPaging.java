@@ -13,13 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
+import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -32,6 +27,9 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPaging {
     @Rule
@@ -55,15 +53,15 @@ public class TestPaging {
 
         assertThat(rs).hasSize(13).containsOnly(1);
 
-        List<Something> page_one = sql.loadPage(-1, 5);
-        assertThat(page_one).containsExactly(new Something(1, "Ami"),
+        List<Something> pageOne = sql.loadPage(-1, 5);
+        assertThat(pageOne).containsExactly(new Something(1, "Ami"),
                                              new Something(2, "Brian"),
                                              new Something(3, "Cora"),
                                              new Something(4, "David"),
                                              new Something(5, "Eric"));
 
-        List<Something> page_two = sql.loadPage(page_one.get(page_one.size() - 1).getId(), 5);
-        assertThat(page_two).containsExactly(new Something(6, "Fernando"),
+        List<Something> pageTwo = sql.loadPage(pageOne.get(pageOne.size() - 1).getId(), 5);
+        assertThat(pageTwo).containsExactly(new Something(6, "Fernando"),
                                              new Something(7, "Greta"),
                                              new Something(8, "Holly"),
                                              new Something(9, "Inigo"),

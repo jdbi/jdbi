@@ -63,8 +63,8 @@ public class StatementsTest {
     public void testScript() throws Exception {
         // tag::script[]
         int[] results = handle.createScript(
-                "INSERT INTO user VALUES(3, 'Charlie');" +
-                "UPDATE user SET name='Bobby Tables' WHERE id=2;")
+                "INSERT INTO user VALUES(3, 'Charlie');"
+                + "UPDATE user SET name='Bobby Tables' WHERE id=2;")
             .execute();
 
         assertThat(results).containsExactly(1, 1);

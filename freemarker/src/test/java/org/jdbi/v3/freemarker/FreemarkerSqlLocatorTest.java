@@ -13,29 +13,28 @@
  */
 package org.jdbi.v3.freemarker;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.customizer.Define;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FreemarkerSqlLocatorTest {
     @Rule
@@ -73,8 +72,8 @@ public class FreemarkerSqlLocatorTest {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
         handle.execute("insert into something (id, name) values (7, 'Peter')");
 
-        List<String> s = handle.attach(Wombat.class).findNamesForIds(Arrays.asList(6,7));
-        assertThat(s.size()).isEqualTo(2);
+        List<String> s = handle.attach(Wombat.class).findNamesForIds(Arrays.asList(6, 7));
+        assertThat(s).hasSize(2);
         assertThat(s).containsExactly("Martin", "Peter");
     }
 
@@ -84,7 +83,7 @@ public class FreemarkerSqlLocatorTest {
         handle.execute("insert into something (id, name) values (7, 'Peter')");
 
         List<String> s = handle.attach(Wombat.class).findNamesForSomethings(Arrays.asList(new Something(6666666, "Martin"), new Something(7, "Peter")));
-        assertThat(s.size()).isEqualTo(2);
+        assertThat(s).hasSize(2);
         assertThat(s).containsExactly("Martin", "Peter");
     }
 

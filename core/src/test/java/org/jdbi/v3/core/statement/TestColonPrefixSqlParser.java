@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class TestColonPrefixSqlParser {
     private SqlParser parser;

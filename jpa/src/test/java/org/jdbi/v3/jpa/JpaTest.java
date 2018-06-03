@@ -36,16 +36,17 @@ public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
     private static final String SELECT_BY_PROPERTY_NAME = "select id, name from something";
 
-    public static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
-    public static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
-    public static final String ID_ANNOTATION_NAME = "foo";
-    public static final String NAME_ANNOTATION_NAME = "bar";
+    private static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
+    private static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
+    private static final String ID_ANNOTATION_NAME = "foo";
+    private static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     interface Thing {
         int getId();
+
         String getName();
     }
 
@@ -54,14 +55,28 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public EntityThing() {}
-        public EntityThing(int id, String name) { setId(id); setName(name); }
+        EntityThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        EntityThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface EntityThingDao {
@@ -89,17 +104,33 @@ public class JpaTest {
 
     @Entity
     static class FieldThing implements Thing {
-        @Column private int id;
-        @Column private String name;
+        @Column
+        private int id;
+        @Column
+        private String name;
 
-        public FieldThing() {}
-        public FieldThing(int id, String name) { setId(id); setName(name); }
+        FieldThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        FieldThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface FieldThingDao {
@@ -126,17 +157,33 @@ public class JpaTest {
 
     @Entity
     static class NamedFieldThing implements Thing {
-        @Column(name = "foo") private int id;
-        @Column(name = "bar") private String name;
+        @Column(name = "foo")
+        private int id;
+        @Column(name = "bar")
+        private String name;
 
-        public NamedFieldThing() {}
-        public NamedFieldThing(int id, String name) { setId(id); setName(name); }
+        NamedFieldThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        NamedFieldThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedFieldThingDao {
@@ -167,14 +214,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public GetterThing() {}
-        public GetterThing(int id, String name) { setId(id); setName(name); }
+        GetterThing() {}
 
-        @Column public int getId() { return id; }
-        @Column public String getName() { return name; }
+        GetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        @Column
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface GetterThingDao {
@@ -205,14 +268,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedGetterThing() {}
-        public NamedGetterThing(int id, String name) { setId(id); setName(name); }
+        NamedGetterThing() {}
 
-        @Column(name = "foo") public int getId() { return id; }
-        @Column(name = "bar") public String getName() { return name; }
+        NamedGetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        @Column(name = "foo")
+        public int getId() {
+            return id;
+        }
+
+        @Column(name = "bar")
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedGetterThingDao {
@@ -243,14 +322,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public SetterThing() {}
-        public SetterThing(int id, String name) { setId(id); setName(name); }
+        SetterThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        SetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column public void setId(int id) { this.id = id; }
-        @Column public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface SetterThingDao {
@@ -281,14 +376,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedSetterThing() {}
-        public NamedSetterThing(int id, String name) { setId(id); setName(name); }
+        NamedSetterThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        NamedSetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column(name = "foo") public void setId(int id) { this.id = id; }
-        @Column(name = "bar") public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column(name = "foo")
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column(name = "bar")
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedSetterThingDao {
@@ -316,18 +427,34 @@ public class JpaTest {
     @MappedSuperclass
     static class MappedSuperclassThing {
         private int id;
-        public int getId() { return id; }
-        public void setId(int id) { this.id = id; }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 
     @Entity
     static class ExtendsMappedSuperclassThing extends MappedSuperclassThing implements Thing {
-        public ExtendsMappedSuperclassThing() {}
-        public ExtendsMappedSuperclassThing(int id, String name) { setId(id); setName(name); }
+        ExtendsMappedSuperclassThing() {}
+
+        ExtendsMappedSuperclassThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
         private String name;
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface MappedSuperclassThingDao {
@@ -354,17 +481,36 @@ public class JpaTest {
 
     @Entity
     static class AnnotationPriorityThing implements Thing {
-        @Column(name = ID_ANNOTATION_NAME) private int id;
+        @Column(name = ID_ANNOTATION_NAME)
+        private int id;
         private String name;
 
-        public AnnotationPriorityThing() {}
-        public AnnotationPriorityThing(int id, String name) { setId(id); setName(name); }
+        AnnotationPriorityThing() {}
 
-        @Column(name = "ignored") public int getId() { return id; }
-        @Column(name = NAME_ANNOTATION_NAME) public String getName() { return name; }
+        AnnotationPriorityThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column(name = "ignored") public void setId(int id) { this.id = id; }
-        @Column(name = "ignored") public void setName(String name) { this.name = name; }
+        @Column(name = "ignored")
+        public int getId() {
+            return id;
+        }
+
+        @Column(name = NAME_ANNOTATION_NAME)
+        public String getName() {
+            return name;
+        }
+
+        @Column(name = "ignored")
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column(name = "ignored")
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface AnnotationPriorityThingDao {
@@ -436,22 +582,42 @@ public class JpaTest {
 
     @MappedSuperclass
     static class OverriddenSuperclassThing implements Thing {
-        @Column(name = "foo") private int id;
-        @Column(name = "bar") private String name;
+        @Column(name = "foo")
+        private int id;
+        @Column(name = "bar")
+        private String name;
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        public int getId() {
+            return id;
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     @Entity
     static class OverridingSubclassThing extends OverriddenSuperclassThing {
-        public OverridingSubclassThing() {}
-        public OverridingSubclassThing(int id, String name) { setId(id); setName(name); }
+        OverridingSubclassThing() {}
 
-        @Override @Column(name = "meow") public int getId() { return super.getId(); }
+        OverridingSubclassThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
+
+        @Override
+        @Column(name = "meow")
+        public int getId() {
+            return super.getId();
+        }
     }
 
     public interface OverridingSubclassThingDao {

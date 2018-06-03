@@ -123,8 +123,8 @@ public class TestModifiers {
 
                 spiffy.rollback();
 
-                Something not_tom = iso.findById(1);
-                assertThat(not_tom).isNull();
+                Something notTom = iso.findById(1);
+                assertThat(notTom).isNull();
             });
         });
     }
@@ -140,7 +140,6 @@ public class TestModifiers {
         @SqlQuery("select id, name from something")
         @FetchSize(2)
         List<Something> findAll();
-
 
         @SqlQuery("select id, name from something")
         List<Something> findAllWithMaxRows(@MaxRows int fetchSize);
