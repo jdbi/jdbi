@@ -78,7 +78,11 @@ public class TestDocumentation {
 
     @Test
     public void testObtainHandleViaOpen() throws Exception {
-        assertThatCode(dbRule.getJdbi()::open).doesNotThrowAnyException();
+        assertThatCode(() -> {
+            try (Handle h = dbRule.getJdbi().open()) {
+                // nop
+            }
+        }).doesNotThrowAnyException();
     }
 
     @Test
