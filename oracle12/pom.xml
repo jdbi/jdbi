@@ -43,7 +43,6 @@
         <dependency>
             <groupId>com.oracle.jdbc</groupId>
             <artifactId>ojdbc7</artifactId>
-            <version>12.1.0.2</version>
         </dependency>
 
         <dependency>

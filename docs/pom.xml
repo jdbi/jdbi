@@ -303,7 +303,6 @@
                 <dependency>
                     <groupId>org.jdbi</groupId>
                     <artifactId>jdbi3-oracle12</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
