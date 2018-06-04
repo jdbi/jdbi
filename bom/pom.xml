@@ -21,7 +21,6 @@
         <version>3.2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-bom</artifactId>
     <packaging>pom</packaging>
     <name>jdbi3 BOM</name>
