@@ -19,5 +19,4 @@ import org.jdbi.v3.core.qualifier.Qualifier;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface HStore {
-}
+public @interface HStore {}

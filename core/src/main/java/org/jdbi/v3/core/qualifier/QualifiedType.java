@@ -70,8 +70,8 @@ public final class QualifiedType {
             return false;
         }
         QualifiedType that = (QualifiedType) o;
-        return Objects.equals(type, that.type) &&
-            Objects.equals(qualifiers, that.qualifiers);
+        return Objects.equals(type, that.type)
+            && Objects.equals(qualifiers, that.qualifiers);
     }
 
     @Override
@@ -81,9 +81,9 @@ public final class QualifiedType {
 
     @Override
     public String toString() {
-        return "QualifiedType{" +
-            "type=" + type +
-            ", qualifiers=" + qualifiers +
-            '}';
+        return "QualifiedType{"
+            + "type=" + type
+            + ", qualifiers=" + qualifiers
+            + '}';
     }
 }

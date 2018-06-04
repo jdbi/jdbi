@@ -1126,9 +1126,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
             if (params.length > 0) {
-                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params) +
-                        "' with qualifiers '" + qualifiedType.getQualifiers() +
-                        "'.  To bind a generic type, prefer using bindByType.");
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
+                    + "' with qualifiers '" + qualifiedType.getQualifiers()
+                    + "'. To bind a generic type, prefer using bindByType.");
             }
         }
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType);

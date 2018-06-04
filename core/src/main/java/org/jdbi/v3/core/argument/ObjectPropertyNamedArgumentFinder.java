@@ -81,7 +81,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
         public final QualifiedType type;
         public final Object value;
 
-        public TypedValue(Type type, Set<Annotation> qualifiers, Object value) {
+        TypedValue(Type type, Set<Annotation> qualifiers, Object value) {
             this.type = QualifiedType.of(type, qualifiers);
             this.value = value;
         }
