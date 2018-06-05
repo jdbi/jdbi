@@ -84,7 +84,6 @@
         <exclude name="BeanMembersShouldSerialize"/>
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
-        <exclude name="DoNotThrowExceptionInFinally"/>
         <exclude name="EmptyCatchBlock"/>
         <exclude name="InstantiationToGetClass"/>
         <exclude name="NonStaticInitializer"/>
