@@ -197,11 +197,6 @@
                 <artifactId>jdbi3-vavr</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-oracle12</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -392,12 +387,6 @@
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>1.3.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.oracle.jdbc</groupId>
-                <artifactId>ojdbc7</artifactId>
-                <version>12.1.0.2</version>
             </dependency>
 
             <dependency>
@@ -706,6 +695,11 @@
             </modules>
             <dependencyManagement>
                 <dependencies>
+                    <dependency>
+                        <groupId>com.oracle.jdbc</groupId>
+                        <artifactId>ojdbc7</artifactId>
+                        <version>12.1.0.2</version>
+                    </dependency>
                     <dependency>
                         <groupId>org.jdbi</groupId>
                         <artifactId>jdbi3-oracle12</artifactId>
