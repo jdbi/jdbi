@@ -14,6 +14,7 @@
 
 package org.jdbi.v3.core.generic.internal;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public final class Preconditions {
@@ -26,11 +27,7 @@ public final class Preconditions {
     }
 
     public static <T> T checkNotNull(T reference, @Nullable String errorMessageTemplate, @Nullable Object... errorMessageArgs) {
-        if (reference == null) {
-            // If either of these parameters is null, the right thing happens anyway
-            throw new NullPointerException(format(errorMessageTemplate, errorMessageArgs));
-        }
-        return reference;
+        return Objects.requireNonNull(reference, format(errorMessageTemplate, errorMessageArgs));
     }
 
     public static void checkState(boolean expression, @Nullable String errorMessageTemplate, @Nullable Object... errorMessageArgs) {
