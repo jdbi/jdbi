@@ -126,6 +126,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi> {
      * Verifies that a dataSource has been set
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void afterPropertiesSet() {
         if (dataSource == null) {
             throw new IllegalStateException("'dataSource' property must be set");
