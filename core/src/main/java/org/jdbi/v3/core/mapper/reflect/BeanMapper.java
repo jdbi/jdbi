@@ -18,6 +18,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -222,16 +223,17 @@ public class BeanMapper<T> implements RowMapper<T> {
 
     private static void writeProperty(Object bean, PropertyDescriptor property, Object value) {
         try {
-            property.getWriteMethod().invoke(bean, value);
+            Method writeMethod = property.getWriteMethod();
+            if (writeMethod == null) {
+                throw new IllegalArgumentException(String.format("No appropriate method to write property %s", property.getName()));
+            }
+            writeMethod.invoke(bean, value);
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(String.format("Unable to access setter for "
                 + "property, %s", property.getName()), e);
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(String.format("Invocation target exception trying to "
                 + "invoker setter for the %s property", property.getName()), e);
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException(String.format("No appropriate method to "
-                + "write property %s", property.getName()), e);
         }
     }
 }
