@@ -11,12 +11,10 @@
         <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
-        <exclude name="ArrayIsStoredDirectly"/>
         <exclude name="AvoidStringBufferField"/>
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
-        <exclude name="MethodReturnsInternalArray"/>
         <exclude name="PreserveStackTrace"/>
         <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
