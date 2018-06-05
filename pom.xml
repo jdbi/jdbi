@@ -517,11 +517,12 @@
                     <version>${dep.plugin.sortpom.version}</version>
                     <configuration>
                         <createBackupFile>false</createBackupFile>
+                        <expandEmptyElements>false</expandEmptyElements>
+                        <keepBlankLines>true</keepBlankLines>
                         <lineSeparator>\n</lineSeparator>
                         <nrOfIndentSpace>4</nrOfIndentSpace>
-                        <sortProperties>true</sortProperties>
-                        <keepBlankLines>true</keepBlankLines>
                         <sortDependencies>scope</sortDependencies>
+                        <sortProperties>true</sortProperties>
                     </configuration>
                 </plugin>
                 <plugin>
