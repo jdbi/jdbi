@@ -28,7 +28,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindFactory;
  */
 public class BindParameterCustomizerFactory implements ParameterCustomizerFactory {
 
-    private SqlStatementCustomizerFactory bindSqlStatementCustomizerFactory = new BindFactory();
+    private final SqlStatementCustomizerFactory bindSqlStatementCustomizerFactory = new BindFactory();
 
     @Override
     public SqlStatementParameterCustomizer createForParameter(Class<?> sqlObjectType,

@@ -30,7 +30,7 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private boolean installPlugins;
-    private List<JdbiPlugin> plugins = new ArrayList<>();
+    private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     protected abstract Jdbi createJdbi();
 
