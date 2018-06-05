@@ -70,6 +70,7 @@ public class LocalTransactionHandler implements TransactionHandler {
 
     @Override
     public void savepoint(Handle handle, String name) {
+        @SuppressWarnings("PMD.CloseResource")
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = conn.setSavepoint(name);
@@ -81,6 +82,7 @@ public class LocalTransactionHandler implements TransactionHandler {
 
     @Override
     public void releaseSavepoint(Handle handle, String name) {
+        @SuppressWarnings("PMD.CloseResource")
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
@@ -96,6 +98,7 @@ public class LocalTransactionHandler implements TransactionHandler {
 
     @Override
     public void rollbackToSavepoint(Handle handle, String name) {
+        @SuppressWarnings("PMD.CloseResource")
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);

@@ -82,7 +82,6 @@
         <exclude name="AvoidFieldNameMatchingMethodName"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
         <exclude name="BeanMembersShouldSerialize"/>
-        <exclude name="CloseResource"/>
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="DoNotThrowExceptionInFinally"/>

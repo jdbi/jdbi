@@ -55,6 +55,7 @@ public class Batch extends BaseStatement<Batch> {
             return new int[] {};
         }
 
+        @SuppressWarnings("PMD.CloseResource")
         Statement stmt;
         try {
             try {
