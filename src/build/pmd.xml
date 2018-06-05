@@ -85,7 +85,6 @@
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="EmptyCatchBlock"/>
-        <exclude name="NonStaticInitializer"/>
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
     </rule>
