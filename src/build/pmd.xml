@@ -18,7 +18,6 @@
         <exclude name="PreserveStackTrace"/>
         <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
-        <exclude name="UseCollectionIsEmpty"/>
         <exclude name="UseVarargs"/>
     </rule>
 
