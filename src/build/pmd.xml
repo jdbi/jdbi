@@ -6,23 +6,20 @@
 		 xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
 	<description>custom rules for jdbi</description>
 
+    <exclude-pattern>.*/org/jdbi/v3/core/internal/lexer/.+Lexer.*</exclude-pattern>
+
     <!-- https://pmd.github.io/pmd-6.0.1/pmd_rules_java.html -->
     <rule ref="category/java/bestpractices.xml">
         <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
-        <exclude name="ArrayIsStoredDirectly"/>
         <exclude name="AvoidStringBufferField"/>
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
-        <exclude name="MethodReturnsInternalArray"/>
         <exclude name="PreserveStackTrace"/>
         <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
-        <exclude name="UnusedImports"/>
-        <exclude name="UnusedPrivateMethod"/>
-        <exclude name="UseCollectionIsEmpty"/>
         <exclude name="UseVarargs"/>
     </rule>
 

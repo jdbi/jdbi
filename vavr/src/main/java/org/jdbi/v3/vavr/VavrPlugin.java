@@ -16,13 +16,11 @@ package org.jdbi.v3.vavr;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-import java.lang.reflect.Type;
-
 /**
  * JDBI-Plugin for vavr.io library
  * <ul>
  *  <li>supports single-value arguments ({@link io.vavr.control.Option}, ...)</li>
- *  <li>supports vavr collections via {@link org.jdbi.v3.core.result.ResultBearing#collectInto(Type)} call</li>
+ *  <li>supports vavr collections via {@link org.jdbi.v3.core.result.ResultBearing#collectInto(java.lang.reflect.Type)} call</li>
  *  <li>supports key-value mappings of a tuple result (implicitly used by map collectors)</li>
  *  <li>supports tuple projection</li>
  *  <li>supports column mapping for {@link io.vavr.control.Option}</li>
