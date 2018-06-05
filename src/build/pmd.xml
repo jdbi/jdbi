@@ -90,6 +90,12 @@
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
     </rule>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true"/>
+            <property name="allowExceptionNameRegex" value="^(ignored?|expected)$"/>
+        </properties>
+    </rule>
 
     <rule ref="category/java/multithreading.xml">
         <exclude name="AvoidSynchronizedAtMethodLevel"/>
