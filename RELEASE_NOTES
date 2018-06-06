@@ -10,7 +10,7 @@
   - Bug fixes
     - SqlStatement.bindMethods() (and @BindMethods) now selects the correct method when the
       method return type is generic.
-    - mapToMap() no longer throws an exception on empty resultsets
+    - mapToMap() no longer throws an exception on empty resultsets when ResultProducers.allowNoResults is true
   - Breaking changes
     - Removed JdbiRule.createJdbi() in favor of createDataSource(). This was necessary to
       facilitate the migrateWithFlyway() feature above, and pave the way for future additions.
