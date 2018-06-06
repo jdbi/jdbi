@@ -137,30 +137,31 @@ public class Handle implements Closeable, Configurable<Handle> {
             statementBuilder.close(getConnection());
         } catch (Throwable t) {
             suppressed = t;
-        } finally {
-            try {
-                connection.close();
-                if (wasInTransaction) {
-                    TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "
-                        + "transaction was closed. Transactions must be explicitly committed or rolled back "
-                        + "before closing the Handle. "
-                        + "Jdbi has rolled back this transaction automatically. "
-                        + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
-                    if (suppressed != null) {
-                        txe.addSuppressed(suppressed);
-                    }
-                    throw txe;
-                }
-            } catch (SQLException e) {
-                CloseException ce = new CloseException("Unable to close Connection", e);
+        }
+
+        try {
+            connection.close();
+
+            if (wasInTransaction) {
+                TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "
+                    + "transaction was closed. Transactions must be explicitly committed or rolled back "
+                    + "before closing the Handle. "
+                    + "Jdbi has rolled back this transaction automatically. "
+                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
                 if (suppressed != null) {
-                    ce.addSuppressed(suppressed);
+                    txe.addSuppressed(suppressed);
                 }
-                throw ce;
-            } finally {
-                LOG.trace("Handle [{}] released", this);
-                closed = true;
+                throw txe;
             }
+        } catch (SQLException e) {
+            CloseException ce = new CloseException("Unable to close Connection", e);
+            if (suppressed != null) {
+                ce.addSuppressed(suppressed);
+            }
+            throw ce;
+        } finally {
+            LOG.trace("Handle [{}] released", this);
+            closed = true;
         }
     }
 
