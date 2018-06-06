@@ -4,9 +4,13 @@
       registered to observe transaction success and failure.
     - JdbiRule.migrateWithFlyway() chaining method to run Flyway migrations on the test database
       prior to running tests.
+  - Improvements
+    - MessageFormatTemplateEngine is not an enum anymore but a regular singleton
+    - added some extra javadoc to SqlLogger
   - Bug fixes
     - SqlStatement.bindMethods() (and @BindMethods) now selects the correct method when the
       method return type is generic.
+    - mapToMap() no longer throws an exception on empty resultsets when ResultProducers.allowNoResults is true
   - Breaking changes
     - Removed JdbiRule.createJdbi() in favor of createDataSource(). This was necessary to
       facilitate the migrateWithFlyway() feature above, and pave the way for future additions.
