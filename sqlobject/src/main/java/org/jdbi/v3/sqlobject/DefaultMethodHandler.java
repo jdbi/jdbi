@@ -96,6 +96,7 @@ class DefaultMethodHandler implements Handler {
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidRethrowingException")
     public Object invoke(Object target, Object[] args, HandleSupplier handle) {
         try {
             return methodHandle.bindTo(target).invokeWithArguments(args);

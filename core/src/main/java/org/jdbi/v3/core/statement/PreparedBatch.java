@@ -143,6 +143,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             final PreparedStatement stmt;
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
+                @SuppressWarnings("PMD.CloseResource")
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));

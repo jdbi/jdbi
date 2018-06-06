@@ -69,6 +69,7 @@ class OnDemandExtensions {
                         new Class[]{extensionType}, handler));
     }
 
+    @SuppressWarnings("PMD.AvoidRethrowingException")
     private static Object invoke(Object target, Method method, Object[] args) {
         try {
             if (Proxy.isProxyClass(target.getClass())) {

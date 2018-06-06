@@ -35,7 +35,7 @@ public abstract class JdbiRule extends ExternalResource {
     private Handle handle;
     private boolean installPlugins;
     private String[] migrationScriptPaths;
-    private List<JdbiPlugin> plugins = new ArrayList<>();
+    private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     private final Object mutex = new Object();
 

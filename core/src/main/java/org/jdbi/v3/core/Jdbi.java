@@ -281,6 +281,7 @@ public class Jdbi implements Configurable<Jdbi> {
     public Handle open() {
         try {
             final long start = System.nanoTime();
+            @SuppressWarnings("PMD.CloseResource")
             Connection conn = connectionFactory.openConnection();
             final long stop = System.nanoTime();
 

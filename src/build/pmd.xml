@@ -53,8 +53,6 @@
 
     <rule ref="category/java/design.xml">
         <exclude name="AvoidCatchingGenericException"/>
-        <exclude name="AvoidRethrowingException"/>
-        <exclude name="AvoidThrowingNullPointerException"/>
         <exclude name="AvoidThrowingRawExceptionTypes"/>
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
         <exclude name="CouplingBetweenObjects"/>
@@ -62,7 +60,6 @@
         <exclude name="ExcessiveImports"/>
         <exclude name="ExcessivePublicCount"/>
         <exclude name="GodClass"/>
-        <exclude name="ImmutableField"/>
         <exclude name="LawOfDemeter"/>
         <exclude name="LoosePackageCoupling"/>
         <exclude name="NPathComplexity"/>
@@ -80,21 +77,22 @@
 
     <rule ref="category/java/errorprone.xml">
         <exclude name="AssignmentInOperand"/>
-        <exclude name="AvoidCatchingNPE"/>
         <exclude name="AvoidCatchingThrowable"/>
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
         <exclude name="BeanMembersShouldSerialize"/>
-        <exclude name="CloseResource"/>
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
-        <exclude name="DoNotThrowExceptionInFinally"/>
         <exclude name="EmptyCatchBlock"/>
-        <exclude name="InstantiationToGetClass"/>
-        <exclude name="NonStaticInitializer"/>
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
+    </rule>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true"/>
+            <property name="allowExceptionNameRegex" value="^(ignored?|expected)$"/>
+        </properties>
     </rule>
 
     <rule ref="category/java/multithreading.xml">

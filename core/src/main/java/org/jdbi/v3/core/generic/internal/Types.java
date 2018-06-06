@@ -299,6 +299,7 @@ public class Types {
         static final ClassOwnership JVM_BEHAVIOR = detectJvmBehavior();
 
         @SuppressFBWarnings
+        @SuppressWarnings("PMD.InstantiationToGetClass")
         private static ClassOwnership detectJvmBehavior() {
             class LocalClass<T> {}
             Class<?> subclass = new LocalClass<String>() {}.getClass();
