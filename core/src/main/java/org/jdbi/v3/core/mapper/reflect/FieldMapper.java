@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -25,13 +22,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -158,7 +157,7 @@ public class FieldMapper<T> implements RowMapper<T> {
             }
         }
 
-        if (mappers.isEmpty() && columnNames.size() > 0) {
+        if (mappers.isEmpty() && !columnNames.isEmpty()) {
             throw new IllegalArgumentException(String.format("Mapping fields for type %s "
                 + "didn't find any matching columns in result set", type));
         }

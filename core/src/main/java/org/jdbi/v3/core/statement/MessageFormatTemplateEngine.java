@@ -65,7 +65,7 @@ public class MessageFormatTemplateEngine implements TemplateEngine {
             throw new IllegalArgumentException("expected " + expectedCount + " keys but got " + keySet.size());
         }
 
-        if (keySet.size() == 0) {
+        if (keySet.isEmpty()) {
             return;
         }
 

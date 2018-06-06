@@ -51,7 +51,7 @@ public class Batch extends BaseStatement<Batch> {
      */
     public int[] execute() {
         // short circuit empty batch
-        if (parts.size() == 0) {
+        if (parts.isEmpty()) {
             return new int[] {};
         }
 
