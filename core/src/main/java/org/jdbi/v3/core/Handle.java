@@ -115,7 +115,6 @@ public class Handle implements Closeable, Configurable<Handle> {
      * rolled back.
      */
     @Override
-    @SuppressWarnings("PMD.DoNotThrowExceptionInFinally")
     public void close() {
         if (closed) {
             return;
