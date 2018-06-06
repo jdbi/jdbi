@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.testing;
 
-import org.jdbi.v3.core.Jdbi;
+import javax.sql.DataSource;
+
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
@@ -33,7 +34,7 @@ class EmbeddedPostgresJdbiRule extends JdbiRule {
     }
 
     @Override
-    protected Jdbi createJdbi() {
-        return Jdbi.create(embeddedPg.getEmbeddedPostgres().getPostgresDatabase());
+    protected DataSource createDataSource() {
+        return embeddedPg.getEmbeddedPostgres().getPostgresDatabase();
     }
 }
