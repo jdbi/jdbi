@@ -16,9 +16,9 @@ package org.jdbi.v3.core.statement;
 /**
  * Renders an SQL statement from a template.
  *
- * @see DefinedAttributeTemplateEngine
+ * Note for implementors: define a suitable public constructor for SqlObject's {@code UseTemplateEngine} annotation, and/or create your own custom annotation in case your {@link TemplateEngine} has configuration parameters! Suitable constructors are the no-arg constructor, one that takes a {@link java.lang.Class}, and one that takes both a {@link java.lang.Class} and a {@link java.lang.reflect.Method}.
  *
- * Note for implementors: define a public default constructor, or one that takes a {@link java.lang.Class} and/or {@link java.lang.reflect.Method}, for SqlObject's {@code UseTemplateEngine} annotation, and/or create your own custom annotation in case your {@link TemplateEngine} has configuration parameters!
+ * @see DefinedAttributeTemplateEngine
  */
 @FunctionalInterface
 public interface TemplateEngine {
