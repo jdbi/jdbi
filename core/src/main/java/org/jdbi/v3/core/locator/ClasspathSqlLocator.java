@@ -21,12 +21,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import org.antlr.runtime.ANTLRInputStream;
-import org.jdbi.v3.core.internal.SqlScriptParser;
-
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.antlr.runtime.ANTLRInputStream;
+import org.jdbi.v3.core.internal.SqlScriptParser;
+import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 
 /**
  * Locates SQL in {@code .sql} files on the classpath.  Given a class and
@@ -35,9 +34,6 @@ import net.jodah.expiringmap.ExpiringMap;
  * The contents are then parsed, cached, and returned for use by a statement.
  */
 public final class ClasspathSqlLocator {
-    private static final char PACKAGE_DELIMITER = '.';
-    private static final char PATH_DELIMITER = '/';
-
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
     @SuppressWarnings("unchecked")
@@ -50,7 +46,7 @@ public final class ClasspathSqlLocator {
             })
             .build();
 
-    private static final String SQL_EXTENSION = ".sql";
+    private static final String SQL_EXTENSION = "sql";
 
     private ClasspathSqlLocator() {}
 
@@ -61,11 +57,11 @@ public final class ClasspathSqlLocator {
      *
      * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
      *             classpath.
-     * @param name the SQL statement name (usually a method or field name from the type).
+     * @param methodName the SQL statement name (usually a method or field name from the type).
      * @return the located SQL.
      */
-    public static String findSqlOnClasspath(Class<?> type, String name) {
-        String path = resourcePathFor(type, name);
+    public static String findSqlOnClasspath(Class<?> type, String methodName) {
+        String path = new ClasspathBuilder().appendFullyQualifiedClassName(type).append(methodName).setExtension(SQL_EXTENSION).build();
         return getResourceOnClasspath(type.getClassLoader(), path);
     }
 
@@ -77,16 +73,8 @@ public final class ClasspathSqlLocator {
      * @return the located SQL.
      */
     public static String findSqlOnClasspath(String name) {
-        String path = resourcePathFor(name);
-        return getResourceOnClasspath(selectClassLoader(), path);
-    }
-
-    private static String resourcePathFor(Class<?> extensionType, String methodName) {
-        return resourcePathFor(extensionType.getName() + "." + methodName);
-    }
-
-    private static String resourcePathFor(String fullyQualifiedName) {
-        return fullyQualifiedName.replace(PACKAGE_DELIMITER, PATH_DELIMITER) + SQL_EXTENSION;
+        ClasspathBuilder builder = new ClasspathBuilder().appendDotPath(name).setExtension(SQL_EXTENSION);
+        return getResourceOnClasspath(selectClassLoader(), builder.build());
     }
 
     /**
