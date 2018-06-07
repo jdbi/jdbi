@@ -35,23 +35,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

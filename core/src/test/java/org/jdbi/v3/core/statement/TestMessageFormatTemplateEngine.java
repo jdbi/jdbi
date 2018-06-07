@@ -30,7 +30,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Before
     public void setUp() {
-        templateEngine = MessageFormatTemplateEngine.INSTANCE;
+        templateEngine = new MessageFormatTemplateEngine();
         attributes = new HashMap<>();
         ctx = mock(StatementContext.class);
         when(ctx.getAttributes()).thenReturn(attributes);

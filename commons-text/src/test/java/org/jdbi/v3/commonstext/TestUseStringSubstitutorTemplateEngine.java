@@ -39,14 +39,27 @@ public class TestUseStringSubstitutorTemplateEngine {
 
     @Test
     public void testUseTemplateEngine() {
-        String selected = jdbi.withExtension(Queries.class, q -> q.select("foo"));
+        String selected = jdbi.withExtension(Queries1.class, q -> q.select("foo"));
 
         assertThat(selected).isEqualTo("foo");
     }
 
-    public interface Queries {
+    @Test
+    public void testCustomAnnotation() {
+        String selected = jdbi.withExtension(Queries2.class, q -> q.select("foo"));
+
+        assertThat(selected).isEqualTo("foo");
+    }
+
+    public interface Queries1 {
         @UseTemplateEngine(StringSubstitutorTemplateEngine.class)
         @SqlQuery("select * from (values('${v}'))")
+        String select(@Define("v") String value);
+    }
+
+    public interface Queries2 {
+        @UseStringSubstitutorTemplateEngine(prefix = "_", suffix = "_")
+        @SqlQuery("select * from (values('_v_'))")
         String select(@Define("v") String value);
     }
 }
