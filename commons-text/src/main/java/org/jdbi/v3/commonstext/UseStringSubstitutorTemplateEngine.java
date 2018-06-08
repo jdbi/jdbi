@@ -24,7 +24,7 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 @ConfiguringAnnotation(UseStringSubstitutorTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringSubstitutorTemplateEngine {
-    String prefix() default "${";
-    String suffix() default "}";
-    char escape() default '\\';
+    String prefix() default StringSubstitutorTemplateEngine.DEFAULT_PREFIX;
+    String suffix() default StringSubstitutorTemplateEngine.DEFAULT_SUFFIX;
+    char escape() default StringSubstitutorTemplateEngine.DEFAULT_ESCAPE;
 }
