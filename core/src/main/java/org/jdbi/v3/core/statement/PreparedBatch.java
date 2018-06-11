@@ -146,7 +146,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 @SuppressWarnings("PMD.CloseResource")
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
+
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
+                getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
