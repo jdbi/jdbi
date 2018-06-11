@@ -39,9 +39,13 @@ import java.util.Set;
  * }</pre>
  */
 public class MessageFormatTemplateEngine implements TemplateEngine {
+    /**
+     * @deprecated use the default constructor instead
+     */
+    @Deprecated
     public static final TemplateEngine INSTANCE = new MessageFormatTemplateEngine();
 
-    private MessageFormatTemplateEngine() {}
+    public MessageFormatTemplateEngine() {}
 
     @Override
     public String render(String template, StatementContext ctx) {
