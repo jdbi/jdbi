@@ -138,7 +138,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static URI getURI(ResultSet r, int i) throws SQLException {
         String s = r.getString(i);
         try {
-            return (s == null) ? null : (new URI(s));
+            return s == null ? null : new URI(s);
         } catch (URISyntaxException e) {
             throw new SQLException("Failed to convert data to URI", e);
         }

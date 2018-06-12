@@ -91,7 +91,7 @@ public class Types {
     }
 
     static String toString(Type type) {
-        return (type instanceof Class) ? ((Class<?>) type).getName() : type.toString();
+        return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
     }
 
     @Nullable
