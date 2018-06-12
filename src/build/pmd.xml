@@ -25,7 +25,6 @@
         <exclude name="AvoidFinalLocalVariable"/>
         <exclude name="BooleanGetMethodName"/>
         <exclude name="CallSuperInConstructor"/>
-        <exclude name="ConfusingTernary"/>
         <exclude name="CommentDefaultAccessModifier"/>
         <exclude name="DefaultPackage"/>
         <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
