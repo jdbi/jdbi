@@ -10,7 +10,6 @@
 
     <!-- https://pmd.github.io/pmd-6.0.1/pmd_rules_java.html -->
     <rule ref="category/java/bestpractices.xml">
-        <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="AvoidStringBufferField"/>
