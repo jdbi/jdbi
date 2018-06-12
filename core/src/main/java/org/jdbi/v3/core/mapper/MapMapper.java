@@ -28,13 +28,16 @@ import org.jdbi.v3.core.statement.StatementContext;
  * default.
  */
 public class MapMapper implements RowMapper<Map<String, Object>> {
+    private static final ColumnMapper<?> GET_OBJECT = (r, columnNumber, ctx) -> r.getObject(columnNumber);
+
     private final boolean foldCase;
+    private final ColumnMapper<?> colMapper;
 
     /**
      * Constructs a new MapMapper, with map keys converted to lowercase.
      */
     public MapMapper() {
-        this(true);
+        this(true, GET_OBJECT);
     }
 
     /**
@@ -42,7 +45,16 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      * @param foldCase if true, column names are converted to lowercase in the mapped {@link Map}.
      */
     public MapMapper(boolean foldCase) {
+        this(foldCase, GET_OBJECT);
+    }
+
+    public MapMapper(ColumnMapper<?> colMapper) {
+        this(true, colMapper);
+    }
+
+    public MapMapper(boolean foldCase, ColumnMapper<?> colMapper) {
         this.foldCase = foldCase;
+        this.colMapper = colMapper;
     }
 
     @Override
@@ -74,7 +86,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
             Map<String, Object> row = new LinkedHashMap<>(columnCount);
 
             for (int i = 1; i <= columnCount; i++) {
-                row.put(columnNames[i], rs.getObject(i));
+                row.put(columnNames[i], colMapper.map(r, i, ctx));
             }
 
             return row;
