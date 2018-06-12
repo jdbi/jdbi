@@ -87,9 +87,11 @@ public class Binding {
     }
 
     @Override
+    @SuppressWarnings("PMD.ConsecutiveAppendsShouldReuse")
     public String toString() {
         boolean wrote = false;
         StringBuilder b = new StringBuilder();
+
         b.append("{ positional:{");
         for (Map.Entry<Integer, Argument> entry : positionals.entrySet()) {
             wrote = true;
@@ -123,6 +125,7 @@ public class Binding {
         b.append(']');
 
         b.append('}');
+
         return b.toString();
     }
 
