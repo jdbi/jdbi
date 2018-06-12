@@ -93,7 +93,6 @@
     <rule ref="category/java/performance.xml">
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="AvoidUsingShortType"/>
-        <exclude name="InsufficientStringBufferDeclaration"/>
         <exclude name="OptimizableToArrayCall"/>
         <exclude name="RedundantFieldInitializer"/>
     </rule>
