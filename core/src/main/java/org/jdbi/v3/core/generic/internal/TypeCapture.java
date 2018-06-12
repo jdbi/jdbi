@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
 
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
+@SuppressWarnings({"PMD.AbstractClassWithoutAbstractMethod", "PMD.AbstractNaming"})
 abstract class TypeCapture<T> {
   final Type capture() {
     Type superclass = getClass().getGenericSuperclass();

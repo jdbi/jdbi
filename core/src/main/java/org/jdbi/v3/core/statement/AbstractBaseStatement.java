@@ -23,7 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.generic.GenericTypes;
 
-abstract class BaseStatement<This> implements Closeable, Configurable<This> {
+abstract class AbstractBaseStatement<This> implements Closeable, Configurable<This> {
     @SuppressWarnings("unchecked")
     final This typedThis = (This) this;
 
@@ -31,13 +31,13 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     private final StatementContext ctx;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
-    BaseStatement(Handle handle) {
+    AbstractBaseStatement(Handle handle) {
         this.handle = handle;
         this.ctx = new StatementContext(handle.getConfig().createCopy(), handle.getExtensionMethod());
 
         // Prevent bogus signatures like Update extends SqlStatement<Query>
         // SqlStatement's generic parameter must be supertype of getClass()
-        if (GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
+        if (GenericTypes.findGenericParameter(getClass(), AbstractBaseStatement.class)
             .map(GenericTypes::getErasedType)
             .map(type -> !type.isAssignableFrom(getClass()))
             .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯

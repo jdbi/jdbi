@@ -25,7 +25,7 @@ import java.util.Set;
 
 @NotThreadSafe
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
-abstract class TypeVisitor {
+abstract class AbstractTypeVisitor {
 
     private final Set<Type> visited = new HashSet<>();
 

@@ -21,7 +21,6 @@
     </rule>
 
     <rule ref="category/java/codestyle.xml">
-        <exclude name="AbstractNaming"/>
         <exclude name="AtLeastOneConstructor"/>
         <exclude name="AvoidFinalLocalVariable"/>
         <exclude name="AvoidPrefixingMethodParameters"/>

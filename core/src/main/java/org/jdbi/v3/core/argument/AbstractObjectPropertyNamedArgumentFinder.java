@@ -25,7 +25,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Base {@link NamedArgumentFinder} implementation that can be used when binding properties of an object, with an
  * optional prefix.
  */
-abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
+abstract class AbstractObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
     final String prefix;
     final Object object;
 
@@ -35,7 +35,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object bind on
      */
-    ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
+    AbstractObjectPropertyNamedArgumentFinder(String prefix, Object object) {
         this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
         this.object = object;
     }

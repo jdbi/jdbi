@@ -29,18 +29,18 @@ import org.jdbi.v3.sqlobject.SingleValue;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Helper class used by the {@link CustomizingStatementHandler}s to assemble
+ * Helper class used by the {@link AbstractCustomizingStatementHandler}s to assemble
  * the result Collection, Iterable, etc.
  */
-abstract class ResultReturner {
+abstract class AbstractResultReturner {
     /**
      * If the return type is {@code void}, swallow results.
      * @param extensionType
      * @param method
-     * @see ResultReturner#forMethod(Class, Method) if the return type is not void
+     * @see AbstractResultReturner#forMethod(Class, Method) if the return type is not void
      * @return
      */
-    static ResultReturner forOptionalReturn(Class<?> extensionType, Method method) {
+    static AbstractResultReturner forOptionalReturn(Class<?> extensionType, Method method) {
         if (method.getReturnType() == void.class) {
             return new VoidReturner();
         }
@@ -54,7 +54,7 @@ abstract class ResultReturner {
      * @param method the method whose return type chooses the ResultReturner
      * @return an instance that takes a ResultIterable and constructs the return value
      */
-    static ResultReturner forMethod(Class<?> extensionType, Method method) {
+    static AbstractResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
@@ -84,7 +84,7 @@ abstract class ResultReturner {
      * @param method the method called
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
-    static Optional<ResultReturner> findConsumer(Class<?> extensionType, Method method) {
+    static Optional<AbstractResultReturner> findConsumer(Class<?> extensionType, Method method) {
         final Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             if (paramTypes[i] == Consumer.class) {
@@ -106,7 +106,7 @@ abstract class ResultReturner {
         return result;
     }
 
-    static class VoidReturner extends ResultReturner {
+    static class VoidReturner extends AbstractResultReturner {
         @Override
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
             iterable.stream().forEach(i -> {}); // Make sure to consume the result
@@ -124,7 +124,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class ResultIterableReturner extends ResultReturner {
+    static class ResultIterableReturner extends AbstractResultReturner {
 
         private final Type elementType;
 
@@ -151,7 +151,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class StreamReturner extends ResultReturner {
+    static class StreamReturner extends AbstractResultReturner {
         private final Type elementType;
 
         StreamReturner(Type returnType) {
@@ -176,7 +176,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class ResultIteratorReturner extends ResultReturner {
+    static class ResultIteratorReturner extends AbstractResultReturner {
         private final Type elementType;
 
         ResultIteratorReturner(Type returnType) {
@@ -201,7 +201,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class IteratorReturner extends ResultReturner {
+    static class IteratorReturner extends AbstractResultReturner {
         private final Type elementType;
 
         IteratorReturner(Type returnType) {
@@ -226,7 +226,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class SingleValueReturner extends ResultReturner {
+    static class SingleValueReturner extends AbstractResultReturner {
         private final Type returnType;
 
         SingleValueReturner(Type returnType) {
@@ -249,7 +249,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class CollectedResultReturner extends ResultReturner {
+    static class CollectedResultReturner extends AbstractResultReturner {
         private final Type returnType;
 
         CollectedResultReturner(Type returnType) {
@@ -282,7 +282,7 @@ abstract class ResultReturner {
         }
     }
 
-    static class ConsumerResultReturner extends ResultReturner {
+    static class ConsumerResultReturner extends AbstractResultReturner {
         private final int consumerIndex;
         private final Type elementType;
 

@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * Jdbi interface implementations that allocate database resources should register a Cleanable to ensure that
  * resources are freed after database operations are completed.
  *
- * @see BaseStatement#addCleanable(Cleanable)
+ * @see AbstractBaseStatement#addCleanable(Cleanable)
  * @see StatementContext#addCleanable(Cleanable)
  */
 @FunctionalInterface

@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 /**
  * Base unchecked exception for exceptions thrown from jdbi.
  */
+@SuppressWarnings("PMD.AbstractNaming")
 public abstract class JdbiException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

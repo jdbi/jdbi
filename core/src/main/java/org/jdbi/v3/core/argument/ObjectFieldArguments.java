@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Inspect an object and binds parameters based on each of its public fields.
  */
-public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
+public class ObjectFieldArguments extends AbstractObjectPropertyNamedArgumentFinder {
     private static final Map<Class<?>, Map<String, Field>> CLASS_FIELDS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)

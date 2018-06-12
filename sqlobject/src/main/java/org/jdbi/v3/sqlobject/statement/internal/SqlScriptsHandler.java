@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.Script;
 
-public class SqlScriptsHandler extends CustomizingStatementHandler<Script> {
+public class SqlScriptsHandler extends AbstractCustomizingStatementHandler<Script> {
 
     public SqlScriptsHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);

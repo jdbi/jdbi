@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
-import static java.util.stream.Stream.concat;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -26,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -44,21 +41,23 @@ import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
+import static java.util.stream.Stream.concat;
+
 /**
  * Base handler for annotations' implementation classes.
  */
-abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler {
+abstract class AbstractCustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler {
     private final List<BoundCustomizer> statementCustomizers;
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class<?> type, Method method) {
+    AbstractCustomizingStatementHandler(Class<?> type, Method method) {
         this.sqlObjectType = type;
         this.method = method;
 
         // Include annotations on the interface's supertypes
         final Stream<BoundCustomizer> typeCustomizers = concat(Stream.of(type.getInterfaces()), Stream.of(type))
-            .flatMap(CustomizingStatementHandler::annotationsFor)
+            .flatMap(AbstractCustomizingStatementHandler::annotationsFor)
             .map(a -> instantiateFactory(a).createForType(a, type))
             .map(BoundCustomizer::of);
 

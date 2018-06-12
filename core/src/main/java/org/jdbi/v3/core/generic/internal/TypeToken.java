@@ -83,7 +83,7 @@ public class TypeToken<T> extends TypeCapture<T> {
 
     private Set<Class<? super T>> getRawTypes() {
         final Set<Class<?>> builder = new LinkedHashSet<>();
-        new TypeVisitor() {
+        new AbstractTypeVisitor() {
             @Override
             void visitTypeVariable(TypeVariable<?> t) {
                 visit(t.getBounds());

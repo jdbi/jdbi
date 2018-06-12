@@ -65,7 +65,7 @@ public final class TypeResolver {
         if (from.equals(to)) {
             return;
         }
-        new TypeVisitor() {
+        new AbstractTypeVisitor() {
             @Override
             void visitTypeVariable(TypeVariable<?> typeVariable) {
                 mappings.put(new TypeVariableKey(typeVariable), to);
@@ -265,7 +265,7 @@ public final class TypeResolver {
         }
     }
 
-    private static final class TypeMappingIntrospector extends TypeVisitor {
+    private static final class TypeMappingIntrospector extends AbstractTypeVisitor {
 
         private static final WildcardCapturer WILDCARD_CAPTURER = new WildcardCapturer();
 
