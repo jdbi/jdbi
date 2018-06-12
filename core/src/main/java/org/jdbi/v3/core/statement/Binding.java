@@ -101,7 +101,7 @@ public class Binding {
             .map(Object::toString)
             .collect(Collectors.joining(","));
 
-        return "{positional:{" + positionals + "}, named:{" + named + "}, finder: [" + found + "]}";
+        return "{positional:{" + positionals + "}, named:{" + named + "}, finder:[" + found + "]}";
     }
 
     /**
