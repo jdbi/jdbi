@@ -87,7 +87,7 @@ public class Binding {
     }
 
     @Override
-    @SuppressWarnings("PMD.ConsecutiveAppendsShouldReuse")
+    @SuppressWarnings({"PMD.ConsecutiveAppendsShouldReuse", "PMD.ConsecutiveLiteralAppends"})
     public String toString() {
         boolean wrote = false;
         StringBuilder b = new StringBuilder();
