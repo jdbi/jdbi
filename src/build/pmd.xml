@@ -16,7 +16,6 @@
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
-        <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
     </rule>
