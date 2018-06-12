@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * Represents the arguments bound to a particular statement.
@@ -94,36 +93,36 @@ public class Binding {
         b.append("{ positional:{");
         for (Map.Entry<Integer, Argument> entry : positionals.entrySet()) {
             wrote = true;
-            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+            b.append(entry.getKey()).append(':').append(entry.getValue()).append(',');
         }
         if (wrote) {
             wrote = false;
             b.deleteCharAt(b.length() - 1);
         }
-        b.append("}");
+        b.append('}');
 
         b.append(", named:{");
         for (Map.Entry<String, Argument> entry : named.entrySet()) {
             wrote = true;
-            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+            b.append(entry.getKey()).append(':').append(entry.getValue()).append(',');
         }
         if (wrote) {
             wrote = false;
             b.deleteCharAt(b.length() - 1);
         }
-        b.append("}");
+        b.append('}');
 
         b.append(", finder:[");
         for (NamedArgumentFinder argument : namedArgumentFinder) {
             wrote = true;
-            b.append(argument).append(",");
+            b.append(argument).append(',');
         }
         if (wrote) {
             b.deleteCharAt(b.length() - 1);
         }
-        b.append("]");
+        b.append(']');
 
-        b.append("}");
+        b.append('}');
         return b.toString();
     }
 

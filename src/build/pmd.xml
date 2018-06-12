@@ -91,7 +91,6 @@
     </rule>
 
     <rule ref="category/java/performance.xml">
-        <exclude name="AppendCharacterWithChar"/>
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="AvoidUsingShortType"/>
         <exclude name="ConsecutiveAppendsShouldReuse"/>
