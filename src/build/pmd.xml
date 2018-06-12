@@ -41,7 +41,6 @@
         <exclude name="TooManyStaticImports"/>
         <exclude name="UnnecessaryConstructor"/>
         <exclude name="UselessParentheses"/>
-        <exclude name="UselessQualifiedThis"/>
     </rule>
 
     <rule ref="category/java/design.xml">
