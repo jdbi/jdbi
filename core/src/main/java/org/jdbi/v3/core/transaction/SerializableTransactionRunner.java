@@ -42,6 +42,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace")
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X {
         final Configuration config = handle.getConfig(Configuration.class);
