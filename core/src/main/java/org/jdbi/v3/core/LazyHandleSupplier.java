@@ -21,6 +21,8 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
+    private final Object[] lock = new Object[0];
+
     private final Jdbi db;
     private final ThreadLocal<ConfigRegistry> config;
     private final ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
@@ -46,19 +48,21 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         return handle;
     }
 
-    private synchronized void initHandle() {
-        if (handle == null) {
-            if (closed) {
-                throw new IllegalStateException("Handle is closed");
+    private void initHandle() {
+        synchronized (lock) {
+            if (handle == null) {
+                if (closed) {
+                    throw new IllegalStateException("Handle is closed");
+                }
+
+                Handle handle = db.open();
+                // share extension method thread local with handle,
+                // so extension methods set in other threads are preserved
+                handle.setExtensionMethodThreadLocal(extensionMethod);
+                handle.setConfigThreadLocal(config);
+
+                this.handle = handle;
             }
-
-            Handle handle = db.open();
-            // share extension method thread local with handle,
-            // so extension methods set in other threads are preserved
-            handle.setExtensionMethodThreadLocal(extensionMethod);
-            handle.setConfigThreadLocal(config);
-
-            this.handle = handle;
         }
     }
 
@@ -69,14 +73,16 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     }
 
     @Override
-    public synchronized void close() {
-        closed = true;
-        // once created, the handle owns cleanup of the threadlocals
-        if (handle == null) {
-            config.remove();
-            extensionMethod.remove();
-        } else {
-            handle.close();
+    public void close() {
+        synchronized (lock) {
+            closed = true;
+            // once created, the handle owns cleanup of the threadlocals
+            if (handle == null) {
+                config.remove();
+                extensionMethod.remove();
+            } else {
+                handle.close();
+            }
         }
     }
 }
