@@ -82,10 +82,14 @@ public class GenericTypes {
      * @return the parameter on the supertype, if it is concretely defined.
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
-        Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[0], type);
+        return findGenericParameter(type, parameterizedSupertype, 0);
+    }
+
+    public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int i) {
+        Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[i], type);
         return parameterType instanceof Class || parameterType instanceof ParameterizedType
-                ? Optional.of(parameterType)
-                : Optional.empty();
+            ? Optional.of(parameterType)
+            : Optional.empty();
     }
 
     /**
