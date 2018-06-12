@@ -40,7 +40,6 @@
         <exclude name="ShortVariable"/>
         <exclude name="TooManyStaticImports"/>
         <exclude name="UnnecessaryConstructor"/>
-        <exclude name="UnnecessaryFullyQualifiedName"/>
         <exclude name="UselessParentheses"/>
         <exclude name="UselessQualifiedThis"/>
     </rule>
