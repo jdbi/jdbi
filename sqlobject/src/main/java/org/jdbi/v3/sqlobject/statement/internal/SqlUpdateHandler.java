@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
-public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
+public class SqlUpdateHandler extends AbstractCustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
@@ -41,7 +41,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         if (isGetGeneratedKeys) {
-            ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
+            AbstractResultReturner magic = AbstractResultReturner.forMethod(sqlObjectType, method);
 
             String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
 

@@ -110,7 +110,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
     }
 
     @Override
-    public java.util.Optional<Type> elementType(Type containerType) {
+    public Optional<Type> elementType(Type containerType) {
         Class<?> erasedType = getErasedType(containerType);
 
         if (Map.class.isAssignableFrom(erasedType)) {

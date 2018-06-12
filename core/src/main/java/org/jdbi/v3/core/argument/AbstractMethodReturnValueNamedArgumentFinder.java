@@ -23,12 +23,12 @@ import java.lang.reflect.Method;
  * Base {@link NamedArgumentFinder} implementation that can be used for bindings that use the return value
  * of an object's method as an argument.
  */
-abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropertyNamedArgumentFinder {
+abstract class AbstractMethodReturnValueNamedArgumentFinder extends AbstractObjectPropertyNamedArgumentFinder {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind methods on
      */
-    MethodReturnValueNamedArgumentFinder(String prefix, Object object) {
+    AbstractMethodReturnValueNamedArgumentFinder(String prefix, Object object) {
         super(prefix, object);
     }
 

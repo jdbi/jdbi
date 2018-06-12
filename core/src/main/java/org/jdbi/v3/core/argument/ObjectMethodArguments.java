@@ -28,7 +28,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Binds public methods with no parameters on a specified object.
  */
-public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder {
+public class ObjectMethodArguments extends AbstractMethodReturnValueNamedArgumentFinder {
     private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
@@ -75,6 +75,6 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     private static Method bridgeMethodMerge(Method a, Method b) {
-        return (a.isBridge()) ? b : a;
+        return a.isBridge() ? b : a;
     }
 }

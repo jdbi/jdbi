@@ -54,7 +54,7 @@ import static java.util.stream.Collectors.joining;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
+public abstract class SqlStatement<This extends SqlStatement<This>> extends AbstractBaseStatement<This> {
     private final Handle handle;
     private final String sql;
 

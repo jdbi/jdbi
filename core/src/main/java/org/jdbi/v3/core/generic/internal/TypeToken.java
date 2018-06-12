@@ -64,7 +64,7 @@ public class TypeToken<T> extends TypeCapture<T> {
         checkNotNull(type, "type");
         TypeResolver resolver = typeResolver;
         if (resolver == null) {
-            resolver = (typeResolver = TypeResolver.accordingTo(runtimeType));
+            resolver = typeResolver = TypeResolver.accordingTo(runtimeType);
         }
         return of(resolver.resolveType(type));
     }
@@ -83,7 +83,7 @@ public class TypeToken<T> extends TypeCapture<T> {
 
     private Set<Class<? super T>> getRawTypes() {
         final Set<Class<?>> builder = new LinkedHashSet<>();
-        new TypeVisitor() {
+        new AbstractTypeVisitor() {
             @Override
             void visitTypeVariable(TypeVariable<?> t) {
                 visit(t.getBounds());

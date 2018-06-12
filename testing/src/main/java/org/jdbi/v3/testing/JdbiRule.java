@@ -28,6 +28,7 @@ import java.util.UUID;
 /**
  * JUnit {@code @Rule} to manage a Jdbi instance pointed to a managed database.
  */
+@SuppressWarnings("PMD.AbstractNaming")
 public abstract class JdbiRule extends ExternalResource {
 
     private volatile DataSource dataSource;

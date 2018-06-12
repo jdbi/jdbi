@@ -10,27 +10,21 @@
 
     <!-- https://pmd.github.io/pmd-6.0.1/pmd_rules_java.html -->
     <rule ref="category/java/bestpractices.xml">
-        <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="AvoidStringBufferField"/>
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
-        <exclude name="PreserveStackTrace"/>
-        <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
     </rule>
 
     <rule ref="category/java/codestyle.xml">
-        <exclude name="AbstractNaming"/>
         <exclude name="AtLeastOneConstructor"/>
         <exclude name="AvoidFinalLocalVariable"/>
-        <exclude name="AvoidPrefixingMethodParameters"/>
         <exclude name="BooleanGetMethodName"/>
         <exclude name="CallSuperInConstructor"/>
-        <exclude name="ConfusingTernary"/>
         <exclude name="CommentDefaultAccessModifier"/>
         <exclude name="DefaultPackage"/>
         <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
@@ -46,9 +40,6 @@
         <exclude name="ShortVariable"/>
         <exclude name="TooManyStaticImports"/>
         <exclude name="UnnecessaryConstructor"/>
-        <exclude name="UnnecessaryFullyQualifiedName"/>
-        <exclude name="UselessParentheses"/>
-        <exclude name="UselessQualifiedThis"/>
     </rule>
 
     <rule ref="category/java/design.xml">
@@ -76,7 +67,6 @@
     </rule>
 
     <rule ref="category/java/errorprone.xml">
-        <exclude name="AssignmentInOperand"/>
         <exclude name="AvoidCatchingThrowable"/>
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
@@ -96,19 +86,13 @@
     </rule>
 
     <rule ref="category/java/multithreading.xml">
-        <exclude name="AvoidSynchronizedAtMethodLevel"/>
         <exclude name="AvoidUsingVolatile"/>
         <exclude name="UseConcurrentHashMap"/>
     </rule>
 
     <rule ref="category/java/performance.xml">
-        <exclude name="AppendCharacterWithChar"/>
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="AvoidUsingShortType"/>
-        <exclude name="ConsecutiveAppendsShouldReuse"/>
-        <exclude name="ConsecutiveLiteralAppends"/>
-        <exclude name="InsufficientStringBufferDeclaration"/>
-        <exclude name="OptimizableToArrayCall"/>
         <exclude name="RedundantFieldInitializer"/>
     </rule>
 </ruleset>

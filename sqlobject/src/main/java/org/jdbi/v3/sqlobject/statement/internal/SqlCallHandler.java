@@ -21,7 +21,7 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
 
-public class SqlCallHandler extends CustomizingStatementHandler<Call> {
+public class SqlCallHandler extends AbstractCustomizingStatementHandler<Call> {
     private final boolean returnOutParams;
 
     public SqlCallHandler(Class<?> sqlObjectType, Method method) {

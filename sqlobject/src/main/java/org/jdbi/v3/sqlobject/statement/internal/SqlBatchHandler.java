@@ -43,11 +43,11 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
-public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
+public class SqlBatchHandler extends AbstractCustomizingStatementHandler<PreparedBatch> {
     private final SqlBatch sqlBatch;
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
     private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
-    private final ResultReturner magic;
+    private final AbstractResultReturner magic;
 
     public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -68,10 +68,10 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             batchIntermediate = method.getReturnType().equals(boolean[].class)
                     ? mapToBoolean(modCounts)
                     : modCounts;
-            magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
+            magic = AbstractResultReturner.forOptionalReturn(sqlObjectType, method);
         } else {
             String[] columnNames = getGeneratedKeys.value();
-            magic = ResultReturner.forMethod(sqlObjectType, method);
+            magic = AbstractResultReturner.forMethod(sqlObjectType, method);
 
             if (method.isAnnotationPresent(UseRowMapper.class)) {
                 RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
