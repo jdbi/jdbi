@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -93,5 +94,22 @@ public class TestStatements {
     public void testStatementWithOptionalMapResults() {
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testTimeout() {
+        h.execute("CREATE ALIAS slow_Loris FOR \"org.jdbi.v3.core.statement.TestStatements.slowLoris\";");
+
+        h.getConfig(SqlStatements.class).setQueryTimeout(1);
+
+        assertThatThrownBy(h.createQuery("select * from values(slow_loris())").mapTo(String.class)::findOnly)
+            .isInstanceOf(SQLException.class);
+    }
+
+    @SuppressWarnings("unused")
+    // for testTimeout
+    public static String slowLoris() throws InterruptedException {
+        Thread.sleep(2000);
+        return "loris";
     }
 }
