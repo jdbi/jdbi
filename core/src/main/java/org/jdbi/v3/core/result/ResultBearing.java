@@ -13,18 +13,6 @@
  */
 package org.jdbi.v3.core.result;
 
-import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
-import org.jdbi.v3.core.collector.NoSuchCollectorException;
-import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.MapMapper;
-import org.jdbi.v3.core.mapper.NoSuchMapperException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.statement.StatementContext;
-
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +22,19 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
+import org.jdbi.v3.core.collector.NoSuchCollectorException;
+import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.GenericMapMapperFactory;
+import org.jdbi.v3.core.mapper.MapMapper;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
@@ -115,6 +116,11 @@ public interface ResultBearing {
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
             return ResultIterable.of(supplier, mapper, ctx);
         });
+    }
+
+    @Beta
+    default <T> ResultIterable<Map<String, T>> mapToGenericMap(Class<T> type) {
+        return map(GenericMapMapperFactory.forType(type));
     }
 
     /**
