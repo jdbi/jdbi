@@ -1,3 +1,7 @@
+3.4.0
+  - New API
+    - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
+
 3.3.0
   - New API
     - SerializableTransactionRunner.setOnFailure(), setOnSuccess() methods allow callbacks to be
