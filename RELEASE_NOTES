@@ -1,3 +1,9 @@
+3.4.0
+  - New API
+    - Added a JdbiConfig class to MapMapper to configure column name case changes, with a setting to entirely ignore the old preference (necessary for SqlObject usage).
+  - Deprecations
+    - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
+
 3.3.0
   - New API
     - SerializableTransactionRunner.setOnFailure(), setOnSuccess() methods allow callbacks to be
