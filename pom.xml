@@ -146,6 +146,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-oracle12</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -285,6 +290,12 @@
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
                 <version>0.11.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.oracle.jdbc</groupId>
+                <artifactId>ojdbc7</artifactId>
+                <version>12.1.0.2</version>
             </dependency>
 
             <dependency>
@@ -697,20 +708,6 @@
             <modules>
                 <module>oracle12</module>
             </modules>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.oracle.jdbc</groupId>
-                        <artifactId>ojdbc7</artifactId>
-                        <version>12.1.0.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jdbi</groupId>
-                        <artifactId>jdbi3-oracle12</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
     </profiles>
 </project>
