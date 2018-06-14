@@ -33,6 +33,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
 
 @Beta
+// TODO jdbi4: consolidate with MapMapper
 public class GenericMapMapperFactory implements RowMapperFactory {
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {

@@ -1,3 +1,9 @@
+3.4.0
+  - New API
+    - GenericMapMapperFactory enables fluent and SqlObject support for mapping to `Map<String, V>` for any `V` that can be handled by a ColumnMapper.
+    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V` in `Map<K, V>`
+    - ResultBearing.mapToGenericMap(Type) convenience method to use the GenericMapMapperFactory
+
 3.3.0
   - New API
     - SerializableTransactionRunner.setOnFailure(), setOnSuccess() methods allow callbacks to be
