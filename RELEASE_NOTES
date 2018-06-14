@@ -4,22 +4,29 @@
       registered to observe transaction success and failure.
     - JdbiRule.migrateWithFlyway() chaining method to run Flyway migrations on the test database
       prior to running tests.
-    - added @UseStringSubstitutorTemplateEngine for custom configuration. @UseTemplateEngine(StringSubstitutorTemplateEngine.class) is also supported.
+    - @UseStringSubstitutorTemplateEngine SQL object annotation.
+    - @Beta annotation to identify non-final APIs.
+      - Application developers are invited to try out beta APIs and provide feedback to help us
+        identify weaknesses and make improvements before new APIs are made final.
+      - Library maintainers are discouraged from using beta APIs, as this might lead to
+        ClassNotFoundExceptions or NoSuchMethodExceptions at runtime whenever beta APIs change.
   - Improvements
-    - MessageFormatTemplateEngine is not an enum anymore but a regular singleton
-    - added some extra javadoc to SqlLogger
+    - Added some extra javadoc to SqlLogger
+    - @UseTemplateEngine now works with MessageFormatTemplateEngine and
+      StringSubstitutorTemplateEngine
   - Bug fixes
-    - SqlStatement.bindMethods() (and @BindMethods) now selects the correct method when the
-      method return type is generic.
-    - mapToMap() no longer throws an exception on empty resultsets when ResultProducers.allowNoResults is true
-    - @UseTemplateEngine works with MessageFormatTemplateEngine and StringSubstitutorTemplateEngine now
+    - SqlStatement.bindMethods() (and @BindMethods) now selects the correct method when the method
+      return type is generic.
+    - mapToMap() no longer throws an exception on empty resultsets when
+      ResultProducers.allowNoResults is true
   - Breaking changes
-    - Removed JdbiRule.createJdbi() in favor of createDataSource(). This was necessary to
-      facilitate the migrateWithFlyway() feature above, and pave the way for future additions.
-    - Removed SqlLogger.wrap() added in 3.2.0 from public API.
-  - Deprecations
-    - deprecated MessageFormatTemplateEngine.INSTANCE in favor of a default constructor
-    - deprecated StringSubstitutorTemplateEngine.INSTANCE, -.defaults, and -.withCustomizer in favor of public constructors
+    - Remove JdbiRule.createJdbi() in favor of createDataSource(). This was necessary to facilitate
+      the migrateWithFlyway() feature above, and pave the way for future additions.
+    - Remove SqlLogger.wrap() added in 3.2.0 from public API.
+    - Convert MessageFormatTemplateEngine from an enum to a plain class with a public constructor.
+      The INSTANCE enum constant has been likewise removed.
+    - Remove StringSubstitutorTemplateEngine.defaults(), .withCustomizer() factory methods, in
+      favor of the corresponding public constructors.
 
 3.2.1
   - Fix IllegalArgumentException "URI is not hierarchical" in FreemarkerSqlLocator.
