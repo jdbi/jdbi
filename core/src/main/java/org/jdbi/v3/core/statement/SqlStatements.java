@@ -33,6 +33,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
+    private boolean allowUnusedBindings;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
@@ -48,6 +49,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
+        allowUnusedBindings = that.allowUnusedBindings;
     }
 
     /**
@@ -192,6 +194,16 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
             throw new IllegalArgumentException("queryTimeout must not be < 0");
         }
         this.queryTimeout = seconds;
+        return this;
+    }
+
+    public boolean getAllowUnusedBindings() {
+        return allowUnusedBindings;
+    }
+
+    @Beta
+    public SqlStatements setAllowUnusedBindings(boolean allowUnusedBindings) {
+        this.allowUnusedBindings = allowUnusedBindings;
         return this;
     }
 
