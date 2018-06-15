@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -28,19 +29,22 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
+    private boolean allowUnusedBindings;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
+        allowUnusedBindings = false;
     }
 
     private SqlStatements(SqlStatements that) {
-        this.attributes = new ConcurrentHashMap<>(that.attributes);
-        this.templateEngine = that.templateEngine;
-        this.sqlParser = that.sqlParser;
-        this.sqlLogger = that.sqlLogger;
+        attributes = new ConcurrentHashMap<>(that.attributes);
+        templateEngine = that.templateEngine;
+        sqlParser = that.sqlParser;
+        sqlLogger = that.sqlLogger;
+        allowUnusedBindings = that.allowUnusedBindings;
     }
 
     /**
@@ -162,6 +166,17 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
         this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
+        return this;
+    }
+
+    @Beta
+    public boolean getAllowUnusedBindings() {
+        return allowUnusedBindings;
+    }
+
+    @Beta
+    public SqlStatements setAllowUnusedBindings(boolean allowUnusedBindings) {
+        this.allowUnusedBindings = allowUnusedBindings;
         return this;
     }
 

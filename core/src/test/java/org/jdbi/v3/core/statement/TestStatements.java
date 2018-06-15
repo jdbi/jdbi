@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.stream.Collectors;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -20,10 +21,12 @@ import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatements {
@@ -93,5 +96,41 @@ public class TestStatements {
     public void testStatementWithOptionalMapResults() {
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testUnusedBinding() {
+        assertThatThrownBy(() -> h.createQuery("select * from something")
+            .bind("id", 1)
+            .collectRows(Collectors.counting())
+        ).isInstanceOf(UnableToExecuteStatementException.class);
+    }
+
+    @Test
+    @Ignore
+    // TODO fix in ArgumentBinder
+    public void testUsedAndUnusedBinding() {
+        assertThatThrownBy(() -> h.createQuery("select * from something where id = :id")
+            .bind("id", 1)
+            .bind("name", "jack")
+            .collectRows(Collectors.counting())
+        ).isInstanceOf(UnableToExecuteStatementException.class);
+    }
+
+    @Test
+    public void testPermittedUnusedBinding() {
+       assertThatCode(() ->  h.configure(SqlStatements.class, s -> s.setAllowUnusedBindings(true))
+           .createQuery("select * from something")
+           .bind("id", 1)
+           .collectRows(Collectors.counting())).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void testPermittedUsedAndUnusedBinding() {
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setAllowUnusedBindings(true))
+            .createQuery("select * from something where id = :id")
+            .bind("id", 1)
+            .bind("name", "jack")
+            .collectRows(Collectors.counting())).doesNotThrowAnyException();
     }
 }

@@ -33,6 +33,7 @@ class ArgumentBinder {
     }
 
     private static void bindPositional(int size, Binding binding, PreparedStatement statement, StatementContext context) {
+        // TODO check matching?
         for (int i = 0; i < size; i++) {
             try {
                 Argument argument = binding.findForPosition(i).orElse(null);
@@ -48,11 +49,13 @@ class ArgumentBinder {
     }
 
     private static void bindNamed(List<String> parameterNames, Binding binding, PreparedStatement statement, StatementContext context) {
-        if (parameterNames.isEmpty() && !binding.isEmpty()) {
+        // TODO throw on any mismatch, not only empty/non-empty
+        if (!context.getConfig(SqlStatements.class).getAllowUnusedBindings() && parameterNames.isEmpty() && !binding.isEmpty()) {
             throw new UnableToExecuteStatementException(
                     String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding),
                     context);
         }
+
         for (int i = 0; i < parameterNames.size(); i++) {
             String param = parameterNames.get(i);
 
