@@ -32,7 +32,6 @@ public class TestMapMapper {
     @Before
     public void before() {
         h = db.getSharedHandle();
-        h.getConfig(MapMapper.Config.class).setForceNewApi(true);
 
         h.execute("create table Foo (Id int primary key, FirstName varchar)");
         h.execute("insert into Foo(Id, FirstName) values(1, 'No one')");
@@ -40,6 +39,8 @@ public class TestMapMapper {
 
     @Test
     public void testCaseDefaultNop() {
+        h.getConfig(MapMappers.class).setCaseChange(MapMappers.NOP);
+
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
 
         assertThat(noOne).containsOnlyKeys("Id", "FirstName");
@@ -47,7 +48,7 @@ public class TestMapMapper {
 
     @Test
     public void testCaseLower() {
-        h.getConfig(MapMapper.Config.class).setCaseChange(MapMapper.Config.CaseChange.LOWER);
+        h.getConfig(MapMappers.class).setCaseChange(MapMappers.LOCALE_LOWER);
 
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
 
@@ -56,7 +57,7 @@ public class TestMapMapper {
 
     @Test
     public void testCaseUpper() {
-        h.getConfig(MapMapper.Config.class).setCaseChange(MapMapper.Config.CaseChange.UPPER);
+        h.getConfig(MapMappers.class).setCaseChange(MapMappers.LOCALE_UPPER);
 
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
 

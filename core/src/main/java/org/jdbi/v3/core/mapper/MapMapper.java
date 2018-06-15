@@ -20,13 +20,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
-import org.jdbi.v3.core.config.JdbiConfig;
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Yo dawg, I heard you like maps, so I made you a mapper that maps rows into {@code Map<String,Object>}. Map
@@ -38,23 +36,21 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      * @deprecated TODO remove in jdbi4
      */
     @Deprecated
-    private final boolean toLowerCase;
+    private final Boolean toLowerCase;
 
     /**
      * Constructs a new MapMapper, with map keys converted to lowercase.
      */
     public MapMapper() {
-        this(true);
+        this(null);
     }
 
     /**
      * Constructs a new MapMapper
-     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}.
-     *
-     * @deprecated use the {@link Config} class instead
+     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If null, the new MapNappers config will be used.
      */
-    @Deprecated
-    public MapMapper(boolean toLowerCase) {
+    // TODO deprecate when MapMappers.caseChange is out of beta
+    public MapMapper(@Nullable Boolean toLowerCase) {
         this.toLowerCase = toLowerCase;
     }
 
@@ -65,8 +61,11 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
 
     @Override
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        Config config = ctx.getConfig(Config.class);
-        List<String> columnNames = getColumnNames(rs, !config.getForceNewApi() && toLowerCase ? Config.CaseChange.LOWER : config.getCaseChange());
+        UnaryOperator<String> caseChange = toLowerCase == null
+            ? ctx.getConfig(MapMappers.class).getCaseChange()
+            : (toLowerCase ? MapMappers.LOCALE_LOWER : MapMappers.NOP);
+
+        List<String> columnNames = getColumnNames(rs, caseChange);
 
         return (r, c) -> {
             Map<String, Object> row = new LinkedHashMap<>(columnNames.size());
@@ -79,7 +78,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
         };
     }
 
-    private static List<String> getColumnNames(ResultSet rs, Config.CaseChange caseChange) throws SQLException {
+    private static List<String> getColumnNames(ResultSet rs, UnaryOperator<String> caseChange) throws SQLException {
         // important: ordered and unique
         Set<String> columnNames = new LinkedHashSet<>();
         ResultSetMetaData meta = rs.getMetaData();
@@ -98,73 +97,5 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
         }
 
         return new ArrayList<>(columnNames);
-    }
-
-    @Beta
-    public static class Config implements JdbiConfig<Config> {
-        private CaseChange caseChange;
-        private boolean forceNewApi;
-
-        public Config() {
-            caseChange = CaseChange.NOP;
-            forceNewApi = false;
-        }
-
-        private Config(Config that) {
-            caseChange = that.caseChange;
-            forceNewApi = that.forceNewApi;
-        }
-
-        @Beta
-        public CaseChange getCaseChange() {
-            return caseChange;
-        }
-
-        @Beta
-        public Config setCaseChange(CaseChange caseChange) {
-            this.caseChange = caseChange;
-            return this;
-        }
-
-        /**
-         * @deprecated will be removed along with the old API
-         */
-        @Beta
-        @Deprecated
-        public boolean getForceNewApi() {
-            return forceNewApi;
-        }
-
-        /**
-         * @deprecated will be removed along with the old API
-         */
-        @Beta
-        @Deprecated
-        public Config setForceNewApi(boolean forceNewApi) {
-            this.forceNewApi = forceNewApi;
-            return this;
-        }
-
-        @Override
-        public Config createCopy() {
-            return new Config(this);
-        }
-
-        @Beta
-        public enum CaseChange {
-            NOP(UnaryOperator.identity()),
-            LOWER(s -> s.toLowerCase(Locale.ROOT)),
-            UPPER(s -> s.toUpperCase(Locale.ROOT));
-
-            private final UnaryOperator<String> transformation;
-
-            CaseChange(UnaryOperator<String> transformation) {
-                this.transformation = transformation;
-            }
-
-            private String apply(String s) {
-                return transformation.apply(s);
-            }
-        }
     }
 }

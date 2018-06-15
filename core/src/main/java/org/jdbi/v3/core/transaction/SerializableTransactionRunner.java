@@ -113,6 +113,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     /**
      * Configuration for serializable transaction runner
      */
+    // TODO jdbi4 move to top-level class to comply with convention
     public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
         private static final Consumer<List<Exception>> NOP = list -> {};
