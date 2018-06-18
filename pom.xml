@@ -496,17 +496,9 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <!-- Fixes missing plugin during CI builds -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>default-jar</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.jetbrains.dokka</groupId>
