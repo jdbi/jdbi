@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
+import static org.jdbi.v3.postgres.PostgresQualifiers.HSTORE;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,7 +24,37 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
- * Postgres plugin.
+ * Postgres plugin. Adds support for binding and mapping the following data types:
+ *
+ * <ul>
+ * <li>{@link java.net.InetAddress} (including {@link java.net.Inet4Address} and {@link java.net.Inet6Address})</li>
+ * <li>{@link java.time.LocalDate}</li>
+ * <li>{@link java.time.LocalTime}</li>
+ * <li>{@link java.time.LocalDateTime}</li>
+ * <li>{@link java.time.OffsetDateTime}</li>
+ * <li>{@link java.time.Duration} (see notes below)</li>
+ * <li>{@link java.time.Period} (see notes below)</li>
+ * <li>{@link java.util.Map Map&lt;String, String&gt;} (for {@code HSTORE} columns)</li>
+ * <li>BETA: {@link java.util.Map @HStore Map&lt;String, String&gt;} (also for {@code HSTORE}, but explicitly qualified
+ * to differentiate from other {@code Map<String, String>} mappers)</li>
+ * <li>{@link java.util.UUID}</li>
+ * </ul>
+ *
+ * <p>
+ * Also sets up SQL array support for the following types:
+ *
+ * <ul>
+ * <li>{@code double}</li>
+ * <li>{@code float}</li>
+ * <li>{@code int}</li>
+ * <li>{@code long}</li>
+ * <li>{@link java.lang.Double}</li>
+ * <li>{@link java.lang.Float}</li>
+ * <li>{@link java.lang.Integer}</li>
+ * <li>{@link java.lang.Long}</li>
+ * <li>{@link java.lang.String}</li>
+ * <li>{@link java.util.UUID}</li>
+ * </ul>
  *
  * <p>
  * A note about the mapping between the Postgres {@code interval} type and the Java {@link java.time.Period} and
@@ -70,7 +102,7 @@ public class PostgresPlugin implements JdbiPlugin {
         db.registerColumnMapper(new HStoreColumnMapper());
         QualifiedType hstoreMapType = QualifiedType.of(
             new GenericType<Map<String, String>>() {},
-            PostgresQualifiers.HSTORE);
+            HSTORE);
         db.registerColumnMapper(hstoreMapType, new HStoreColumnMapper());
         db.registerColumnMapper(new DurationColumnMapperFactory());
         db.registerColumnMapper(new PeriodColumnMapperFactory());
