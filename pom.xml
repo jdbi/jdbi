@@ -81,7 +81,7 @@
 
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.checkstyle.version>8.10</dep.checkstyle.version>
-        <dep.dokka.version>0.9.16</dep.dokka.version>
+        <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
@@ -496,6 +496,11 @@
                     <configuration>
                         <jdkVersion>8</jdkVersion>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <!-- Fixes missing plugin during CI builds -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
