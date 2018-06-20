@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -66,6 +67,35 @@ public final class QualifiedType {
         return new QualifiedType(
             type,
             Collections.unmodifiableSet(new HashSet<>(qualifiers)));
+    }
+
+    /**
+     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
+     * as using {@code type} raw.
+     */
+    public static QualifiedType of(GenericType<?> type) {
+        return QualifiedType.of(type.getType());
+    }
+
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifier.
+     */
+    public static QualifiedType of(GenericType<?> type, Object qualifier) {
+        return QualifiedType.of(type.getType(), qualifier);
+    }
+
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifiers.
+     */
+    public static QualifiedType of(GenericType<?> type, Object... qualifiers) {
+        return QualifiedType.of(type.getType(), qualifiers);
+    }
+
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifiers.
+     */
+    public static QualifiedType of(GenericType<?> type, Set<?> qualifiers) {
+        return QualifiedType.of(type.getType(), qualifiers);
     }
 
     private QualifiedType(Type type, Set<Object> qualifiers) {

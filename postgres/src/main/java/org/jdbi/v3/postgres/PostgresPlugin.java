@@ -69,7 +69,7 @@ public class PostgresPlugin implements JdbiPlugin {
         db.registerColumnMapper(new JavaTimeMapperFactory());
         db.registerColumnMapper(new HStoreColumnMapper());
         QualifiedType hstoreMapType = QualifiedType.of(
-            new GenericType<Map<String, String>>() {}.getType(),
+            new GenericType<Map<String, String>>() {},
             PostgresQualifiers.HSTORE);
         db.registerColumnMapper(hstoreMapType, new HStoreColumnMapper());
         db.registerColumnMapper(new DurationColumnMapperFactory());
