@@ -17,7 +17,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.2-SNAPSHOT</version>
+        <version>3.3.1-SNAPSHOT</version>
     </parent>
     <artifactId>jdbi3-commons-text</artifactId>
 
@@ -35,13 +35,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
@@ -49,8 +55,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

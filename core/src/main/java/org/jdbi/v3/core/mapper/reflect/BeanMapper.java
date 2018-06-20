@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -183,7 +182,7 @@ public class BeanMapper<T> implements RowMapper<T> {
             }
         }
 
-        if (mappers.isEmpty() && columnNames.size() > 0) {
+        if (mappers.isEmpty() && !columnNames.isEmpty()) {
             throw new IllegalArgumentException(String.format("Mapping bean type %s "
                 + "didn't find any matching columns in result set", type));
         }
@@ -229,16 +228,17 @@ public class BeanMapper<T> implements RowMapper<T> {
 
     private static void writeProperty(Object bean, PropertyDescriptor property, Object value) {
         try {
-            property.getWriteMethod().invoke(bean, value);
+            Method writeMethod = property.getWriteMethod();
+            if (writeMethod == null) {
+                throw new IllegalArgumentException(String.format("No appropriate method to write property %s", property.getName()));
+            }
+            writeMethod.invoke(bean, value);
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(String.format("Unable to access setter for "
                 + "property, %s", property.getName()), e);
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(String.format("Invocation target exception trying to "
                 + "invoker setter for the %s property", property.getName()), e);
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException(String.format("No appropriate method to "
-                + "write property %s", property.getName()), e);
         }
     }
 }

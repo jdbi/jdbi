@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.2-SNAPSHOT</version>
+        <version>3.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-kotlin-sqlobject</artifactId>
@@ -106,8 +106,6 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${dep.kotlin.version}</version>
-
                 <executions>
                     <execution>
                         <id>compile</id>

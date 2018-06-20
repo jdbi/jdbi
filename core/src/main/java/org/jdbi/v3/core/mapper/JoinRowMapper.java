@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class JoinRowMapper implements RowMapper<JoinRow> {
     private final Type[] types;
 
     private JoinRowMapper(Type[] types) {
-        this.types = types;
+        this.types = Arrays.copyOf(types, types.length);
     }
 
     @Override

@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.2.2-SNAPSHOT</version>
+        <version>3.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-core</artifactId>
@@ -114,11 +114,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>${dep.antlr.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
@@ -148,7 +143,6 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
@@ -162,7 +156,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

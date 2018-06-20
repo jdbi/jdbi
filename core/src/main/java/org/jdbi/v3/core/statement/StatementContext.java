@@ -506,6 +506,7 @@ public class StatementContext implements Closeable {
     }
 
     @Override
+    @SuppressWarnings("PMD.DoNotThrowExceptionInFinally")
     public void close() {
         SQLException exception = null;
         try {

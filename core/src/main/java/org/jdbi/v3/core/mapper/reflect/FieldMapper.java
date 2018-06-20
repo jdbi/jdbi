@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -161,7 +160,7 @@ public class FieldMapper<T> implements RowMapper<T> {
             }
         }
 
-        if (mappers.isEmpty() && columnNames.size() > 0) {
+        if (mappers.isEmpty() && !columnNames.isEmpty()) {
             throw new IllegalArgumentException(String.format("Mapping fields for type %s "
                 + "didn't find any matching columns in result set", type));
         }

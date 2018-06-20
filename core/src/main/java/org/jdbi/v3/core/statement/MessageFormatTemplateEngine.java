@@ -39,9 +39,7 @@ import java.util.Set;
  * }</pre>
  */
 public class MessageFormatTemplateEngine implements TemplateEngine {
-    public static final TemplateEngine INSTANCE = new MessageFormatTemplateEngine();
-
-    private MessageFormatTemplateEngine() {}
+    public MessageFormatTemplateEngine() {}
 
     @Override
     public String render(String template, StatementContext ctx) {
@@ -65,7 +63,7 @@ public class MessageFormatTemplateEngine implements TemplateEngine {
             throw new IllegalArgumentException("expected " + expectedCount + " keys but got " + keySet.size());
         }
 
-        if (keySet.size() == 0) {
+        if (keySet.isEmpty()) {
             return;
         }
 

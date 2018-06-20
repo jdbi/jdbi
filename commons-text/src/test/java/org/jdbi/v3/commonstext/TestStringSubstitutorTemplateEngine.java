@@ -45,7 +45,7 @@ public class TestStringSubstitutorTemplateEngine {
     public void testDefaults() {
         attributes.put("name", "foo");
 
-        assertThat(StringSubstitutorTemplateEngine.defaults().render("create table ${name};", ctx))
+        assertThat(new StringSubstitutorTemplateEngine().render("create table ${name};", ctx))
             .isEqualTo("create table foo;");
     }
 
