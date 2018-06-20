@@ -58,9 +58,9 @@ public class Qualifiers {
     };
 
     /**
-     * Returns the set of qualifying annotations on the element.
+     * Returns the set of qualifying annotations on the given elements.
      * @param elements the annotated element. Null elements are ignored.
-     * @return the set of qualifying annotations on the element.
+     * @return the set of qualifying annotations on the given elements.
      */
     public static Set<Annotation> getQualifyingAnnotations(AnnotatedElement... elements) {
         return Stream.of(elements)

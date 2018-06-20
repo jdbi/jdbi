@@ -13,19 +13,21 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import org.jdbi.v3.core.qualifier.Qualifier;
-import org.jdbi.v3.meta.Beta;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.postgresql.util.PGobject;
 
 /**
- * Type qualifying annotation for {@code HSTORE} data type.
+ * Postgres column mapper for {@code @MacAddr String}.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.TYPE_USE})
-@Qualifier
-@Beta
-public @interface HStore {}
+class MacAddrColumnMapper implements ColumnMapper<@MacAddr String> {
+    @Override
+    @SuppressWarnings("unchecked")
+    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        PGobject obj = (PGobject) r.getObject(columnNumber);
+        return obj.getValue();
+    }
+}

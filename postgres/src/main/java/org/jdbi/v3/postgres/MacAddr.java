@@ -11,21 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.qualifier;
+package org.jdbi.v3.postgres;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.qualifier.Qualifier;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Argument qualifier annotation, indicating that the annotated String element should be bound as an
- * {@code NVARCHAR} instead of a {@code VARCHAR}.
+ * Type qualifying annotation for {@code MACADDR} data type.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.TYPE_USE})
 @Qualifier
 @Beta
-public @interface NVarchar {}
+public @interface MacAddr {}

@@ -35,9 +35,15 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
  * <li>{@link java.time.Duration} (see notes below)</li>
  * <li>{@link java.time.Period} (see notes below)</li>
  * <li>{@link java.util.Map Map&lt;String, String&gt;} (for {@code HSTORE} columns)</li>
- * <li>BETA: {@link java.util.Map @HStore Map&lt;String, String&gt;} (also for {@code HSTORE}, but explicitly qualified
- * to differentiate from other {@code Map<String, String>} mappers)</li>
  * <li>{@link java.util.UUID}</li>
+ * </ul>
+ *
+ * <p>
+ * The following qualified types have {@link org.jdbi.v3.meta.Beta} support for binding and mapping:
+ *
+ * <ul>
+ * <li>{@link MacAddr @MacAddr java.lang.String}</li>
+ * <li>{@link HStore @HStore Map&lt;String, String&gt;}</li>
  * </ul>
  *
  * <p>
@@ -85,6 +91,7 @@ public class PostgresPlugin implements JdbiPlugin {
         db.registerArgument(new PeriodArgumentFactory());
         db.registerArgument(new InetArgumentFactory());
         db.registerArgument(new HStoreArgumentFactory());
+        db.registerArgument(new MacAddrArgumentFactory());
         db.registerArgument(new UUIDArgumentFactory());
 
         db.registerArrayType(int.class, "integer");
@@ -104,6 +111,7 @@ public class PostgresPlugin implements JdbiPlugin {
             new GenericType<Map<String, String>>() {},
             HSTORE);
         db.registerColumnMapper(hstoreMapType, new HStoreColumnMapper());
+        db.registerColumnMapper(new MacAddrColumnMapper());
         db.registerColumnMapper(new DurationColumnMapperFactory());
         db.registerColumnMapper(new PeriodColumnMapperFactory());
     }

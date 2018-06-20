@@ -13,14 +13,18 @@
  */
 package org.jdbi.v3.core.generic;
 
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.generic.internal.TypeParameter;
 import org.jdbi.v3.core.generic.internal.TypeToken;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Utilities for working with generic types.
@@ -136,5 +140,43 @@ public class GenericTypes {
                 .where(new TypeParameter<K>() {}, keyType)
                 .where(new TypeParameter<V>() {}, valueType)
                 .getType();
+    }
+
+    /**
+     * Given a class that extends a generic superclass, and a parameter index, return the generic parameter at that
+     * index from the {@code extends} clause in the class declaration.
+     *
+     * @param clazz the class from which to extract a generic parameter
+     * @param parameterIndex the index of the parameter to return
+     * @return the annotated type parameter
+     */
+    @Beta
+    public static Optional<AnnotatedType> findSuperclassAnnotatedTypeParameter(Class<?> clazz, int parameterIndex) {
+        AnnotatedType annotatedSuperclass = clazz.getAnnotatedSuperclass();
+
+        if (annotatedSuperclass instanceof AnnotatedParameterizedType) {
+            AnnotatedParameterizedType annotatedParameterizedSuperclass = (AnnotatedParameterizedType) annotatedSuperclass;
+            return Optional.of(annotatedParameterizedSuperclass.getAnnotatedActualTypeArguments()[parameterIndex]);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Given a class, a generic interface the class extends, and a parameter index, return the annotated generic
+     * parameter at that index from the {@code implements} clause in the class declaration.
+     *
+     * @param clazz the class from which to extract a generic parameter
+     * @param parameterIndex the index of the parameter to return
+     * @return the annotated type parameter
+     */
+    @Beta
+    public static Optional<AnnotatedType> findInterfaceAnnotatedTypeParameter(Class<?> clazz, Class<?> implementedInterface, int parameterIndex) {
+        return Arrays.stream(clazz.getAnnotatedInterfaces())
+            .filter(annotatedIface -> implementedInterface.equals(getErasedType(annotatedIface.getType())))
+            .filter(AnnotatedParameterizedType.class::isInstance)
+            .map(AnnotatedParameterizedType.class::cast)
+            .map(annotatedParameterizedIface -> annotatedParameterizedIface.getAnnotatedActualTypeArguments()[parameterIndex])
+            .findFirst();
     }
 }
