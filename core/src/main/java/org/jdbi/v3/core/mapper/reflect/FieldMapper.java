@@ -15,9 +15,9 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -137,7 +138,9 @@ public class FieldMapper<T> implements RowMapper<T> {
 
                     findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(field))
                         .ifPresent(index -> {
-                            Type type = field.getGenericType();
+                            QualifiedType type = QualifiedType.of(
+                                field.getGenericType(),
+                                getQualifyingAnnotations(field));
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((r, n, c) -> rs.getObject(n));
                             mappers.add(new SingleColumnMapper(mapper, index + 1));

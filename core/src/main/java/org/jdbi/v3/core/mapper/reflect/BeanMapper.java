@@ -15,13 +15,14 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -144,7 +146,9 @@ public class BeanMapper<T> implements RowMapper<T> {
         final List<PropertyDescriptor> properties = new ArrayList<>();
 
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-            Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+            Method getter = descriptor.getReadMethod();
+            Method setter = descriptor.getWriteMethod();
+            Nested anno = Stream.of(getter, setter)
                 .filter(Objects::nonNull)
                 .map(m -> m.getAnnotation(Nested.class))
                 .filter(Objects::nonNull)
@@ -156,7 +160,9 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
-                        Type type = descriptor.getReadMethod().getGenericReturnType();
+                        QualifiedType type = QualifiedType.of(
+                            getter.getGenericReturnType(),
+                            getQualifyingAnnotations(getter, setter));
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((r, n, c) -> r.getObject(n));
 
