@@ -44,12 +44,13 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.QualifiedTypes;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
+import static org.jdbi.v3.core.qualifier.Qualifiers.NVARCHAR;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -301,20 +302,30 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return bind(name, toArgument(String.class, value));
     }
 
+    /**
+     * Bind a {@code String} argument positionally, as {@code NVARCHAR} type.
+     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    @Beta
     public final This bindNVarchar(int position, String value) {
-        return bind(position, toArgument(QualifiedTypes.NVARCHAR, value));
+        return bind(position, toArgument(QualifiedType.of(String.class, NVARCHAR), value));
     }
 
     /**
-     * Bind an argument by name
+     * Bind a {@code String} argument by name, as {@code NVARCHAR} type.
      *
      * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
      */
+    @Beta
     public final This bindNVarchar(String name, String value) {
-        return bind(name, toArgument(QualifiedTypes.NVARCHAR, value));
+        return bind(name, toArgument(QualifiedType.of(String.class, NVARCHAR), value));
     }
 
     /**
@@ -1031,6 +1042,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
+    @Beta
     public final This bindByType(int position, Object value, QualifiedType argumentType) {
         return bind(position, toArgument(argumentType, value));
     }
@@ -1070,6 +1082,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
+    @Beta
     public final This bindByType(String name, Object value, QualifiedType argumentType) {
         return bind(name, toArgument(argumentType, value));
     }

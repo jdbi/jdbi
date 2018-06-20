@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -38,6 +34,10 @@ import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default

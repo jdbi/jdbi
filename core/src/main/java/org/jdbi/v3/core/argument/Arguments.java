@@ -25,6 +25,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A registry for ArgumentFactory instances.
@@ -78,6 +79,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param factory the factory to add
      * @return this
      */
+    @Beta
     public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
         return this;
@@ -101,6 +103,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param value the argument value.
      * @return an Argument for the given value.
      */
+    @Beta
     public Optional<Argument> findFor(QualifiedType type, Object value) {
         return factories.stream()
             .flatMap(factory -> toStream(factory.build(type, value, registry)))

@@ -17,12 +17,14 @@ import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Inspect a value with optional static type information and produce
  * an {@link Argument} that binds the value to a prepared statement.
  */
 @FunctionalInterface
+@Beta
 public interface QualifiedArgumentFactory {
     /**
      * Returns an {@link Argument} for the given value of the qualified type, if the factory supports it; empty otherwise.

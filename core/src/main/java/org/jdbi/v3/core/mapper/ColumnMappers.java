@@ -26,6 +26,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration registry for {@link ColumnMapperFactory} instances.
@@ -85,6 +86,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param mapper the column mapper
      * @return this
      */
+    @Beta
     public ColumnMappers register(QualifiedType type, ColumnMapper<?> mapper) {
         return this.register(QualifiedColumnMapperFactory.of(type, mapper));
     }
@@ -115,6 +117,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param factory the column mapper factory
      * @return this
      */
+    @Beta
     public ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
@@ -163,6 +166,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
+    @Beta
     public Optional<ColumnMapper<?>> findFor(QualifiedType type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.

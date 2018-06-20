@@ -16,11 +16,13 @@ package org.jdbi.v3.core.mapper;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Factory interface used to produce column mappers.
  */
 @FunctionalInterface
+@Beta
 public interface QualifiedColumnMapperFactory {
     /**
      * Supplies a column mapper which will map columns to type if the factory supports it; empty otherwise.

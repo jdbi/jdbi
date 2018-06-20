@@ -21,9 +21,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.meta.Beta;
+
+/**
+ * Utility class for type qualifiers supported by Jdbi core.
+ */
+@Beta
 public class Qualifiers {
     private Qualifiers() {}
 
+    /**
+     * Type qualifier constant for Strings encoded as {@code NVARCHAR} (rather than {@code VARCHAR}).
+     *
+     * This constant is equals-compatible with {@link NVarchar} annotations.
+     */
     public static final NVarchar NVARCHAR = new NVarchar() {
         @Override
         public Class<? extends Annotation> annotationType() {

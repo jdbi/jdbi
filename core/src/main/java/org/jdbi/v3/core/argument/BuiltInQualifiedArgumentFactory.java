@@ -16,7 +16,8 @@ package org.jdbi.v3.core.argument;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.QualifiedTypes;
+
+import static org.jdbi.v3.core.qualifier.Qualifiers.NVARCHAR;
 
 /**
  * Provides instances of {@link Argument} for qualified types:
@@ -30,7 +31,7 @@ enum BuiltInQualifiedArgumentFactory implements QualifiedArgumentFactory {
 
     @Override
     public Optional<Argument> build(QualifiedType type, Object value, ConfigRegistry config) {
-        if (QualifiedTypes.NVARCHAR.equals(type)) {
+        if (QualifiedType.of(String.class, NVARCHAR).equals(type)) {
             String stringValue = (String) value;
             return Optional.of((pos, stmt, ctx) -> stmt.setNString(pos, stringValue));
         }

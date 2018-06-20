@@ -49,6 +49,7 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.Objects.requireNonNull;
 
@@ -158,6 +159,7 @@ public class StatementContext implements Closeable {
      * @param value the argument value.
      * @return an Argument for the given value.
      */
+    @Beta
     public Optional<Argument> findArgumentFor(QualifiedType type, Object value) {
         return getConfig(Arguments.class).findFor(type, value);
     }
@@ -252,6 +254,7 @@ public class StatementContext implements Closeable {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
+    @Beta
     public Optional<ColumnMapper<?>> findColumnMapperFor(QualifiedType type) {
         return getConfig(ColumnMappers.class).findFor(type);
     }

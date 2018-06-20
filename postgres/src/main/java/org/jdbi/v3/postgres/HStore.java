@@ -16,7 +16,9 @@ package org.jdbi.v3.postgres;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.jdbi.v3.core.qualifier.Qualifier;
+import org.jdbi.v3.meta.Beta;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
+@Beta
 public @interface HStore {}

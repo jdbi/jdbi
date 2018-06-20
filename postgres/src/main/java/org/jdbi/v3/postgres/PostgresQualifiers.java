@@ -15,6 +15,12 @@ package org.jdbi.v3.postgres;
 
 import java.lang.annotation.Annotation;
 
+import org.jdbi.v3.meta.Beta;
+
+/**
+ * Constants class for type qualifying annotations supported by Jdbi Postgres plugin.
+ */
+@Beta
 public class PostgresQualifiers {
     private PostgresQualifiers() {}
 

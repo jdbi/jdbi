@@ -36,4 +36,5 @@ import static java.lang.annotation.ElementType.TYPE;
 @Documented
 @Inherited
 @Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, ANNOTATION_TYPE})
+@Beta
 public @interface Beta {}

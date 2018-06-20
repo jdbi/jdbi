@@ -20,28 +20,48 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jdbi.v3.meta.Beta;
+
+/**
+ * A {@link java.lang.reflect.Type} qualified by a set of qualifier objects. Two qualified types are equal to each other
+ * if their {@link #getType()} and {@link #getQualifiers()} properties are equal.
+ */
+@Beta
 public final class QualifiedType {
     private final Type type;
     private final Set<Object> qualifiers;
 
+    /**
+     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
+     * as using {@code type} raw.
+     */
     public static QualifiedType of(Type type) {
         return new QualifiedType(
             type,
             Collections.emptySet());
     }
 
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifier.
+     */
     public static QualifiedType of(Type type, Object qualifier) {
         return new QualifiedType(
             type,
             Collections.singleton(qualifier));
     }
 
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifiers.
+     */
     public static QualifiedType of(Type type, Object... qualifiers) {
         return new QualifiedType(
             type,
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(qualifiers))));
     }
 
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifiers.
+     */
     public static QualifiedType of(Type type, Set<?> qualifiers) {
         return new QualifiedType(
             type,
@@ -53,10 +73,16 @@ public final class QualifiedType {
         this.qualifiers = qualifiers;
     }
 
+    /**
+     * Returns the type being qualified
+     */
     public Type getType() {
         return type;
     }
 
+    /**
+     * Returns the type qualifiers.
+     */
     public Set<Object> getQualifiers() {
         return qualifiers;
     }
