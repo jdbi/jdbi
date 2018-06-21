@@ -48,7 +48,7 @@ Artifacts can bound found at the following repositories.
 <repository>
     <id>spring-snapshots</id>
     <name>Spring Snapshots</name>
-    <url>http://repo.spring.io/snapshot</url>
+    <url>https://repo.spring.io/snapshot</url>
     <snapshots>
         <enabled>true</enabled>
     </snapshots>
@@ -59,7 +59,7 @@ Artifacts can bound found at the following repositories.
 <repository>
     <id>spring-milestones</id>
     <name>Spring Milestones</name>
-    <url>http://repo.spring.io/milestone</url>
+    <url>https://repo.spring.io/milestone</url>
     <snapshots>
         <enabled>false</enabled>
     </snapshots>
