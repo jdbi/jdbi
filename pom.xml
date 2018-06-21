@@ -22,139 +22,197 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nebhale.r2dbc</groupId>
-    <artifactId>r2dbc</artifactId>
+    <groupId>io.r2dbc</groupId>
+    <artifactId>r2dbc-client</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <name>Reactive Relational Database Connectivity</name>
-    <url>https://github.com/nebhale/r2dbc</url>
-
-    <modules>
-        <module>r2dbc-core</module>
-        <module>r2dbc-examples</module>
-        <module>r2dbc-postgresql</module>
-    </modules>
+    <name>Reactive Relational Database Connectivity - Client</name>
+    <url>https://github.com/r2dbc/r2dbc-client</url>
 
     <properties>
+        <assertj.version>3.10.0</assertj.version>
+        <java.version>1.8</java.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <junit.version>5.2.0</junit.version>
+        <logback.version>1.2.3</logback.version>
+        <postgresql.version>42.2.2</postgresql.version>
+        <postgresql-embedded.version>2.9</postgresql-embedded.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
+        <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
+        <reactor.version>Bismuth-SR10</reactor.version>
+        <spring-boot.version>2.0.2.RELEASE</spring-boot.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.0.1.RELEASE</version>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-bom</artifactId>
+                <version>${reactor.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>3.0.2</version>
-            </dependency>
-            <dependency>
-                <groupId>ru.yandex.qatools.embed</groupId>
-                <artifactId>postgresql-embedded</artifactId>
-                <version>2.9</version>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.7.0</version>
-                    <configuration>
-                        <compilerArgs>
-                            <arg>-Werror</arg>
-                            <arg>-Xlint:all</arg>
-                            <arg>-Xlint:-options</arg>
-                            <arg>-Xlint:-processing</arg>
-                            <arg>-Xlint:-serial</arg>
-                        </compilerArgs>
-                        <showWarnings>true</showWarnings>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <configuration>
-                        <links>
-                            <link>https://projectreactor.io/docs/core/release/api/</link>
-                            <link>http://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
-                        </links>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.1</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20.1</version>
-                    <configuration>
-                        <runOrder>random</runOrder>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-spi</artifactId>
+            <version>${r2dbc-spi.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${jsr305.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-spi-test</artifactId>
+            <version>${r2dbc-spi.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-postgresql</artifactId>
+            <version>${r2dbc-postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.yandex.qatools.embed</groupId>
+            <artifactId>postgresql-embedded</artifactId>
+            <version>${postgresql-embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-Werror</arg>
+                        <arg>-Xlint:all</arg>
+                        <arg>-Xlint:-options</arg>
+                        <arg>-Xlint:-processing</arg>
+                        <arg>-Xlint:-serial</arg>
+                    </compilerArgs>
+                    <showWarnings>true</showWarnings>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <excludePackageNames>io.r2dbc.client.*</excludePackageNames>
+                    <links>
+                        <link>https://projectreactor.io/docs/core/release/api/</link>
+                        <link>http://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.21.0</version>
+                <configuration>
+                    <runOrder>random</runOrder>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.2.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.2.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -186,17 +244,41 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
-        <repository>
-            <id>r2dbc-milestone</id>
-            <name>R2DBC Milestones</name>
-            <url>file:../r2dbc-maven/milestone</url>
-        </repository>
-        <snapshotRepository>
-            <id>r2dbc-snapshot</id>
-            <name>R2DBC Snapshots</name>
-            <url>file:../r2dbc-maven/snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>r2dbc-postgresql-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcPostgresqlArtifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-postgresql-artifactory</id>
+                    <url>${r2dbcPostgresqlArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>r2dbc-spi-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcSpiArtifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-spi-artifactory</id>
+                    <url>${r2dbcSpiArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 
 </project>

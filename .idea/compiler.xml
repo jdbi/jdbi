@@ -6,16 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="r2dbc-core" />
-        <module name="r2dbc-examples" />
-        <module name="r2dbc-postgresql" />
+        <module name="r2dbc-client" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="r2dbc" target="1.5" />
-      <module name="r2dbc-core" target="1.8" />
-      <module name="r2dbc-examples" target="1.8" />
-      <module name="r2dbc-postgresql" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
