@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,7 +37,30 @@ class BridgeMethodHandlerFactory implements HandlerFactory {
                 return IntStream.range(0, method.getParameterCount())
                     .allMatch(i -> methodParamTypes[i].isAssignableFrom(candidateParamTypes[i]));
             })
-            .<Handler>map(m -> (target, args, handle) -> m.invoke(target, args))
+            .<Handler>map(m -> {
+                final MethodHandle mh = unreflect(sqlObjectType, m);
+                return (target, args, handle) -> {
+                    try {
+                        return mh.bindTo(target).invokeWithArguments(args);
+                    } catch (Throwable t) { // Handle et al should <X extends Throwable> not Exception!!!
+                        sneakyThrow(t);
+                        throw new AssertionError("unreachable", t);
+                    }
+                };
+            })
             .findFirst();
+    }
+
+    private static MethodHandle unreflect(Class<?> sqlObjectType, Method m) {
+        try {
+            return DefaultMethodHandler.lookupFor(sqlObjectType).unreflect(m);
+        } catch (IllegalAccessException e) {
+            throw new UnableToCreateSqlObjectException("Bridge handler couldn't unreflect " + sqlObjectType + " " + m, e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Throwable> void sneakyThrow(Throwable t) throws T {
+        throw (T) t;
     }
 }
