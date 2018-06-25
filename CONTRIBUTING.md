@@ -17,6 +17,10 @@ Jdbi places serious emphasis on not breaking compatibility. Remember these simpl
 
 If you must make some internal code `public` to access it from other packages, put the class in a package named `internal`. Packages named so are not considered API.
 
+### Forward compatibility
+
+Completely new API should, in most cases, be marked with `@Beta`. This lets users know not to rely too much on your changes yet, as the public release might reveal that more work needs to be done.
+
 ## Technical design
 
 We favor constructors — especially the default one — over factory methods where possible. Adding factory methods is not discouraged, but restricting the visibility of useful constructors without technical reason is.
