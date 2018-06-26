@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -156,7 +157,7 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
-                        Type type = descriptor.getReadMethod().getGenericReturnType();
+                        Type type = propertyType(descriptor);
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((r, n, c) -> r.getObject(n));
 
@@ -206,6 +207,11 @@ public class BeanMapper<T> implements RowMapper<T> {
                 .map(ColumnName::value)
                 .findFirst()
                 .orElseGet(descriptor::getName);
+    }
+
+    private static Type propertyType(PropertyDescriptor descriptor) {
+        return Optional.ofNullable(descriptor.getReadMethod()).map(Method::getGenericReturnType)
+                .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]);
     }
 
     private String debugName(PropertyDescriptor descriptor) {
