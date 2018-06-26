@@ -392,6 +392,12 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>stringtemplate</artifactId>
                 <version>4.0.2</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>antlr-runtime</artifactId>
+                        <groupId>org.antlr</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -488,6 +494,11 @@
                             <exclude>src/build/*</exclude>
                         </excludes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <!-- Fixes missing plugin during CI builds -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
                 </plugin>
                 <plugin>
                     <groupId>org.jetbrains.dokka</groupId>
@@ -603,6 +614,28 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-jdbi</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- Ensure consistency -->
+                                <dependencyConvergence />
+                                <requireJavaVersion>
+                                    <!-- Java 8 min -->
+                                    <version>[1.8,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
