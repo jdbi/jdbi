@@ -81,7 +81,7 @@
 
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.checkstyle.version>8.10</dep.checkstyle.version>
-        <dep.dokka.version>0.9.16</dep.dokka.version>
+        <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
@@ -392,6 +392,12 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>stringtemplate</artifactId>
                 <version>4.0.2</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>antlr-runtime</artifactId>
+                        <groupId>org.antlr</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -498,6 +504,11 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <!-- Fixes missing plugin during CI builds -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                </plugin>
+                <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr3-maven-plugin</artifactId>
                     <version>${dep.antlr.version}</version>
@@ -601,6 +612,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-jdbi</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- Ensure consistency -->
+                                <dependencyConvergence />
+                                <requireJavaVersion>
+                                    <!-- Java 8 min -->
+                                    <version>[1.8,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -632,7 +665,7 @@
         <profile>
             <id>jdk9</id>
             <activation>
-                <jdk>[1.9,</jdk>
+                <jdk>[1.9,)</jdk>
             </activation>
             <build>
                 <pluginManagement>
