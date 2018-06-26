@@ -42,7 +42,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                     throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
                 }
             }
-            AbstractResultReturner returner = AbstractResultReturner.forMethod(sqlObjectType, method);
+            ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
             stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
                     () -> returner.mappedResult(((ResultBearing) stmt).mapTo(typeArg), stmt.getContext()));
         };

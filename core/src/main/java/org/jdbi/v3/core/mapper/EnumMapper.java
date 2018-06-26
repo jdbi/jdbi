@@ -24,7 +24,6 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
  */
-@SuppressWarnings("PMD.AbstractNaming")
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
 

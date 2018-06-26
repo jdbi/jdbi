@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request".
  */
-public class Batch extends AbstractBaseStatement<Batch> {
+public class Batch extends BaseStatement<Batch> {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();

@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 
 import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
 
-@SuppressWarnings("PMD.AbstractNaming")
 public abstract class TypeParameter<T> extends TypeCapture<T> {
     final TypeVariable<?> typeVariable;
 

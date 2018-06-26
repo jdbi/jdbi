@@ -15,7 +15,7 @@ package org.jdbi.v3.core.generic;
 
 import java.lang.reflect.Type;
 
-@SuppressWarnings({"PMD.AbstractClassWithoutAbstractMethod", "PMD.AbstractNaming"})
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class GenericType<T> {
     private final Type type;
 

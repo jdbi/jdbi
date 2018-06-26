@@ -18,7 +18,6 @@ import org.jdbi.v3.core.JdbiException;
 /**
  * Superclass for exceptions thrown while trying to execute a statement.
  */
-@SuppressWarnings("PMD.AbstractNaming")
 public abstract class StatementException extends JdbiException {
     private static final long serialVersionUID = 1L;
 

@@ -23,12 +23,12 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
-public class SqlQueryHandler extends AbstractCustomizingStatementHandler<Query> {
-    private final AbstractResultReturner magic;
+public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
+    private final ResultReturner magic;
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
-        this.magic = AbstractResultReturner.forMethod(sqlObjectType, method);
+        this.magic = ResultReturner.forMethod(sqlObjectType, method);
     }
 
     @Override

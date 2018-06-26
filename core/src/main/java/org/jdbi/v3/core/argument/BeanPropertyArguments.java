@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.toMap;
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
  */
-public class BeanPropertyArguments extends AbstractMethodReturnValueNamedArgumentFinder {
+public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder {
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
         .builder()
         .expiration(10, TimeUnit.MINUTES)

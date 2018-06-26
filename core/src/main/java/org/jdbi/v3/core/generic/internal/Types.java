@@ -98,7 +98,7 @@ public class Types {
     static Type getComponentType(Type type) {
         checkNotNull(type, "type");
         final AtomicReference<Type> result = new AtomicReference<Type>();
-        new AbstractTypeVisitor() {
+        new TypeVisitor() {
             @Override
             void visitTypeVariable(TypeVariable<?> t) {
                 result.set(subtypeOfComponentType(t.getBounds()));
