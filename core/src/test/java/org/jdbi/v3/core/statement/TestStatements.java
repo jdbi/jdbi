@@ -103,7 +103,7 @@ public class TestStatements {
         assertThatThrownBy(() -> h.createQuery("select * from something")
             .bind("id", 1)
             .collectRows(Collectors.counting())
-        ).isInstanceOf(UnableToExecuteStatementException.class);
+        ).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

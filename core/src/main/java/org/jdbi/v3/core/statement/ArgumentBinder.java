@@ -34,6 +34,12 @@ class ArgumentBinder {
     }
 
     private static void bindPositional(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
+        // best effort: just try +1 (unless we expose a method to get the full binding count)
+        boolean moreArgumentsProvidedThanDeclared = binding.findForPosition(params.getParameterCount()).isPresent();
+        if (moreArgumentsProvidedThanDeclared && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
+            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), context);
+        }
+
         for (int i = 0; i < params.getParameterCount(); i++) {
             Optional<Argument> argument = binding.findForPosition(i);
 
@@ -43,25 +49,34 @@ class ArgumentBinder {
                 } catch (SQLException e) {
                     throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
                 }
+            } else {
+                throw new UnableToCreateStatementException("Missing positional param at (0 based) position " + i, context);
             }
         }
     }
 
     private static void bindNamed(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
-        List<String> parameterNames = params.getParameterNames();
-        if (parameterNames.isEmpty() && !binding.isEmpty() && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
-            throw new UnableToCreateStatementException(String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding), context);
+        List<String> paramNames = params.getParameterNames();
+
+        // best effort: compare empty to non-empty because we can't list the individual binding names (unless we expose a method to do so)
+        boolean argumentsProvidedButNoneDeclared = paramNames.isEmpty() && !binding.isEmpty();
+        if (argumentsProvidedButNoneDeclared && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
+            throw new UnableToCreateStatementException(String.format("Superfluous named parameters provided while the query declares none: '%s'.", binding), context);
         }
 
-        for (int i = 0; i < parameterNames.size(); i++) {
-            String param = parameterNames.get(i);
+        for (int i = 0; i < paramNames.size(); i++) {
+            String name = paramNames.get(i);
 
-            try {
-                binding.findForName(param, context)
-                        .orElseThrow(() -> new UnableToCreateStatementException(String.format("Unable to execute, no named parameter matches '%s'.", param), context))
-                        .apply(i + 1, statement, context);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", param), e, context);
+            Optional<Argument> argument = binding.findForName(name, context);
+
+            if (argument.isPresent()) {
+                try {
+                    argument.get().apply(i + 1, statement, context);
+                } catch (SQLException e) {
+                    throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", name), e, context);
+                }
+            } else {
+                throw new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context);
             }
         }
     }
