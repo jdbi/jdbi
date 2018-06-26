@@ -123,6 +123,6 @@ public class ArgumentBinderTest {
     }
 
     private void allowUnused() {
-        statements.setAllowUnusedBindings(true);
+        statements.setUnusedBindingAllowed(true);
     }
 }
