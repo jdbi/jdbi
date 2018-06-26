@@ -1,3 +1,7 @@
+3.4.0
+  - New API
+    - StatementException.getShortMessage
+
 3.3.0
   - New API
     - SerializableTransactionRunner.setOnFailure(), setOnSuccess() methods allow callbacks to be
