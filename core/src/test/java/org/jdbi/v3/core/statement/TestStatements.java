@@ -21,7 +21,6 @@ import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -107,17 +106,6 @@ public class TestStatements {
     }
 
     @Test
-    @Ignore
-    // TODO fix in ArgumentBinder
-    public void testUsedAndUnusedBinding() {
-        assertThatThrownBy(() -> h.createQuery("select * from something where id = :id")
-            .bind("id", 1)
-            .bind("name", "jack")
-            .collectRows(Collectors.counting())
-        ).isInstanceOf(UnableToExecuteStatementException.class);
-    }
-
-    @Test
     public void testPermittedUnusedBinding() {
        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
            .createQuery("select * from something")
@@ -132,5 +120,25 @@ public class TestStatements {
             .bind("id", 1)
             .bind("name", "jack")
             .collectRows(Collectors.counting())).doesNotThrowAnyException();
+    }
+
+    @Test
+    // TODO it would be nice if this failed in the future
+    public void testUsedAndUnusedNamed() {
+        assertThatCode(() -> h.createQuery("select * from something where id = :id")
+            .bind("id", 1)
+            .bind("name", "jack")
+            .collectRows(Collectors.counting())
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    // TODO it would be nice if this failed in the future
+    public void testFarAwayPositional() {
+        assertThatCode(() -> h.createQuery("select * from something where id = ?")
+            .bind(0, 1)
+            .bind(2, "jack")
+            .collectRows(Collectors.counting())
+        ).doesNotThrowAnyException();
     }
 }
