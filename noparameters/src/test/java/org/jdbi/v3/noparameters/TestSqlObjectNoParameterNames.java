@@ -13,17 +13,12 @@
  */
 package org.jdbi.v3.noparameters;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assume.assumeFalse;
-
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindList;
@@ -33,6 +28,10 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assume.assumeFalse;
 
 public class TestSqlObjectNoParameterNames {
     @Rule
@@ -63,15 +62,15 @@ public class TestSqlObjectNoParameterNames {
     @Test
     public void implicitBindNamed() throws Exception {
         assertThatThrownBy(() -> h.attach(BindDao.class).getByIdImplicitBindNamed(1))
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'id'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'id'");
     }
 
     @Test
     public void explicitBindNamed() throws Exception {
         assertThatThrownBy(() -> h.attach(BindDao.class).getByIdExplicitBindNamed(1))
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'id'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'id'");
     }
 
     public interface BindDao {

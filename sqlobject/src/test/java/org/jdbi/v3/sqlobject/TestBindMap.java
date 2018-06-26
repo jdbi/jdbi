@@ -19,7 +19,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -101,7 +101,7 @@ public class TestBindMap {
     @Test
     public void testBindMapKeyNotInMapOrKeys() throws Exception {
         handle.execute("insert into something(id, name) values (3, 'Carol')");
-        exception.expect(UnableToExecuteStatementException.class);
+        exception.expect(UnableToCreateStatementException.class);
 
         dao.update(3, emptyMap());
     }
