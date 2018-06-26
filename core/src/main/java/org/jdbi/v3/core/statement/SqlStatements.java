@@ -16,9 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -169,12 +167,15 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
-    @Beta
     public boolean getAllowUnusedBindings() {
         return allowUnusedBindings;
     }
 
-    @Beta
+    /**
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
+     *
+     * @see org.jdbi.v3.core.argument.Argument
+     */
     public SqlStatements setAllowUnusedBindings(boolean allowUnusedBindings) {
         this.allowUnusedBindings = allowUnusedBindings;
         return this;
