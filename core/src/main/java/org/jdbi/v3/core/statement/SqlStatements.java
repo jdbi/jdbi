@@ -167,7 +167,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
-    public boolean getAllowUnusedBindings() {
+    public boolean isUnusedBindingAllowed() {
         return allowUnusedBindings;
     }
 
@@ -176,7 +176,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @see org.jdbi.v3.core.argument.Argument
      */
-    public SqlStatements setAllowUnusedBindings(boolean allowUnusedBindings) {
+    public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
         this.allowUnusedBindings = allowUnusedBindings;
         return this;
     }

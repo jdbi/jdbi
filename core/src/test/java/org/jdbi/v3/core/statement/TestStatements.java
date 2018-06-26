@@ -119,7 +119,7 @@ public class TestStatements {
 
     @Test
     public void testPermittedUnusedBinding() {
-       assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setAllowUnusedBindings(true))
+       assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
            .createQuery("select * from something")
            .bind("id", 1)
            .collectRows(Collectors.counting())).doesNotThrowAnyException();
@@ -127,7 +127,7 @@ public class TestStatements {
 
     @Test
     public void testPermittedUsedAndUnusedBinding() {
-        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setAllowUnusedBindings(true))
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
             .createQuery("select * from something where id = :id")
             .bind("id", 1)
             .bind("name", "jack")

@@ -36,7 +36,7 @@ class ArgumentBinder {
     private static void bindPositional(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
         // best effort: just try +1 (unless we expose a method to get the full binding count)
         boolean moreArgumentsProvidedThanDeclared = binding.findForPosition(params.getParameterCount()).isPresent();
-        if (moreArgumentsProvidedThanDeclared && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
+        if (moreArgumentsProvidedThanDeclared && !context.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
             throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), context);
         }
 
@@ -60,7 +60,7 @@ class ArgumentBinder {
 
         // best effort: compare empty to non-empty because we can't list the individual binding names (unless we expose a method to do so)
         boolean argumentsProvidedButNoneDeclared = paramNames.isEmpty() && !binding.isEmpty();
-        if (argumentsProvidedButNoneDeclared && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
+        if (argumentsProvidedButNoneDeclared && !context.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
             throw new UnableToCreateStatementException(String.format("Superfluous named parameters provided while the query declares none: '%s'.", binding), context);
         }
 
