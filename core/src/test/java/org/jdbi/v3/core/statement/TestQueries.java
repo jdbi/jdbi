@@ -145,8 +145,8 @@ public class TestQueries {
                         .bind(0, "eric")
                         .mapToBean(Something.class)
                         .list())
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'name'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'name'");
     }
 
     @Test
@@ -160,14 +160,14 @@ public class TestQueries {
                         .bind("id", 1)
                         .mapToBean(Something.class)
                         .list())
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'name'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'name'");
     }
 
     @Test
     public void testHelpfulErrorOnNothingSet() throws Exception {
         assertThatThrownBy(() -> h.createQuery("select * from something where name = :name").mapToMap().list())
-            .isInstanceOf(UnableToExecuteStatementException.class);
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
