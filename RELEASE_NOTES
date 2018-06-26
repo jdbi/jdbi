@@ -1,9 +1,10 @@
 3.4.0
   - New API
     - StatementException.getShortMessage
-    - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be left out of the final query (e.g. by a TemplateEngine that renders conditional blocks) without getting an Exception.
+    - SqlStatements.setUnusedBindingAllowed allows you to bind Arguments to query parts that may be left out of the final query (e.g. by a TemplateEngine that renders conditional blocks) without getting an Exception.
   - Bug Fixes
-    - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`
+    - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`.
+    - behavioral fixes in Argument binding where the number of provided Arguments differs from the expected number.
 
 3.3.0
   - New API
