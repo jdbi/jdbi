@@ -50,7 +50,7 @@ class ArgumentBinder {
 
     private static void bindNamed(List<String> parameterNames, Binding binding, PreparedStatement statement, StatementContext context) {
         // TODO throw on any mismatch, not only empty/non-empty
-        if (!context.getConfig(SqlStatements.class).getAllowUnusedBindings() && parameterNames.isEmpty() && !binding.isEmpty()) {
+        if (parameterNames.isEmpty() && !binding.isEmpty() && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
             throw new UnableToExecuteStatementException(
                     String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding),
                     context);
