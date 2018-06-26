@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.Optional;
 import org.jdbi.v3.core.argument.Argument;
 
 import java.sql.PreparedStatement;
@@ -26,34 +27,30 @@ class ArgumentBinder {
 
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {
         if (parameters.isPositional()) {
-            bindPositional(parameters.getParameterCount(), binding, statement, context);
+            bindPositional(parameters, binding, statement, context);
         } else {
-            bindNamed(parameters.getParameterNames(), binding, statement, context);
+            bindNamed(parameters, binding, statement, context);
         }
     }
 
-    private static void bindPositional(int size, Binding binding, PreparedStatement statement, StatementContext context) {
-        // TODO check matching?
-        for (int i = 0; i < size; i++) {
-            try {
-                Argument argument = binding.findForPosition(i).orElse(null);
-                if (argument != null) {
-                    argument.apply(i + 1, statement, context);
+    private static void bindPositional(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
+        for (int i = 0; i < params.getParameterCount(); i++) {
+            Optional<Argument> argument = binding.findForPosition(i);
+
+            if (argument.isPresent()) {
+                try {
+                    argument.get().apply(i + 1, statement, context);
+                } catch (SQLException e) {
+                    throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
                 }
-                // any missing positional parameters could be return parameters
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(
-                        "Exception while binding positional param at (0 based) position " + i, e, context);
             }
         }
     }
 
-    private static void bindNamed(List<String> parameterNames, Binding binding, PreparedStatement statement, StatementContext context) {
-        // TODO throw on any mismatch, not only empty/non-empty
+    private static void bindNamed(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
+        List<String> parameterNames = params.getParameterNames();
         if (parameterNames.isEmpty() && !binding.isEmpty() && !context.getConfig(SqlStatements.class).getAllowUnusedBindings()) {
-            throw new UnableToExecuteStatementException(
-                    String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding),
-                    context);
+            throw new UnableToCreateStatementException(String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding), context);
         }
 
         for (int i = 0; i < parameterNames.size(); i++) {
@@ -61,13 +58,10 @@ class ArgumentBinder {
 
             try {
                 binding.findForName(param, context)
-                        .orElseThrow(() -> new UnableToExecuteStatementException(
-                                String.format("Unable to execute, no named parameter matches '%s'.", param),
-                                context))
+                        .orElseThrow(() -> new UnableToCreateStatementException(String.format("Unable to execute, no named parameter matches '%s'.", param), context))
                         .apply(i + 1, statement, context);
             } catch (SQLException e) {
-                throw new UnableToCreateStatementException(
-                        String.format("Exception while binding named parameter '%s'", param), e, context);
+                throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", param), e, context);
             }
         }
     }
