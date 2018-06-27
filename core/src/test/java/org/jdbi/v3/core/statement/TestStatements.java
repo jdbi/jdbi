@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.Types;
 import java.util.stream.Collectors;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -140,5 +141,30 @@ public class TestStatements {
             .bind(2, "jack")
             .collectRows(Collectors.counting())
         ).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void testUnusedBindingWithOutParameter() {
+        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
+
+        Call call = h.createCall("? = CALL TO_DEGREES(?)")
+            .registerOutParameter(0, Types.DOUBLE)
+            .bind(1, 100.0d)
+            .bind(2, "foo");
+
+        assertThatThrownBy(call::invoke).isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
+    public void testPermittedUnusedBindingWithOutParameter() {
+        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
+
+        Call call = h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true))
+            .createCall("? = CALL TO_DEGREES(?)")
+            .registerOutParameter(0, Types.DOUBLE)
+            .bind(1, 100.0d)
+            .bind(2, "foo");
+
+        assertThatCode(call::invoke).doesNotThrowAnyException();
     }
 }
