@@ -28,17 +28,14 @@ public class MapMappers implements JdbiConfig<MapMappers> {
     public static final UnaryOperator<String> LOCALE_UPPER = s -> s.toUpperCase(Locale.ROOT);
 
     private UnaryOperator<String> caseChange;
-    private boolean forceNewApi;
 
     public MapMappers() {
-        // TODO law of least surprise: change to nop in jdbi4
+        // TODO jdbi4 law of least surprise: change to nop
         caseChange = LOCALE_LOWER;
-        forceNewApi = false;
     }
 
     private MapMappers(MapMappers that) {
         caseChange = that.caseChange;
-        forceNewApi = that.forceNewApi;
     }
 
     @Beta
