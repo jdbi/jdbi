@@ -578,13 +578,6 @@
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${spotbugs.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.github.spotbugs</groupId>
-                            <artifactId>spotbugs</artifactId>
-                            <version>${spotbugs.version}</version>
-                        </dependency>
-                    </dependencies>
                     <configuration>
                         <includeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-include.xml</includeFilterFile>
                         <excludeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-exclude.xml</excludeFilterFile>
