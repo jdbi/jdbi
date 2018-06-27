@@ -24,4 +24,8 @@ public class UnableToCreateSqlObjectException extends JdbiException {
     public UnableToCreateSqlObjectException(String message) {
         super(message);
     }
+
+    public UnableToCreateSqlObjectException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

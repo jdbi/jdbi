@@ -40,7 +40,7 @@ class DefaultMethodHandler implements Handler {
 
     private static final Map<Class<?>, MethodHandles.Lookup> PRIVATE_LOOKUPS = synchronizedMap(new WeakHashMap<>());
 
-    private static MethodHandles.Lookup lookupFor(Class<?> clazz) {
+    static MethodHandles.Lookup lookupFor(Class<?> clazz) {
         if (PRIVATE_LOOKUP_IN != null) {
             try {
                 return (MethodHandles.Lookup) PRIVATE_LOOKUP_IN.invoke(null, clazz, MethodHandles.lookup());

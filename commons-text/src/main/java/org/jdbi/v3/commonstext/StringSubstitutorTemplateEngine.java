@@ -53,22 +53,6 @@ public class StringSubstitutorTemplateEngine implements TemplateEngine {
         return substitutor.replace(template);
     }
 
-    /**
-     * @deprecated use the default constructor instead
-     */
-    @Deprecated
-    public static StringSubstitutorTemplateEngine defaults() {
-        return new StringSubstitutorTemplateEngine();
-    }
-
-    /**
-     * @deprecated use the constructor instead
-     */
-    @Deprecated
-    public static StringSubstitutorTemplateEngine withCustomizer(Consumer<StringSubstitutor> customizer) {
-        return new StringSubstitutorTemplateEngine(customizer);
-    }
-
     public static StringSubstitutorTemplateEngine between(char prefix, char suffix) {
         return new StringSubstitutorTemplateEngine(substitutor -> {
             substitutor.setVariablePrefix(prefix);

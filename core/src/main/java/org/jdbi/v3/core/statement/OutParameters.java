@@ -50,7 +50,7 @@ public class OutParameters {
     }
 
     /**
-     * Type-casting convenience method which obtains an object from the the results positionally
+     * Type-casting convenience method which obtains an object from the results positionally
      * object obtained should have been created with {@link CallableStatementMapper}
      *
      * @param position The out parameter name
