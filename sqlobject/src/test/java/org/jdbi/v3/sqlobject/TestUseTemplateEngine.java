@@ -18,6 +18,7 @@ import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.jdbi.v3.core.statement.DefinedAttributeTemplateEngine;
 import org.jdbi.v3.core.statement.MessageFormatTemplateEngine;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -35,7 +36,7 @@ public class TestUseTemplateEngine {
 
     @Before
     public void before() {
-        jdbi = db.getJdbi();
+        jdbi = db.getJdbi().setTemplateEngine(TemplateEngine.NOP);
     }
 
     @Test

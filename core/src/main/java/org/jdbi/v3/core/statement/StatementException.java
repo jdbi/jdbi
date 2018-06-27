@@ -52,6 +52,10 @@ public abstract class StatementException extends JdbiException {
         return statementContext;
     }
 
+    public String getShortMessage() {
+        return super.getMessage();
+    }
+
     @Override
     public String getMessage() {
         String base = super.getMessage();
