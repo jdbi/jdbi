@@ -34,7 +34,7 @@ public class ConfigRegistry {
     private ConfigRegistry(ConfigRegistry that) {
         that.cache.forEach((type, config) -> {
             JdbiConfig<?> copy = config.createCopy();
-            copy.setRegistry(ConfigRegistry.this);
+            copy.setRegistry(this);
             cache.put(type, copy);
         });
     }
@@ -51,7 +51,7 @@ public class ConfigRegistry {
         return configClass.cast(cache.computeIfAbsent(configClass, type -> {
             try {
                 C config = configClass.getDeclaredConstructor().newInstance();
-                config.setRegistry(ConfigRegistry.this);
+                config.setRegistry(this);
                 return config;
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass
