@@ -60,7 +60,9 @@ public class Batch extends BaseStatement<Batch> {
         try {
             try {
                 stmt = getHandle().getStatementBuilder().create(getHandle().getConnection(), getContext());
+
                 addCleanable(stmt::close);
+                getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }

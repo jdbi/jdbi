@@ -1,6 +1,7 @@
 3.4.0
   - New API
     - StatementException.getShortMessage
+    - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
   - Bug Fixes
     - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`
 
