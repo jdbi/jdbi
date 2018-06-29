@@ -300,6 +300,9 @@ parameters by name:
 include::{exampledir}/FiveMinuteTourTest.java[tags=namedParameters]
 ----
 
+[NOTE]
+This `:foo` syntax is default behavior that can be changed; see the `ColonPrefixSqlParser` class. Jdbi alternatively provides support for `#foo` syntax out-of-the-box, and you can create your own as well.
+
 ==== Supported Argument Types
 
 Out of the box, Jdbi supports the following types as SQL statement arguments:
