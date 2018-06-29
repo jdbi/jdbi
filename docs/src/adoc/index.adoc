@@ -587,6 +587,54 @@ LocalDate releaseDate = handle.createQuery(
     .findOnly();
 ----
 
+=== Templating
+
+Queries usually take form step-by-step. Rarely can a query be written in source code and executed verbatim, without any changes. The form of preparation everyone knows already is _parameterizing_ the query and binding arguments to it separately. This binding step is a transformation that turns the parameterized query string (`... where foo = ?`) into one containing actual values (`... where foo = 'bar'`).
+
+Arguments are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and... variable substitution. Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[source,java]
+----
+handle.createQuery("select * from <TABLE> where name = :n;")
+
+    // -> "select * from Person where name = :n;"
+    .define("TABLE", "Person")
+
+    // -> "select * from Person where name = 'MyName';"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java]
+----
+String paramName = "arg";
+
+handle.createQuery("select * from Foo where bar = :<attr>")
+    .define("attr", paramName)
+    ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java]
+----
+handle.createQuery("select * from emotion where emoticon = <sticker>;")
+    .define("sticker", ":-)") // -> "... where emoticon = :-);"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Also see the section about <<TemplateEngine>>.
+
 === Mappers
 
 Jdbi makes use of mappers to convert result data into Java objects. There are
