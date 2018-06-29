@@ -262,12 +262,23 @@ or `useHandle` over `open` whenever possible.
 
 === Arguments
 
-You have two choices when binding arguments to a SQL statement: positional,
-or named.
+Arguments are Jdbi's representation of SQL statement parameters, as in `select * from Foo where bar = ?`.
 
-Any statement can use either position or named arguments, but they can never
-be mixed in the same SQL statement. In this case, Jdbi can't be sure it's
-binding the right arguments, and will throw an exception.
+For this query, you would usually define the 1st parameter as a varchar: `'Baz'`. In Jdbi terms, this means _binding_ an _Argument_ that will insert a String into the placeholder as a varchar. Arguments can perform other bindings: a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int, or a complex object could be serialized to a byte array and bound as a SQL blob.
+
+[TIP]
+Think of Arguments as functions that map Java objects to SQL data values.
+
+In addition to classic positional parameters (`?` placeholders), Jdbi has created the concept of _named_ parameters, which can make queries with multiple parameters easier to read. Any statement can use either positional or named arguments, but they can never be mixed in the same SQL statement. In such cases, Jdbi can't be sure it's binding the right arguments, and will throw an exception.
+
+[CAUTION]
+Support for query parameters (SQL data type and location within a query) is database-specific. JDBC drivers also have inconsistent support for different Java object types. This means Arguments, while convenient, SQL-safe, and familiar in concept, are platform-specific.
+
+[TIP]
+Jdbi's configuration system enables you to easily set up different Arguments and ArgumentFactories for different platforms, so don't worry about it too much. It is strongly recommended to use Arguments anywhere they make sense.
+
+[NOTE]
+_Binding_ is a term specifically related to _Arguments_ only. _Attributes_ are involved in _rendering_ a query _template_ using a _TemplateEngine_ to perform String-wise manipulations on a query before it is interpreted as SQL.
 
 ==== Positional Arguments
 
