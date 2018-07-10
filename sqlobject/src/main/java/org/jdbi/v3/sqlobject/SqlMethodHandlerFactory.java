@@ -61,6 +61,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
                         method.getName()))));
     }
 
+    @SuppressWarnings("PMD.PreserveStackTrace")
     private Handler buildHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
         try {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);

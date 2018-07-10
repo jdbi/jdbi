@@ -36,7 +36,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
      * @param object the object bind on
      */
     ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
-        this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
+        this.prefix = prefix == null || prefix.isEmpty() ? "" : prefix + ".";
         this.object = object;
     }
 

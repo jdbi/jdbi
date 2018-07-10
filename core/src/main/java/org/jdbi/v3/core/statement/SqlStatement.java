@@ -1360,13 +1360,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             } else {
                 stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
             }
+
+            // The statement builder might (or might not) clean up the statement when called. E.g. the
+            // caching statement builder relies on the statement *not* being closed.
+            addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
+            getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, getContext());
         }
-
-        // The statement builder might (or might not) clean up the statement when called. E.g. the
-        // caching statement builder relies on the statement *not* being closed.
-        addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
 
         getContext().setStatement(stmt);
 
