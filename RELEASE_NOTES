@@ -2,6 +2,7 @@
   - New API
     - StatementException.getShortMessage
     - Added the MapMappers JdbiConfig class to configure column name case changes in favor of the old boolean toggle.
+    - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
   - Bug Fixes
     - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`
 

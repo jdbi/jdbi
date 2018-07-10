@@ -14,11 +14,12 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 abstract class TypeCapture<T> {
   final Type capture() {
     Type superclass = getClass().getGenericSuperclass();

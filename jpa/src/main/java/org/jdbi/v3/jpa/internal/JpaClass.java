@@ -63,6 +63,7 @@ public class JpaClass<C> {
         return members.values();
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
     private static void inspectSuperclasses(Class<?> clazz,
                                             Map<String, JpaMember> members) {
         Class<?> c = clazz;

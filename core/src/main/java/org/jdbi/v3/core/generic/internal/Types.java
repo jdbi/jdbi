@@ -91,7 +91,7 @@ public class Types {
     }
 
     static String toString(Type type) {
-        return (type instanceof Class) ? ((Class<?>) type).getName() : type.toString();
+        return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
     }
 
     @Nullable
@@ -161,7 +161,7 @@ public class Types {
     }
 
     private static Type[] toArray(Collection<Type> types) {
-        return types.toArray(new Type[types.size()]);
+        return types.toArray(new Type[0]);
     }
 
     private static Iterable<Type> filterUpperBounds(Collection<Type> bounds) {
@@ -229,7 +229,7 @@ public class Types {
                     Method getTypeName = Type.class.getMethod("getTypeName");
                     return (String) getTypeName.invoke(type);
                 } catch (NoSuchMethodException e) {
-                    throw new AssertionError("Type.getTypeName should be available in Java 8");
+                    throw new AssertionError("Type.getTypeName should be available in Java 8", e);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }

@@ -35,7 +35,7 @@ public class UseClasspathSqlLocatorImpl implements Configurer {
     }
 
     private static String defaultName(String name, Method method) {
-        return !name.isEmpty() ? name : method.getName();
+        return name.isEmpty() ? method.getName() : name;
     }
 
     @Override

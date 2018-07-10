@@ -42,6 +42,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace")
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X {
         final Configuration config = handle.getConfig(Configuration.class);
@@ -65,7 +66,8 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                 config.onFailure.accept(new ArrayList<>(failures));
 
                 // no more attempts left? Throw ALL the exceptions! \o/
-                if (--attempts <= 0) {
+                attempts -= 1;
+                if (attempts <= 0) {
                     X toThrow = failures.removeLast();
                     while (!failures.isEmpty()) {
                         toThrow.addSuppressed(failures.removeLast());

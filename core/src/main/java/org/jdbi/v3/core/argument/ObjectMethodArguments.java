@@ -75,6 +75,6 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     private static Method bridgeMethodMerge(Method a, Method b) {
-        return (a.isBridge()) ? b : a;
+        return a.isBridge() ? b : a;
     }
 }
