@@ -90,8 +90,8 @@ public class TestStringTemplateSqlLocator {
         handle.attach(Wombat.class).insert(new Something(6, "Jack"));
         handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
 
-        List<Something> somethings = handle.attach(Wombat.class).findByIdOrAll(null);
-        assertThat(somethings).hasSize(2);
+        List<Something> somethings = handle.attach(Wombat.class).findByIdOrUptoLimit(6, null);
+        assertThat(somethings).hasSize(1);
     }
 
     @Test
@@ -99,8 +99,8 @@ public class TestStringTemplateSqlLocator {
         handle.attach(Wombat.class).insert(new Something(6, "Jack"));
         handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
 
-        List<Something> somethings = handle.attach(Wombat.class).findByIdOrAll(6);
-        assertThat(somethings).hasSize(1);
+        List<Something> somethings = handle.attach(Wombat.class).findByIdOrUptoLimit(null, 8);
+        assertThat(somethings).hasSize(2);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TestStringTemplateSqlLocator {
         Something findById(@Bind("id") Long id);
 
         @SqlQuery
-        List<Something> findByIdOrAll(@Bind("id") @Define("id") Integer id);
+        List<Something> findByIdOrUptoLimit(@Bind("id") Integer id, @Define("idLimit") @Bind("idLimit") Integer idLimit);
 
         @SqlQuery
         String findNameFor(@Bind("id") int id);
