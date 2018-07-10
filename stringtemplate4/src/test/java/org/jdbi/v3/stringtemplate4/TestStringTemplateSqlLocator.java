@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -85,6 +86,24 @@ public class TestStringTemplateSqlLocator {
     }
 
     @Test
+    public void testConditionalExecutionWithNullValue() throws Exception {
+        handle.attach(Wombat.class).insert(new Something(6, "Jack"));
+        handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
+
+        List<Something> somethings = handle.attach(Wombat.class).findByIdOrAll(null);
+        assertThat(somethings).hasSize(2);
+    }
+
+    @Test
+    public void testConditionalExecutionWithNonNullValue() throws Exception {
+        handle.attach(Wombat.class).insert(new Something(6, "Jack"));
+        handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
+
+        List<Something> somethings = handle.attach(Wombat.class).findByIdOrAll(6);
+        assertThat(somethings).hasSize(1);
+    }
+
+    @Test
     public void testBatching() throws Exception {
         Wombat roo = handle.attach(Wombat.class);
         roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
@@ -101,6 +120,9 @@ public class TestStringTemplateSqlLocator {
 
         @SqlQuery
         Something findById(@Bind("id") Long id);
+
+        @SqlQuery
+        List<Something> findByIdOrAll(@Bind("id") @Define("id") Integer id);
 
         @SqlQuery
         String findNameFor(@Bind("id") int id);

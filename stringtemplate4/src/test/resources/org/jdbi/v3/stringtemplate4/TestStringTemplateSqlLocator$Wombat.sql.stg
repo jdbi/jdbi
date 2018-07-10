@@ -3,6 +3,7 @@ group Wombat;
 kangaroo(name) ::= << hello <name> >>
 insert() ::= << insert into something (id, name) values (:id, :name) >>
 findById() ::= << select id, name from something where id = :id >>
+findByIdOrAll(id) ::= << select id, name from something <if(id)> where id = :id <endif> >>
 findNameFor() ::= << select name from something where id = :id >>
 weirdInsert(table, id_column, value_column) ::= <<
     insert into <table> (<id_column>, <value_column>) values (:id, :value)

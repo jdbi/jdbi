@@ -58,7 +58,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      */
     public SqlStatements define(String key, Object value) {
-        attributes.put(key, value);
+        if (value != null) {
+            attributes.put(key, value);
+        }
         return this;
     }
 
