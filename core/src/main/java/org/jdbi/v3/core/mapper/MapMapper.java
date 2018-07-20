@@ -63,7 +63,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         UnaryOperator<String> caseChange = toLowerCase == null
             ? ctx.getConfig(MapMappers.class).getCaseChange()
-            : (toLowerCase ? MapMappers.LOCALE_LOWER : MapMappers.NOP);
+            : toLowerCase ? MapMappers.LOCALE_LOWER : MapMappers.NOP;
 
         List<String> columnNames = getColumnNames(rs, caseChange);
 
