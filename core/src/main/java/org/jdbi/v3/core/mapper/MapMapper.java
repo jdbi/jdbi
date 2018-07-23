@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
-import javax.annotation.Nullable;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -39,18 +38,18 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
     private final Boolean toLowerCase;
 
     /**
-     * Constructs a new MapMapper, with map keys converted to lowercase.
+     * Constructs a new MapMapper and delegates case control to MapMappers.
      */
     public MapMapper() {
-        this(null);
+        toLowerCase = null;
     }
 
     /**
      * Constructs a new MapMapper
-     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If null, the new MapNappers config will be used.
+     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If false, nothing is done. Use the other constructor to delegate case control to MapMappers instead.
      */
     // TODO deprecate when MapMappers.caseChange is out of beta
-    public MapMapper(@Nullable Boolean toLowerCase) {
+    public MapMapper(boolean toLowerCase) {
         this.toLowerCase = toLowerCase;
     }
 
