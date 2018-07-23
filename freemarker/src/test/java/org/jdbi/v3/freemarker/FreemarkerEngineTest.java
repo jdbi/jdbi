@@ -14,6 +14,7 @@
 package org.jdbi.v3.freemarker;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -66,6 +67,24 @@ public class FreemarkerEngineTest {
         assertThat(s).containsExactly("Jack", "Wolf");
     }
 
+    @Test
+    public void testFindNamesConditionalExecutionWithNullValue() throws Exception {
+        handle.execute("insert into something (id, name) values (6, 'Jack')");
+        handle.execute("insert into something (id, name) values (7, 'Wolf')");
+
+        List<String> s = handle.attach(Wombat.class).findNamesByDefinedIdsOrAll(null);
+        assertThat(s).containsExactly("Jack", "Wolf");
+    }
+
+    @Test
+    public void testFindNamesWithConditionalExecutionWithNonNullValue() throws Exception {
+        handle.execute("insert into something (id, name) values (6, 'Jack')");
+        handle.execute("insert into something (id, name) values (7, 'Wolf')");
+
+        List<String> s = handle.attach(Wombat.class).findNamesByDefinedIdsOrAll(Collections.singletonList(6L));
+        assertThat(s).containsExactly("Jack");
+    }
+
     @UseFreemarkerEngine
     @RegisterRowMapper(SomethingMapper.class)
     public interface Wombat {
@@ -78,6 +97,9 @@ public class FreemarkerEngineTest {
 
         @SqlQuery("select name from something where id in (${ids?join(\",\")})")
         List<String> findNamesByDefinedIds(@Define("ids") List<Long> ids);
+
+        @SqlQuery("select name from something <#if ids??> where id in (${ids?join(\",\")}) </#if>")
+        List<String> findNamesByDefinedIdsOrAll(@Define("ids") List<Long> ids);
 
     }
 }
