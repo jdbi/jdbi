@@ -30,7 +30,6 @@ public class MapMappers implements JdbiConfig<MapMappers> {
     private UnaryOperator<String> caseChange;
 
     public MapMappers() {
-        // TODO jdbi4 law of least surprise: change to nop (update javadoc too)
         caseChange = LOCALE_LOWER;
     }
 
