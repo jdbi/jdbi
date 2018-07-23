@@ -4,6 +4,8 @@
     - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
   - Bug Fixes
     - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`
+  - Improvements
+    - Handle `null` values in defined attributes
 
 3.3.0
   - New API
