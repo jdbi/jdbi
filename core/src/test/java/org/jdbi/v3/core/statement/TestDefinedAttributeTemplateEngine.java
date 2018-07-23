@@ -60,6 +60,12 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     @Test
+    public void testNullAttribute() throws Exception {
+        assertThatThrownBy(() -> render("select * from something where id=<id>", Collections.singletonMap("id", null)))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
     public void testLeaveEnquotedTokensIntact() throws Exception {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
         assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
