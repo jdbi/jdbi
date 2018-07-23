@@ -32,7 +32,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 public class MapMapper implements RowMapper<Map<String, Object>> {
     /**
-     * @deprecated TODO remove in jdbi4
+     * @deprecated remove
      */
     @Deprecated
     private final Boolean toLowerCase;
