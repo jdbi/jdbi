@@ -88,6 +88,14 @@ public class TestMessageFormatTemplateEngine {
     }
 
     @Test
+    public void testNullValue() {
+        attributes.put("0", null);
+
+        assertThat(templateEngine.render("{0} bar", ctx))
+            .isEqualTo("null bar");
+    }
+
+    @Test
     public void testNegativeKey() {
         attributes.put("-1", "hello");
 
