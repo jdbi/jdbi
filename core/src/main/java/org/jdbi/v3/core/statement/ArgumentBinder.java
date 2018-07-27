@@ -43,14 +43,11 @@ class ArgumentBinder {
         for (int i = 0; i < params.getParameterCount(); i++) {
             Optional<Argument> argument = binding.findForPosition(i);
 
-            if (argument.isPresent()) {
-                try {
-                    argument.get().apply(i + 1, statement, context);
-                } catch (SQLException e) {
-                    throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
-                }
-            } else {
-                throw new UnableToCreateStatementException("Missing positional param at (0 based) position " + i, context);
+            try {
+                int index = i;
+                argument.orElseThrow(() -> new UnableToCreateStatementException("Missing positional param at (0 based) position " + index, context)).apply(i + 1, statement, context);
+            } catch (SQLException e) {
+                throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
             }
         }
     }
@@ -69,14 +66,10 @@ class ArgumentBinder {
 
             Optional<Argument> argument = binding.findForName(name, context);
 
-            if (argument.isPresent()) {
-                try {
-                    argument.get().apply(i + 1, statement, context);
-                } catch (SQLException e) {
-                    throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", name), e, context);
-                }
-            } else {
-                throw new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context);
+            try {
+                argument.orElseThrow(() -> new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context)).apply(i + 1, statement, context);
+            } catch (SQLException e) {
+                throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", name), e, context);
             }
         }
     }
