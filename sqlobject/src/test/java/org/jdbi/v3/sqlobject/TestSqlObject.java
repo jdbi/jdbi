@@ -195,6 +195,12 @@ public class TestSqlObject {
         assertThat(dao.get(1)).isEqualTo(new Something(1, "foo"));
     }
 
+    @Test
+    public void testStaticMethod() {
+        handle.attach(StaticDao.class);
+        assertThat(StaticDao.staticMethod()).isEqualTo(42);
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -292,5 +298,11 @@ public class TestSqlObject {
         @SqlQuery("select * from something where id = :id")
         @RegisterBeanMapper(Something.class)
         Something get(long id);
+    }
+
+    public interface StaticDao extends SqlObject {
+        static int staticMethod() {
+            return 42;
+        }
     }
 }
