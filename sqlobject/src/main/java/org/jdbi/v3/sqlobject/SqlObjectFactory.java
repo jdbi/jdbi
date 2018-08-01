@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -117,6 +119,9 @@ public class SqlObjectFactory implements ExtensionFactory {
             }
 
             for (Method method : sqlObjectType.getMethods()) {
+                if (Modifier.isStatic(method.getModifiers())) {
+                    continue;
+                }
                 handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry, decorators));
             }
 
