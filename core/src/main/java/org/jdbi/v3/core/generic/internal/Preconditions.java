@@ -14,8 +14,7 @@
 
 package org.jdbi.v3.core.generic.internal;
 
-import java.util.Objects;
-
+@SuppressWarnings("PMD.AvoidThrowingNullPointerException")
 public final class Preconditions {
     private Preconditions() {
         throw new UnsupportedOperationException("utility class");
@@ -28,7 +27,11 @@ public final class Preconditions {
     }
 
     public static <T> T checkNotNull(T reference, String errorMessageTemplate, Object... errorMessageArgs) {
-        return Objects.requireNonNull(reference, String.format(errorMessageTemplate, errorMessageArgs));
+        if (reference == null) {
+            throw new NullPointerException(String.format(errorMessageTemplate, errorMessageArgs));
+        }
+
+        return reference;
     }
 
     public static void checkState(boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {
