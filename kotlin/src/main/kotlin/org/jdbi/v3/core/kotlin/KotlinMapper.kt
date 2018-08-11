@@ -21,6 +21,7 @@ import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
+import org.jdbi.v3.core.qualifier.QualifiedType
 import org.jdbi.v3.core.statement.StatementContext
 import java.sql.ResultSet
 import java.util.concurrent.ConcurrentHashMap
@@ -36,15 +37,21 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
-private val nullValueRowMapper = RowMapper<Any?> { rs, ctx -> null }
+private val nullValueRowMapper = RowMapper<Any?> { _, _ -> null }
 
 class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
     private val kClass: KClass<*> = clazz.kotlin
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
-    private val memberProperties = kClass.memberProperties.mapNotNull { it as? KMutableProperty1<*, *>}.filter { property ->
-        !constructorParameters.any { parameter -> parameter.paramName() == property.propName() }
-    }
+    private val memberProperties = kClass.memberProperties
+        .mapNotNull {
+            it as? KMutableProperty1<*, *>
+        }
+        .filter { property ->
+            !constructorParameters.any {
+                parameter -> parameter.paramName() == property.propName()
+            }
+        }
 
     private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
@@ -88,13 +95,12 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
         return RowMapper { r, c ->
             // We filter 'null' mappers to remove parameters with no mappers but a default value
-            val constructorParametersWithValues = constructorParameterMappers.filterValues { it != null }.mapValues { (_, mapper) ->
-                mapper?.map(r, c)
-            }
+            val constructorParametersWithValues = constructorParameterMappers
+                .filterValues { it != null }
+                .mapValues { (_, mapper) -> mapper?.map(r, c) }
 
-            val memberPropertiesWithValues = memberPropertyMappers.mapValues { (_, mapper) ->
-                mapper.map(r, c)
-            }
+            val memberPropertiesWithValues = memberPropertyMappers
+                .mapValues { (_, mapper) -> mapper.map(r, c) }
 
             constructor.isAccessible = true
             constructor.callBy(constructorParametersWithValues).also { instance ->
@@ -121,7 +127,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers, { parameter.name })
             when {
                 columnIndex.isPresent -> {
-                    val type = parameter.type.javaType
+                    val type = QualifiedType.of(
+                        parameter.type.javaType,
+                        getQualifyingAnnotations(parameter))
 
                     ctx.findColumnMapperFor(type)
                             .map { mapper -> SingleColumnMapper(mapper, columnIndex.asInt + 1) }
@@ -129,9 +137,8 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                                 IllegalArgumentException(
                                         "Could not find column mapper for type '$type' of parameter " +
                                                 "'$parameter' for constructor '$constructor'")
-                            }.also {
-                        unmatchedColumns.remove(columnNames[columnIndex.asInt])
-                    }
+                            }
+                        .also { unmatchedColumns.remove(columnNames[columnIndex.asInt]) }
                 }
                 parameter.isOptional -> {
                     // Parameter has no matching column but has a default value, use the default value

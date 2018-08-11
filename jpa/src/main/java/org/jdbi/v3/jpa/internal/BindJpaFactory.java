@@ -44,7 +44,7 @@ public class BindJpaFactory implements SqlStatementCustomizerFactory {
                 stmt.bindByType(
                         prefix + member.getColumnName(),
                         readMember(arg, member),
-                        member.getType());
+                        member.getQualifiedType());
             }
         };
     }

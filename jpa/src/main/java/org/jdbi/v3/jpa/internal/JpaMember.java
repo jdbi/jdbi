@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import javax.persistence.Column;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.jpa.EntityMemberAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +33,14 @@ public class JpaMember {
 
     private final Class<?> clazz;
     private final String columnName;
-    private final Type type;
+    private final QualifiedType qualifiedType;
     private final Getter accessor;
     private final Setter mutator;
 
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
-        this.type = field.getGenericType();
+        this.qualifiedType = QualifiedType.of(field.getGenericType(), Qualifiers.getQualifyingAnnotations(field));
         field.setAccessible(true);
         this.accessor = field::get;
         this.mutator = field::set;
@@ -47,12 +49,15 @@ public class JpaMember {
     JpaMember(Class<?> clazz, Column column, PropertyDescriptor property) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, property.getName());
-        this.type = property.getReadMethod().getGenericReturnType();
 
         Method getter = property.getReadMethod();
         Method setter = property.getWriteMethod();
         getter.setAccessible(true);
         setter.setAccessible(true);
+
+        this.qualifiedType = QualifiedType.of(getter.getGenericReturnType(),
+            Qualifiers.getQualifyingAnnotations(getter, setter));
+
         this.accessor = getter::invoke;
         this.mutator = setter::invoke;
     }
@@ -61,8 +66,12 @@ public class JpaMember {
         return columnName;
     }
 
+    public QualifiedType getQualifiedType() {
+        return qualifiedType;
+    }
+
     public Type getType() {
-        return type;
+        return qualifiedType.getType();
     }
 
     public Object read(Object obj) throws IllegalAccessException, InvocationTargetException {
@@ -70,7 +79,7 @@ public class JpaMember {
     }
 
     public void write(Object obj, Object value) {
-        LOGGER.debug("write {}/{}/{}/{}", clazz, columnName, type, value);
+        LOGGER.debug("write {}/{}/{}/{}", clazz, columnName, qualifiedType, value);
 
         try {
             mutator.set(obj, value);

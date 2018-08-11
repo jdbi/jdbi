@@ -14,7 +14,6 @@
 package org.jdbi.v3.jpa;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ import java.util.List;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.jpa.internal.JpaClass;
 import org.jdbi.v3.jpa.internal.JpaMember;
@@ -57,7 +57,7 @@ public class JpaMapper<C> implements RowMapper<C> {
             String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
-                Type memberType = member.getType();
+                QualifiedType memberType = member.getQualifiedType();
                 ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
                         .orElseThrow(() -> new NoSuchMapperException("No column mapper for " + memberType));
 
