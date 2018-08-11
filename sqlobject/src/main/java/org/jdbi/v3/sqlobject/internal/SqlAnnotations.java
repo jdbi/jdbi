@@ -64,6 +64,6 @@ public class SqlAnnotations {
     }
 
     private static String scriptValue(SqlScript script, Method method) {
-        return !script.value().isEmpty() ? script.value() : method.getName();
+        return script.value().isEmpty() ? method.getName() : script.value();
     }
 }

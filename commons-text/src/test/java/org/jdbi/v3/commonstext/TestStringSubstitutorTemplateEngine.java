@@ -50,6 +50,26 @@ public class TestStringSubstitutorTemplateEngine {
     }
 
     @Test
+    public void testMissingAttribute() {
+        attributes.clear();
+
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
+
+        assertThat(engine.render("select * from foo where x=<x>", ctx))
+            .isEqualTo("select * from foo where x=<x>");
+    }
+
+    @Test
+    public void testNullAttribute() {
+        attributes.put("x", null);
+
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
+
+        assertThat(engine.render("select * from foo where x=<x>", ctx))
+            .isEqualTo("select * from foo where x=<x>");
+    }
+
+    @Test
     public void testCustomPrefixSuffix() {
         attributes.put("name", "foo");
 

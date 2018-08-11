@@ -305,7 +305,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollback() {
         final long start = System.nanoTime();
         transactions.rollback(this);
-        LOG.trace("Handle [{}] rollback transaction in {}ms", this, ((System.nanoTime() - start) / 1000000L));
+        LOG.trace("Handle [{}] rollback transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
         return this;
     }
 
@@ -319,7 +319,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
         transactions.rollbackToSavepoint(this, savepointName);
-        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, ((System.nanoTime() - start) / 1000000L));
+        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, (System.nanoTime() - start) / 1000000L);
         return this;
     }
 

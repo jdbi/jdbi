@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
@@ -90,9 +90,10 @@
         <dep.pmd.version>6.0.1</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
-        <findbugs.version>3.0.1</findbugs.version>
+        <findbugs.version>3.0.2</findbugs.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>1.8</project.build.targetJdk>
+        <spotbugs.version>3.1.5</spotbugs.version>
     </properties>
 
     <dependencyManagement>
@@ -425,9 +426,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>findbugs-annotations</artifactId>
-                <version>${findbugs.version}</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${spotbugs.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
@@ -573,6 +574,22 @@
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs.version}</version>
+                    <configuration>
+                        <includeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-include.xml</includeFilterFile>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -603,6 +620,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>test</phase>

@@ -13,11 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -28,12 +32,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
+    private Integer queryTimeout;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
+        queryTimeout = null;
     }
 
     private SqlStatements(SqlStatements that) {
@@ -41,6 +47,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
+        this.queryTimeout = that.queryTimeout;
     }
 
     /**
@@ -51,7 +58,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      */
     public SqlStatements define(String key, Object value) {
-        attributes.put(key, value);
+        if (value == null) {
+            attributes.remove(key);
+        } else {
+            attributes.put(key, value);
+        }
         return this;
     }
 
@@ -163,6 +174,31 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
         this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
         return this;
+    }
+
+    @Beta
+    public Integer getQueryTimeout() {
+        return queryTimeout;
+    }
+
+    /**
+     * Jdbi does not implement its own timeout mechanism: it simply calls {@link java.sql.Statement#setQueryTimeout}, leaving timeout handling to your jdbc driver.
+     *
+     * @param seconds the time in seconds to wait for a query to complete; 0 to disable the timeout; null to leave it at defaults (i.e. Jdbi will not call {@code setQueryTimeout(int)})
+     */
+    @Beta
+    public SqlStatements setQueryTimeout(@Nullable Integer seconds) {
+        if (seconds != null && seconds < 0) {
+            throw new IllegalArgumentException("queryTimeout must not be < 0");
+        }
+        this.queryTimeout = seconds;
+        return this;
+    }
+
+    void customize(Statement statement) throws SQLException {
+        if (queryTimeout != null) {
+            statement.setQueryTimeout(queryTimeout);
+        }
     }
 
     @Override

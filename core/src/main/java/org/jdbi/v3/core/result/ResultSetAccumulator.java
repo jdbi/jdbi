@@ -29,11 +29,11 @@ public interface ResultSetAccumulator<T> {
     /**
      * Extract a single row from the result set, and combine it with the
      * accumulator to produce a result.
-     * @param in the previous object
+     * @param previous the previous object
      * @param rs the ResultSet, please do not advance it
      * @param ctx the statement context
      * @return the accumulated value
      * @throws SQLException in the face of grave danger
      */
-    T apply(T in, ResultSet rs, StatementContext ctx) throws SQLException;
+    T apply(T previous, ResultSet rs, StatementContext ctx) throws SQLException;
 }

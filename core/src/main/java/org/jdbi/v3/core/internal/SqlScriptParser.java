@@ -49,7 +49,7 @@ public class SqlScriptParser {
                     break;
                 case SqlScriptLexer.NEWLINES:
                     if (sb.length() > 0) {
-                        sb.append(" ");
+                        sb.append(' ');
                     }
                     break;
                 case SqlScriptLexer.QUOTED_TEXT:

@@ -197,7 +197,7 @@ public final class TypeResolver {
         try {
             return type.cast(arg);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(arg + " is not a " + type.getSimpleName());
+            throw new IllegalArgumentException(arg + " is not a " + type.getSimpleName(), e);
         }
     }
 

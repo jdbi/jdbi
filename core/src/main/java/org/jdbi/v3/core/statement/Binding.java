@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * Represents the arguments bound to a particular statement.
@@ -89,42 +89,19 @@ public class Binding {
 
     @Override
     public String toString() {
-        boolean wrote = false;
-        StringBuilder b = new StringBuilder();
-        b.append("{ positional:{");
-        for (Map.Entry<Integer, Argument> entry : positionals.entrySet()) {
-            wrote = true;
-            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
-        }
-        if (wrote) {
-            wrote = false;
-            b.deleteCharAt(b.length() - 1);
-        }
-        b.append("}");
+        String positionals = this.positionals.entrySet().stream()
+            .map(x -> x.getKey().toString() + ':' + x.getValue())
+            .collect(Collectors.joining(","));
 
-        b.append(", named:{");
-        for (Map.Entry<String, Argument> entry : named.entrySet()) {
-            wrote = true;
-            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
-        }
-        if (wrote) {
-            wrote = false;
-            b.deleteCharAt(b.length() - 1);
-        }
-        b.append("}");
+        String named = this.named.entrySet().stream()
+            .map(x -> x.getKey() + ':' + x.getValue())
+            .collect(Collectors.joining(","));
 
-        b.append(", finder:[");
-        for (NamedArgumentFinder argument : namedArgumentFinder) {
-            wrote = true;
-            b.append(argument).append(",");
-        }
-        if (wrote) {
-            b.deleteCharAt(b.length() - 1);
-        }
-        b.append("]");
+        String found = namedArgumentFinder.stream()
+            .map(Object::toString)
+            .collect(Collectors.joining(","));
 
-        b.append("}");
-        return b.toString();
+        return "{positional:{" + positionals + "}, named:{" + named + "}, finder:[" + found + "]}";
     }
 
     /**

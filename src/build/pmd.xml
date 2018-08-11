@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~   http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
 <ruleset name="Custom Jdbi Ruleset"
 		 xmlns="http://pmd.sf.net/ruleset/1.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -10,15 +23,12 @@
 
     <!-- https://pmd.github.io/pmd-6.0.1/pmd_rules_java.html -->
     <rule ref="category/java/bestpractices.xml">
-        <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="AvoidStringBufferField"/>
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
-        <exclude name="PreserveStackTrace"/>
-        <exclude name="ReplaceVectorWithList"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
     </rule>
@@ -27,10 +37,8 @@
         <exclude name="AbstractNaming"/>
         <exclude name="AtLeastOneConstructor"/>
         <exclude name="AvoidFinalLocalVariable"/>
-        <exclude name="AvoidPrefixingMethodParameters"/>
         <exclude name="BooleanGetMethodName"/>
         <exclude name="CallSuperInConstructor"/>
-        <exclude name="ConfusingTernary"/>
         <exclude name="CommentDefaultAccessModifier"/>
         <exclude name="DefaultPackage"/>
         <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
@@ -46,9 +54,6 @@
         <exclude name="ShortVariable"/>
         <exclude name="TooManyStaticImports"/>
         <exclude name="UnnecessaryConstructor"/>
-        <exclude name="UnnecessaryFullyQualifiedName"/>
-        <exclude name="UselessParentheses"/>
-        <exclude name="UselessQualifiedThis"/>
     </rule>
 
     <rule ref="category/java/design.xml">
@@ -76,7 +81,6 @@
     </rule>
 
     <rule ref="category/java/errorprone.xml">
-        <exclude name="AssignmentInOperand"/>
         <exclude name="AvoidCatchingThrowable"/>
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
@@ -96,19 +100,14 @@
     </rule>
 
     <rule ref="category/java/multithreading.xml">
-        <exclude name="AvoidSynchronizedAtMethodLevel"/>
         <exclude name="AvoidUsingVolatile"/>
         <exclude name="UseConcurrentHashMap"/>
     </rule>
 
     <rule ref="category/java/performance.xml">
-        <exclude name="AppendCharacterWithChar"/>
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="AvoidUsingShortType"/>
-        <exclude name="ConsecutiveAppendsShouldReuse"/>
-        <exclude name="ConsecutiveLiteralAppends"/>
         <exclude name="InsufficientStringBufferDeclaration"/>
-        <exclude name="OptimizableToArrayCall"/>
         <exclude name="RedundantFieldInitializer"/>
     </rule>
 </ruleset>
