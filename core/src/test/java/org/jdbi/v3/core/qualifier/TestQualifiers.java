@@ -15,6 +15,8 @@ package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
 
 public class TestQualifiers {
@@ -30,4 +32,21 @@ public class TestQualifiers {
         assertThat(synthetic.toString()).isEqualTo(real.toString());
     }
 
+    @Test
+    public void testQualifiedType() throws Exception {
+        assertThat(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
+            .isEqualTo(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
+            .hasSameHashCodeAs(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
+            .hasToString("@org.jdbi.v3.core.qualifier.NVarchar() java.lang.String");
+
+        assertThat(QualifiedType.of(int.class))
+            .isEqualTo(QualifiedType.of(int.class))
+            .hasSameHashCodeAs(QualifiedType.of(int.class))
+            .hasToString("int");
+
+        assertThat(QualifiedType.of(new GenericType<List<String>>() {}))
+            .isEqualTo(QualifiedType.of(new GenericType<List<String>>() {}))
+            .hasSameHashCodeAs(QualifiedType.of(new GenericType<List<String>>() {}))
+            .hasToString("java.util.List<java.lang.String>");
+    }
 }

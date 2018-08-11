@@ -137,9 +137,9 @@ public final class QualifiedType {
 
     @Override
     public String toString() {
-        return "QualifiedType{"
-            + "type=" + type
-            + ", qualifiers=" + qualifiers
-            + '}';
+        StringBuilder builder = new StringBuilder();
+        qualifiers.forEach(qualifier -> builder.append(qualifier).append(" "));
+        builder.append(type.getTypeName());
+        return builder.toString();
     }
 }
