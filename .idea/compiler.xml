@@ -10,4 +10,9 @@
       </profile>
     </annotationProcessing>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="r2dbc-client" options="-Werror -Xlint:all -Xlint:-options -Xlint:-processing -Xlint:-serial" />
+    </option>
+  </component>
 </project>
