@@ -122,7 +122,7 @@ public class BeanMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+        RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, false);
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
@@ -140,7 +140,9 @@ public class BeanMapper<T> implements RowMapper<T> {
                                      StatementContext ctx,
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns) throws SQLException {
+                                     List<String> unmatchedColumns,
+                                     boolean nested) throws SQLException {
+
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PropertyDescriptor> properties = new ArrayList<>();
 
@@ -171,7 +173,7 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 RowMapper<?> nestedMapper = nestedMappers
                     .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, true);
 
                 mappers.add(nestedMapper);
                 properties.add(descriptor);
@@ -179,6 +181,10 @@ public class BeanMapper<T> implements RowMapper<T> {
         }
 
         if (mappers.isEmpty() && !columnNames.isEmpty()) {
+            if (nested) {
+                return (r, c) -> null;
+            }
+
             throw new IllegalArgumentException(String.format("Mapping bean type %s "
                 + "didn't find any matching columns in result set", type));
         }
@@ -190,7 +196,7 @@ public class BeanMapper<T> implements RowMapper<T> {
                 RowMapper<?> mapper = mappers.get(i);
                 PropertyDescriptor property = properties.get(i);
 
-                Object value = mapper.map(r, ctx);
+                Object value = mapper.map(r, c);
 
                 writeProperty(bean, property, value);
             }
