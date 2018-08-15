@@ -57,7 +57,7 @@ final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCall
 
     private JdbcOperations jdbcOperations;
 
-    public PostgresqlServerExtension() {
+    PostgresqlServerExtension() {
         this.database = randomAlphanumeric(8);
         this.host = "localhost";
         this.password = randomAlphanumeric(16);
@@ -89,28 +89,28 @@ final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCall
         this.logger.info("PostgreSQL server started");
     }
 
-    public String getDatabase() {
+    String getDatabase() {
         return this.database;
     }
 
-    public String getHost() {
+    String getHost() {
         return this.host;
     }
 
     @Nullable
-    public JdbcOperations getJdbcOperations() {
+    JdbcOperations getJdbcOperations() {
         return this.jdbcOperations;
     }
 
-    public String getPassword() {
+    String getPassword() {
         return this.password;
     }
 
-    public int getPort() {
+    int getPort() {
         return this.port;
     }
 
-    public String getUsername() {
+    String getUsername() {
         return this.username;
     }
 

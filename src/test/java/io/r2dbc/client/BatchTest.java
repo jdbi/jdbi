@@ -25,10 +25,10 @@ import reactor.test.StepVerifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class BatchTest {
+final class BatchTest {
 
     @Test
-    public void add() {
+    void add() {
         MockBatch batch = MockBatch.empty();
 
         new Batch(batch)
@@ -38,19 +38,19 @@ public final class BatchTest {
     }
 
     @Test
-    public void addNoSql() {
+    void addNoSql() {
         assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).add(null))
             .withMessage("sql must not be null");
     }
 
     @Test
-    public void constructorNoBatch() {
+    void constructorNoBatch() {
         assertThatNullPointerException().isThrownBy(() -> new Batch(null))
             .withMessage("batch must not be null");
     }
 
     @Test
-    public void mapResult() {
+    void mapResult() {
         MockResult result = MockResult.empty();
 
         MockBatch batch = MockBatch.builder()
@@ -68,7 +68,7 @@ public final class BatchTest {
     }
 
     @Test
-    public void mapResultNoF() {
+    void mapResultNoF() {
         assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).mapResult(null))
             .withMessage("f must not be null");
     }

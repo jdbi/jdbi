@@ -27,10 +27,10 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class UpdateTest {
+final class UpdateTest {
 
     @Test
-    public void add() {
+    void add() {
         MockStatement statement = MockStatement.empty();
 
         new Update(statement)
@@ -40,7 +40,7 @@ public final class UpdateTest {
     }
 
     @Test
-    public void bind() {
+    void bind() {
         MockStatement statement = MockStatement.empty();
 
         new Update(statement)
@@ -50,7 +50,7 @@ public final class UpdateTest {
     }
 
     @Test
-    public void bindIndex() {
+    void bindIndex() {
         MockStatement statement = MockStatement.empty();
 
         new Update(statement)
@@ -60,25 +60,25 @@ public final class UpdateTest {
     }
 
     @Test
-    public void bindIndexNoValue() {
+    void bindIndexNoValue() {
         assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind(100, null))
             .withMessage("value must not be null");
     }
 
     @Test
-    public void bindNoIdentifier() {
+    void bindNoIdentifier() {
         assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind(null, new Object()))
             .withMessage("identifier must not be null");
     }
 
     @Test
-    public void bindNoValue() {
+    void bindNoValue() {
         assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind("test-identifier", null))
             .withMessage("value must not be null");
     }
 
     @Test
-    public void bindNull() {
+    void bindNull() {
         MockStatement statement = MockStatement.empty();
 
         new Update(statement)
@@ -88,25 +88,25 @@ public final class UpdateTest {
     }
 
     @Test
-    public void bindNullNoIdentifier() {
+    void bindNullNoIdentifier() {
         assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull(null, Object.class))
             .withMessage("identifier must not be null");
     }
 
     @Test
-    public void bindNullNoType() {
+    void bindNullNoType() {
         assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull("test-identifier", null))
             .withMessage("type must not be null");
     }
 
     @Test
-    public void constructorNoStatement() {
+    void constructorNoStatement() {
         assertThatNullPointerException().isThrownBy(() -> new Update(null))
             .withMessage("statement must not be null");
     }
 
     @Test
-    public void execute() {
+    void execute() {
         MockResult result = MockResult.builder()
             .rowsUpdated(100)
             .build();
@@ -123,7 +123,7 @@ public final class UpdateTest {
     }
 
     @Test
-    public void executeReturningGeneratedKeys() {
+    void executeReturningGeneratedKeys() {
         MockResult result = MockResult.empty();
 
         MockStatement statement = MockStatement.builder()

@@ -31,10 +31,10 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class ResultBearingTest {
+final class ResultBearingTest {
 
     @Test
-    public void mapRowBiFunction() {
+    void mapRowBiFunction() {
         MockRowMetadata rowMetadata = MockRowMetadata.builder()
             .columnMetadata(MockColumnMetadata.builder()
                 .name("test-name")
@@ -62,11 +62,11 @@ public final class ResultBearingTest {
             .as(StepVerifier::create)
             .expectNext(Tuples.of(row1, rowMetadata))
             .expectNext(Tuples.of(row2, rowMetadata))
-            .expectComplete();
+            .verifyComplete();
     }
 
     @Test
-    public void mapRowBiFunctionNoF() {
+    void mapRowBiFunctionNoF() {
         MockResultBearing resultBearing = MockResultBearing.builder()
             .result(MockResult.empty())
             .build();
@@ -76,7 +76,7 @@ public final class ResultBearingTest {
     }
 
     @Test
-    public void mapRowFunction() {
+    void mapRowFunction() {
         MockRow row1 = MockRow.builder()
             .identified("test-identifier-1", Object.class, new Object())
             .build();
@@ -97,11 +97,11 @@ public final class ResultBearingTest {
             .as(StepVerifier::create)
             .expectNext(row1)
             .expectNext(row2)
-            .expectComplete();
+            .verifyComplete();
     }
 
     @Test
-    public void mapRowFunctionNoF() {
+    void mapRowFunctionNoF() {
         MockResultBearing resultBearing = MockResultBearing.builder()
             .result(MockResult.empty())
             .build();

@@ -25,16 +25,16 @@ import reactor.test.StepVerifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-public final class R2dbcTest {
+final class R2dbcTest {
 
     @Test
-    public void constructorNoConnectionFactory() {
+    void constructorNoConnectionFactory() {
         assertThatNullPointerException().isThrownBy(() -> new R2dbc(null))
             .withMessage("connectionFactory must not be null");
     }
 
     @Test
-    public void inTransaction() {
+    void inTransaction() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -54,7 +54,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void inTransactionError() {
+    void inTransactionError() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -75,13 +75,13 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void inTransactionNoF() {
+    void inTransactionNoF() {
         assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).inTransaction(null))
             .withMessage("f must not be null");
     }
 
     @Test
-    public void open() {
+    void open() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -96,7 +96,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void useHandle() {
+    void useHandle() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -113,7 +113,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void useHandleError() {
+    void useHandleError() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -132,13 +132,13 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void useHandleNoF() {
+    void useHandleNoF() {
         assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useHandle(null))
             .withMessage("f must not be null");
     }
 
     @Test
-    public void useTransaction() {
+    void useTransaction() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -157,7 +157,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void useTransactionError() {
+    void useTransactionError() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -178,13 +178,13 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void useTransactionNoF() {
+    void useTransactionNoF() {
         assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useTransaction(null))
             .withMessage("f must not be null");
     }
 
     @Test
-    public void withHandle() {
+    void withHandle() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -202,7 +202,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void withHandleError() {
+    void withHandleError() {
         MockConnection connection = MockConnection.empty();
 
         MockConnectionFactory connectionFactory = MockConnectionFactory.builder()
@@ -221,7 +221,7 @@ public final class R2dbcTest {
     }
 
     @Test
-    public void withHandleNoF() {
+    void withHandleNoF() {
         assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).withHandle(null))
             .withMessage("f must not be null");
     }
