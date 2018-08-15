@@ -21,7 +21,6 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -157,7 +156,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
             ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, false);
+        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
@@ -175,16 +174,16 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                                      StatementContext ctx,
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns,
-                                     boolean nested) throws SQLException {
+                                     List<String> unmatchedColumns) throws SQLException {
 
-        final int count = constructor.getParameterCount();
+        final int parameterCount = constructor.getParameterCount();
         final Parameter[] parameters = constructor.getParameters();
 
-        final List<String> unmatchedParams = new ArrayList<>();
+        int matchedParameterCount = 0;
+        final List<String> unmatchedParameters = new ArrayList<>();
 
-        final List<RowMapper<?>> mappers = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
+        final List<RowMapper<?>> mappers = new ArrayList<>(parameterCount);
+        for (int i = 0; i < parameterCount; i++) {
             final Parameter parameter = parameters[i];
 
             Nested anno = parameter.getAnnotation(Nested.class);
@@ -204,31 +203,31 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     mappers.add(new SingleColumnMapper<>(mapper, columnIndex + 1));
 
                     unmatchedColumns.remove(columnNames.get(columnIndex));
+                    matchedParameterCount++;
 
                 } else {
-                    unmatchedParams.add(paramName);
+                    unmatchedParameters.add(paramName);
                 }
 
             } else {
                 final String nestedPrefix = prefix + anno.value();
+                final List<String> columnNamesClone = new ArrayList<>(columnNames);
 
                 RowMapper<?> mapper = nestedMappers
                     .computeIfAbsent(parameter, p -> new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, true);
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, columnNamesClone);
+
+                unmatchedColumns.retainAll(columnNamesClone);
+                matchedParameterCount++;
 
                 mappers.add(mapper);
             }
         }
 
-        if (!unmatchedParams.isEmpty()) {
+        if (matchedParameterCount == 0) {
+            return (r, c) -> null;
 
-            // nested objects missing all of their 'normal' params should be set to null
-            if (nested && unmatchedParams.size() == Arrays.stream(parameters)
-                .filter(p -> !p.isAnnotationPresent(Nested.class))
-                .count()) {
-
-                return (r, c) -> null;
-            }
+        } else if (matchedParameterCount != parameterCount) {
 
             throw new IllegalArgumentException(String.format(
                 "Constructor '%s' parameter '%s' has no column in the result set. "
@@ -236,14 +235,14 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     + "that your result set has the columns expected, or annotate the "
                     + "parameter names explicitly with @ColumnName",
                 constructor,
-                unmatchedParams.get(0)
+                unmatchedParameters.get(0)
             ));
         }
 
         return (r, c) -> {
-            final Object[] params = new Object[count];
+            final Object[] params = new Object[parameterCount];
 
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < parameterCount; i++) {
                 params[i] = mappers.get(i).map(r, c);
             }
 
