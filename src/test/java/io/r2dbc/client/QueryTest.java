@@ -82,9 +82,9 @@ public final class QueryTest {
         MockStatement statement = MockStatement.empty();
 
         new Query(statement)
-            .bindNull("test-identifier", "test-type");
+            .bindNull("test-identifier", Integer.class);
 
-        assertThat(statement.getBindings()).contains(Collections.singletonMap("test-identifier", "test-type"));
+        assertThat(statement.getBindings()).contains(Collections.singletonMap("test-identifier", Integer.class));
     }
 
     @Test

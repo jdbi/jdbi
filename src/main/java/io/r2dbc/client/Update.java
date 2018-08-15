@@ -69,7 +69,7 @@ public final class Update {
      * @return this {@link Statement}
      * @throws NullPointerException if {@code identifier} or {@code type} is {@code null}
      */
-    public Update bindNull(Object identifier, Object type) {
+    public Update bindNull(Object identifier, Class<?> type) {
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(type, "type must not be null");
 
