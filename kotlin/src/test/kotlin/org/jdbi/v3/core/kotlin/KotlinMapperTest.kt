@@ -255,4 +255,28 @@ class KotlinMapperTest {
 
         assertThat(result.fromCtor).isEqualTo(expected)
     }
+
+    enum class KotlinTestEnum {
+        A,B,C
+    }
+
+    @Test
+    fun testKotlinMapperSkipsKotlinEnums() {
+        // https://github.com/jdbi/jdbi/issues/1218
+        val values = KotlinTestEnum.values()
+
+        values.forEachIndexed { index, kotlinTestEnum ->
+            handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :value)")
+                .bind("id", index)
+                .bind("value", kotlinTestEnum)
+                .execute()
+        }
+
+        val result = handle.createQuery("SELECT first FROM the_things")
+            .mapTo<KotlinTestEnum>()
+            .list()
+
+        assertThat(result.size).isEqualTo(values.size)
+        assertThat(result).containsAll(values.asList())
+    }
 }
