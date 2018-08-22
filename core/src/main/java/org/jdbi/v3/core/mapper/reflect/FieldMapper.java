@@ -107,7 +107,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, false);
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
@@ -124,7 +124,9 @@ public class FieldMapper<T> implements RowMapper<T> {
                                      StatementContext ctx,
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns) throws SQLException {
+                                     List<String> unmatchedColumns,
+                                     boolean nested) throws SQLException {
+
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<Field> fields = new ArrayList<>();
 
@@ -139,7 +141,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                             Type type = field.getGenericType();
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((r, n, c) -> rs.getObject(n));
-                            mappers.add(new SingleColumnMapper(mapper, index + 1));
+                            mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                             fields.add(field);
 
                             unmatchedColumns.remove(columnNames.get(index));
@@ -149,7 +151,7 @@ public class FieldMapper<T> implements RowMapper<T> {
 
                     RowMapper<?> mapper = nestedMappers
                         .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                        .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                        .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns, true);
 
                     mappers.add(mapper);
                     fields.add(field);
@@ -158,6 +160,10 @@ public class FieldMapper<T> implements RowMapper<T> {
         }
 
         if (mappers.isEmpty() && !columnNames.isEmpty()) {
+            if (nested) {
+                return (r, c) -> null;
+            }
+
             throw new IllegalArgumentException(String.format("Mapping fields for type %s "
                 + "didn't find any matching columns in result set", type));
         }
@@ -169,7 +175,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                 RowMapper<?> mapper = mappers.get(i);
                 Field field = fields.get(i);
 
-                Object value = mapper.map(rs, ctx);
+                Object value = mapper.map(r, c);
                 writeField(obj, field, value);
             }
 

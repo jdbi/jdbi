@@ -271,7 +271,22 @@ public class FieldMapperTest {
             .hasMessageContaining("could not match fields for columns: [other]");
     }
 
+    @Test
+    public void testNestedNotReturned() {
+        Handle handle = dbRule.getSharedHandle();
+
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NestedThing.class))
+            .select("SELECT 42 as testValue")
+            .mapTo(NestedThing.class)
+            .findOnly())
+            .extracting("testValue", "nested")
+            .containsExactly(42, null);
+    }
+
     static class NestedThing {
+        Integer testValue;
+
         @Nested
         ColumnNameThing nested;
     }
@@ -318,6 +333,19 @@ public class FieldMapperTest {
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [nested_other]");
+    }
+
+    @Test
+    public void testNestedPrefixNotReturned() {
+        Handle handle = dbRule.getSharedHandle();
+
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
+            .select("SELECT 42 as integerValue")
+            .mapTo(NestedPrefixThing.class)
+            .findOnly())
+            .extracting("integerValue", "nested")
+            .containsExactly(42, null);
     }
 
     static class NestedPrefixThing {

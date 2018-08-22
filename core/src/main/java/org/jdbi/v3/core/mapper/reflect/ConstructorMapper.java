@@ -23,7 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -53,7 +56,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
     /**
      * Use the only declared constructor to map a class.
      *
-     * @param clazz the class to find a constructor of
+     * @param clazz  the class to find a constructor of
      * @param prefix a prefix for the parameter names
      * @return the factory
      */
@@ -75,7 +78,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
      * Use a {@code Constructor<T>} to map its declaring type.
      *
      * @param constructor the constructor to invoke
-     * @param prefix a prefix to the constructor parameter names
+     * @param prefix      a prefix to the constructor parameter names
      * @return the factory
      */
     public static RowMapperFactory factory(Constructor<?> constructor, String prefix) {
@@ -108,7 +111,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
     /**
      * Return a ConstructorMapper using the given constructor
      *
-     * @param <T> the type to map
+     * @param <T>         the type to map
      * @param constructor the constructor to be used in mapping
      * @return the mapper
      */
@@ -119,7 +122,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
     /**
      * Instantiate a ConstructorMapper using the given constructor and prefix
      *
-     * @param <T> the type to map
+     * @param <T>         the type to map
      * @param constructor the constructor to be used in mapping
      * @param prefix      the column name prefix
      * @return the mapper
@@ -150,7 +153,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         final List<String> columnNames = getColumnNames(rs);
         final List<ColumnNameMatcher> columnNameMatchers =
-                ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
+            ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
@@ -172,51 +175,75 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                                      List<String> columnNames,
                                      List<ColumnNameMatcher> columnNameMatchers,
                                      List<String> unmatchedColumns) throws SQLException {
-        final int count = constructor.getParameterCount();
+
+        final int parameterCount = constructor.getParameterCount();
         final Parameter[] parameters = constructor.getParameters();
 
-        final RowMapper<?>[] mappers = new RowMapper<?>[count];
-        for (int i = 0; i < count; i++) {
+        int matchedParameterCount = 0;
+        final List<String> unmatchedParameters = new ArrayList<>();
+
+        final List<RowMapper<?>> mappers = new ArrayList<>(parameterCount);
+        for (int i = 0; i < parameterCount; i++) {
             final Parameter parameter = parameters[i];
 
             Nested anno = parameter.getAnnotation(Nested.class);
             if (anno == null) {
                 final String paramName = prefix + paramName(parameters, i, constructorProperties);
 
-                final int columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
-                    () -> debugName(parameter))
-                    .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Constructor '%s' parameter '%s' has no column in the result set. "
-                            + "Verify that the Java compiler is configured to emit parameter names, "
-                            + "that your result set has the columns expected, or annotate the "
-                            + "parameter names explicitly with @ColumnName",
-                        constructor,
-                        paramName
-                   )));
+                final OptionalInt columnIndexOptional = findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(parameter));
+                if (columnIndexOptional.isPresent()) {
+                    final int columnIndex = columnIndexOptional.getAsInt();
 
-                final Type type = parameter.getParameterizedType();
-                mappers[i] = ctx.findColumnMapperFor(type)
-                    .map(mapper -> new SingleColumnMapper<>(mapper, columnIndex + 1))
-                    .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
-                        type, paramName, constructor)));
+                    final Type type = parameter.getParameterizedType();
+                    ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
+                        .orElseThrow(() -> new IllegalArgumentException(String.format(
+                            "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
+                            type, paramName, constructor)));
 
-                unmatchedColumns.remove(columnNames.get(columnIndex));
+                    mappers.add(new SingleColumnMapper<>(mapper, columnIndex + 1));
+
+                    unmatchedColumns.remove(columnNames.get(columnIndex));
+                    matchedParameterCount++;
+
+                } else {
+                    unmatchedParameters.add(paramName);
+                }
+
             } else {
-                String nestedPrefix = prefix + anno.value();
+                final String nestedPrefix = prefix + anno.value();
+                final List<String> columnNamesClone = new ArrayList<>(columnNames);
 
-                mappers[i] = nestedMappers
-                    .computeIfAbsent(parameter, p ->
-                        new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                RowMapper<?> mapper = nestedMappers
+                    .computeIfAbsent(parameter, p -> new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
+                    .specialize0(rs, ctx, columnNames, columnNameMatchers, columnNamesClone);
+
+                unmatchedColumns.retainAll(columnNamesClone);
+                matchedParameterCount++;
+
+                mappers.add(mapper);
             }
         }
 
-        return (r, c) -> {
-            final Object[] params = new Object[count];
+        if (matchedParameterCount == 0) {
+            return (r, c) -> null;
 
-            for (int i = 0; i < count; i++) {
-                params[i] = mappers[i].map(r, c);
+        } else if (matchedParameterCount != parameterCount) {
+
+            throw new IllegalArgumentException(String.format(
+                "Constructor '%s' parameter '%s' has no column in the result set. "
+                    + "Verify that the Java compiler is configured to emit parameter names, "
+                    + "that your result set has the columns expected, or annotate the "
+                    + "parameter names explicitly with @ColumnName",
+                constructor,
+                unmatchedParameters.get(0)
+            ));
+        }
+
+        return (r, c) -> {
+            final Object[] params = new Object[parameterCount];
+
+            for (int i = 0; i < parameterCount; i++) {
+                params[i] = mappers.get(i).map(r, c);
             }
 
             return construct(params);

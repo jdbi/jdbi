@@ -137,11 +137,11 @@ public class ConstructorMapperTest {
     public void nestedParameters() {
         assertThat(dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
-            .select("select s, i from bean")
+            .select("select 42 as testValue, s, i from bean")
             .mapTo(NestedBean.class)
             .findOnly())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+            .extracting("testValue", "nested.s", "nested.i")
+            .containsExactly(42, "3", 2);
     }
 
     @Test
@@ -152,37 +152,61 @@ public class ConstructorMapperTest {
 
         assertThat(dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
-            .select("select s, i from bean")
+            .select("select 42 as testValue, s, i from bean")
             .mapTo(NestedBean.class)
             .findOnly())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+            .extracting("testValue", "nested.s", "nested.i")
+            .containsExactly(42, "3", 2);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select s, i, 1 as other from bean")
+            .createQuery("select 42 as testValue, s, i, 1 as other from bean")
             .mapTo(NestedBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [other]");
     }
 
+    @Test
+    public void nestedParametersNotReturned() {
+        assertThat(dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+            .select("select 42 as testValue")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .extracting("testValue", "nested")
+            .containsExactly(42, null);
+    }
+
+    @Test
+    public void nestedParametersPartial() {
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+            .select("select 42 as testValue, i from bean")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("parameter 's' has no column in the result set");
+    }
+
     static class NestedBean {
+        final Integer testValue;
         final ConstructorBean nested;
 
-        NestedBean(@Nested ConstructorBean nested) {
+        NestedBean(Integer testValue, @Nested ConstructorBean nested) {
+            this.testValue = testValue;
             this.nested = nested;
         }
     }
 
     @Test
     public void nestedPrefixParameters() {
-        NestedPrefixBean result = dbRule.getSharedHandle()
+        assertThat(dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
-            .select("select i nested_i, s nested_s from bean")
+            .select("select 42 as testValue, i nested_i, s nested_s from bean")
             .mapTo(NestedPrefixBean.class)
-            .findOnly();
-        assertThat(result.nested.s).isEqualTo("3");
-        assertThat(result.nested.i).isEqualTo(2);
+            .findOnly())
+            .extracting("testValue", "nested.s", "nested.i")
+            .containsExactly(42, "3", 2);
     }
 
     @Test
@@ -192,31 +216,55 @@ public class ConstructorMapperTest {
         handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
 
         assertThat(handle
-            .createQuery("select i nested_i, s nested_s from bean")
+            .createQuery("select 42 as testValue, i nested_i, s nested_s from bean")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+            .extracting("testValue", "nested.s", "nested.i")
+            .containsExactly(42, "3", 2);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select i nested_i, s nested_s, 1 as other from bean")
+            .createQuery("select 42 as testValue, i nested_i, s nested_s, 1 as other from bean")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [other]");
 
         assertThatThrownBy(() -> handle
-            .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
+            .createQuery("select 42 as testValue, i nested_i, s nested_s, 1 as nested_other from bean")
             .mapTo(NestedPrefixBean.class)
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [nested_other]");
     }
 
+    @Test
+    public void nestedPrefixParametersNotReturned() {
+        assertThat(dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
+            .select("select 42 as testValue")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .extracting("testValue", "nested")
+            .containsExactly(42, null);
+    }
+
+    @Test
+    public void nestedPrefixParametersPartial() {
+        assertThatThrownBy(() -> dbRule.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
+            .select("select 42 as testValue, i nested_i from bean")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("parameter 'nesteds' has no column in the result set");
+    }
+
     static class NestedPrefixBean {
+        final Integer testValue;
         final ConstructorBean nested;
 
-        NestedPrefixBean(@Nested("nested") ConstructorBean nested) {
+        NestedPrefixBean(Integer testValue, @Nested("nested") ConstructorBean nested) {
+            this.testValue = testValue;
             this.nested = nested;
         }
     }
