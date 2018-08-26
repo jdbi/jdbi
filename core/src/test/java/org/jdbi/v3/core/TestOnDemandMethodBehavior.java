@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,7 +55,19 @@ public class TestOnDemandMethodBehavior {
             runnable.run();
         }
 
+        default void blowUp() throws SQLException { throw new SQLException("boom"); }
+
         void foo();
+    }
+
+    public class UselessDaoExtension implements ExtensionFactory {
+        @Override
+        public boolean accepts(Class<?> extensionType) { return UselessDao.class.equals(extensionType); }
+
+        @Override
+        public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
+            return extensionType.cast((UselessDao) () -> { });
+        }
     }
 
     @Before
@@ -107,5 +120,12 @@ public class TestOnDemandMethodBehavior {
         verify(mockExtensionFactory).attach(eq(UselessDao.class), any());
         verify(mockDao).run(any());
         verify(mockDao).foo();
+    }
+
+    @Test(expected = SQLException.class)
+    public void testExceptionThrown() throws Exception {
+        db.registerExtension(new UselessDaoExtension());
+        UselessDao uselessDao = db.onDemand(UselessDao.class);
+        uselessDao.blowUp();
     }
 }

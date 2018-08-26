@@ -70,13 +70,13 @@ class OnDemandExtensions {
     }
 
     @SuppressWarnings("PMD.AvoidRethrowingException")
-    private static Object invoke(Object target, Method method, Object[] args) {
+    private static Object invoke(Object target, Method method, Object[] args) throws Exception {
         try {
             if (Proxy.isProxyClass(target.getClass())) {
                 return Proxy.getInvocationHandler(target).invoke(target, method, args);
             }
             return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
-        } catch (RuntimeException | Error e) {
+        } catch (Exception | Error e) {
             throw e;
         } catch (Throwable t) {
             throw new RuntimeException(t);
