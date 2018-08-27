@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -55,18 +56,22 @@ public class TestOnDemandMethodBehavior {
             runnable.run();
         }
 
-        default void blowUp() throws SQLException { throw new SQLException("boom"); }
+        default void blowUp() throws SQLException {
+            throw new SQLException("boom");
+        }
 
         void foo();
     }
 
     public class UselessDaoExtension implements ExtensionFactory {
         @Override
-        public boolean accepts(Class<?> extensionType) { return UselessDao.class.equals(extensionType); }
+        public boolean accepts(Class<?> extensionType) {
+            return UselessDao.class.equals(extensionType);
+        }
 
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-            return extensionType.cast((UselessDao) () -> { });
+            return extensionType.cast((UselessDao) () -> {});
         }
     }
 
@@ -122,10 +127,10 @@ public class TestOnDemandMethodBehavior {
         verify(mockDao).foo();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void testExceptionThrown() throws Exception {
         db.registerExtension(new UselessDaoExtension());
         UselessDao uselessDao = db.onDemand(UselessDao.class);
-        uselessDao.blowUp();
+        assertThatThrownBy(uselessDao::blowUp).isInstanceOf(SQLException.class);
     }
 }
