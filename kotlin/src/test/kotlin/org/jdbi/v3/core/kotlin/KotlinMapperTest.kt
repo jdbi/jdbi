@@ -390,7 +390,10 @@ class KotlinMapperTest {
             handle.createQuery(oneTwoThreeFourQuery)
                 .mapTo<ClassWithTooManyAnnotations>()
                 .first()
-        }    enum class KotlinTestEnum {
+        }
+    }
+        
+    enum class KotlinTestEnum {
         A,B,C
     }
 
