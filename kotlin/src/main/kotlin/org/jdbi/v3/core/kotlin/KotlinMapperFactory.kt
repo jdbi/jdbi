@@ -23,9 +23,12 @@ import java.util.*
 class KotlinMapperFactory : RowMapperFactory {
 
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
-        val erasedType = getErasedType(type);
+        val erasedType = getErasedType(type)
 
-        return if (erasedType.isKotlinClass()) {
+        //TODO: Validate if we should only handle 'data' classes with the Kotlin mapper
+        // Switching this might cause issues for users, might be better to do it for a major release
+        // See https://github.com/jdbi/jdbi/issues/1218 for more info
+        return if (erasedType.isKotlinClass() && !erasedType.isEnum) {
             Optional.of(KotlinMapper(erasedType))
         } else {
             Optional.empty()
