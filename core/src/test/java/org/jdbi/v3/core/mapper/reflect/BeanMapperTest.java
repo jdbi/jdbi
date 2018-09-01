@@ -340,8 +340,29 @@ public class BeanMapperTest {
             .hasMessageContaining("could not match properties for columns: [other]");
     }
 
+    @Test
+    public void testNestedNotReturned() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
+        assertThat(handle
+            .createQuery("select 42 as testValue")
+            .mapTo(NestedBean.class)
+            .findOnly())
+            .extracting("testValue", "nested")
+            .containsExactly(42, null);
+    }
+
     static class NestedBean {
+        private Integer testValue;
         private Something nested;
+
+        public Integer getTestValue() {
+            return testValue;
+        }
+
+        public void setTestValue(Integer testValue) {
+            this.testValue = testValue;
+        }
 
         @Nested
         public Something getNested() {
@@ -396,6 +417,18 @@ public class BeanMapperTest {
             .findOnly())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [nested_other]");
+    }
+
+    @Test
+    public void testNestedPrefixNotReturned() {
+        Handle handle = dbRule.getSharedHandle();
+        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+        assertThat(handle
+            .createQuery("select 42 as integerValue")
+            .mapTo(NestedPrefixBean.class)
+            .findOnly())
+            .extracting("integerValue", "nested")
+            .containsExactly(42, null);
     }
 
     static class NestedPrefixBean {

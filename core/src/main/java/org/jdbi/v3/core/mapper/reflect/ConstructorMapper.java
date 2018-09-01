@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -23,7 +24,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -31,6 +36,7 @@ import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
@@ -38,8 +44,33 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
  * case insensitive mapping between the constructor parameter names and the column labels,
  * also considering camel-case to underscores conversion.
+ * <p>
+ * This mapper respects {@link Nested} annotations on constructor parameters.
+ * <p>
+ * Constructor parameters annotated as {@code @Nullable} may be omitted from the result set without
+ * error. Any annotation named "Nullable" is respected--nay, worshipped--no matter which package it is from.
  */
 public class ConstructorMapper<T> implements RowMapper<T> {
+    private static final String DEFAULT_PREFIX = "";
+
+    private static final String UNMATCHED_CONSTRUCTOR_PARAMETERS =
+        "Constructor '%s' could not match any parameter to any columns in the result set. "
+            + "Verify that the Java compiler is configured to emit parameter names, "
+            + "that your result set has the columns expected, annotate the "
+            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
+
+    private static final String UNMATCHED_CONSTRUCTOR_PARAMETER =
+        "Constructor '%s' parameter '%s' has no matching columns in the result set. "
+            + "Verify that the Java compiler is configured to emit parameter names, "
+            + "that your result set has the columns expected, annotate the "
+            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
+
+    private static final String UNMATCHED_COLUMNS_STRICT =
+        "Mapping constructor-injected type %s could not match parameters for columns: %s";
+
+    private static final String MISSING_COLUMN_MAPPER =
+        "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'";
+
     /**
      * Use the only declared constructor to map a class.
      *
@@ -128,8 +159,6 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         return new ConstructorMapper<>(constructor, prefix);
     }
 
-    static final String DEFAULT_PREFIX = "";
-
     private final Constructor<T> constructor;
     private final String prefix;
     private final ConstructorProperties constructorProperties;
@@ -153,66 +182,86 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+        RowMapper<T> mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            .orElseThrow(() -> new IllegalArgumentException(String.format(
+                UNMATCHED_CONSTRUCTOR_PARAMETERS, constructor)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
-            && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+            && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
-            throw new IllegalArgumentException(String.format(
-                "Mapping constructor-injected type %s could not match parameters for columns: %s",
-                constructor.getDeclaringClass().getSimpleName(),
-                unmatchedColumns));
+            throw new IllegalArgumentException(
+                String.format(UNMATCHED_COLUMNS_STRICT, constructor.getDeclaringClass().getSimpleName(), unmatchedColumns));
         }
 
         return mapper;
     }
 
-    private RowMapper<T> specialize0(ResultSet rs,
-                                     StatementContext ctx,
-                                     List<String> columnNames,
-                                     List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns) throws SQLException {
+    private Optional<RowMapper<T>> specialize0(StatementContext ctx,
+                                               List<String> columnNames,
+                                               List<ColumnNameMatcher> columnNameMatchers,
+                                               List<String> unmatchedColumns) {
         final int count = constructor.getParameterCount();
         final Parameter[] parameters = constructor.getParameters();
 
         final RowMapper<?>[] mappers = new RowMapper<?>[count];
+
+        boolean matchedColumns = false;
+        final List<String> unmatchedParameters = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
 
+            boolean nullable = isNullable(parameter);
             Nested anno = parameter.getAnnotation(Nested.class);
             if (anno == null) {
                 final String paramName = prefix + paramName(parameters, i, constructorProperties);
 
-                final int columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
-                    () -> debugName(parameter))
-                    .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Constructor '%s' parameter '%s' has no column in the result set. "
-                            + "Verify that the Java compiler is configured to emit parameter names, "
-                            + "that your result set has the columns expected, or annotate the "
-                            + "parameter names explicitly with @ColumnName",
-                        constructor,
-                        paramName
-                   )));
+                OptionalInt columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
+                    () -> debugName(parameter));
+                if (columnIndex.isPresent()) {
+                    int colIndex = columnIndex.getAsInt();
+                    final Type type = parameter.getParameterizedType();
+                    mappers[i] = ctx.findColumnMapperFor(type)
+                        .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            String.format(MISSING_COLUMN_MAPPER, type, paramName, constructor)));
 
-                final Type type = parameter.getParameterizedType();
-                mappers[i] = ctx.findColumnMapperFor(type)
-                    .map(mapper -> new SingleColumnMapper<>(mapper, columnIndex + 1))
-                    .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
-                        type, paramName, constructor)));
-
-                unmatchedColumns.remove(columnNames.get(columnIndex));
+                    matchedColumns = true;
+                    unmatchedColumns.remove(columnNames.get(colIndex));
+                } else if (nullable) {
+                    mappers[i] = (r, c) -> null;
+                } else {
+                    unmatchedParameters.add(paramName);
+                }
             } else {
                 String nestedPrefix = prefix + anno.value();
 
-                mappers[i] = nestedMappers
+                Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
                     .computeIfAbsent(parameter, p ->
                         new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                    .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns);
+
+                if (nestedMapper.isPresent()) {
+                    mappers[i] = nestedMapper.get();
+                    matchedColumns = true;
+                } else if (nullable) {
+                    mappers[i] = (r, c) -> null;
+                } else {
+                    unmatchedParameters.add(paramName(parameters, i, constructorProperties));
+                }
             }
         }
 
-        return (r, c) -> {
+        if (!matchedColumns) {
+            return Optional.empty();
+        }
+
+        if (!unmatchedParameters.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                UNMATCHED_CONSTRUCTOR_PARAMETER, constructor, unmatchedParameters));
+
+        }
+
+        return Optional.of((r, c) -> {
             final Object[] params = new Object[count];
 
             for (int i = 0; i < count; i++) {
@@ -220,7 +269,15 @@ public class ConstructorMapper<T> implements RowMapper<T> {
             }
 
             return construct(params);
-        };
+        });
+    }
+
+    private boolean isNullable(Parameter parameter) {
+        // Any annotation named @Nullable is honored. We're nice that way.
+        return Stream.of(parameter.getAnnotations())
+            .map(Annotation::annotationType)
+            .map(Class::getSimpleName)
+            .anyMatch("Nullable"::equals);
     }
 
     private static String paramName(Parameter[] parameters,

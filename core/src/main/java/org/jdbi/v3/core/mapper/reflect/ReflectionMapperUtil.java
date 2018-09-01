@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
@@ -81,5 +82,20 @@ public class ReflectionMapperUtil {
         }
 
         return result;
+    }
+
+    /**
+     * Returns whether any of the given column names begin with the given prefix, according to the list of column name
+     * matchers.
+     *
+     * @param columnNames the column names to search
+     * @param prefix the prefix to search for
+     * @param columnNameMatchers list of column name matchers
+     * @return
+     */
+    public static boolean anyColumnsStartWithPrefix(Collection<String> columnNames, String prefix, List<ColumnNameMatcher> columnNameMatchers) {
+        return columnNames.stream().anyMatch(
+            columnName -> columnNameMatchers.stream().anyMatch(
+                matcher -> matcher.columnNameStartsWith(columnName, prefix)));
     }
 }

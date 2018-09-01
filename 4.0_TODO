@@ -1,1 +1,2 @@
 * <X extends Exception> should probably generally be <X extends Throwable>
+* Make ColumnNameMatcher.columnNameBeginsWith abstract (non-default)
