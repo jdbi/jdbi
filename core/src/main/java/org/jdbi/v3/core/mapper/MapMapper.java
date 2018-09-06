@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -35,13 +36,13 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      * @deprecated remove
      */
     @Deprecated
-    private final Boolean toLowerCase;
+    private final Function<StatementContext, UnaryOperator<String>> caseStrategy;
 
     /**
      * Constructs a new MapMapper and delegates case control to MapMappers.
      */
     public MapMapper() {
-        toLowerCase = null;
+        caseStrategy = ctx -> ctx.getConfig(MapMappers.class).getCaseChange();
     }
 
     /**
@@ -50,7 +51,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      */
     // TODO deprecate when MapMappers.caseChange is out of beta
     public MapMapper(boolean toLowerCase) {
-        this.toLowerCase = toLowerCase;
+        caseStrategy = toLowerCase ? ctx -> MapMappers.LOCALE_LOWER : ctx -> MapMappers.NOP;
     }
 
     @Override
@@ -60,11 +61,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
 
     @Override
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        UnaryOperator<String> caseChange = toLowerCase == null
-            ? ctx.getConfig(MapMappers.class).getCaseChange()
-            : toLowerCase ? MapMappers.LOCALE_LOWER : MapMappers.NOP;
-
-        List<String> columnNames = getColumnNames(rs, caseChange);
+        final List<String> columnNames = getColumnNames(rs, caseStrategy.apply(ctx));
 
         return (r, c) -> {
             Map<String, Object> row = new LinkedHashMap<>(columnNames.size());
