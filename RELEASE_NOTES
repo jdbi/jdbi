@@ -1,6 +1,7 @@
 3.5.0
   - Improvements
     - Skip unused string formatting for performance
+    - Spring FactoryBean better singleton support
 
 3.4.0
   - New API
