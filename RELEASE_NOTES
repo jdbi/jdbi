@@ -1,3 +1,7 @@
+3.5.0
+  - Improvements
+    - Skip unused string formatting for performance
+
 3.4.0
   - New API
     - StatementException.getShortMessage
