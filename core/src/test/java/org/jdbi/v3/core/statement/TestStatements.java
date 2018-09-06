@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.Types;
+import java.util.stream.Collectors;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -24,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatements {
@@ -93,5 +96,75 @@ public class TestStatements {
     public void testStatementWithOptionalMapResults() {
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testUnusedBinding() {
+        assertThatThrownBy(() -> h.createQuery("select * from something")
+            .bind("id", 1)
+            .collectRows(Collectors.counting())
+        ).isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
+    public void testPermittedUnusedBinding() {
+       assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
+           .createQuery("select * from something")
+           .bind("id", 1)
+           .collectRows(Collectors.counting())).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void testPermittedUsedAndUnusedBinding() {
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
+            .createQuery("select * from something where id = :id")
+            .bind("id", 1)
+            .bind("name", "jack")
+            .collectRows(Collectors.counting())).doesNotThrowAnyException();
+    }
+
+    @Test
+    // TODO it would be nice if this failed in the future
+    public void testUsedAndUnusedNamed() {
+        assertThatCode(() -> h.createQuery("select * from something where id = :id")
+            .bind("id", 1)
+            .bind("name", "jack")
+            .collectRows(Collectors.counting())
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    // TODO it would be nice if this failed in the future
+    public void testFarAwayPositional() {
+        assertThatCode(() -> h.createQuery("select * from something where id = ?")
+            .bind(0, 1)
+            .bind(2, "jack")
+            .collectRows(Collectors.counting())
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void testUnusedBindingWithOutParameter() {
+        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
+
+        Call call = h.createCall("? = CALL TO_DEGREES(?)")
+            .registerOutParameter(0, Types.DOUBLE)
+            .bind(1, 100.0d)
+            .bind(2, "foo");
+
+        assertThatThrownBy(call::invoke).isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
+    public void testPermittedUnusedBindingWithOutParameter() {
+        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
+
+        Call call = h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true))
+            .createCall("? = CALL TO_DEGREES(?)")
+            .registerOutParameter(0, Types.DOUBLE)
+            .bind(1, 100.0d)
+            .bind(2, "foo");
+
+        assertThatCode(call::invoke).doesNotThrowAnyException();
     }
 }

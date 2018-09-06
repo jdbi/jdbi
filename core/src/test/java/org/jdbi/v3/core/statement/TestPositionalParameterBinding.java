@@ -64,7 +64,7 @@ public class TestPositionalParameterBinding {
         assertThatThrownBy(() -> h.createQuery("select * from something where id = ? and name = ?")
             .bind(0, 1)
             .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToExecuteStatementException.class);
+            .list()).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TestPositionalParameterBinding {
             .bind(1, 1)
             .bind(2, "Hi")
             .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToExecuteStatementException.class);
+            .list()).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

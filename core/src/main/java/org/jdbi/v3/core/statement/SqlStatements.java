@@ -33,6 +33,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
+    private boolean allowUnusedBindings;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
@@ -48,6 +49,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
+        this.allowUnusedBindings = that.allowUnusedBindings;
     }
 
     /**
@@ -192,6 +194,20 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
             throw new IllegalArgumentException("queryTimeout must not be < 0");
         }
         this.queryTimeout = seconds;
+        return this;
+    }
+
+    public boolean isUnusedBindingAllowed() {
+        return allowUnusedBindings;
+    }
+
+    /**
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
+     *
+     * @see org.jdbi.v3.core.argument.Argument
+     */
+    public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
+        this.allowUnusedBindings = allowUnusedBindings;
         return this;
     }
 

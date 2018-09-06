@@ -1,8 +1,14 @@
 3.5.0
+  - New API
+    - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be left out of the final query (e.g. by a TemplateEngine that renders conditional blocks) without getting an Exception.
+    - Added the MapMappers JdbiConfig class to configure column name case changes, preferred over the old boolean toggle.
   - Improvements
     - Skip unused string formatting for performance
     - Spring FactoryBean better singleton support
     - KotlinMapper respects constructor annotations, lateinit improvements
+    - behavioral fixes in Argument binding where the number of provided Arguments differs from the expected number.
+  - Deprecations
+    - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
 3.4.0
   - New API
@@ -13,6 +19,7 @@
     - Ignore static methods on SqlObject types
   - Improvements
     - Handle `null` values in defined attributes
+    - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
 
 3.3.0
   - New API

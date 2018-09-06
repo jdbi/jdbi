@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.argument.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -26,45 +24,49 @@ class ArgumentBinder {
 
     static void bind(ParsedParameters parameters, Binding binding, PreparedStatement statement, StatementContext context) {
         if (parameters.isPositional()) {
-            bindPositional(parameters.getParameterCount(), binding, statement, context);
+            bindPositional(parameters, binding, statement, context);
         } else {
-            bindNamed(parameters.getParameterNames(), binding, statement, context);
+            bindNamed(parameters, binding, statement, context);
         }
     }
 
-    private static void bindPositional(int size, Binding binding, PreparedStatement statement, StatementContext context) {
-        for (int i = 0; i < size; i++) {
+    private static void bindPositional(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
+        // best effort: just try +1 (unless we expose a method to get the full binding count)
+        boolean moreArgumentsProvidedThanDeclared = binding.findForPosition(params.getParameterCount()).isPresent();
+        if (moreArgumentsProvidedThanDeclared && !context.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
+            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), context);
+        }
+
+        for (int i = 0; i < params.getParameterCount(); i++) {
+            final int index = i;
             try {
-                Argument argument = binding.findForPosition(i).orElse(null);
-                if (argument != null) {
-                    argument.apply(i + 1, statement, context);
-                }
-                // any missing positional parameters could be return parameters
+                binding.findForPosition(i)
+                    .orElseThrow(() -> new UnableToCreateStatementException("Missing positional param at (0 based) position " + index, context))
+                    .apply(i + 1, statement, context);
             } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(
-                        "Exception while binding positional param at (0 based) position " + i, e, context);
+                throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
             }
         }
     }
 
-    private static void bindNamed(List<String> parameterNames, Binding binding, PreparedStatement statement, StatementContext context) {
-        if (parameterNames.isEmpty() && !binding.isEmpty()) {
-            throw new UnableToExecuteStatementException(
-                    String.format("Unable to execute. The query doesn't have named parameters, but provided binding '%s'.", binding),
-                    context);
+    private static void bindNamed(ParsedParameters params, Binding binding, PreparedStatement statement, StatementContext context) {
+        List<String> paramNames = params.getParameterNames();
+
+        // best effort: compare empty to non-empty because we can't list the individual binding names (unless we expose a method to do so)
+        boolean argumentsProvidedButNoneDeclared = paramNames.isEmpty() && !binding.isEmpty();
+        if (argumentsProvidedButNoneDeclared && !context.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
+            throw new UnableToCreateStatementException(String.format("Superfluous named parameters provided while the query declares none: '%s'.", binding), context);
         }
-        for (int i = 0; i < parameterNames.size(); i++) {
-            String param = parameterNames.get(i);
+
+        for (int i = 0; i < paramNames.size(); i++) {
+            final String name = paramNames.get(i);
 
             try {
-                binding.findForName(param, context)
-                        .orElseThrow(() -> new UnableToExecuteStatementException(
-                                String.format("Unable to execute, no named parameter matches '%s'.", param),
-                                context))
-                        .apply(i + 1, statement, context);
+                binding.findForName(name, context)
+                    .orElseThrow(() -> new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context))
+                    .apply(i + 1, statement, context);
             } catch (SQLException e) {
-                throw new UnableToCreateStatementException(
-                        String.format("Exception while binding named parameter '%s'", param), e, context);
+                throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", name), e, context);
             }
         }
     }

@@ -1,2 +1,4 @@
 * <X extends Exception> should probably generally be <X extends Throwable>
+* move SerializableTransactionRunner.Config to top-level class to comply with convention
+* MapMappers.MapMappers(): law of least surprise, change default to nop (update javadoc too)
 * Make ColumnNameMatcher.columnNameBeginsWith abstract (non-default)
