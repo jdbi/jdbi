@@ -49,7 +49,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
-        allowUnusedBindings = that.allowUnusedBindings;
+        this.allowUnusedBindings = that.allowUnusedBindings;
     }
 
     /**

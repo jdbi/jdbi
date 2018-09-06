@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.util.Optional;
-import org.jdbi.v3.core.argument.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -41,11 +38,11 @@ class ArgumentBinder {
         }
 
         for (int i = 0; i < params.getParameterCount(); i++) {
-            Optional<Argument> argument = binding.findForPosition(i);
-
+            final int index = i;
             try {
-                int index = i;
-                argument.orElseThrow(() -> new UnableToCreateStatementException("Missing positional param at (0 based) position " + index, context)).apply(i + 1, statement, context);
+                binding.findForPosition(i)
+                    .orElseThrow(() -> new UnableToCreateStatementException("Missing positional param at (0 based) position " + index, context))
+                    .apply(i + 1, statement, context);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + i, e, context);
             }
@@ -62,12 +59,12 @@ class ArgumentBinder {
         }
 
         for (int i = 0; i < paramNames.size(); i++) {
-            String name = paramNames.get(i);
-
-            Optional<Argument> argument = binding.findForName(name, context);
+            final String name = paramNames.get(i);
 
             try {
-                argument.orElseThrow(() -> new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context)).apply(i + 1, statement, context);
+                binding.findForName(name, context)
+                    .orElseThrow(() -> new UnableToCreateStatementException(String.format("Missing named parameter '%s'.", name), context))
+                    .apply(i + 1, statement, context);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(String.format("Exception while binding named parameter '%s'", name), e, context);
             }
