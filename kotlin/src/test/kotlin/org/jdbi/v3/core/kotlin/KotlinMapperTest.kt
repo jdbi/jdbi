@@ -15,9 +15,11 @@
 package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.reflect.ColumnName
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +43,7 @@ class KotlinMapperTest {
     @Before
     fun setup() {
         handle = dbRule.sharedHandle
-        handle.execute("CREATE TABLE the_things(id integer, first text)")
+        handle.execute("CREATE TABLE the_things(id integer, first text, second text, third text, fourth text)")
         handle.execute("CREATE TABLE the_other_things(id integer, other text)")
     }
 
@@ -256,6 +258,141 @@ class KotlinMapperTest {
         assertThat(result.fromCtor).isEqualTo(expected)
     }
 
+    private val one = "one"
+    private val two = "two"
+    private val three = "three"
+    private val four = "four"
+
+    private fun oneTwoThreeFourSetup() {
+
+        handle.createUpdate("INSERT INTO the_things(id, first, second, third, fourth) VALUES(1, :one, :two, :three, :four)")
+            .bind("one", one)
+            .bind("two", two)
+            .bind("three", three)
+            .bind("four", four)
+            .execute()
+    }
+
+    private val oneTwoThreeFourQuery = "SELECT id, first, second, third, fourth FROM the_things"
+
+    class ClassWithUnusedWriteableVariable(val first : String) {
+        lateinit var second : String
+        var third : String = "I still get written"
+        var extraField : String = "unchanged"
+    }
+
+    @Test
+    fun testAllowWritableUnusedVariables() {
+        oneTwoThreeFourSetup()
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithUnusedWriteableVariable>()
+            .first()
+        assertThat(result.first).isEqualTo(one)
+        assertThat(result.second).isEqualTo(two)
+        assertThat(result.third).isEqualTo(three)
+        assertThat(result.extraField).isEqualTo("unchanged")
+    }
+
+    @Test
+    fun testDisallowUnmappedLateInitVariables() {
+        oneTwoThreeFourSetup()
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery("SELECT id, first, third, fourth FROM the_things ").mapTo<ClassWithUnusedWriteableVariable>().first()
+        }
+    }
+
+    class ClassWithMultipleSecondaryConstructors {
+        val id: Int
+        val first: String
+
+        constructor(id: Int, first: String) {
+            this.id = id
+            this.first = first
+        }
+
+        constructor(id : Int, first : String, second : String) {
+            this.id = id
+            this.first = first + second
+        }
+    }
+
+    @Test
+    fun testClassWithMultipleConstructors() {
+        oneTwoThreeFourSetup()
+
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery(oneTwoThreeFourQuery)
+                .mapTo<ClassWithMultipleSecondaryConstructors>()
+        }
+    }
+
+    class ClassWithPrimaryAndMultipleSecondaryConstructors(val id : Int, val first : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should not be called.")
+        }
+
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third) {
+            throw UnsupportedOperationException("Should not be called.")
+        }
+    }
+
+    @Test
+    fun testClassWithPrimaryAndMultipleSecondaryConstructors() {
+        oneTwoThreeFourSetup()
+        val expected = "one"
+
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithPrimaryAndMultipleSecondaryConstructors>()
+            .first()
+
+        assertThat(result.first).isEqualTo(expected)
+    }
+
+    class ClassWithPrimaryAndSecondaryConstructorsWithAnnotation(val id: Int, val calculated : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should never be called")
+        }
+
+        @JdbiConstructor
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+    }
+
+    @Test
+    fun testClassWithPrimaryAndSecondaryConstructorsWithAnnotation() {
+        val expected = one + two + three
+
+        oneTwoThreeFourSetup()
+
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithPrimaryAndSecondaryConstructorsWithAnnotation>()
+            .first()
+
+        assertThat(result.calculated).isEqualTo(expected)
+    }
+
+    class ClassWithTooManyAnnotations
+    @JdbiConstructor
+    constructor (val id: Int, val calculated : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should never be called")
+        }
+
+        @JdbiConstructor
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+    }
+
+    @Test
+    fun testClassWithTooManyAnnotations() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery(oneTwoThreeFourQuery)
+                .mapTo<ClassWithTooManyAnnotations>()
+                .first()
+        }
+    }
+        
     enum class KotlinTestEnum {
         A,B,C
     }
