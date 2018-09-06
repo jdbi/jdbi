@@ -19,6 +19,7 @@ import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.mapper.SingleColumnMapper
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames
@@ -26,6 +27,7 @@ import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.statement.StatementContext
 import java.sql.ResultSet
 import java.util.Optional
+import java.util.OptionalInt
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -113,8 +115,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
         val memberPropertyMappers = memberProperties
             .associate { property ->
-                property to resolveMemberPropertyMapper(
-                    ctx, property, columnNames, columnNameMatchers, unmatchedColumns)
+                property to resolveMemberPropertyMapper(ctx, property, columnNames, columnNameMatchers, unmatchedColumns)
             }
             .filterValues { it != null }
 
@@ -215,20 +216,28 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         val nested = property.javaField?.getAnnotation(Nested::class.java)
 
         if (nested == null) {
-            val columnIndex = findColumnIndex(propertyName, columnNames, columnNameMatchers) { property.name }
-            if (columnIndex.isPresent) {
-                val type = property.returnType.javaType
-                return ctx.findColumnMapperFor(type)
-                    .map { mapper -> SingleColumnMapper(mapper, columnIndex.asInt + 1) }
+            val possibleColumnIndex : OptionalInt = findColumnIndex(propertyName, columnNames, columnNameMatchers, { property.name })
+            val columnIndex : Int = when {
+                possibleColumnIndex.isPresent -> possibleColumnIndex.asInt
+                ! property.isLateinit -> return null
+                else -> throw IllegalArgumentException(
+                    "Member '${property.name}' of class '${kClass.simpleName} has no column in the result set but is lateinit. " +
+                        "Verify that your result set has the columns expected, or annotate the " +
+                        "property explicitly with @ColumnName"
+                )
+            }
+
+            val type = property.returnType.javaType
+            return ctx.findColumnMapperFor(type)
+                    .map { mapper -> SingleColumnMapper(mapper, columnIndex + 1) }
                     .orElseThrow {
                         IllegalArgumentException(
                             "Could not find column mapper for type '$type' of property " +
                                 "'${property.name}' for constructor '${kClass.simpleName}'")
                     }
                     .also {
-                        unmatchedColumns.remove(columnNames[columnIndex.asInt])
+                        unmatchedColumns.remove(columnNames[columnIndex])
                     }
-            }
         } else {
             val nestedPrefix = prefix + nested.value
 
@@ -253,7 +262,14 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
     }
 }
 
-private fun <C : Any> findConstructor(kClass: KClass<C>) = kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
+private fun <C : Any> findConstructor(kClass: KClass<C>) : KFunction<C> {
+    val annotatedConstructors = kClass.constructors.filter { it.findAnnotation<JdbiConstructor>() != null }
+    return when {
+        annotatedConstructors.isEmpty() -> kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
+        annotatedConstructors.size == 1 -> annotatedConstructors.first()
+        else -> throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (multiple constructors marked with ${JdbiConstructor::class.simpleName})")
+    }
+}
 
 private fun <C : Any> findSecondaryConstructor(kClass: KClass<C>): KFunction<C> {
     if (kClass.constructors.size == 1) {
