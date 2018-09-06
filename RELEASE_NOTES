@@ -19,6 +19,7 @@
     - Ignore static methods on SqlObject types
   - Improvements
     - Handle `null` values in defined attributes
+    - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
 
 3.3.0
   - New API
