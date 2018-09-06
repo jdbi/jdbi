@@ -29,7 +29,7 @@ public interface ColumnNameMatcher {
     /**
      * Return whether the column name starts with the given prefix, according to the matching strategy of this
      * {@code ColumnNameMatcher}. This method is used by reflective mappers to short-circuit nested mapping when no
-     * column begin with the prefix.
+     * column names begin with the nested prefix.
      *
      * By default, this method returns {@code columnName.startWith(prefix)}. Third party implementations should override
      * this method to match prefixes by the same criteria as {@link #columnNameMatches(String, String)}.
