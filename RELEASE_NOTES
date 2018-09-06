@@ -8,11 +8,13 @@
   - New API
     - StatementException.getShortMessage
     - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
+    - SqlStatements.setUnusedBindingAllowed allows you to bind Arguments to query parts that may be left out of the final query (e.g. by a TemplateEngine that renders conditional blocks) without getting an Exception.
   - Bug Fixes
     - Bridge methods cause SqlObject exceptions to get wrapped in `InvocationTargetException`
     - Ignore static methods on SqlObject types
   - Improvements
     - Handle `null` values in defined attributes
+    - behavioral fixes in Argument binding where the number of provided Arguments differs from the expected number.
 
 3.3.0
   - New API

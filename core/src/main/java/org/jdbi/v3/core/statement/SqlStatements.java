@@ -32,6 +32,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
+    private boolean allowUnusedBindings;
     private Integer queryTimeout;
 
     public SqlStatements() {
@@ -39,15 +40,17 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
+        allowUnusedBindings = false;
         queryTimeout = null;
     }
 
     private SqlStatements(SqlStatements that) {
-        this.attributes = new ConcurrentHashMap<>(that.attributes);
-        this.templateEngine = that.templateEngine;
-        this.sqlParser = that.sqlParser;
-        this.sqlLogger = that.sqlLogger;
-        this.queryTimeout = that.queryTimeout;
+        attributes = new ConcurrentHashMap<>(that.attributes);
+        templateEngine = that.templateEngine;
+        sqlParser = that.sqlParser;
+        sqlLogger = that.sqlLogger;
+        allowUnusedBindings = that.allowUnusedBindings;
+        queryTimeout = that.queryTimeout;
     }
 
     /**
@@ -173,6 +176,20 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
         this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
+        return this;
+    }
+
+    public boolean isUnusedBindingAllowed() {
+        return allowUnusedBindings;
+    }
+
+    /**
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
+     *
+     * @see org.jdbi.v3.core.argument.Argument
+     */
+    public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
+        this.allowUnusedBindings = allowUnusedBindings;
         return this;
     }
 
