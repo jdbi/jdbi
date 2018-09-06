@@ -2,6 +2,7 @@
   - Improvements
     - Skip unused string formatting for performance
     - Spring FactoryBean better singleton support
+    - KotlinMapper respects constructor annotations, lateinit improvements
 
 3.4.0
   - New API
