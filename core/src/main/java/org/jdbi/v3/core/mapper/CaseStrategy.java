@@ -13,35 +13,31 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import org.jdbi.v3.core.config.JdbiConfig;
+import java.util.Locale;
+import java.util.function.UnaryOperator;
+
 import org.jdbi.v3.meta.Beta;
 
 @Beta
-public class MapMappers implements JdbiConfig<MapMappers> {
+public enum CaseStrategy {
+    NOP {
+        @Override
+        UnaryOperator<String> strategize() {
+            return UnaryOperator.identity();
+        }
+    },
+    LOCALE_LOWER {
+        @Override
+        UnaryOperator<String> strategize() {
+            return s -> s.toLowerCase(Locale.ROOT);
+        }
+    },
+    LOCALE_UPPER {
+        @Override
+        UnaryOperator<String> strategize() {
+            return s -> s.toUpperCase(Locale.ROOT);
+        }
+    };
 
-    private CaseStrategy caseChange;
-
-    public MapMappers() {
-        caseChange = CaseStrategy.LOCALE_LOWER;
-    }
-
-    private MapMappers(MapMappers that) {
-        caseChange = that.caseChange;
-    }
-
-    @Beta
-    public CaseStrategy getCaseChange() {
-        return caseChange;
-    }
-
-    @Beta
-    public MapMappers setCaseChange(CaseStrategy caseChange) {
-        this.caseChange = caseChange;
-        return this;
-    }
-
-    @Override
-    public MapMappers createCopy() {
-        return new MapMappers(this);
-    }
+    abstract UnaryOperator<String> strategize();
 }
