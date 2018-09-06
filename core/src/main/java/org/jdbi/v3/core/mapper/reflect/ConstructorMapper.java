@@ -215,7 +215,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
             if (anno == null) {
                 final String paramName = prefix + paramName(parameters, i, constructorProperties);
 
-                OptionalInt columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
+                final OptionalInt columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
                     () -> debugName(parameter));
                 if (columnIndex.isPresent()) {
                     int colIndex = columnIndex.getAsInt();
@@ -233,9 +233,9 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     unmatchedParameters.add(paramName);
                 }
             } else {
-                String nestedPrefix = prefix + anno.value();
+                final String nestedPrefix = prefix + anno.value();
 
-                Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
+                final Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
                     .computeIfAbsent(parameter, p ->
                         new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
                     .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns);
@@ -258,7 +258,6 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         if (!unmatchedParameters.isEmpty()) {
             throw new IllegalArgumentException(String.format(
                 UNMATCHED_CONSTRUCTOR_PARAMETER, constructor, unmatchedParameters));
-
         }
 
         return Optional.of((r, c) -> {
