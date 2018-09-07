@@ -14,85 +14,82 @@
 package org.jdbi.v3.testing;
 
 import org.flywaydb.core.Flyway;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
-
+import java.util.concurrent.locks.ReentrantLock;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * JUnit {@code @Rule} to manage a Jdbi instance pointed to a managed database.
  */
 public abstract class JdbiRule extends ExternalResource {
-
-    private volatile DataSource dataSource;
-    private Jdbi jdbi;
-    private Handle handle;
-    private boolean installPlugins;
-    private String[] migrationScriptPaths;
+    
     private final List<JdbiPlugin> plugins = new ArrayList<>();
-
-    private final Object mutex = new Object();
-
+    private final ReentrantLock lock = new ReentrantLock();
+    private volatile DataSource dataSource;
+    private boolean installPlugins;
+    private Migration migration;
+    private Handle handle;
+    private Jdbi jdbi;
+    
     protected abstract DataSource createDataSource();
-
+    
     private DataSource getDataSource() {
-        if (dataSource == null) {
-            synchronized (mutex) {
+        if (dataSource == null) {            
+            try {
+                lock.lock();
                 if (dataSource == null) {
                     dataSource = createDataSource();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return dataSource;
     }
 
     /**
-     * Create a JdbiRule with an embedded Postgres instance.
-     * Your project must depend on the {@code otj-pg-embedded} artifact.
+     * Create a JdbiRule with an embedded PostgreSQL instance. Your project must
+     * depend on the {@code otj-pg-embedded} artifact.
      */
     public static JdbiRule embeddedPostgres() {
         return new EmbeddedPostgresJdbiRule();
     }
 
     /**
-     * Create a JdbiRule with an in-memory H2 database instance.
-     * Your project must depend on the {@code h2} database artifact.
+     * Create a JdbiRule using an external PostgreSQL instance. Your project
+     * must depend on the {@code postgresql} driver artifact.
+     */
+    public static JdbiRule externalPostgres(final String hostname, final Integer port,
+            final String username, String password, String database) {
+        return new ExternalPostgresJdbiRule(hostname, port, username, password, database);
+    }
+
+    /**
+     * Create a JdbiRule with an in-memory H2 database instance. Your project
+     * must depend on the {@code h2} database artifact.
      */
     public static JdbiRule h2() {
-        return new JdbiRule() {
-            @Override
-            protected DataSource createDataSource() {
-                return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
-            }
-        };
+        return new EmbeddedH2JdbiRule();
     }
 
     /**
-     * Run database migration scripts from {@code db/migration} on the classpath, using Flyway.
-     * @return this
+     * Run database migration.
      */
-    public JdbiRule migrateWithFlyway() {
-        return migrateWithFlyway("db/migration");
-    }
-
-    /**
-     * Run database migration scripts from the given locations on the classpath, using Flyway.
-     * @return this
-     */
-    public JdbiRule migrateWithFlyway(String... locations) {
-        this.migrationScriptPaths = locations;
+    public JdbiRule withMigration(final Migration migration) {
+        this.migration = migration;
         return this;
     }
 
     /**
      * Discover and install plugins from the classpath.
-     * @see JdbiRule#withPlugin(JdbiPlugin) we recommend installing plugins explicitly instead
+     *
+     * @see JdbiRule#withPlugin(JdbiPlugin) we recommend installing plugins
+     * explicitly instead
      */
     public JdbiRule withPlugins() {
         installPlugins = true;
@@ -102,20 +99,21 @@ public abstract class JdbiRule extends ExternalResource {
     /**
      * Install a plugin into JdbiRule.
      */
-    public JdbiRule withPlugin(JdbiPlugin plugin) {
+    public JdbiRule withPlugin(final JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;
     }
-
+    
     @Override
     protected void before() throws Throwable {
-        if (migrationScriptPaths != null) {
-            Flyway flyway = new Flyway();
+        if (migration != null) {
+            final Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
-            flyway.setLocations(migrationScriptPaths);
+            flyway.setLocations(migration.paths.toArray(new String[migration.paths.size()]));
+            flyway.setSchemas(migration.schemas.toArray(new String[migration.schemas.size()]));
             flyway.migrate();
         }
-
+        
         jdbi = Jdbi.create(getDataSource());
         if (installPlugins) {
             jdbi.installPlugins();
@@ -123,16 +121,24 @@ public abstract class JdbiRule extends ExternalResource {
         plugins.forEach(jdbi::installPlugin);
         handle = jdbi.open();
     }
-
+    
     @Override
     protected void after() {
+        if (migration != null && migration.cleanAfter) {
+            final Flyway flyway = new Flyway();
+            flyway.setDataSource(getDataSource());
+            flyway.setLocations(migration.paths.toArray(new String[migration.paths.size()]));
+            flyway.setSchemas(migration.schemas.toArray(new String[migration.schemas.size()]));
+            flyway.clean();
+        }
         handle.close();
         jdbi = null;
         dataSource = null;
     }
 
     /**
-     * Get Jdbi, in case you want to open additional handles to the same data source.
+     * Get Jdbi, in case you want to open additional handles to the same data
+     * source.
      */
     public Jdbi getJdbi() {
         return jdbi;
@@ -148,7 +154,7 @@ public abstract class JdbiRule extends ExternalResource {
     /**
      * Attach an extension (such as a SqlObject) to the managed handle.
      */
-    public <T> T attach(Class<T> extension) {
+    public <T> T attach(final Class<T> extension) {
         return getHandle().attach(extension);
     }
 }

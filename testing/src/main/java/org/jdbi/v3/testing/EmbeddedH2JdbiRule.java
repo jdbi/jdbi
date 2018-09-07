@@ -13,30 +13,18 @@
  */
 package org.jdbi.v3.testing;
 
+import java.util.UUID;
 import javax.sql.DataSource;
+import org.h2.jdbcx.JdbcConnectionPool;
 
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
-
-class EmbeddedPostgresJdbiRule extends JdbiRule {
-
-    private final SingleInstancePostgresRule embeddedPg;
-
-    EmbeddedPostgresJdbiRule() {
-        embeddedPg = EmbeddedPostgresRules.singleInstance();
-    }
-
-    @Override
-    public Statement apply(Statement base, Description description) {
-        return embeddedPg.apply(super.apply(base, description), description);
-    }
+/**
+ *
+ */
+class EmbeddedH2JdbiRule extends JdbiRule {
 
     @Override
     protected DataSource createDataSource() {
-        return embeddedPg.getEmbeddedPostgres().getPostgresDatabase();
+        return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
     }
-    
+
 }
