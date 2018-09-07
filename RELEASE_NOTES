@@ -27,6 +27,7 @@
     - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
 3.4.0
+    [ NOTE: this release's git tags are missing due to maintainer error! ]
   - New API
     - StatementException.getShortMessage
     - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.
