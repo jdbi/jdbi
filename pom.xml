@@ -18,7 +18,7 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>19</version>
+        <version>27</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -90,10 +90,8 @@
         <dep.pmd.version>6.0.1</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
-        <findbugs.version>3.0.2</findbugs.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>1.8</project.build.targetJdk>
-        <spotbugs.version>3.1.5</spotbugs.version>
     </properties>
 
     <dependencyManagement>
@@ -428,7 +426,7 @@
             <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
-                <version>${spotbugs.version}</version>
+                <version>${dep.plugin.spotbugs.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
@@ -436,7 +434,7 @@
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
-                <version>${findbugs.version}</version>
+                <version>3.0.2</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
@@ -577,17 +575,9 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>${spotbugs.version}</version>
-                    <configuration>
+                    <configuration combine.children="append">
                         <includeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-include.xml</includeFilterFile>
                         <excludeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-exclude.xml</excludeFilterFile>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <configuration>
-                        <skip>true</skip>
                     </configuration>
                 </plugin>
             </plugins>
@@ -620,18 +610,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>test</phase>
@@ -732,7 +710,7 @@
             </build>
             <properties>
                 <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
-                <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+                <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
                 <project.build.targetJdk>9</project.build.targetJdk>
             </properties>

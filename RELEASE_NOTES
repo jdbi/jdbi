@@ -22,6 +22,9 @@
     - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2
       or oracle
     - LocalTransactionHandler: rollback on thrown Throwable
+    - test on openjdk11
+  - Deprecations
+    - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
 3.4.0
   - New API
