@@ -117,6 +117,10 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <classifier>tests</classifier>
@@ -145,11 +149,6 @@
             <artifactId>otj-pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -174,6 +173,7 @@
                         <!-- Don't care, just want javadocs -->
                         <ignoredDependencies>
                             <ignoredDependency>org.jdbi:*</ignoredDependency>
+                            <ignoredDependency>org.postgresql:postgresql</ignoredDependency>
                         </ignoredDependencies>
                     </configuration>
                 </plugin>
