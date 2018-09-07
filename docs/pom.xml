@@ -117,6 +117,10 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <classifier>tests</classifier>
@@ -138,6 +142,11 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -164,6 +173,7 @@
                         <!-- Don't care, just want javadocs -->
                         <ignoredDependencies>
                             <ignoredDependency>org.jdbi:*</ignoredDependency>
+                            <ignoredDependency>org.postgresql:postgresql</ignoredDependency>
                         </ignoredDependencies>
                     </configuration>
                 </plugin>
