@@ -8,6 +8,7 @@
     - Spring FactoryBean better singleton support
     - KotlinMapper respects constructor annotations, lateinit improvements
     - behavioral fixes in Argument binding where the number of provided Arguments differs from the expected number.
+    - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2 or oracle
   - Deprecations
     - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
