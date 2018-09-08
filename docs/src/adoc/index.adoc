@@ -1256,6 +1256,33 @@ List<User> users = handle
     .list();
 ----
 
+By default, ConstructorMapper expects the result set to contain columns to map
+every constructor parameter, and will throw an exception if any parameters
+cannot be mapped.
+
+Parameters annotated `@Nullable` may be omitted from the result set, in which
+`ConstructorMapper` will pass `null` to the constructor for that parameter.
+
+[source,java]
+----
+public class User {
+  public User(int id,
+              String name,
+              @Nullable String passwordHash,
+              @Nullable @Nested Address address) {
+    ...
+  }
+}
+----
+
+In this example, the `id` and `name` columns must be present in the result set,
+but `passwordHash` and `address` are optional. If they are present, they will
+be mapped. Otherwise,
+
+[TIP]
+Any `@Nullable` annotation from any package may be used.
+`javax.annotation.Nullable` is a good choice.
+
 ===== BeanMapper
 
 We also provide basic support for mapping beans:
@@ -1363,6 +1390,10 @@ List<User> users = handle
     .mapTo(User.class)
     .list();
 ----
+
+[NOTE]
+`@Nested` properties are left unmodified (i.e. null) if the result set has no
+columns matching any properties of the nested object.
 
 ===== FieldMapper
 
@@ -1473,6 +1504,10 @@ List<User> users = handle
     .mapTo(User.class)
     .list();
 ----
+
+[NOTE]
+`@Nested` fields are left unmodified (i.e. null) if the result set has no
+columns matching any fields of the nested object.
 
 ////
 ===== ReflectionMappers config class

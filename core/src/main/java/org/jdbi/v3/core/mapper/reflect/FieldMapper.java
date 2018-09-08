@@ -51,7 +51,7 @@ public class FieldMapper<T> implements RowMapper<T> {
 
     private static final String TYPE_NOT_INSTANTIABLE =
         "A type, %s, was mapped which was not instantiable";
-    public static final String CANNOT_ACCESS_PROPERTY = "Unable to access property, %s";
+    private static final String CANNOT_ACCESS_PROPERTY = "Unable to access property, %s";
 
     /**
      * Returns a mapper factory that maps to the given bean class

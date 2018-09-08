@@ -17,12 +17,10 @@
     - Optional mapping of @Nested objects when using BeanMapper, ConstructorMapper, FieldMapper, or
       KotlinMapper. @Nested objects are only mapped when the result set contains columns that match
       the nested object.
-      - ConstructorMapper @Nested parameters must be annotated @Nullable to be considered optional.
-        Any annotation named "Nullable" from any package may be used.
+    - ConstructorMapper allows constructor parameters annotated @Nullable to be missing from the
+      result set. Any annotation named "Nullable" from any package may be used.
     - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2
       or oracle
-  - Deprecations
-    - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
 3.4.0
   - New API

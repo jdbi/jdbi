@@ -91,7 +91,8 @@ public class ReflectionMapperUtil {
      * @param columnNames the column names to search
      * @param prefix the prefix to search for
      * @param columnNameMatchers list of column name matchers
-     * @return
+     * @return whether any of the column names begin with the prefix
+     * @since 3.5.0
      */
     public static boolean anyColumnsStartWithPrefix(Collection<String> columnNames, String prefix, List<ColumnNameMatcher> columnNameMatchers) {
         return columnNames.stream().anyMatch(
