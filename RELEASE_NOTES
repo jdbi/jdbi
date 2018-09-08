@@ -8,6 +8,7 @@
     - ColumnNameMatcher.columnNameStartsWith() method, used by reflection mappers to short-circuit
       nested mappings when no columns start with the nested prefix.
   - Improvements
+    - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
     - Skip unused string formatting for performance
     - Spring FactoryBean better singleton support
     - KotlinMapper respects constructor annotations, lateinit improvements
@@ -18,6 +19,8 @@
       the nested object.
       - ConstructorMapper @Nested parameters must be annotated @Nullable to be considered optional.
         Any annotation named "Nullable" from any package may be used.
+    - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2
+      or oracle
   - Deprecations
     - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
@@ -30,7 +33,6 @@
     - Ignore static methods on SqlObject types
   - Improvements
     - Handle `null` values in defined attributes
-    - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
 
 3.3.0
   - New API
