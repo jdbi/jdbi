@@ -15,9 +15,11 @@
 package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.reflect.ColumnName
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +43,7 @@ class KotlinMapperTest {
     @Before
     fun setup() {
         handle = dbRule.sharedHandle
-        handle.execute("CREATE TABLE the_things(id integer, first text)")
+        handle.execute("CREATE TABLE the_things(id integer, first text, second text, third text, fourth text)")
         handle.execute("CREATE TABLE the_other_things(id integer, other text)")
     }
 
@@ -254,5 +256,287 @@ class KotlinMapperTest {
                 .first()
 
         assertThat(result.fromCtor).isEqualTo(expected)
+    }
+
+    private val one = "one"
+    private val two = "two"
+    private val three = "three"
+    private val four = "four"
+
+    private fun oneTwoThreeFourSetup() {
+
+        handle.createUpdate("INSERT INTO the_things(id, first, second, third, fourth) VALUES(1, :one, :two, :three, :four)")
+            .bind("one", one)
+            .bind("two", two)
+            .bind("three", three)
+            .bind("four", four)
+            .execute()
+    }
+
+    private val oneTwoThreeFourQuery = "SELECT id, first, second, third, fourth FROM the_things"
+
+    class ClassWithUnusedWriteableVariable(val first : String) {
+        lateinit var second : String
+        var third : String = "I still get written"
+        var extraField : String = "unchanged"
+    }
+
+    @Test
+    fun testAllowWritableUnusedVariables() {
+        oneTwoThreeFourSetup()
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithUnusedWriteableVariable>()
+            .first()
+        assertThat(result.first).isEqualTo(one)
+        assertThat(result.second).isEqualTo(two)
+        assertThat(result.third).isEqualTo(three)
+        assertThat(result.extraField).isEqualTo("unchanged")
+    }
+
+    @Test
+    fun testDisallowUnmappedLateInitVariables() {
+        oneTwoThreeFourSetup()
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery("SELECT id, first, third, fourth FROM the_things ").mapTo<ClassWithUnusedWriteableVariable>().first()
+        }
+    }
+
+    class ClassWithMultipleSecondaryConstructors {
+        val id: Int
+        val first: String
+
+        constructor(id: Int, first: String) {
+            this.id = id
+            this.first = first
+        }
+
+        constructor(id : Int, first : String, second : String) {
+            this.id = id
+            this.first = first + second
+        }
+    }
+
+    @Test
+    fun testClassWithMultipleConstructors() {
+        oneTwoThreeFourSetup()
+
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery(oneTwoThreeFourQuery)
+                .mapTo<ClassWithMultipleSecondaryConstructors>()
+        }
+    }
+
+    class ClassWithPrimaryAndMultipleSecondaryConstructors(val id : Int, val first : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should not be called.")
+        }
+
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third) {
+            throw UnsupportedOperationException("Should not be called.")
+        }
+    }
+
+    @Test
+    fun testClassWithPrimaryAndMultipleSecondaryConstructors() {
+        oneTwoThreeFourSetup()
+        val expected = "one"
+
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithPrimaryAndMultipleSecondaryConstructors>()
+            .first()
+
+        assertThat(result.first).isEqualTo(expected)
+    }
+
+    class ClassWithPrimaryAndSecondaryConstructorsWithAnnotation(val id: Int, val calculated : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should never be called")
+        }
+
+        @JdbiConstructor
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+    }
+
+    @Test
+    fun testClassWithPrimaryAndSecondaryConstructorsWithAnnotation() {
+        val expected = one + two + three
+
+        oneTwoThreeFourSetup()
+
+        val result = handle.createQuery(oneTwoThreeFourQuery)
+            .mapTo<ClassWithPrimaryAndSecondaryConstructorsWithAnnotation>()
+            .first()
+
+        assertThat(result.calculated).isEqualTo(expected)
+    }
+
+    class ClassWithTooManyAnnotations
+    @JdbiConstructor
+    constructor (val id: Int, val calculated : String) {
+
+        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+            throw UnsupportedOperationException("Should never be called")
+        }
+
+        @JdbiConstructor
+        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+    }
+
+    @Test
+    fun testClassWithTooManyAnnotations() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+            handle.createQuery(oneTwoThreeFourQuery)
+                .mapTo<ClassWithTooManyAnnotations>()
+                .first()
+        }
+    }
+
+    enum class KotlinTestEnum {
+        A,B,C
+    }
+
+    @Test
+    fun testKotlinMapperSkipsKotlinEnums() {
+        // https://github.com/jdbi/jdbi/issues/1218
+        val values = KotlinTestEnum.values()
+
+        values.forEachIndexed { index, kotlinTestEnum ->
+            handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :value)")
+                .bind("id", index)
+                .bind("value", kotlinTestEnum)
+                .execute()
+        }
+
+        val result = handle.createQuery("SELECT first FROM the_things")
+            .mapTo<KotlinTestEnum>()
+            .list()
+
+        assertThat(result.size).isEqualTo(values.size)
+        assertThat(result).containsAll(values.asList())
+    }
+
+    data class DataClassWithNullableConstructorParameter(val id:Int,
+                                                         val name:String?)
+
+    @Test
+    fun testDataClassWithNullableConstructorParameter() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<DataClassWithNullableConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableConstructorParameter(1, null))
+
+        assertThat(handle.select("select 1 as id, 'foo' as name")
+            .mapTo<DataClassWithNullableConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableConstructorParameter(1, "foo"))
+    }
+
+    class ClassWithNullableProperty(val id: Int) {
+        var name:String? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithNullableProperty
+
+            if (id != other.id) return false
+            if (name != other.name) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id
+            result = 31 * result + (name?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "DataClassWithNullableProperty(id=$id, name=$name)"
+        }
+    }
+
+    @Test
+    fun testClassWithNullableProperty() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<ClassWithNullableProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableProperty(1))
+
+        assertThat(handle.select("select 1 as id, 'foo' as name")
+            .mapTo<ClassWithNullableProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableProperty(1).also { it.name = "foo" })
+    }
+
+    data class NestedDataClass(val foo:String,
+                               val bar:String?)
+
+    data class DataClassWithNullableNestedConstructorParameter(val id: Int,
+                                                               @Nested val nested: NestedDataClass?)
+
+    @Test
+    fun testDataClassWithNullableNestedConstructorParameter() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, null))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", null)))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", "bar")))
+    }
+
+    class ClassWithNullableNestedProperty(val id: Int) {
+        @Nested var nested: NestedDataClass? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithNullableNestedProperty
+
+            if (id != other.id) return false
+            if (nested != other.nested) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + (nested?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "ClassWithNullableNestedProperty(id='$id', nested=$nested)"
+        }
+    }
+
+    @Test
+    fun testClassWithNullableNestedProperty() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", null) })
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", "bar") })
     }
 }

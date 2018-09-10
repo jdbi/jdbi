@@ -21,7 +21,17 @@ package org.jdbi.v3.core.mapper.reflect;
 public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
     @Override
     public boolean columnNameMatches(String columnName, String javaName) {
-        return columnName.replace("_", "").equalsIgnoreCase(javaName.replace("_", ""));
+        return removeUnderscores(columnName).equalsIgnoreCase(removeUnderscores(javaName));
+    }
+
+    @Override
+    public boolean columnNameStartsWith(String columnName, String prefix) {
+        String normalizedPrefix = removeUnderscores(prefix);
+        return removeUnderscores(columnName).regionMatches(true, 0, normalizedPrefix, 0, normalizedPrefix.length());
+    }
+
+    private String removeUnderscores(String string) {
+        return string.replace("_", "");
     }
 
     @Override

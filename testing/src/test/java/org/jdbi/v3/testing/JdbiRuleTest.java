@@ -26,7 +26,8 @@ import org.junit.runners.model.Statement;
 public class JdbiRuleTest {
     @Test
     public void migrateWithFlywayDefaultLocation() throws Throwable {
-        JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway();
+        JdbiRule rule = JdbiRule.embeddedPostgres()
+                .withMigration(Migration.before().withDefaultPath());
 
         Statement statement =
             new Statement() {
@@ -46,7 +47,8 @@ public class JdbiRuleTest {
 
     @Test
     public void migrateWithFlywayCustomLocation() throws Throwable {
-        JdbiRule rule = JdbiRule.embeddedPostgres().migrateWithFlyway("custom/migration/location");
+        JdbiRule rule = JdbiRule.embeddedPostgres()
+                .withMigration(Migration.before().withPath("custom/migration/location"));
 
         Statement statement =
             new Statement() {
@@ -67,8 +69,8 @@ public class JdbiRuleTest {
     @Test
     public void migrateWithMultipleFlywayCustomLocations() throws Throwable {
         JdbiRule rule =
-            JdbiRule.embeddedPostgres()
-                .migrateWithFlyway("custom/migration/location", "custom/migration/otherlocation");
+            JdbiRule.embeddedPostgres().withMigration(Migration.before()
+                    .withPaths("custom/migration/location", "custom/migration/otherlocation"));
 
         Statement statement =
             new Statement() {

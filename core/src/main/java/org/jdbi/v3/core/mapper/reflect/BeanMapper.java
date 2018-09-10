@@ -37,6 +37,7 @@ import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
@@ -51,6 +52,26 @@ import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
  * The mapped class must have a default constructor.
  */
 public class BeanMapper<T> implements RowMapper<T> {
+    private static final String DEFAULT_PREFIX = "";
+
+    private static final String NO_MATCHING_COLUMNS =
+        "Mapping bean type %s didn't find any matching columns in result set";
+
+    private static final String UNMATCHED_COLUMNS_STRICT =
+        "Mapping bean type %s could not match properties for columns: %s";
+
+    private static final String TYPE_NOT_INSTANTIABLE =
+        "A bean, %s, was mapped which was not instantiable";
+
+    private static final String MISSING_SETTER =
+        "No appropriate method to write property %s";
+
+    private static final String SETTER_NOT_ACCESSIBLE =
+        "Unable to access setter for property, %s";
+
+    private static final String INVOCATION_TARGET_EXCEPTION =
+        "Invocation target exception trying to invoker setter for the %s property";
+
     /**
      * Returns a mapper factory that maps to the given bean class
      *
@@ -95,8 +116,6 @@ public class BeanMapper<T> implements RowMapper<T> {
         return new BeanMapper<>(type, prefix);
     }
 
-    static final String DEFAULT_PREFIX = "";
-
     private final Class<T> type;
     private final String prefix;
     private final BeanInfo info;
@@ -124,25 +143,23 @@ public class BeanMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> result = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+        RowMapper<T> result = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            .orElseThrow(() -> new IllegalArgumentException(String.format(NO_MATCHING_COLUMNS, type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
-            && unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
+            && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
-            throw new IllegalArgumentException(String.format(
-                "Mapping bean type %s could not match properties for columns: %s",
-                type.getSimpleName(),
-                unmatchedColumns));
+            throw new IllegalArgumentException(
+                String.format(UNMATCHED_COLUMNS_STRICT, type.getSimpleName(), unmatchedColumns));
         }
 
         return result;
     }
 
-    private RowMapper<T> specialize0(ResultSet rs,
-                                     StatementContext ctx,
-                                     List<String> columnNames,
-                                     List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns) throws SQLException {
+    private Optional<RowMapper<T>> specialize0(StatementContext ctx,
+                                               List<String> columnNames,
+                                               List<ColumnNameMatcher> columnNameMatchers,
+                                               List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PropertyDescriptor> properties = new ArrayList<>();
 
@@ -174,22 +191,23 @@ public class BeanMapper<T> implements RowMapper<T> {
                     });
             } else {
                 String nestedPrefix = prefix + anno.value();
-
-                RowMapper<?> nestedMapper = nestedMappers
-                    .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
-
-                mappers.add(nestedMapper);
-                properties.add(descriptor);
+                if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
+                    nestedMappers
+                        .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
+                        .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                        .ifPresent(nestedMapper -> {
+                            mappers.add(nestedMapper);
+                            properties.add(descriptor);
+                        });
+                }
             }
         }
 
         if (mappers.isEmpty() && !columnNames.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s "
-                + "didn't find any matching columns in result set", type));
+            return Optional.empty();
         }
 
-        return (r, c) -> {
+        return Optional.of((r, c) -> {
             T bean = construct();
 
             for (int i = 0; i < mappers.size(); i++) {
@@ -202,7 +220,7 @@ public class BeanMapper<T> implements RowMapper<T> {
             }
 
             return bean;
-        };
+        });
     }
 
     private static String paramName(PropertyDescriptor descriptor) {
@@ -228,8 +246,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         try {
             return type.newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException(String.format("A bean, %s, was mapped "
-                + "which was not instantiable", type.getName()), e);
+            throw new IllegalArgumentException(String.format(TYPE_NOT_INSTANTIABLE, type.getName()), e);
         }
     }
 
@@ -237,15 +254,13 @@ public class BeanMapper<T> implements RowMapper<T> {
         try {
             Method writeMethod = property.getWriteMethod();
             if (writeMethod == null) {
-                throw new IllegalArgumentException(String.format("No appropriate method to write property %s", property.getName()));
+                throw new IllegalArgumentException(String.format(MISSING_SETTER, property.getName()));
             }
             writeMethod.invoke(bean, value);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format("Unable to access setter for "
-                + "property, %s", property.getName()), e);
+            throw new IllegalArgumentException(String.format(SETTER_NOT_ACCESSIBLE, property.getName()), e);
         } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(String.format("Invocation target exception trying to "
-                + "invoker setter for the %s property", property.getName()), e);
+            throw new IllegalArgumentException(String.format(INVOCATION_TARGET_EXCEPTION, property.getName()), e);
         }
     }
 }

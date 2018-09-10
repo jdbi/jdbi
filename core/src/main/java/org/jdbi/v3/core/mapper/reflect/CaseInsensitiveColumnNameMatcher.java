@@ -25,6 +25,11 @@ public class CaseInsensitiveColumnNameMatcher implements ColumnNameMatcher {
     }
 
     @Override
+    public boolean columnNameStartsWith(String columnName, String prefix) {
+        return columnName.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName();
     }

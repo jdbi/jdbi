@@ -16,10 +16,14 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Locale;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -28,21 +32,26 @@ import org.jdbi.v3.core.statement.StatementContext;
  * default.
  */
 public class MapMapper implements RowMapper<Map<String, Object>> {
-    private final boolean foldCase;
+    /**
+     * @deprecated remove
+     */
+    @Deprecated
+    private final Function<StatementContext, UnaryOperator<String>> caseStrategy;
 
     /**
-     * Constructs a new MapMapper, with map keys converted to lowercase.
+     * Constructs a new MapMapper and delegates case control to MapMappers.
      */
     public MapMapper() {
-        this(true);
+        caseStrategy = ctx -> ctx.getConfig(MapMappers.class).getCaseChange().strategize();
     }
 
     /**
      * Constructs a new MapMapper
-     * @param foldCase if true, column names are converted to lowercase in the mapped {@link Map}.
+     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If false, nothing is done. Use the other constructor to delegate case control to MapMappers instead.
      */
-    public MapMapper(boolean foldCase) {
-        this.foldCase = foldCase;
+    // TODO deprecate when MapMappers.caseChange is out of beta
+    public MapMapper(boolean toLowerCase) {
+        caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER.strategize() : ctx -> CaseStrategy.NOP.strategize();
     }
 
     @Override
@@ -52,32 +61,37 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
 
     @Override
     public RowMapper<Map<String, Object>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        ResultSetMetaData m = rs.getMetaData();
-        int columnCount = m.getColumnCount();
-        String[] columnNames = new String[columnCount + 1];
-
-        for (int i = 1; i <= columnCount; i++) {
-            String key = m.getColumnName(i);
-            String alias = m.getColumnLabel(i);
-
-            if (alias == null) {
-                alias = key;
-            }
-            if (foldCase) {
-                alias = alias.toLowerCase(Locale.ROOT);
-            }
-
-            columnNames[i] = alias;
-        }
+        final List<String> columnNames = getColumnNames(rs, caseStrategy.apply(ctx));
 
         return (r, c) -> {
-            Map<String, Object> row = new LinkedHashMap<>(columnCount);
+            Map<String, Object> row = new LinkedHashMap<>(columnNames.size());
 
-            for (int i = 1; i <= columnCount; i++) {
-                row.put(columnNames[i], rs.getObject(i));
+            for (int i = 0; i < columnNames.size(); i++) {
+                row.put(columnNames.get(i), rs.getObject(i + 1));
             }
 
             return row;
         };
+    }
+
+    private static List<String> getColumnNames(ResultSet rs, UnaryOperator<String> caseChange) throws SQLException {
+        // important: ordered and unique
+        Set<String> columnNames = new LinkedHashSet<>();
+        ResultSetMetaData meta = rs.getMetaData();
+        int columnCount = meta.getColumnCount();
+
+        for (int i = 0; i < columnCount; i++) {
+            String columnName = meta.getColumnName(i + 1);
+            String alias = meta.getColumnLabel(i + 1);
+
+            String name = caseChange.apply(alias == null ? columnName : alias);
+
+            boolean added = columnNames.add(name);
+            if (!added) {
+                throw new RuntimeException("column " + name + " appeared twice in this resultset!");
+            }
+        }
+
+        return new ArrayList<>(columnNames);
     }
 }
