@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.qualifier;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +32,7 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public final class QualifiedType {
     private final Type type;
-    private final Set<Object> qualifiers;
+    private final Set<Annotation> qualifiers;
 
     /**
      * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
@@ -45,7 +47,7 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with the given qualifier.
      */
-    public static QualifiedType of(Type type, Object qualifier) {
+    public static QualifiedType of(Type type, Annotation qualifier) {
         return new QualifiedType(
             type,
             Collections.singleton(qualifier));
@@ -54,7 +56,7 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(Type type, Object... qualifiers) {
+    public static QualifiedType of(Type type, Annotation... qualifiers) {
         return new QualifiedType(
             type,
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(qualifiers))));
@@ -63,7 +65,7 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(Type type, Set<?> qualifiers) {
+    public static QualifiedType of(Type type, Set<? extends Annotation> qualifiers) {
         return new QualifiedType(
             type,
             Collections.unmodifiableSet(new HashSet<>(qualifiers)));
@@ -80,25 +82,34 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with the given qualifier.
      */
-    public static QualifiedType of(GenericType<?> type, Object qualifier) {
+    public static QualifiedType of(GenericType<?> type, Annotation qualifier) {
         return QualifiedType.of(type.getType(), qualifier);
     }
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(GenericType<?> type, Object... qualifiers) {
+    public static QualifiedType of(GenericType<?> type, Annotation... qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
     }
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(GenericType<?> type, Set<?> qualifiers) {
+    public static QualifiedType of(GenericType<?> type, Set<? extends Annotation> qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
     }
 
-    private QualifiedType(Type type, Set<Object> qualifiers) {
+    /**
+     * Creates a QualifiedType from the given AnnotatedType.
+     * @param annotatedType the annotated type to inspect
+     * @return a QualifiedType from the AnnotatedType.
+     */
+    public static QualifiedType from(AnnotatedType annotatedType) {
+        return QualifiedType.of(annotatedType.getType(), Qualifiers.getQualifyingAnnotations(annotatedType));
+    }
+
+    private QualifiedType(Type type, Set<Annotation> qualifiers) {
         this.type = type;
         this.qualifiers = qualifiers;
     }
@@ -113,7 +124,7 @@ public final class QualifiedType {
     /**
      * Returns the type qualifiers.
      */
-    public Set<Object> getQualifiers() {
+    public Set<Annotation> getQualifiers() {
         return qualifiers;
     }
 

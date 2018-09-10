@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 
 import java.util.List;
 import org.jdbi.v3.core.generic.GenericType;
@@ -23,7 +24,7 @@ public class TestQualifiers {
     @Test
     @NVarchar
     public void testNVarcharQualifierConstant() throws Exception {
-        NVarchar synthetic = Qualifiers.NVARCHAR;
+        NVarchar synthetic = nVarchar();
         NVarchar real = getClass().getMethod("testNVarcharQualifierConstant").getAnnotation(NVarchar.class);
 
         assertThat(real).isEqualTo(synthetic);
@@ -33,10 +34,10 @@ public class TestQualifiers {
     }
 
     @Test
-    public void testQualifiedType() throws Exception {
-        assertThat(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
-            .isEqualTo(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, Qualifiers.NVARCHAR))
+    public void testQualifiedType() {
+        assertThat(QualifiedType.of(String.class, nVarchar()))
+            .isEqualTo(QualifiedType.of(String.class, nVarchar()))
+            .hasSameHashCodeAs(QualifiedType.of(String.class, nVarchar()))
             .hasToString("@org.jdbi.v3.core.qualifier.NVarchar() java.lang.String");
 
         assertThat(QualifiedType.of(int.class))

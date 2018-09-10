@@ -24,25 +24,57 @@ import org.jdbi.v3.meta.Beta;
 public class PostgresQualifiers {
     private PostgresQualifiers() {}
 
-    public static final HStore HSTORE = new HStore() {
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return HStore.class;
-        }
+    /**
+     * Returns an {@link HStore} qualifying annotation instance.
+     */
+    public static HStore hStore() {
+        return new HStore() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return HStore.class;
+            }
 
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof HStore;
-        }
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof HStore;
+            }
 
-        @Override
-        public int hashCode() {
-            return 0;
-        }
+            @Override
+            public int hashCode() {
+                return 0;
+            }
 
-        @Override
-        public String toString() {
-            return "@org.jdbi.v3.postgres.HStore()";
-        }
-    };
+            @Override
+            public String toString() {
+                return "@org.jdbi.v3.postgres.HStore()";
+            }
+        };
+    }
+
+    /**
+     * Returns a {@link MacAddr} qualifying annotation instance
+     */
+    public static MacAddr macAddr() {
+        return new MacAddr() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MacAddr.class;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof MacAddr;
+            }
+
+            @Override
+            public int hashCode() {
+                return 0;
+            }
+
+            @Override
+            public String toString() {
+                return "@org.jdbi.v3.postgres.MacAddr()";
+            }
+        };
+    }
 }

@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -31,31 +32,31 @@ public class Qualifiers {
     private Qualifiers() {}
 
     /**
-     * Type qualifier constant for Strings encoded as {@code NVARCHAR} (rather than {@code VARCHAR}).
-     *
-     * This constant is equals-compatible with {@link NVarchar} annotations.
+     * Returns an {@link NVarchar} qualifying annotation instance.
      */
-    public static final NVarchar NVARCHAR = new NVarchar() {
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return NVarchar.class;
-        }
+    public static NVarchar nVarchar() {
+        return new NVarchar() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return NVarchar.class;
+            }
 
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof NVarchar;
-        }
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof NVarchar;
+            }
 
-        @Override
-        public int hashCode() {
-            return 0;
-        }
+            @Override
+            public int hashCode() {
+                return 0;
+            }
 
-        @Override
-        public String toString() {
-            return "@org.jdbi.v3.core.qualifier.NVarchar()";
-        }
-    };
+            @Override
+            public String toString() {
+                return "@org.jdbi.v3.core.qualifier.NVarchar()";
+            }
+        };
+    }
 
     /**
      * Returns the set of qualifying annotations on the given elements.
@@ -63,7 +64,7 @@ public class Qualifiers {
      * @return the set of qualifying annotations on the given elements.
      */
     public static Set<Annotation> getQualifyingAnnotations(AnnotatedElement... elements) {
-        return Stream.of(elements)
+        return Arrays.stream(elements)
             .filter(Objects::nonNull)
             .flatMap(element -> Stream.of(element.getAnnotations()))
             .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))

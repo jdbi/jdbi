@@ -33,8 +33,9 @@ import org.jdbi.v3.meta.Beta;
  * {@code T}, factories produces arguments from the {@link #build(Object, ConfigRegistry)} method. For null values with
  * a known expected type of {@code T}, produces null arguments for the {@code sqlType} passed to the constructor.
  * <p>
- * Type qualifiers may be specified either by annotating the factory class, annotating the generic {@code <T>} parameter
- * of the factory with one or more qualifying annotation. Alternatively, qualifiers may be provided in the constructor.
+ * Type qualifiers may be specified either by annotating the factory class, or annotating the generic {@code <T>}
+ * parameter of the factory with one or more qualifying annotations. Alternatively, qualifiers may be provided in the
+ * constructor.
  *
  * <pre>
  * interface &#064;ValueType {}

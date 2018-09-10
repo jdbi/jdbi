@@ -39,6 +39,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     public ColumnMappers() {
         register(new SqlArrayMapperFactory());
         register(new BuiltInMapperFactory());
+        register(new NVarcharMapper());
     }
 
     @Override

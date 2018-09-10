@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.jdbi.v3.postgres.PostgresQualifiers.HSTORE;
+import static org.jdbi.v3.postgres.PostgresQualifiers.hStore;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,8 +42,8 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
  * The following qualified types have {@link org.jdbi.v3.meta.Beta} support for binding and mapping:
  *
  * <ul>
- * <li>{@link MacAddr @MacAddr java.lang.String}</li>
- * <li>{@link HStore @HStore Map&lt;String, String&gt;}</li>
+ * <li>{@link MacAddr @MacAddr java.lang.String} (for MACADDR columns)</li>
+ * <li>{@link HStore @HStore Map&lt;String, String&gt;} (for HSTORE columns)</li>
  * </ul>
  *
  * <p>
@@ -107,9 +107,7 @@ public class PostgresPlugin implements JdbiPlugin {
 
         db.registerColumnMapper(new JavaTimeMapperFactory());
         db.registerColumnMapper(new HStoreColumnMapper());
-        QualifiedType hstoreMapType = QualifiedType.of(
-            new GenericType<Map<String, String>>() {},
-            HSTORE);
+        QualifiedType hstoreMapType = QualifiedType.of(new GenericType<Map<String, String>>() {}, hStore());
         db.registerColumnMapper(hstoreMapType, new HStoreColumnMapper());
         db.registerColumnMapper(new MacAddrColumnMapper());
         db.registerColumnMapper(new DurationColumnMapperFactory());

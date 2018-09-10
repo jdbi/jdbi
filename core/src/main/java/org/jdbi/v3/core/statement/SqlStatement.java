@@ -50,7 +50,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
-import static org.jdbi.v3.core.qualifier.Qualifiers.NVARCHAR;
+import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -312,7 +312,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public final This bindNVarchar(int position, String value) {
-        return bind(position, toArgument(QualifiedType.of(String.class, NVARCHAR), value));
+        return bind(position, toArgument(QualifiedType.of(String.class, nVarchar()), value));
     }
 
     /**
@@ -325,7 +325,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public final This bindNVarchar(String name, String value) {
-        return bind(name, toArgument(QualifiedType.of(String.class, NVARCHAR), value));
+        return bind(name, toArgument(QualifiedType.of(String.class, nVarchar()), value));
     }
 
     /**
