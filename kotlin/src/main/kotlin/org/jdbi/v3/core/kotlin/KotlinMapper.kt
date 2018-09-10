@@ -14,7 +14,6 @@
 
 package org.jdbi.v3.core.kotlin
 
-import com.sun.beans.finder.ConstructorFinder.findConstructor
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.mapper.SingleColumnMapper

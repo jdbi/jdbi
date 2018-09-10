@@ -18,6 +18,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.findSuperclassAnnotatedTypeP
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -85,7 +86,7 @@ import org.jdbi.v3.meta.Beta;
 public abstract class AbstractQualifiedArgumentFactory<T> implements QualifiedArgumentFactory {
     private final int sqlType;
     private final ArgumentPredicate isInstance;
-    private final Set<?> qualifiers;
+    private final Set<Annotation> qualifiers;
 
     /**
      * Constructs an {@link ArgumentFactory} for type {@code T}.
@@ -105,7 +106,7 @@ public abstract class AbstractQualifiedArgumentFactory<T> implements QualifiedAr
      *
      * @param sqlType the {@link java.sql.Types} constant to use when the argument value is {@code null}.
      */
-    protected AbstractQualifiedArgumentFactory(int sqlType, Object... qualifiers) {
+    protected AbstractQualifiedArgumentFactory(int sqlType, Annotation... qualifiers) {
         this.sqlType = sqlType;
         this.isInstance = instanceTest(getClass());
         this.qualifiers = checkQualifiers(getClass(), new HashSet<>(Arrays.asList(qualifiers)));
@@ -125,7 +126,8 @@ public abstract class AbstractQualifiedArgumentFactory<T> implements QualifiedAr
         }
     }
 
-    private static Set<?> checkQualifiers(Class<? extends AbstractQualifiedArgumentFactory> clazz, Set<?> qualifiers) {
+    private static Set<Annotation> checkQualifiers(Class<? extends AbstractQualifiedArgumentFactory> clazz,
+                                                   Set<Annotation> qualifiers) {
         if (qualifiers.isEmpty()) {
             throw new IllegalStateException("Missing type qualifiers for factory class " + clazz.getName()
                 + ". Qualifiers may be provided as annotations on the class or on the superclass generic parameter, "
