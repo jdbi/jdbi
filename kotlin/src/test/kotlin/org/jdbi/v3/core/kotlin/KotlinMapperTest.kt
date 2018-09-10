@@ -392,7 +392,7 @@ class KotlinMapperTest {
                 .first()
         }
     }
-        
+
     enum class KotlinTestEnum {
         A,B,C
     }
@@ -415,5 +415,128 @@ class KotlinMapperTest {
 
         assertThat(result.size).isEqualTo(values.size)
         assertThat(result).containsAll(values.asList())
+    }
+
+    data class DataClassWithNullableConstructorParameter(val id:Int,
+                                                         val name:String?)
+
+    @Test
+    fun testDataClassWithNullableConstructorParameter() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<DataClassWithNullableConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableConstructorParameter(1, null))
+
+        assertThat(handle.select("select 1 as id, 'foo' as name")
+            .mapTo<DataClassWithNullableConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableConstructorParameter(1, "foo"))
+    }
+
+    class ClassWithNullableProperty(val id: Int) {
+        var name:String? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithNullableProperty
+
+            if (id != other.id) return false
+            if (name != other.name) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id
+            result = 31 * result + (name?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "DataClassWithNullableProperty(id=$id, name=$name)"
+        }
+    }
+
+    @Test
+    fun testClassWithNullableProperty() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<ClassWithNullableProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableProperty(1))
+
+        assertThat(handle.select("select 1 as id, 'foo' as name")
+            .mapTo<ClassWithNullableProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableProperty(1).also { it.name = "foo" })
+    }
+
+    data class NestedDataClass(val foo:String,
+                               val bar:String?)
+
+    data class DataClassWithNullableNestedConstructorParameter(val id: Int,
+                                                               @Nested val nested: NestedDataClass?)
+
+    @Test
+    fun testDataClassWithNullableNestedConstructorParameter() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, null))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", null)))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+            .mapTo<DataClassWithNullableNestedConstructorParameter>()
+            .first())
+            .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", "bar")))
+    }
+
+    class ClassWithNullableNestedProperty(val id: Int) {
+        @Nested var nested: NestedDataClass? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithNullableNestedProperty
+
+            if (id != other.id) return false
+            if (nested != other.nested) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + (nested?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "ClassWithNullableNestedProperty(id='$id', nested=$nested)"
+        }
+    }
+
+    @Test
+    fun testClassWithNullableNestedProperty() {
+        assertThat(handle.select("select 1 as id")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1))
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", null) })
+
+        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+            .mapTo<ClassWithNullableNestedProperty>()
+            .first())
+            .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", "bar") })
     }
 }

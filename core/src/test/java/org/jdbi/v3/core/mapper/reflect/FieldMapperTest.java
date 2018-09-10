@@ -38,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import javax.annotation.Nullable;
+
 public class FieldMapperTest {
 
     @Rule
@@ -274,6 +276,82 @@ public class FieldMapperTest {
     static class NestedThing {
         @Nested
         ColumnNameThing nested;
+    }
+
+    @Test
+    public void testNestedPresent() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
+            .select("SELECT 42 as testValue, 2 as i, '3' as s")
+            .mapTo(NullableNestedThing.class)
+            .findOnly())
+            .extracting("testValue", "nested.i", "nested.s")
+            .containsExactly(42, 2, "3");
+    }
+
+    @Test
+    public void testNestedHalfPresent() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
+            .select("SELECT 42 as testValue, '3' as s")
+            .mapTo(NullableNestedThing.class)
+            .findOnly())
+            .extracting("testValue", "nested.i", "nested.s")
+            .containsExactly(42, null, "3");
+    }
+
+    @Test
+    public void testNestedAbsent() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
+            .select("SELECT 42 as testValue")
+            .mapTo(NullableNestedThing.class)
+            .findOnly())
+            .extracting("testValue", "nested")
+            .containsExactly(42, null);
+    }
+
+    @Test
+    public void testNullableColumnAbsentButNestedPresent() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
+            .select("SELECT 's' s, 1 i")
+            .mapTo(NullableNestedThing.class)
+            .findOnly())
+            .extracting("testValue", "nested.s", "nested.i")
+            .containsExactly(null, "s", 1);
+    }
+
+    @Test
+    public void testNoRecognizedColumns() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThatThrownBy(() -> handle
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
+            .select("SELECT 'foo' bar")
+            .mapTo(NullableNestedThing.class)
+            .findOnly())
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    static class NullableNestedThing {
+        @Nullable
+        Integer testValue;
+
+        @Nullable
+        @Nested
+        NullableThing nested;
+    }
+
+    static class NullableThing {
+        @Nullable
+        String s;
+
+        @Nullable
+        Integer i;
     }
 
     @Test

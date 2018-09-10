@@ -24,6 +24,8 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import javax.annotation.Nullable;
+
 public class ConstructorMapperTest {
 
     @Rule
@@ -32,21 +34,24 @@ public class ConstructorMapperTest {
     @Before
     public void setUp() throws Exception {
         dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
-                .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
-                .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class));
+            .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
+            .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class))
+            .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
+            .registerRowMapper(ConstructorMapper.factory(NullableNestedBean.class))
+            .registerRowMapper(ConstructorMapper.factory(NullableParameterBean.class));
+
         dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         dbRule.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
     }
 
-    public ConstructorBean execute(String query) {
-        return dbRule.getSharedHandle().createQuery(query).mapTo(ConstructorBean.class).findOnly();
+    private <T> T selectOne(String query, Class<T> type) {
+        return dbRule.getSharedHandle().createQuery(query).mapTo(type).findOnly();
     }
 
     @Test
     public void testSimple() throws Exception {
-        ConstructorBean bean = execute("SELECT s, i FROM bean");
+        ConstructorBean bean = selectOne("SELECT s, i FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -54,7 +59,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testReversed() throws Exception {
-        ConstructorBean bean = execute("SELECT i, s FROM bean");
+        ConstructorBean bean = selectOne("SELECT i, s FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -62,7 +67,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testExtra() throws Exception {
-        ConstructorBean bean = execute("SELECT 1 as ignored, i, s FROM bean");
+        ConstructorBean bean = selectOne("SELECT 1 as ignored, i, s FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -85,18 +90,49 @@ public class ConstructorMapperTest {
 
     @Test
     public void testDuplicate() throws Exception {
-        assertThatThrownBy(() -> execute("SELECT i, s, s FROM bean")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> selectOne("SELECT i, s, s FROM bean", ConstructorBean.class))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testMismatch() throws Exception {
-        assertThatThrownBy(() -> execute("SELECT i, '7' FROM bean")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> selectOne("SELECT i, '7' FROM bean", ConstructorBean.class))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testNullableParameterPresent() {
+        NullableParameterBean bean = selectOne("select s, i from bean", NullableParameterBean.class);
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    @Test
+    public void testNullableParameterAbsent() {
+        NullableParameterBean bean = selectOne("select i from bean", NullableParameterBean.class);
+        assertThat(bean.s).isNull();
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    @Test
+    public void testNonNullableAbsent() {
+        assertThatThrownBy(() -> selectOne("select s from bean", NullableParameterBean.class))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    static class NullableParameterBean {
+        private final String s;
+        private final int i;
+
+        NullableParameterBean(@Nullable String s, int i) {
+            this.s = s;
+            this.i = i;
+        }
     }
 
     @Test
     public void testName() throws Exception {
-        NamedParameterBean nb = dbRule.getSharedHandle().createQuery("SELECT 3 AS xyz")
-                .mapTo(NamedParameterBean.class).findOnly();
+        NamedParameterBean nb = selectOne("SELECT 3 AS xyz", NamedParameterBean.class);
         assertThat(nb.i).isEqualTo(3);
     }
 
@@ -170,6 +206,48 @@ public class ConstructorMapperTest {
         final ConstructorBean nested;
 
         NestedBean(@Nested ConstructorBean nested) {
+            this.nested = nested;
+        }
+    }
+
+    @Test
+    public void nullableNestedParameterPresent() {
+        NullableNestedBean bean = selectOne("select 'a' a, s, i from bean", NullableNestedBean.class);
+        assertThat(bean.a).isEqualTo("a");
+        assertThat(bean.nested).isNotNull();
+        assertThat(bean.nested.s).isEqualTo("3");
+        assertThat(bean.nested.i).isEqualTo(2);
+    }
+
+    @Test
+    public void nullableNestedNullableParameterAbsent() {
+        NullableNestedBean bean = selectOne("select 'a' a, i from bean", NullableNestedBean.class);
+        assertThat(bean.a).isEqualTo("a");
+        assertThat(bean.nested).isNotNull();
+        assertThat(bean.nested.s).isNull();
+        assertThat(bean.nested.i).isEqualTo(2);
+    }
+
+    @Test
+    public void allColumnsOfNullableNestedObjectAbsent() {
+        NullableNestedBean bean = selectOne("select 'a' a from bean", NullableNestedBean.class);
+        assertThat(bean.a).isEqualTo("a");
+        assertThat(bean.nested).isNull();
+    }
+
+    @Test
+    public void nonNullableColumnOfNestedObjectAbsent() {
+        assertThatThrownBy(() -> selectOne("select 'a' a, s from bean", NullableNestedBean.class))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    static class NullableNestedBean {
+        private final String a;
+        private final NullableParameterBean nested;
+
+        NullableNestedBean(String a,
+                           @Nullable @Nested NullableParameterBean nested) {
+            this.a = a;
             this.nested = nested;
         }
     }

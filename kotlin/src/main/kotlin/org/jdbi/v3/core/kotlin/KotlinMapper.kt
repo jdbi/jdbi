@@ -20,10 +20,13 @@ import org.jdbi.v3.core.mapper.SingleColumnMapper
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
-import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.statement.StatementContext
 import java.sql.ResultSet
+import java.util.Optional
 import java.util.OptionalInt
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -38,15 +41,17 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
-private val nullValueRowMapper = RowMapper<Any?> { rs, ctx -> null }
+private val nullValueRowMapper = RowMapper<Any?> { _, _ -> null }
 
 class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
     private val kClass: KClass<*> = clazz.kotlin
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
-    private val memberProperties = kClass.memberProperties.mapNotNull { it as? KMutableProperty1<*, *>}.filter { property ->
-        !constructorParameters.any { parameter -> parameter.paramName() == property.propName() }
-    }
+    private val memberProperties = kClass.memberProperties
+        .mapNotNull { it as? KMutableProperty1<*, *> }
+        .filter { property ->
+            !constructorParameters.any { parameter -> parameter.paramName() == property.propName() }
+        }
 
     private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
@@ -60,44 +65,76 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
         val unmatchedColumns = columnNames.toMutableSet()
 
-        val mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        val mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            .orElseThrow {
+                IllegalArgumentException(
+                    "Mapping Kotlin type ${kClass.simpleName} didn't find any columns matching required, " +
+                        "non-default constructor parameters in result set")
+            }
 
         if (ctx.getConfig(ReflectionMappers::class.java).isStrictMatching &&
-                unmatchedColumns.any { col -> col.startsWith(prefix) }) {
+            unmatchedColumns.any { col -> col.startsWith(prefix) }) {
 
-            throw IllegalArgumentException(String.format(
-                    "Mapping constructor-injected type %s could not match parameters for columns: %s",
-                    kClass.simpleName,
-                    unmatchedColumns))
+            throw IllegalArgumentException(
+                "Mapping constructor-injected type ${kClass.simpleName} could not match parameters " +
+                    "for columns: $unmatchedColumns")
         }
 
         return mapper
     }
 
-    private fun specialize0(rs: ResultSet,
-                            ctx: StatementContext,
+    private fun specialize0(ctx: StatementContext,
                             columnNames: List<String>,
                             columnNameMatchers: List<ColumnNameMatcher>,
                             unmatchedColumns: MutableSet<String>
-    ): RowMapper<Any> {
-        val constructorParameterMappers = constructorParameters.associate { parameter ->
-            parameter to getConstructorParameterProvider(rs, ctx, parameter, columnNames, columnNameMatchers, unmatchedColumns)
+    ): Optional<RowMapper<Any>> {
+        val resolvedConstructorParameters = constructorParameters
+            .associate { parameter ->
+                parameter to resolveConstructorParameterMapper(
+                    ctx, parameter, columnNames, columnNameMatchers, unmatchedColumns)
+            }
+
+        val explicitlyMappedConstructorParameters = resolvedConstructorParameters
+            .filter { it.value.first == ParamResolution.MAPPED }
+            .keys
+        val unmappedConstructorParameters = resolvedConstructorParameters
+            .filter { it.value.first == ParamResolution.UNMAPPED }
+            .keys
+        if (unmappedConstructorParameters.isNotEmpty()) {
+            if (explicitlyMappedConstructorParameters.isEmpty()) {
+                // at least one constructor parameter is unmapped, and the rest are defaulted or nullable
+                return Optional.empty()
+            }
+            // some constructor parameters explicitly mapped, and some unmapped
+            throw IllegalArgumentException(
+                "Mapping constructor-injected type ${kClass.simpleName} matched columns " +
+                    "for constructor parameters ${explicitlyMappedConstructorParameters}, " +
+                    "but not for ${unmappedConstructorParameters}"
+            )
         }
 
-        val memberPropertyMappers = memberProperties.flatMap { property ->
-            val mapper  = getMemberPropertyProvider(rs, ctx, property, columnNames, columnNameMatchers, unmatchedColumns)
-            if (mapper != null) listOf(Pair(property, mapper)) else emptyList()
-        } .toMap()
+        val memberPropertyMappers = memberProperties
+            .associate { property ->
+                property to resolveMemberPropertyMapper(ctx, property, columnNames, columnNameMatchers, unmatchedColumns)
+            }
+            .filterValues { it != null }
 
-        return RowMapper { r, c ->
+        if (explicitlyMappedConstructorParameters.isEmpty() && memberPropertyMappers.isEmpty()) {
+            // no constructor parameters or properties are mapped. nothing for us to do
+            return Optional.empty()
+        }
+
+        val constructorParameterMappers = resolvedConstructorParameters
+            .mapValues { (_, value) -> value.second }
             // We filter 'null' mappers to remove parameters with no mappers but a default value
-            val constructorParametersWithValues = constructorParameterMappers.filterValues { it != null }.mapValues { (_, mapper) ->
-                mapper?.map(r, c)
-            }
+            .filterValues { it != null }
 
-            val memberPropertiesWithValues = memberPropertyMappers.mapValues { (_, mapper) ->
-                mapper.map(r, c)
-            }
+        return Optional.of(RowMapper { r, c ->
+            val constructorParametersWithValues = constructorParameterMappers
+                .mapValues { it.value?.map(r, c) }
+
+            val memberPropertiesWithValues = memberPropertyMappers
+                .mapValues { it.value?.map(r, c) }
 
             constructor.isAccessible = true
             constructor.callBy(constructorParametersWithValues).also { instance ->
@@ -106,63 +143,74 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                     prop.setter.call(instance, value)
                 }
             }
-        }
+        })
     }
 
-    private fun getConstructorParameterProvider(rs: ResultSet,
-                                                ctx: StatementContext,
-                                                parameter: KParameter,
-                                                columnNames: List<String>,
-                                                columnNameMatchers: List<ColumnNameMatcher>,
-                                                unmatchedColumns: MutableSet<String>
-    ): RowMapper<*>? {
+    private enum class ParamResolution {
+        MAPPED,
+        USE_DEFAULT,
+        USE_NULL,
+        UNMAPPED
+    }
+
+    private fun resolveConstructorParameterMapper(ctx: StatementContext,
+                                                  parameter: KParameter,
+                                                  columnNames: List<String>,
+                                                  columnNameMatchers: List<ColumnNameMatcher>,
+                                                  unmatchedColumns: MutableSet<String>
+    ): Pair<ParamResolution, RowMapper<*>?> {
         val parameterName = parameter.paramName()
 
         val nested = parameter.findAnnotation<Nested>()
+        if (nested == null) {
+            val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
+            if (columnIndex.isPresent) {
+                val type = parameter.type.javaType
 
-        return if (nested == null) {
-            val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers, { parameter.name })
-            when {
-                columnIndex.isPresent -> {
-                    val type = parameter.type.javaType
-
-                    ctx.findColumnMapperFor(type)
-                            .map { mapper -> SingleColumnMapper(mapper, columnIndex.asInt + 1) }
-                            .orElseThrow {
-                                IllegalArgumentException(
-                                        "Could not find column mapper for type '$type' of parameter " +
-                                                "'$parameter' for constructor '$constructor'")
-                            }.also {
+                return ctx.findColumnMapperFor(type)
+                    .map { mapper ->
+                        Pair(ParamResolution.MAPPED, SingleColumnMapper(mapper, columnIndex.asInt + 1))
+                    }
+                    .orElseThrow {
+                        IllegalArgumentException(
+                            "Could not find column mapper for type '$type' of parameter " +
+                                "'$parameter' for constructor '$constructor'")
+                    }.also {
                         unmatchedColumns.remove(columnNames[columnIndex.asInt])
                     }
-                }
-                parameter.isOptional -> {
-                    // Parameter has no matching column but has a default value, use the default value
-                    null
-                }
-                parameter.type.isMarkedNullable -> nullValueRowMapper
-                else -> throw IllegalArgumentException(
-                        "Constructor '${constructor.name}' parameter '$parameterName' has no column in the result set" +
-                                " and is not nullable. " +
-                                "Verify that your result set has the columns expected, or annotate the " +
-                                "parameter names explicitly with @ColumnName"
-                )
             }
         } else {
             val nestedPrefix = prefix + nested.value
 
-            nestedMappers
-                    .computeIfAbsent(parameter, { p -> KotlinMapper(p.type.jvmErasure.java, nestedPrefix) })
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
+                val nestedMapper = nestedMappers
+                    .computeIfAbsent(parameter) { p ->
+                        KotlinMapper(p.type.jvmErasure.java, nestedPrefix)
+                    }
+                    .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                if (nestedMapper.isPresent) {
+                    return Pair(ParamResolution.MAPPED, nestedMapper.get())
+                }
+            }
         }
+
+        if (parameter.isOptional) {
+            // Parameter has no matching columns but has a default value, use the default value
+            return Pair(ParamResolution.USE_DEFAULT, null)
+        }
+
+        if (parameter.type.isMarkedNullable) {
+            return Pair(ParamResolution.USE_NULL, nullValueRowMapper)
+        }
+
+        return Pair(ParamResolution.UNMAPPED, null)
     }
 
-    private fun getMemberPropertyProvider(rs: ResultSet,
-                                          ctx: StatementContext,
-                                          property: KMutableProperty1<*, *>,
-                                          columnNames: List<String>,
-                                          columnNameMatchers: List<ColumnNameMatcher>,
-                                          unmatchedColumns: MutableSet<String>
+    private fun resolveMemberPropertyMapper(ctx: StatementContext,
+                                            property: KMutableProperty1<*, *>,
+                                            columnNames: List<String>,
+                                            columnNameMatchers: List<ColumnNameMatcher>,
+                                            unmatchedColumns: MutableSet<String>
     ): RowMapper<*>? {
         val propertyName = property.propName()
         val nested = property.javaField?.getAnnotation(Nested::class.java)
@@ -184,8 +232,8 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                     .map { mapper -> SingleColumnMapper(mapper, columnIndex + 1) }
                     .orElseThrow {
                         IllegalArgumentException(
-                                "Could not find column mapper for type '$type' of property " +
-                                        "'${property.name}' for constructor '${kClass.simpleName}'")
+                            "Could not find column mapper for type '$type' of property " +
+                                "'${property.name}' for constructor '${kClass.simpleName}'")
                     }
                     .also {
                         unmatchedColumns.remove(columnNames[columnIndex])
@@ -193,10 +241,15 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         } else {
             val nestedPrefix = prefix + nested.value
 
-            return nestedPropertyMappers
-                    .computeIfAbsent(property, { p -> KotlinMapper(p.returnType.jvmErasure.java, nestedPrefix) })
-                    .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
+                return nestedPropertyMappers
+                    .computeIfAbsent(property) { p -> KotlinMapper(p.returnType.jvmErasure.java, nestedPrefix) }
+                    .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                    .orElse(null)
+            }
         }
+
+        return null
     }
 
     private fun KParameter.paramName(): String? {
