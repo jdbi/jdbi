@@ -136,7 +136,7 @@ public class LocalTransactionHandler implements TransactionHandler {
             if (!didTxnRollback.get()) {
                 handle.commit();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             try {
                 handle.rollback();
             } catch (Exception rollback) {
