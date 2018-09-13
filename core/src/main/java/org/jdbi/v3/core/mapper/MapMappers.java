@@ -13,13 +13,15 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.util.function.UnaryOperator;
+
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 
 @Beta
 public class MapMappers implements JdbiConfig<MapMappers> {
 
-    private CaseStrategy caseChange;
+    private UnaryOperator<String> caseChange;
 
     public MapMappers() {
         caseChange = CaseStrategy.LOCALE_LOWER;
@@ -30,12 +32,12 @@ public class MapMappers implements JdbiConfig<MapMappers> {
     }
 
     @Beta
-    public CaseStrategy getCaseChange() {
+    public UnaryOperator<String> getCaseChange() {
         return caseChange;
     }
 
     @Beta
-    public MapMappers setCaseChange(CaseStrategy caseChange) {
+    public MapMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
         return this;
     }

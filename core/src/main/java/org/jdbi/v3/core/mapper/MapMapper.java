@@ -42,7 +42,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      * Constructs a new MapMapper and delegates case control to MapMappers.
      */
     public MapMapper() {
-        caseStrategy = ctx -> ctx.getConfig(MapMappers.class).getCaseChange().strategize();
+        caseStrategy = ctx -> ctx.getConfig(MapMappers.class).getCaseChange();
     }
 
     /**
@@ -51,7 +51,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      */
     // TODO deprecate when MapMappers.caseChange is out of beta
     public MapMapper(boolean toLowerCase) {
-        caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER.strategize() : ctx -> CaseStrategy.NOP.strategize();
+        caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER : ctx -> CaseStrategy.NOP;
     }
 
     @Override

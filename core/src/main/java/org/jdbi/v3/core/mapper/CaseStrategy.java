@@ -18,26 +18,54 @@ import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.meta.Beta;
 
+/**
+ * Strategies for comparing case sensitive strings.
+ */
 @Beta
-public enum CaseStrategy {
+public enum CaseStrategy implements UnaryOperator<String> {
+    /**
+     * No case sensitivity.
+     */
     NOP {
         @Override
-        UnaryOperator<String> strategize() {
-            return UnaryOperator.identity();
+        public String apply(String t) {
+            return t;
         }
     },
+    /**
+     * All strings to lowercase in root locale.
+     */
+    LOWER {
+        @Override
+        public String apply(String t) {
+            return t.toLowerCase(Locale.ROOT);
+        }
+    },
+    /**
+     * All strings to uppercase in root locale.
+     */
+    UPPER {
+        @Override
+        public String apply(String t) {
+            return t.toUpperCase(Locale.ROOT);
+        }
+    },
+    /**
+     * All strings to lowercase in system locale.
+     */
     LOCALE_LOWER {
         @Override
-        UnaryOperator<String> strategize() {
-            return s -> s.toLowerCase(Locale.ROOT);
+        public String apply(String t) {
+            return t.toLowerCase();
         }
     },
+    /**
+     * All strings to uppercase in system locale.
+     */
     LOCALE_UPPER {
         @Override
-        UnaryOperator<String> strategize() {
-            return s -> s.toUpperCase(Locale.ROOT);
+        public String apply(String t) {
+            return t.toUpperCase();
         }
-    };
-
-    abstract UnaryOperator<String> strategize();
+    },
 }
