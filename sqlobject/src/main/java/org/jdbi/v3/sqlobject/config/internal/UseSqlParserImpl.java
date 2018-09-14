@@ -14,7 +14,8 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
@@ -50,17 +51,17 @@ public class UseSqlParserImpl implements Configurer {
             .orElseThrow(() -> new IllegalStateException("Unable to instantiate, no viable constructor for " + parserClass.getName()));
     }
 
-    private static <T extends SqlParser> Supplier<T> tryConstructor(Class<T> c, Object... args) {
-        Object[] nonNullArgs = Arrays.stream(args).filter(Objects::nonNull).toArray(Object[]::new);
-
+    private static <T extends SqlParser> Supplier<T> tryConstructor(Class<T> clazz, Object... args) {
         return () -> {
             try {
-                Class[] classes = Arrays.stream(nonNullArgs).map(Object::getClass).toArray(Class[]::new);
-                return c.getConstructor(classes).newInstance(nonNullArgs);
+                Object[] nonNullArgs = Arrays.stream(args).filter(Objects::nonNull).toArray(Object[]::new);
+                Class[] argClasses = Arrays.stream(nonNullArgs).map(Object::getClass).toArray(Class[]::new);
+                MethodType type = MethodType.methodType(void.class, argClasses);
+                return (T) MethodHandles.lookup().findConstructor(clazz, type).invokeWithArguments(nonNullArgs);
             } catch (NoSuchMethodException ignored) {
                 return null;
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
             }
         };
     }
