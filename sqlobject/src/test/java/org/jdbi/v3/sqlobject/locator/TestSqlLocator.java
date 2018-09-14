@@ -32,7 +32,7 @@ public class TestSqlLocator {
     public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testLocateConfigDriven() {
+    public void testLocateConfigDriven() throws Exception {
         Jdbi jdbi = dbRule.getJdbi();
         jdbi.useHandle(h -> {
             h.execute("create table something (id int, name text)");

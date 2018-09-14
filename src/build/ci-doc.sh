@@ -1,4 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
+set -xe
+
+export DOCUMENTATION=Y
 
 OPTS="-DskipTests=true -Dbasepom.check.skip-all=true -B"
 

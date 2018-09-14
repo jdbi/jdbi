@@ -1,5 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
+set -xe
 
+export TESTS=Y
 OPTS="-Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -B"
 
 PROFILES="toolchains"

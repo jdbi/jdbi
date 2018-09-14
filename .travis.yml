@@ -18,23 +18,18 @@ install:
 
 matrix:
   include:
-    - env:
-        - TESTS=Y
-      script:
+    - script:
         - src/build/ci-test.sh
       jdk: oraclejdk8
-    - env:
-        - TESTS=Y
-      script:
+    - script:
         - src/build/ci-test.sh
       jdk: oraclejdk9
-    - env:
-        - DOCUMENTATION=Y
-      script:
+    - script:
+        - src/build/ci-test.sh
+      jdk: openjdk11
+    - script:
         - src/build/ci-doc.sh
       jdk: oraclejdk8
-    - env:
-        - CODE_STYLE=Y
-      script:
+    - script:
         - src/build/ci-code-style.sh
       jdk: oraclejdk8
