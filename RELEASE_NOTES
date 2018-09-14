@@ -23,8 +23,6 @@
       or oracle
     - LocalTransactionHandler: rollback on thrown Throwable
     - test on openjdk11
-  - Deprecations
-    - Deprecated the boolean property `foldCase` on MapMapper in favor of the JdbiConfig mechanism.
 
 3.4.0
     [ NOTE: this release's git tags are missing due to maintainer error! ]
