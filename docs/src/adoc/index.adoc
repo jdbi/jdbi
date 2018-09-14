@@ -1397,7 +1397,7 @@ columns matching any properties of the nested object.
 
 ===== FieldMapper
 
-link:{jdbidocs}/mapper/reflect/FieldMapper.html[FieldMapper^] uses reflection
+link:{jdbidocs}/core/mapper/reflect/FieldMapper.html[FieldMapper^] uses reflection
 to map database columns directly to object fields (including private fields).
 
 [source,java]

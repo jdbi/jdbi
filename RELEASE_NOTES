@@ -21,6 +21,7 @@
       result set. Any annotation named "Nullable" from any package may be used.
     - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2
       or oracle
+    - LocalTransactionHandler: rollback on thrown Throwable
 
 3.4.0
   - New API
