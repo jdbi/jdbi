@@ -15,6 +15,7 @@ package org.jdbi.v3.core.locator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -119,7 +120,7 @@ public final class ClasspathSqlLocator {
             // strips away comments
             return SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(is));
         } catch (IOException e) {
-            throw new RuntimeException("Unable to read classpath resource at " + path, e);
+            throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
         }
     }
 

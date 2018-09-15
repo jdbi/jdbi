@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.Throwables;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.Configurer;
@@ -59,7 +60,7 @@ public class UseTemplateEngineImpl implements Configurer {
             } catch (NoSuchMethodException ignored) {
                 return null;
             } catch (Throwable t) {
-                throw new RuntimeException(t);
+                throw Throwables.uncheck(t);
             }
         };
     }
