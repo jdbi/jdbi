@@ -710,8 +710,8 @@
             </build>
             <properties>
                 <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
-                <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+                <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
                 <project.build.targetJdk>9</project.build.targetJdk>
             </properties>
         </profile>
