@@ -67,7 +67,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
         } catch (InvocationTargetException e) {
-            throw Throwables.uncheck(e.getCause());
+            throw Throwables.sneakyThrow(e.getCause());
         } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
@@ -75,7 +75,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor(Method.class).newInstance(method);
         } catch (InvocationTargetException e) {
-            throw Throwables.uncheck(e.getCause());
+            throw Throwables.sneakyThrow(e.getCause());
         } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
@@ -83,7 +83,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
-            throw Throwables.uncheck(e.getCause());
+            throw Throwables.sneakyThrow(e.getCause());
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. "
                     + "Expected a constructor with parameters (Class, Method), (Method), or ().", e);

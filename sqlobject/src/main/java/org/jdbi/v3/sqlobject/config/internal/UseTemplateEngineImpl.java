@@ -60,7 +60,7 @@ public class UseTemplateEngineImpl implements Configurer {
             } catch (NoSuchMethodException ignored) {
                 return null;
             } catch (Throwable t) {
-                throw Throwables.uncheck(t);
+                throw Throwables.sneakyThrow(t);
             }
         };
     }

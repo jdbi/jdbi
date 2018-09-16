@@ -101,7 +101,7 @@ class DefaultMethodHandler implements Handler {
         try {
             return methodHandle.bindTo(target).invokeWithArguments(args);
         } catch (Throwable t) {
-            throw Throwables.uncheck(t);
+            throw Throwables.sneakyThrow(t);
         }
     }
 }

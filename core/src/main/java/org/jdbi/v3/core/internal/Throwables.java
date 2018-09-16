@@ -22,17 +22,21 @@ public class Throwables {
     }
 
     /**
-     * returns t directly if it is unchecked, otherwise wraps it in a RuntimeException
+     * unchecked throws t. Returns a bogus exception for compiler satisfaction: always throw the return value even though you'll never get it.
      */
-    public static RuntimeException uncheck(Throwable t) {
+    public static RuntimeException sneakyThrow(Throwable t) {
+        if (t instanceof Error) {
+            throw (Error) t;
+        }
+
         if (t instanceof RuntimeException) {
-            return (RuntimeException) t;
+            throw (RuntimeException) t;
         }
 
         if (t instanceof IOException) {
-            return new UncheckedIOException((IOException) t);
+            throw new UncheckedIOException((IOException) t);
         }
 
-        return new RuntimeException(t);
+        throw new RuntimeException(t);
     }
 }
