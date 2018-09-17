@@ -125,8 +125,26 @@ public class TestClasspathBuilder {
     }
 
     @Test
+    public void testFqNestedClassAndMethod() throws NoSuchMethodException {
+        Method method = Foo.class.getMethod("bar");
+
+        assertThat(builder.appendFullyQualifiedMethodName(method).build())
+            .isEqualTo("org/jdbi/v3/core/locator/internal/TestClasspathBuilder$Foo/bar");
+    }
+
+    @Test
     public void testFqClass() {
         assertThat(builder.appendFullyQualifiedClassName(String.class).build())
             .isEqualTo("java/lang/String");
+    }
+
+    @Test
+    public void testFqNestedClass() {
+        assertThat(builder.appendFullyQualifiedClassName(Foo.class).build())
+            .isEqualTo("org/jdbi/v3/core/locator/internal/TestClasspathBuilder$Foo");
+    }
+
+    public static class Foo {
+        public void bar() {}
     }
 }

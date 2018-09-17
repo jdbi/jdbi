@@ -57,7 +57,7 @@ public class ClasspathBuilder {
     }
 
     public ClasspathBuilder appendFullyQualifiedClassName(@Nonnull Class clazz) {
-        return appendPackage(clazz.getPackage()).appendSimpleClassName(clazz);
+        return appendDotPath(clazz.getName());
     }
 
     // shame we can't get the name out of a MethodHandle
@@ -116,7 +116,9 @@ public class ClasspathBuilder {
      */
     @Override
     public String toString() {
-        return extension == null ? parts.toString() : (parts.toString() + " + ." + extension);
+        return extension == null
+            ? parts.toString()
+            : parts.toString() + " + ." + extension;
     }
 
     private ClasspathBuilder add(String s) {
