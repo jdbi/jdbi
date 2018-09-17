@@ -61,7 +61,7 @@ public final class ClasspathSqlLocator {
      * @return the located SQL.
      */
     public static String findSqlOnClasspath(Class<?> type, String methodName) {
-        String path = new ClasspathBuilder().appendFullyQualifiedClassName(type).append(methodName).setExtension(SQL_EXTENSION).build();
+        String path = new ClasspathBuilder().appendFullyQualifiedClassName(type).appendVerbatim(methodName).setExtension(SQL_EXTENSION).build();
         return getResourceOnClasspath(type.getClassLoader(), path);
     }
 
