@@ -13,14 +13,9 @@
  */
 package org.jdbi.v3.core.locator.internal;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -31,8 +26,7 @@ public class ClasspathBuilder {
     private static final String SLASH = "/";
 
     // a part can consist of already slash-concatenated parts
-    // preserving individual inputs can help see the bigger picture in debugging
-    // eagerly splitting them is quite pointless
+    // preserving combined inputs can help see the bigger picture in debugging
     private final List<String> parts = new ArrayList<>();
     private String extension = null;
 
@@ -46,57 +40,27 @@ public class ClasspathBuilder {
         return this;
     }
 
-    // safe appenders:
-
-    public ClasspathBuilder appendPackage(@Nonnull Package pkg) {
-        return appendDotPath(pkg.getName());
-    }
-
-    public ClasspathBuilder appendSimpleClassName(@Nonnull Class clazz) {
-        return add(clazz.getSimpleName());
-    }
-
+    // org.foo.Bar$Inner -> org/foo/Bar$Inner
     public ClasspathBuilder appendFullyQualifiedClassName(@Nonnull Class clazz) {
         return appendDotPath(clazz.getName());
-    }
-
-    // shame we can't get the name out of a MethodHandle
-    public ClasspathBuilder appendMethodName(@Nonnull Method method) {
-        return add(method.getName());
-    }
-
-    public ClasspathBuilder appendSimpleClassAndMethodName(@Nonnull Method method) {
-        return appendSimpleClassName(method.getDeclaringClass()).appendMethodName(method);
-    }
-
-    public ClasspathBuilder appendFullyQualifiedMethodName(@Nonnull Method method) {
-        return appendFullyQualifiedClassName(method.getDeclaringClass()).appendMethodName(method);
-    }
-
-    // https://google.com/ -> com/google
-    public ClasspathBuilder appendHostname(@Nonnull URI uri) {
-        List<String> domain = Arrays.asList(uri.getHost().split(Pattern.quote(DOT)));
-        Collections.reverse(domain);
-        return add(String.join(SLASH, domain));
-    }
-
-    // try to use only relative paths here
-    public ClasspathBuilder appendRelativePath(@Nonnull Path path) {
-        path.iterator().forEachRemaining(dir -> add(dir.getFileName().toString()));
-        return this;
-    }
-
-    // unsafe appenders:
-
-    // because sometimes you just don't have fancy data structures to work on
-    public ClasspathBuilder appendVerbatim(@Nonnull String s) {
-        sanitize(s).ifPresent(this::add);
-        return this;
     }
 
     // com.google.guava -> com/google/guava
     public ClasspathBuilder appendDotPath(@Nonnull String path) {
         return appendVerbatim(path.replace(DOT, SLASH));
+    }
+
+    // because sometimes you just don't have fancy data structures or patterns to work on
+    public ClasspathBuilder appendVerbatim(@Nonnull String s) {
+        return addCarefully(s);
+    }
+
+    private ClasspathBuilder addCarefully(@Nullable String part) {
+        String clean = sanitize(part);
+        if (clean != null) {
+            parts.add(clean);
+        }
+        return this;
     }
 
     /**
@@ -107,8 +71,15 @@ public class ClasspathBuilder {
             throw new IllegalStateException("specify path parts before building the path");
         }
 
-        String ext = extension == null ? "" : DOT + extension;
-        return String.join(SLASH, parts) + ext;
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            sb.append(part).append(SLASH);
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        if (extension != null) {
+            sb.append(DOT).append(extension);
+        }
+        return sb.toString();
     }
 
     /**
@@ -121,15 +92,11 @@ public class ClasspathBuilder {
             : parts.toString() + " + ." + extension;
     }
 
-    private ClasspathBuilder add(String s) {
-        parts.add(s);
-        return this;
-    }
-
-    private static Optional<String> sanitize(String path) {
+    @Nullable
+    private static String sanitize(String path) {
         // these do not add levels to a path, so ignore them
         if (path == null || path.isEmpty() || SLASH.equals(path)) {
-            return Optional.empty();
+            return null;
         }
 
         // filter out common beauty flaws like double slashes or whitespace edges
@@ -138,6 +105,6 @@ public class ClasspathBuilder {
             .filter(part -> !part.isEmpty())
             .collect(Collectors.joining(SLASH));
 
-        return Optional.of(sanitized);
+        return sanitized.isEmpty() ? null : sanitized;
     }
 }
