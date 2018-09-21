@@ -22,13 +22,13 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
@@ -58,8 +58,7 @@ abstract class ResultReturner {
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        QualifiedType qualifiedReturnType =
-            QualifiedType.of(returnType, Qualifiers.getQualifyingAnnotations(method));
+        QualifiedType qualifiedReturnType = QualifiedType.of(returnType, getQualifiers(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             return findConsumer(extensionType, method)
@@ -295,7 +294,7 @@ abstract class ResultReturner {
             this.consumerIndex = consumerIndex;
             elementType = QualifiedType.of(
                 method.getGenericParameterTypes()[consumerIndex],
-                Qualifiers.getQualifyingAnnotations(method.getParameters()[consumerIndex]));
+                getQualifiers(method.getParameters()[consumerIndex]));
         }
 
         @Override

@@ -32,7 +32,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -148,7 +148,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                         .ifPresent(index -> {
                             QualifiedType type = QualifiedType.of(
                                 field.getGenericType(),
-                                getQualifyingAnnotations(field));
+                                getQualifiers(field));
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((r, n, c) -> r.getObject(n));
                             mappers.add(new SingleColumnMapper<>(mapper, index + 1));

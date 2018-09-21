@@ -21,12 +21,12 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import javax.persistence.Column;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.jpa.EntityMemberAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class JpaMember {
     private static final Logger LOGGER = LoggerFactory.getLogger(JpaMember.class);
@@ -40,7 +40,7 @@ public class JpaMember {
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
-        this.qualifiedType = QualifiedType.of(field.getGenericType(), Qualifiers.getQualifyingAnnotations(field));
+        this.qualifiedType = QualifiedType.of(field.getGenericType(), getQualifiers(field));
         field.setAccessible(true);
         this.accessor = field::get;
         this.mutator = field::set;
@@ -56,7 +56,7 @@ public class JpaMember {
         setter.setAccessible(true);
 
         this.qualifiedType = QualifiedType.of(getter.getGenericReturnType(),
-            Qualifiers.getQualifyingAnnotations(getter, setter));
+            getQualifiers(getter, setter));
 
         this.accessor = getter::invoke;
         this.mutator = setter::invoke;

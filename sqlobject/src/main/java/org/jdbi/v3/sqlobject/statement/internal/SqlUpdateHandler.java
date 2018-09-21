@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Update;
@@ -42,7 +43,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         QualifiedType returnType = QualifiedType.of(
             GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType),
-            Qualifiers.getQualifyingAnnotations(method));
+            getQualifiers(method));
 
         if (isGetGeneratedKeys) {
             ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);

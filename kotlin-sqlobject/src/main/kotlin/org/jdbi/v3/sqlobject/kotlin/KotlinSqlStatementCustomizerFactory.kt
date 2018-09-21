@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.qualifier.QualifiedType
-import org.jdbi.v3.core.qualifier.Qualifiers
+import org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory
 import java.lang.reflect.Method
@@ -31,7 +31,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                                     paramIdx: Int,
                                     type: Type): SqlStatementParameterCustomizer {
 
-        val qualifiedType = QualifiedType.of(type, Qualifiers.getQualifyingAnnotations(parameter))
+        val qualifiedType = QualifiedType.of(type, getQualifiers(parameter))
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {

@@ -32,7 +32,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Inspect a {@link java.beans} style object and bind parameters
@@ -79,7 +79,7 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         Method getter = getGetter(name, descriptor, ctx);
 
         Type type = getter.getGenericReturnType();
-        Set<Annotation> qualifiers = getQualifyingAnnotations(getter, descriptor.getWriteMethod());
+        Set<Annotation> qualifiers = getQualifiers(getter, descriptor.getWriteMethod());
         Object value = invokeMethod(getter, ctx);
 
         return Optional.of(new TypedValue(type, qualifiers, value));

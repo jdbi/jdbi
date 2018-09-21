@@ -27,7 +27,7 @@ import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -63,7 +63,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         Type type = method.getGenericReturnType();
-        Set<Annotation> qualifiers = getQualifyingAnnotations(method);
+        Set<Annotation> qualifiers = getQualifiers(method);
         Object value = invokeMethod(method, ctx);
 
         return Optional.of(new TypedValue(type, qualifiers, value));

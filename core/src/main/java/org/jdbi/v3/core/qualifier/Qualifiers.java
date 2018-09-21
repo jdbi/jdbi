@@ -60,10 +60,10 @@ public class Qualifiers {
 
     /**
      * Returns the set of qualifying annotations on the given elements.
-     * @param elements the annotated element. Null elements are ignored.
+     * @param elements the annotated elements. Null elements are ignored.
      * @return the set of qualifying annotations on the given elements.
      */
-    public static Set<Annotation> getQualifyingAnnotations(AnnotatedElement... elements) {
+    public static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
         return Arrays.stream(elements)
             .filter(Objects::nonNull)
             .flatMap(element -> Stream.of(element.getAnnotations()))

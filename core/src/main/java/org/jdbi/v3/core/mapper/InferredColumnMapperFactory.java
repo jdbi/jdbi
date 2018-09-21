@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
         this.maps = QualifiedType.of(
             findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")),
-            getQualifyingAnnotations(mapper.getClass()));
+            getQualifiers(mapper.getClass()));
         this.mapper = mapper;
     }
 

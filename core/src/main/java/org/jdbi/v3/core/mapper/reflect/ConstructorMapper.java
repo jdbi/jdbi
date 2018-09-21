@@ -39,7 +39,7 @@ import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFo
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
@@ -223,7 +223,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     int colIndex = columnIndex.getAsInt();
                     final QualifiedType type = QualifiedType.of(
                         parameter.getParameterizedType(),
-                        getQualifyingAnnotations(parameter));
+                        getQualifiers(parameter));
                     mappers[i] = ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(

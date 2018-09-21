@@ -28,7 +28,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
@@ -64,7 +64,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
         try {
             Type type = field.getGenericType();
-            Set<Annotation> qualifiers = getQualifyingAnnotations(field);
+            Set<Annotation> qualifiers = getQualifiers(field);
             Object value = field.get(object);
 
             return Optional.of(new TypedValue(type, qualifiers, value));

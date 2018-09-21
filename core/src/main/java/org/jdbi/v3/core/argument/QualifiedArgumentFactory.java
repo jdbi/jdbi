@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 @FunctionalInterface
@@ -28,7 +29,7 @@ interface QualifiedArgumentFactory {
     Optional<Argument> build(QualifiedType type, Object value, ConfigRegistry config);
 
     static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
-        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        Set<Annotation> qualifiers = getQualifiers(factory.getClass());
         return (type, value, config) -> type.getQualifiers().equals(qualifiers)
             ? factory.build(type.getType(), value, config)
             : Optional.empty();

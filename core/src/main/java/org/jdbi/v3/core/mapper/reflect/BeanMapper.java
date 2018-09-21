@@ -40,7 +40,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifyingAnnotations;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -180,7 +180,7 @@ public class BeanMapper<T> implements RowMapper<T> {
                     .ifPresent(index -> {
                         QualifiedType type = QualifiedType.of(
                             propertyType(descriptor),
-                            getQualifyingAnnotations(getter, setter));
+                            getQualifiers(getter, setter));
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((r, n, c) -> r.getObject(n));
 

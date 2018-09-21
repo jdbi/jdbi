@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 @FunctionalInterface
@@ -28,7 +29,7 @@ interface QualifiedColumnMapperFactory {
     Optional<ColumnMapper<?>> build(QualifiedType type, ConfigRegistry config);
 
     static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {
-        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        Set<Annotation> qualifiers = getQualifiers(factory.getClass());
         return (type, config) -> type.getQualifiers().equals(qualifiers)
             ? factory.build(type.getType(), config)
             : Optional.empty();
