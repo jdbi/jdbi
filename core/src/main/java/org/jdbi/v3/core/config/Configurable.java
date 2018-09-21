@@ -26,6 +26,7 @@ import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -232,6 +233,17 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
+     * @param type the generic type to register
+     * @param mapper the mapper to use on that type
+     * @return this
+     */
+    default <T> This registerColumnMapper(GenericType<T> type, ColumnMapper<T> mapper) {
+        return configure(ColumnMappers.class, c -> c.register(type, mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     *
      * @param type the type to register
      * @param mapper the mapper to use on that type
      * @return this
@@ -291,6 +303,17 @@ public interface Configurable<This> {
      */
     default This registerRowMapper(RowMapper<?> mapper) {
         return configure(RowMappers.class, c -> c.register(mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     *
+     * @param type to match
+     * @param mapper row mapper
+     * @return this
+     */
+    default <T> This registerRowMapper(GenericType<T> type, RowMapper<T> mapper) {
+        return configure(RowMappers.class, c -> c.register(type, mapper));
     }
 
     /**

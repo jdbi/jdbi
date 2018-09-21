@@ -15,9 +15,11 @@ package org.jdbi.v3.core.mapper;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,6 +28,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -68,6 +71,18 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     /**
+     * Register a column mapper for a given explicit {@link GenericType}
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param type the generic type to match with equals.
+     * @param mapper the column mapper
+     * @return this
+     */
+    public <T> ColumnMappers register(GenericType<T> type, ColumnMapper<T> mapper) {
+        return this.register(ColumnMapperFactory.of(type.getType(), mapper));
+    }
+
+    /**
      * Register a column mapper for a given explicit {@link Type}
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
@@ -105,7 +120,8 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     private QualifiedColumnMapperFactory adaptToQualified(ColumnMapperFactory factory) {
-        return (type, config) -> type.getQualifiers().isEmpty()
+        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        return (type, config) -> type.getQualifiers().equals(qualifiers)
             ? factory.build(type.getType(), config)
             : Optional.empty();
     }

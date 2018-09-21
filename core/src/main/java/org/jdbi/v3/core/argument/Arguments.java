@@ -15,16 +15,19 @@ package org.jdbi.v3.core.argument;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -67,7 +70,8 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     private QualifiedArgumentFactory adaptToQualified(ArgumentFactory factory) {
-        return (type, value, config) -> type.getQualifiers().isEmpty()
+        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        return (type, value, config) -> type.getQualifiers().equals(qualifiers)
                 ? factory.build(type.getType(), value, config)
                 : Optional.empty();
     }
