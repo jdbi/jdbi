@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -178,9 +179,13 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
+                        Parameter setterParam = Optional.ofNullable(setter)
+                            .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
+                            .orElse(null);
+
                         QualifiedType type = QualifiedType.of(
                             propertyType(descriptor),
-                            getQualifiers(getter, setter));
+                            getQualifiers(getter, setter, setterParam));
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((r, n, c) -> r.getObject(n));
 

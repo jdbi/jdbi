@@ -17,6 +17,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import javax.persistence.Column;
@@ -52,11 +53,12 @@ public class JpaMember {
 
         Method getter = property.getReadMethod();
         Method setter = property.getWriteMethod();
+        Parameter setterParam = setter.getParameters()[0];
         getter.setAccessible(true);
         setter.setAccessible(true);
 
         this.qualifiedType = QualifiedType.of(getter.getGenericReturnType(),
-            getQualifiers(getter, setter));
+            getQualifiers(getter, setter, setterParam));
 
         this.accessor = getter::invoke;
         this.mutator = setter::invoke;
