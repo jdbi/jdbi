@@ -80,7 +80,7 @@ fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callbac
  * @return the set of qualifying annotations on the given elements.
  */
 @Beta
-fun getQualifyingAnnotations(vararg elements: KAnnotatedElement?): Set<Annotation> {
+fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> {
     return elements.filterNotNull()
         .flatMap { element -> element.annotations }
         .filter { anno -> anno.annotationClass.findAnnotation<Qualifier>() != null }

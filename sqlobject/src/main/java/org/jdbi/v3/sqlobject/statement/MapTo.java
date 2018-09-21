@@ -24,8 +24,9 @@ import org.jdbi.v3.sqlobject.statement.internal.MapToFactory;
 /**
  * Used to specify a polymorphic return type as a parameter on a query method.
  * The annotated parameter may be a {@link java.lang.reflect.Type} (including
- * {@link Class}), a {@link org.jdbi.v3.core.generic.GenericType}, or a
- * {@link org.jdbi.v3.core.qualifier.QualifiedType}.
+ * {@link Class}), or {@link org.jdbi.v3.core.generic.GenericType}.
+ * Support for {@link org.jdbi.v3.core.qualifier.QualifiedType} arguments is
+ * currently in beta.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

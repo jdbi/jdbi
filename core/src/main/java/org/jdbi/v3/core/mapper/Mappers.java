@@ -20,6 +20,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for obtaining row or column mappers.
@@ -102,6 +103,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      * @return a mapper for the given type, or empty if no row or column mapper
      * is registered for the given type.
      */
+    @Beta
     public Optional<RowMapper<?>> findFor(QualifiedType type) {
         if (type.getQualifiers().isEmpty()) {
             Optional<RowMapper<?>> result = rowMappers.findFor(type.getType());

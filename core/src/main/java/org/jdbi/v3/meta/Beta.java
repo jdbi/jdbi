@@ -25,13 +25,20 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
 
 /**
- * Signifies that a public API (public class, method or field) is subject to incompatible changes, or even removal, in a future release. An API bearing this annotation is exempt from any compatibility guarantees made by its containing library.
+ * Signifies that a public API (public class, method or field) is subject to incompatible changes,
+ * or even removal, in a future release. An API bearing this annotation is exempt from any
+ * compatibility guarantees made by its containing library.
  *
- * Note that the presence of this annotation implies nothing about the quality or performance of the API in question, only the fact that it is not "API-frozen."
+ * <p>Note that the presence of this annotation implies nothing about the quality or performance of
+ * the API in question, only the fact that it is not "API-frozen."
  *
- * It is generally safe for applications to depend on beta APIs, at the cost of some extra work during upgrades. However it is generally inadvisable for libraries (which get included on users' CLASSPATHs, outside the library developers' control) to do so.
+ * <p>It is generally safe for applications to depend on beta APIs, at the cost of some extra work
+ * during upgrades. However it is generally inadvisable for libraries (which get included on users'
+ * CLASSPATHs, outside the library developers' control) to do so.
  *
- * @see <a href="https://google.github.io/guava/releases/15.0/api/docs/com/google/common/annotations/Beta.html">Courtesy of Kevin Bourrillion's @Beta at Guava</a>
+ * @see <a
+ *     href="https://google.github.io/guava/releases/15.0/api/docs/com/google/common/annotations/Beta.html">Courtesy
+ *     of Kevin Bourrillion's @Beta at Guava</a>
  */
 @Documented
 @Inherited

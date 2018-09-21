@@ -25,6 +25,7 @@ import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -97,6 +98,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
+    @Beta
     @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(Class<T> type, Annotation... qualifiers) {
         return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
@@ -130,6 +132,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
+    @Beta
     @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(GenericType<T> type, Annotation... qualifiers) {
         return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
@@ -159,6 +162,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
+    @Beta
     default ResultIterable<?> mapTo(QualifiedType type) {
         return scanResultSet((supplier, ctx) -> {
             RowMapper<?> mapper = ctx.findMapperFor(type)
