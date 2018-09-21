@@ -15,11 +15,9 @@ package org.jdbi.v3.core.mapper;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,7 +26,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -116,26 +113,10 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return this
      */
     public ColumnMappers register(ColumnMapperFactory factory) {
-        return register(adaptToQualified(factory));
+        return register(QualifiedColumnMapperFactory.adapt(factory));
     }
 
-    private QualifiedColumnMapperFactory adaptToQualified(ColumnMapperFactory factory) {
-        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
-        return (type, config) -> type.getQualifiers().equals(qualifiers)
-            ? factory.build(type.getType(), config)
-            : Optional.empty();
-    }
-
-    /**
-     * Register a qualified column mapper factory.
-     * <p>
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param factory the column mapper factory
-     * @return this
-     */
-    @Beta
-    public ColumnMappers register(QualifiedColumnMapperFactory factory) {
+    private ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
         return this;

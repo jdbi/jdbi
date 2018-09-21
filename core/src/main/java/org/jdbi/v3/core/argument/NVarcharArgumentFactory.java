@@ -22,13 +22,14 @@ import org.jdbi.v3.meta.Beta;
  * Argument factory for {@code @NVarchar String} qualified type.
  */
 @Beta
-class NVarcharArgumentFactory extends AbstractQualifiedArgumentFactory<@NVarchar String> {
+@NVarchar
+class NVarcharArgumentFactory extends AbstractArgumentFactory<String> {
     NVarcharArgumentFactory() {
         super(Types.NVARCHAR);
     }
 
     @Override
-    protected Argument build(@NVarchar String value, ConfigRegistry config) {
+    protected Argument build(String value, ConfigRegistry config) {
         return (pos, stmt, ctx) -> stmt.setNString(pos, value);
     }
 }

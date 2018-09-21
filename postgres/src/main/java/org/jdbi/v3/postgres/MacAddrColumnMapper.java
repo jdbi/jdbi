@@ -23,7 +23,8 @@ import org.postgresql.util.PGobject;
 /**
  * Postgres column mapper for {@code @MacAddr String}.
  */
-class MacAddrColumnMapper implements ColumnMapper<@MacAddr String> {
+@MacAddr
+class MacAddrColumnMapper implements ColumnMapper<String> {
     @Override
     @SuppressWarnings("unchecked")
     public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {

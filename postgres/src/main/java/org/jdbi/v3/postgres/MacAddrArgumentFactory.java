@@ -15,7 +15,7 @@ package org.jdbi.v3.postgres;
 
 import java.sql.Types;
 
-import org.jdbi.v3.core.argument.AbstractQualifiedArgumentFactory;
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGobject;
@@ -23,7 +23,8 @@ import org.postgresql.util.PGobject;
 /**
  * Postgres argument factory for {@code @MacAddr String}.
  */
-class MacAddrArgumentFactory extends AbstractQualifiedArgumentFactory<@MacAddr String> {
+@MacAddr
+class MacAddrArgumentFactory extends AbstractArgumentFactory<String> {
     MacAddrArgumentFactory() {
         super(Types.OTHER);
     }

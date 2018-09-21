@@ -25,7 +25,7 @@ import org.jdbi.v3.meta.Beta;
  * Type qualifying annotation for {@code HSTORE} data type.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.TYPE_USE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Qualifier
 @Beta
 public @interface HStore {}

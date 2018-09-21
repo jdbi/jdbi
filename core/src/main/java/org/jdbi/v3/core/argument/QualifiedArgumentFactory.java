@@ -13,29 +13,24 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
 import java.util.Optional;
+import java.util.Set;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
-/**
- * Inspect a value with optional static type information and produce
- * an {@link Argument} that binds the value to a prepared statement.
- */
 @FunctionalInterface
 @Beta
-public interface QualifiedArgumentFactory {
-    /**
-     * Returns an {@link Argument} for the given value of the qualified type, if the factory supports it; empty otherwise.
-     *
-     * @param type  the qualified type of value. A qualified type consists of a type (whether Class or generic type) with
-     *              a set of qualifier objects.
-     * @param value the value to convert into an {@link Argument}
-     * @param config the config registry, for composition
-     * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see StatementContext#findArgumentFor(QualifiedType, Object)
-     * @see Arguments#findFor(QualifiedType, Object)
-     */
+interface QualifiedArgumentFactory {
     Optional<Argument> build(QualifiedType type, Object value, ConfigRegistry config);
+
+    static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
+        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        return (type, value, config) -> type.getQualifiers().equals(qualifiers)
+            ? factory.build(type.getType(), value, config)
+            : Optional.empty();
+    }
 }

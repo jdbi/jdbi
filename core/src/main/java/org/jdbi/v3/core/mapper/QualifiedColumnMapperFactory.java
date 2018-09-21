@@ -13,35 +13,27 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.annotation.Annotation;
 import java.util.Optional;
+import java.util.Set;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
-/**
- * Factory interface used to produce column mappers.
- */
 @FunctionalInterface
 @Beta
-public interface QualifiedColumnMapperFactory {
-    /**
-     * Supplies a column mapper which will map columns to type if the factory supports it; empty otherwise.
-     *
-     * @param type   the target type to map to
-     * @param config the config registry, for composition
-     * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see ColumnMappers for composition
-     */
+interface QualifiedColumnMapperFactory {
     Optional<ColumnMapper<?>> build(QualifiedType type, ConfigRegistry config);
 
-    /**
-     * Create a ColumnMapperFactory from a given {@link ColumnMapper} that
-     * matches a single Type exactly.
-     *
-     * @param type the type to match with equals.
-     * @param mapper the mapper to return
-     * @return the factory
-     */
+    static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {
+        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
+        return (type, config) -> type.getQualifiers().equals(qualifiers)
+            ? factory.build(type.getType(), config)
+            : Optional.empty();
+    }
+
     static QualifiedColumnMapperFactory of(QualifiedType type, ColumnMapper<?> mapper) {
         return (t, c) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
     }

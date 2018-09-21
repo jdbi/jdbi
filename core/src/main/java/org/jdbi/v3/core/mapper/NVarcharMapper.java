@@ -24,7 +24,8 @@ import org.jdbi.v3.meta.Beta;
  * Column mapper for Java {@code @NVarchar String} qualified type.
  */
 @Beta
-class NVarcharMapper implements ColumnMapper<@NVarchar String> {
+@NVarchar
+class NVarcharMapper implements ColumnMapper<String> {
     @Override
     public @NVarchar String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return r.getNString(columnNumber);

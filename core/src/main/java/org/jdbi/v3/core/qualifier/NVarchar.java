@@ -25,7 +25,7 @@ import org.jdbi.v3.meta.Beta;
  * {@code NVARCHAR} instead of a {@code VARCHAR}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.TYPE_USE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Qualifier
 @Beta
 public @interface NVarchar {}

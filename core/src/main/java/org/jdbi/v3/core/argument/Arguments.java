@@ -15,19 +15,16 @@ package org.jdbi.v3.core.argument;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -60,30 +57,16 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     /**
-     * Registers the given argument factory for unqualified types.
+     * Registers the given argument factory.
      * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
      * @param factory the factory to add
      * @return this
      */
     public Arguments register(ArgumentFactory factory) {
-        return register(adaptToQualified(factory));
+        return register(QualifiedArgumentFactory.adapt(factory));
     }
 
-    private QualifiedArgumentFactory adaptToQualified(ArgumentFactory factory) {
-        Set<Annotation> qualifiers = Qualifiers.getQualifyingAnnotations(factory.getClass());
-        return (type, value, config) -> type.getQualifiers().equals(qualifiers)
-                ? factory.build(type.getType(), value, config)
-                : Optional.empty();
-    }
-
-    /**
-     * Registers the given qualified argument factory.
-     * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
-     * @param factory the factory to add
-     * @return this
-     */
-    @Beta
-    public Arguments register(QualifiedArgumentFactory factory) {
+    private Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
         return this;
     }
