@@ -217,6 +217,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Obtain a mapper for the given qualified type in this context.
+     *
+     * @param type the target qualified type to map to
+     * @return a mapper for the given qualified type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    @Beta
+    public Optional<RowMapper<?>> findMapperFor(QualifiedType type) {
+        return getConfig(Mappers.class).findFor(type);
+    }
+
+    /**
      * Obtain a column mapper for the given type in this context.
      *
      * @param <T> the type to map

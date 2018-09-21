@@ -14,13 +14,14 @@
 package org.jdbi.v3.core.qualifier;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.meta.Beta;
@@ -100,15 +101,6 @@ public final class QualifiedType {
         return QualifiedType.of(type.getType(), qualifiers);
     }
 
-    /**
-     * Creates a QualifiedType from the given AnnotatedType.
-     * @param annotatedType the annotated type to inspect
-     * @return a QualifiedType from the AnnotatedType.
-     */
-    public static QualifiedType from(AnnotatedType annotatedType) {
-        return QualifiedType.of(annotatedType.getType(), Qualifiers.getQualifyingAnnotations(annotatedType));
-    }
-
     private QualifiedType(Type type, Set<Annotation> qualifiers) {
         this.type = type;
         this.qualifiers = qualifiers;
@@ -126,6 +118,18 @@ public final class QualifiedType {
      */
     public Set<Annotation> getQualifiers() {
         return qualifiers;
+    }
+
+    /**
+     * Apply the provided mapping function to the type, and if non-empty is returned,
+     * return an {@code Optional<QualifiedType>} with the returned type, and the same
+     * qualifiers as this instance.
+     *
+     * @param mapper a mapping function to apply to the type
+     * @return an optional qualified type with the mapped type and the same qualifiers
+     */
+    public Optional<QualifiedType> mapType(Function<Type, Optional<Type>> mapper) {
+        return mapper.apply(type).map(mappedType -> new QualifiedType(mappedType, qualifiers));
     }
 
     @Override

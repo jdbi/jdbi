@@ -21,6 +21,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -56,6 +58,8 @@ abstract class ResultReturner {
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
+        QualifiedType qualifiedReturnType =
+            QualifiedType.of(returnType, Qualifiers.getQualifyingAnnotations(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             return findConsumer(extensionType, method)
@@ -64,17 +68,17 @@ abstract class ResultReturner {
                     method.getDeclaringClass().getName(),
                     method.getName())));
         } else if (ResultIterable.class.equals(returnClass)) {
-            return new ResultIterableReturner(returnType);
+            return new ResultIterableReturner(qualifiedReturnType);
         } else if (Stream.class.equals(returnClass)) {
-            return new StreamReturner(returnType);
+            return new StreamReturner(qualifiedReturnType);
         } else if (ResultIterator.class.equals(returnClass)) {
-            return new ResultIteratorReturner(returnType);
+            return new ResultIteratorReturner(qualifiedReturnType);
         } else if (Iterator.class.equals(returnClass)) {
-            return new IteratorReturner(returnType);
+            return new IteratorReturner(qualifiedReturnType);
         } else if (method.isAnnotationPresent(SingleValue.class)) {
-            return new SingleValueReturner(returnType);
+            return new SingleValueReturner(qualifiedReturnType);
         } else {
-            return new CollectedResultReturner(returnType);
+            return new CollectedResultReturner(qualifiedReturnType);
         }
     }
 
@@ -97,10 +101,10 @@ abstract class ResultReturner {
     protected abstract Object mappedResult(ResultIterable<?> iterable, StatementContext ctx);
     protected abstract Object reducedResult(Stream<?> stream, StatementContext ctx);
 
-    protected abstract Type elementType(StatementContext ctx);
+    protected abstract QualifiedType elementType(StatementContext ctx);
 
-    private static Object checkResult(Object result, Type type) {
-        if (result == null && getErasedType(type).isPrimitive()) {
+    private static Object checkResult(Object result, QualifiedType type) {
+        if (result == null && getErasedType(type.getType()).isPrimitive()) {
             throw new IllegalStateException("SQL method returns primitive " + type + ", but statement returned no results");
         }
         return result;
@@ -119,18 +123,18 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return null;
         }
     }
 
     static class ResultIterableReturner extends ResultReturner {
 
-        private final Type elementType;
+        private final QualifiedType elementType;
 
-        ResultIterableReturner(Type returnType) {
+        ResultIterableReturner(QualifiedType returnType) {
             // extract T from Query<T>
-            elementType = GenericTypes.findGenericParameter(returnType, ResultIterable.class)
+            elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, ResultIterable.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
         }
@@ -146,16 +150,16 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return elementType;
         }
     }
 
     static class StreamReturner extends ResultReturner {
-        private final Type elementType;
+        private final QualifiedType elementType;
 
-        StreamReturner(Type returnType) {
-            elementType = GenericTypes.findGenericParameter(returnType, Stream.class)
+        StreamReturner(QualifiedType returnType) {
+            elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Stream.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect Stream<T> element type T in method return type " + returnType));
         }
@@ -171,16 +175,16 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return elementType;
         }
     }
 
     static class ResultIteratorReturner extends ResultReturner {
-        private final Type elementType;
+        private final QualifiedType elementType;
 
-        ResultIteratorReturner(Type returnType) {
-            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
+        ResultIteratorReturner(QualifiedType returnType) {
+            this.elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
         }
@@ -196,16 +200,16 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return elementType;
         }
     }
 
     static class IteratorReturner extends ResultReturner {
-        private final Type elementType;
+        private final QualifiedType elementType;
 
-        IteratorReturner(Type returnType) {
-            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
+        IteratorReturner(QualifiedType returnType) {
+            this.elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect Iterator<T> element type T in method return type " + returnType));
         }
@@ -221,15 +225,15 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return elementType;
         }
     }
 
     static class SingleValueReturner extends ResultReturner {
-        private final Type returnType;
+        private final QualifiedType returnType;
 
-        SingleValueReturner(Type returnType) {
+        SingleValueReturner(QualifiedType returnType) {
             this.returnType = returnType;
         }
 
@@ -244,22 +248,22 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return returnType;
         }
     }
 
     static class CollectedResultReturner extends ResultReturner {
-        private final Type returnType;
+        private final QualifiedType returnType;
 
-        CollectedResultReturner(Type returnType) {
+        CollectedResultReturner(QualifiedType returnType) {
             this.returnType = returnType;
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            Collector collector = ctx.findCollectorFor(returnType.getType()).orElse(null);
             if (collector != null) {
                 return iterable.collect(collector);
             }
@@ -268,7 +272,7 @@ abstract class ResultReturner {
 
         @Override
         protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
-            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            Collector collector = ctx.findCollectorFor(returnType.getType()).orElse(null);
             if (collector != null) {
                 return stream.collect(collector);
             }
@@ -276,19 +280,22 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.findElementTypeFor(returnType).orElse(returnType);
+            return returnType.mapType(type -> ctx.findElementTypeFor(type))
+                .orElse(returnType);
         }
     }
 
     static class ConsumerResultReturner extends ResultReturner {
         private final int consumerIndex;
-        private final Type elementType;
+        private final QualifiedType elementType;
 
         ConsumerResultReturner(Method method, int consumerIndex) {
             this.consumerIndex = consumerIndex;
-            elementType = method.getGenericParameterTypes()[consumerIndex];
+            elementType = QualifiedType.of(
+                method.getGenericParameterTypes()[consumerIndex],
+                Qualifiers.getQualifyingAnnotations(method.getParameters()[consumerIndex]));
         }
 
         @Override
@@ -310,7 +317,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected Type elementType(StatementContext ctx) {
+        protected QualifiedType elementType(StatementContext ctx) {
             return elementType;
         }
     }

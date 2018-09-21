@@ -6,15 +6,6 @@
     - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
     - Support for HSTORE columns, using the @HStore annotation
-  - Breaking changes
-    - The @HStore qualifying annotation is now required for Postgres HSTORE mappings
-      and bindings.
-      - BeanMapper, bindBean: annotate getter or setter method
-      - FieldMapper, bindFields: annotate field
-      - ConstructorMapper: annotate constructor parameter
-      - bindMethods: annotate accessor method
-      - SQL Object method parameters: annotate parameter
-      - SQL Object method return type: annotate method
 
 3.5.0
   - New API

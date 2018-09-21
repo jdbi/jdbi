@@ -13,18 +13,14 @@
  */
 package org.jdbi.v3.core.generic;
 
-import java.lang.reflect.AnnotatedParameterizedType;
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.generic.internal.TypeParameter;
 import org.jdbi.v3.core.generic.internal.TypeToken;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Utilities for working with generic types.

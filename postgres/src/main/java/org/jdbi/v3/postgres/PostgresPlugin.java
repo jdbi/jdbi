@@ -13,14 +13,11 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.jdbi.v3.postgres.PostgresQualifiers.hStore;
-
 import java.util.Map;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
@@ -84,31 +81,36 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
  */
 public class PostgresPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.registerArgument(new TypedEnumArgumentFactory());
-        db.registerArgument(new JavaTimeArgumentFactory());
-        db.registerArgument(new DurationArgumentFactory());
-        db.registerArgument(new PeriodArgumentFactory());
-        db.registerArgument(new InetArgumentFactory());
-        db.registerArgument(new HStoreArgumentFactory());
-        db.registerArgument(new MacAddrArgumentFactory());
-        db.registerArgument(new UUIDArgumentFactory());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(new TypedEnumArgumentFactory());
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
+        jdbi.registerArgument(new DurationArgumentFactory());
+        jdbi.registerArgument(new PeriodArgumentFactory());
+        jdbi.registerArgument(new InetArgumentFactory());
+        jdbi.registerArgument(new HStoreArgumentFactory());
+        jdbi.registerArgument(new MacAddrArgumentFactory());
+        jdbi.registerArgument(new UUIDArgumentFactory());
 
-        db.registerArrayType(int.class, "integer");
-        db.registerArrayType(Integer.class, "integer");
-        db.registerArrayType(long.class, "bigint");
-        db.registerArrayType(Long.class, "bigint");
-        db.registerArrayType(String.class, "varchar");
-        db.registerArrayType(UUID.class, "uuid");
-        db.registerArrayType(float.class, "real");
-        db.registerArrayType(Float.class, "real");
-        db.registerArrayType(double.class, "double precision");
-        db.registerArrayType(Double.class, "double precision");
+        jdbi.registerArrayType(int.class, "integer");
+        jdbi.registerArrayType(Integer.class, "integer");
+        jdbi.registerArrayType(long.class, "bigint");
+        jdbi.registerArrayType(Long.class, "bigint");
+        jdbi.registerArrayType(String.class, "varchar");
+        jdbi.registerArrayType(UUID.class, "uuid");
+        jdbi.registerArrayType(float.class, "real");
+        jdbi.registerArrayType(Float.class, "real");
+        jdbi.registerArrayType(double.class, "double precision");
+        jdbi.registerArrayType(Double.class, "double precision");
 
-        db.registerColumnMapper(new JavaTimeMapperFactory());
-        db.registerColumnMapper(new HStoreColumnMapper());
-        db.registerColumnMapper(new MacAddrColumnMapper());
-        db.registerColumnMapper(new DurationColumnMapperFactory());
-        db.registerColumnMapper(new PeriodColumnMapperFactory());
+        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
+
+        jdbi.registerColumnMapper(new HStoreColumnMapper());
+        jdbi.registerColumnMapper(new MacAddrColumnMapper());
+        jdbi.registerColumnMapper(new DurationColumnMapperFactory());
+        jdbi.registerColumnMapper(new PeriodColumnMapperFactory());
+
+        // legacy unqualified HSTORE
+        jdbi.registerArgument(new HStoreArgumentFactory()::build);
+        jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
     }
 }

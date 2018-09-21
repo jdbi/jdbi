@@ -19,6 +19,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -32,19 +33,21 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                                                               int index,
                                                               Type type) {
         return (stmt, arg) -> {
-            final Type typeArg;
-            if (arg instanceof GenericType) {
-                typeArg = ((GenericType<?>) arg).getType();
+            final QualifiedType mapTo;
+
+            if (arg instanceof QualifiedType) {
+                mapTo = (QualifiedType) arg;
+            } else if (arg instanceof GenericType) {
+                mapTo = QualifiedType.of(((GenericType<?>) arg).getType());
+            } else if (arg instanceof Type) {
+                mapTo = QualifiedType.of((Type) arg);
             } else {
-                if (arg instanceof Type) {
-                    typeArg = (Type) arg;
-                } else {
-                    throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
-                }
+                throw new UnsupportedOperationException("@MapTo must take a GenericType, QualifiedType, or Type, but got a " + arg.getClass().getName());
             }
+
             ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
             stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                    () -> returner.mappedResult(((ResultBearing) stmt).mapTo(typeArg), stmt.getContext()));
+                    () -> returner.mappedResult(((ResultBearing) stmt).mapTo(mapTo), stmt.getContext()));
         };
     }
 }
