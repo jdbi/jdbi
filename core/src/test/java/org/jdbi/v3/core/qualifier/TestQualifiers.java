@@ -14,18 +14,21 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
-import java.util.List;
-import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
+import org.jdbi.v3.core.qualifier.SampleQualifiers.Foo;
 import org.junit.Test;
 
 public class TestQualifiers {
     @Test
     @NVarchar
-    public void testNVarcharQualifierConstant() throws Exception {
-        NVarchar synthetic = nVarchar();
-        NVarchar real = getClass().getMethod("testNVarcharQualifierConstant").getAnnotation(NVarchar.class);
+    public void nVarchar() throws Exception {
+        NVarchar synthetic = Qualifiers.nVarchar();
+        NVarchar real = getClass()
+            .getMethod("nVarchar")
+            .getAnnotation(NVarchar.class);
 
         assertThat(real).isEqualTo(synthetic);
         assertThat(synthetic).isEqualTo(real);
@@ -34,20 +37,44 @@ public class TestQualifiers {
     }
 
     @Test
-    public void testQualifiedType() {
-        assertThat(QualifiedType.of(String.class, nVarchar()))
-            .isEqualTo(QualifiedType.of(String.class, nVarchar()))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, nVarchar()))
-            .hasToString("@org.jdbi.v3.core.qualifier.NVarchar() java.lang.String");
+    public void getQualifiers() throws Exception {
+        assertThat(foo(1))
+            .isEqualTo(foo(1))
+            .isNotEqualTo(foo(2));
 
-        assertThat(QualifiedType.of(int.class))
-            .isEqualTo(QualifiedType.of(int.class))
-            .hasSameHashCodeAs(QualifiedType.of(int.class))
-            .hasToString("int");
+        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredField("qualifiedField")))
+            .containsExactly(foo(1));
 
-        assertThat(QualifiedType.of(new GenericType<List<String>>() {}))
-            .isEqualTo(QualifiedType.of(new GenericType<List<String>>() {}))
-            .hasSameHashCodeAs(QualifiedType.of(new GenericType<List<String>>() {}))
-            .hasToString("java.util.List<java.lang.String>");
+        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredMethod("qualifiedMethod")))
+            .containsExactly(foo(2));
+
+        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredMethod("qualifiedParameter", String.class).getParameters()[0]))
+            .containsExactly(foo(3));
+
+        assertThat(Qualifiers.getQualifiers(QualifiedClass.class))
+            .containsExactly(foo(4));
+
+        assertThat(Qualifiers.getQualifiers(QualifiedClass.class.getDeclaredConstructor(String.class).getParameters()[0]))
+            .containsExactly(foo(5));
+
+        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredField("twoQualifiers")))
+            .containsExactlyInAnyOrder(foo(6), bar("six"));
     }
+
+    @Foo(1)
+    private String qualifiedField;
+
+    @Foo(2)
+    private void qualifiedMethod() {}
+
+    private void qualifiedParameter(@Foo(3) String param) {}
+
+    @Foo(4)
+    private static class QualifiedClass {
+        QualifiedClass(@Foo(5) String param) {}
+    }
+
+    @Foo(6)
+    @Bar("six")
+    private String twoQualifiers;
 }
