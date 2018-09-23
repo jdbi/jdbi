@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: r2dbc/r2dbc-client
+
+inputs:
+- name: r2dbc-client
+
+outputs:
+- name: r2dbc-client-artifactory
+
+caches:
+- path: maven
+- path: postgresql
+
+run:
+  path: r2dbc-client/ci/perm-patch.sh
+  args:
+  - r2dbc-client/ci/release.sh
