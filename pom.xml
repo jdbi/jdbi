@@ -40,8 +40,8 @@
         <postgresql-embedded.version>2.9</postgresql-embedded.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
-        <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
+        <r2dbc-spi.version>1.0.0.M4</r2dbc-spi.version>
+        <r2dbc-postgresql.version>1.0.0.M4</r2dbc-postgresql.version>
         <reactor.version>Californium-M1</reactor.version>
         <spring-boot.version>2.0.5.RELEASE</spring-boot.version>
     </properties>
