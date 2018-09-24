@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -35,27 +36,7 @@ public class Qualifiers {
      * Returns an {@link NVarchar} qualifying annotation instance.
      */
     public static NVarchar nVarchar() {
-        return new NVarchar() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return NVarchar.class;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return obj instanceof NVarchar;
-            }
-
-            @Override
-            public int hashCode() {
-                return 0;
-            }
-
-            @Override
-            public String toString() {
-                return "@org.jdbi.v3.core.qualifier.NVarchar()";
-            }
-        };
+        return AnnotationFactory.create(NVarchar.class);
     }
 
     /**

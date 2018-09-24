@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.annotation.Annotation;
-
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -28,53 +27,13 @@ public class PostgresQualifiers {
      * Returns an {@link HStore} qualifying annotation instance.
      */
     public static HStore hStore() {
-        return new HStore() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return HStore.class;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return obj instanceof HStore;
-            }
-
-            @Override
-            public int hashCode() {
-                return 0;
-            }
-
-            @Override
-            public String toString() {
-                return "@org.jdbi.v3.postgres.HStore()";
-            }
-        };
+        return AnnotationFactory.create(HStore.class);
     }
 
     /**
      * Returns a {@link MacAddr} qualifying annotation instance
      */
     public static MacAddr macAddr() {
-        return new MacAddr() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MacAddr.class;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return obj instanceof MacAddr;
-            }
-
-            @Override
-            public int hashCode() {
-                return 0;
-            }
-
-            @Override
-            public String toString() {
-                return "@org.jdbi.v3.postgres.MacAddr()";
-            }
-        };
+        return AnnotationFactory.create(MacAddr.class);
     }
 }
