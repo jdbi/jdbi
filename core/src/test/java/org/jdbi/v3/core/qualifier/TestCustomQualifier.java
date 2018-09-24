@@ -24,10 +24,12 @@ import java.sql.Types;
 import java.util.Optional;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -103,9 +105,41 @@ public class TestCustomQualifier {
     }
 
     @Test
+    public void configArgumentsRegister() {
+        dbRule.getJdbi()
+            .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
+            .useHandle(handle -> {
+                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                    .bindByType("name", "abc", QualifiedType.of(String.class, REVERSED))
+                    .execute();
+
+                assertThat(
+                    handle.select("SELECT name FROM something")
+                        .mapTo(String.class)
+                        .findOnly())
+                    .isEqualTo("cba");
+            });
+    }
+
+    @Test
     public void registerColumnMapper() {
         dbRule.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
+            .useHandle(handle -> {
+                handle.execute("insert into something (id, name) values (1, 'abc')");
+
+                assertThat(
+                    handle.select("SELECT name FROM something")
+                        .mapTo(String.class, REVERSED)
+                        .findOnly())
+                    .isEqualTo("cba");
+            });
+    }
+
+    @Test
+    public void configColumnMappersRegister() {
+        dbRule.getJdbi()
+            .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'abc')");
 
@@ -135,9 +169,41 @@ public class TestCustomQualifier {
     }
 
     @Test
+    public void configColumnMappersRegisterByQualifiedType() {
+        dbRule.getJdbi()
+            .configure(ColumnMappers.class, config -> config.register(
+                QualifiedType.of(String.class, REVERSED),
+                (r, c, ctx) -> reverse(r.getString(c))))
+            .useHandle(handle -> {
+                handle.execute("insert into something (id, name) values (1, 'abcdef')");
+
+                assertThat(
+                    handle.select("SELECT name FROM something")
+                        .mapTo(String.class, REVERSED)
+                        .findOnly())
+                    .isEqualTo("fedcba");
+            });
+    }
+
+    @Test
     public void registerColumnMapperFactory() {
         dbRule.getJdbi()
             .registerColumnMapper(new ReversedStringMapperFactory())
+            .useHandle(handle -> {
+                handle.execute("insert into something (id, name) values (1, 'xyz')");
+
+                assertThat(
+                    handle.select("SELECT name FROM something")
+                        .mapTo(String.class, REVERSED)
+                        .findOnly())
+                    .isEqualTo("zyx");
+            });
+    }
+
+    @Test
+    public void configColumnMappersRegisterFactory() {
+        dbRule.getJdbi()
+            .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory()))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'xyz')");
 
