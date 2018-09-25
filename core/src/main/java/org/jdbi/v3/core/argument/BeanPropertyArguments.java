@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
@@ -77,9 +78,13 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         Method getter = getGetter(name, descriptor, ctx);
+        Method setter = descriptor.getWriteMethod();
+        Parameter setterParam = Optional.ofNullable(setter)
+            .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
+            .orElse(null);
 
         Type type = getter.getGenericReturnType();
-        Set<Annotation> qualifiers = getQualifiers(getter, descriptor.getWriteMethod());
+        Set<Annotation> qualifiers = getQualifiers(getter, setter, setterParam);
         Object value = invokeMethod(getter, ctx);
 
         return Optional.of(new TypedValue(type, qualifiers, value));
