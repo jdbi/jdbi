@@ -51,10 +51,6 @@ public class TestCustomQualifier {
     @Qualifier
     @interface Reversed {}
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Qualifier
-    @interface UpperCase {}
-
     @Reversed
     static class ReversedStringArgumentFactory extends AbstractArgumentFactory<String> {
         ReversedStringArgumentFactory() {
@@ -83,48 +79,6 @@ public class TestCustomQualifier {
                 return Optional.of((rs, col, ctx) -> reverse(rs.getString(col)));
             }
             return Optional.empty();
-        }
-    }
-
-    @UpperCase
-    static class UpperCaseArgumentFactory extends AbstractArgumentFactory<String> {
-        UpperCaseArgumentFactory() {
-            super(Types.VARCHAR);
-        }
-
-        @Override
-        protected Argument build(String value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, value.toUpperCase());
-        }
-    }
-
-    @UpperCase
-    static class UpperCaseStringMapper implements ColumnMapper<String> {
-        @Override
-        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return r.getString(columnNumber).toUpperCase();
-        }
-    }
-
-    @Reversed
-    @UpperCase
-    static class ReversedUpperCaseStringArgumentFactory extends AbstractArgumentFactory<String> {
-        ReversedUpperCaseStringArgumentFactory() {
-            super(Types.VARCHAR);
-        }
-
-        @Override
-        protected Argument build(String value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value).toUpperCase());
-        }
-    }
-
-    @Reversed
-    @UpperCase
-    static class ReversedUpperCaseStringMapper implements ColumnMapper<String> {
-        @Override
-        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return reverse(r.getString(columnNumber)).toUpperCase();
         }
     }
 
@@ -706,10 +660,57 @@ public class TestCustomQualifier {
             });
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Qualifier
+    @interface UpperCase {}
+
+    @UpperCase
+    static class UpperCaseArgumentFactory extends AbstractArgumentFactory<String> {
+        UpperCaseArgumentFactory() {
+            super(Types.VARCHAR);
+        }
+
+        @Override
+        protected Argument build(String value, ConfigRegistry config) {
+            return (pos, stmt, ctx) -> stmt.setString(pos, value.toUpperCase());
+        }
+    }
+
+    @UpperCase
+    static class UpperCaseStringMapper implements ColumnMapper<String> {
+        @Override
+        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return r.getString(columnNumber).toUpperCase();
+        }
+    }
+
+    @Reversed
+    @UpperCase
+    static class ReversedUpperCaseStringArgumentFactory extends AbstractArgumentFactory<String> {
+        ReversedUpperCaseStringArgumentFactory() {
+            super(Types.VARCHAR);
+        }
+
+        @Override
+        protected Argument build(String value, ConfigRegistry config) {
+            return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value).toUpperCase());
+        }
+    }
+
+    @Reversed
+    @UpperCase
+    static class ReversedUpperCaseStringMapper implements ColumnMapper<String> {
+        @Override
+        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return reverse(r.getString(columnNumber)).toUpperCase();
+        }
+    }
+
     @Test
     public void bindMultipleQualifiers() {
         dbRule.getJdbi()
-            .registerArgument(new ReversedUpperCaseStringArgumentFactory()) // should use this one
+            // should use this one - register first so it's consulted last
+            .registerArgument(new ReversedUpperCaseStringArgumentFactory())
             .registerArgument(new ReversedStringArgumentFactory())
             .registerArgument(new UpperCaseArgumentFactory())
             .useHandle(handle -> {
@@ -727,7 +728,8 @@ public class TestCustomQualifier {
     @Test
     public void mapMultipleQualifiers() {
         dbRule.getJdbi()
-            .registerColumnMapper(new ReversedUpperCaseStringMapper()) // should use this one
+            // should use this one - register first so it's consulted last
+            .registerColumnMapper(new ReversedUpperCaseStringMapper())
             .registerColumnMapper(new ReversedStringMapper())
             .registerColumnMapper(new UpperCaseStringMapper())
             .useHandle(handle -> {
