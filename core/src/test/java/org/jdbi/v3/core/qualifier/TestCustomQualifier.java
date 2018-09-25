@@ -250,11 +250,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedGetterThing that = (QualifiedGetterThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -264,10 +268,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedGetterThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedGetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -332,11 +336,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedSetterThing that = (QualifiedSetterThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -346,10 +354,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedSetterThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedSetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -413,11 +421,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedSetterParamThing that = (QualifiedSetterParamThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -427,10 +439,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedSetterParamThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedSetterParamThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -485,11 +497,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedMethodThing that = (QualifiedMethodThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -499,10 +515,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedMethodThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedMethodThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -541,11 +557,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedConstructorParamThing that = (QualifiedConstructorParamThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -555,10 +575,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedConstructorParamThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedConstructorParamThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
@@ -608,11 +628,15 @@ public class TestCustomQualifier {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             QualifiedFieldThing that = (QualifiedFieldThing) o;
-            return id == that.id &&
-                Objects.equals(name, that.name);
+            return id == that.id
+                && Objects.equals(name, that.name);
         }
 
         @Override
@@ -622,10 +646,10 @@ public class TestCustomQualifier {
 
         @Override
         public String toString() {
-            return "QualifiedFieldThing{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            return "QualifiedFieldThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 
