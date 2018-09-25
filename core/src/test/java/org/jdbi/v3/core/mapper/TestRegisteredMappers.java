@@ -14,7 +14,10 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+import java.util.Calendar;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -45,5 +48,17 @@ public class TestRegisteredMappers {
         });
 
         assertThat(sam.getName()).isEqualTo("Sam");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void registerByGenericType() {
+        RowMapper<Iterable<Calendar>> mapper = mock(RowMapper.class);
+        GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
+
+        db.registerRowMapper(iterableOfCalendarType, mapper);
+
+        assertThat(db.getConfig(RowMappers.class).findFor(iterableOfCalendarType))
+            .contains(mapper);
     }
 }

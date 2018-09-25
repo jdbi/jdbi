@@ -15,9 +15,13 @@
 package org.jdbi.v3.sqlobject;
 
 import java.net.URI;
+import java.util.Calendar;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -30,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestColumnMappers {
     @Rule
@@ -292,5 +297,17 @@ public class TestColumnMappers {
 
         List<SomeBean> list = dao.listBeans();
         assertThat(list).extracting(SomeBean::getUri).hasSize(1).containsNull();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRegisterByGenericType() throws Exception {
+        ColumnMapper<Iterable<Calendar>> mapper = mock(ColumnMapper.class);
+        GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
+
+        h.registerColumnMapper(iterableOfCalendarType, mapper);
+
+        assertThat(h.getConfig(ColumnMappers.class).findFor(iterableOfCalendarType))
+            .contains(mapper);
     }
 }
