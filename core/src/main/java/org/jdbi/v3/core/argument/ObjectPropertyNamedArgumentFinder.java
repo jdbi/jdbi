@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +42,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     public final Optional<Argument> find(String name, StatementContext ctx) {
         if (name.startsWith(prefix)) {
             final String actualName = name.substring(prefix.length());
@@ -52,8 +54,20 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
                 String childName = actualName.substring(separator + 1);
 
                 return childArgumentFinders
-                    .computeIfAbsent(parentName, pn ->
-                        getValue(pn, ctx).map(v -> getNestedArgumentFinder(v.value)))
+                    .computeIfAbsent(parentName.endsWith("?") ? parentName.substring(0, parentName.length() - 1) : parentName, pn ->
+                        getValue(pn, ctx).map(v -> {
+                            if (Objects.nonNull(v.value)) {
+                                return getNestedArgumentFinder(v.value);
+                            }
+                            if (parentName.endsWith("?")) {
+                                return (n, c) -> Optional.of(c.getConfig(Arguments.class).getUntypedNullArgument());
+                            }
+                            throw new IllegalArgumentException(
+                                String.format("Trying to bind nested argument [%s], but found nullpointer at [%s], may mark it as an optional with [%s]",
+                                    childName,
+                                    parentName,
+                                    parentName + '?'));
+                        }))
                     .flatMap(arg -> arg.find(childName, ctx));
             }
 

@@ -122,4 +122,89 @@ public class TestBeanArguments {
         exception.expect(UnableToCreateStatementException.class);
         new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
     }
+
+    @Test
+    public void testBindNestedOptionalNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedOptionalNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        exception.expect(IllegalArgumentException.class);
+        new BeanPropertyArguments("", bean).find("foo.bar.id", ctx).get().apply(3, stmt, null);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull1() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        exception.expect(IllegalArgumentException.class);
+        new BeanPropertyArguments("", bean).find("foo.bar?.id", ctx).get().apply(3, stmt, null);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull2() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        exception.expect(IllegalArgumentException.class);
+        new BeanPropertyArguments("", bean).find("foo.bar.?id", ctx).get().apply(3, stmt, null);
+    }
+
+    @Test
+    public void testBindNestedOptionalNonNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return new Object() {
+                    public long getId() {
+                        return 69;
+                    }
+                };
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setLong(3, 69);
+    }
 }
