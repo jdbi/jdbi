@@ -16,7 +16,7 @@ package org.jdbi.v3.core.qualifier;
 public class Reverser {
     private Reverser() {}
 
-    static String reverse(String s) {
+    public static String reverse(String s) {
         StringBuilder b = new StringBuilder(s.length());
 
         for (int i = s.length() - 1; i >= 0; i--) {

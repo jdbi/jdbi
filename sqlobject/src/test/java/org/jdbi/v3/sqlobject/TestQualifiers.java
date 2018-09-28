@@ -13,16 +13,21 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedConstructorParamThing;
 import org.jdbi.v3.core.qualifier.QualifiedFieldThing;
 import org.jdbi.v3.core.qualifier.QualifiedGetterThing;
@@ -32,9 +37,11 @@ import org.jdbi.v3.core.qualifier.QualifiedSetterThing;
 import org.jdbi.v3.core.qualifier.Reversed;
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
 import org.jdbi.v3.core.qualifier.ReversedStringMapper;
+import org.jdbi.v3.core.qualifier.Reverser;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
@@ -310,5 +317,46 @@ public class TestQualifiers {
     public interface MapToDao {
         @SqlQuery("select * from something where id = :id")
         <T> T get(int id, @MapTo Class<T> mapTo);
+    }
+
+    @Test
+    public void singleValue() {
+        handle.execute("CREATE TABLE stuff (id INT, name VARCHAR)");
+        handle.execute("INSERT INTO stuff (id, name) VALUES (1, 'abc,123,xyz')");
+        handle.execute("INSERT INTO stuff (id, name) VALUES (2, 'foo,bar,baz')");
+
+        SingleValueDao singleValueDao = handle.attach(SingleValueDao.class);
+
+        assertThat(singleValueDao.multipleRows())
+            .containsExactly("zyx,321,cba", "zab,rab,oof");
+
+        assertThat(singleValueDao.singleRow())
+            .containsExactly("cba", "321", "zyx");
+    }
+
+    @Reversed
+    // split comma separated list and reverse each element
+    public static class ReversedListStringMapper implements ColumnMapper<List<String>> {
+        @Override
+        public List<String> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return Splitter.on(",")
+                .splitToList(r.getString(columnNumber))
+                .stream()
+                .map(Reverser::reverse)
+                .collect(toList());
+        }
+    }
+
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    @RegisterColumnMapper(ReversedListStringMapper.class)
+    public interface SingleValueDao {
+        @SqlQuery("select name from stuff order by id")
+        @Reversed
+        List<String> multipleRows();
+
+        @SqlQuery("select name from stuff order by id")
+        @Reversed
+        @SingleValue
+        List<String> singleRow();
     }
 }
