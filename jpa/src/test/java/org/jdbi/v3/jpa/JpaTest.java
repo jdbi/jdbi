@@ -13,24 +13,27 @@
  */
 package org.jdbi.v3.jpa;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-
-import org.assertj.core.api.AbstractListAssert;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
-import org.junit.Rule;
-import org.junit.Test;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.AbstractListAssert;
+import org.jdbi.v3.core.qualifier.Reversed;
+import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
+import org.jdbi.v3.core.qualifier.ReversedStringMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
@@ -644,6 +647,361 @@ public class JpaTest {
         List<OverridingSubclassThing> rs = dao.list();
 
         assertThatThing(rs).containsOnlyOnce(brian, keith);
+    }
+
+    @Test
+    public void qualifiedField() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedFieldDao dao = handle.attach(QualifiedFieldDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedFieldThing(1, "cba"));
+
+            dao.insert(new QualifiedFieldThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedFieldDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedFieldThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedFieldThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedFieldThing {
+        @Column
+        private int id;
+
+        @Reversed
+        @Column
+        private String name;
+
+        public QualifiedFieldThing() {}
+
+        public QualifiedFieldThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedFieldThing that = (QualifiedFieldThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedFieldThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedGetter() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedGetterDao dao = handle.attach(QualifiedGetterDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedGetterThing(1, "cba"));
+
+            dao.insert(new QualifiedGetterThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedGetterDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedGetterThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedGetterThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedGetterThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedGetterThing() {}
+
+        public QualifiedGetterThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Column
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Reversed
+        @Column
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedGetterThing that = (QualifiedGetterThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedGetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedSetter() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedSetterDao dao = handle.attach(QualifiedSetterDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedSetterThing(1, "cba"));
+
+            dao.insert(new QualifiedSetterThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedSetterDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedSetterThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedSetterThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedSetterThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedSetterThing() {}
+
+        public QualifiedSetterThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Reversed
+        @Column
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedSetterThing that = (QualifiedSetterThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedSetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedSetterParam() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedSetterParamDao dao = handle.attach(QualifiedSetterParamDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedSetterParamThing(1, "cba"));
+
+            dao.insert(new QualifiedSetterParamThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedSetterParamDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedSetterParamThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedSetterParamThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedSetterParamThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedSetterParamThing() {}
+
+        public QualifiedSetterParamThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column
+        public void setName(@Reversed String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedSetterParamThing that = (QualifiedSetterParamThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedSetterParamThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
     }
 
     private static <T extends Thing> AbstractListAssert<?, ? extends List<? extends T>, T, ?> assertThatThing(List<T> rs) {
