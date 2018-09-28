@@ -61,7 +61,7 @@ abstract class ResultReturner {
         QualifiedType qualifiedReturnType = QualifiedType.of(returnType, getQualifiers(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
-            return findConsumer(extensionType, method)
+            return findConsumer(method)
                 .orElseThrow(() -> new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
                     method.getDeclaringClass().getName(),
@@ -83,11 +83,10 @@ abstract class ResultReturner {
 
     /**
      * Inspect a Method for a {@link Consumer} to execute for each produced row.
-     * @param extensionType the extension that owns the method
      * @param method the method called
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
-    static Optional<ResultReturner> findConsumer(Class<?> extensionType, Method method) {
+    static Optional<ResultReturner> findConsumer(Method method) {
         final Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             if (paramTypes[i] == Consumer.class) {
@@ -292,8 +291,12 @@ abstract class ResultReturner {
 
         ConsumerResultReturner(Method method, int consumerIndex) {
             this.consumerIndex = consumerIndex;
-            elementType = QualifiedType.of(
-                method.getGenericParameterTypes()[consumerIndex],
+            Type parameterType = method.getGenericParameterTypes()[consumerIndex];
+            this.elementType = QualifiedType.of(
+                GenericTypes.findGenericParameter(parameterType, Consumer.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                        "Cannot reflect Consumer<T> element type T in method consumer parameter "
+                            + parameterType)),
                 getQualifiers(method.getParameters()[consumerIndex]));
         }
 

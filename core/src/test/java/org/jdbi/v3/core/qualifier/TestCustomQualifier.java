@@ -14,22 +14,19 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Objects;
-import java.util.Optional;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
@@ -46,51 +43,6 @@ public class TestCustomQualifier {
 
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Qualifier
-    @interface Reversed {}
-
-    @Reversed
-    static class ReversedStringArgumentFactory extends AbstractArgumentFactory<String> {
-        ReversedStringArgumentFactory() {
-            super(Types.VARCHAR);
-        }
-
-        @Override
-        protected Argument build(String value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value));
-        }
-    }
-
-    @Reversed
-    static class ReversedStringMapper implements ColumnMapper<String> {
-        @Override
-        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return reverse(r.getString(columnNumber));
-        }
-    }
-
-    @Reversed
-    static class ReversedStringMapperFactory implements ColumnMapperFactory {
-        @Override
-        public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-            if (String.class.equals(type)) {
-                return Optional.of((rs, col, ctx) -> reverse(rs.getString(col)));
-            }
-            return Optional.empty();
-        }
-    }
-
-    private static String reverse(String s) {
-        StringBuilder b = new StringBuilder(s.length());
-
-        for (int i = s.length() - 1; i >= 0; i--) {
-            b.append(s.charAt(i));
-        }
-
-        return b.toString();
-    }
 
     @Test
     public void registerArgumentFactory() {
@@ -220,61 +172,6 @@ public class TestCustomQualifier {
             });
     }
 
-    public static class QualifiedGetterThing {
-        private int id;
-        private String name;
-
-        public QualifiedGetterThing() {}
-
-        QualifiedGetterThing(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        @Reversed
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedGetterThing that = (QualifiedGetterThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedGetterThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
-    }
-
     @Test
     public void bindBeanQualifiedGetter() {
         dbRule.getJdbi()
@@ -304,61 +201,6 @@ public class TestCustomQualifier {
                     .findOnly())
                     .isEqualTo(new QualifiedGetterThing(1, "cba"));
             });
-    }
-
-    public static class QualifiedSetterThing {
-        private int id;
-        private String name;
-
-        public QualifiedSetterThing() {}
-
-        QualifiedSetterThing(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Reversed
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedSetterThing that = (QualifiedSetterThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedSetterThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
     }
 
     @Test
@@ -392,60 +234,6 @@ public class TestCustomQualifier {
             });
     }
 
-    public static class QualifiedSetterParamThing {
-        private int id;
-        private String name;
-
-        public QualifiedSetterParamThing() {}
-
-        QualifiedSetterParamThing(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(@Reversed String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedSetterParamThing that = (QualifiedSetterParamThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedSetterParamThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
-    }
-
     @Test
     public void bindBeanQualifiedSetterParam() {
         dbRule.getJdbi()
@@ -477,51 +265,6 @@ public class TestCustomQualifier {
             });
     }
 
-    public static class QualifiedMethodThing {
-        private final int id;
-        private final String name;
-
-        QualifiedMethodThing(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int id() {
-            return id;
-        }
-
-        @Reversed
-        public String name() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedMethodThing that = (QualifiedMethodThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedMethodThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
-    }
-
     @Test
     public void bindMethodsQualifiedMethod() {
         dbRule.getJdbi()
@@ -538,50 +281,6 @@ public class TestCustomQualifier {
             });
     }
 
-    public static class QualifiedConstructorParamThing {
-        private final int id;
-        private final String name;
-
-        public QualifiedConstructorParamThing(int id, @Reversed String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedConstructorParamThing that = (QualifiedConstructorParamThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedConstructorParamThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
-    }
-
     @Test
     public void mapConstructorQualifiedParam() {
         dbRule.getJdbi()
@@ -595,62 +294,6 @@ public class TestCustomQualifier {
                     .findOnly())
                     .isEqualTo(new QualifiedConstructorParamThing(1, "cba"));
             });
-    }
-
-    public static class QualifiedFieldThing {
-        public int id;
-
-        @Reversed
-        public String name;
-
-        public QualifiedFieldThing() {}
-
-        QualifiedFieldThing(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            QualifiedFieldThing that = (QualifiedFieldThing) o;
-            return id == that.id
-                && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "QualifiedFieldThing{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
     }
 
     @Test
