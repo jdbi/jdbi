@@ -29,6 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
@@ -70,7 +72,7 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         PropertyDescriptor descriptor = propertyDescriptors.get(name);
 
         if (descriptor == null) {
@@ -96,19 +98,19 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         if (getter == null) {
             throw new UnableToCreateStatementException(String.format("No getter method found for "
                     + "bean property [%s] on [%s]",
-                name, object), ctx);
+                name, obj), ctx);
         }
 
         return getter;
     }
 
     @Override
-    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
-        return new BeanPropertyArguments(null, obj);
+    protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
+        return new BeanPropertyArguments(null, o);
     }
 
     @Override
     public String toString() {
-        return "{lazy bean property arguments \"" + object + "\"";
+        return "{lazy bean property arguments \"" + obj + "\"";
     }
 }

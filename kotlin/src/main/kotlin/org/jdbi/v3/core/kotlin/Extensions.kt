@@ -19,6 +19,7 @@ import org.jdbi.v3.core.extension.ExtensionConsumer
 import org.jdbi.v3.core.qualifier.Qualifier
 import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
+import org.jdbi.v3.core.statement.SqlStatement
 import org.jdbi.v3.meta.Beta
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -38,6 +39,10 @@ inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit)
     this.iterator().use {
         block(it.asSequence())
     }
+}
+
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This {
+    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 }
 
 /**

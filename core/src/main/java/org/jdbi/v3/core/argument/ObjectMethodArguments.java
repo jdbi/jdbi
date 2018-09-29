@@ -25,6 +25,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
@@ -55,7 +57,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         Method method = methods.get(name);
 
         if (method == null) {
@@ -70,13 +72,13 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+    protected NamedArgumentFinder getNestedArgumentFinder(Object obj) {
         return new ObjectMethodArguments(null, obj);
     }
 
     @Override
     public String toString() {
-        return "{lazy object functions arguments \"" + object + "\"";
+        return "{lazy object functions arguments \"" + obj + "\"";
     }
 
     private static Method bridgeMethodMerge(Method a, Method b) {

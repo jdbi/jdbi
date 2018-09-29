@@ -43,44 +43,49 @@ public class TestBeanArguments {
 
     @Test
     public void testBindBare() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public BigDecimal getFoo() {
-                return BigDecimal.ONE;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(5, stmt, null);
+        new BeanPropertyArguments("", new Foo(BigDecimal.ONE))
+            .find("foo", ctx)
+            .get()
+            .apply(5, stmt, null);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
 
     @Test
     public void testBindNull() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public BigDecimal getFoo() {
-                return null;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("", new Foo(null))
+            .find("foo", ctx)
+            .get()
+            .apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.NUMERIC);
     }
 
+    public static class Foo {
+        private final BigDecimal foo;
+
+        Foo(BigDecimal foo) {
+            this.foo = foo;
+        }
+
+        public BigDecimal getFoo() {
+            return foo;
+        }
+    }
     @Test
     public void testBindPrefix() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public String getBar() {
-                return "baz";
-            }
-        };
-
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("foo", new Bar())
+            .find("foo.bar", ctx)
+            .get()
+            .apply(3, stmt, null);
 
         verify(stmt).setString(3, "baz");
+    }
+
+    public static class Bar {
+        public String getBar() {
+            return "baz";
+        }
     }
 
     @Test
