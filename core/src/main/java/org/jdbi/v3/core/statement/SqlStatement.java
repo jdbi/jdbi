@@ -1289,7 +1289,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         StringBuilder names = new StringBuilder();
         StatementContext ctx = getContext();
         for (int valueIndex = 0; valueIndex < values.size(); valueIndex++) {
-            if(valueIndex > 0) {
+            if (valueIndex > 0) {
                 names.append(',');
             }
 
