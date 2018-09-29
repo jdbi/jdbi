@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  *
  * <pre>
  * &#64;SqlQuery("insert into things (id, name) values &lt;items&gt;")
- * List&lt;Thing&gt; saveThings(@BindMethodsList(value = "items", methodNames = {"getId", "getName"}) ThingKey... thingKeys)
+ * List&lt;Thing&gt; saveThings(@BindMethodsList(value = "items", methodNames = {"getId", "getName"}) Thing... things)
  * </pre>
  * <p>
  * Throws IllegalArgumentException if the argument is not an array or Iterable.
