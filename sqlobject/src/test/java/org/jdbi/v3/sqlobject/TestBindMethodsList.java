@@ -80,15 +80,15 @@ public class TestBindMethodsList {
 
     public static class Thing {
         private int id;
-        private String foo_test;
-        private String bar_test;
-        private String baz_test;
+        private String fooTest;
+        private String barTest;
+        private String bazTest;
 
-        public Thing(int id, String foo_test, String bar_test, String baz_test) {
+        public Thing(int id, String fooTest, String barTest, String bazTest) {
             this.id = id;
-            this.foo_test = foo_test;
-            this.bar_test = bar_test;
-            this.baz_test = baz_test;
+            this.fooTest = fooTest;
+            this.barTest = barTest;
+            this.bazTest = bazTest;
         }
 
         public int getId() {
@@ -96,15 +96,15 @@ public class TestBindMethodsList {
         }
 
         public String getFoo() {
-            return foo_test;
+            return fooTest;
         }
 
         public String getBar() {
-            return bar_test;
+            return barTest;
         }
 
         public String getBaz() {
-            return baz_test;
+            return bazTest;
         }
     }
 }
