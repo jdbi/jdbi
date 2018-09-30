@@ -51,7 +51,7 @@
         <module>jodatime2</module>
         <module>jpa</module>
         <module>postgres</module>
-        <module>spring4</module>
+        <module>spring</module>
         <module>docs</module>
         <module>kotlin</module>
         <module>kotlin-sqlobject</module>
@@ -89,7 +89,7 @@
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.pmd.version>6.0.1</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
-        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
+        <dep.spring.version>5.0.9.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>1.8</project.build.targetJdk>
     </properties>
@@ -161,12 +161,16 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring4</artifactId>
+                <artifactId>jdbi3-spring</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>
                         <groupId>commons-logging</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jcl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

@@ -106,7 +106,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring4</artifactId>
+                <artifactId>jdbi3-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
