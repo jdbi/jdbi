@@ -20,81 +20,48 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.SocketUtils;
+import org.testcontainers.containers.PostgreSQLContainer;
 import reactor.util.annotation.Nullable;
-import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static ru.yandex.qatools.embed.postgresql.EmbeddedPostgres.cachedRuntimeConfig;
 
 final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-    private final Logger logger = LoggerFactory.getLogger("test.postgresql-server");
-
-    private final String database;
-
-    private final String host;
-
-    private final String password;
-
-    private final int port;
-
-    private final EmbeddedPostgres server;
-
-    private final String username;
+    private final PostgreSQLContainer<?> container = new PostgreSQLContainer<>();
 
     private HikariDataSource dataSource;
 
     private JdbcOperations jdbcOperations;
 
-    PostgresqlServerExtension() {
-        this.database = randomAlphanumeric(8);
-        this.host = "localhost";
-        this.password = randomAlphanumeric(16);
-        this.port = SocketUtils.findAvailableTcpPort();
-        this.username = randomAlphanumeric(16);
-
-        this.server = new EmbeddedPostgres(getDataDirectory(this.database));
-    }
-
     @Override
     public void afterAll(ExtensionContext context) {
-        this.logger.info("PostgreSQL server stopping");
         this.dataSource.close();
-        this.server.stop();
-        this.logger.info("PostgreSQL server stopped");
+        this.container.stop();
     }
 
     @Override
     public void beforeAll(ExtensionContext context) throws IOException {
-        this.logger.info("PostgreSQL server starting");
-        this.server.start(cachedRuntimeConfig(getCachePath()), this.host, this.port, this.database, this.username, this.password, Collections.emptyList());
+        this.container.start();
 
-        this.dataSource = this.server.getConnectionUrl()
-            .map(url -> DataSourceBuilder.create().type(HikariDataSource.class).url(url).build())
-            .orElseThrow(() -> new IllegalStateException("Unable to determine JDBC URI"));
+        this.dataSource = DataSourceBuilder.create()
+            .type(HikariDataSource.class)
+            .url(this.container.getJdbcUrl())
+            .username(this.container.getUsername())
+            .password(this.container.getPassword())
+            .build();
 
         this.jdbcOperations = new JdbcTemplate(this.dataSource);
-
-        this.logger.info("PostgreSQL server started");
     }
 
     String getDatabase() {
-        return this.database;
+        return this.container.getDatabaseName();
     }
 
     String getHost() {
-        return this.host;
+        return this.container.getContainerIpAddress();
     }
 
     @Nullable
@@ -103,23 +70,15 @@ final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCall
     }
 
     String getPassword() {
-        return this.password;
+        return this.container.getPassword();
     }
 
     int getPort() {
-        return this.port;
+        return this.container.getMappedPort(5432);
     }
 
     String getUsername() {
-        return this.username;
-    }
-
-    private static Path getCachePath() {
-        return Paths.get(System.getProperty("java.io.tmpdir"), "pgembed");
-    }
-
-    private static String getDataDirectory(String database) {
-        return String.format("target/postgresql/data/%s", database);
+        return this.container.getUsername();
     }
 
 }
