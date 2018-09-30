@@ -161,8 +161,8 @@ jdbi3-oracle12::
     Support Oracle returning DML statements.
 jdbi3-postgres::
     Support for most data types supported by Postgres driver.
-jdbi3-spring4::
-    Provides a factory bean to set up Jdbi singleton.
+jdbi3-spring::
+    Provides a factory bean to set up Jdbi singleton. Integration with Springs transactions
 jdbi3-stringtemplate4::
     Use the StringTemplate4 template engine, instead of JDBI's built in engine.
 jdbi3-vavr::
@@ -3836,8 +3836,8 @@ public interface UserDao {
 
 === Spring
 
-This module provides `JdbiFactoryBean`, a factory bean which sets up a `Jdbi`
-singleton.
+This plugin Provides a factory bean to set up a Jdbi singleton for convenience and
+integrates with Springs transactions.
 
 To use this module, add a Maven dependency:
 
@@ -3845,116 +3845,134 @@ To use this module, add a Maven dependency:
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-spring4</artifactId>
+  <artifactId>jdbi3-spring</artifactId>
 </dependency>
 ----
 
-Then configure the Jdbi factory bean in your Spring container, e.g.:
+==== Transactions
+
+When using Jdbi with Spring you most likely want support for Springs transaction
+management system.
+
+It should be noted, that you need not install any plugin if you
+don't want to introduce dependencies in your system,
+since there is an out-of-the-box support for transactions via
+`org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy`.
+
+However, this approach has potential drawbacks since Jdbi does not know about Spring
+and vice versa. It is possible for the underlying connection of a `Handle` to
+behave differently than expected or even be closed.
+
+This is why this plugin introduces APIs to avoid relying on `TransactionAwareDataSourceProxy`.
+If you are familiar with Spring you will notice the similarities to its existing APIs.
+That is - there is a low-level way of doing things via `JdbiUtil` or a high-level one
+via `JdbiTemplate`/`JdbiOperations`
+
+[CAUTION]
+As of now the high-level APIs are considered `@Beta` and marked as such.
+
+[TIP]
+Since the high-level approach follows the exact same signatures
+of `Jdbi` itself, you could easily
+replace your injected Jdbi dependency, if you decide to use "plain" `Jdbi`
+
+===== JdbiUtil
+
+Similar to Springs `DataSourceUtils` you can use the `JdbiUtil` static methods to
+manage (obtain and close) a handle by yourself
+
+[source,java]
+----
+Handle h =  JdbiUtil.getHandle(jdbi);
+try {
+    ...
+} finally {
+    JdbiUtil.closeIfNeeded(h);
+}
+----
+
+Since you probably don't want to manage the `Handle` yourself it is preferred to
+use a much more jdbi-ish and spring-ish way:
+
+===== JdbiTemplate
+
+Have a `JdbiTemplate` or `JdbiOperations` instance injected by your spring container
+and use Jdbi the way god intended. Here is how in Java config:
+
+[source,java]
+----
+@Configuration
+@EnableTransactionManagement
+public class Config {
+
+    ...
+    @Bean
+    public PlatformTransactionManager transactionManager(Jdbi jdbi) {
+        return new JdbiTransactionManager(jdbi); // <1>
+    }
+
+    @Bean
+    public JdbiOperations jdbiOperations(Jdbi jdbi) {
+        return new JdbiTemplate(jdbi); // <2>
+    }
+    ...
+
+}
+----
+<1> Set up a transaction manager. Note that this is a `JdbiTransactionManager`
+<2> Create a factory method for your `JdbiTemplate` bean. Use the `JdbiOperations`
+abstraction if you prefer.
+
+That's great - but where does the `Jdbi` bean come from?
+
+==== JdbiFactoryBean
+
+Well - either you set up a bean of type `Jdbi` yourself or
+you could use the `JdbiFactoryBean` provided by this plugin. Lets see how:
+
+[source,java]
+----
+@Bean
+public JdbiFactoryBean jdbi(DataSource dataSource) {
+    return new JdbiFactoryBean(dataSource);
+}
+----
+
+Easy, right? Now why would you do that and not set up `Jdbi` directly?
+There are 3 compelling reasons:
+
+1. Auto installation of `JdbiPlugin` beans
+2. Auto registration of `@Component`s (beans) that implement `RowMapper<T>` and
+`ColumnMapper<T>` interfaces
+3. Possibility to make global defines and plugin auto detection configurable in spring
+
+The latter are especially useful if you use xml config. E.g.
 
 [source,xml]
 ----
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
-       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
-
-  <!--1-->
-  <bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="url" value="jdbc:h2:mem:testing"/>
-  </bean>
-
-  <!--2-->
-  <bean id="transactionManager"
-    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <property name="dataSource" ref="db"/>
-  </bean>
-  <tx:annotation-driven transaction-manager="transactionManager"/>
-
-  <!--3-->
-  <bean id="jdbi"
-    class="org.jdbi.v3.spring4.JdbiFactoryBean">
-    <property name="dataSource" ref="db"/>
-  </bean>
-
-  <!--4-->
-  <bean id="service"
-    class="com.example.service.MyService">
-    <constructor-arg ref="jdbi"/>
-  </bean>
-</beans>
-----
-
-<1> The SQL data source that Jdbi will connect to. In this example we use an H2
-    database, but it can be any JDBC-compatible database.
-<2> Enable configuration of transactions via annotations.
-<3> Configure `JdbiFactoryBean` using the data source configured earlier.
-<4> Inject `Jdbi` into a service class. Alternatively, use standard JSR-330
-    `@Inject` annotations on the target class instead of configuring it in
-    your `beans.xml`.
-
-==== Installing plugins
-
-Plugins may be automatically installed by scanning the classpath for
-link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
-
-[source,xml]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
   ...
   <property name="autoInstallPlugins" value="true"/>
-</bean>
-----
-
-Plugins may also be installed explicitly:
-
-[source,xml]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
   ...
-  <property name="plugins">
-    <list>
-      <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
-      <bean class="org.jdbi.v3.guava.GuavaPlugin"/>
-    </list>
-  </property>
-</bean>
-----
-
-Not all plugins are automatically installable. In these situations, you can
-auto-install some plugins and manually install the rest:
-
-[source,xml]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
-  ...
-  <property name="autoInstallPlugins" value="true"/>
-  <property name="plugins">
-    <list>
-      <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
-    </list>
-  </property>
-</bean>
-----
-
-==== Global Attributes
-
-Global defined attributes may be configured on the factory bean:
-
-[source,xml]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
-  <property name="dataSource" ref="db"/>
   <property name="globalDefines">
-    <map>
-      <entry key="foo" value="bar"/>
-    </map>
-  </property>
+  <map>
+    <entry key="foo" value="bar"/>
+  </map>
+</property>
+  ...
 </bean>
 ----
+
+[TIP]
+`autoInstallPlugins` and auto installation of the first mentioned point
+are not the same.
+The former installs everything available on the classpath via service loader
+and the latter requires plugins to be a Spring `@Bean`.
+
+[CAUTION]
+The auto registration of mappers does not work if you directly expose
+lambdas as `@Beans`. In this case Jdbi is unable to get the mapped type right.
+So make sure you use classes implementing the respective interfaces.
 
 === SQLite
 The *jdbi3-sqlite* plugin provides support for using the
