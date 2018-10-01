@@ -16,6 +16,7 @@ package org.jdbi.v3.core.kotlin
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.extension.ExtensionCallback
 import org.jdbi.v3.core.extension.ExtensionConsumer
+import org.jdbi.v3.core.kotlin.internal.KotlinPropertyArguments
 import org.jdbi.v3.core.qualifier.Qualifier
 import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
@@ -41,6 +42,12 @@ inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit)
     }
 }
 
+@Beta
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj: Any): This {
+    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, name))
+}
+
+@Beta
 fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This {
     return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 }

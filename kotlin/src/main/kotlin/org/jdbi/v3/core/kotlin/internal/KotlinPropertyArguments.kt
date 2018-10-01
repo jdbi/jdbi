@@ -12,11 +12,12 @@
  * limitations under the License.
  */
 
-package org.jdbi.v3.core.kotlin
+package org.jdbi.v3.core.kotlin.internal
 
 import org.jdbi.v3.core.argument.NamedArgumentFinder
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder
 import org.jdbi.v3.core.argument.internal.TypedValue
+import org.jdbi.v3.core.kotlin.getQualifiers
 import org.jdbi.v3.core.statement.StatementContext
 import java.util.*
 import kotlin.reflect.KClass
@@ -26,8 +27,8 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
 
-internal class KotlinPropertyArguments(obj: Any,
-                                       prefix: String = "") : ObjectPropertyNamedArgumentFinder(prefix, obj) {
+class KotlinPropertyArguments(obj: Any,
+                              prefix: String = "") : ObjectPropertyNamedArgumentFinder(prefix, obj) {
 
     private val kClass: KClass<*> = obj.javaClass.kotlin
     private val properties = kClass.memberProperties

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
+import org.jdbi.v3.core.kotlin.internal.KotlinPropertyArguments
 import org.jdbi.v3.core.qualifier.QualifiedType
 import org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer
@@ -46,12 +47,13 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
 
         return SqlStatementParameterCustomizer { stmt, arg ->
             val maybeArgument = stmt.getContext().findArgumentFor(qualifiedType, arg)
-            if (!maybeArgument.isPresent) {
-                stmt.bindBean(bindName, arg)
-            } else {
+            if (maybeArgument.isPresent) {
                 val argument = maybeArgument.get()
                 stmt.bind(bindName, argument)
                 stmt.bind(paramIdx, argument)
+            } else {
+                // would prefer stmt.bindKotlin() but type checker doesn't like that stmt is wildcard
+                stmt.bindNamedArgumentFinder(KotlinPropertyArguments(arg, bindName))
             }
         }
     }

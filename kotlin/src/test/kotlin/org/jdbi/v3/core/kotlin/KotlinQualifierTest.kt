@@ -69,4 +69,55 @@ class KotlinQualifierTest {
     data class DataClassQualifiedConstructorParam(val id: Int,
                                                   @Reversed val name: String)
 
+    @Test
+    fun bindDataClassWithQualifiedLateInitProperty() {
+        handle.createUpdate("insert into something (id, name) values (:id, :name)")
+            .bindKotlin(DataClassQualifiedLateInitProperty(1).also { it.name = "abc" })
+            .execute()
+
+        assertThat(handle.select("select name from something")
+            .mapTo<String>()
+            .findOnly())
+            .isEqualTo("cba")
+    }
+
+    @Test
+    fun mapDataClassWithQualifiedLateInitProperty() {
+        handle.execute("insert into something (id, name) values (1, 'abc')")
+
+        assertThat(handle.select("select * from something")
+            .mapTo<DataClassQualifiedLateInitProperty>()
+            .findOnly())
+            .isEqualTo(DataClassQualifiedLateInitProperty(1).also { it.name = "cba" })
+    }
+
+    data class DataClassQualifiedLateInitProperty(val id:Int) {
+        @Reversed lateinit var name: String
+    }
+
+    @Test
+    fun bindDataClassWithQualifiedVarProperty() {
+        handle.createUpdate("insert into something (id, name) values (:id, :name)")
+            .bindKotlin(DataClassQualifiedVarProperty(1).also { it.name = "abc" })
+            .execute()
+
+        assertThat(handle.select("select name from something")
+            .mapTo<String>()
+            .findOnly())
+            .isEqualTo("cba")
+    }
+
+    @Test
+    fun mapDataClassWithQualifiedVarProperty() {
+        handle.execute("insert into something (id, name) values (1, 'abc')")
+
+        assertThat(handle.select("select * from something")
+            .mapTo<DataClassQualifiedVarProperty>()
+            .findOnly())
+            .isEqualTo(DataClassQualifiedVarProperty(1).also { it.name = "cba" })
+    }
+
+    data class DataClassQualifiedVarProperty(val id:Int) {
+        @Reversed var name: String? = null
+    }
 }
