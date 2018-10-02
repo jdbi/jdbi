@@ -22,7 +22,7 @@ import org.junit.Test;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptionalArgumentH2 {
     @Rule
@@ -37,12 +37,8 @@ public class TestOptionalArgumentH2 {
 
     @Test
     public void testNotOptional() {
-        try {
-            insert("value.text", getTestBeanEmpty());
-            fail("Shouldn't be reached");
-        } catch (IllegalArgumentException ex) {
-            assertThat(select().isPresent()).isFalse();
-        }
+        assertThatThrownBy(() -> insert("value.text", getTestBeanEmpty())).isInstanceOf(IllegalArgumentException.class);
+        assertThat(select().isPresent()).isFalse();
     }
 
     @Test

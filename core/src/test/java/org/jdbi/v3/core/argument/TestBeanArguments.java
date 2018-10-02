@@ -13,28 +13,25 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.mockito.Mockito.verify;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 
 public class TestBeanArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Mock
     PreparedStatement stmt;
@@ -92,19 +89,20 @@ public class TestBeanArguments {
             }
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testBindNoGetter() throws Exception {
         Object bean = new Object() {
             @SuppressWarnings("unused")
-            public void setBar(String bar) {}
+            public void setBar(String bar) {
+            }
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -116,11 +114,12 @@ public class TestBeanArguments {
             }
 
             @SuppressWarnings("unused")
-            public void setBar(String bar) {}
+            public void setBar(String bar) {
+            }
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -160,8 +159,8 @@ public class TestBeanArguments {
             }
         };
 
-        exception.expect(IllegalArgumentException.class);
-        new BeanPropertyArguments("", bean).find("foo.bar.id", ctx).get().apply(3, stmt, null);
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -173,8 +172,8 @@ public class TestBeanArguments {
             }
         };
 
-        exception.expect(IllegalArgumentException.class);
-        new BeanPropertyArguments("", bean).find("foo.bar?.id", ctx).get().apply(3, stmt, null);
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar?.id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -186,8 +185,8 @@ public class TestBeanArguments {
             }
         };
 
-        exception.expect(IllegalArgumentException.class);
-        new BeanPropertyArguments("", bean).find("foo.bar.?id", ctx).get().apply(3, stmt, null);
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.?id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
