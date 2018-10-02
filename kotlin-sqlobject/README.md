@@ -23,7 +23,7 @@ An example from the test class:
                      val nullableDefaultedNotNull: String? = "not null",
                      val defaulted: String = "default value")
 
-    interface ThingDao {
+    interface ThingDao : SqlObject {
         @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
         fun insert(something: Thing)
 

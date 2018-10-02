@@ -18,6 +18,7 @@
       nested mappings when no columns start with the nested prefix.
   - Improvements
     - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
+    - Use MethodHandles over Reflection to additionally do less exception wrapping / transformation
     - Skip unused string formatting for performance
     - Spring FactoryBean better singleton support
     - KotlinMapper respects constructor annotations, lateinit improvements
@@ -31,8 +32,10 @@
     - jdbi3-testing artifact has pg dependencies marked as optional, in case you e.g. only want h2
       or oracle
     - LocalTransactionHandler: rollback on thrown Throwable
+    - test on openjdk11
 
 3.4.0
+    [ NOTE: this release's git tags are missing due to maintainer error! ]
   - New API
     - StatementException.getShortMessage
     - SqlStatements.setQueryTimeout(int) to configure the JDBC Statement queryTimeout.

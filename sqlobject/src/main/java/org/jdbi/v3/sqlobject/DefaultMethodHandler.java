@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.Throwables;
 
 import static java.util.Collections.synchronizedMap;
 
@@ -96,14 +97,11 @@ class DefaultMethodHandler implements Handler {
     }
 
     @Override
-    @SuppressWarnings("PMD.AvoidRethrowingException")
     public Object invoke(Object target, Object[] args, HandleSupplier handle) {
         try {
             return methodHandle.bindTo(target).invokeWithArguments(args);
-        } catch (RuntimeException | Error e) {
-            throw e;
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
+        } catch (Throwable t) {
+            throw Throwables.sneakyThrow(t);
         }
     }
 }
