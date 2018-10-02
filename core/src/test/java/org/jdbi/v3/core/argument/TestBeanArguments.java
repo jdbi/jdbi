@@ -81,7 +81,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindIllegalAccess() throws Exception {
+    public void testBindIllegalAccess() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public String getBar() throws IllegalAccessException {
@@ -94,11 +94,10 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindNoGetter() throws Exception {
+    public void testBindNoGetter() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
@@ -106,7 +105,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindNonPublicGetter() throws Exception {
+    public void testBindNonPublicGetter() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             protected String getBar() {
@@ -114,8 +113,7 @@ public class TestBeanArguments {
             }
 
             @SuppressWarnings("unused")
-            public void setBar(String bar) {
-            }
+            public void setBar(String bar) {}
         };
 
         assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
@@ -151,7 +149,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindNestedNestedNull() throws Exception {
+    public void testBindNestedNestedNull() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public Object getFoo() {
@@ -164,7 +162,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindNestedNestedWrongOptionalNull1() throws Exception {
+    public void testBindNestedNestedWrongOptionalNull1() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public Object getFoo() {
@@ -177,7 +175,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindNestedNestedWrongOptionalNull2() throws Exception {
+    public void testBindNestedNestedWrongOptionalNull2() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public Object getFoo() {
