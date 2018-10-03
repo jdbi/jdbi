@@ -307,6 +307,10 @@
                     <groupId>org.jdbi</groupId>
                     <artifactId>jdbi3-oracle12</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>com.oracle.jdbc</groupId>
+                    <artifactId>oraclepki</artifactId>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
