@@ -1268,6 +1268,54 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
+     * @param key attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value
+     * @param methodNames list of methods that will be invoked on the values
+     * @return this
+     * @throws IllegalArgumentException if the list of values or properties is empty.
+     * @throws UnableToCreateStatementException if the method cannot be found
+     */
+    public final This bindMethodsList(String key, List<?> values, List<String> methodNames) throws UnableToCreateStatementException {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        if (methodNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        StringBuilder names = new StringBuilder();
+        StatementContext ctx = getContext();
+        for (int valueIndex = 0; valueIndex < values.size(); valueIndex++) {
+            if (valueIndex > 0) {
+                names.append(',');
+            }
+
+            Object bean = values.get(valueIndex);
+            ObjectMethodArguments beanMethods = new ObjectMethodArguments(null, bean);
+
+            names.append("(");
+            for (int methodIndex = 0; methodIndex < methodNames.size(); methodIndex++) {
+                if (methodIndex > 0) {
+                    names.append(",");
+                }
+
+                String methodName = methodNames.get(methodIndex);
+                String name = key + valueIndex + "." + methodName;
+                names.append(":").append(name);
+                Argument argument = beanMethods.find(methodName, ctx)
+                    .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + methodName + " argument for " + bean, ctx));
+                bind(name, argument);
+            }
+            names.append(")");
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
      * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
      * <p>
      * Examples:
