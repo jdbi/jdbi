@@ -13,28 +13,25 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.mockito.Mockito.verify;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 
 public class TestBeanArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Mock
     PreparedStatement stmt;
@@ -84,7 +81,7 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindIllegalAccess() throws Exception {
+    public void testBindIllegalAccess() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public String getBar() throws IllegalAccessException {
@@ -92,23 +89,23 @@ public class TestBeanArguments {
             }
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testBindNoGetter() throws Exception {
+    public void testBindNoGetter() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             public void setBar(String bar) {}
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testBindNonPublicGetter() throws Exception {
+    public void testBindNonPublicGetter() {
         Object bean = new Object() {
             @SuppressWarnings("unused")
             protected String getBar() {
@@ -119,7 +116,92 @@ public class TestBeanArguments {
             public void setBar(String bar) {}
         };
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
+    public void testBindNestedOptionalNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedOptionalNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedNull() {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull1() {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar?.id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull2() {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return null;
+            }
+        };
+
+        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.?id", ctx).get().apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedOptionalNonNull() throws Exception {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public Object getFoo() {
+                return new Object() {
+                    public long getId() {
+                        return 69;
+                    }
+                };
+            }
+        };
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setLong(3, 69);
     }
 }
