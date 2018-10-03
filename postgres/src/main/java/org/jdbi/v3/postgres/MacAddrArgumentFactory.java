@@ -31,10 +31,11 @@ class MacAddrArgumentFactory extends AbstractArgumentFactory<String> {
 
     @Override
     protected Argument build(String value, ConfigRegistry config) {
-        return (i, p, cx) -> {
+        return (pos, stmt, ctx) -> {
             PGobject obj = new PGobject();
             obj.setType("macaddr");
             obj.setValue(value);
+            stmt.setObject(pos, obj);
         };
     }
 }
