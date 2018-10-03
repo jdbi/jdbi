@@ -44,7 +44,7 @@ public final class BindMethodsListFactory implements SqlStatementCustomizerFacto
                 throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindMethodsList");
             }
 
-            stmt.bindMethodsList(name, IterableLike.toList(arg), Arrays.asList(bindMethodsList.methodNames()));
+            stmt.bindMethodsList(name, IterableLike.iterable(arg), Arrays.asList(bindMethodsList.methodNames()));
         };
     }
 }

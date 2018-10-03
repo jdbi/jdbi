@@ -7,6 +7,7 @@
       the old boolean toggle.
     - ColumnNameMatcher.columnNameStartsWith() method, used by reflection mappers to short-circuit
       nested mappings when no columns start with the nested prefix.
+    - bindMethodsList and @BindMethodsList create VALUES(...) tuples by calling named methods
   - Improvements
     - SqlObject no longer transforms non-Runtime exceptions (slightly breaking change)
     - Use MethodHandles over Reflection to additionally do less exception wrapping / transformation
