@@ -41,6 +41,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
         <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
+        <r2dbc-h2.version>1.0.0.BUILD-SNAPSHOT</r2dbc-h2.version>
         <reactor.version>Californium-RELEASE</reactor.version>
         <spring-boot.version>2.0.5.RELEASE</spring-boot.version>
         <testcontainers.version>1.9.1</testcontainers.version>
@@ -127,6 +128,12 @@
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
             <version>${r2dbc-postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-h2</artifactId>
+            <version>${r2dbc-h2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
