@@ -211,6 +211,10 @@
                 <version>2.22.0</version>
                 <configuration>
                     <runOrder>random</runOrder>
+                    <includes>
+                        <include>**/*Example.java</include>
+                        <include>**/*Test.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>
