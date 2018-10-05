@@ -59,19 +59,6 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <id>maven.oracle.com</id>
-            <name>oracle-maven-repo</name>
-            <url>https://maven.oracle.com</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-
     <build>
         <pluginManagement>
             <plugins>

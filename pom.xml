@@ -84,6 +84,7 @@
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
+        <dep.oracle.version>12.1.0.2</dep.oracle.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
         <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
@@ -294,7 +295,12 @@
             <dependency>
                 <groupId>com.oracle.jdbc</groupId>
                 <artifactId>ojdbc7</artifactId>
-                <version>12.1.0.2</version>
+                <version>${dep.oracle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.jdbc</groupId>
+                <artifactId>oraclepki</artifactId>
+                <version>${dep.oracle.version}</version>
             </dependency>
 
             <dependency>
@@ -742,12 +748,24 @@
             <id>oracle</id>
             <activation>
                 <file>
-                    <exists>.build-oracle</exists>
+                    <exists>${maven.multiModuleProjectDirectory}/.build-oracle</exists>
                 </file>
             </activation>
             <modules>
                 <module>oracle12</module>
             </modules>
+            <repositories>
+                <repository>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <id>maven.oracle.com</id>
+                    <name>oracle-maven-repo</name>
+                    <url>https://maven.oracle.com</url>
+                    <layout>default</layout>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 </project>
