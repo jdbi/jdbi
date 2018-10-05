@@ -14,7 +14,6 @@ outputs:
 
 caches:
 - path: maven
-- path: postgresql
 
 run:
   path: r2dbc-client/ci/perm-patch.sh

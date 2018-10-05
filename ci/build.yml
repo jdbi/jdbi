@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
 - name: r2dbc-client
+- name: r2dbc-h2-artifactory
 - name: r2dbc-postgresql-artifactory
 - name: r2dbc-spi-artifactory
 
@@ -16,7 +17,6 @@ outputs:
 
 caches:
 - path: maven
-- path: postgresql
 
 run:
   path: r2dbc-client/ci/perm-patch.sh
