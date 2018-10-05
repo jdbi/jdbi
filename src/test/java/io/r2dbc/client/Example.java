@@ -16,7 +16,7 @@
 
 package io.r2dbc.client;
 
-import io.r2dbc.postgresql.PostgresqlServerErrorException;
+import io.r2dbc.spi.R2dbcException;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +89,7 @@ interface Example<T> {
                 .thenMany(handle.execute(String.format("INSERT INTO test VALUES (%s)", getPlaceholder(0)), 200)))
 
             .as(StepVerifier::create)
-            .verifyError(PostgresqlServerErrorException.class);
+            .verifyError(R2dbcException.class);
     }
 
     @BeforeEach
@@ -235,7 +235,7 @@ interface Example<T> {
                 .thenMany(handle.execute(String.format("INSERT INTO test VALUES (%s)", getPlaceholder(0)), 200)))
 
             .as(StepVerifier::create)
-            .verifyError(PostgresqlServerErrorException.class);
+            .verifyError(R2dbcException.class);
     }
 
     @Test
