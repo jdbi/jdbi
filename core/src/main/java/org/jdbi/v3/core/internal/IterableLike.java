@@ -69,6 +69,16 @@ public class IterableLike {
     }
 
     /**
+     * Given an iterable object (which may be a iterator, iterable, primitive
+     * or reference array), return an iterable over its (possibly boxed) elements.
+     * @param iterable the iterable-like to create a real Iterable for
+     * @return the created Iterable
+     */
+    public static Iterable<Object> iterable(Object iterable) {
+        return () -> of(iterable);
+    }
+
+    /**
      * Attempt to determine if a iterable-like is empty, preferably without iterating.
      * @param obj the iterable-like to check for emptiness
      * @return emptiness to fill your heart

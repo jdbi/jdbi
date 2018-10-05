@@ -13,18 +13,18 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -32,9 +32,6 @@ import org.mockito.junit.MockitoRule;
 public class TestBeanArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Mock
     PreparedStatement stmt;
@@ -72,6 +69,7 @@ public class TestBeanArguments {
             return foo;
         }
     }
+
     @Test
     public void testBindPrefix() throws Exception {
         new BeanPropertyArguments("foo", new Bar())
@@ -89,42 +87,117 @@ public class TestBeanArguments {
     }
 
     @Test
-    public void testBindIllegalAccess() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public String getBar() throws IllegalAccessException {
-                throw new IllegalAccessException();
-            }
-        };
+    public void testBindIllegalAccess() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new ThrowsIllegalAccessException()).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+    public static class ThrowsIllegalAccessException {
+        public String getBar() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
     }
 
     @Test
-    public void testBindNoGetter() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public void setBar(String bar) {}
-        };
+    public void testBindNoGetter() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NoGetter()).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+    public static class NoGetter {
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
     }
 
     @Test
-    public void testBindNonPublicGetter() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            protected String getBar() {
-                return "baz";
-            }
+    public void testBindNonPublicGetter() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NonPublicGetter()).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
 
-            @SuppressWarnings("unused")
-            public void setBar(String bar) {}
-        };
+    public static class NonPublicGetter {
+        @SuppressWarnings("unused")
+        protected String getBar() {
+            return "baz";
+        }
 
-        exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
+    }
+
+    @Test
+    public void testBindNestedOptionalNull() throws Exception {
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedOptionalNull() throws Exception {
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedNull() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+                .find("foo.bar.id", ctx)
+                .get()
+                .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull1() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar?.id", ctx)
+            .get()
+            .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull2() {
+
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar.?id", ctx)
+            .get()
+            .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedOptionalNonNull() throws Exception {
+        Object bean = new FooProperty(new IdProperty(69));
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setLong(3, 69);
+    }
+
+    public static class FooProperty {
+        private final Object foo;
+
+        FooProperty(Object foo) {
+            this.foo = foo;
+        }
+
+        @SuppressWarnings("unused")
+        public Object getFoo() {
+            return foo;
+        }
+    }
+
+    public static class IdProperty {
+        private final long id;
+
+        IdProperty(long id) {
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
     }
 }

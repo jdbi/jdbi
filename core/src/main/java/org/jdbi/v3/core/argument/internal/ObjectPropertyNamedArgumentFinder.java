@@ -14,10 +14,12 @@
 package org.jdbi.v3.core.argument.internal;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -53,8 +55,8 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
                 String childName = actualName.substring(separator + 1);
 
                 return childArgumentFinders
-                    .computeIfAbsent(parentName, pn ->
-                        getValue(pn, ctx).map(v -> getNestedArgumentFinder(v.value)))
+                    .computeIfAbsent(parentName.endsWith("?") ? parentName.substring(0, parentName.length() - 1) : parentName, pn ->
+                        getValue(pn, ctx).map(typedValue -> getValueNested(typedValue, parentName, childName)))
                     .flatMap(arg -> arg.find(childName, ctx));
             }
 
@@ -69,6 +71,20 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
         }
 
         return Optional.empty();
+    }
+
+    private NamedArgumentFinder getValueNested(TypedValue typedValue, String parentName, String childName) {
+        if (Objects.nonNull(typedValue.value)) {
+            return getNestedArgumentFinder(typedValue.value);
+        }
+        if (parentName.endsWith("?")) {
+            return (n, c) -> Optional.of(c.getConfig(Arguments.class).getUntypedNullArgument());
+        }
+        throw new IllegalArgumentException(
+            String.format("Trying to bind nested argument [%s], but found nullpointer at [%s], may mark it as an optional with [%s]",
+                childName,
+                parentName,
+                parentName + '?'));
     }
 
     protected abstract Optional<TypedValue> getValue(String name, StatementContext ctx);

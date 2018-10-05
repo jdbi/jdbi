@@ -19,7 +19,7 @@ fragment COLON: {input.LA(2) != ':'}?=> ':';
 fragment DOUBLE_COLON: {input.LA(2) == ':'}?=> '::';
 fragment QUESTION: {input.LA(2) != '?'}?=> '?';
 fragment DOUBLE_QUESTION: {input.LA(2) == '?'}?=> '??';
-fragment NAME: 'a'..'z' | 'A'..'Z' | '0'..'9' | '_' | '.' | '#';
+fragment NAME: 'a'..'z' | 'A'..'Z' | '0'..'9' | '_' | '.' | '?.' | '#';
 
 COMMENT: '/*' .* '*/';
 QUOTED_TEXT: QUOTE (ESCAPE_QUOTE | ~QUOTE)* QUOTE;

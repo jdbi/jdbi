@@ -2944,7 +2944,7 @@ public interface DocumentDao {
     @UseRowReducer(FolderDocReducer.class) // <2>
     List<Folder> listFolders(); // <3>
 
-    class FolderDocReducer extends LinkedHashMapRowReducer<Integer, Folder> { // <4>
+    class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> { // <4>
         @Override
         public void accumulate(Map<Integer, Folder> map, RowView rowView) {
             Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <2>

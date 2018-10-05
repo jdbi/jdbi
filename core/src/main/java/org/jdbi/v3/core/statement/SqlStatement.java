@@ -26,11 +26,13 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
@@ -1334,6 +1336,57 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 names.append(':').append(name);
                 Argument argument = beanProperties.find(propertyName, ctx)
                         .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, ctx));
+                bind(name, argument);
+            }
+            names.append(")");
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
+     * For each value given, create a tuple by invoking each given method in order, and bind the tuple into
+     * a {@code VALUES (...)} format insert clause.
+     * @param key attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value
+     * @param methodNames list of methods that will be invoked on the values
+     * @return this
+     * @throws IllegalArgumentException if the list of values or properties is empty.
+     * @throws UnableToCreateStatementException if the method cannot be found
+     */
+    public final This bindMethodsList(String key, Iterable<?> values, List<String> methodNames) throws UnableToCreateStatementException {
+        final Iterator<?> valueIter = values.iterator();
+        if (!valueIter.hasNext()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        if (methodNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        final StringBuilder names = new StringBuilder();
+        final StatementContext ctx = getContext();
+        for (int valueIndex = 0; valueIter.hasNext(); valueIndex++) {
+            if (valueIndex > 0) {
+                names.append(',');
+            }
+
+            final Object bean = valueIter.next();
+            final ObjectMethodArguments beanMethods = new ObjectMethodArguments(null, bean);
+
+            names.append("(");
+            for (int methodIndex = 0; methodIndex < methodNames.size(); methodIndex++) {
+                if (methodIndex > 0) {
+                    names.append(",");
+                }
+
+                final String methodName = methodNames.get(methodIndex);
+                final String name = key + valueIndex + "." + methodName;
+                names.append(":").append(name);
+                final Argument argument = beanMethods.find(methodName, ctx)
+                    .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + methodName + " argument for " + bean, ctx));
                 bind(name, argument);
             }
             names.append(")");
