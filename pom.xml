@@ -248,6 +248,23 @@
 
     <profiles>
         <profile>
+            <id>r2dbc-h2-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcH2Artifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-h2-artifactory</id>
+                    <url>${r2dbcH2lArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
             <id>r2dbc-postgresql-artifactory</id>
             <activation>
                 <property>
