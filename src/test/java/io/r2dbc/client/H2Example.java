@@ -17,13 +17,8 @@
 package io.r2dbc.client;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.r2dbc.h2.H2ConnectionConfiguration;
-import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.test.Example;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -46,12 +41,12 @@ final class H2Example {
     @RegisterExtension
     static final H2ServerExtension SERVER = new H2ServerExtension();
 
-    private final ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(DRIVER, H2_DRIVER)
         .option(PASSWORD, SERVER.getPassword())
         .option(URL, SERVER.getUrl())
         .option(USER, SERVER.getUsername())
-        .build());
+        .build()));
 
     private static final class H2ServerExtension implements BeforeAllCallback, AfterAllCallback {
 
@@ -71,7 +66,7 @@ final class H2Example {
         }
 
         @Override
-        public void beforeAll(ExtensionContext context) throws Exception {
+        public void beforeAll(ExtensionContext context) {
             this.dataSource = DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .url(String.format("jdbc:h2:%s;USER=%s;PASSWORD=%s;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4", this.url, this.username, this.password))
@@ -101,15 +96,8 @@ final class H2Example {
 
     }
 
-    // TODO: Remove once implemented
-    @Disabled("Not yet implemented")
     @Nested
-    final class JdbcStyle implements io.r2dbc.spi.test.Example<Integer> {
-
-        @Override
-        public ConnectionFactory getConnectionFactory() {
-            return H2Example.this.connectionFactory;
-        }
+    final class JdbcStyle implements Example<Integer> {
 
         @Override
         public Integer getIdentifier(int index) {
@@ -131,15 +119,15 @@ final class H2Example {
         public String getPlaceholder(int index) {
             return "?";
         }
+
+        @Override
+        public R2dbc getR2dbc() {
+            return r2dbc;
+        }
     }
 
     @Nested
     final class PostgresqlStyle implements Example<String> {
-
-        @Override
-        public ConnectionFactory getConnectionFactory() {
-            return H2Example.this.connectionFactory;
-        }
 
         @Override
         public String getIdentifier(int index) {
@@ -160,6 +148,11 @@ final class H2Example {
         @Override
         public String getPlaceholder(int index) {
             return String.format("$%d", index + 1);
+        }
+
+        @Override
+        public R2dbc getR2dbc() {
+            return r2dbc;
         }
 
     }
