@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
+import org.jdbi.v3.core.generic.GenericTypes;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collector;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
@@ -26,41 +29,35 @@ class EnumSetCollectorFactory implements CollectorFactory {
 
     @Override
     public boolean accepts(Type containerType) {
-        // elements of EnumSet must always be enums, no need to check
+        // compiler ensures that elements of EnumSet<E extends Enum<E>> are always enums
         return EnumSet.class.isAssignableFrom(getErasedType(containerType))
             && containerType instanceof ParameterizedType;
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        return findGenericParameter(containerType, getErasedType(containerType));
-    }
-
-    @Override
-    public Collector<?, ?, ?> build(Type containerType) {
-        Class<? extends Enum> componentType = getComponentClass(containerType);
-        return Collector.of(
-                () -> new EnumSetBuilder(componentType),
-                EnumSetBuilder::add,
-                EnumSetBuilder::combine,
-                EnumSetBuilder::build);
+        return findGenericParameter(containerType, EnumSet.class);
     }
 
     @SuppressWarnings("unchecked")
-    private static Class<? extends Enum> getComponentClass(Type containerType) {
-        return findGenericParameter(containerType, getErasedType(containerType))
-            .map(type -> {
-                Class<? extends Enum> componentClass = null;
-                if (type instanceof Class) {
-                    componentClass = (Class<? extends Enum>) type;
-                } else if (type instanceof ParameterizedType) {
-                    componentClass = (Class<? extends Enum>) ((ParameterizedType) type).getRawType();
-                }
+    @Override
+    public Collector<?, ?, ?> build(Type containerType) {
+        Class<? extends Enum> componentType = (Class<? extends Enum>) findGenericParameter(containerType, EnumSet.class)
+            .map(GenericTypes::getErasedType)
+            .orElseThrow(() -> new IllegalStateException("Cannot determine EnumSet element type"));
 
-                return componentClass;
-            })
-            .orElseThrow(() ->
-                new IllegalArgumentException("cannot determine class of type " + containerType.getTypeName()
-                    + " represented by " + containerType.getClass().getSimpleName()));
+        return Collector.of(
+                () -> EnumSet.noneOf(componentType),
+                EnumSet::add,
+                (left, right) -> {
+                    if (left.size() < right.size()) {
+                        right.addAll(left);
+                        return right;
+                    } else {
+                        left.addAll(right);
+                        return left;
+                    }
+                },
+                Function.identity());
     }
 }
