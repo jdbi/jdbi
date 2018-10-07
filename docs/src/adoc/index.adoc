@@ -4143,7 +4143,7 @@ Here are some usage examples of the features listed above:
 String query = "select * from users where :name is null or name = :name";
 Option<String> param = Option.of("eric");
 
-// will fetch first user with given name or first user without name (Option.none)
+// will fetch first user with given name or first user with any name (Option.none)
 return handle.createQuery(query)
         .bind("name", param)
         .mapToBean(User.class)
