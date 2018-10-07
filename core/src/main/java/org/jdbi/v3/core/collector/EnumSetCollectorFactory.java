@@ -50,13 +50,8 @@ class EnumSetCollectorFactory implements CollectorFactory {
                 () -> EnumSet.noneOf(componentType),
                 EnumSet::add,
                 (left, right) -> {
-                    if (left.size() < right.size()) {
-                        right.addAll(left);
-                        return right;
-                    } else {
-                        left.addAll(right);
-                        return left;
-                    }
+                    left.addAll(right);
+                    return left;
                 },
                 Function.identity());
     }
