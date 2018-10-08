@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-set -e -u
+set -euo pipefail
+
+source r2dbc-client/ci/docker-lib.sh
+start_docker "3" "3" "" ""
 
 [[ -d $PWD/maven && ! -d $HOME/.m2 ]] && ln -s $PWD/maven $HOME/.m2
 

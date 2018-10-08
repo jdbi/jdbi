@@ -19,6 +19,4 @@ caches:
 - path: maven
 
 run:
-  path: r2dbc-client/ci/perm-patch.sh
-  args:
-  - r2dbc-client/ci/build.sh
+  path: r2dbc-client/ci/build.sh

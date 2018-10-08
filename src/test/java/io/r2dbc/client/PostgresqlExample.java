@@ -97,6 +97,8 @@ final class PostgresqlExample implements Example<String> {
                 .password(this.container.getPassword())
                 .build();
 
+            this.dataSource.setMaximumPoolSize(1);
+
             this.jdbcOperations = new JdbcTemplate(this.dataSource);
         }
 
