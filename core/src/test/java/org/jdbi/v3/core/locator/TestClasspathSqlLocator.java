@@ -13,18 +13,16 @@
  */
 package org.jdbi.v3.core.locator;
 
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestClasspathSqlLocator {
     @Rule
@@ -34,30 +32,30 @@ public class TestClasspathSqlLocator {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void testLocateNamed() throws Exception {
+    public void testLocateNamed() {
         Handle h = dbRule.openHandle();
-        h.execute(findSqlOnClasspath("insert-keith"));
+        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
-    public void testCommentsInExternalSql() throws Exception {
+    public void testCommentsInExternalSql() {
         Handle h = dbRule.openHandle();
-        h.execute(findSqlOnClasspath("insert-eric-with-comments"));
+        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
-    public void testPositionalParamsInPrepared() throws Exception {
+    public void testPositionalParamsInPrepared() {
         Handle h = dbRule.openHandle();
-        h.execute(findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
+        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
-    public void testNamedParamsInExternal() throws Exception {
+    public void testNamedParamsInExternal() {
         Handle h = dbRule.openHandle();
-        h.createUpdate(findSqlOnClasspath("insert-id-name"))
+        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
@@ -65,25 +63,25 @@ public class TestClasspathSqlLocator {
     }
 
     @Test
-    public void testUsefulExceptionForBackTracing() throws Exception {
+    public void testUsefulExceptionForBackTracing() {
         Handle h = dbRule.openHandle();
 
         exception.expect(StatementException.class);
         exception.expectMessage("insert into something(id, name) values (:id, :name)");
         exception.expectMessage("insert into something(id, name) values (?, ?)");
-        h.createUpdate(findSqlOnClasspath("insert-id-name"))
+        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .execute();
     }
 
     @Test
-    public void testNonExistentResource() throws Exception {
+    public void testNonExistentResource() {
         exception.expect(IllegalArgumentException.class);
-        findSqlOnClasspath("this-does-not-exist");
+        ClasspathSqlLocator.findSqlOnClasspath("this-does-not-exist");
     }
 
     @Test
-    public void testCachesResultAfterFirstLookup() throws Exception {
+    public void testCachesResultAfterFirstLookup() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger loadCount = new AtomicInteger(0);
 
@@ -95,31 +93,31 @@ public class TestClasspathSqlLocator {
             }
         });
 
-        findSqlOnClasspath("caches-result-after-first-lookup");
+        ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
         assertThat(loadCount.get()).isEqualTo(1);
 
-        findSqlOnClasspath("caches-result-after-first-lookup");
+        ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
         assertThat(loadCount.get()).isEqualTo(1); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(classLoader);
     }
 
     @Test
-    public void testLocateByMethodName() throws Exception {
-        assertThat(findSqlOnClasspath(getClass(), "testLocateByMethodName"))
+    public void testLocateByMethodName() {
+        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "testLocateByMethodName"))
                 .contains("select 1");
     }
 
     @Test
-    public void testSelectByExtensionMethodName() throws Exception {
-        assertThat(findSqlOnClasspath(getClass(), "test-locate-by-custom-name"))
+    public void testSelectByExtensionMethodName() {
+        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-locate-by-custom-name"))
                 .contains("select 1");
     }
 
     @Test
-    public void testColonInComment() throws Exception {
+    public void testColonInComment() {
         // Used to throw exception in SQL statement lexer
         // see https://github.com/jdbi/jdbi/issues/748
-        findSqlOnClasspath(getClass(), "test-colon-in-comment");
+        ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment");
     }
 }
