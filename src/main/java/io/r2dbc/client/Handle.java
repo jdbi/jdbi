@@ -18,7 +18,6 @@ package io.r2dbc.client;
 
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.IsolationLevel;
-import io.r2dbc.spi.Mutability;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -245,19 +244,6 @@ public final class Handle {
         Objects.requireNonNull(isolationLevel, "isolationLevel must not be null");
 
         return this.connection.setTransactionIsolationLevel(isolationLevel);
-    }
-
-    /**
-     * Configures the mutability for the current transaction.
-     *
-     * @param mutability the mutability for this transaction
-     * @return a {@link Publisher} that indicates that mutability has been configured
-     * @throws NullPointerException if {@code mutability} is {@code null}
-     */
-    public Publisher<Void> setTransactionMutability(Mutability mutability) {
-        Objects.requireNonNull(mutability, "mutability must not be null");
-
-        return this.connection.setTransactionMutability(mutability);
     }
 
     @Override

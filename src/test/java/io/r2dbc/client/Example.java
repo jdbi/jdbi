@@ -16,7 +16,6 @@
 
 package io.r2dbc.client;
 
-import io.r2dbc.spi.R2dbcException;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static io.r2dbc.spi.Mutability.READ_ONLY;
 
 interface Example<T> {
 
@@ -78,18 +75,6 @@ interface Example<T> {
             .expectNext(Collections.singletonList(100)).as("value from first statement")
             .expectNext(Collections.singletonList(100)).as("value from second statement")
             .verifyComplete();
-    }
-
-    @Test
-    default void connectionMutability() {
-        getR2dbc()
-            .useHandle(handle -> Mono.from(handle
-
-                .setTransactionMutability(READ_ONLY))
-                .thenMany(handle.execute(String.format("INSERT INTO test VALUES (%s)", getPlaceholder(0)), 200)))
-
-            .as(StepVerifier::create)
-            .verifyError(R2dbcException.class);
     }
 
     @BeforeEach
@@ -224,18 +209,6 @@ interface Example<T> {
             .expectNext(Arrays.asList(100, 200)).as("values from select")
             .expectNext(Arrays.asList(100, 200)).as("values from select")
             .verifyComplete();
-    }
-
-    @Test
-    default void transactionMutability() {
-        getR2dbc()
-            .inTransaction(handle -> Mono.from(handle
-
-                .setTransactionMutability(READ_ONLY))
-                .thenMany(handle.execute(String.format("INSERT INTO test VALUES (%s)", getPlaceholder(0)), 200)))
-
-            .as(StepVerifier::create)
-            .verifyError(R2dbcException.class);
     }
 
     @Test

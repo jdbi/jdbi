@@ -28,7 +28,6 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 
 import static io.r2dbc.spi.IsolationLevel.SERIALIZABLE;
-import static io.r2dbc.spi.Mutability.READ_ONLY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -314,23 +313,6 @@ final class HandleTest {
     void setTransactionIsolationLevelNoIsolationLevel() {
         assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionIsolationLevel(null))
             .withMessage("isolationLevel must not be null");
-    }
-
-    @Test
-    void setTransactionMutability() {
-        MockConnection connection = MockConnection.empty();
-
-        Publisher<Void> publisher = new Handle(connection)
-            .setTransactionMutability(READ_ONLY);
-
-        StepVerifier.create(publisher).verifyComplete();
-        assertThat(connection.getSetTransactionMutabilityMutability()).isEqualTo(READ_ONLY);
-    }
-
-    @Test
-    void setTransactionMutabilityNoMutability() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionMutability(null))
-            .withMessage("mutability must not be null");
     }
 
     @Test
