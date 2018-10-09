@@ -1,4 +1,4 @@
-3.5.0
+3.5.1 (whoops, 3.5.0 was released from the wrong commit!)
   - New API
     - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be
       left out of the final query (e.g. by a TemplateEngine that renders conditional blocks)
