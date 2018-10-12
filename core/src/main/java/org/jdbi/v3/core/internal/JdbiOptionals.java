@@ -17,8 +17,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 public class JdbiOptionals {
     private JdbiOptionals() {
         throw new UtilityClassException();
@@ -27,14 +25,11 @@ public class JdbiOptionals {
     @SafeVarargs
     public static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
         return Stream.of(suppliers)
-                .flatMap(supplier -> toStream(supplier.get()))
+                .flatMap(supplier -> stream(supplier.get()))
                 .findFirst();
     }
 
     public static <T> Stream<T> stream(Optional<T> optional) {
-        if (optional.isPresent()) {
-            return Stream.of(optional.get());
-        }
-        return Stream.empty();
+        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 }

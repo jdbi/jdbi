@@ -1,5 +1,5 @@
 3.6.0
-  - New API
+  - New Features
     - ConnectionFactory now also may customize connection closing
     - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V`
       in `Map<K, V>`
@@ -19,6 +19,7 @@
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation
     - Support for HSTORE columns, using the @HStore annotation
     - @Json type qualifier with Jackson 2 and Gson 2 bindings
+    - Initial support for Immutables value objects
   - Oracle DB support changes
     - Due to ongoing stability problems with Oracle's Maven servers, we have split the
       jdbi3-oracle12 artifact out of the main project, to a new home at

@@ -19,11 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
-
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
+import org.jdbi.v3.core.internal.JdbiOptionals;
 /**
  * Represents the arguments bound to a particular statement.
  */
@@ -72,7 +71,7 @@ public class Binding {
         }
 
         return namedArgumentFinder.stream()
-                .flatMap(arguments -> toStream(arguments.find(name, ctx)))
+                .flatMap(arguments -> JdbiOptionals.stream(arguments.find(name, ctx)))
                 .findFirst();
     }
 

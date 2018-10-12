@@ -22,10 +22,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
-
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * A registry for ArgumentFactory instances.
@@ -105,7 +104,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Beta
     public Optional<Argument> findFor(QualifiedType type, Object value) {
         return factories.stream()
-            .flatMap(factory -> toStream(factory.build(type, value, registry)))
+            .flatMap(factory -> JdbiOptionals.stream(factory.build(type, value, registry)))
             .findFirst();
     }
 

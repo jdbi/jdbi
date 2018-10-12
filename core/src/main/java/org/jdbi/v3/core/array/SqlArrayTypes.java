@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.array;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
  * Configuration class for SQL array binding and mapping.
@@ -110,7 +109,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      */
     public Optional<SqlArrayType<?>> findFor(Type elementType) {
         return factories.stream()
-                .flatMap(factory -> toStream(factory.build(elementType, registry)))
+                .flatMap(factory -> JdbiOptionals.stream(factory.build(elementType, registry)))
                 .findFirst();
     }
 

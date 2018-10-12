@@ -13,53 +13,20 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-
-import static java.util.stream.Collectors.toMap;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 
 /**
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
  */
 public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder {
-    private static final Map<Class<?>, Map<String, PropertyDescriptor>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
-        .builder()
-        .expiration(10, TimeUnit.MINUTES)
-        .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class<?> type) -> {
-            try {
-                BeanInfo info = Introspector.getBeanInfo(type);
-                return Stream.of(info.getPropertyDescriptors())
-                    .collect(toMap(PropertyDescriptor::getName, Function.identity()));
-            } catch (IntrospectionException e) {
-                throw new UnableToCreateStatementException(
-                    "Failed to introspect object which is supposed to be used to "
-                        + "set named args for a statement via JavaBean properties", e);
-            }
-        })
-        .build();
-
-    private final Map<String, PropertyDescriptor> propertyDescriptors;
+    private final PojoProperties<?> properties;
 
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
@@ -67,41 +34,19 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
      */
     public BeanPropertyArguments(String prefix, Object bean) {
         super(prefix, bean);
-
-        this.propertyDescriptors = CLASS_PROPERTY_DESCRIPTORS.get(bean.getClass());
+        properties = BeanPropertiesFactory.propertiesFor(obj.getClass());
     }
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        PropertyDescriptor descriptor = propertyDescriptors.get(name);
+        @SuppressWarnings("unchecked")
+        PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
 
-        if (descriptor == null) {
+        if (property == null) {
             return Optional.empty();
         }
 
-        Method getter = getGetter(name, descriptor, ctx);
-        Method setter = descriptor.getWriteMethod();
-        Parameter setterParam = Optional.ofNullable(setter)
-            .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
-            .orElse(null);
-
-        Type type = getter.getGenericReturnType();
-        Set<Annotation> qualifiers = getQualifiers(getter, setter, setterParam);
-        Object value = invokeMethod(getter, ctx);
-
-        return Optional.of(new TypedValue(type, qualifiers, value));
-    }
-
-    private Method getGetter(String name, PropertyDescriptor descriptor, StatementContext ctx) {
-        Method getter = descriptor.getReadMethod();
-
-        if (getter == null) {
-            throw new UnableToCreateStatementException(String.format("No getter method found for "
-                    + "bean property [%s] on [%s]",
-                name, obj), ctx);
-        }
-
-        return getter;
+        return Optional.of(new TypedValue(property.getQualifiedType(), property.get(obj)));
     }
 
     @Override

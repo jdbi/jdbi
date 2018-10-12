@@ -26,4 +26,9 @@ public class TypedValue {
         this.type = QualifiedType.of(type, qualifiers);
         this.value = value;
     }
+
+    public TypedValue(QualifiedType qualifiedType, Object value) {
+        this.type = qualifiedType;
+        this.value = value;
+    }
 }

@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.statement.Query;
 
 /**
@@ -142,7 +141,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         }
 
         Optional<RowMapper<?>> mapper = factories.stream()
-                .flatMap(factory -> toStream(factory.build(type, registry)))
+                .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
                 .findFirst();
 
         mapper.ifPresent(m -> cache.put(type, m));

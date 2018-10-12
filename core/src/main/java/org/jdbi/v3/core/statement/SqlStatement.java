@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.argument.ObjectFieldArguments;
-import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -45,10 +43,13 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
+import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
@@ -181,6 +182,33 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindBean(String prefix, Object bean) {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
+    }
+
+    /**
+     * Binds named parameters from object properties on the argument.
+     *
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     */
+    @Beta
+    public This bindProperties(Object pojo) {
+        return bindNamedArgumentFinder(new PojoPropertyArguments(null, pojo, getContext()));
+    }
+
+    /**
+     * Binds named parameters from JavaBean properties on the bean argument, with the given prefix.
+     *
+     * Example: the prefix {@code foo} applied to a bean property {@code bar} will be bound as {@code foo.bar}.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     */
+    @Beta
+    public This bindProperties(String prefix, Object pojo) {
+        return bindNamedArgumentFinder(new PojoPropertyArguments(prefix, pojo, getContext()));
     }
 
     /**

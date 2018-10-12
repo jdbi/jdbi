@@ -26,7 +26,7 @@ public class Unchecked {
         throw new UtilityClassException();
     }
 
-    public static <T> Callable<T> callable(CheckedCallable<T> checkedCallable) {
+    public static <T> SneakyCallable<T> callable(CheckedCallable<T> checkedCallable) {
         return () -> {
             try {
                 return checkedCallable.call();
@@ -64,5 +64,10 @@ public class Unchecked {
                 throw Sneaky.throwAnyway(t);
             }
         };
+    }
+
+    public interface SneakyCallable<T> extends Callable<T> {
+        @Override
+        T call(); // no 'throws Exception'
     }
 }

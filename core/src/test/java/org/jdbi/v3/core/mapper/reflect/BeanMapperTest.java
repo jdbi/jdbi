@@ -264,7 +264,7 @@ public class BeanMapperTest {
         assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    static class ColumnNameBean {
+    public static class ColumnNameBean {
         int i;
         String s;
 
@@ -352,7 +352,7 @@ public class BeanMapperTest {
             .containsExactly(42, null);
     }
 
-    static class NestedBean {
+    public static class NestedBean {
         private Integer testValue;
         private Something nested;
 
@@ -431,7 +431,7 @@ public class BeanMapperTest {
             .containsExactly(42, null);
     }
 
-    static class NestedPrefixBean {
+    public static class NestedPrefixBean {
         private Integer integerValue;
         private Something nested;
 

@@ -3753,6 +3753,22 @@ class MyBean {
 }
 ----
 
+=== Immutables
+
+link:https://immutables.github.io/[Immutables^] is an annotation processor that generates
+value types based on simple interface descriptions.  The value types naturally map very well
+to `Jdbi` properties binding and row mapping.
+
+[WARNING]
+Immutables support is still experimental and does not yet support custom naming schemes.
+
+Just tell us about your types, and we do the rest:
+
+[source,java,indent=0]
+----
+include::{coreexampledir}/ImmutablesTest.java[tags=example]
+----
+
 === JodaTime
 
 This plugin adds support for using joda-time's `DateTime` type.

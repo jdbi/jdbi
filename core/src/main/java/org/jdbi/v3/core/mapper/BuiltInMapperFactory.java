@@ -17,8 +17,9 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.JdbiStreams;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
@@ -37,9 +38,10 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         new JavaTimeMapperFactory()
     );
 
+    @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return FACTORIES.stream()
-            .flatMap(factory -> JdbiStreams.toStream(factory.build(type, config)))
+            .flatMap(factory -> JdbiOptionals.stream(factory.build(type, config)))
             .findFirst();
     }
 }

@@ -13,35 +13,30 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoBuilder;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -53,28 +48,13 @@ import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
  * The mapped class must have a default constructor.
  */
 public class BeanMapper<T> implements RowMapper<T> {
-    private static final String DEFAULT_PREFIX = "";
+    protected static final String DEFAULT_PREFIX = "";
 
     private static final String NO_MATCHING_COLUMNS =
         "Mapping bean type %s didn't find any matching columns in result set";
 
     private static final String UNMATCHED_COLUMNS_STRICT =
         "Mapping bean type %s could not match properties for columns: %s";
-
-    private static final String TYPE_NOT_INSTANTIABLE =
-        "A bean, %s, was mapped which was not instantiable";
-
-    private static final String MISSING_SETTER =
-        "No appropriate method to write property %s";
-
-    private static final String SETTER_NOT_ACCESSIBLE =
-        "Unable to access setter for property, %s";
-
-    private static final String INVOCATION_TARGET_EXCEPTION =
-        "Invocation target exception trying to invoker setter for the %s property";
-
-    private static final String REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION =
-        "Write method of %s for property %s is not compatible with the value passed";
 
     /**
      * Returns a mapper factory that maps to the given bean class
@@ -120,19 +100,20 @@ public class BeanMapper<T> implements RowMapper<T> {
         return new BeanMapper<>(type, prefix);
     }
 
-    private final Class<T> type;
-    private final String prefix;
-    private final BeanInfo info;
-    private final Map<PropertyDescriptor, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
+    protected final Class<T> type;
+    protected final String prefix;
+    private final PojoProperties<T> beanInfo;
+    private final Map<PojoProperty<T>, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
-    private BeanMapper(Class<T> type, String prefix) {
+    @SuppressWarnings("unchecked")
+    protected BeanMapper(Class<T> type, String prefix) {
+        this(type, (PojoProperties<T>) BeanPropertiesFactory.propertiesFor(type), prefix);
+    }
+
+    BeanMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
         this.type = type;
+        this.beanInfo = properties;
         this.prefix = prefix.toLowerCase();
-        try {
-            info = Introspector.getBeanInfo(type);
-        } catch (IntrospectionException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     @Override
@@ -165,35 +146,21 @@ public class BeanMapper<T> implements RowMapper<T> {
                                                List<ColumnNameMatcher> columnNameMatchers,
                                                List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
-        final List<PropertyDescriptor> properties = new ArrayList<>();
+        final List<PojoProperty<T>> propList = new ArrayList<>();
 
-        for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-            Method getter = descriptor.getReadMethod();
-            Method setter = descriptor.getWriteMethod();
-            Nested anno = Stream.of(getter, setter)
-                .filter(Objects::nonNull)
-                .map(m -> m.getAnnotation(Nested.class))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        for (PojoProperty<T> property : beanInfo.getProperties().values()) {
+            Nested anno = property.getAnnotation(Nested.class).orElse(null);
 
             if (anno == null) {
-                String paramName = prefix + paramName(descriptor);
+                String paramName = prefix + getName(property);
 
-                findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
+                findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
-                        Parameter setterParam = Optional.ofNullable(setter)
-                            .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
-                            .orElse(null);
-
-                        QualifiedType type = QualifiedType.of(
-                            propertyType(descriptor),
-                            getQualifiers(getter, setter, setterParam));
-                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
-                            .orElse((r, n, c) -> r.getObject(n));
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
+                            .orElseGet(() -> defaultColumnMapper(property));
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
-                        properties.add(descriptor);
+                        propList.add(property);
 
                         unmatchedColumns.remove(columnNames.get(index));
                     });
@@ -201,11 +168,11 @@ public class BeanMapper<T> implements RowMapper<T> {
                 String nestedPrefix = prefix + anno.value();
                 if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                     nestedMappers
-                        .computeIfAbsent(descriptor, d -> new BeanMapper<>(d.getPropertyType(), nestedPrefix))
+                        .computeIfAbsent(property, d -> new BeanMapper<>(GenericTypes.getErasedType(d.getQualifiedType().getType()), nestedPrefix))
                         .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
                         .ifPresent(nestedMapper -> {
                             mappers.add(nestedMapper);
-                            properties.add(descriptor);
+                            propList.add(property);
                         });
                 }
             }
@@ -216,62 +183,37 @@ public class BeanMapper<T> implements RowMapper<T> {
         }
 
         return Optional.of((r, c) -> {
-            T bean = construct();
+            final PojoBuilder<T> pojo = beanInfo.create();
 
             for (int i = 0; i < mappers.size(); i++) {
                 RowMapper<?> mapper = mappers.get(i);
-                PropertyDescriptor property = properties.get(i);
+                PojoProperty<T> property = propList.get(i);
 
                 Object value = mapper.map(r, ctx);
 
-                writeProperty(bean, property, value);
+                pojo.set(property, value);
             }
 
-            return bean;
+            return pojo.build();
         });
     }
 
-    private static String paramName(PropertyDescriptor descriptor) {
-        return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
-                .filter(Objects::nonNull)
-                .map(method -> method.getAnnotation(ColumnName.class))
-                .filter(Objects::nonNull)
+    protected ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
+        return (r, n, c) -> r.getObject(n);
+    }
+
+    @Beta
+    public PojoProperties<T> getBeanInfo() {
+        return beanInfo;
+    }
+
+    private String getName(PojoProperty<T> property) {
+        return property.getAnnotation(ColumnName.class)
                 .map(ColumnName::value)
-                .findFirst()
-                .orElseGet(descriptor::getName);
+                .orElseGet(property::getName);
     }
 
-    private static Type propertyType(PropertyDescriptor descriptor) {
-        return Optional.ofNullable(descriptor.getReadMethod()).map(Method::getGenericReturnType)
-                .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]);
-    }
-
-    private String debugName(PropertyDescriptor descriptor) {
-        return String.format("%s.%s", type.getSimpleName(), descriptor.getName());
-    }
-
-    private T construct() {
-        try {
-            return type.newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(TYPE_NOT_INSTANTIABLE, type.getName()), e);
-        }
-    }
-
-    private static void writeProperty(Object bean, PropertyDescriptor property, Object value) {
-        try {
-            Method writeMethod = property.getWriteMethod();
-            if (writeMethod == null) {
-                throw new IllegalArgumentException(String.format(MISSING_SETTER, property.getName()));
-            }
-            writeMethod.invoke(bean, value);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format(SETTER_NOT_ACCESSIBLE, property.getName()), e);
-        } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(String.format(INVOCATION_TARGET_EXCEPTION, property.getName()), e);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(String.format(REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION,
-                property.getPropertyType(), property.getName()), e);
-        }
+    private String debugName(PojoProperty<T> p) {
+        return String.format("%s.%s", type.getSimpleName(), p.getName());
     }
 }
