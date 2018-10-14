@@ -1680,15 +1680,6 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
 Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
 registered for the same data type, the last registered wins.
 
-TODO:
-
-* The SqlArrayTypes registry
-* Register an array type for a Java element type supported directly by the JDBC
-  driver
-* Register an array type for a custom Java element type, converting into a
-  value supported by the JDBC driver
-* Last registered SQL array type for a given type wins
-
 === Results
 
 After executing a database query, you need to interpret the results. JDBC
