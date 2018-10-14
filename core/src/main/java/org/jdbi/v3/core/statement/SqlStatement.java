@@ -1383,6 +1383,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".defineList was called with an empty list.");
         }
+        // Uses stream match, cause the Java 9 ImmutableList implementation throws an NPE if asked `contains(null)`
         if (values.stream().anyMatch(Objects::isNull)) {
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".defineList was called with a list containing null values.");
