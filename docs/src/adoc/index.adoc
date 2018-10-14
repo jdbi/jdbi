@@ -1619,11 +1619,11 @@ public interface GroupsDao {
 }
 ----
 
-Registering array types
+==== Registering array types
 
 Any Java array element type you want binding support for needs to be registered
-with Jdbi. An array type that is directly supported by your JDBC driver can
-be registered using:
+with Jdbi's `SqlArrayTypes` registry. An array type that is directly supported
+by your JDBC driver can be registered using:
 
 [source,java]
 ----
@@ -1632,10 +1632,16 @@ jdbi.registerArrayType(int.class, "integer");
 
 Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
 
-Note that plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically
+[NOTE]
+Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically
 register the most common array element types for their respective databases.
 
-Registering custom element types
+[TIP]
+Postgres supports enum array types, so you can register an array type for
+`enum Colors { red, blue }` using `jdbi.registerArrayType(Colors.class, "colors")`
+where `"colors"` is a user-defined enum type name in your database.
+
+==== Registering custom array types
 
 You can also provide your own implementation of `SqlArrayType` that converts
 a custom Java element type to a type supported by the JDBC driver:
@@ -1654,8 +1660,6 @@ class UserArrayType implements SqlArrayType<User> {
         return user.getId();
     }
 }
-
-jdbi.registerArrayType(new UserArrayType());
 ----
 
 You can now bind instances of `User[]` to arguments of data type `integer[]`:
@@ -1665,11 +1669,16 @@ You can now bind instances of `User[]` to arguments of data type `integer[]`:
 User user1 = new User(1, "bob")
 User user2 = new User(42, "alice")
 
+handle.registerArrayType(new UserArrayType());
 handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
       .bind("id", 1)
       .bind("users", new User[] { user1, user2 })
       .execute();
 ----
+
+[NOTE]
+Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
+registered for the same data type, the last registered wins.
 
 TODO:
 
