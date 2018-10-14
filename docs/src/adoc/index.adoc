@@ -1593,6 +1593,84 @@ Jdbi can be enhanced to support arbitrary container types. See
 
 === SQL Arrays
 
+Jdbi can bind/map Java arrays and collections to/from SQL arrays:
+
+[source,java]
+----
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+      .bind("id", 1)
+      .bind("userIds", new int[] { 10, 5, 70 })
+      .execute();
+
+int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .mapTo(int[].class)
+      .findOnly();
+----
+
+Use `@SingleValue` for mapping an array result with the SqlObject API:
+
+[source,java]
+----
+public interface GroupsDao {
+  @SqlQuery("select user_ids from groups where id = ?")
+  @SingleValue
+  List<Integer> getUserIds(int groupId);
+}
+----
+
+Registering array types
+
+Any Java array element type you want binding support for needs to be registered
+with Jdbi. An array type that is directly supported by your JDBC driver can
+be registered using:
+
+[source,java]
+----
+jdbi.registerArrayType(int.class, "integer");
+----
+
+Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
+
+Note that plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically
+register the most common array element types for their respective databases.
+
+Registering custom element types
+
+You can also provide your own implementation of `SqlArrayType` that converts
+a custom Java element type to a type supported by the JDBC driver:
+
+[source,java]
+----
+class UserArrayType implements SqlArrayType<User> {
+
+    @Override
+    public String getTypeName() {
+        return "integer";
+    }
+
+    @Override
+    public Object convertArrayElement(User user) {
+        return user.getId();
+    }
+}
+
+jdbi.registerArrayType(new UserArrayType());
+----
+
+You can now bind instances of `User[]` to arguments of data type `integer[]`:
+
+[source,java]
+----
+User user1 = new User(1, "bob")
+User user2 = new User(42, "alice")
+
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
+      .bind("id", 1)
+      .bind("users", new User[] { user1, user2 })
+      .execute();
+----
+
 TODO:
 
 * The SqlArrayTypes registry
