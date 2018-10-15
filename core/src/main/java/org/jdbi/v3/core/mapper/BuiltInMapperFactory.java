@@ -99,10 +99,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
         
-        if (rawType == Optional.class) {
-            return Optional.of(OptionalMapper.of(type));
-        }
-
         return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
