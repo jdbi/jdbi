@@ -53,15 +53,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
-        MAPPERS.put(byte.class, primitiveMapper(ResultSet::getByte));
-        MAPPERS.put(char.class, primitiveMapper(BuiltInMapperFactory::getChar));
-        MAPPERS.put(short.class, primitiveMapper(ResultSet::getShort));
-        MAPPERS.put(int.class, primitiveMapper(ResultSet::getInt));
-        MAPPERS.put(long.class, primitiveMapper(ResultSet::getLong));
-        MAPPERS.put(float.class, primitiveMapper(ResultSet::getFloat));
-        MAPPERS.put(double.class, primitiveMapper(ResultSet::getDouble));
-
         MAPPERS.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
         MAPPERS.put(Byte.class, referenceMapper(ResultSet::getByte));
         MAPPERS.put(Character.class, referenceMapper(BuiltInMapperFactory::getCharacter));
@@ -98,12 +89,8 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
-        
-        return Optional.ofNullable(MAPPERS.get(rawType));
-    }
 
-    private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> getter.get(r, i);
+        return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
     private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
@@ -111,11 +98,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
             T value = getter.get(r, i);
             return r.wasNull() ? null : value;
         };
-    }
-
-    private static char getChar(ResultSet r, int i) throws SQLException {
-        Character character = getCharacter(r, i);
-        return character == null ? '\000' : character;
     }
 
     private static Character getCharacter(ResultSet r, int i) throws SQLException {
