@@ -14,7 +14,15 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -24,14 +32,39 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * from the JDK.
  */
 public class OptionalMapperFactory implements ColumnMapperFactory {
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+
+    static {
+        MAPPERS.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
+        MAPPERS.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
+        MAPPERS.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
+    }
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
-        
+
         if (rawType == Optional.class) {
             return Optional.of(OptionalMapper.of(type));
-        } else {
-            return Optional.empty();
         }
+
+        return Optional.ofNullable(MAPPERS.get(rawType));
+    }
+
+    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
+        return (r, i, ctx) -> {
+            T value = getter.get(r, i);
+            return r.wasNull() ? null : value;
+        };
+    }
+
+    private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
+        return (ColumnMapper<Opt>) (r, columnNumber, ctx) -> {
+            final Box boxed = referenceMapper(columnGetter).map(r, columnNumber, ctx);
+            if (boxed == null) {
+                return empty.get();
+            }
+            return present.apply(boxed);
+        };
     }
 }
