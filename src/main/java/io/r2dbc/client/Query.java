@@ -29,9 +29,9 @@ import java.util.function.Function;
  */
 public final class Query implements ResultBearing {
 
-    private final Statement statement;
+    private final Statement<?> statement;
 
-    Query(Statement statement) {
+    Query(Statement<?> statement) {
         this.statement = Objects.requireNonNull(statement, "statement must not be null");
     }
 

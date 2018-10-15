@@ -29,9 +29,9 @@ import java.util.function.Function;
  */
 public final class Update {
 
-    private final Statement statement;
+    private final Statement<?> statement;
 
-    Update(Statement statement) {
+    Update(Statement<?> statement) {
         this.statement = Objects.requireNonNull(statement, "statement must not be null");
     }
 
