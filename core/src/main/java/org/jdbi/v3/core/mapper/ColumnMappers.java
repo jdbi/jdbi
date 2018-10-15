@@ -41,6 +41,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         factories.add(new EssentialsMapperFactory());
         factories.add(new InternetMapperFactory());
         factories.add(new SqlTimeMapperFactory());
+        factories.add(new JavaTimeMapperFactory());
         factories.add(new BuiltInMapperFactory());
         factories.add(new SqlArrayMapperFactory());
     }
