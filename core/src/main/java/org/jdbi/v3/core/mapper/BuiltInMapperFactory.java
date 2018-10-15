@@ -45,8 +45,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
-
         MAPPERS.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
         MAPPERS.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
         MAPPERS.put(LocalDateTime.class, referenceMapper(BuiltInMapperFactory::getLocalDateTime));
