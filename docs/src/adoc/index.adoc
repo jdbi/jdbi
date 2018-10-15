@@ -1593,7 +1593,7 @@ Jdbi can be enhanced to support arbitrary container types. See
 
 === SQL Arrays
 
-Jdbi can bind/map Java arrays and collections to/from SQL arrays:
+Jdbi can bind/map Java arrays to/from SQL arrays:
 
 [source,java]
 ----
@@ -1605,6 +1605,22 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
 int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
       .bind("id", 1)
       .mapTo(int[].class)
+      .findOnly();
+----
+
+You can also use Collections in place of arrays, but you'll need to provide
+generic type information if you're using the fluent API:
+
+[source,java]
+----
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+      .bind("id", 1)
+      .bindByType("userIds", Arrays.asList(10, 5, 70), new GenericType<List<Integer>>() {})
+      .execute();
+
+List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .mapTo(new GenericType<List<Integer>>() {})
       .findOnly();
 ----
 
@@ -1641,7 +1657,7 @@ Postgres supports enum array types, so you can register an array type for
 `enum Colors { red, blue }` using `jdbi.registerArrayType(Colors.class, "colors")`
 where `"colors"` is a user-defined enum type name in your database.
 
-==== Registering custom array types
+==== Binding custom array types
 
 You can also provide your own implementation of `SqlArrayType` that converts
 a custom Java element type to a type supported by the JDBC driver:
@@ -1679,6 +1695,38 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
 [NOTE]
 Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
 registered for the same data type, the last registered wins.
+
+==== Mapping custom array types
+
+`SqlArrayType` only allows you to bind Java array/collection arguments to their
+SQL counterparts. To map SQL array columns back to Java types, you can register
+a regular `ColumnMapper`:
+
+[source,java]
+----
+public class UserIdListColumnMapper implements ColumnMapper<List<UserId>> {
+    @Override
+    public List<UserId> map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
+        final Integer[] userIds = (Integer[]) rs.getArray(col).getArray();
+        return Arrays.stream(userIds)
+                .map(UserId::new)
+                .collect(Collectors.toList());
+    }
+}
+----
+
+[source,java]
+----
+List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .map(new UserIdListColumnMapper())
+      .findOnly();
+----
+
+[NOTE]
+Array columns can be mapped to any container type registered with the
+`JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
+`ImmutableList<String>` if the guava plugin is installed.
 
 === Results
 
