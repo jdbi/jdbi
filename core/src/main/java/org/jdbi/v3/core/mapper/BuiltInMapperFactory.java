@@ -203,8 +203,4 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         };
     }
 
-    @FunctionalInterface
-    interface ColumnGetter<T> {
-        T get(ResultSet rs, int i) throws SQLException;
-    }
 }
