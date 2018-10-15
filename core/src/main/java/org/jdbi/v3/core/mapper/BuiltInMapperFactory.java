@@ -98,9 +98,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
-        if (rawType.isEnum()) {
-            return Optional.of(EnumMapper.byName(rawType.asSubclass(Enum.class)));
-        }
+        
         if (rawType == Optional.class) {
             return Optional.of(OptionalMapper.of(type));
         }
