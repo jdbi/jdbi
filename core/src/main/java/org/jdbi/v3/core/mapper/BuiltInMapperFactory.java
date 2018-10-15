@@ -72,18 +72,15 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         MAPPERS.put(Double.class, referenceMapper(ResultSet::getDouble));
 
         MAPPERS.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
-
         MAPPERS.put(String.class, referenceMapper(ResultSet::getString));
-
         MAPPERS.put(byte[].class, referenceMapper(ResultSet::getBytes));
-
-        MAPPERS.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
+        MAPPERS.put(UUID.class, BuiltInMapperFactory::getUUID);
 
         MAPPERS.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
-
         MAPPERS.put(URL.class, referenceMapper(ResultSet::getURL));
         MAPPERS.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
-        MAPPERS.put(UUID.class, BuiltInMapperFactory::getUUID);
+
+        MAPPERS.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
 
         MAPPERS.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
         MAPPERS.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
