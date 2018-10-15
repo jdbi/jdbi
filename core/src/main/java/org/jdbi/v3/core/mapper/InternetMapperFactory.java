@@ -39,8 +39,8 @@ public class InternetMapperFactory implements ColumnMapperFactory {
 
     static {
         MAPPERS.put(InetAddress.class, InternetMapperFactory::getInetAddress);
-        MAPPERS.put(URL.class, referenceMapper(ResultSet::getURL));
-        MAPPERS.put(URI.class, referenceMapper(InternetMapperFactory::getURI));
+        MAPPERS.put(URL.class, new ReferenceMapper<>(ResultSet::getURL));
+        MAPPERS.put(URI.class, new ReferenceMapper<>(InternetMapperFactory::getURI));
     }
 
     @Override
@@ -48,13 +48,6 @@ public class InternetMapperFactory implements ColumnMapperFactory {
         Class<?> rawType = getErasedType(type);
 
         return Optional.ofNullable(MAPPERS.get(rawType));
-    }
-
-    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> {
-            T value = getter.get(r, i);
-            return r.wasNull() ? null : value;
-        };
     }
 
     private static URI getURI(ResultSet r, int i) throws SQLException {

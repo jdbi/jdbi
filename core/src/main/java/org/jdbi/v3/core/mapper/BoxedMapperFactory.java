@@ -30,14 +30,14 @@ public class BoxedMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
-        MAPPERS.put(Byte.class, referenceMapper(ResultSet::getByte));
-        MAPPERS.put(Character.class, referenceMapper(BoxedMapperFactory::getCharacter));
-        MAPPERS.put(Short.class, referenceMapper(ResultSet::getShort));
-        MAPPERS.put(Integer.class, referenceMapper(ResultSet::getInt));
-        MAPPERS.put(Long.class, referenceMapper(ResultSet::getLong));
-        MAPPERS.put(Float.class, referenceMapper(ResultSet::getFloat));
-        MAPPERS.put(Double.class, referenceMapper(ResultSet::getDouble));
+        MAPPERS.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
+        MAPPERS.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
+        MAPPERS.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
+        MAPPERS.put(Short.class, new ReferenceMapper<>(ResultSet::getShort));
+        MAPPERS.put(Integer.class, new ReferenceMapper<>(ResultSet::getInt));
+        MAPPERS.put(Long.class, new ReferenceMapper<>(ResultSet::getLong));
+        MAPPERS.put(Float.class, new ReferenceMapper<>(ResultSet::getFloat));
+        MAPPERS.put(Double.class, new ReferenceMapper<>(ResultSet::getDouble));
     }
 
     @Override
@@ -45,13 +45,6 @@ public class BoxedMapperFactory implements ColumnMapperFactory {
         Class<?> rawType = getErasedType(type);
 
         return Optional.ofNullable(MAPPERS.get(rawType));
-    }
-
-    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> {
-            T value = getter.get(r, i);
-            return r.wasNull() ? null : value;
-        };
     }
 
     private static Character getCharacter(ResultSet r, int i) throws SQLException {

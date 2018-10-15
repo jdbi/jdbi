@@ -50,16 +50,9 @@ public class OptionalMapperFactory implements ColumnMapperFactory {
         return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
-    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> {
-            T value = getter.get(r, i);
-            return r.wasNull() ? null : value;
-        };
-    }
-
     private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
         return (ColumnMapper<Opt>) (r, columnNumber, ctx) -> {
-            final Box boxed = referenceMapper(columnGetter).map(r, columnNumber, ctx);
+            final Box boxed = ((ColumnMapper<Box>) new ReferenceMapper<>(columnGetter)).map(r, columnNumber, ctx);
             if (boxed == null) {
                 return empty.get();
             }

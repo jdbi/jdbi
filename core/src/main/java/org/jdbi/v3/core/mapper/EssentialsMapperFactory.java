@@ -35,9 +35,9 @@ public class EssentialsMapperFactory implements ColumnMapperFactory {
     // TODO consider other types?
 
     static {
-        MAPPERS.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
-        MAPPERS.put(String.class, referenceMapper(ResultSet::getString));
-        MAPPERS.put(byte[].class, referenceMapper(ResultSet::getBytes));
+        MAPPERS.put(BigDecimal.class, new ReferenceMapper<>(ResultSet::getBigDecimal));
+        MAPPERS.put(String.class, new ReferenceMapper<>(ResultSet::getString));
+        MAPPERS.put(byte[].class, new ReferenceMapper<>(ResultSet::getBytes));
         MAPPERS.put(UUID.class, EssentialsMapperFactory::getUUID);
     }
 
@@ -48,18 +48,9 @@ public class EssentialsMapperFactory implements ColumnMapperFactory {
         return Optional.ofNullable(MAPPERS.get(rawType));
     }
 
-    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> {
-            T value = getter.get(r, i);
-            return r.wasNull() ? null : value;
-        };
-    }
-
     private static UUID getUUID(ResultSet r, int i, StatementContext ctx) throws SQLException {
         String s = r.getString(i);
-        if (s == null) {
-            return null;
-        }
-        return UUID.fromString(s);
+
+        return s == null ? null : UUID.fromString(s);
     }
 }

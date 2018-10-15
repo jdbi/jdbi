@@ -39,13 +39,13 @@ public class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(Instant.class, referenceMapper(JavaTimeMapperFactory::getInstant));
-        MAPPERS.put(LocalDate.class, referenceMapper(JavaTimeMapperFactory::getLocalDate));
-        MAPPERS.put(LocalTime.class, referenceMapper(JavaTimeMapperFactory::getLocalTime));
-        MAPPERS.put(LocalDateTime.class, referenceMapper(JavaTimeMapperFactory::getLocalDateTime));
-        MAPPERS.put(OffsetDateTime.class, referenceMapper(JavaTimeMapperFactory::getOffsetDateTime));
-        MAPPERS.put(ZonedDateTime.class, referenceMapper(JavaTimeMapperFactory::getZonedDateTime));
-        MAPPERS.put(ZoneId.class, referenceMapper(JavaTimeMapperFactory::getZoneId));
+        MAPPERS.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
+        MAPPERS.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));
+        MAPPERS.put(LocalTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalTime));
+        MAPPERS.put(LocalDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDateTime));
+        MAPPERS.put(OffsetDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
+        MAPPERS.put(ZonedDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZonedDateTime));
+        MAPPERS.put(ZoneId.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZoneId));
     }
 
     @Override
@@ -53,13 +53,6 @@ public class JavaTimeMapperFactory implements ColumnMapperFactory {
         Class<?> rawType = getErasedType(type);
 
         return Optional.ofNullable(MAPPERS.get(rawType));
-    }
-
-    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> {
-            T value = getter.get(r, i);
-            return r.wasNull() ? null : value;
-        };
     }
 
     private static Instant getInstant(ResultSet r, int i) throws SQLException {
