@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,7 +36,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -53,11 +51,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
-        MAPPERS.put(String.class, referenceMapper(ResultSet::getString));
-        MAPPERS.put(byte[].class, referenceMapper(ResultSet::getBytes));
-        MAPPERS.put(UUID.class, BuiltInMapperFactory::getUUID);
-
         MAPPERS.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
         MAPPERS.put(URL.class, referenceMapper(ResultSet::getURL));
         MAPPERS.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
@@ -98,14 +91,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         } catch (URISyntaxException e) {
             throw new SQLException("Failed to convert data to URI", e);
         }
-    }
-
-    private static UUID getUUID(ResultSet r, int i, StatementContext ctx) throws SQLException {
-        String s = r.getString(i);
-        if (s == null) {
-            return null;
-        }
-        return UUID.fromString(s);
     }
 
     private static Instant getInstant(ResultSet r, int i) throws SQLException {
