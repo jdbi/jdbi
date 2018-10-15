@@ -2414,7 +2414,7 @@ Binding a list of values is done through the `@BindList` annotation. This will e
 [source,java]
 ----
 @SqlQuery("select name from users where id in (<userIds>)")
-List<String> getFromIds(@BindList("userIds") userIds)
+List<String> getFromIds(@BindList("userIds") List<Long> userIds)
 ----
 
 You can bind from the entries of a `Map`:
