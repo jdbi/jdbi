@@ -37,6 +37,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         factories.add(new EnumMapperFactory());
         factories.add(new OptionalMapperFactory());
         factories.add(new PrimitiveMapperFactory());
+        factories.add(new BoxedMapperFactory());
         factories.add(new BuiltInMapperFactory());
         factories.add(new SqlArrayMapperFactory());
     }

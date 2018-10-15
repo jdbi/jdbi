@@ -53,15 +53,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
-        MAPPERS.put(Byte.class, referenceMapper(ResultSet::getByte));
-        MAPPERS.put(Character.class, referenceMapper(BuiltInMapperFactory::getCharacter));
-        MAPPERS.put(Short.class, referenceMapper(ResultSet::getShort));
-        MAPPERS.put(Integer.class, referenceMapper(ResultSet::getInt));
-        MAPPERS.put(Long.class, referenceMapper(ResultSet::getLong));
-        MAPPERS.put(Float.class, referenceMapper(ResultSet::getFloat));
-        MAPPERS.put(Double.class, referenceMapper(ResultSet::getDouble));
-
         MAPPERS.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
         MAPPERS.put(String.class, referenceMapper(ResultSet::getString));
         MAPPERS.put(byte[].class, referenceMapper(ResultSet::getBytes));
@@ -98,14 +89,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
             T value = getter.get(r, i);
             return r.wasNull() ? null : value;
         };
-    }
-
-    private static Character getCharacter(ResultSet r, int i) throws SQLException {
-        String s = r.getString(i);
-        if (s != null && !s.isEmpty()) {
-            return s.charAt(0);
-        }
-        return null;
     }
 
     private static URI getURI(ResultSet r, int i) throws SQLException {
