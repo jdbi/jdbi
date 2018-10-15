@@ -194,15 +194,12 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     }
 
     private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
-        return new ColumnMapper<Opt>() {
-            @Override
-            public Opt map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-                final Box boxed = referenceMapper(columnGetter).map(r, columnNumber, ctx);
-                if (boxed == null) {
-                    return empty.get();
-                }
-                return present.apply(boxed);
+        return (ColumnMapper<Opt>) (r, columnNumber, ctx) -> {
+            final Box boxed = referenceMapper(columnGetter).map(r, columnNumber, ctx);
+            if (boxed == null) {
+                return empty.get();
             }
+            return present.apply(boxed);
         };
     }
 
