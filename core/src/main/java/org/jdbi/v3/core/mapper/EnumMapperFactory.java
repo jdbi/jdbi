@@ -20,10 +20,11 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
- * from the JDK.
+ * Column mapper factory which knows how to map Enums.
  */
 public class EnumMapperFactory implements ColumnMapperFactory {
+    // TODO relation to EnumByNameMapperFactory?
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);

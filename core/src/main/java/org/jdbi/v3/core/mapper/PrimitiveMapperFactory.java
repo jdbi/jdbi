@@ -24,11 +24,12 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
- * from the JDK.
+ * Column mapper factory which knows how to map java primitives.
  */
 public class PrimitiveMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+
+    // TODO allow user to configure if nulls should return defaults (current) or throw exception
 
     static {
         MAPPERS.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
@@ -44,7 +45,7 @@ public class PrimitiveMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
-        
+
         return Optional.ofNullable(MAPPERS.get(rawType));
     }
 

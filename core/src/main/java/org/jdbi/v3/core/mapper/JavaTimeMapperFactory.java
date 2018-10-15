@@ -33,8 +33,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
- * from the JDK.
+ * Column mapper factory which knows how to map JavaTime objects.
  */
 public class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
@@ -42,10 +41,10 @@ public class JavaTimeMapperFactory implements ColumnMapperFactory {
     static {
         MAPPERS.put(Instant.class, referenceMapper(JavaTimeMapperFactory::getInstant));
         MAPPERS.put(LocalDate.class, referenceMapper(JavaTimeMapperFactory::getLocalDate));
+        MAPPERS.put(LocalTime.class, referenceMapper(JavaTimeMapperFactory::getLocalTime));
         MAPPERS.put(LocalDateTime.class, referenceMapper(JavaTimeMapperFactory::getLocalDateTime));
         MAPPERS.put(OffsetDateTime.class, referenceMapper(JavaTimeMapperFactory::getOffsetDateTime));
         MAPPERS.put(ZonedDateTime.class, referenceMapper(JavaTimeMapperFactory::getZonedDateTime));
-        MAPPERS.put(LocalTime.class, referenceMapper(JavaTimeMapperFactory::getLocalTime));
         MAPPERS.put(ZoneId.class, referenceMapper(JavaTimeMapperFactory::getZoneId));
     }
 
@@ -80,11 +79,13 @@ public class JavaTimeMapperFactory implements ColumnMapperFactory {
 
     private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
+        // TODO systemDefault(), eww, provide config instead
         return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 
     private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
+        // TODO systemDefault(), eww, provide config instead
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 

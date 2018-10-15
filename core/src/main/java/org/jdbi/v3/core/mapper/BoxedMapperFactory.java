@@ -24,8 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
- * from the JDK.
+ * Column mapper factory which knows how to map boxed java primitives.
  */
 public class BoxedMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
