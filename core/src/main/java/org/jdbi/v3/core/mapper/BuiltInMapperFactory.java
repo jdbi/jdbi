@@ -14,11 +14,6 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -39,7 +34,6 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
@@ -51,10 +45,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
-        MAPPERS.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
-        MAPPERS.put(URL.class, referenceMapper(ResultSet::getURL));
-        MAPPERS.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
-
         MAPPERS.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
 
         MAPPERS.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
@@ -82,15 +72,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
             T value = getter.get(r, i);
             return r.wasNull() ? null : value;
         };
-    }
-
-    private static URI getURI(ResultSet r, int i) throws SQLException {
-        String s = r.getString(i);
-        try {
-            return s == null ? null : new URI(s);
-        } catch (URISyntaxException e) {
-            throw new SQLException("Failed to convert data to URI", e);
-        }
     }
 
     private static Instant getInstant(ResultSet r, int i) throws SQLException {
@@ -126,15 +107,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static ZoneId getZoneId(ResultSet r, int i) throws SQLException {
         String id = r.getString(i);
         return id == null ? null : ZoneId.of(id);
-    }
-
-    private static InetAddress getInetAddress(ResultSet r, int i, StatementContext ctx) throws SQLException {
-        String hostname = r.getString(i);
-        try {
-            return hostname == null ? null : InetAddress.getByName(hostname);
-        } catch (UnknownHostException e) {
-            throw new MappingException("Could not map InetAddress", e);
-        }
     }
 
     private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
