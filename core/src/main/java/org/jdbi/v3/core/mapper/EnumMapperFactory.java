@@ -17,22 +17,15 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 /**
  * Column mapper factory which knows how to map Enums.
  */
 class EnumMapperFactory implements ColumnMapperFactory {
-    // TODO relation to EnumByNameMapperFactory?
+    private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> rawType = getErasedType(type);
-
-        if (rawType.isEnum()) {
-            return Optional.of(EnumMapper.byName(rawType.asSubclass(Enum.class)));
-        } else {
-            return Optional.empty();
-        }
+        // TODO byName or byOrdinal configurable
+        return BY_NAME.build(type, config);
     }
 }
