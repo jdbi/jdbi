@@ -22,7 +22,6 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         FACTORIES.add(new InternetMapperFactory());
         FACTORIES.add(new SqlTimeMapperFactory());
         FACTORIES.add(new JavaTimeMapperFactory());
-        FACTORIES.add(new OptionalMapperFactory());
         FACTORIES.add(new SqlArrayMapperFactory());
     }
 
