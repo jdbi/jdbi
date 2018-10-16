@@ -30,12 +30,15 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map networking related objects.
+ * Column mapper factory which knows how to map networking related objects:
+ * <ul>
+ *     <li>{@link InetAddress}</li>
+ *     <li>{@link URL}</li>
+ *     <li>{@link URI}</li>
+ * </ul>
  */
 class InternetMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
-
-    // TODO consider more types?
 
     static {
         MAPPERS.put(InetAddress.class, InternetMapperFactory::getInetAddress);

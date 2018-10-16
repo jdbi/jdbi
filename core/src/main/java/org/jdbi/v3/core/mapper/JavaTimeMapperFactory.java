@@ -33,10 +33,21 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map JavaTime objects.
+ * Column mapper factory which knows how to map JavaTime objects:
+ * <ul>
+ *     <li>{@link Instant}</li>
+ *     <li>{@link LocalDate}</li>
+ *     <li>{@link LocalTime}</li>
+ *     <li>{@link LocalDateTime}</li>
+ *     <li>{@link OffsetDateTime}</li>
+ *     <li>{@link ZonedDateTime}</li>
+ *     <li>{@link ZoneId}</li>
+ * </ul>
  */
 class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+
+    // TODO ZoneOffset support?
 
     static {
         MAPPERS.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));

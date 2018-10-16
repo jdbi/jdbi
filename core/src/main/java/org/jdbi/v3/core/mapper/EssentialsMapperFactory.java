@@ -27,7 +27,13 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map high-level essentials like String.
+ * Column mapper factory which knows how to map high-level essentials like String:
+ * <ul>
+ *     <li>{@link BigDecimal}</li>
+ *     <li>{@link String}</li>
+ *     <li>{@code byte[]}</li>
+ *     <li>{@link UUID}</li>
+ * </ul>
  */
 class EssentialsMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();

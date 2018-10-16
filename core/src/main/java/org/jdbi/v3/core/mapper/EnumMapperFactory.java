@@ -18,7 +18,7 @@ import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
- * Column mapper factory which knows how to map Enums.
+ * Column mapper factory which knows how to map {@link Enum} instances.
  */
 class EnumMapperFactory implements ColumnMapperFactory {
     private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();

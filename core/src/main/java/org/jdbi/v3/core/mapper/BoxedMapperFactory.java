@@ -24,7 +24,17 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map boxed java primitives.
+ * Column mapper factory which knows how to map boxed java primitives:
+ * <ul>
+ *     <li>{@link Boolean}</li>
+ *     <li>{@link Byte}</li>
+ *     <li>{@link Character}</li>
+ *     <li>{@link Short}</li>
+ *     <li>{@link Integer}</li>
+ *     <li>{@link Long}</li>
+ *     <li>{@link Float}</li>
+ *     <li>{@link Double}</li>
+ * </ul>
  */
 class BoxedMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();

@@ -28,7 +28,13 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map Optionals.
+ * Column mapper factory which knows how to map Optionals:
+ * <ul>
+ *     <li>{@link Optional}</li>
+ *     <li>{@link OptionalInt}</li>
+ *     <li>{@link OptionalLong}</li>
+ *     <li>{@link OptionalDouble}</li>
+ * </ul>
  */
 class OptionalMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();

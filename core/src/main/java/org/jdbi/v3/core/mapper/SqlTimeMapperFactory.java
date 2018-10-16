@@ -24,7 +24,10 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map java.sql timekeeping objects.
+ * Column mapper factory which knows how to map java.sql timekeeping objects:
+ * <ul>
+ *     <li>{@link Timestamp}</li>
+ * </ul>
  */
 class SqlTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();

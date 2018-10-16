@@ -24,7 +24,17 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map java primitives.
+ * Column mapper factory which knows how to map java primitives:
+ * <ul>
+ *     <li>{@code boolean}</li>
+ *     <li>{@code byte}</li>
+ *     <li>{@code char}</li>
+ *     <li>{@code short}</li>
+ *     <li>{@code int}</li>
+ *     <li>{@code long}</li>
+ *     <li>{@code float}</li>
+ *     <li>{@code double}</li>
+ * </ul>
  */
 class PrimitiveMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
