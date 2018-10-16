@@ -26,7 +26,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map java primitives.
  */
-public class PrimitiveMapperFactory implements ColumnMapperFactory {
+class PrimitiveMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     // TODO allow user to configure if nulls should return defaults (current) or throw exception

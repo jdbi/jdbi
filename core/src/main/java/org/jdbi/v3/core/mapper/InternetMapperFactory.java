@@ -32,7 +32,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map networking related objects.
  */
-public class InternetMapperFactory implements ColumnMapperFactory {
+class InternetMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     // TODO consider more types?

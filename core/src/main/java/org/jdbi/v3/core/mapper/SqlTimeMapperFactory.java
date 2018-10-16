@@ -26,7 +26,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map java.sql timekeeping objects.
  */
-public class SqlTimeMapperFactory implements ColumnMapperFactory {
+class SqlTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     // TODO isn't Date support missing here? perhaps other types too? in fact why is Timestamp here if ResultSet has Timestamp support?

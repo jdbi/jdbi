@@ -30,7 +30,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map Optionals.
  */
-public class OptionalMapperFactory implements ColumnMapperFactory {
+class OptionalMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {

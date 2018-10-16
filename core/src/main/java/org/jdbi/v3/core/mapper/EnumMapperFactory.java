@@ -22,7 +22,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map Enums.
  */
-public class EnumMapperFactory implements ColumnMapperFactory {
+class EnumMapperFactory implements ColumnMapperFactory {
     // TODO relation to EnumByNameMapperFactory?
 
     @Override

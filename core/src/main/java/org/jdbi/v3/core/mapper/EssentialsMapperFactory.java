@@ -29,7 +29,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map high-level essentials like String.
  */
-public class EssentialsMapperFactory implements ColumnMapperFactory {
+class EssentialsMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     // TODO consider other types?

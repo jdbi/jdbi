@@ -35,7 +35,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 /**
  * Column mapper factory which knows how to map JavaTime objects.
  */
-public class JavaTimeMapperFactory implements ColumnMapperFactory {
+class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
     static {
