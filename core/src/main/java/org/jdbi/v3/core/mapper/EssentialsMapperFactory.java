@@ -38,8 +38,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 class EssentialsMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
-    // TODO consider other types?
-
     static {
         MAPPERS.put(BigDecimal.class, new ReferenceMapper<>(ResultSet::getBigDecimal));
         MAPPERS.put(String.class, new ReferenceMapper<>(ResultSet::getString));

@@ -39,8 +39,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 class PrimitiveMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
-    // TODO allow user to configure if nulls should return defaults (current) or throw exception
-
     static {
         MAPPERS.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
         MAPPERS.put(byte.class, primitiveMapper(ResultSet::getByte));

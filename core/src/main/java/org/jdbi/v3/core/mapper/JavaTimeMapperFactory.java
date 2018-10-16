@@ -47,8 +47,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
 
-    // TODO ZoneOffset support?
-
     static {
         MAPPERS.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
         MAPPERS.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));

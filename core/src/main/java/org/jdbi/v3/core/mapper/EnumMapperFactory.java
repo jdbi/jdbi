@@ -25,7 +25,6 @@ class EnumMapperFactory implements ColumnMapperFactory {
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        // TODO byName or byOrdinal configurable
         return BY_NAME.build(type, config);
     }
 }
