@@ -7,7 +7,12 @@
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
     - Support for HSTORE columns, using the @HStore annotation
 
-3.5.0
+3.5.2
+  - Bug Fixes
+    - bindList throws an NPE if called with an immutable list,
+      method is safe according to the specification
+
+3.5.1 (whoops, 3.5.0 was released from the wrong commit!)
   - New API
     - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be
       left out of the final query (e.g. by a TemplateEngine that renders conditional blocks)
@@ -34,6 +39,7 @@
       or oracle
     - LocalTransactionHandler: rollback on thrown Throwable
     - test on openjdk11
+    - EnumSet mapping support
 
 3.4.0
     [ NOTE: this release's git tags are missing due to maintainer error! ]

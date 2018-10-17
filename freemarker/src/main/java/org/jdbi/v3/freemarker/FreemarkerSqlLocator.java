@@ -18,6 +18,7 @@ import java.util.Optional;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 
 /**
  * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
@@ -40,7 +41,11 @@ public class FreemarkerSqlLocator {
     }
 
     public static Template findTemplate(Class<?> type, String templateName) {
-        String path = type.getName().replace(".", "/") + "/" + templateName + ".sql.ftl";
+        String path = new ClasspathBuilder()
+            .appendFullyQualifiedClassName(type)
+            .appendVerbatim(templateName)
+            .setExtension("sql.ftl")
+            .build();
 
         try {
             return CONFIGURATION.getTemplate(path);

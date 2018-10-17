@@ -11,17 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.internal;
+package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
-import java.util.stream.Stream;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
-public class JdbiStreams {
-    private JdbiStreams() {
-        throw new UnsupportedOperationException("utility class");
-    }
+/**
+ * Column mapper factory which knows how to map {@link Enum} instances.
+ */
+class EnumMapperFactory implements ColumnMapperFactory {
+    private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();
 
-    public static <T> Stream<T> toStream(Optional<T> optional) {
-        return optional.map(Stream::of).orElseGet(Stream::empty);
+    @Override
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        return BY_NAME.build(type, config);
     }
 }

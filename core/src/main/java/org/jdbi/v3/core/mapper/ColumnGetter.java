@@ -11,17 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.internal;
+package org.jdbi.v3.core.mapper;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-public class JdbiStreams {
-    private JdbiStreams() {
-        throw new UnsupportedOperationException("utility class");
-    }
-
-    public static <T> Stream<T> toStream(Optional<T> optional) {
-        return optional.map(Stream::of).orElseGet(Stream::empty);
-    }
+@FunctionalInterface
+interface ColumnGetter<T> {
+    T get(ResultSet rs, int i) throws SQLException;
 }

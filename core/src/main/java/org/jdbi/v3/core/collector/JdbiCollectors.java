@@ -32,6 +32,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
         register(new BuiltInCollectorFactory());
         register(new OptionalPrimitiveCollectorFactory());
         register(new ArrayCollectorFactory());
+        register(new EnumSetCollectorFactory());
     }
 
     private JdbiCollectors(JdbiCollectors that) {

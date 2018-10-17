@@ -13,20 +13,19 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
+
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * Configuration registry for {@link ColumnMapperFactory} instances.
@@ -37,8 +36,16 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private ConfigRegistry registry;
 
     public ColumnMappers() {
+        // TODO move to BuiltInSupportPlugin
         register(new SqlArrayMapperFactory());
-        register(new BuiltInMapperFactory());
+        register(new JavaTimeMapperFactory());
+        register(new SqlTimeMapperFactory());
+        register(new InternetMapperFactory());
+        register(new EssentialsMapperFactory());
+        register(new BoxedMapperFactory());
+        register(new PrimitiveMapperFactory());
+        register(new OptionalMapperFactory());
+        register(new EnumMapperFactory());
         register(new NVarcharMapper());
     }
 
