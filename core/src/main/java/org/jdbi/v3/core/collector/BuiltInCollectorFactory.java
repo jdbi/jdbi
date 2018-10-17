@@ -72,12 +72,14 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * <li>java.util.concurrent.ConcurrentHashMap&lt;K, V&gt;</li>
  * <li>java.util.WeakHashMap&lt;K, V&gt;</li>
  * </ul>
+ *
+ * @deprecated will be replaced by plugin
  */
+@Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors;
+    private final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
 
     public BuiltInCollectorFactory() {
-        collectors = new HashMap<>();
         collectors.put(Optional.class, toOptional());
 
         collectors.put(Collection.class, toCollection(ArrayList::new));
@@ -105,8 +107,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
 
     @Override
     public boolean accepts(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.containsKey(erasedType) && containerType instanceof ParameterizedType;
+        return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
     }
 
     @Override
@@ -150,7 +151,10 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      * @param <M>        the type of the resulting {@code Map}
      * @param mapFactory a {@code Supplier} which returns a new, empty {@code Map} of the appropriate type.
      * @return a {@code Collector} which collects map entry elements into a {@code Map}, in encounter order.
+     *
+     * @deprecated Use {@link MapCollectors#toMap(Supplier)} instead.
      */
+    @Deprecated
     public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {
         return Collector.of(
                 mapFactory,
