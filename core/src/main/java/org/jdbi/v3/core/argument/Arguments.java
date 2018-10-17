@@ -13,17 +13,16 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * A registry for ArgumentFactory instances.
@@ -38,9 +37,19 @@ public class Arguments implements JdbiConfig<Arguments> {
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
     public Arguments() {
-        register(BuiltInArgumentFactory.INSTANCE);
+        // TODO move to BuiltInSupportPlugin
+        register(new PrimitivesArgumentFactory());
+        register(new BoxedArgumentFactory());
+        register(new EssentialsArgumentFactory());
+        register(new SqlArgumentFactory());
+        register(new InternetArgumentFactory());
+        register(new SqlTimeArgumentFactory());
+        register(new JavaTimeArgumentFactory());
         register(new SqlArrayArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
+        register(new EnumArgumentFactory());
+        register(new OptionalArgumentFactory());
+        register(new UntypedNullArgumentFactory());
     }
 
     @Override

@@ -45,7 +45,7 @@ public class TestLocalDateArgument {
 
     @Test
     public void testBindLocalDate() throws SQLException {
-        ArgumentFactory factory = BuiltInArgumentFactory.INSTANCE;
+        ArgumentFactory factory = new JavaTimeArgumentFactory();
 
         LocalDate date = LocalDate.of(2001, 1, 1);
 
