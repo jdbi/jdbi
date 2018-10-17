@@ -15,7 +15,7 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -37,7 +37,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class OptionalMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
 
     static {
         MAPPERS.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
