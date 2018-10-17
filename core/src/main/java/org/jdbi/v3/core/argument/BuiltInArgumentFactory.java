@@ -14,10 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.URI;
-import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -60,7 +56,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new PrimitivesArgumentFactory(),
         new BoxedArgumentFactory(),
         new EssentialsArgumentFactory(),
-        new SqlArgumentFactory()
+        new SqlArgumentFactory(),
+        new InternetArgumentFactory()
     );
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -80,11 +77,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, Inet4Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
-        register(map, Inet6Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
-        register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
-        register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
 
         register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
         register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
