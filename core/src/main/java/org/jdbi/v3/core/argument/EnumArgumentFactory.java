@@ -20,15 +20,13 @@ import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 class EnumArgumentFactory implements ArgumentFactory {
-    private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
-
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         // Enums must be bound as VARCHAR
         // TODO use the same configuration as EnumMapperFactory for consistency
         if (value instanceof Enum) {
             Enum<?> enumValue = (Enum<?>) value;
-            return Optional.of(STR_BUILDER.build(enumValue.name()));
+            return Optional.of(new BinderArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, enumValue.name()));
         } else {
             return Optional.empty();
         }

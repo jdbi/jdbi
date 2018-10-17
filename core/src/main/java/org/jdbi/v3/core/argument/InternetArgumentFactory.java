@@ -33,7 +33,7 @@ class InternetArgumentFactory implements ArgumentFactory {
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BuiltInArgument<>(klass, type, binder, v));
+        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
     }
 
     private static <T> StatementBinder<T> stringifyValue(StatementBinder<String> real) {

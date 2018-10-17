@@ -27,11 +27,10 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class EssentialsArgumentFactory implements ArgumentFactory {
-    private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        register(map, klass, v -> new BuiltInArgument<>(klass, type, binder, v));
+        register(map, klass, v -> new BinderArgument<>(klass, type, binder, v));
     }
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, ArgBuilder<T> builder) {
@@ -43,7 +42,7 @@ class EssentialsArgumentFactory implements ArgumentFactory {
 
         register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
         register(map, byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
-        register(map, String.class, STR_BUILDER);
+        register(map, String.class, BinderArgument.builder(String.class, Types.VARCHAR, PreparedStatement::setString));
         register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
 
         return Collections.unmodifiableMap(map);

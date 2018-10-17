@@ -18,13 +18,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.jdbi.v3.core.statement.StatementContext;
 
-final class BuiltInArgument<T> implements Argument {
+final class BinderArgument<T> implements Argument {
     private final T value;
     private final Class<T> klass;
     private final int type;
     private final StatementBinder<T> binder;
 
-    BuiltInArgument(Class<T> klass, int type, StatementBinder<T> binder, T value) {
+    BinderArgument(Class<T> klass, int type, StatementBinder<T> binder, T value) {
         this.binder = binder;
         this.klass = klass;
         this.type = type;
@@ -48,7 +48,7 @@ final class BuiltInArgument<T> implements Argument {
         return String.valueOf(value);
     }
 
-    StatementBinder<T> getStatementBinder() {
-        return binder;
+    static <T> ArgBuilder<T> builder(Class<T> klass, int sqlType, StatementBinder<T> binder) {
+        return value -> new BinderArgument<>(klass, sqlType, binder, value);
     }
 }
