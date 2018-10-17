@@ -1696,7 +1696,7 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
 Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
 registered for the same data type, the last registered wins.
 
-==== Mapping custom array types
+==== Mapping array types
 
 `SqlArrayType` only allows you to bind Java array/collection arguments to their
 SQL counterparts. To map SQL array columns back to Java types, you can register
@@ -1704,22 +1704,20 @@ a regular `ColumnMapper`:
 
 [source,java]
 ----
-public class UserIdListColumnMapper implements ColumnMapper<List<UserId>> {
+public class UserIdColumnMapper implements ColumnMapper<UserId> {
     @Override
-    public List<UserId> map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
-        final Integer[] userIds = (Integer[]) rs.getArray(col).getArray();
-        return Arrays.stream(userIds)
-                .map(UserId::new)
-                .collect(Collectors.toList());
+    public UserId map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
+        return new UserId(rs.getInt(col));
     }
 }
 ----
 
 [source,java]
 ----
+handle.registerColumnMapper(new UserIdColumnMapper());
 List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
       .bind("id", 1)
-      .map(new UserIdListColumnMapper())
+      .mapTo(new GenericType<List<UserId>>() {})
       .findOnly();
 ----
 
