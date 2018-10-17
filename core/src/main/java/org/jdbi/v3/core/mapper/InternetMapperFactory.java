@@ -38,19 +38,19 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class InternetMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
-    static {
-        MAPPERS.put(InetAddress.class, InternetMapperFactory::getInetAddress);
-        MAPPERS.put(URL.class, new GetterMapper<>(ResultSet::getURL));
-        MAPPERS.put(URI.class, new GetterMapper<>(InternetMapperFactory::getURI));
+    InternetMapperFactory() {
+        mappers.put(InetAddress.class, InternetMapperFactory::getInetAddress);
+        mappers.put(URL.class, new GetterMapper<>(ResultSet::getURL));
+        mappers.put(URI.class, new GetterMapper<>(InternetMapperFactory::getURI));
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static URI getURI(ResultSet r, int i) throws SQLException {
