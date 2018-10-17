@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
@@ -33,7 +34,16 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private ConfigRegistry registry;
 
     public ColumnMappers() {
-        factories.add(new BuiltInMapperFactory());
+        // TODO move to BuiltInSupportPlugin
+        factories.add(new EnumMapperFactory());
+        factories.add(new OptionalMapperFactory());
+        factories.add(new PrimitiveMapperFactory());
+        factories.add(new BoxedMapperFactory());
+        factories.add(new EssentialsMapperFactory());
+        factories.add(new InternetMapperFactory());
+        factories.add(new SqlTimeMapperFactory());
+        factories.add(new JavaTimeMapperFactory());
+        factories.add(new SqlArrayMapperFactory());
     }
 
     @Override

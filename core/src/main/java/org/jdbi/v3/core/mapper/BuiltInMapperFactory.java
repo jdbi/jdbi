@@ -25,7 +25,7 @@ import org.jdbi.v3.core.internal.JdbiStreams;
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
  */
 @Deprecated
-// TODO remove this entire class, move functionality to BuiltInSupportPlugin
+// TODO remove this entire class
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = new ArrayList<>();
 
