@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -57,7 +56,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new BoxedArgumentFactory(),
         new EssentialsArgumentFactory(),
         new SqlArgumentFactory(),
-        new InternetArgumentFactory()
+        new InternetArgumentFactory(),
+        new SqlTimeArgumentFactory()
     );
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -70,18 +70,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         map.put(klass, builder);
     }
 
-    /** Create a binder which calls String.valueOf on its argument and then delegates to another binder. */
-    private static <T> StatementBinder<T> stringifyValue(StatementBinder<String> real) {
-        return (p, i, v) -> real.bind(p, i, String.valueOf(v));
-    }
-
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
-        register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
-        register(map, Time.class, Types.TIME, PreparedStatement::setTime);
-        register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
 
         register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
         register(map, LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
