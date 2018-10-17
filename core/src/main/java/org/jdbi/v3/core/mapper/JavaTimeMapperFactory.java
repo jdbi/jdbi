@@ -45,23 +45,23 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class JavaTimeMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
-    static {
-        MAPPERS.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
-        MAPPERS.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));
-        MAPPERS.put(LocalTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalTime));
-        MAPPERS.put(LocalDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDateTime));
-        MAPPERS.put(OffsetDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
-        MAPPERS.put(ZonedDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZonedDateTime));
-        MAPPERS.put(ZoneId.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZoneId));
+    JavaTimeMapperFactory() {
+        mappers.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
+        mappers.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));
+        mappers.put(LocalTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalTime));
+        mappers.put(LocalDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDateTime));
+        mappers.put(OffsetDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
+        mappers.put(ZonedDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZonedDateTime));
+        mappers.put(ZoneId.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZoneId));
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static Instant getInstant(ResultSet r, int i) throws SQLException {
@@ -81,13 +81,11 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
 
     private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
-        // TODO systemDefault(), eww, provide config instead
         return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 
     private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
-        // TODO systemDefault(), eww, provide config instead
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 
