@@ -71,14 +71,13 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 @Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
-        new MapCollectorFactory()
+        new MapCollectorFactory(),
+        new OptionalCollectorFactory()
     );
 
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     public BuiltInCollectorFactory() {
-        collectors.put(Optional.class, toOptional());
-
         collectors.put(Collection.class, toCollection(ArrayList::new));
 
         collectors.put(List.class, toList());
