@@ -38,6 +38,10 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     public Arguments() {
         // TODO move to BuiltInSupportPlugin
+
+        // the null factory must be interrogated last to preserve types!
+        register(new UntypedNullArgumentFactory());
+
         register(new PrimitivesArgumentFactory());
         register(new BoxedArgumentFactory());
         register(new EssentialsArgumentFactory());
@@ -49,7 +53,6 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new JavaTimeZoneIdArgumentFactory());
         register(new EnumArgumentFactory());
         register(new OptionalArgumentFactory());
-        register(new UntypedNullArgumentFactory());
     }
 
     @Override
