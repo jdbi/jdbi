@@ -13,25 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Provides Collectors for built in JDK container types.
@@ -68,56 +56,31 @@ public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
         new MapCollectorFactory(),
         new OptionalCollectorFactory(),
-        new ListCollectorFactory()
+        new ListCollectorFactory(),
+        new SetCollectorFactory()
     );
-
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
-
-    public BuiltInCollectorFactory() {
-        collectors.put(Set.class, toSet());
-        collectors.put(HashSet.class, toCollection(HashSet::new));
-        collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
-        collectors.put(SortedSet.class, toCollection(TreeSet::new));
-        collectors.put(TreeSet.class, toCollection(TreeSet::new));
-    }
 
     @Override
     public boolean accepts(Type containerType) {
-        boolean delegatable = FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
-        if (delegatable) {
-            return true;
-        }
-
-        return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
+        return FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        Optional<Type> delegated = FACTORIES.stream()
+        return FACTORIES.stream()
             .map(factory -> factory.elementType(containerType))
             .filter(Optional::isPresent)
             .findFirst()
             .map(Optional::get);
-        if (delegated.isPresent()) {
-            return delegated;
-        }
-
-        Class<?> erasedType = getErasedType(containerType);
-        return findGenericParameter(containerType, erasedType);
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        Optional<? extends Collector<?, ?, ?>> delegate = FACTORIES.stream()
+        return FACTORIES.stream()
             .filter(factory -> factory.accepts(containerType))
             .map(factory -> factory.build(containerType))
-            .findFirst();
-        if (delegate.isPresent()) {
-            return delegate.get();
-        }
-
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.get(erasedType);
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Unprovidable collector was requested. This is an internal jdbi bug; please report it to the jdbi developers."));
     }
 
     /**
