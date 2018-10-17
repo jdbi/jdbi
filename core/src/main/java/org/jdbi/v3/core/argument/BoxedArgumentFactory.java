@@ -31,16 +31,12 @@ class BoxedArgumentFactory implements ArgumentFactory {
         map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
     }
 
-    private static <T> StatementBinder<T> stringifyValue(StatementBinder<String> real) {
-        return (p, i, v) -> real.bind(p, i, String.valueOf(v));
-    }
-
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
 
         register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
         register(map, Byte.class, Types.TINYINT, PreparedStatement::setByte);
-        register(map, Character.class, Types.CHAR, stringifyValue(PreparedStatement::setString));
+        register(map, Character.class, Types.CHAR, new ObjectToStringBinder<>(PreparedStatement::setString));
         register(map, Short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(map, Integer.class, Types.INTEGER, PreparedStatement::setInt);
         register(map, Long.class, Types.INTEGER, PreparedStatement::setLong);

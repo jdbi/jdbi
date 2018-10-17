@@ -36,17 +36,13 @@ class InternetArgumentFactory implements ArgumentFactory {
         map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
     }
 
-    private static <T> StatementBinder<T> stringifyValue(StatementBinder<String> real) {
-        return (p, i, v) -> real.bind(p, i, String.valueOf(v));
-    }
-
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
 
         register(map, Inet4Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
         register(map, Inet6Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
-        register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
+        register(map, URI.class, Types.VARCHAR, new ObjectToStringBinder<>(PreparedStatement::setString));
 
         return Collections.unmodifiableMap(map);
     }
