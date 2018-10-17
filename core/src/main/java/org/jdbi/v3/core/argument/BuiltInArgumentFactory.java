@@ -56,6 +56,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
     private static final ArgumentFactory ENUMS = new EnumArgumentFactory();
     private static final ArgumentFactory OPTIONALS = new OptionalArgumentFactory();
+    private static final ArgumentFactory NULL = new UntypedNullArgumentFactory();
+
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -149,8 +151,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             return maybeOptional;
         }
 
-        return value == null
-                ? Optional.of(config.get(Arguments.class).getUntypedNullArgument())
-                : Optional.empty();
+        return NULL.build(expectedType, value, config);
     }
 }
