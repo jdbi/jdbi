@@ -13,28 +13,21 @@
  */
 package org.jdbi.v3.core.collector;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -77,6 +70,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  */
 @Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
+    private static final List<CollectorFactory> FACTORIES = Arrays.asList(
+        new MapCollectorFactory()
+    );
+
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
 
     public BuiltInCollectorFactory() {
@@ -94,35 +91,43 @@ public class BuiltInCollectorFactory implements CollectorFactory {
         collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
         collectors.put(SortedSet.class, toCollection(TreeSet::new));
         collectors.put(TreeSet.class, toCollection(TreeSet::new));
-
-        collectors.put(Map.class, toMap(LinkedHashMap::new));
-        collectors.put(HashMap.class, toMap(HashMap::new));
-        collectors.put(LinkedHashMap.class, toMap(LinkedHashMap::new));
-        collectors.put(SortedMap.class, toMap(TreeMap::new));
-        collectors.put(TreeMap.class, toMap(TreeMap::new));
-        collectors.put(ConcurrentMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(ConcurrentHashMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(WeakHashMap.class, toMap(WeakHashMap::new));
     }
 
     @Override
     public boolean accepts(Type containerType) {
+        boolean delegatable = FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
+        if (delegatable) {
+            return true;
+        }
+
         return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-
-        if (Map.class.isAssignableFrom(erasedType)) {
-            return Optional.of(GenericTypes.resolveMapEntryType(containerType));
+        Optional<Type> delegated = FACTORIES.stream()
+            .map(factory -> factory.elementType(containerType))
+            .filter(Optional::isPresent)
+            .findFirst()
+            .map(Optional::get);
+        if (delegated.isPresent()) {
+            return delegated;
         }
 
+        Class<?> erasedType = getErasedType(containerType);
         return findGenericParameter(containerType, erasedType);
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
+        Optional<? extends Collector<?, ?, ?>> delegate = FACTORIES.stream()
+            .filter(factory -> factory.accepts(containerType))
+            .map(factory -> factory.build(containerType))
+            .findFirst();
+        if (delegate.isPresent()) {
+            return delegate.get();
+        }
+
         Class<?> erasedType = getErasedType(containerType);
         return collectors.get(erasedType);
     }
