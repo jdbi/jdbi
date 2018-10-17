@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.Inet4Address;
@@ -23,7 +22,6 @@ import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -43,7 +41,6 @@ import java.util.OptionalLong;
 import java.util.UUID;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
-import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -53,7 +50,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * many core Java types.  Generally you should not need to use this
  * class directly, but instead should bind your object with the
  * {@link SqlStatement} convenience methods.
+ *
+ * @deprecated will be replaced by a plugin
  */
+@Deprecated
 public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
@@ -181,50 +181,5 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             }
         }
         return nestedValue == null ? Object.class : nestedValue.getClass();
-    }
-
-    @FunctionalInterface
-    interface StatementBinder<T> {
-        void bind(PreparedStatement p, int index, T value) throws SQLException;
-    }
-
-    @FunctionalInterface
-    interface ArgBuilder<T> {
-        Argument build(T value);
-    }
-
-    static final class BuiltInArgument<T> implements Argument {
-        private final T value;
-        private final Class<T> klass;
-        private final int type;
-        private final StatementBinder<T> binder;
-
-        private BuiltInArgument(Class<T> klass, int type, StatementBinder<T> binder, T value) {
-            this.binder = binder;
-            this.klass = klass;
-            this.type = type;
-            this.value = value;
-        }
-
-        @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-            if (value == null) {
-                statement.setNull(position, type);
-                return;
-            }
-            binder.bind(statement, position, value);
-        }
-
-        @Override
-        public String toString() {
-            if (klass.isArray()) {
-                return String.format("{array of %s length %s}", klass.getComponentType(), Array.getLength(value));
-            }
-            return String.valueOf(value);
-        }
-
-        StatementBinder<T> getStatementBinder() {
-            return binder;
-        }
     }
 }
