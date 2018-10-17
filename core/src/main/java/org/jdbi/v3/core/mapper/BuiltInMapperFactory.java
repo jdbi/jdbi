@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiStreams;
 
@@ -35,8 +34,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         new EssentialsMapperFactory(),
         new InternetMapperFactory(),
         new SqlTimeMapperFactory(),
-        new JavaTimeMapperFactory(),
-        new SqlArrayMapperFactory()
+        new JavaTimeMapperFactory()
     );
 
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
