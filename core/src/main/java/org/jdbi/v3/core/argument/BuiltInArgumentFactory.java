@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.URI;
@@ -37,7 +36,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
 
@@ -63,7 +61,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
     private static final List<ArgumentFactory> FACTORIES = Arrays.asList(
         new PrimitivesArgumentFactory(),
-        new BoxedArgumentFactory()
+        new BoxedArgumentFactory(),
+        new EssentialsArgumentFactory()
     );
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -83,11 +82,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
-        register(map, byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
-        register(map, String.class, STR_BUILDER);
-        register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
 
         register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
         register(map, Clob.class, Types.CLOB, PreparedStatement::setClob);
