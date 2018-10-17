@@ -42,8 +42,8 @@ class InternetMapperFactory implements ColumnMapperFactory {
 
     static {
         MAPPERS.put(InetAddress.class, InternetMapperFactory::getInetAddress);
-        MAPPERS.put(URL.class, new ReferenceMapper<>(ResultSet::getURL));
-        MAPPERS.put(URI.class, new ReferenceMapper<>(InternetMapperFactory::getURI));
+        MAPPERS.put(URL.class, new GetterMapper<>(ResultSet::getURL));
+        MAPPERS.put(URI.class, new GetterMapper<>(InternetMapperFactory::getURI));
     }
 
     @Override

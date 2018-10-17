@@ -48,13 +48,13 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
 
     static {
-        MAPPERS.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
-        MAPPERS.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));
-        MAPPERS.put(LocalTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalTime));
-        MAPPERS.put(LocalDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDateTime));
-        MAPPERS.put(OffsetDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
-        MAPPERS.put(ZonedDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZonedDateTime));
-        MAPPERS.put(ZoneId.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZoneId));
+        MAPPERS.put(Instant.class, new GetterMapper<>(JavaTimeMapperFactory::getInstant));
+        MAPPERS.put(LocalDate.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDate));
+        MAPPERS.put(LocalTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalTime));
+        MAPPERS.put(LocalDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDateTime));
+        MAPPERS.put(OffsetDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
+        MAPPERS.put(ZonedDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getZonedDateTime));
+        MAPPERS.put(ZoneId.class, new GetterMapper<>(JavaTimeMapperFactory::getZoneId));
     }
 
     @Override

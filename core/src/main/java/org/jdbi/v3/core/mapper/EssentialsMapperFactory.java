@@ -39,9 +39,9 @@ class EssentialsMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
 
     static {
-        MAPPERS.put(BigDecimal.class, new ReferenceMapper<>(ResultSet::getBigDecimal));
-        MAPPERS.put(String.class, new ReferenceMapper<>(ResultSet::getString));
-        MAPPERS.put(byte[].class, new ReferenceMapper<>(ResultSet::getBytes));
+        MAPPERS.put(BigDecimal.class, new GetterMapper<>(ResultSet::getBigDecimal));
+        MAPPERS.put(String.class, new GetterMapper<>(ResultSet::getString));
+        MAPPERS.put(byte[].class, new GetterMapper<>(ResultSet::getBytes));
         MAPPERS.put(UUID.class, EssentialsMapperFactory::getUUID);
     }
 

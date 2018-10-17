@@ -33,7 +33,7 @@ class SqlTimeMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
 
     static {
-        MAPPERS.put(Timestamp.class, new ReferenceMapper<>(ResultSet::getTimestamp));
+        MAPPERS.put(Timestamp.class, new GetterMapper<>(ResultSet::getTimestamp));
     }
 
     @Override

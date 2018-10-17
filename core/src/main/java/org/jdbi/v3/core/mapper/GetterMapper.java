@@ -17,10 +17,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.jdbi.v3.core.statement.StatementContext;
 
-class ReferenceMapper<T> implements ColumnMapper<T> {
+class GetterMapper<T> implements ColumnMapper<T> {
     private final ColumnGetter<T> getter;
 
-    ReferenceMapper(ColumnGetter<T> getter) {
+    GetterMapper(ColumnGetter<T> getter) {
         this.getter = getter;
     }
 

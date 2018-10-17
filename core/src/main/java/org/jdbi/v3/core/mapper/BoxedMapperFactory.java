@@ -40,14 +40,14 @@ class BoxedMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new IdentityHashMap<>();
 
     static {
-        MAPPERS.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
-        MAPPERS.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
-        MAPPERS.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
-        MAPPERS.put(Short.class, new ReferenceMapper<>(ResultSet::getShort));
-        MAPPERS.put(Integer.class, new ReferenceMapper<>(ResultSet::getInt));
-        MAPPERS.put(Long.class, new ReferenceMapper<>(ResultSet::getLong));
-        MAPPERS.put(Float.class, new ReferenceMapper<>(ResultSet::getFloat));
-        MAPPERS.put(Double.class, new ReferenceMapper<>(ResultSet::getDouble));
+        MAPPERS.put(Boolean.class, new GetterMapper<>(ResultSet::getBoolean));
+        MAPPERS.put(Byte.class, new GetterMapper<>(ResultSet::getByte));
+        MAPPERS.put(Character.class, new GetterMapper<>(BoxedMapperFactory::getCharacter));
+        MAPPERS.put(Short.class, new GetterMapper<>(ResultSet::getShort));
+        MAPPERS.put(Integer.class, new GetterMapper<>(ResultSet::getInt));
+        MAPPERS.put(Long.class, new GetterMapper<>(ResultSet::getLong));
+        MAPPERS.put(Float.class, new GetterMapper<>(ResultSet::getFloat));
+        MAPPERS.put(Double.class, new GetterMapper<>(ResultSet::getDouble));
     }
 
     @Override

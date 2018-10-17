@@ -58,7 +58,7 @@ class OptionalMapperFactory implements ColumnMapperFactory {
 
     private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
         return (ColumnMapper<Opt>) (r, columnNumber, ctx) -> {
-            final Box boxed = ((ColumnMapper<Box>) new ReferenceMapper<>(columnGetter)).map(r, columnNumber, ctx);
+            final Box boxed = ((ColumnMapper<Box>) new GetterMapper<>(columnGetter)).map(r, columnNumber, ctx);
             if (boxed == null) {
                 return empty.get();
             }
