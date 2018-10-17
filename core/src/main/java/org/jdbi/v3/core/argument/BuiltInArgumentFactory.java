@@ -58,6 +58,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
     private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
+    private static final ArgumentFactory ENUMS = new EnumArgumentFactory();
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -163,9 +164,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         }
 
         // Enums must be bound as VARCHAR.
-        if (value instanceof Enum) {
-            Enum<?> enumValue = (Enum<?>) value;
-            return Optional.of(STR_BUILDER.build(enumValue.name()));
+        Optional<Argument> possibleEnum = ENUMS.build(expectedType, value, config);
+        if (possibleEnum.isPresent()) {
+            return possibleEnum;
         }
 
         if (value instanceof Optional) {
