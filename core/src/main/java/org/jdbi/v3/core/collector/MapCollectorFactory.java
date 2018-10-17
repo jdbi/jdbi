@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.collector;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -47,7 +48,7 @@ class MapCollectorFactory implements CollectorFactory {
     public boolean accepts(Type containerType) {
         Class<?> erasedType = getErasedType(containerType);
 
-        return Map.class.isAssignableFrom(erasedType) && collectors.containsKey(getErasedType(containerType));
+        return containerType instanceof ParameterizedType && collectors.containsKey(erasedType);
     }
 
     @Override
