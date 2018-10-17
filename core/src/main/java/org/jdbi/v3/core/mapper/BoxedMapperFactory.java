@@ -37,9 +37,9 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class BoxedMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
-    static {
+    BoxedMapperFactory() {
         mappers.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
         mappers.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
         mappers.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
