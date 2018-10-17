@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.JdbiStreams;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -48,9 +49,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         return FACTORIES.stream()
-            .map(factory -> factory.build(expectedType, value, config))
-            .filter(Optional::isPresent)
-            .findFirst()
-            .map(Optional::get);
+            .flatMap(factory -> JdbiStreams.toStream(factory.build(expectedType, value, config)))
+            .findFirst();
     }
 }
