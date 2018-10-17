@@ -35,14 +35,10 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.UUID;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
@@ -59,6 +55,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
     private static final ArgumentFactory ENUMS = new EnumArgumentFactory();
+    private static final ArgumentFactory OPTIONALS = new OptionalArgumentFactory();
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -122,28 +119,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
 
-        register(map, OptionalInt.class, Types.INTEGER, (p, i, v) -> {
-            if (v.isPresent()) {
-                p.setInt(i, v.getAsInt());
-            } else {
-                p.setNull(i, Types.INTEGER);
-            }
-        });
-        register(map, OptionalLong.class, Types.BIGINT, (p, i, v) -> {
-            if (v.isPresent()) {
-                p.setLong(i, v.getAsLong());
-            } else {
-                p.setNull(i, Types.BIGINT);
-            }
-        });
-        register(map, OptionalDouble.class, Types.DOUBLE, (p, i, v) -> {
-            if (v.isPresent()) {
-                p.setDouble(i, v.getAsDouble());
-            } else {
-                p.setNull(i, Types.DOUBLE);
-            }
-        });
-
         return Collections.unmodifiableMap(map);
     }
 
@@ -169,24 +144,13 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             return possibleEnum;
         }
 
-        if (value instanceof Optional) {
-            Object nestedValue = ((Optional<?>) value).orElse(null);
-            Type nestedType = findOptionalType(expectedType, nestedValue);
-            return config.get(Arguments.class).findFor(nestedType, nestedValue);
+        Optional<Argument> maybeOptional = OPTIONALS.build(expectedType, value, config);
+        if (maybeOptional.isPresent()) {
+            return maybeOptional;
         }
 
         return value == null
                 ? Optional.of(config.get(Arguments.class).getUntypedNullArgument())
                 : Optional.empty();
-    }
-
-    private Type findOptionalType(Type wrapperType, Object nestedValue) {
-        if (getErasedType(wrapperType).equals(Optional.class)) {
-            Optional<Type> nestedType = findGenericParameter(wrapperType, Optional.class);
-            if (nestedType.isPresent()) {
-                return nestedType.get();
-            }
-        }
-        return nestedValue == null ? Object.class : nestedValue.getClass();
     }
 }
