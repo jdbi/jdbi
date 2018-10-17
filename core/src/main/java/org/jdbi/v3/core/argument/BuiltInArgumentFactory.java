@@ -77,43 +77,49 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-        register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
-        register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
-        register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
+
         register(map, boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
-        register(map, Byte.class, Types.TINYINT, PreparedStatement::setByte);
         register(map, byte.class, Types.TINYINT, PreparedStatement::setByte);
-        register(map, byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
-        register(map, Character.class, Types.CHAR, stringifyValue(PreparedStatement::setString));
         register(map, char.class, Types.CHAR, stringifyValue(PreparedStatement::setString));
-        register(map, Clob.class, Types.CLOB, PreparedStatement::setClob);
-        register(map, Double.class, Types.DOUBLE, PreparedStatement::setDouble);
-        register(map, double.class, Types.DOUBLE, PreparedStatement::setDouble);
-        register(map, Float.class, Types.FLOAT, PreparedStatement::setFloat);
+        register(map, short.class, Types.SMALLINT, PreparedStatement::setShort);
+        register(map, int.class, Types.INTEGER, PreparedStatement::setInt);
+        register(map, long.class, Types.INTEGER, PreparedStatement::setLong);
         register(map, float.class, Types.FLOAT, PreparedStatement::setFloat);
+        register(map, double.class, Types.DOUBLE, PreparedStatement::setDouble);
+
+        register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
+        register(map, Byte.class, Types.TINYINT, PreparedStatement::setByte);
+        register(map, Character.class, Types.CHAR, stringifyValue(PreparedStatement::setString));
+        register(map, Short.class, Types.SMALLINT, PreparedStatement::setShort);
+        register(map, Integer.class, Types.INTEGER, PreparedStatement::setInt);
+        register(map, Long.class, Types.INTEGER, PreparedStatement::setLong);
+        register(map, Float.class, Types.FLOAT, PreparedStatement::setFloat);
+        register(map, Double.class, Types.DOUBLE, PreparedStatement::setDouble);
+
+        register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
+        register(map, byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
+        register(map, String.class, STR_BUILDER);
+        register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
+
+        register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
+        register(map, Clob.class, Types.CLOB, PreparedStatement::setClob);
+
         register(map, Inet4Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
         register(map, Inet6Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
-        register(map, Integer.class, Types.INTEGER, PreparedStatement::setInt);
-        register(map, int.class, Types.INTEGER, PreparedStatement::setInt);
-        register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
-        register(map, Long.class, Types.INTEGER, PreparedStatement::setLong);
-        register(map, long.class, Types.INTEGER, PreparedStatement::setLong);
-        register(map, Short.class, Types.SMALLINT, PreparedStatement::setShort);
-        register(map, short.class, Types.SMALLINT, PreparedStatement::setShort);
-        register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
-        register(map, String.class, STR_BUILDER);
-        register(map, Time.class, Types.TIME, PreparedStatement::setTime);
-        register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
         register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
-        register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
+
+        register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
+        register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
+        register(map, Time.class, Types.TIME, PreparedStatement::setTime);
+        register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
 
         register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
         register(map, LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
+        register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
         register(map, LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
         register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-        register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
 
         register(map, OptionalInt.class, Types.INTEGER, (p, i, v) -> {
             if (v.isPresent()) {
