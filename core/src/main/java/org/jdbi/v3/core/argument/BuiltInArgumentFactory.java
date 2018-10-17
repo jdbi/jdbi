@@ -31,8 +31,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +61,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static final ArgumentFactory NULL = new UntypedNullArgumentFactory();
 
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private static final List<ArgumentFactory> FACTORIES = Arrays.asList(
+        new PrimitivesArgumentFactory()
+    );
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
@@ -77,15 +82,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
-        register(map, byte.class, Types.TINYINT, PreparedStatement::setByte);
-        register(map, char.class, Types.CHAR, stringifyValue(PreparedStatement::setString));
-        register(map, short.class, Types.SMALLINT, PreparedStatement::setShort);
-        register(map, int.class, Types.INTEGER, PreparedStatement::setInt);
-        register(map, long.class, Types.INTEGER, PreparedStatement::setLong);
-        register(map, float.class, Types.FLOAT, PreparedStatement::setFloat);
-        register(map, double.class, Types.DOUBLE, PreparedStatement::setDouble);
 
         register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
         register(map, Byte.class, Types.TINYINT, PreparedStatement::setByte);
@@ -131,6 +127,14 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
         if (value != null && expectedClass == Object.class) {
             expectedClass = value.getClass();
+        }
+
+        Optional<Optional<Argument>> delegated = FACTORIES.stream()
+            .map(factory -> factory.build(expectedType, value, config))
+            .filter(Optional::isPresent)
+            .findFirst();
+        if (delegated.isPresent()) {
+            return delegated.get();
         }
 
         @SuppressWarnings("rawtypes")
