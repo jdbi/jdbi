@@ -36,20 +36,20 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class EssentialsMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
-    static {
-        MAPPERS.put(BigDecimal.class, new ReferenceMapper<>(ResultSet::getBigDecimal));
-        MAPPERS.put(String.class, new ReferenceMapper<>(ResultSet::getString));
-        MAPPERS.put(byte[].class, new ReferenceMapper<>(ResultSet::getBytes));
-        MAPPERS.put(UUID.class, EssentialsMapperFactory::getUUID);
+    EssentialsMapperFactory() {
+        mappers.put(BigDecimal.class, new ReferenceMapper<>(ResultSet::getBigDecimal));
+        mappers.put(String.class, new ReferenceMapper<>(ResultSet::getString));
+        mappers.put(byte[].class, new ReferenceMapper<>(ResultSet::getBytes));
+        mappers.put(UUID.class, EssentialsMapperFactory::getUUID);
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static UUID getUUID(ResultSet r, int i, StatementContext ctx) throws SQLException {

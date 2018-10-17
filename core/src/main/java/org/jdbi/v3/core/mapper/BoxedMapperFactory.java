@@ -37,31 +37,28 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class BoxedMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
-    static {
-        MAPPERS.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
-        MAPPERS.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
-        MAPPERS.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
-        MAPPERS.put(Short.class, new ReferenceMapper<>(ResultSet::getShort));
-        MAPPERS.put(Integer.class, new ReferenceMapper<>(ResultSet::getInt));
-        MAPPERS.put(Long.class, new ReferenceMapper<>(ResultSet::getLong));
-        MAPPERS.put(Float.class, new ReferenceMapper<>(ResultSet::getFloat));
-        MAPPERS.put(Double.class, new ReferenceMapper<>(ResultSet::getDouble));
+    BoxedMapperFactory() {
+        mappers.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
+        mappers.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
+        mappers.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
+        mappers.put(Short.class, new ReferenceMapper<>(ResultSet::getShort));
+        mappers.put(Integer.class, new ReferenceMapper<>(ResultSet::getInt));
+        mappers.put(Long.class, new ReferenceMapper<>(ResultSet::getLong));
+        mappers.put(Float.class, new ReferenceMapper<>(ResultSet::getFloat));
+        mappers.put(Double.class, new ReferenceMapper<>(ResultSet::getDouble));
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static Character getCharacter(ResultSet r, int i) throws SQLException {
         String s = r.getString(i);
-        if (s != null && !s.isEmpty()) {
-            return s.charAt(0);
-        }
-        return null;
+        return s == null || s.isEmpty() ? null : s.charAt(0);
     }
 }

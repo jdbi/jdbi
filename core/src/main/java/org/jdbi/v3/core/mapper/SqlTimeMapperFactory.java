@@ -30,16 +30,16 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class SqlTimeMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
-    static {
-        MAPPERS.put(Timestamp.class, new ReferenceMapper<>(ResultSet::getTimestamp));
+    SqlTimeMapperFactory() {
+        mappers.put(Timestamp.class, new ReferenceMapper<>(ResultSet::getTimestamp));
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 }
