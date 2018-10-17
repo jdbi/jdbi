@@ -14,21 +14,32 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ * Column mapper factory which knows how to map java.sql timekeeping objects:
+ * <ul>
+ *     <li>{@link Timestamp}</li>
+ * </ul>
  */
-public class EnumByNameMapperFactory implements ColumnMapperFactory {
+class SqlTimeMapperFactory implements ColumnMapperFactory {
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+
+    static {
+        MAPPERS.put(Timestamp.class, new ReferenceMapper<>(ResultSet::getTimestamp));
+    }
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
+        Class<?> rawType = getErasedType(type);
 
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        return Optional.ofNullable(MAPPERS.get(rawType));
     }
 }

@@ -17,18 +17,14 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 /**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ * Column mapper factory which knows how to map {@link Enum} instances.
  */
-public class EnumByNameMapperFactory implements ColumnMapperFactory {
+class EnumMapperFactory implements ColumnMapperFactory {
+    private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
-
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        return BY_NAME.build(type, config);
     }
 }
