@@ -18,8 +18,6 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.URI;
 import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -53,7 +51,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
-    private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
     private static final ArgumentFactory ENUMS = new EnumArgumentFactory();
     private static final ArgumentFactory OPTIONALS = new OptionalArgumentFactory();
     private static final ArgumentFactory NULL = new UntypedNullArgumentFactory();
@@ -62,7 +59,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static final List<ArgumentFactory> FACTORIES = Arrays.asList(
         new PrimitivesArgumentFactory(),
         new BoxedArgumentFactory(),
-        new EssentialsArgumentFactory()
+        new EssentialsArgumentFactory(),
+        new SqlArgumentFactory()
     );
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -82,9 +80,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
         final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
-        register(map, Clob.class, Types.CLOB, PreparedStatement::setClob);
 
         register(map, Inet4Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
         register(map, Inet6Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
