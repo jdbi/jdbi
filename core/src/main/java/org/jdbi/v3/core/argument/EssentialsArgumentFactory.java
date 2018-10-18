@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,25 +26,13 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class EssentialsArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        register(map, klass, v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, ArgBuilder<T> builder) {
-        map.put(klass, builder);
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
-        register(map, byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
-        register(map, String.class, BinderArgument.builder(String.class, Types.VARCHAR, PreparedStatement::setString));
-        register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
-
-        return Collections.unmodifiableMap(map);
+    EssentialsArgumentFactory() {
+        register(BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
+        register(byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
+        register(String.class, BinderArgument.builder(String.class, Types.VARCHAR, PreparedStatement::setString));
+        register(UUID.class, Types.VARCHAR, PreparedStatement::setObject);
     }
 
     @Override
@@ -58,8 +45,16 @@ class EssentialsArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         return Optional.ofNullable(v).map(f -> f.build(value));
+    }
+
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        register(klass, v -> new BinderArgument<>(klass, type, binder, v));
+    }
+
+    private <T> void register(Class<T> klass, ArgBuilder<T> builder) {
+        builders.put(klass, builder);
     }
 }

@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,23 +31,15 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class JavaTimeArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
-        register(map, LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
-        register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
-        register(map, LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
-        register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-        register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-
-        return Collections.unmodifiableMap(map);
+    JavaTimeArgumentFactory() {
+        register(Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
+        register(LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
+        register(LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
+        register(LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
+        register(OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
+        register(ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
     }
 
     @Override
@@ -61,8 +52,12 @@ class JavaTimeArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         return Optional.ofNullable(v).map(f -> f.build(value));
+    }
+
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }

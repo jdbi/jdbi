@@ -16,7 +16,6 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,25 +24,17 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class BoxedArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
-        register(map, Byte.class, Types.TINYINT, PreparedStatement::setByte);
-        register(map, Character.class, Types.CHAR, new ObjectToStringBinder<>(PreparedStatement::setString));
-        register(map, Short.class, Types.SMALLINT, PreparedStatement::setShort);
-        register(map, Integer.class, Types.INTEGER, PreparedStatement::setInt);
-        register(map, Long.class, Types.INTEGER, PreparedStatement::setLong);
-        register(map, Float.class, Types.FLOAT, PreparedStatement::setFloat);
-        register(map, Double.class, Types.DOUBLE, PreparedStatement::setDouble);
-
-        return Collections.unmodifiableMap(map);
+    BoxedArgumentFactory() {
+        register(Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
+        register(Byte.class, Types.TINYINT, PreparedStatement::setByte);
+        register(Character.class, Types.CHAR, new ObjectToStringBinder<>(PreparedStatement::setString));
+        register(Short.class, Types.SMALLINT, PreparedStatement::setShort);
+        register(Integer.class, Types.INTEGER, PreparedStatement::setInt);
+        register(Long.class, Types.INTEGER, PreparedStatement::setLong);
+        register(Float.class, Types.FLOAT, PreparedStatement::setFloat);
+        register(Double.class, Types.DOUBLE, PreparedStatement::setDouble);
     }
 
     @Override
@@ -56,8 +47,12 @@ class BoxedArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         return Optional.ofNullable(v).map(f -> f.build(value));
+    }
+
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }

@@ -18,7 +18,6 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,19 +26,11 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class SqlArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
-        register(map, Clob.class, Types.CLOB, PreparedStatement::setClob);
-
-        return Collections.unmodifiableMap(map);
+    SqlArgumentFactory() {
+        register(Blob.class, Types.BLOB, PreparedStatement::setBlob);
+        register(Clob.class, Types.CLOB, PreparedStatement::setClob);
     }
 
     @Override
@@ -52,8 +43,12 @@ class SqlArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         return Optional.ofNullable(v).map(f -> f.build(value));
+    }
+
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }

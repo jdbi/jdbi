@@ -15,7 +15,6 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,38 +27,30 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class OptionalArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, OptionalInt.class, Types.INTEGER, (p, i, v) -> {
+    OptionalArgumentFactory() {
+        register(OptionalInt.class, Types.INTEGER, (p, i, v) -> {
             if (v.isPresent()) {
                 p.setInt(i, v.getAsInt());
             } else {
                 p.setNull(i, Types.INTEGER);
             }
         });
-        register(map, OptionalLong.class, Types.BIGINT, (p, i, v) -> {
+        register(OptionalLong.class, Types.BIGINT, (p, i, v) -> {
             if (v.isPresent()) {
                 p.setLong(i, v.getAsLong());
             } else {
                 p.setNull(i, Types.BIGINT);
             }
         });
-        register(map, OptionalDouble.class, Types.DOUBLE, (p, i, v) -> {
+        register(OptionalDouble.class, Types.DOUBLE, (p, i, v) -> {
             if (v.isPresent()) {
                 p.setDouble(i, v.getAsDouble());
             } else {
                 p.setNull(i, Types.DOUBLE);
             }
         });
-
-        return Collections.unmodifiableMap(map);
     }
 
     @Override
@@ -72,7 +63,7 @@ class OptionalArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         if (v != null) {
             return Optional.of(v.build(value));
@@ -87,7 +78,11 @@ class OptionalArgumentFactory implements ArgumentFactory {
         }
     }
 
-    private Type findOptionalType(Type wrapperType, Object nestedValue) {
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        builders.put(klass, BinderArgument.builder(klass, type, binder));
+    }
+
+    private static Type findOptionalType(Type wrapperType, Object nestedValue) {
         if (getErasedType(wrapperType).equals(Optional.class)) {
             Optional<Type> nestedType = findGenericParameter(wrapperType, Optional.class);
             if (nestedType.isPresent()) {

@@ -18,7 +18,6 @@ import java.sql.PreparedStatement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,21 +26,13 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class SqlTimeArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        map.put(klass, (ArgBuilder<T>) v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
-
-        register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
-        register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
-        register(map, Time.class, Types.TIME, PreparedStatement::setTime);
-        register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
-
-        return Collections.unmodifiableMap(map);
+    SqlTimeArgumentFactory() {
+        register(java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
+        register(java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
+        register(Time.class, Types.TIME, PreparedStatement::setTime);
+        register(Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
     }
 
     @Override
@@ -54,8 +45,12 @@ class SqlTimeArgumentFactory implements ArgumentFactory {
         }
 
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        ArgBuilder v = builders.get(expectedClass);
 
         return Optional.ofNullable(v).map(f -> f.build(value));
+    }
+
+    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
+        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }
