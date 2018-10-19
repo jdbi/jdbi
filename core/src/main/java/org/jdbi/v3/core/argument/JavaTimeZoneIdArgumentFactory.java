@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
+import org.jdbi.v3.core.argument.internal.LoggableToStringOrNPEArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import java.sql.Types;
@@ -25,6 +26,6 @@ public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneI
 
     @Override
     protected Argument build(ZoneId value, ConfigRegistry config) {
-        return (i, p, ctx) -> p.setString(i, value.getId());
+        return new LoggableToStringOrNPEArgument<>(value);
     }
 }
