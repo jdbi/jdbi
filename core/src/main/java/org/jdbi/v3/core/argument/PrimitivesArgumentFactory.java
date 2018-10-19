@@ -13,46 +13,18 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Optional;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
-class PrimitivesArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
-
+class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     PrimitivesArgumentFactory() {
         register(boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
         register(byte.class, Types.TINYINT, PreparedStatement::setByte);
-        register(char.class, Types.CHAR, new ObjectToStringBinder<>(PreparedStatement::setString));
+        register(char.class, Types.CHAR, new ToStringBinder<>(PreparedStatement::setString));
         register(short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(int.class, Types.INTEGER, PreparedStatement::setInt);
         register(long.class, Types.INTEGER, PreparedStatement::setLong);
         register(float.class, Types.FLOAT, PreparedStatement::setFloat);
         register(double.class, Types.DOUBLE, PreparedStatement::setDouble);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        Class<?> expectedClass = getErasedType(expectedType);
-
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
-        @SuppressWarnings("rawtypes")
-        ArgBuilder v = builders.get(expectedClass);
-
-        return Optional.ofNullable(v).map(f -> f.build(value));
-    }
-
-    private <T> void register(Class<T> klass, int sqlType, StatementBinder<T> binder) {
-        builders.put(klass, BinderArgument.builder(klass, sqlType, binder));
     }
 }

@@ -13,7 +13,18 @@
  */
 package org.jdbi.v3.core.argument;
 
-@FunctionalInterface
-interface ArgBuilder<T> {
-    Argument build(T value);
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+class ToStringBinder<T> implements StatementBinder<T> {
+    private final StatementBinder<String> stringSetter;
+
+    ToStringBinder(StatementBinder<String> stringSetter) {
+        this.stringSetter = stringSetter;
+    }
+
+    @Override
+    public void bind(PreparedStatement p, int index, T value) throws SQLException {
+        stringSetter.bind(p, index, String.valueOf(value));
+    }
 }

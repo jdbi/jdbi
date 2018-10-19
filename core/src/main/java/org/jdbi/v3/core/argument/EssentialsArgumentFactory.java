@@ -13,48 +13,16 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
-class EssentialsArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
-
+class EssentialsArgumentFactory extends DelegatingArgumentFactory {
     EssentialsArgumentFactory() {
         register(BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
         register(byte[].class, Types.VARBINARY, PreparedStatement::setBytes);
-        register(String.class, BinderArgument.builder(String.class, Types.VARCHAR, PreparedStatement::setString));
+        register(String.class, Types.VARCHAR, PreparedStatement::setString);
         register(UUID.class, Types.VARCHAR, PreparedStatement::setObject);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        Class<?> expectedClass = getErasedType(expectedType);
-
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
-        @SuppressWarnings("rawtypes")
-        ArgBuilder v = builders.get(expectedClass);
-
-        return Optional.ofNullable(v).map(f -> f.build(value));
-    }
-
-    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
-        register(klass, v -> new BinderArgument<>(klass, type, binder, v));
-    }
-
-    private <T> void register(Class<T> klass, ArgBuilder<T> builder) {
-        builders.put(klass, builder);
     }
 }

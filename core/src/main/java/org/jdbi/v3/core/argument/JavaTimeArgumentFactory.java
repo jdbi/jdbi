@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -23,16 +22,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Optional;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
-class JavaTimeArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
-
+class JavaTimeArgumentFactory extends DelegatingArgumentFactory {
     JavaTimeArgumentFactory() {
         register(Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
         register(LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
@@ -40,24 +31,5 @@ class JavaTimeArgumentFactory implements ArgumentFactory {
         register(LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
         register(OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        Class<?> expectedClass = getErasedType(expectedType);
-
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
-        @SuppressWarnings("rawtypes")
-        ArgBuilder v = builders.get(expectedClass);
-
-        return Optional.ofNullable(v).map(f -> f.build(value));
-    }
-
-    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
-        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }

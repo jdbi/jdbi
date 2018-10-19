@@ -13,42 +13,14 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Type;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Optional;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
-class SqlArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
-
+class SqlArgumentFactory extends DelegatingArgumentFactory {
     SqlArgumentFactory() {
         register(Blob.class, Types.BLOB, PreparedStatement::setBlob);
         register(Clob.class, Types.CLOB, PreparedStatement::setClob);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        Class<?> expectedClass = getErasedType(expectedType);
-
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
-        @SuppressWarnings("rawtypes")
-        ArgBuilder v = builders.get(expectedClass);
-
-        return Optional.ofNullable(v).map(f -> f.build(value));
-    }
-
-    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
-        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 }

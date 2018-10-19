@@ -15,8 +15,6 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -26,9 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
-class OptionalArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, ArgBuilder<?>> builders = new IdentityHashMap<>();
-
+class OptionalArgumentFactory extends DelegatingArgumentFactory {
     OptionalArgumentFactory() {
         register(OptionalInt.class, Types.INTEGER, (p, i, v) -> {
             if (v.isPresent()) {
@@ -54,32 +50,14 @@ class OptionalArgumentFactory implements ArgumentFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        Class<?> expectedClass = getErasedType(expectedType);
-
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
-        @SuppressWarnings("rawtypes")
-        ArgBuilder v = builders.get(expectedClass);
-
-        if (v != null) {
-            return Optional.of(v.build(value));
-        }
-
         if (value instanceof Optional) {
             Object nestedValue = ((Optional<?>) value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
             return config.get(Arguments.class).findFor(nestedType, nestedValue);
         } else {
-            return Optional.empty();
+            return super.build(expectedType, value, config);
         }
-    }
-
-    private <T> void register(Class<T> klass, int type, StatementBinder<T> binder) {
-        builders.put(klass, BinderArgument.builder(klass, type, binder));
     }
 
     private static Type findOptionalType(Type wrapperType, Object nestedValue) {

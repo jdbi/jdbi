@@ -14,19 +14,17 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.Types;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 class EnumArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
         // Enums must be bound as VARCHAR
         // TODO use the same configuration as EnumMapperFactory for consistency
-        if (value instanceof Enum) {
-            Enum<?> enumValue = (Enum<?>) value;
-            return Optional.of(new BinderArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, enumValue.name()));
+        if (rawValue instanceof Enum) {
+            Enum<?> enumValue = (Enum<?>) rawValue;
+            return Optional.of((pos, stmt, ctx) -> stmt.setString(pos, enumValue.name()));
         } else {
             return Optional.empty();
         }
