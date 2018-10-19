@@ -11,25 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.internal;
+package org.jdbi.v3.core.argument.internal.strategies;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.statement.StatementContext;
 
-public class LoggableBinderArgument<T> implements Argument {
-    private final T value;
-    private final StatementBinder<T> binder;
+abstract class AbstractLoggableArgument<T> implements Argument {
+    protected final T value;
 
-    public LoggableBinderArgument(T value, StatementBinder<T> binder) {
+    AbstractLoggableArgument(T value) {
         this.value = value;
-        this.binder = binder;
-    }
-
-    @Override
-    public void apply(int pos, PreparedStatement stmt, StatementContext ctx) throws SQLException {
-        binder.bind(stmt, pos, value);
     }
 
     @Override

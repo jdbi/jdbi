@@ -11,20 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.internal;
+package org.jdbi.v3.core.argument.internal.strategies;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class LoggableSetNullOrBinderArgument<T> implements Argument {
-    private final T value;
+public class LoggableSetNullOrBinderArgument<T> extends AbstractLoggableArgument<T> {
     private final int sqlType;
     private final StatementBinder<T> binder;
 
     public LoggableSetNullOrBinderArgument(T value, int sqlType, StatementBinder<T> binder) {
-        this.value = value;
+        super(value);
         this.sqlType = sqlType;
         this.binder = binder;
     }
@@ -36,10 +35,5 @@ public class LoggableSetNullOrBinderArgument<T> implements Argument {
         } else {
             binder.bind(stmt, pos, value);
         }
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
     }
 }

@@ -19,7 +19,7 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.LoggableBinderArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.joda.time.DateTime;
 

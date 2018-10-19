@@ -19,7 +19,7 @@ import java.sql.Types;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.internal.LoggableToStringOrNPEArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**

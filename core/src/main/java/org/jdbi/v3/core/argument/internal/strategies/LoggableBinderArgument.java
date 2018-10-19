@@ -11,39 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.internal;
+package org.jdbi.v3.core.argument.internal.strategies;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.statement.StatementContext;
 
-// TODO unify with ObjectArgument?
-public class LoggableSetObjectArgument<T> implements Argument {
-    private final T value;
-    private final Integer sqlType;
+public class LoggableBinderArgument<T> extends AbstractLoggableArgument<T> {
+    private final StatementBinder<T> binder;
 
-    public LoggableSetObjectArgument(T value) {
-        this.value = value;
-        this.sqlType = null;
-    }
-
-    public LoggableSetObjectArgument(T value, int sqlType) {
-        this.value = value;
-        this.sqlType = sqlType;
+    public LoggableBinderArgument(T value, StatementBinder<T> binder) {
+        super(value);
+        this.binder = binder;
     }
 
     @Override
     public void apply(int pos, PreparedStatement stmt, StatementContext ctx) throws SQLException {
-        if (sqlType == null) {
-            stmt.setObject(pos, value);
-        } else {
-            stmt.setObject(pos, value, sqlType);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
+        binder.bind(stmt, pos, value);
     }
 }

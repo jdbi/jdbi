@@ -11,12 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument.internal;
+package org.jdbi.v3.core.argument.internal.strategies;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.function.Function;
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.StatementContext;
 
 // TODO remove all uses of this
@@ -24,27 +23,21 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @deprecated this strategy is such a bad idea...
  */
 @Deprecated
-public class LoggableToStringOrNPEArgument<T> implements Argument {
-    private final T value;
+public class LoggableToStringOrNPEArgument<T> extends AbstractLoggableArgument<T> {
     private final Function<T, String> toString;
 
     public LoggableToStringOrNPEArgument(T value) {
-        this.value = value;
+        super(value);
         this.toString = Object::toString;
     }
 
     public LoggableToStringOrNPEArgument(T value, Function<T, String> toString) {
-        this.value = value;
+        super(value);
         this.toString = toString;
     }
 
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         statement.setString(position, toString.apply(value));
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
     }
 }

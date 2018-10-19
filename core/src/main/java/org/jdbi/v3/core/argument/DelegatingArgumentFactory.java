@@ -18,7 +18,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import org.jdbi.v3.core.argument.internal.LoggableSetNullOrBinderArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetNullOrBinderArgument;
 import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
