@@ -14,14 +14,13 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jdbi.v3.core.argument.internal.LoggableSetNullOrBinderArgument;
+import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
@@ -43,34 +42,7 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory {
         return Optional.ofNullable(reusable).map(r -> r.apply(value));
     }
 
-    // this ensures our OOTB argument factories produce loggable, null-safe Arguments
     <T> void register(Class<T> klass, int sqlType, StatementBinder<T> binder) {
-        builders.put(klass, (T value) -> new LoggableNullTolerantArgument<>(value, sqlType, binder));
-    }
-
-    private static class LoggableNullTolerantArgument<T> implements Argument {
-        private final T value;
-        private final int sqlType;
-        private final StatementBinder<T> binder;
-
-        private LoggableNullTolerantArgument(T value, int sqlType, StatementBinder<T> binder) {
-            this.value = value;
-            this.sqlType = sqlType;
-            this.binder = binder;
-        }
-
-        @Override
-        public void apply(int pos, PreparedStatement stmt, StatementContext ctx) throws SQLException {
-            if (value == null) {
-                stmt.setNull(pos, sqlType);
-            } else {
-                binder.bind(stmt, pos, value);
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(value);
-        }
+        builders.put(klass, (T value) -> new LoggableSetNullOrBinderArgument<>(value, sqlType, binder));
     }
 }

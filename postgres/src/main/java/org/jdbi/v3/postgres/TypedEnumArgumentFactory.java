@@ -17,6 +17,7 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -32,6 +33,6 @@ public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum> {
 
     @Override
     protected Argument build(Enum value, ConfigRegistry config) {
-        return (p, s, c) -> s.setObject(p, value, Types.OTHER);
+        return new LoggableSetObjectArgument<>(value, Types.OTHER);
     }
 }

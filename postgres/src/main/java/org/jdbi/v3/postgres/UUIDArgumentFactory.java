@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -30,6 +31,6 @@ public class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
 
     @Override
     protected Argument build(UUID value, ConfigRegistry config) {
-        return (i, stmt, ctx) -> stmt.setObject(i, value);
+        return new LoggableSetObjectArgument<>(value);
     }
 }

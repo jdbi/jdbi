@@ -11,21 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.argument.internal;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.jdbi.v3.core.argument.internal.StatementBinder;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.statement.StatementContext;
 
-class ToStringBinder<T> implements StatementBinder<T> {
-    private final StatementBinder<String> stringSetter;
+public class LoggableBinderArgument<T> implements Argument {
+    private final T value;
+    private final StatementBinder<T> binder;
 
-    ToStringBinder(StatementBinder<String> stringSetter) {
-        this.stringSetter = stringSetter;
+    public LoggableBinderArgument(T value, StatementBinder<T> binder) {
+        this.value = value;
+        this.binder = binder;
     }
 
     @Override
-    public void bind(PreparedStatement p, int index, T value) throws SQLException {
-        stringSetter.bind(p, index, String.valueOf(value));
+    public void apply(int pos, PreparedStatement stmt, StatementContext ctx) throws SQLException {
+        binder.bind(stmt, pos, value);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }

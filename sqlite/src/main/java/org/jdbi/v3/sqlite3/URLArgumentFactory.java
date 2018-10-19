@@ -14,13 +14,15 @@
 
 package org.jdbi.v3.sqlite3;
 
+import java.net.URL;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import java.net.URL;
-import java.sql.Types;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Build URL objects as strings.
@@ -35,6 +37,17 @@ class URLArgumentFactory extends AbstractArgumentFactory<URL> {
 
     @Override
     protected Argument build(URL url, ConfigRegistry config) {
-        return (position, statement, ctx) -> statement.setString(position, url.toString());
+        // TODO make this not throw an npe anymore by using our core arguments? all our other ootb arguments are null-safe
+        return new Argument() {
+            @Override
+            public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+                statement.setString(position, url.toString());
+            }
+
+            @Override
+            public String toString() {
+                return String.valueOf(url);
+            }
+        };
     }
 }
