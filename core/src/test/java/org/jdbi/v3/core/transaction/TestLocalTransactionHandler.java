@@ -62,7 +62,6 @@ public class TestLocalTransactionHandler {
         Mockito.when(c.getAutoCommit()).thenReturn(true);
         Mockito.when(h.getConnection()).thenReturn(c);
 
-        // Verify that we don't get a ClassCastException when an Error is thrown within a transaction.
         assertThatThrownBy(() ->
             new LocalTransactionHandler().inTransaction(h, x -> {
                 throw error;
