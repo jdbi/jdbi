@@ -121,7 +121,6 @@ public class LocalTransactionHandler implements TransactionHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X {
