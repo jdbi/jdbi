@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestLocalTransactionHandler {
     @Rule
@@ -61,12 +62,11 @@ public class TestLocalTransactionHandler {
         Mockito.when(c.getAutoCommit()).thenReturn(true);
         Mockito.when(h.getConnection()).thenReturn(c);
 
-        try {
+        // Verify that we don't get a ClassCastException when an Error is thrown within a transaction.
+        assertThatThrownBy(() ->
             new LocalTransactionHandler().inTransaction(h, x -> {
                 throw error;
-            });
-        } catch (Throwable throwable) {
-            assertThat(throwable).isSameAs(error);
-        }
+            }))
+            .isSameAs(error);
     }
 }
