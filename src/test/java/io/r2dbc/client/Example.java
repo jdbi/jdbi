@@ -87,26 +87,6 @@ interface Example<T> {
         getJdbcOperations().execute("DROP TABLE test");
     }
 
-    @Test
-    default void generatedKeys() {
-        getJdbcOperations().execute("CREATE TABLE test2 (id SERIAL PRIMARY KEY, value INTEGER)");
-
-        getR2dbc()
-            .withHandle(handle -> handle
-
-                .createUpdate(String.format("INSERT INTO test2(value) VALUES (%s)", getPlaceholder(0)))
-                .bind(getIdentifier(0), 100).add()
-                .bind(getIdentifier(0), 200).add()
-                .executeReturningGeneratedKeys()
-                .flatMap(resultBearing -> resultBearing
-                    .mapResult(Example::extractIds)))
-
-            .as(StepVerifier::create)
-            .expectNext(Collections.singletonList(1)).as("value from first insertion")
-            .expectNext(Collections.singletonList(2)).as("value from second insertion")
-            .verifyComplete();
-    }
-
     /**
      * Returns the bind identifier for a given substitution.
      *

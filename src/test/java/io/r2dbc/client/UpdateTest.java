@@ -19,7 +19,6 @@ package io.r2dbc.client;
 import io.r2dbc.spi.test.MockResult;
 import io.r2dbc.spi.test.MockStatement;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Collections;
@@ -119,26 +118,6 @@ final class UpdateTest {
             .execute()
             .as(StepVerifier::create)
             .expectNext(100)
-            .verifyComplete();
-    }
-
-    @Test
-    void executeReturningGeneratedKeys() {
-        MockResult result = MockResult.empty();
-
-        MockStatement statement = MockStatement.builder()
-            .result(result)
-            .build();
-
-        new Update(statement)
-            .executeReturningGeneratedKeys()
-            .flatMap(r -> r
-                .mapResult(actual -> {
-                    assertThat(actual).isSameAs(result);
-                    return Mono.just(1);
-                }))
-            .as(StepVerifier::create)
-            .expectNext(1)
             .verifyComplete();
     }
 

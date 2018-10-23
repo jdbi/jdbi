@@ -18,11 +18,9 @@ package io.r2dbc.client;
 
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running updates such as {@code INSERT} and {@code DELETE}.
@@ -88,17 +86,6 @@ public final class Update {
             .flatMap(Result::getRowsUpdated);
     }
 
-    /**
-     * Executes one or more SQL statements and returns the {@link ResultBearing}s, including any generated keys.
-     *
-     * @return the {@link ResultBearing}s, returned by each statement
-     */
-    public Flux<ResultBearing> executeReturningGeneratedKeys() {
-        return Flux
-            .from(this.statement.executeReturningGeneratedKeys())
-            .map(SimpleResultBearing::new);
-    }
-
     @Override
     public String toString() {
         return "Update{" +
@@ -111,30 +98,6 @@ public final class Update {
 
         this.statement.bind(index, value);
         return this;
-    }
-
-    private static final class SimpleResultBearing implements ResultBearing {
-
-        private final Result result;
-
-        private SimpleResultBearing(Result result) {
-            this.result = result;
-        }
-
-        @Override
-        public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-            Objects.requireNonNull(f, "f must not be null");
-
-            return Flux.from(f.apply(this.result));
-        }
-
-        @Override
-        public String toString() {
-            return "SimpleResultBearing{" +
-                "result=" + this.result +
-                '}';
-        }
-
     }
 
 }
