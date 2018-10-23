@@ -142,7 +142,7 @@ public class LocalTransactionHandler implements TransactionHandler {
             } catch (Throwable rollback) {
                 e.addSuppressed(rollback);
             }
-            throw (X) e;
+            throw e;
         }
 
         didTxnRollback.remove();
