@@ -53,4 +53,20 @@ public class TestLocalTransactionHandler {
             assertThat(e.getSuppressed()[0]).isSameAs(inner);
         }
     }
+
+    @Test
+    public void testThrowError() throws Exception {
+        Error error = new Error("Transaction throws!");
+
+        Mockito.when(c.getAutoCommit()).thenReturn(true);
+        Mockito.when(h.getConnection()).thenReturn(c);
+
+        try {
+            new LocalTransactionHandler().inTransaction(h, x -> {
+                throw error;
+            });
+        } catch (Throwable throwable) {
+            assertThat(throwable).isSameAs(error);
+        }
+    }
 }
