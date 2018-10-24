@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;

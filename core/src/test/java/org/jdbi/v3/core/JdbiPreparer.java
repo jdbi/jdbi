@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import com.opentable.db.postgres.embedded.DatabasePreparer;

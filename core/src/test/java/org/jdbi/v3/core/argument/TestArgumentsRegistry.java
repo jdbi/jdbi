@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;

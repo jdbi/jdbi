@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.sql.SQLException;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

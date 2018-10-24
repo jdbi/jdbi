@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;

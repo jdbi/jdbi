@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
