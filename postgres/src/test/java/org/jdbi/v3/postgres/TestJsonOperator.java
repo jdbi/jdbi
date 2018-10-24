@@ -28,7 +28,7 @@ public class TestJsonOperator {
      * Escaping rules from <a href="https://jdbc.postgresql.org/documentation/head/statement.html">Postgres Prepared Statements</a>.
      */
     @Test
-    public void testJsonQuery() throws Exception {
+    public void testJsonQuery() {
         assertThat(db.getHandle()
             .createQuery("SELECT '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json->2")
             .mapTo(String.class)
@@ -130,7 +130,7 @@ public class TestJsonOperator {
     }
 
     @Test
-    public void testJsonQueryWithBindedInput() throws Exception {
+    public void testJsonQueryWithBindedInput() {
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
             .bind("key", "a")

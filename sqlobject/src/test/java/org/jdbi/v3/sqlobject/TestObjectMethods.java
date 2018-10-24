@@ -32,38 +32,38 @@ public class TestObjectMethods {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testToString() {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao.toString()).contains(DAO.class.getName());
     }
 
     @Test
-    public void testEquals() throws Exception {
+    public void testEquals() {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao).isEqualTo(dao);
     }
 
     @Test
-    public void testNotEquals() throws Exception {
+    public void testNotEquals() {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
         assertThat(dao).isNotEqualTo(oad);
     }
 
     @Test
-    public void testHashCodeDiff() throws Exception {
+    public void testHashCodeDiff() {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
         assertThat(dao.hashCode()).isNotEqualTo(oad.hashCode());
     }
 
     @Test
-    public void testHashCodeMatch() throws Exception {
+    public void testHashCodeMatch() {
         DAO dao = handle.attach(DAO.class);
         assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
     }

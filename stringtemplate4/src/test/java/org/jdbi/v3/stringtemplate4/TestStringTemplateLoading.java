@@ -37,7 +37,7 @@ public class TestStringTemplateLoading {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
@@ -53,7 +53,7 @@ public class TestStringTemplateLoading {
     }
 
     @Test
-    public void testConcurrentLoading() throws InterruptedException, ExecutionException {
+    public void testConcurrentLoading() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
         IntStream
             .range(1, 10)

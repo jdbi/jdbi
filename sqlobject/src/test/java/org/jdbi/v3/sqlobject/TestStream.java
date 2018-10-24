@@ -31,7 +31,7 @@ public class TestStream {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testReturnStream() throws Exception {
+    public void testReturnStream() {
         Something one = new Something(3, "foo");
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");

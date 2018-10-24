@@ -47,7 +47,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBindBatch() throws Exception {
+    public void testBindBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -61,7 +61,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBigishBatch() throws Exception {
+    public void testBigishBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -77,7 +77,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBindProperties() throws Exception {
+    public void testBindProperties() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -92,7 +92,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBindMaps() throws Exception {
+    public void testBindMaps() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -107,7 +107,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testMixedModeBatch() throws Exception {
+    public void testMixedModeBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -119,7 +119,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testPositionalBinding() throws Exception {
+    public void testPositionalBinding() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -129,7 +129,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testForgotFinalAdd() throws Exception {
+    public void testForgotFinalAdd() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -147,7 +147,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testContextGetsBinding() throws Exception {
+    public void testContextGetsBinding() {
         try {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 0)

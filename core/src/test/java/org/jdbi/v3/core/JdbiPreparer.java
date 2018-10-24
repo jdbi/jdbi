@@ -22,7 +22,7 @@ import com.opentable.db.postgres.embedded.DatabasePreparer;
 public abstract class JdbiPreparer implements DatabasePreparer {
 
     @Override
-    public void prepare(DataSource ds) throws SQLException {
+    public void prepare(DataSource ds) {
         Jdbi.create(ds).useHandle(this::prepare);
     }
 

@@ -32,17 +32,17 @@ public class TestIterator {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.openHandle();
     }
 
     @After
-    public void doTearDown() throws Exception {
+    public void doTearDown() {
         assertThat(h.isClosed()).isTrue().withFailMessage("Handle was not closed correctly!");
     }
 
     @Test
-    public void testSimple() throws Exception {
+    public void testSimple() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -62,7 +62,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testEmptyWorksToo() throws Exception {
+    public void testEmptyWorksToo() {
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandleRollback()
             .mapToMap()
@@ -72,7 +72,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testHasNext() throws Exception {
+    public void testHasNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -100,7 +100,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testNext() throws Exception {
+    public void testNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -118,7 +118,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testJustNext() throws Exception {
+    public void testJustNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -134,7 +134,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testTwoTwo() throws Exception {
+    public void testTwoTwo() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -154,7 +154,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testTwoOne() throws Exception {
+    public void testTwoOne() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -173,7 +173,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testExplodeIterator() throws Exception {
+    public void testExplodeIterator() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -195,7 +195,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testEmptyExplosion() throws Exception {
+    public void testEmptyExplosion() {
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandleRollback()
@@ -206,7 +206,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testNonPathologicalJustNext() throws Exception {
+    public void testNonPathologicalJustNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
 
         // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
@@ -222,7 +222,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testStillLeakingJustNext() throws Exception {
+    public void testStillLeakingJustNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -249,7 +249,7 @@ public class TestIterator {
     }
 
     @Test
-    public void testLessLeakingJustNext() throws Exception {
+    public void testLessLeakingJustNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 

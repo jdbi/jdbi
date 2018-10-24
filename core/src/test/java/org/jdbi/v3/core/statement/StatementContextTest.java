@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class StatementContextTest {
 
     @Test
-    public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
+    public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() {
         final StatementContext context = StatementContextAccess.createContext();
 
         context.setReturningGeneratedKeys(true);
@@ -34,7 +34,7 @@ public class StatementContextTest {
     }
 
     @Test
-    public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
+    public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() {
         final StatementContext context = StatementContextAccess.createContext();
 
         context.setConcurrentUpdatable(true);
@@ -45,7 +45,7 @@ public class StatementContextTest {
 
     private static class FooMapper implements ColumnMapper<Foo> {
         @Override
-        public Foo map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        public Foo map(ResultSet r, int columnNumber, StatementContext ctx) {
             return null;
         }
     }

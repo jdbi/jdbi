@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 public class TestHandle {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testInTransaction() throws Exception {
+    public void testInTransaction() {
         Handle h = dbRule.openHandle();
 
         String value = h.inTransaction(handle -> {
@@ -49,7 +48,7 @@ public class TestHandle {
 
     @SuppressWarnings("resource")
     @Test
-    public void testIsClosed() throws Exception {
+    public void testIsClosed() {
         Handle h = dbRule.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();

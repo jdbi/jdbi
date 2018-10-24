@@ -40,7 +40,7 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
     private AtomicInteger invocationCounter = new AtomicInteger(0);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Jdbi db = dbRule.getJdbi();
 
         ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index, type) -> {

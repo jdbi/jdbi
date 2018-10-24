@@ -35,7 +35,7 @@ public class TestDefineList {
     private List<Thing> list;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
@@ -44,7 +44,7 @@ public class TestDefineList {
     }
 
     @Test
-    public void testDefineListSelect() throws Exception {
+    public void testDefineListSelect() {
         list = handle.createQuery("select <columns> from thing order by id")
                 .defineList("columns", Arrays.asList("id", "foo", "bar"))
                 .mapTo(Thing.class)

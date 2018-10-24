@@ -56,7 +56,7 @@ public class TestOnDemandSqlObject {
     private JdbcDataSource ds;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
@@ -69,12 +69,12 @@ public class TestOnDemandSqlObject {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.close();
     }
 
     @Test
-    public void testAPIWorks() throws Exception {
+    public void testAPIWorks() {
         Spiffy s = db.onDemand(Spiffy.class);
 
         s.insert(7, "Bill");
@@ -85,7 +85,7 @@ public class TestOnDemandSqlObject {
     }
 
     @Test
-    public void testExceptionOnClose() throws Exception {
+    public void testExceptionOnClose() {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
@@ -142,7 +142,7 @@ public class TestOnDemandSqlObject {
     }
 
     @Test
-    public void testSqlFromExternalFileWorks() throws Exception {
+    public void testSqlFromExternalFileWorks() {
         Spiffy spiffy = db.onDemand(Spiffy.class);
         ExternalSql external = db.onDemand(ExternalSql.class);
 

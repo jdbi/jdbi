@@ -39,7 +39,7 @@ public class TestGetGeneratedKeysPostgres {
     public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             dao.createSequence();
             dao.createTable();
@@ -53,7 +53,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testBatch() throws Exception {
+    public void testBatch() {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             dao.createSequence();
             dao.createTable();
@@ -66,7 +66,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testUseRowMapperUpdate() throws Exception {
+    public void testUseRowMapperUpdate() {
         dbRule.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -78,7 +78,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testUseRowMapperBatch() throws Exception {
+    public void testUseRowMapperBatch() {
         dbRule.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -90,7 +90,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testRegisterRowMapperUpdate() throws Exception {
+    public void testRegisterRowMapperUpdate() {
         dbRule.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -102,7 +102,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testRegisterRowMapperBatch() throws Exception {
+    public void testRegisterRowMapperBatch() {
         dbRule.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
 

@@ -33,7 +33,7 @@ public class TestRegisterConstructorMapper {
     private Dao dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dao = dbRule.getSharedHandle().attach(Dao.class);
     }
 

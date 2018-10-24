@@ -37,7 +37,7 @@ public class TestEnumMapping {
     }
 
     @Test
-    public void testEnums() throws Exception {
+    public void testEnums() {
         Spiffy spiffy = dbRule.attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);

@@ -30,12 +30,12 @@ public class TestOnDemandObjectMethodBehavior {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Connection getConnection() throws SQLException {
+            public Connection getConnection() {
                 throw new UnsupportedOperationException();
             }
         };
@@ -51,7 +51,7 @@ public class TestOnDemandObjectMethodBehavior {
      * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
      */
     @Test
-    public void testFinalizeDoesntConnect() throws Exception {
+    public void testFinalizeDoesntConnect() {
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 

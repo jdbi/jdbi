@@ -24,7 +24,7 @@ public class TestDefineIdentifierPrefix {
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testParse() throws Exception {
+    public void testParse() {
         assertThat(db.getSharedHandle()
                 .createQuery("SELECT 1 FROM something WHERE id<integerValue")
                 .mapTo(int.class)

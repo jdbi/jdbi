@@ -31,7 +31,7 @@ public class TestConditionalStringTemplateLocator {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Handle handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'Martin')");
         handle.execute("insert into something (id, name) values (3, 'David')");

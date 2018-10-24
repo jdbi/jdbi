@@ -41,7 +41,7 @@ public class TestGetGeneratedKeys {
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             long brianId = dao.insert("Brian");
             long keithId = dao.insert("Keith");

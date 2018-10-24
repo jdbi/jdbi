@@ -37,20 +37,20 @@ public class TestPolymorphicReturn {
     }
 
     @Test
-    public void testPolymorphicReturnSuperclass() throws Exception {
+    public void testPolymorphicReturnSuperclass() {
         Sheep normalSheep = dao.get(Sheep.class, "Fluffy");
         assertThat(normalSheep.getName()).isEqualTo("Fluffy");
     }
 
     @Test
-    public void testPolymorphicReturnSubclass() throws Exception {
+    public void testPolymorphicReturnSubclass() {
         FlyingSheep flyingSheep = dao.get(FlyingSheep.class, "Fluffy");
         assertThat(flyingSheep.getName()).isEqualTo("Fluffy");
         assertThat(flyingSheep.getNumWings()).isEqualTo(5);
     }
 
     @Test
-    public void testBadArg() throws Exception {
+    public void testBadArg() {
         assertThatThrownBy(() -> dao.getBad("Fluffy is sad :(")).isInstanceOf(UnsupportedOperationException.class);
     }
 

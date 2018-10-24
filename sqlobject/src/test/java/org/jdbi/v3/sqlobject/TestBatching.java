@@ -41,12 +41,12 @@ public class TestBatching {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInsertSingleIterable() throws Exception {
+    public void testInsertSingleIterable() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> toInsert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeans(toInsert);
@@ -56,7 +56,7 @@ public class TestBatching {
     }
 
     @Test
-    public void testInsertSingleIteratorNoTx() throws Exception {
+    public void testInsertSingleIteratorNoTx() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> toInsert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeansNoTx(toInsert.iterator());
@@ -66,7 +66,7 @@ public class TestBatching {
     }
 
     @Test
-    public void testBindConstantValue() throws Exception {
+    public void testBindConstantValue() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
 
@@ -81,7 +81,7 @@ public class TestBatching {
     }
 
     @Test
-    public void testZipping() throws Exception {
+    public void testZipping() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
         List<String> names = Arrays.asList("David", "Tim", "Mike");
@@ -97,7 +97,7 @@ public class TestBatching {
     }
 
     @Test
-    public void testChunkedBatching() throws Exception {
+    public void testChunkedBatching() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
@@ -109,7 +109,7 @@ public class TestBatching {
     }
 
     @Test
-    public void testChunkedBatchingOnParam() throws Exception {
+    public void testChunkedBatchingOnParam() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
@@ -121,40 +121,40 @@ public class TestBatching {
     }
 
     @Test(timeout = 5000)
-    public void testNoIterable() throws Exception {
+    public void testNoIterable() {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(() -> b.insertBeans(new Something(1, "x"))).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test(timeout = 5000)
-    public void testNoParameterAtAll() throws Exception {
+    public void testNoParameterAtAll() {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(b::insertBeans).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test(timeout = 5000)
-    public void testForgotIterableInt() throws Exception {
+    public void testForgotIterableInt() {
         handle.execute("CREATE TABLE test (id int)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThatThrownBy(() -> b.invalidInsertInt(1)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test(timeout = 5000)
-    public void testForgotIterableString() throws Exception {
+    public void testForgotIterableString() {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThatThrownBy(() -> b.invalidInsertString("bob")).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testEmptyBatch() throws Exception {
+    public void testEmptyBatch() {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThat(b.insertBeans(emptySet())).isEmpty();
     }
 
     @Test
-    public void testBooleanReturn() throws Exception {
+    public void testBooleanReturn() {
         BooleanBatchDao dao = handle.attach(BooleanBatchDao.class);
         assertThat(dao.insert(new Something(1, "foo"), new Something(2, "bar"))).containsExactly(true, true);
         assertThat(dao.update(new Something(1, "baz"), new Something(3, "buz"))).containsExactly(true, false);

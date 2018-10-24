@@ -45,13 +45,13 @@ public class TestBindBeanList {
     }
 
     @Test
-    public void bindBeanListWithNoValues() throws Exception {
+    public void bindBeanListWithNoValues() {
         assertThatThrownBy(() -> handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
             .bindBeanList("keys", Collections.emptyList(), Arrays.asList("foo", "bar"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void bindBeanListWithNoProperties() throws Exception {
+    public void bindBeanListWithNoProperties() {
         ThingKey thingKey = new ThingKey("a", "b");
         assertThatThrownBy(() -> handle.createQuery("select id, foo from thing where (foo, bar) in (<keys>)")
             .bindBeanList("keys", Collections.singletonList(thingKey), Collections.emptyList())).isInstanceOf(IllegalArgumentException.class);

@@ -40,7 +40,7 @@ public class TestReentrancy {
     }
 
     @Test
-    public void testGetHandleProvidesSeperateHandle() throws Exception {
+    public void testGetHandleProvidesSeperateHandle() {
         final TheBasics dao = db.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
@@ -49,7 +49,7 @@ public class TestReentrancy {
     }
 
     @Test
-    public void testHandleReentrant() throws Exception {
+    public void testHandleReentrant() {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -62,7 +62,7 @@ public class TestReentrancy {
     }
 
     @Test
-    public void testTxnReentrant() throws Exception {
+    public void testTxnReentrant() {
         final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
@@ -82,7 +82,7 @@ public class TestReentrancy {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         JdbcDataSource ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
@@ -97,7 +97,7 @@ public class TestReentrancy {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.execute("drop table something");
         handle.close();
     }

@@ -48,7 +48,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         boolean worldIsRight = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(worldIsRight).isTrue();
     }
@@ -95,7 +95,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testBeanMapperFactory() throws Exception {
+    public void testBeanMapperFactory() {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -111,7 +111,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testBeanMapperFactoryDefaultMethod() throws Exception {
+    public void testBeanMapperFactoryDefaultMethod() {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -129,7 +129,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testRegistered() throws Exception {
+    public void testRegistered() {
         dbRule.getSharedHandle().registerRowMapper(new SomethingMapper());
 
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
@@ -141,7 +141,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testBuiltIn() throws Exception {
+    public void testBuiltIn() {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
@@ -150,7 +150,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testRegisterRowMapperAnnotationWorks() throws Exception {
+    public void testRegisterRowMapperAnnotationWorks() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
@@ -160,7 +160,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testNoRootRegistrations() throws Exception {
+    public void testNoRootRegistrations() {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Henning')");
             assertThatThrownBy(() -> h.createQuery("select id, name from something where id = 1")
@@ -170,7 +170,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testNoErrorOnNoData() throws Exception {
+    public void testNoErrorOnNoData() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
@@ -182,7 +182,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testIteratorCloses() throws Exception {
+    public void testIteratorCloses() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
