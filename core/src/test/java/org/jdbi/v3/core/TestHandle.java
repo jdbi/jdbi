@@ -18,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestHandle {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
@@ -39,7 +40,8 @@ public class TestHandle {
             h.execute("insert into something (id, name) values (1, 'Keith')");
         }
 
-        String value = dbRule.getJdbi().withHandle(handle ->
+        // strangely enough, the compiler can't infer this and thinks the throws is redundant
+        String value = dbRule.getJdbi().<String, Exception>withHandle(handle ->
                 handle.inTransaction(handle1 ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
