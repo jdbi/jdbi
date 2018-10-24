@@ -15,7 +15,6 @@ package org.jdbi.v3.core.result;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
@@ -184,17 +183,13 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        try {
-            assertThat(it.hasNext()).isTrue();
-            it.next();
-            assertThat(it.hasNext()).isTrue();
-            it.next();
-            assertThat(it.hasNext()).isTrue();
-            it.next();
-            assertThat(it.hasNext()).isFalse();
-        } catch (Throwable t) {
-            Assertions.fail("unexpected throwable:" + t.getMessage());
-        }
+        assertThat(it.hasNext()).isTrue();
+        it.next();
+        assertThat(it.hasNext()).isTrue();
+        it.next();
+        assertThat(it.hasNext()).isTrue();
+        it.next();
+        assertThat(it.hasNext()).isFalse();
 
         assertThatThrownBy(it::next).isInstanceOf(IllegalStateException.class);
     }
