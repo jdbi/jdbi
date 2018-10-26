@@ -16,6 +16,8 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,6 +36,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
     private boolean allowUnusedBindings;
+    private final Collection<StatementCustomizer> customizers;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
@@ -41,6 +44,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
         queryTimeout = null;
+        customizers = new ArrayList<>();
     }
 
     private SqlStatements(SqlStatements that) {
@@ -50,6 +54,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
+        this.customizers = that.customizers;
     }
 
     /**
@@ -98,6 +103,18 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public Map<String, Object> getAttributes() {
         return attributes;
+    }
+
+    /**
+     * Provides a means for custom statement modification. Common customizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to customize a statement
+     * @return this
+     */
+    public SqlStatements addCustomizer(final StatementCustomizer customizer) {
+        this.customizers.add(customizer);
+        return this;
     }
 
     /**
@@ -220,5 +237,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     @Override
     public SqlStatements createCopy() {
         return new SqlStatements(this);
+    }
+
+    Collection<StatementCustomizer> getCustomizers() {
+        return customizers;
     }
 }
