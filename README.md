@@ -15,7 +15,7 @@ Jdbi with it.
 
 Jdbi 3 requires Java 8.
 
-We've done some light testing with Java 9, and would appreciate reports of any problems!
+We've done some light testing with Java 9 and 11, and would appreciate reports of any problems!
 
 ## Builds
 
