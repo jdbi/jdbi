@@ -31,7 +31,7 @@ Remember to implement thread safety wherever objects are likely to be shared bet
 
 Unit tests are nice for atomic components, but since jdbi is a complex ecosystem of components, we prefer to use tests that spin up real jdbi instances and make it work against an in-memory database. This ensures all code is covered by many different test cases and almost no flaw will go unnoticed.
 
-Since our tests essentially describe and verify jdbi's behavior, changing their specifics is considered a red flag wherever it isn't inherently necessary.
+Since our tests essentially describe and verify jdbi's behavior, changing their specifics where it isn't inherently necessary is considered a red flag.
 
 ## Functionality
 
