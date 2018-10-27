@@ -16,10 +16,10 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -36,7 +36,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
     private boolean allowUnusedBindings;
-    private final Collection<StatementCustomizer> customizers;
+    private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
@@ -44,7 +44,6 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
         queryTimeout = null;
-        customizers = new ArrayList<>();
     }
 
     private SqlStatements(SqlStatements that) {
@@ -54,7 +53,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
-        this.customizers = that.customizers;
+        this.customizers.addAll(that.customizers);
     }
 
     /**
