@@ -2,6 +2,8 @@
   - Bug Fixes
     - bindList throws an NPE if called with an immutable list,
       method is safe according to the specification
+  - Improvements
+    - improve binding private implementations of interfaces
 
 3.5.1 (whoops, 3.5.0 was released from the wrong commit!)
   - New API
