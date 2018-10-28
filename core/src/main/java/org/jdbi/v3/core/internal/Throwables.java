@@ -57,7 +57,10 @@ public class Throwables {
      * conservatively reduces {@code t} to an Exception and throws it.
      *
      * Returns a bogus exception for compiler satisfaction: caller should always throw the return value even though you'll never get it.
+     *
+     * @deprecated kinda icky thing to do
      */
+    @Deprecated
     public static Exception throwOnlyException(Throwable t) throws Exception {
         if (t instanceof Error) {
             throw (Error) t;
@@ -72,7 +75,10 @@ public class Throwables {
 
     /**
      * executes a runnable that could throw a Throwable and conservatively reduces it to an Exception so you don't need to catch Throwable.
+     *
+     * @deprecated kinda icky thing to do
      */
+    @Deprecated
     public static <T> T throwingOnlyException(DangerousRunnable<T> dangerous) throws Exception {
         try {
             return dangerous.run();
