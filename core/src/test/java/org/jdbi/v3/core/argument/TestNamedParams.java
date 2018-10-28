@@ -173,6 +173,12 @@ public class TestNamedParams {
             .isEqualTo(new Something(0, "Keith"));
     }
 
+    public class FunctionsNestedBinding {
+        public NoArgFunctions nested() {
+            return new NoArgFunctions(0, "Keith");
+        }
+    }
+
     public static class PublicFields {
         public int id = 0;
         public String name = "Keith";
@@ -224,12 +230,7 @@ public class TestNamedParams {
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
-            .bindMethods("my", new Object() {
-                @SuppressWarnings("unused")
-                public NoArgFunctions nested() {
-                    return new NoArgFunctions(0, "Keith");
-                }
-            })
+            .bindMethods("my", new FunctionsNestedBinding())
             .execute())
             .isEqualTo(1);
 

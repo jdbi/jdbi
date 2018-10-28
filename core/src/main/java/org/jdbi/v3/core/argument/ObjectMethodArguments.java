@@ -50,8 +50,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     private static Map<String, Method> load(Class<?> type) {
-        // The package check could be removed if jdbi's tests would only use public classes for argument testing
-        if (Modifier.isPublic(type.getModifiers()) || type.getPackage().equals(ObjectMethodArguments.class.getPackage())) {
+        if (Modifier.isPublic(type.getModifiers())) {
             return Arrays.stream(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
                 .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge));
