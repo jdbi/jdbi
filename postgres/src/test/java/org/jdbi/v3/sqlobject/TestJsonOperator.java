@@ -43,14 +43,14 @@ public class TestJsonOperator {
     private KeyValueStore kvs;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.openHandle();
         handle.execute("create table something (id serial primary key, value jsonb)");
         kvs = handle.attach(KeyValueStore.class);
     }
 
     @Test
-    public void testHasProperty() throws Exception {
+    public void testHasProperty() {
         kvs.insert(1, "{\"a\":1, \"b\":2}");
         assertThat(kvs.hasProperty("a")).isEqualTo(ImmutableSet.of(1));
         assertThat(kvs.hasProperty("b")).isEqualTo(ImmutableSet.of(1));

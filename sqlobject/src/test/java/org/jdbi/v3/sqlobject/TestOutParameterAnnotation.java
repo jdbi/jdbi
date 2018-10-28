@@ -32,7 +32,7 @@ public class TestOutParameterAnnotation {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = dbRule.getJdbi();
         db.useHandle(h -> {
             h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql");

@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
+import org.jdbi.v3.core.internal.Throwables;
 
 class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
@@ -69,17 +70,13 @@ class OnDemandExtensions {
                         new Class[]{extensionType}, handler));
     }
 
-    @SuppressWarnings("PMD.AvoidRethrowingException")
     private static Object invoke(Object target, Method method, Object[] args) throws Exception {
-        try {
+        return Throwables.throwingOnlyException(() -> {
             if (Proxy.isProxyClass(target.getClass())) {
                 return Proxy.getInvocationHandler(target).invoke(target, method, args);
+            } else {
+                return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
             }
-            return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
-        } catch (Exception | Error e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
+        });
     }
 }

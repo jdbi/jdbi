@@ -34,7 +34,7 @@ public class TestStringTemplateGroupReference {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 

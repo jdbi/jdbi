@@ -38,7 +38,7 @@ public class TestUpdateGeneratedKeys {
     }
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         Handle h = dbRule.openHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
@@ -56,7 +56,7 @@ public class TestUpdateGeneratedKeys {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
@@ -74,7 +74,7 @@ public class TestUpdateGeneratedKeys {
     }
 
     @Test
-    public void testDelete() throws Exception {
+    public void testDelete() {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");

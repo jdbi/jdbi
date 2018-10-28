@@ -31,7 +31,7 @@ public class TestUuid {
     public Handle h;
 
     @Before
-    public void setupDbi() throws Exception {
+    public void setupDbi() {
         db = dbRule.getJdbi();
 
         h = db.open();
@@ -39,12 +39,12 @@ public class TestUuid {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         h.close();
     }
 
     @Test
-    public void testUuid() throws Exception {
+    public void testUuid() {
         UUID u = UUID.randomUUID();
         h.createUpdate("INSERT INTO foo VALUES (:uuid)")
             .bind("uuid", u)

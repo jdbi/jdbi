@@ -39,7 +39,7 @@ public class TestVariousOddities {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void testAttach() throws Exception {
+    public void testAttach() {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
         s.insert(new Something(14, "Tom"));
 

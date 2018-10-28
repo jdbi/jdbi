@@ -41,13 +41,13 @@ public class TestSqlMethodDecorators {
     private static final ThreadLocal<List<String>> INVOCATIONS = ThreadLocal.withInitial(ArrayList::new);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         INVOCATIONS.get().clear();
     }
 
     @Test
-    public void testUnordered() throws Exception {
+    public void testUnordered() {
         Dao dao = handle.attach(Dao.class);
         dao.unordered();
 
@@ -55,7 +55,7 @@ public class TestSqlMethodDecorators {
     }
 
     @Test
-    public void testOrderedFooBar() throws Exception {
+    public void testOrderedFooBar() {
         Dao dao = handle.attach(Dao.class);
         dao.orderedFooBar();
 
@@ -63,7 +63,7 @@ public class TestSqlMethodDecorators {
     }
 
     @Test
-    public void testOrderedBarFoo() throws Exception {
+    public void testOrderedBarFoo() {
         Dao dao = handle.attach(Dao.class);
         dao.orderedBarFoo();
 
@@ -209,7 +209,7 @@ public class TestSqlMethodDecorators {
     public @interface CustomSqlOperation {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) {
                 invoked("method");
                 return null;
             }

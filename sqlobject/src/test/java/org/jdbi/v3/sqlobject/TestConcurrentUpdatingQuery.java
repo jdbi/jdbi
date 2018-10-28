@@ -28,12 +28,12 @@ public class TestConcurrentUpdatingQuery {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getHandle();
     }
 
     @Test
-    public void testConcurrentUpdateableResultSet() throws Exception {
+    public void testConcurrentUpdateableResultSet() {
         handle.execute("create table something (id identity primary key, name varchar(50))");
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.createQuery("select id, name from something where id = :id")

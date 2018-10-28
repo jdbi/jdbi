@@ -42,20 +42,20 @@ public class TestBatchGeneratedKeys {
     private UsesBatching b;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.openHandle();
         handle.execute("create table something (id serial primary key, name varchar)");
         b = handle.attach(UsesBatching.class);
     }
 
     @Test
-    public void testReturnKey() throws Exception {
+    public void testReturnKey() {
         long[] ids = b.insertNames("a", "b", "c", "d", "e");
         assertThat(ids).containsExactly(1, 2, 3, 4, 5);
     }
 
     @Test
-    public void testBeanReturn() throws Exception {
+    public void testBeanReturn() {
         Something[] people = b.insertNamesToBean(Arrays.asList("a", "b", "c", "d", "e"));
         assertThat(people).hasSize(5);
         for (int i = 0; i < people.length; i++) {
@@ -65,7 +65,7 @@ public class TestBatchGeneratedKeys {
     }
 
     @Test
-    public void testVarargsList() throws Exception {
+    public void testVarargsList() {
         List<Something> people = b.insertVarargs("a", "b", "c", "d", "e");
         assertThat(people).hasSize(5);
         for (int i = 0; i < people.size(); i++) {

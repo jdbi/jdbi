@@ -53,7 +53,7 @@ public class TestBindExpression {
     }
 
     @Test
-    public void testExpression() throws Exception {
+    public void testExpression() {
         DB db = dbRule.getSharedHandle().attach(DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something withSyrup = db.findByBreakfast(new Breakfast());
@@ -103,7 +103,7 @@ public class TestBindExpression {
     }
 
     @Test
-    public void testJexl() throws Exception {
+    public void testJexl() {
         JexlEngine engine = new JexlEngine();
         Object topping = engine.createExpression("breakfast.waffle.topping")
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));

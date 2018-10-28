@@ -39,7 +39,7 @@ public class TestRegisterRowMapperFactory {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testSimple() throws Exception {
+    public void testSimple() {
         FooDao fooDao = dbRule.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();

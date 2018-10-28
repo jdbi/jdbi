@@ -29,7 +29,7 @@ public class MapOptionalTest {
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testMapOptional() throws Exception {
+    public void testMapOptional() {
         final Handle h = db.getSharedHandle();
         h.execute("insert into something(intValue, name) values(1, 'Duke')");
         h.execute("insert into something(intValue, name) values(null, null)");

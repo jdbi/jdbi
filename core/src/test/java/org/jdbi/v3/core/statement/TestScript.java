@@ -34,7 +34,7 @@ public class TestScript {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testScriptStuff() throws Exception {
+    public void testScriptStuff() {
         Handle h = dbRule.openHandle();
         Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
@@ -43,7 +43,7 @@ public class TestScript {
     }
 
     @Test
-    public void testScriptWithComments() throws Exception {
+    public void testScriptWithComments() {
         Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-script-with-comments.sql"));
         script.execute();
@@ -52,7 +52,7 @@ public class TestScript {
     }
 
     @Test
-    public void testScriptWithStringSemicolon() throws Exception {
+    public void testScriptWithStringSemicolon() {
         Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-with-string-semicolons.sql"));
         script.execute();
@@ -61,7 +61,7 @@ public class TestScript {
     }
 
     @Test
-    public void testFuzzyScript() throws Exception {
+    public void testFuzzyScript() {
         Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/fuzzy-script.sql"));
         script.executeAsSeparateStatements();
@@ -75,7 +75,7 @@ public class TestScript {
     }
 
     @Test
-    public void testScriptAsSetOfSeparateStatements() throws Exception {
+    public void testScriptAsSetOfSeparateStatements() {
         assertThatExceptionOfType(StatementException.class)
                 .isThrownBy(() -> {
                     Handle h = dbRule.openHandle();

@@ -28,7 +28,7 @@ public class TestBatch {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testBasics() throws Exception {
+    public void testBasics() {
         Handle h = dbRule.openHandle();
 
         Batch b = h.createBatch();
@@ -42,7 +42,7 @@ public class TestBatch {
     }
 
     @Test
-    public void testEmptyBatchThrows() throws Exception {
+    public void testEmptyBatchThrows() {
         try (Handle h = dbRule.openHandle()) {
             final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
             assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet

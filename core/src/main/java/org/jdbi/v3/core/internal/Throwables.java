@@ -22,9 +22,11 @@ public class Throwables {
     }
 
     /**
-     * unchecked throws t. Returns a bogus exception for compiler satisfaction: always throw the return value even though you'll never get it.
+     * conservatively unchecks {@code t} and throws it.
+     *
+     * Returns a bogus exception for compiler satisfaction: caller should always throw the return value even though you'll never get it.
      */
-    public static RuntimeException sneakyThrow(Throwable t) {
+    public static RuntimeException throwOnlyUnchecked(Throwable t) {
         if (t instanceof Error) {
             throw (Error) t;
         }
@@ -38,5 +40,48 @@ public class Throwables {
         }
 
         throw new RuntimeException(t);
+    }
+
+    /**
+     * executes a runnable that could throw a Throwable and conservatively unchecks it so you don't need to catch anything.
+     */
+    public static <T> T throwingOnlyUnchecked(DangerousRunnable<T> dangerous) {
+        try {
+            return dangerous.run();
+        } catch (Throwable t) {
+            throw throwOnlyUnchecked(t);
+        }
+    }
+
+    /**
+     * conservatively reduces {@code t} to an Exception and throws it.
+     *
+     * Returns a bogus exception for compiler satisfaction: caller should always throw the return value even though you'll never get it.
+     */
+    public static Exception throwOnlyException(Throwable t) throws Exception {
+        if (t instanceof Error) {
+            throw (Error) t;
+        }
+
+        if (t instanceof Exception) {
+            throw (Exception) t;
+        }
+
+        throw new Exception(t);
+    }
+
+    /**
+     * executes a runnable that could throw a Throwable and conservatively reduces it to an Exception so you don't need to catch Throwable.
+     */
+    public static <T> T throwingOnlyException(DangerousRunnable<T> dangerous) throws Exception {
+        try {
+            return dangerous.run();
+        } catch (Throwable t) {
+            throw throwOnlyException(t);
+        }
+    }
+
+    public interface DangerousRunnable<T> {
+        T run() throws Throwable;
     }
 }
