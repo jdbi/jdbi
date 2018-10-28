@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.jdbi.v3.core.internal.Throwables;
 
 class BridgeMethodHandlerFactory implements HandlerFactory {
     @Override
@@ -39,14 +40,7 @@ class BridgeMethodHandlerFactory implements HandlerFactory {
             })
             .<Handler>map(m -> {
                 final MethodHandle mh = unreflect(sqlObjectType, m);
-                return (target, args, handle) -> {
-                    try {
-                        return mh.bindTo(target).invokeWithArguments(args);
-                    } catch (Throwable t) { // Handle et al should <X extends Throwable> not Exception!!!
-                        sneakyThrow(t);
-                        throw new AssertionError("unreachable", t);
-                    }
-                };
+                return (target, args, handle) -> Throwables.throwingOnlyUnchecked(() -> mh.bindTo(target).invokeWithArguments(args));
             })
             .findFirst();
     }
@@ -57,10 +51,5 @@ class BridgeMethodHandlerFactory implements HandlerFactory {
         } catch (IllegalAccessException e) {
             throw new UnableToCreateSqlObjectException("Bridge handler couldn't unreflect " + sqlObjectType + " " + m, e);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-        throw (T) t;
     }
 }

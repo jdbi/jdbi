@@ -32,14 +32,14 @@ public class TestCallable {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.getJdbi().open();
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
         h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.core.statement.TestCallable.testProcedure\"");
     }
 
     @Test
-    public void testStatement() throws Exception {
+    public void testStatement() {
         OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
                 .registerOutParameter(0, Types.DOUBLE)
                 .bind(1, 100.0d)
@@ -57,7 +57,7 @@ public class TestCallable {
     }
 
     @Test
-    public void testStatementWithNamedParam() throws Exception {
+    public void testStatementWithNamedParam() {
         OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
                 .registerOutParameter("x", Types.DOUBLE)
                 .bind("y", 100.0d)
@@ -76,7 +76,7 @@ public class TestCallable {
 
     @Test
     @Ignore // TODO(scs): how do we test out parameters with h2?
-    public void testWithNullReturn() throws Exception {
+    public void testWithNullReturn() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
                 .bind(0, (String) null)
                 .registerOutParameter(1, Types.VARCHAR)
@@ -88,7 +88,7 @@ public class TestCallable {
 
     @Test
     @Ignore // TODO(scs): how do we test out parameters with h2?
-    public void testWithNullReturnWithNamedParam() throws Exception {
+    public void testWithNullReturnWithNamedParam() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
                 .bind("x", (String) null)
                 .registerOutParameter("y", Types.VARCHAR)

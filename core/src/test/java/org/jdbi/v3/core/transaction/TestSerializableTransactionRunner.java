@@ -50,7 +50,7 @@ public class TestSerializableTransactionRunner {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dbRule.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
         dbRule.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
             .setMaxRetries(MAX_RETRIES)

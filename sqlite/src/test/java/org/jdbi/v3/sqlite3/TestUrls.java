@@ -30,7 +30,7 @@ public class TestUrls {
     Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
         jdbi.installPlugin(new SQLitePlugin());
         handle = jdbi.open();
@@ -38,7 +38,7 @@ public class TestUrls {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.close();
     }
 

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedShouldSucceed() throws SQLException {
+    public void testOptionMappedShouldSucceed() {
         final Set<Option<String>> result = dbRule.getSharedHandle()
                 .createQuery("select name from something")
                 .collectInto(new GenericType<Set<Option<String>>>() {});
@@ -53,7 +52,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithoutGenericParameterShouldFail() throws SQLException {
+    public void testOptionMappedWithoutGenericParameterShouldFail() {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select name from something")
@@ -63,7 +62,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithoutNestedMapperShouldFail() throws SQLException {
+    public void testOptionMappedWithoutNestedMapperShouldFail() {
         assertThatThrownBy(() -> dbRule.getSharedHandle()
                 .createQuery("select id, name from something")
                 .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
@@ -72,7 +71,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionMappedWithinObjectIfPresentShouldContainValue() throws SQLException {
+    public void testOptionMappedWithinObjectIfPresentShouldContainValue() {
         final SomethingWithOption result = dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 1")
@@ -84,7 +83,7 @@ public class TestVavrOptionMapperWithDB {
     }
 
     @Test
-    public void testOptionWithinObjectIfMissingShouldBeNone() throws SQLException {
+    public void testOptionWithinObjectIfMissingShouldBeNone() {
         final SomethingWithOption result = dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 2")

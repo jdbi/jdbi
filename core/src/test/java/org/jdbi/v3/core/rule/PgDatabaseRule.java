@@ -43,7 +43,7 @@ public class PgDatabaseRule extends ExternalResource implements DatabaseRule {
     }
 
     @Override
-    protected void before() throws Throwable {
+    protected void before() {
         db = Jdbi.create(innerRule.getTestDatabase());
         plugins.forEach(db::installPlugin);
     }

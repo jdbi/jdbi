@@ -67,7 +67,7 @@ public class JoinRowMapperTest {
     }
 
     @Test
-    public void testCartesianProduct() throws Exception {
+    public void testCartesianProduct() {
         Multimap<User, Article> product = HashMultimap.create();
         h.createQuery("SELECT * FROM user, article")
             .map(JoinRowMapper.forTypes(User.class, Article.class))
@@ -82,7 +82,7 @@ public class JoinRowMapperTest {
     }
 
     @Test
-    public void testJoin() throws Exception {
+    public void testJoin() {
        // tag::multimap[]
         Multimap<User, Article> joined = HashMultimap.create();
         h.createQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")

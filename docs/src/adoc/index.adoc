@@ -910,7 +910,7 @@ Column mappers may be defined as classes, which allows for re-use:
 [source,java]
 ----
 public class MoneyMapper implements ColumnMapper<Money> {
-  public T map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+  public Money map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
     return Money.parse(r.getString(columnNumber));
   }
 }

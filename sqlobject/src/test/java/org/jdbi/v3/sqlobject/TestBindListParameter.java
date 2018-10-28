@@ -47,7 +47,7 @@ public class TestBindListParameter {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.execute("drop table foo");
         handle.close();
     }

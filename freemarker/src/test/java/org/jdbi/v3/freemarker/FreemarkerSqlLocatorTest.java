@@ -43,12 +43,12 @@ public class FreemarkerSqlLocatorTest {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testBaz() throws Exception {
+    public void testBaz() {
         Wombat wombat = handle.attach(Wombat.class);
         wombat.insert(new Something(7, "Henning"));
 
@@ -60,7 +60,7 @@ public class FreemarkerSqlLocatorTest {
     }
 
     @Test
-    public void testBam() throws Exception {
+    public void testBam() {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
         Something s = handle.attach(Wombat.class).findById(6L);
@@ -68,7 +68,7 @@ public class FreemarkerSqlLocatorTest {
     }
 
     @Test
-    public void testDefinedList() throws Exception {
+    public void testDefinedList() {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
         handle.execute("insert into something (id, name) values (7, 'Peter')");
 
@@ -78,7 +78,7 @@ public class FreemarkerSqlLocatorTest {
     }
 
     @Test
-    public void testDefinedBeanList() throws Exception {
+    public void testDefinedBeanList() {
         handle.execute("insert into something (id, name) values (6666666, 'Martin')");
         handle.execute("insert into something (id, name) values (7, 'Peter')");
 
@@ -88,14 +88,14 @@ public class FreemarkerSqlLocatorTest {
     }
 
     @Test
-    public void testBap() throws Exception {
+    public void testBap() {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
         Wombat w = handle.attach(Wombat.class);
         assertThat(w.findNameFor(2)).isEqualTo("Bean");
     }
 
     @Test
-    public void testDefines() throws Exception {
+    public void testDefines() {
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
@@ -106,7 +106,7 @@ public class FreemarkerSqlLocatorTest {
     }
 
     @Test
-    public void testBatching() throws Exception {
+    public void testBatching() {
         Wombat roo = handle.attach(Wombat.class);
         roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
 

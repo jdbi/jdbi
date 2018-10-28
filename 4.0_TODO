@@ -2,3 +2,4 @@
 * move SerializableTransactionRunner.Config to top-level class to comply with convention
 * MapMappers.MapMappers(): law of least surprise, change default to nop (update javadoc too)
 * Make ColumnNameMatcher.columnNameBeginsWith abstract (non-default)
+* Throwables throwOnlyException only exists because of the above <X extends Exception> issue, so clean that up too

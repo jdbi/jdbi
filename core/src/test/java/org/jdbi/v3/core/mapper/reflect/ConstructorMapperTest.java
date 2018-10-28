@@ -32,7 +32,7 @@ public class ConstructorMapperTest {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
             .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class))
@@ -50,7 +50,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testSimple() throws Exception {
+    public void testSimple() {
         ConstructorBean bean = selectOne("SELECT s, i FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
@@ -58,7 +58,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testReversed() throws Exception {
+    public void testReversed() {
         ConstructorBean bean = selectOne("SELECT i, s FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
@@ -66,7 +66,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testExtra() throws Exception {
+    public void testExtra() {
         ConstructorBean bean = selectOne("SELECT 1 as ignored, i, s FROM bean", ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
@@ -89,13 +89,13 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testDuplicate() throws Exception {
+    public void testDuplicate() {
         assertThatThrownBy(() -> selectOne("SELECT i, s, s FROM bean", ConstructorBean.class))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void testMismatch() throws Exception {
+    public void testMismatch() {
         assertThatThrownBy(() -> selectOne("SELECT i, '7' FROM bean", ConstructorBean.class))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -131,7 +131,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testName() throws Exception {
+    public void testName() {
         NamedParameterBean nb = selectOne("SELECT 3 AS xyz", NamedParameterBean.class);
         assertThat(nb.i).isEqualTo(3);
     }
@@ -144,7 +144,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testConstructorProperties() throws Exception {
+    public void testConstructorProperties() {
         final ConstructorPropertiesBean cpi = dbRule.getSharedHandle()
                 .createQuery("SELECT * FROM bean")
                 .mapTo(ConstructorPropertiesBean.class)

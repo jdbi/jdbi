@@ -61,7 +61,7 @@ public class ResultsTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR)");
         for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
             handle.execute("INSERT INTO user(name) VALUES (?)", name);

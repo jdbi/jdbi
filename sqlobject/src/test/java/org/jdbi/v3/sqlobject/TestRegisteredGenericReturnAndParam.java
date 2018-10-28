@@ -34,7 +34,7 @@ public class TestRegisteredGenericReturnAndParam {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testRegisterGenericRowMapperAnnotationWorks() throws Exception {
+    public void testRegisterGenericRowMapperAnnotationWorks() {
         testFoodToppingRestrictions(new GyroProvider(), 1);
         testFoodToppingRestrictions(new BurritoProvider(), 2);
     }

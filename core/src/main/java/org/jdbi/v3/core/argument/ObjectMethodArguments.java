@@ -14,8 +14,10 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -32,10 +34,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class<?> type) ->
-            Arrays.stream(type.getMethods())
-                .filter(m -> m.getParameterCount() == 0)
-                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge)))
+        .entryLoader(ObjectMethodArguments::load)
         .build();
 
     private final Map<String, Method> methods;
@@ -48,6 +47,19 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         super(prefix, object);
 
         this.methods = CLASS_METHODS.get(object.getClass());
+    }
+
+    private static Map<String, Method> load(Class<?> type) {
+        if (Modifier.isPublic(type.getModifiers())) {
+            return Arrays.stream(type.getMethods())
+                .filter(m -> m.getParameterCount() == 0)
+                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge));
+        } else {
+            final HashMap<String, Method> methodMap = new HashMap<>();
+            Optional.ofNullable(type.getSuperclass()).ifPresent(superclass -> methodMap.putAll(load(superclass)));
+            Arrays.stream(type.getInterfaces()).forEach(interfaceClass -> methodMap.putAll(load(interfaceClass)));
+            return methodMap;
+        }
     }
 
     @Override

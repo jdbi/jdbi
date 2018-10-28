@@ -33,20 +33,20 @@ public class TestDefaultMethods {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testDefaultMethod() throws Exception {
+    public void testDefaultMethod() {
         Spiffy dao = dbRule.getJdbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertThat(test).isEqualTo(new Something(3, "test"));
     }
 
     @Test
-    public void testOverride() throws Exception {
+    public void testOverride() {
         SpiffyOverride dao = dbRule.getJdbi().onDemand(SpiffyOverride.class);
         assertThat(dao.insertAndReturn(123, "fake")).isNull();
     }
 
     @Test
-    public void testOverrideWithDefault() throws Exception {
+    public void testOverrideWithDefault() {
         SpiffyOverrideWithDefault dao = dbRule.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }

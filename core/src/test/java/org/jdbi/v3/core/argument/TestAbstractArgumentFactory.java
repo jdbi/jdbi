@@ -90,12 +90,12 @@ public class TestAbstractArgumentFactory {
     }
 
     @Test
-    public void testValueOfDifferentType() throws SQLException {
+    public void testValueOfDifferentType() {
         assertThat(new SimpleArgumentFactory().build(int.class, 1, config)).isEmpty();
     }
 
     @Test
-    public void testNullOfDifferentType() throws SQLException {
+    public void testNullOfDifferentType() {
         assertThat(new SimpleArgumentFactory().build(Integer.class, null, config)).isEmpty();
     }
 

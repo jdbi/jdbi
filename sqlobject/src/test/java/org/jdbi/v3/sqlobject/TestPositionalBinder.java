@@ -38,7 +38,7 @@ public class TestPositionalBinder {
     private SomethingDao somethingDao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         somethingDao = handle.attach(SomethingDao.class);
 

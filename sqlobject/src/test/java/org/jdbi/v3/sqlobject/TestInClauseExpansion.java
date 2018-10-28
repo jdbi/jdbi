@@ -34,12 +34,12 @@ public class TestInClauseExpansion {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInClauseExpansion() throws Exception {
+    public void testInClauseExpansion() {
         handle.execute("insert into something (name, id) values ('Brian', 1), ('Jeff', 2), ('Tom', 3)");
 
         DAO dao = handle.attach(DAO.class);

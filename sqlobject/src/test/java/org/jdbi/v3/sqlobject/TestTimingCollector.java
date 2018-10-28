@@ -49,7 +49,7 @@ public class TestTimingCollector {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = dbRule.getJdbi();
         db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR "
             + "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));

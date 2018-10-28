@@ -34,25 +34,25 @@ public class TestUseClasspathSqlLocator {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (6, 'Martin')");
     }
 
     @Test
-    public void testBam() throws Exception {
+    public void testBam() {
         Something s = handle.attach(Cromulence.class).findById(6L);
         assertThat(s.getName()).isEqualTo("Martin");
     }
 
     @Test
-    public void testOverride() throws Exception {
+    public void testOverride() {
         Something s = handle.attach(SubCromulence.class).findById(6L);
         assertThat(s.getName()).isEqualTo("overridden");
     }
 
     @Test
-    public void testCachedOverride() throws Exception {
+    public void testCachedOverride() {
         Something s = handle.attach(Cromulence.class).findById(6L);
         assertThat(s.getName()).isEqualTo("Martin");
 

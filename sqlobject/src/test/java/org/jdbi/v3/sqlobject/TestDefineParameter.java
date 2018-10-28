@@ -36,12 +36,12 @@ public class TestDefineParameter {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testDefineParameter() throws Exception {
+    public void testDefineParameter() {
         handle.execute("create table stuff (id identity primary key, name varchar(50))");
         handle.execute("create table junk (id identity primary key, name varchar(50))");
 

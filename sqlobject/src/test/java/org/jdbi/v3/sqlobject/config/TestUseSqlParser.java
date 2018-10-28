@@ -38,7 +38,7 @@ public class TestUseSqlParser {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Jdbi db = dbRule.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
@@ -47,7 +47,7 @@ public class TestUseSqlParser {
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
 
         Hashed h = handle.attach(Hashed.class);

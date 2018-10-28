@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +36,7 @@ public class TestStringTemplateLoading {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
@@ -53,7 +52,7 @@ public class TestStringTemplateLoading {
     }
 
     @Test
-    public void testConcurrentLoading() throws InterruptedException, ExecutionException {
+    public void testConcurrentLoading() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
         IntStream
             .range(1, 10)

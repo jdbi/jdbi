@@ -31,7 +31,7 @@ public class TestGetGeneratedKeysHsqlDb {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
                 .installPlugin(new SqlObjectPlugin());
         db.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
@@ -51,7 +51,7 @@ public class TestGetGeneratedKeysHsqlDb {
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         db.useExtension(DAO.class, dao -> {
             long brianId = dao.insert("Brian");
             long keithId = dao.insert("Keith");
@@ -62,7 +62,7 @@ public class TestGetGeneratedKeysHsqlDb {
     }
 
     @Test
-    public void testBatch() throws Exception {
+    public void testBatch() {
         db.useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
             assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");

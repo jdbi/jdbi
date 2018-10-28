@@ -33,7 +33,7 @@ public class TestMistypedNamedParameter {
     private Dao dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dao = dbRule.getSharedHandle().attach(Dao.class);
         dbRule.getSharedHandle().useTransaction(h -> {
             h.execute("insert into something (id, name) values (1, 'Alice')");
@@ -43,7 +43,7 @@ public class TestMistypedNamedParameter {
     }
 
     @Test
-    public void testWarnAboutUnmatchedBinding() throws Exception {
+    public void testWarnAboutUnmatchedBinding() {
         assertThatThrownBy(() -> dao.deleteSomething(2))
             .isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageStartingWith("Superfluous named parameters provided while the query declares none");

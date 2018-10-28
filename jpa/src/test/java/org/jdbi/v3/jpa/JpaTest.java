@@ -89,7 +89,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testEntityNoColumnAnnotations() throws Exception {
+    public void testEntityNoColumnAnnotations() {
         EntityThing brian = new EntityThing(1, "Brian");
         EntityThing keith = new EntityThing(2, "Keith");
 
@@ -143,7 +143,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testField() throws Exception {
+    public void testField() {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
@@ -196,7 +196,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedField() throws Exception {
+    public void testNamedField() {
         NamedFieldThing brian = new NamedFieldThing(1, "Brian");
         NamedFieldThing keith = new NamedFieldThing(2, "Keith");
 
@@ -250,7 +250,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testGetter() throws Exception {
+    public void testGetter() {
         GetterThing brian = new GetterThing(1, "Brian");
         GetterThing keith = new GetterThing(2, "Keith");
 
@@ -304,7 +304,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedGetter() throws Exception {
+    public void testNamedGetter() {
         NamedGetterThing brian = new NamedGetterThing(1, "Brian");
         NamedGetterThing keith = new NamedGetterThing(2, "Keith");
 
@@ -358,7 +358,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testSetter() throws Exception {
+    public void testSetter() {
         SetterThing brian = new SetterThing(1, "Brian");
         SetterThing keith = new SetterThing(2, "Keith");
 
@@ -412,7 +412,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedSetter() throws Exception {
+    public void testNamedSetter() {
         NamedSetterThing brian = new NamedSetterThing(1, "Brian");
         NamedSetterThing keith = new NamedSetterThing(2, "Keith");
 
@@ -467,7 +467,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testMappedSuperclass() throws Exception {
+    public void testMappedSuperclass() {
         ExtendsMappedSuperclassThing brian = new ExtendsMappedSuperclassThing(1, "Brian");
         ExtendsMappedSuperclassThing keith = new ExtendsMappedSuperclassThing(2, "Keith");
 
@@ -523,7 +523,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testAnnotationPriority() throws Exception {
+    public void testAnnotationPriority() {
         // fields before getters before setters
         AnnotationPriorityThing brian = new AnnotationPriorityThing(1, "Brian");
         AnnotationPriorityThing keith = new AnnotationPriorityThing(2, "Keith");

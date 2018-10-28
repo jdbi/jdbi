@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.sql.SQLException;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -53,7 +52,7 @@ public class TestEnums {
     }
 
     @Test
-    public void testMapEnumValues() throws Exception {
+    public void testMapEnumValues() {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -65,7 +64,7 @@ public class TestEnums {
     }
 
     @Test
-    public void testMapToEnum() throws Exception {
+    public void testMapToEnum() {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -77,7 +76,7 @@ public class TestEnums {
     }
 
     @Test
-    public void testMapInvalidEnumValue() throws SQLException {
+    public void testMapInvalidEnumValue() {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
@@ -87,7 +86,7 @@ public class TestEnums {
     }
 
     @Test
-    public void testEnumCaseInsensitive() throws Exception {
+    public void testEnumCaseInsensitive() {
         assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).findOnly())
             .isEqualTo(SomethingElse.Name.brian);
     }

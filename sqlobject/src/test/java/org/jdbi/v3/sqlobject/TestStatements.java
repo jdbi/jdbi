@@ -27,7 +27,7 @@ public class TestStatements {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             int rowsAffected = i.insert(2, "Diego");
@@ -40,7 +40,7 @@ public class TestStatements {
     }
 
     @Test
-    public void testInsertWithVoidReturn() throws Exception {
+    public void testInsertWithVoidReturn() {
         dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
@@ -52,7 +52,7 @@ public class TestStatements {
     }
 
     @Test
-    public void testDoubleArgumentBind() throws Exception {
+    public void testDoubleArgumentBind() {
         dbRule.getJdbi().useExtension(Doubler.class, d -> assertThat(d.doubleTest("wooooot")).isTrue());
     }
 
