@@ -1,3 +1,7 @@
+3.5.2
+  - Improvements
+    - improve binding private implementations of interfaces
+
 3.5.1 (whoops, 3.5.0 was released from the wrong commit!)
   - New API
     - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be
