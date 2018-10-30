@@ -42,8 +42,8 @@
         <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
         <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
         <r2dbc-h2.version>1.0.0.BUILD-SNAPSHOT</r2dbc-h2.version>
-        <reactor.version>Californium-SR1</reactor.version>
-        <spring-boot.version>2.0.6.RELEASE</spring-boot.version>
+        <reactor.version>Californium-SR2</reactor.version>
+        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
         <testcontainers.version>1.9.1</testcontainers.version>
     </properties>
 
