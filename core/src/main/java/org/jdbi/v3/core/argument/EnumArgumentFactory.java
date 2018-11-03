@@ -11,30 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jdbi.v3.core.argument;
 
-package org.jdbi.v3.sqlite3;
-
-import java.net.URL;
-import java.sql.Types;
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
+import java.lang.reflect.Type;
+import java.util.Optional;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
-/**
- * Build URL objects as strings.
- */
-class URLArgumentFactory extends AbstractArgumentFactory<URL> {
-    /**
-     * Constructs an {@link ArgumentFactory} for type {@code URL}.
-     */
-    URLArgumentFactory() {
-        super(Types.VARCHAR);
-    }
-
+class EnumArgumentFactory implements ArgumentFactory {
     @Override
-    protected Argument build(URL url, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(url);
+    public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
+        // Enums must be bound as VARCHAR
+        // TODO use the same configuration as EnumMapperFactory for consistency
+        if (rawValue instanceof Enum) {
+            Enum<?> enumValue = (Enum<?>) rawValue;
+            return Optional.of(new LoggableToStringOrNPEArgument<>(enumValue, Enum::name));
+        } else {
+            return Optional.empty();
+        }
     }
 }

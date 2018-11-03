@@ -25,7 +25,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -45,16 +45,16 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class JavaTimeMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     JavaTimeMapperFactory() {
-        mappers.put(Instant.class, new ReferenceMapper<>(JavaTimeMapperFactory::getInstant));
-        mappers.put(LocalDate.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDate));
-        mappers.put(LocalTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalTime));
-        mappers.put(LocalDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getLocalDateTime));
-        mappers.put(OffsetDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
-        mappers.put(ZonedDateTime.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZonedDateTime));
-        mappers.put(ZoneId.class, new ReferenceMapper<>(JavaTimeMapperFactory::getZoneId));
+        mappers.put(Instant.class, new GetterMapper<>(JavaTimeMapperFactory::getInstant));
+        mappers.put(LocalDate.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDate));
+        mappers.put(LocalTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalTime));
+        mappers.put(LocalDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDateTime));
+        mappers.put(OffsetDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
+        mappers.put(ZonedDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getZonedDateTime));
+        mappers.put(ZoneId.class, new GetterMapper<>(JavaTimeMapperFactory::getZoneId));
     }
 
     @Override

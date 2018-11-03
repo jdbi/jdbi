@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -37,17 +37,17 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class BoxedMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     BoxedMapperFactory() {
-        mappers.put(Boolean.class, new ReferenceMapper<>(ResultSet::getBoolean));
-        mappers.put(Byte.class, new ReferenceMapper<>(ResultSet::getByte));
-        mappers.put(Character.class, new ReferenceMapper<>(BoxedMapperFactory::getCharacter));
-        mappers.put(Short.class, new ReferenceMapper<>(ResultSet::getShort));
-        mappers.put(Integer.class, new ReferenceMapper<>(ResultSet::getInt));
-        mappers.put(Long.class, new ReferenceMapper<>(ResultSet::getLong));
-        mappers.put(Float.class, new ReferenceMapper<>(ResultSet::getFloat));
-        mappers.put(Double.class, new ReferenceMapper<>(ResultSet::getDouble));
+        mappers.put(Boolean.class, new GetterMapper<>(ResultSet::getBoolean));
+        mappers.put(Byte.class, new GetterMapper<>(ResultSet::getByte));
+        mappers.put(Character.class, new GetterMapper<>(BoxedMapperFactory::getCharacter));
+        mappers.put(Short.class, new GetterMapper<>(ResultSet::getShort));
+        mappers.put(Integer.class, new GetterMapper<>(ResultSet::getInt));
+        mappers.put(Long.class, new GetterMapper<>(ResultSet::getLong));
+        mappers.put(Float.class, new GetterMapper<>(ResultSet::getFloat));
+        mappers.put(Double.class, new GetterMapper<>(ResultSet::getDouble));
     }
 
     @Override

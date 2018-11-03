@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -77,7 +78,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
     private final Map<Class<?>, Collector<?, ?, ?>> collectors;
 
     public BuiltInCollectorFactory() {
-        collectors = new HashMap<>();
+        collectors = new IdentityHashMap<>();
         collectors.put(Optional.class, toOptional());
 
         collectors.put(Collection.class, toCollection(ArrayList::new));

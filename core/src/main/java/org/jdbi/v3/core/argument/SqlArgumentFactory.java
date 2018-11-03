@@ -13,19 +13,14 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
-
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.time.ZoneId;
 
-public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
-    public JavaTimeZoneIdArgumentFactory() {
-        super(Types.VARCHAR);
-    }
-
-    @Override
-    protected Argument build(ZoneId value, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(value);
+class SqlArgumentFactory extends DelegatingArgumentFactory {
+    SqlArgumentFactory() {
+        register(Blob.class, Types.BLOB, PreparedStatement::setBlob);
+        register(Clob.class, Types.CLOB, PreparedStatement::setClob);
     }
 }

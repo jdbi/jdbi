@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -30,10 +30,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class SqlTimeMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     SqlTimeMapperFactory() {
-        mappers.put(Timestamp.class, new ReferenceMapper<>(ResultSet::getTimestamp));
+        mappers.put(Timestamp.class, new GetterMapper<>(ResultSet::getTimestamp));
     }
 
     @Override

@@ -11,21 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.argument.internal;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-import java.sql.Types;
-import java.time.ZoneId;
-
-public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
-    public JavaTimeZoneIdArgumentFactory() {
-        super(Types.VARCHAR);
-    }
-
-    @Override
-    protected Argument build(ZoneId value, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(value);
-    }
+@FunctionalInterface
+public interface StatementBinder<T> {
+    void bind(PreparedStatement p, int index, T value) throws SQLException;
 }

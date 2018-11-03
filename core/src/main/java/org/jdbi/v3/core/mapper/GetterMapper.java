@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.mapper;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.jdbi.v3.core.statement.StatementContext;
 
-import java.sql.Types;
-import java.time.ZoneId;
+class GetterMapper<T> implements ColumnMapper<T> {
+    private final ColumnGetter<T> getter;
 
-public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
-    public JavaTimeZoneIdArgumentFactory() {
-        super(Types.VARCHAR);
+    GetterMapper(ColumnGetter<T> getter) {
+        this.getter = getter;
     }
 
     @Override
-    protected Argument build(ZoneId value, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(value);
+    public T map(ResultSet r, int i, StatementContext ctx) throws SQLException {
+        T value = getter.get(r, i);
+        return r.wasNull() ? null : value;
     }
 }

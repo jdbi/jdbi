@@ -11,21 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.argument.internal.strategies;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.argument.Argument;
 
-import java.sql.Types;
-import java.time.ZoneId;
+abstract class AbstractLoggableArgument<T> implements Argument {
+    protected final T value;
 
-public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
-    public JavaTimeZoneIdArgumentFactory() {
-        super(Types.VARCHAR);
+    AbstractLoggableArgument(T value) {
+        this.value = value;
     }
 
     @Override
-    protected Argument build(ZoneId value, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(value);
+    public String toString() {
+        return String.valueOf(value);
     }
 }

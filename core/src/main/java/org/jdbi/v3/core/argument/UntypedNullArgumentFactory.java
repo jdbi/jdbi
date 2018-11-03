@@ -13,19 +13,15 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
+import java.lang.reflect.Type;
+import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
-import java.sql.Types;
-import java.time.ZoneId;
-
-public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
-    public JavaTimeZoneIdArgumentFactory() {
-        super(Types.VARCHAR);
-    }
-
+class UntypedNullArgumentFactory implements ArgumentFactory {
     @Override
-    protected Argument build(ZoneId value, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(value);
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        return value == null
+                ? Optional.of(config.get(Arguments.class).getUntypedNullArgument())
+                : Optional.empty();
     }
 }
