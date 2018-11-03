@@ -18,27 +18,19 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import org.jdbi.v3.core.generic.GenericTypes;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -79,6 +71,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 @Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
+        new MapCollectorFactory()
     );
 
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
@@ -98,15 +91,6 @@ public class BuiltInCollectorFactory implements CollectorFactory {
         collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
         collectors.put(SortedSet.class, toCollection(TreeSet::new));
         collectors.put(TreeSet.class, toCollection(TreeSet::new));
-
-        collectors.put(Map.class, toMap(LinkedHashMap::new));
-        collectors.put(HashMap.class, toMap(HashMap::new));
-        collectors.put(LinkedHashMap.class, toMap(LinkedHashMap::new));
-        collectors.put(SortedMap.class, toMap(TreeMap::new));
-        collectors.put(TreeMap.class, toMap(TreeMap::new));
-        collectors.put(ConcurrentMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(ConcurrentHashMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(WeakHashMap.class, toMap(WeakHashMap::new));
     }
 
     @Override
@@ -130,13 +114,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
             return delegated;
         }
 
-        Class<?> erasedType = getErasedType(containerType);
-
-        if (Map.class.isAssignableFrom(erasedType)) {
-            return Optional.of(GenericTypes.resolveMapEntryType(containerType));
-        }
-
-        return findGenericParameter(containerType, erasedType);
+        return findGenericParameter(containerType, getErasedType(containerType));
     }
 
     @Override
