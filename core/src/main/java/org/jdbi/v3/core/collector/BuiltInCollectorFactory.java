@@ -13,18 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Provides Collectors for built in JDK container types.
@@ -65,47 +60,27 @@ public class BuiltInCollectorFactory implements CollectorFactory {
         new SetCollectorFactory()
     );
 
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
-
-    public BuiltInCollectorFactory() {
-    }
-
     @Override
     public boolean accepts(Type containerType) {
-        boolean delegatable = FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
-        if (delegatable) {
-            return true;
-        }
-
-        return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
+        return FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        Optional<Type> delegated = FACTORIES.stream()
+        return FACTORIES.stream()
             .map(factory -> factory.elementType(containerType))
             .filter(Optional::isPresent)
             .findFirst()
             .map(Optional::get);
-        if (delegated.isPresent()) {
-            return delegated;
-        }
-
-        return findGenericParameter(containerType, getErasedType(containerType));
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        Optional<? extends Collector<?, ?, ?>> delegate = FACTORIES.stream()
+        return FACTORIES.stream()
             .filter(factory -> factory.accepts(containerType))
             .map(factory -> factory.build(containerType))
-            .findFirst();
-        if (delegate.isPresent()) {
-            return delegate.get();
-        }
-
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.get(erasedType);
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Unprovidable collector was requested. This is an internal jdbi bug; please report it to the jdbi developers."));
     }
 
     /**
