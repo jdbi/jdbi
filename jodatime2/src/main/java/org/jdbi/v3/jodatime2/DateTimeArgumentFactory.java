@@ -13,13 +13,11 @@
  */
 package org.jdbi.v3.jodatime2;
 
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.Types;
-
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetNullOrBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.joda.time.DateTime;
 
@@ -33,6 +31,6 @@ public class DateTimeArgumentFactory extends AbstractArgumentFactory<DateTime> {
 
     @Override
     protected Argument build(DateTime value, ConfigRegistry config) {
-        return new LoggableBinderArgument<>(new Timestamp(value.getMillis()), PreparedStatement::setTimestamp);
+        return new LoggableSetNullOrBinderArgument<>(value, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(value.getMillis())));
     }
 }

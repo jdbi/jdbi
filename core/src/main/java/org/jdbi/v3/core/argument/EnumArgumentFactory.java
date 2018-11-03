@@ -14,8 +14,9 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.Optional;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetNullOrBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 class EnumArgumentFactory implements ArgumentFactory {
@@ -25,7 +26,7 @@ class EnumArgumentFactory implements ArgumentFactory {
         // TODO use the same configuration as EnumMapperFactory for consistency
         if (rawValue instanceof Enum) {
             Enum<?> enumValue = (Enum<?>) rawValue;
-            return Optional.of(new LoggableToStringOrNPEArgument<>(enumValue, Enum::name));
+            return Optional.of(new LoggableSetNullOrBinderArgument<>(enumValue, Types.VARCHAR, (p, i, v) -> p.setString(i, v.name())));
         } else {
             return Optional.empty();
         }
