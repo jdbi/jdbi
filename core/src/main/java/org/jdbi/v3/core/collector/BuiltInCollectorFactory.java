@@ -149,7 +149,10 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      * @param <M>        the type of the resulting {@code Map}
      * @param mapFactory a {@code Supplier} which returns a new, empty {@code Map} of the appropriate type.
      * @return a {@code Collector} which collects map entry elements into a {@code Map}, in encounter order.
+     *
+     * @deprecated Use {@link MapCollectors#toMap(Supplier)} instead.
      */
+    @Deprecated
     public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {
         return Collector.of(
                 mapFactory,
