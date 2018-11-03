@@ -75,10 +75,9 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 public class BuiltInCollectorFactory implements CollectorFactory {
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors;
+    private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     public BuiltInCollectorFactory() {
-        collectors = new IdentityHashMap<>();
         collectors.put(Optional.class, toOptional());
 
         collectors.put(Collection.class, toCollection(ArrayList::new));
@@ -106,8 +105,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
 
     @Override
     public boolean accepts(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.containsKey(erasedType) && containerType instanceof ParameterizedType;
+        return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
     }
 
     @Override
