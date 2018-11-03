@@ -15,25 +15,20 @@ package org.jdbi.v3.core.collector;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -72,19 +67,13 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
         new MapCollectorFactory(),
-        new OptionalCollectorFactory()
+        new OptionalCollectorFactory(),
+        new ListCollectorFactory()
     );
 
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     public BuiltInCollectorFactory() {
-        collectors.put(Collection.class, toCollection(ArrayList::new));
-
-        collectors.put(List.class, toList());
-        collectors.put(ArrayList.class, toCollection(ArrayList::new));
-        collectors.put(LinkedList.class, toCollection(LinkedList::new));
-        collectors.put(CopyOnWriteArrayList.class, toCollection(CopyOnWriteArrayList::new));
-
         collectors.put(Set.class, toSet());
         collectors.put(HashSet.class, toCollection(HashSet::new));
         collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
