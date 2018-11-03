@@ -73,7 +73,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * <li>java.util.concurrent.ConcurrentHashMap&lt;K, V&gt;</li>
  * <li>java.util.WeakHashMap&lt;K, V&gt;</li>
  * </ul>
+ *
+ * @deprecated will be replaced by plugin
  */
+@Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
