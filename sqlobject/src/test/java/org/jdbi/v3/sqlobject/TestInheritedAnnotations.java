@@ -46,7 +46,7 @@ public class TestInheritedAnnotations {
     }
 
     @Test
-    public void testCrud() throws Exception {
+    public void testCrud() {
         Instant inserted = mockClock.instant();
 
         CharacterDao dao = dbRule.getJdbi().onDemand(CharacterDao.class);

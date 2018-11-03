@@ -34,7 +34,7 @@ public class TestPeriod {
     private final Period testPeriod = Period.of(1776, 7, 4);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists intervals");

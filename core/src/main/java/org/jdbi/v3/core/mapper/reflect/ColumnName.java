@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Specify the binding or mapping name for a property or parameter explicitly.
+ * Specify the mapping name for a property or parameter explicitly.
  */
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD, METHOD})

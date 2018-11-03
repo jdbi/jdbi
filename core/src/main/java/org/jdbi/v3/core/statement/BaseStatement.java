@@ -16,7 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -29,7 +28,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     private final Handle handle;
     private final StatementContext ctx;
-    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
     BaseStatement(Handle handle) {
         this.handle = handle;
@@ -73,23 +71,11 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     }
 
     void addCustomizers(final Collection<StatementCustomizer> customizers) {
-        this.customizers.addAll(customizers);
-    }
-
-    /**
-     * Provides a means for custom statement modification. Common customizations
-     * have their own methods, such as {@link Query#setMaxRows(int)}
-     *
-     * @param customizer instance to be used to customize a statement
-     * @return this
-     */
-    public final This addCustomizer(final StatementCustomizer customizer) {
-        this.customizers.add(customizer);
-        return typedThis;
+        customizers.forEach(this::addCustomizer);
     }
 
     final void beforeBinding(final PreparedStatement stmt) {
-        for (StatementCustomizer customizer : customizers) {
+        for (StatementCustomizer customizer : getCustomizers()) {
             try {
                 customizer.beforeBinding(stmt, ctx);
             } catch (SQLException e) {
@@ -99,7 +85,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     }
 
     final void beforeExecution(final PreparedStatement stmt) {
-        for (StatementCustomizer customizer : customizers) {
+        for (StatementCustomizer customizer : getCustomizers()) {
             try {
                 customizer.beforeExecution(stmt, ctx);
             } catch (SQLException e) {
@@ -109,13 +95,17 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     }
 
     final void afterExecution(final PreparedStatement stmt) {
-        for (StatementCustomizer customizer : customizers) {
+        for (StatementCustomizer customizer : getCustomizers()) {
             try {
                 customizer.afterExecution(stmt, ctx);
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
         }
+    }
+
+    private Collection<StatementCustomizer> getCustomizers() {
+        return this.getConfig(SqlStatements.class).getCustomizers();
     }
 
     @Override

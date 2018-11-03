@@ -32,20 +32,20 @@ public class TestBindAutomaticNames {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (7, 'Tim')");
     }
 
     @Test
-    public void testAnnotationNoValue() throws Exception {
+    public void testAnnotationNoValue() {
         Spiffy spiffy = handle.attach(Spiffy.class);
         Something s = spiffy.findById(7);
         assertThat(s.getName()).isEqualTo("Tim");
     }
 
     @Test
-    public void testNoAnnotation() throws Exception {
+    public void testNoAnnotation() {
         Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertThat(s.getName()).isEqualTo("Tim");

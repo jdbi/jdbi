@@ -69,7 +69,7 @@ public class TestBeanMapper {
     TestDao dao;
 
     @Before
-    public void createTable() throws Exception {
+    public void createTable() {
         h = dbRule.openHandle();
         h.createUpdate("create table testBean (valueType varchar(50))").execute();
         dao = h.attach(TestDao.class);

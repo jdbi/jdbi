@@ -30,7 +30,7 @@ public class TestCustomBinder {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
@@ -39,7 +39,7 @@ public class TestCustomBinder {
     }
 
     @Test
-    public void testCustomBindingAnnotation() throws Exception {
+    public void testCustomBindingAnnotation() {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(new Something(2, "Keith"));

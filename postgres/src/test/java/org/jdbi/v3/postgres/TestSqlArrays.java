@@ -69,50 +69,50 @@ public class TestSqlArrays {
     };
 
     @Test
-    public void testUuidArray() throws Exception {
+    public void testUuidArray() {
         ao.insertUuidArray(testUuids);
         assertThat(ao.fetchUuidArray()).containsExactly(testUuids);
     }
 
     @Test
-    public void testUuidList() throws Exception {
+    public void testUuidList() {
         ao.insertUuidList(Arrays.asList(testUuids));
         assertThat(ao.fetchUuidList()).contains(testUuids);
     }
 
     @Test
-    public void testUuidArrayList() throws Exception {
+    public void testUuidArrayList() {
         ao.insertUuidList(Arrays.asList(testUuids));
         assertThat(ao.fetchUuidArrayList()).contains(testUuids);
     }
 
     @Test
-    public void testUuidLinkedList() throws Exception {
+    public void testUuidLinkedList() {
         ao.insertUuidList(Arrays.asList(testUuids));
         assertThat(ao.fetchUuidLinkedList()).contains(testUuids);
     }
 
     @Test
-    public void testUuidCopyOnWriteArrayList() throws Exception {
+    public void testUuidCopyOnWriteArrayList() {
         ao.insertUuidList(Arrays.asList(testUuids));
         assertThat(ao.fetchUuidCopyOnWriteArrayList()).contains(testUuids);
     }
 
     @Test
-    public void testIntArray() throws Exception {
+    public void testIntArray() {
         ao.insertIntArray(testInts);
         int[] actuals = ao.fetchIntArray();
         assertThat(actuals).containsExactly(testInts);
     }
 
     @Test
-    public void testEmptyIntArray() throws Exception {
+    public void testEmptyIntArray() {
         ao.insertIntArray(new int[0]);
         assertThat(ao.fetchIntArray()).isEmpty();
     }
 
     @Test
-    public void testBoxedIntArray() throws Exception {
+    public void testBoxedIntArray() {
         Integer[] source = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Integer[]::new);
         ao.insertBoxedIntArray(source);
         Integer[] actuals = ao.fetchBoxedIntArray();
@@ -120,7 +120,7 @@ public class TestSqlArrays {
     }
 
     @Test
-    public void testObjectArray() throws Exception {
+    public void testObjectArray() {
         ao.insertIntArray(testInts);
         Object[] actuals = ao.fetchObjectArray();
         Object[] expecteds = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Object[]::new);
@@ -128,20 +128,20 @@ public class TestSqlArrays {
     }
 
     @Test
-    public void testIntList() throws Exception {
+    public void testIntList() {
         List<Integer> testIntList = Arrays.stream(testInts).boxed().collect(Collectors.toList());
         ao.insertIntList(testIntList);
         assertThat(ao.fetchIntList()).containsExactlyElementsOf(testIntList);
     }
 
     @Test
-    public void testNullArray() throws Exception {
+    public void testNullArray() {
         ao.insertUuidArray(null);
         assertThat(ao.fetchUuidArray()).isNull();
     }
 
     @Test
-    public void testNullList() throws Exception {
+    public void testNullList() {
         ao.insertUuidList(null);
         assertThat(ao.fetchUuidLinkedList()).isNull();
     }
@@ -200,7 +200,7 @@ public class TestSqlArrays {
     }
 
     @Test
-    public void testWhereInArray() throws Exception {
+    public void testWhereInArray() {
         WhereInDao dao = h.attach(WhereInDao.class);
         dao.createTable();
         Something a = new Something(1, "Alice");

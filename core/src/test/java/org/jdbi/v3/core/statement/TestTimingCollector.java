@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdbi.v3.core.Handle;
@@ -34,7 +33,7 @@ public class TestTimingCollector {
 
     private TTC tc;
 
-    protected Handle openHandle() throws SQLException {
+    protected Handle openHandle() {
         tc = new TTC();
 
         dbRule.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
@@ -47,14 +46,14 @@ public class TestTimingCollector {
     }
 
     @After
-    public void doTearDown() throws Exception {
+    public void doTearDown() {
         if (h != null) {
             h.close();
         }
     }
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
         assertThat(c).isEqualTo(1);
@@ -65,7 +64,7 @@ public class TestTimingCollector {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
         String stmt2 = "update something set name = :name where id = :id";
         String stmt3 = "select * from something where id = :id";

@@ -13,18 +13,18 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHandle {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testInTransaction() throws Exception {
+    public void testInTransaction() {
         Handle h = dbRule.openHandle();
 
         String value = h.inTransaction(handle -> {
@@ -40,7 +40,8 @@ public class TestHandle {
             h.execute("insert into something (id, name) values (1, 'Keith')");
         }
 
-        String value = dbRule.getJdbi().withHandle(handle ->
+        // strangely enough, the compiler can't infer this and thinks the throws is redundant
+        String value = dbRule.getJdbi().<String, Exception>withHandle(handle ->
                 handle.inTransaction(handle1 ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
@@ -49,7 +50,7 @@ public class TestHandle {
 
     @SuppressWarnings("resource")
     @Test
-    public void testIsClosed() throws Exception {
+    public void testIsClosed() {
         Handle h = dbRule.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();

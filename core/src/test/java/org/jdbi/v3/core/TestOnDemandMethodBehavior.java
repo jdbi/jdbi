@@ -76,14 +76,14 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(mockExtensionFactory.accepts(UselessDao.class)).thenReturn(true);
 
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Connection getConnection() throws SQLException {
+            public Connection getConnection() {
                 throw new UnsupportedOperationException();
             }
         };
@@ -94,21 +94,21 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Test
-    public void testEqualsDoesntAttach() throws Exception {
+    public void testEqualsDoesntAttach() {
         assertThat(onDemand).isEqualTo(onDemand);
         assertThat(onDemand).isNotEqualTo(anotherOnDemand);
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testHashCodeDoesntAttach() throws Exception {
+    public void testHashCodeDoesntAttach() {
         assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
         assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testToStringDoesntAttach() throws Exception {
+    public void testToStringDoesntAttach() {
         assertThat(onDemand.toString()).isNotNull();
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
@@ -128,7 +128,7 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Test
-    public void testExceptionThrown() throws Exception {
+    public void testExceptionThrown() {
         db.registerExtension(new UselessDaoExtension());
         UselessDao uselessDao = db.onDemand(UselessDao.class);
         assertThatThrownBy(uselessDao::blowUp).isInstanceOf(SQLException.class);

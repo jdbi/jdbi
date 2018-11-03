@@ -62,7 +62,7 @@ public class UseSqlParserImpl implements Configurer {
             } catch (NoSuchMethodException ignored) {
                 return null;
             } catch (Throwable t) {
-                throw Throwables.sneakyThrow(t);
+                throw Throwables.throwOnlyUnchecked(t);
             }
         };
     }

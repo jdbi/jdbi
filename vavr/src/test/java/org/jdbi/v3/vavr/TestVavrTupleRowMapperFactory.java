@@ -42,7 +42,7 @@ public class TestVavrTupleRowMapperFactory {
     private VavrTupleRowMapperFactory unit;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         unit = new VavrTupleRowMapperFactory() {
             // mock the resolution of column mappers in jdbi
             @Override
@@ -63,12 +63,12 @@ public class TestVavrTupleRowMapperFactory {
     }
 
     @Test
-    public void testBuildRowMapperForUntypedTupleShouldFail() throws SQLException {
+    public void testBuildRowMapperForUntypedTupleShouldFail() {
         assertThat(unit.build(Tuple.class, null)).isEmpty();
     }
 
     @Test
-    public void testBuildRowMapperForTuple0ShouldFail() throws SQLException {
+    public void testBuildRowMapperForTuple0ShouldFail() {
         assertThat(unit.build(Tuple0.class, null)).isEmpty();
     }
 

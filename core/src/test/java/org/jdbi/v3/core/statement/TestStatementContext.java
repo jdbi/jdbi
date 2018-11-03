@@ -25,7 +25,7 @@ public class TestStatementContext {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         Handle h = dbRule.openHandle();
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)

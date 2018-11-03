@@ -11,22 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.argument;
 
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.argument.internal.StatementBinder;
 
-class ReferenceMapper<T> implements ColumnMapper<T> {
-    private final ColumnGetter<T> getter;
+class ToStringBinder<T> implements StatementBinder<T> {
+    private final StatementBinder<String> stringSetter;
 
-    ReferenceMapper(ColumnGetter<T> getter) {
-        this.getter = getter;
+    ToStringBinder(StatementBinder<String> stringSetter) {
+        this.stringSetter = stringSetter;
     }
 
     @Override
-    public T map(ResultSet r, int i, StatementContext ctx) throws SQLException {
-        T value = getter.get(r, i);
-        return r.wasNull() ? null : value;
+    public void bind(PreparedStatement p, int index, T value) throws SQLException {
+        stringSetter.bind(p, index, String.valueOf(value));
     }
 }

@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -37,24 +37,24 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class PrimitiveMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
-    static {
-        MAPPERS.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
-        MAPPERS.put(byte.class, primitiveMapper(ResultSet::getByte));
-        MAPPERS.put(char.class, primitiveMapper(PrimitiveMapperFactory::getChar));
-        MAPPERS.put(short.class, primitiveMapper(ResultSet::getShort));
-        MAPPERS.put(int.class, primitiveMapper(ResultSet::getInt));
-        MAPPERS.put(long.class, primitiveMapper(ResultSet::getLong));
-        MAPPERS.put(float.class, primitiveMapper(ResultSet::getFloat));
-        MAPPERS.put(double.class, primitiveMapper(ResultSet::getDouble));
+    PrimitiveMapperFactory() {
+        mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
+        mappers.put(byte.class, primitiveMapper(ResultSet::getByte));
+        mappers.put(char.class, primitiveMapper(PrimitiveMapperFactory::getChar));
+        mappers.put(short.class, primitiveMapper(ResultSet::getShort));
+        mappers.put(int.class, primitiveMapper(ResultSet::getInt));
+        mappers.put(long.class, primitiveMapper(ResultSet::getLong));
+        mappers.put(float.class, primitiveMapper(ResultSet::getFloat));
+        mappers.put(double.class, primitiveMapper(ResultSet::getDouble));
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
@@ -73,5 +73,4 @@ class PrimitiveMapperFactory implements ColumnMapperFactory {
         }
         return null;
     }
-
 }

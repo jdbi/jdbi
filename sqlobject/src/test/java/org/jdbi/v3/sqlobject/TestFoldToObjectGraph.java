@@ -38,7 +38,7 @@ public class TestFoldToObjectGraph {
     private Map<String, Team> expected;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("create table team (name varchar(100), "
             + " mascot varchar(100),"
@@ -76,7 +76,7 @@ public class TestFoldToObjectGraph {
     }
 
     @Test
-    public void testSqlObjectApi() throws Exception {
+    public void testSqlObjectApi() {
         Dao dao = handle.attach(Dao.class);
         assertThat(dao.findAllTeams()).isEqualTo(expected);
     }

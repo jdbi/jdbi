@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import com.opentable.db.postgres.embedded.DatabasePreparer;
@@ -22,7 +20,7 @@ import com.opentable.db.postgres.embedded.DatabasePreparer;
 public abstract class JdbiPreparer implements DatabasePreparer {
 
     @Override
-    public void prepare(DataSource ds) throws SQLException {
+    public void prepare(DataSource ds) {
         Jdbi.create(ds).useHandle(this::prepare);
     }
 

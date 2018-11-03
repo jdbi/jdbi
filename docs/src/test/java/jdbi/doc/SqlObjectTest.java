@@ -41,7 +41,7 @@ public class SqlObjectTest {
     }
 
     @Test
-    public void testFindById() throws Exception {
+    public void testFindById() {
         // tag::find-by-id[]
         dao.insert(new Something(1, "apple"));
         dao.insert(new Something(2, "bison"));

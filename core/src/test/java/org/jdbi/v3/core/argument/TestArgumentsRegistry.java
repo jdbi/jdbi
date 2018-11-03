@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -82,7 +81,7 @@ public class TestArgumentsRegistry {
     }
 
     @Test
-    public void testPull88WeirdClassArgumentFactory() throws Exception {
+    public void testPull88WeirdClassArgumentFactory() {
         handle.registerArgument(new WeirdClassArgumentFactory());
 
         assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
@@ -134,6 +133,6 @@ public class TestArgumentsRegistry {
     private static class WeirdArgument implements Argument {
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {}
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) {}
     }
 }

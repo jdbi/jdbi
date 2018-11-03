@@ -30,12 +30,12 @@ public class TestPositionalParameterBinding {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.openHandle();
     }
 
     @Test
-    public void testSetPositionalString() throws Exception {
+    public void testSetPositionalString() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -48,7 +48,7 @@ public class TestPositionalParameterBinding {
     }
 
     @Test
-    public void testSetPositionalInteger() throws Exception {
+    public void testSetPositionalInteger() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -60,7 +60,7 @@ public class TestPositionalParameterBinding {
     }
 
     @Test
-    public void testBehaviorOnBadBinding1() throws Exception {
+    public void testBehaviorOnBadBinding1() {
         assertThatThrownBy(() -> h.createQuery("select * from something where id = ? and name = ?")
             .bind(0, 1)
             .mapToBean(Something.class)
@@ -68,7 +68,7 @@ public class TestPositionalParameterBinding {
     }
 
     @Test
-    public void testBehaviorOnBadBinding2() throws Exception {
+    public void testBehaviorOnBadBinding2() {
         assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
             .bind(1, 1)
             .bind(2, "Hi")
@@ -77,7 +77,7 @@ public class TestPositionalParameterBinding {
     }
 
     @Test
-    public void testInsertParamBinding() throws Exception {
+    public void testInsertParamBinding() {
         int count = h.createUpdate("insert into something (id, name) values (?, 'eric')")
                 .bind(0, 1)
                 .execute();
@@ -86,7 +86,7 @@ public class TestPositionalParameterBinding {
     }
 
     @Test
-    public void testPositionalConvenienceInsert() throws Exception {
+    public void testPositionalConvenienceInsert() {
         int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 
         assertThat(count).isEqualTo(1);

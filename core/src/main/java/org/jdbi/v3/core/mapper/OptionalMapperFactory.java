@@ -15,7 +15,7 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -37,12 +37,12 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class OptionalMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
-    static {
-        MAPPERS.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
-        MAPPERS.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
-        MAPPERS.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
+    OptionalMapperFactory() {
+        mappers.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
+        mappers.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
+        mappers.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
     }
 
     @Override
@@ -53,16 +53,13 @@ class OptionalMapperFactory implements ColumnMapperFactory {
             return Optional.of(OptionalMapper.of(type));
         }
 
-        return Optional.ofNullable(MAPPERS.get(rawType));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
         return (ColumnMapper<Opt>) (r, columnNumber, ctx) -> {
-            final Box boxed = ((ColumnMapper<Box>) new ReferenceMapper<>(columnGetter)).map(r, columnNumber, ctx);
-            if (boxed == null) {
-                return empty.get();
-            }
-            return present.apply(boxed);
+            final Box boxed = ((ColumnMapper<Box>) new GetterMapper<>(columnGetter)).map(r, columnNumber, ctx);
+            return boxed == null ? empty.get() : present.apply(boxed);
         };
     }
 }

@@ -44,7 +44,7 @@ public class TestUseCustomHandlerFactory {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Jdbi db = dbRule.getJdbi();
 
         HandlerFactory defaultHandlerFactory = new HandlerFactory() {
@@ -69,7 +69,7 @@ public class TestUseCustomHandlerFactory {
     }
 
     @Test
-    public void shouldUseConfiguredDefaultHandler() throws Exception {
+    public void shouldUseConfiguredDefaultHandler() {
         SomethingDao h = handle.attach(SomethingDao.class);
         Something s = h.insertAndFind(new Something(1, "Joy"));
         assertThat(s.getName()).isEqualTo("Joy");

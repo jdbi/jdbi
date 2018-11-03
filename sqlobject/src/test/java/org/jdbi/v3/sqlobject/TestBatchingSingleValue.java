@@ -38,14 +38,14 @@ public class TestBatchingSingleValue {
     private SingleValueBatching b;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("create table batching (id integer, values array)");
         b = handle.attach(SingleValueBatching.class);
     }
 
     @Test
-    public void testSingleValueArray() throws Exception {
+    public void testSingleValueArray() {
         final int[] ids = IntStream.range(0, 10).toArray();
         final int[] values = IntStream.range(50, 60).toArray();
 
