@@ -33,7 +33,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 class MapCollectorFactory implements CollectorFactory {
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
 
-    public MapCollectorFactory() {
+    MapCollectorFactory() {
         collectors.put(Map.class, toMap(LinkedHashMap::new));
         collectors.put(HashMap.class, toMap(HashMap::new));
         collectors.put(LinkedHashMap.class, toMap(LinkedHashMap::new));

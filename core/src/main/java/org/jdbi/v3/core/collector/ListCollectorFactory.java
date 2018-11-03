@@ -33,7 +33,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 class ListCollectorFactory implements CollectorFactory {
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new HashMap<>();
 
-    public ListCollectorFactory() {
+    ListCollectorFactory() {
         collectors.put(Collection.class, toCollection(ArrayList::new));
         collectors.put(List.class, toList());
         collectors.put(ArrayList.class, toCollection(ArrayList::new));
