@@ -13,11 +13,10 @@
  */
 package org.jdbi.v3.core.collector;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -78,6 +78,9 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  */
 @Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
+    private static final List<CollectorFactory> FACTORIES = Arrays.asList(
+    );
+
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     public BuiltInCollectorFactory() {
@@ -108,11 +111,25 @@ public class BuiltInCollectorFactory implements CollectorFactory {
 
     @Override
     public boolean accepts(Type containerType) {
+        boolean delegatable = FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
+        if (delegatable) {
+            return true;
+        }
+
         return containerType instanceof ParameterizedType && collectors.containsKey(getErasedType(containerType));
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
+        Optional<Type> delegated = FACTORIES.stream()
+            .map(factory -> factory.elementType(containerType))
+            .filter(Optional::isPresent)
+            .findFirst()
+            .map(Optional::get);
+        if (delegated.isPresent()) {
+            return delegated;
+        }
+
         Class<?> erasedType = getErasedType(containerType);
 
         if (Map.class.isAssignableFrom(erasedType)) {
@@ -124,6 +141,14 @@ public class BuiltInCollectorFactory implements CollectorFactory {
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
+        Optional<? extends Collector<?, ?, ?>> delegate = FACTORIES.stream()
+            .filter(factory -> factory.accepts(containerType))
+            .map(factory -> factory.build(containerType))
+            .findFirst();
+        if (delegate.isPresent()) {
+            return delegate.get();
+        }
+
         Class<?> erasedType = getErasedType(containerType);
         return collectors.get(erasedType);
     }
