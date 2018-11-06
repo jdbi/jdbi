@@ -30,4 +30,11 @@ public class JdbiOptionals {
                 .flatMap(supplier -> toStream(supplier.get()))
                 .findFirst();
     }
+
+    public static <T> Stream<T> stream(Optional<T> optional) {
+        if (optional.isPresent()) {
+            return Stream.of(optional.get());
+        }
+        return Stream.empty();
+    }
 }
