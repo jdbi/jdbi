@@ -111,6 +111,6 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
 
     @Override
     public String toString() {
-        return "{lazy bean property arguments \"" + obj + "\"";
+        return "{lazy bean property arguments \"" + obj + "\"}";
     }
 }
