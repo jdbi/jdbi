@@ -27,7 +27,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                                     method: Method,
                                     parameter: Parameter,
                                     paramIdx: Int,
-                                    type: Type): SqlStatementParameterCustomizer {
+                                    type: Type): SqlStatementParameterCustomizer<Any> {
 
         val bindName = if (parameter.isNamePresent) {
             parameter.name

@@ -25,7 +25,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 public class MapToFactory implements SqlStatementCustomizerFactory {
     @Override
-    public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+    public SqlStatementParameterCustomizer<Object> createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
                                                               Method method,
                                                               Parameter param,

@@ -20,12 +20,12 @@ import org.jdbi.v3.core.statement.SqlStatement;
 /**
  * Customize a {@link SqlStatement} according to the value of an annotated parameter.
  */
-public interface SqlStatementParameterCustomizer {
+public interface SqlStatementParameterCustomizer<T> {
     /**
      * Applies the customization to the SQL statement using the argument passed to the method.
      * @param stmt the statement being customized
      * @param arg the argument passed to the method
      * @throws SQLException will abort statement creation
      */
-    void apply(SqlStatement<?> stmt, Object arg) throws SQLException;
+    void apply(SqlStatement<?> stmt, T arg) throws SQLException;
 }

@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
@@ -47,6 +48,49 @@ public class TestCustomBinder {
         assertThat(s.findNameById(2)).isEqualTo("Keith");
     }
 
+    @Test
+    public void testBar() {
+        dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
+        dbRule.getJdbi().useExtension(Spiffier.class, spiffier -> {
+            Something s = spiffier.findSame(new Something(2, "Unknown"));
+            assertThat(s.getName()).isEqualTo("Martin");
+        });
+    }
+
+    @Test
+    public void testCustomBindingType() {
+        Spiffier s = dbRule.getSharedHandle().attach(Spiffier.class);
+
+        s.insert(new Something(23, "Frank"));
+
+        assertThat(s.findNameById(23)).isEqualTo("Frank");
+    }
+
+    @Test
+    public void testBaz() {
+        dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
+        dbRule.getJdbi().useExtension(Spiffiest.class, spiffiest -> {
+            try {
+                Something s = spiffiest.findSame(new Something(2, "Unknown"));
+                fail("Should have thrown ClassCastException");
+            } catch (ClassCastException cce) {
+                assertThat(cce.getMessage()).isEqualTo("org.jdbi.v3.core.Something cannot be cast to java.lang.Integer");
+            }
+        });
+    }
+
+    @Test
+    public void testCustomBindingWrongType() {
+        Spiffiest s = dbRule.getSharedHandle().attach(Spiffiest.class);
+
+        try {
+            s.insert(new Something(23, "Frank"));
+            fail("Should have thrown ClassCastException");
+        } catch (ClassCastException cce) {
+            assertThat(cce.getMessage()).isEqualTo("org.jdbi.v3.core.Something cannot be cast to java.lang.Integer");
+        }
+    }
+
     public interface Spiffy {
         @SqlQuery("select id, name from something where id = :it.id")
         @UseRowMapper(SomethingMapper.class)
@@ -54,6 +98,30 @@ public class TestCustomBinder {
 
         @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")
         int insert(@BindSomething("s") Something something);
+
+        @SqlQuery("select name from something where id = :id")
+        String findNameById(@Bind("id") int i);
+    }
+
+    public interface Spiffier {
+        @SqlQuery("select id, name from something where id = :it.id")
+        @UseRowMapper(SomethingMapper.class)
+        Something findSame(@BindSomethingElse("it") Something something);
+
+        @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")
+        int insert(@BindSomethingElse("s") Something something);
+
+        @SqlQuery("select name from something where id = :id")
+        String findNameById(@Bind("id") int i);
+    }
+
+    public interface Spiffiest {
+        @SqlQuery("select id, name from something where id = :it.id")
+        @UseRowMapper(SomethingMapper.class)
+        Something findSame(@BindSomethingOther("it") Something something);
+
+        @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")
+        int insert(@BindSomethingOther("s") Something something);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int i);
