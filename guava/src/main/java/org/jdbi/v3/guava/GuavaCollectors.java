@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import static org.jdbi.v3.core.collector.BuiltInCollectorFactory.toMap;
+import static org.jdbi.v3.core.collector.MapCollectors.toMap;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveMapEntryType;
