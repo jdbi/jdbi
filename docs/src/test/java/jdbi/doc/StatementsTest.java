@@ -30,7 +30,7 @@ public class StatementsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testQuery() throws Exception {
+    public void testQuery() {
         // tag::query[]
         List<Map<String, Object>> users =
             handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
@@ -44,7 +44,7 @@ public class StatementsTest {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         // tag::update[]
         int count = handle.createUpdate("INSERT INTO user(id, name) VALUES(:id, :name)")
             .bind("id", 3)
@@ -60,7 +60,7 @@ public class StatementsTest {
     }
 
     @Test
-    public void testScript() throws Exception {
+    public void testScript() {
         // tag::script[]
         int[] results = handle.createScript(
                 "INSERT INTO user VALUES(3, 'Charlie');"
@@ -72,7 +72,7 @@ public class StatementsTest {
     }
 
     @Test
-    public void testBatch() throws Exception {
+    public void testBatch() {
         // tag::batch[]
         PreparedBatch batch = handle.prepareBatch("INSERT INTO user(id, name) VALUES(:id, :name)");
         for (int i = 100; i < 5000; i++) {

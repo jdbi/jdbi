@@ -121,7 +121,6 @@ public class LocalTransactionHandler implements TransactionHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X {
@@ -136,13 +135,13 @@ public class LocalTransactionHandler implements TransactionHandler {
             if (!didTxnRollback.get()) {
                 handle.commit();
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             try {
                 handle.rollback();
-            } catch (Throwable rollback) {
+            } catch (Exception rollback) {
                 e.addSuppressed(rollback);
             }
-            throw (X) e;
+            throw e;
         }
 
         didTxnRollback.remove();

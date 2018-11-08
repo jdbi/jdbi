@@ -25,7 +25,7 @@ public class TestStatementExceptionContext {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
 
         assertThatExceptionOfType(StatementException.class)
                 .isThrownBy(() -> dbRule.openHandle().execute("WOOF", 7, "Tom"))

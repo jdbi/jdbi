@@ -38,12 +38,12 @@ public class TestPaging {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void pagingExample() throws Exception {
+    public void pagingExample() {
         Sql sql = handle.attach(Sql.class);
 
         int[] rs = sql.insert(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),

@@ -55,12 +55,12 @@ public class TestSqlObject {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testPassThroughMethod() throws Exception {
+    public void testPassThroughMethod() {
         Dao dao = handle.attach(Dao.class);
         dao.insert(3, "Cora");
 
@@ -69,7 +69,7 @@ public class TestSqlObject {
     }
 
     @Test
-    public void testUnimplementedMethod() throws Exception {
+    public void testUnimplementedMethod() {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Method UnimplementedDao.totallyBroken must be default "
             + "or be annotated with a SQL method annotation.");
@@ -77,7 +77,7 @@ public class TestSqlObject {
     }
 
     @Test
-    public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() throws Exception {
+    public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Default method RedundantDao.list has @SqlQuery annotation. "
             + "SQL object methods may be default, or have a SQL method annotation, but not both.");
@@ -85,7 +85,7 @@ public class TestSqlObject {
     }
 
     @Test
-    public void testPassThroughMethodWithDaoInAnotherPackage() throws Exception {
+    public void testPassThroughMethodWithDaoInAnotherPackage() {
         SomethingDao dao = handle.attach(SomethingDao.class);
         dao.insert(3, "Cora");
 
@@ -94,19 +94,19 @@ public class TestSqlObject {
     }
 
     @Test
-    public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception {
+    public void testUnimplementedMethodWithDaoInAnotherPackage() {
         assertThatThrownBy(() -> handle.attach(BrokenDao.class)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    public void testSimpleTransactionsSucceed() throws Exception {
+    public void testSimpleTransactionsSucceed() {
         SomethingDao dao = dbRule.getJdbi().onDemand(SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
 
     @Test
-    public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() throws Exception {
+    public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() {
         Dao dao = dbRule.getSharedHandle().attach(Dao.class);
         assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }

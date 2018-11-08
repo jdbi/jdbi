@@ -55,4 +55,9 @@ public class InputStreamArgument implements Argument {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "<stream object cannot be read for toString() calls>";
+    }
 }

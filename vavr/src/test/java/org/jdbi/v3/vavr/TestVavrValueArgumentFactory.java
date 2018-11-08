@@ -38,7 +38,7 @@ public class TestVavrValueArgumentFactory {
     private VavrValueArgumentFactory unit;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         unit = new VavrValueArgumentFactory() {
             @Override
             Optional<Argument> resolveNestedFromConfigured(ConfigRegistry config, Type nestedType, Object nestedValue) {

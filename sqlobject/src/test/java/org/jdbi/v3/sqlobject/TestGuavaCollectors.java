@@ -43,14 +43,14 @@ public class TestGuavaCollectors {
     }
 
     @Test
-    public void testImmutableList() throws Exception {
+    public void testImmutableList() {
         assertThat(h.attach(UserDao.class).list())
                 .containsExactly(new User(1, "Alice"),
                                  new User(2, "Bob"));
     }
 
     @Test
-    public void testOptional() throws Exception {
+    public void testOptional() {
         assertThat(h.attach(UserDao.class).getById(1))
                 .contains(new User(1, "Alice"));
     }

@@ -37,6 +37,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.meta.Beta;
@@ -113,6 +114,10 @@ public interface Configurable<This> {
 
     default This setSqlLogger(SqlLogger sqlLogger) {
         return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
+    }
+
+    default This addCustomizer(StatementCustomizer customizer) {
+        return configure(SqlStatements.class, c -> c.addCustomizer(customizer));
     }
 
     /**
@@ -313,3 +318,4 @@ public interface Configurable<This> {
         return configure(RowMappers.class, c -> c.register(factory));
     }
 }
+

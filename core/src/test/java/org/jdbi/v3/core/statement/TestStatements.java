@@ -36,12 +36,12 @@ public class TestStatements {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.openHandle();
     }
 
     @After
-    public void doTearDown() throws Exception {
+    public void doTearDown() {
         if (h != null) {
             h.close();
         }

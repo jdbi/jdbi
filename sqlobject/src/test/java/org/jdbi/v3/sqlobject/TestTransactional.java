@@ -53,7 +53,7 @@ public class TestTransactional {
     }
 
     @Test
-    public void testDoublyTransactional() throws Exception {
+    public void testDoublyTransactional() {
         final TheBasics dao = db.onDemand(TheBasics.class);
         dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
             transactional.insert(new Something(1, "2"));
@@ -65,7 +65,7 @@ public class TestTransactional {
     }
 
     @Test
-    public void testOnDemandBeginTransaction() throws Exception {
+    public void testOnDemandBeginTransaction() {
         // Calling methods like begin() on an on-demand Transactional SQL object makes no sense--the transaction would
         // begin and the connection would just close.
         // Jdbi should identify this scenario and throw an exception informing the user that they're not managing their
@@ -74,7 +74,7 @@ public class TestTransactional {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
@@ -96,7 +96,7 @@ public class TestTransactional {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.execute("drop table something");
         handle.close();
     }

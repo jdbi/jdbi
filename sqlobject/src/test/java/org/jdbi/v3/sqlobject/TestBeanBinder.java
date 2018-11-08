@@ -35,12 +35,12 @@ public class TestBeanBinder {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
@@ -49,7 +49,7 @@ public class TestBeanBinder {
     }
 
     @Test
-    public void testRead() throws Exception {
+    public void testRead() {
         Spiffy s = handle.attach(Spiffy.class);
         handle.execute("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
@@ -70,7 +70,7 @@ public class TestBeanBinder {
     }
 
     @Test
-    public void testBindingPrivateTypeUsingPublicInterface() throws Exception {
+    public void testBindingPrivateTypeUsingPublicInterface() {
         Spiffy s = handle.attach(Spiffy.class);
         assertThat(s.selectPublicInterfaceValue(PrivateImplementationFactory.create())).isEqualTo("IShouldBind");
     }

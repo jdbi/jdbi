@@ -44,7 +44,7 @@ public class TestDefineListParameter {
     private List<String> testColumns;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("create table test (id identity primary key, name varchar(50))");
         handle.execute("create table testNullable (id identity primary key, name varchar(50) null)");
@@ -54,7 +54,7 @@ public class TestDefineListParameter {
     }
 
     @Test
-    public void testWithBindList() throws Exception {
+    public void testWithBindList() {
         TestDao testDao = handle.attach(TestDao.class);
 
         List<Object> values = new ArrayList<>();
@@ -79,7 +79,7 @@ public class TestDefineListParameter {
     }
 
     @Test
-    public void testWithBindBean() throws Exception {
+    public void testWithBindBean() {
         TestDao testDao = handle.attach(TestDao.class);
 
         Something something = new Something(1, "Some Pig");

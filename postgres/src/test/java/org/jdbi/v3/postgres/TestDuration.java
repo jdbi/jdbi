@@ -34,7 +34,7 @@ public class TestDuration {
     private final Duration testDuration = Duration.ofDays(39).plusHours(23).plusMinutes(59).plusSeconds(1);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists intervals");

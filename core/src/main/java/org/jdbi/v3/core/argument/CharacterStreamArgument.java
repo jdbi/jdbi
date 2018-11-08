@@ -39,4 +39,9 @@ public class CharacterStreamArgument implements Argument {
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         statement.setCharacterStream(position, value, length);
     }
+
+    @Override
+    public String toString() {
+        return "<stream object cannot be read for toString() calls>";
+    }
 }

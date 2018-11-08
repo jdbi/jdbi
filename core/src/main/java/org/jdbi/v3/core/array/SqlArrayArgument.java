@@ -17,6 +17,7 @@ import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -60,5 +61,10 @@ class SqlArrayArgument<T> implements Argument {
             default:
                 throw new UnsupportedOperationException("Unknown array argument style " + argumentStyle);
         }
+    }
+
+    @Override
+    public String toString() {
+        return typeName + "[] - " + Arrays.toString(array);
     }
 }

@@ -98,10 +98,6 @@ class DefaultMethodHandler implements Handler {
 
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-        try {
-            return methodHandle.bindTo(target).invokeWithArguments(args);
-        } catch (Throwable t) {
-            throw Throwables.sneakyThrow(t);
-        }
+        return Throwables.throwingOnlyUnchecked(() -> methodHandle.bindTo(target).invokeWithArguments(args));
     }
 }

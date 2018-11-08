@@ -200,4 +200,58 @@ public class TestBeanArguments {
             return id;
         }
     }
+
+    @Test
+    public void testPrivateClass() throws Exception {
+        new ObjectMethodArguments(null, Person.create("hello")).find("name", ctx).get().apply(4, stmt, null);
+        verify(stmt).setString(4, "hello");
+    }
+
+    @Test
+    public void testPrivateInterfaceClass() throws Exception {
+        new ObjectMethodArguments(null, Car.create("hello")).find("name", ctx).get().apply(4, stmt, null);
+        verify(stmt).setString(4, "hello");
+    }
+
+    public abstract static class Person {
+        public static Person create(String name) {
+            return new PersonImpl(name);
+        }
+
+        public abstract String name();
+
+        private static class PersonImpl extends Person {
+            private String name;
+
+            PersonImpl(String name) {
+                this.name = name;
+            }
+
+            @Override
+            public String name() {
+                return name;
+            }
+        }
+    }
+
+    public interface Car {
+        static Car create(String name) {
+            return new CarImpl(name);
+        }
+
+        String name();
+    }
+
+    private static class CarImpl implements Car {
+        private String name;
+
+        CarImpl(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+    }
 }

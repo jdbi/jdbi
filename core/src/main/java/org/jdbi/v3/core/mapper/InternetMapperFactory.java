@@ -21,7 +21,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -38,12 +38,12 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class InternetMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
+    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     InternetMapperFactory() {
         mappers.put(InetAddress.class, InternetMapperFactory::getInetAddress);
-        mappers.put(URL.class, new ReferenceMapper<>(ResultSet::getURL));
-        mappers.put(URI.class, new ReferenceMapper<>(InternetMapperFactory::getURI));
+        mappers.put(URL.class, new GetterMapper<>(ResultSet::getURL));
+        mappers.put(URI.class, new GetterMapper<>(InternetMapperFactory::getURI));
     }
 
     @Override

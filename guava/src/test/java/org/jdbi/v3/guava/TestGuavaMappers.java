@@ -45,7 +45,7 @@ public class TestGuavaMappers {
     }
 
     @Test
-    public void testUuidImmutableList() throws Exception {
+    public void testUuidImmutableList() {
         UUID[] testUuids = new UUID[]{
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
         };
@@ -58,7 +58,7 @@ public class TestGuavaMappers {
     }
 
     @Test
-    public void testIntegerImmutableList() throws Exception {
+    public void testIntegerImmutableList() {
         Integer[] testInts = new Integer[]{
                 5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE
         };

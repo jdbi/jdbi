@@ -31,12 +31,12 @@ public class TestRegisteredMappers {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = dbRule.getJdbi();
     }
 
     @Test
-    public void testRegisterInferredOnJdbi() throws Exception {
+    public void testRegisterInferredOnJdbi() {
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (18, 'Sam')");

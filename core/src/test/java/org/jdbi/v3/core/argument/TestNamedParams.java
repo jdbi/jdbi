@@ -31,7 +31,7 @@ public class TestNamedParams {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         Handle h = dbRule.openHandle();
         Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
@@ -41,7 +41,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testDemo() throws Exception {
+    public void testDemo() {
         Handle h = dbRule.getSharedHandle();
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
@@ -61,7 +61,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testBeanPropertyBinding() throws Exception {
+    public void testBeanPropertyBinding() {
         Handle h = dbRule.openHandle();
         Something original = new Something(0, "Keith");
 
@@ -79,7 +79,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testBeanPropertyPrefixBinding() throws Exception {
+    public void testBeanPropertyPrefixBinding() {
         Handle h = dbRule.openHandle();
         Something original = new Something(0, "Keith");
 
@@ -97,7 +97,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testBeanPropertyNestedBinding() throws Exception {
+    public void testBeanPropertyNestedBinding() {
         Handle h = dbRule.openHandle();
 
         Something thing = new Something(0, "Keith");
@@ -127,7 +127,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFieldsBinding() throws Exception {
+    public void testFieldsBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -144,7 +144,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFieldsPrefixBinding() throws Exception {
+    public void testFieldsPrefixBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -161,7 +161,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFieldsNestedBinding() throws Exception {
+    public void testFieldsNestedBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -180,6 +180,12 @@ public class TestNamedParams {
             .isEqualTo(new Something(0, "Keith"));
     }
 
+    public class FunctionsNestedBinding {
+        public NoArgFunctions nested() {
+            return new NoArgFunctions(0, "Keith");
+        }
+    }
+
     public static class PublicFields {
         public int id = 0;
         public String name = "Keith";
@@ -192,7 +198,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFunctionsBinding() throws Exception {
+    public void testFunctionsBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -209,7 +215,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFunctionsPrefixBinding() throws Exception {
+    public void testFunctionsPrefixBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
@@ -226,12 +232,12 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testFunctionsNestedBinding() throws Exception {
+    public void testFunctionsNestedBinding() {
         Handle h = dbRule.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
-            .bindMethods("my", new NestsNoArgFunctions())
+            .bindMethods("my", new FunctionsNestedBinding())
             .execute())
             .isEqualTo(1);
 
@@ -240,12 +246,6 @@ public class TestNamedParams {
             .mapToBean(Something.class)
             .findOnly())
             .isEqualTo(new Something(0, "Keith"));
-    }
-
-    public static class NestsNoArgFunctions {
-        public NoArgFunctions nested() {
-            return new NoArgFunctions(0, "Keith");
-        }
     }
 
     public static class NoArgFunctions {
@@ -266,7 +266,7 @@ public class TestNamedParams {
         }
     }
     @Test
-    public void testMapKeyBinding() throws Exception {
+    public void testMapKeyBinding() {
         Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
@@ -283,7 +283,7 @@ public class TestNamedParams {
     }
 
     @Test
-    public void testCascadedLazyArgs() throws Exception {
+    public void testCascadedLazyArgs() {
         Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();

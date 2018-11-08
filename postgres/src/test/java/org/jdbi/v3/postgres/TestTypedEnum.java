@@ -28,7 +28,7 @@ public class TestTypedEnum {
     public Handle h;
 
     @Before
-    public void setupDbi() throws Exception {
+    public void setupDbi() {
         h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS values");
@@ -39,7 +39,7 @@ public class TestTypedEnum {
     }
 
     @Test
-    public void testBind() throws Exception {
+    public void testBind() {
         h.createUpdate("INSERT INTO values VALUES(:value)")
             .bind("value", EnumT.BAR)
             .execute();
@@ -49,7 +49,7 @@ public class TestTypedEnum {
     }
 
     @Test
-    public void testMap() throws Exception {
+    public void testMap() {
         h.createUpdate("INSERT INTO values VALUES('BAZ')")
             .execute();
 

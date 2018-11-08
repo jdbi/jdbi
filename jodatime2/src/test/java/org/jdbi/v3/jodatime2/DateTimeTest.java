@@ -26,7 +26,7 @@ public class DateTimeTest {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new JodaTimePlugin());
 
     @Test
-    public void dateTime() throws Exception {
+    public void dateTime() {
         Handle h = dbRule.getSharedHandle();
         h.execute("create table stuff(ts timestamp)");
 

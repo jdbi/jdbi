@@ -25,68 +25,68 @@ public class TestHashPrefixSqlParser {
     private StatementContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.parser = new HashPrefixSqlParser();
         ctx = mock(StatementContext.class);
     }
 
     @Test
-    public void testNewlinesOkay() throws Exception {
+    public void testNewlinesOkay() {
         ParsedSql parsed = parser.parse("select * from something\n where id = #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
-    public void testOddCharacters() throws Exception {
+    public void testOddCharacters() {
         ParsedSql parsed = parser.parse("~* #boo '#nope' _%&^& *@ #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
     }
 
     @Test
-    public void testNumbers() throws Exception {
+    public void testNumbers() {
         ParsedSql parsed = parser.parse("#bo0 '#nope' _%&^& *@ #id", ctx);
         assertThat(parsed.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
     }
 
     @Test
-    public void testDollarSignOkay() throws Exception {
+    public void testDollarSignOkay() {
         ParsedSql parsed = parser.parse("select * from v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
-    public void testColonIsLiteral() throws Exception {
+    public void testColonIsLiteral() {
         ParsedSql parsed = parser.parse("select * from foo where id = :id", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from foo where id = :id");
     }
 
     @Test
-    public void testBacktickOkay() throws Exception {
+    public void testBacktickOkay() {
         ParsedSql parsed = parser.parse("select * from `v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test
-    public void testBailsOutOnInvalidInput() throws Exception {
+    public void testBailsOutOnInvalidInput() {
         assertThatThrownBy(() -> parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", ctx))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testSubstitutesDefinedAttributes() throws Exception {
+    public void testSubstitutesDefinedAttributes() {
         String sql = "select foo from bar where foo = #someValue";
         ParsedSql parsed = parser.parse(sql, ctx);
         assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test
-    public void testCommentQuote() throws Exception {
+    public void testCommentQuote() {
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(parser.parse(sql, ctx).getSql()).isEqualTo(sql);
     }
 
     @Test
-    public void testEscapedQuestionMark() throws Exception {
+    public void testEscapedQuestionMark() {
         String sql = "SELECT '{\"a\":1, \"b\":2}'::jsonb ?? #key";
         ParsedSql parsed = parser.parse(sql, ctx);
 

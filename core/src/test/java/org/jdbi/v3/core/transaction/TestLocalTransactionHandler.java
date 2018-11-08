@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestLocalTransactionHandler {
     @Rule
@@ -52,5 +53,19 @@ public class TestLocalTransactionHandler {
             assertThat(e.getSuppressed()).hasSize(1);
             assertThat(e.getSuppressed()[0]).isSameAs(inner);
         }
+    }
+
+    @Test
+    public void testThrowError() throws Exception {
+        Error error = new Error("Transaction throws!");
+
+        Mockito.when(c.getAutoCommit()).thenReturn(true);
+        Mockito.when(h.getConnection()).thenReturn(c);
+
+        assertThatThrownBy(() ->
+            new LocalTransactionHandler().inTransaction(h, x -> {
+                throw error;
+            }))
+            .isSameAs(error);
     }
 }

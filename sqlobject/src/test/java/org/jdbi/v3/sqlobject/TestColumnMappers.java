@@ -130,7 +130,7 @@ public class TestColumnMappers {
     SomeBeanDao dao;
 
     @Before
-    public void createTable() throws Exception {
+    public void createTable() {
         h = dbRule.openHandle();
         h.createUpdate(
             "create table someBean ("
@@ -148,7 +148,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveInt() throws Exception {
+    public void testMapPrimitiveInt() {
         h.createUpdate("insert into someBean (primitiveInt) values (15)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -156,7 +156,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveIntFromNull() throws Exception {
+    public void testMapPrimitiveIntFromNull() {
         h.createUpdate("insert into someBean (primitiveInt) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -164,7 +164,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveChar() throws Exception {
+    public void testMapPrimitiveChar() {
         h.createUpdate("insert into someBean (primitiveChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -172,7 +172,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveCharFromEmpty() throws Exception {
+    public void testMapPrimitiveCharFromEmpty() {
         h.createUpdate("insert into someBean (primitiveChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -180,7 +180,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveCharFromNull() throws Exception {
+    public void testMapPrimitiveCharFromNull() {
         h.createUpdate("insert into someBean (primitiveChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -188,7 +188,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedChar() throws Exception {
+    public void testMapWrappedChar() {
         h.createUpdate("insert into someBean (wrappedChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -196,7 +196,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedCharFromEmpty() throws Exception {
+    public void testMapWrappedCharFromEmpty() {
         h.createUpdate("insert into someBean (wrappedChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -204,7 +204,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedCharFromNull() throws Exception {
+    public void testMapWrappedCharFromNull() {
         h.createUpdate("insert into someBean (wrappedChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -212,7 +212,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrapper() throws Exception {
+    public void testMapWrapper() {
         h.createUpdate("insert into someBean (wrapperLong) values (20)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -220,7 +220,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrapperFromNull() throws Exception {
+    public void testMapWrapperFromNull() {
         h.createUpdate("insert into someBean (wrapperLong) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -228,7 +228,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapString() throws Exception {
+    public void testMapString() {
         h.createUpdate("insert into someBean (string) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -236,7 +236,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapStringFromNull() throws Exception {
+    public void testMapStringFromNull() {
         h.createUpdate("insert into someBean (string) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -244,7 +244,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueType() throws Exception {
+    public void testMapValueType() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -252,7 +252,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueTypeFromNull() throws Exception {
+    public void testMapValueTypeFromNull() {
         h.createUpdate("insert into someBean (valueType) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -260,7 +260,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueTypeFromColumnMapperFactory() throws Exception {
+    public void testMapValueTypeFromColumnMapperFactory() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeansFactoryMapped();
@@ -268,7 +268,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapToValueTypeFromColumnMapper() throws Exception {
+    public void testMapToValueTypeFromColumnMapper() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypes();
@@ -276,7 +276,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapToValueTypeFromColumnMapperFactory() throws Exception {
+    public void testMapToValueTypeFromColumnMapperFactory() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypesFactoryMapped();
@@ -292,7 +292,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapUriFromNull() throws Exception {
+    public void testMapUriFromNull() {
         h.createUpdate("insert into someBean (uri) values (null)").execute();
 
         List<SomeBean> list = dao.listBeans();

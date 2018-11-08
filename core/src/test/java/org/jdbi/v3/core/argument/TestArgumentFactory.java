@@ -31,7 +31,7 @@ public class TestArgumentFactory {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testRegisterOnJdbi() throws Exception {
+    public void testRegisterOnJdbi() {
         final Jdbi db = dbRule.getJdbi();
         db.registerArgument(new NameAF());
         try (Handle h = db.open()) {
@@ -47,7 +47,7 @@ public class TestArgumentFactory {
     }
 
     @Test
-    public void testRegisterOnHandle() throws Exception {
+    public void testRegisterOnHandle() {
         try (Handle h = dbRule.openHandle()) {
             h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
@@ -62,7 +62,7 @@ public class TestArgumentFactory {
     }
 
     @Test
-    public void testRegisterOnStatement() throws Exception {
+    public void testRegisterOnStatement() {
         dbRule.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
          .registerArgument(new NameAF())
          .bind("id", 1)
@@ -71,7 +71,7 @@ public class TestArgumentFactory {
     }
 
     @Test
-    public void testOnPreparedBatch() throws Exception {
+    public void testOnPreparedBatch() {
         Handle h = dbRule.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());

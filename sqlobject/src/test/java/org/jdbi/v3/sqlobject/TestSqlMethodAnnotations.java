@@ -34,7 +34,7 @@ public class TestSqlMethodAnnotations {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
@@ -66,7 +66,7 @@ public class TestSqlMethodAnnotations {
     public @interface Foo {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) {
                 return "foo";
             }
         }

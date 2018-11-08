@@ -39,18 +39,18 @@ public class TestSqlCall {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("CREATE ALIAS stored_insert FOR \"org.jdbi.v3.sqlobject.TestSqlCall.insertSomething\";");
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.close();
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         Dao dao = handle.attach(Dao.class);
 //        OutParameters out = handle.createCall(":num = call stored_insert(:id, :name)")
 //                                  .bind("id", 1)

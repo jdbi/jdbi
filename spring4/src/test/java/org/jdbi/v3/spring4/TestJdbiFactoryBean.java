@@ -53,12 +53,12 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testServiceIsActuallySet() throws Exception {
+    public void testServiceIsActuallySet() {
         assertThat(service).isNotNull();
     }
 
     @Test
-    public void testFailsViaException() throws Exception {
+    public void testFailsViaException() {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(jdbi -> {
                 Handle h = JdbiUtil.getHandle(jdbi);
@@ -78,25 +78,25 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testAutoInstalledPlugin() throws Exception {
+    public void testAutoInstalledPlugin() {
         assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(AutoPlugin.KEY))
                 .isEqualTo(AutoPlugin.VALUE);
     }
 
     @Test
-    public void testManualInstalledPlugin() throws Exception {
+    public void testManualInstalledPlugin() {
         assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(ManualPlugin.KEY))
                 .isEqualTo(ManualPlugin.VALUE);
     }
 
     @Test
-    public void testGlobalDefinedAttribute() throws Exception {
+    public void testGlobalDefinedAttribute() {
         assertThat(jdbi.getConfig(SqlStatements.class).getAttribute("foo"))
                 .isEqualTo("bar"); // see test-context.xml
     }
 
     @Test
-    public void testNested() throws Exception {
+    public void testNested() {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(outer -> {
                 final Handle h = JdbiUtil.getHandle(outer);
@@ -125,7 +125,7 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testRequiresNew() throws Exception {
+    public void testRequiresNew() {
 
         service.inPropagationRequired(outer -> {
             final Handle h = JdbiUtil.getHandle(outer);

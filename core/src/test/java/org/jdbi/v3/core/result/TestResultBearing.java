@@ -26,7 +26,7 @@ public class TestResultBearing {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Handle h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE reduce (u INT)");
         for (int u = 0; u < 5; u++) {
@@ -35,7 +35,7 @@ public class TestResultBearing {
     }
 
     @Test
-    public void testReduceBiFunction() throws Exception {
+    public void testReduceBiFunction() {
         assertThat(
             dbRule.getSharedHandle().createQuery("SELECT * FROM reduce")
                 .mapTo(Integer.class)

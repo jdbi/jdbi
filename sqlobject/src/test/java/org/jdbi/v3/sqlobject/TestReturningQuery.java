@@ -34,13 +34,13 @@ public class TestReturningQuery {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
 
     }
 
     @Test
-    public void testWithRegisteredMapper() throws Exception {
+    public void testWithRegisteredMapper() {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
@@ -51,7 +51,7 @@ public class TestReturningQuery {
     }
 
     @Test
-    public void testWithExplicitMapper() throws Exception {
+    public void testWithExplicitMapper() {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy2.class, spiffy -> {
