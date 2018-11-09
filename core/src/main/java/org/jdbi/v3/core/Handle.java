@@ -48,6 +48,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     private final TransactionHandler transactions;
     private final Connection connection;
     private final boolean forceEndTransactions;
+    private final ConnectionHandler connectionHandler;
 
     private ThreadLocal<ConfigRegistry> config;
     private ThreadLocal<ExtensionMethod> extensionMethod;
@@ -58,11 +59,13 @@ public class Handle implements Closeable, Configurable<Handle> {
     Handle(ConfigRegistry config,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
-           Connection connection) {
+           Connection connection,
+           ConnectionHandler connectionHandler) {
         this.transactions = transactions;
         this.connection = connection;
 
         this.config = ThreadLocal.withInitial(() -> config);
+        this.connectionHandler = connectionHandler;
         this.extensionMethod = new ThreadLocal<>();
         this.statementBuilder = statementBuilder;
         this.forceEndTransactions = !transactions.isInTransaction(this);
@@ -139,7 +142,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
 
         try {
-            connection.close();
+            connectionHandler.releaseConnection(connection);
 
             if (wasInTransaction) {
                 TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "

@@ -51,15 +51,19 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private final ConfigRegistry config = new ConfigRegistry();
 
-    private final ConnectionFactory connectionFactory;
+    private final ConnectionHandler connectionHandler;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
-    private Jdbi(ConnectionFactory connectionFactory) {
-        Objects.requireNonNull(connectionFactory, "null connectionFactory");
-        this.connectionFactory = connectionFactory;
+    private Jdbi(ConnectionHandler connectionHandler) {
+        Objects.requireNonNull(connectionHandler, "null connectionHandler");
+        this.connectionHandler = connectionHandler;
+    }
+
+    public static Jdbi create(ConnectionHandler connectionHandler) {
+        return new Jdbi(connectionHandler);
     }
 
     /**
@@ -84,7 +88,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return a Jdbi which uses the given connection factory.
      */
     public static Jdbi create(ConnectionFactory connectionFactory) {
-        return new Jdbi(connectionFactory);
+        return create(new DefaultConnectionHandler(connectionFactory));
     }
 
     /**
@@ -282,7 +286,7 @@ public class Jdbi implements Configurable<Jdbi> {
         try {
             final long start = System.nanoTime();
             @SuppressWarnings("PMD.CloseResource")
-            Connection conn = connectionFactory.openConnection();
+            Connection conn = connectionHandler.getConnection();
             final long stop = System.nanoTime();
 
             for (JdbiPlugin p : plugins) {
@@ -290,7 +294,7 @@ public class Jdbi implements Configurable<Jdbi> {
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(config.createCopy(), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createCopy(), transactionhandler.get(), cache, conn, connectionHandler);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
