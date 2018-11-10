@@ -32,7 +32,7 @@ public class HandleAccess {
     public static Handle createHandle() {
         Connection fakeConnection = Mockito.mock(Connection.class);
 
-        return new Handle(new ConfigRegistry(), new LocalTransactionHandler(),
+        return new Handle(new ConfigRegistry(), Connection::close, new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), fakeConnection);
     }
 }

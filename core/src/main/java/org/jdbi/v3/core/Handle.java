@@ -45,6 +45,7 @@ import static java.util.Objects.requireNonNull;
 public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
+    private final ConnectionCloser closer;
     private final TransactionHandler transactions;
     private final Connection connection;
     private final boolean forceEndTransactions;
@@ -56,9 +57,11 @@ public class Handle implements Closeable, Configurable<Handle> {
     private boolean closed = false;
 
     Handle(ConfigRegistry config,
+           ConnectionCloser closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
            Connection connection) {
+        this.closer = closer;
         this.transactions = transactions;
         this.connection = connection;
 
@@ -139,7 +142,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
 
         try {
-            connection.close();
+            closer.close(connection);
 
             if (wasInTransaction) {
                 TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "
@@ -518,6 +521,10 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
+    }
+
+    interface ConnectionCloser {
+        void close(Connection conn) throws SQLException;
     }
 
     private class TransactionResetter implements Closeable {
