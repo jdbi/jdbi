@@ -37,11 +37,13 @@
         <junit.version>5.3.1</junit.version>
         <logback.version>1.2.3</logback.version>
         <postgresql.version>42.2.5</postgresql.version>
+        <mssql-jdbc.version>7.0.0.jre8</mssql-jdbc.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
         <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
         <r2dbc-h2.version>1.0.0.BUILD-SNAPSHOT</r2dbc-h2.version>
+        <r2dbc-mssql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-mssql.version>
         <reactor.version>Californium-SR2</reactor.version>
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
         <testcontainers.version>1.9.1</testcontainers.version>
@@ -137,9 +139,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-mssql</artifactId>
+            <version>${r2dbc-mssql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>${mssql-jdbc.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -151,6 +165,11 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mssqlserver</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -275,6 +294,23 @@
                 <repository>
                     <id>r2dbc-postgresql-artifactory</id>
                     <url>${r2dbcPostgresqlArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>r2dbc-mssql-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcMssqlArtifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-mssql-artifactory</id>
+                    <url>${r2dbcMssqlArtifactory}</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
