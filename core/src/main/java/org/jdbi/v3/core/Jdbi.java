@@ -67,6 +67,15 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * @param connection db connection
+     *
+     * @return a Jdbi which works on single connection
+     */
+    public static Jdbi create(Connection connection) {
+        return create(new SingleConnectionHandler(connection));
+    }
+
+    /**
      * @param dataSource the data source.
      *
      * @return a Jdbi which uses the given data source as a connection factory.
