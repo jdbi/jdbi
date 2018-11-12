@@ -25,7 +25,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
 /**
  * Utility class which constructs an {@link Jdbi} instance which can conveniently
@@ -46,7 +45,7 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
 
     @Override
     protected Jdbi createInstance() throws Exception {
-        final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
+        final Jdbi jdbi = Jdbi.create(new SpringConnectionHandler(dataSource));
 
         if (autoInstallPlugins) {
             jdbi.installPlugins();

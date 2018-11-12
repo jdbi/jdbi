@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,6 +49,18 @@ public class TestJdbi {
     }
 
     @Test
+    public void testConnectionConstructor() throws SQLException {
+        Connection connection = this.dbRule.getConnectionFactory().openConnection();
+
+        Jdbi db = Jdbi.create(connection);
+
+        try (Handle h = db.open()) {
+            assertThat(h).isNotNull();
+        }
+
+        assertThat(connection.isClosed()).isFalse();
+    }
+
     public void testConnectionFactoryCtor() {
         Jdbi db = Jdbi.create(() -> {
             try {
