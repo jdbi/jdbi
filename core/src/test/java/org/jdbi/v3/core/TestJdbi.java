@@ -16,7 +16,11 @@ package org.jdbi.v3.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementCustomizers;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,8 +31,17 @@ public class TestJdbi {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
+    private Handle handle;
+
+    @After
+    public void doTearDown() throws Exception {
+        if (handle != null) {
+            handle.close();
+        }
+    }
+
     @Test
-    public void testDataSourceConstructor() throws Exception {
+    public void testDataSourceConstructor() {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         try (Handle h = db.open()) {
             assertThat(h).isNotNull();
@@ -48,8 +61,7 @@ public class TestJdbi {
         assertThat(connection.isClosed()).isFalse();
     }
 
-    @Test
-    public void testConnectionFactoryCtor() throws Exception {
+    public void testConnectionFactoryCtor() {
         Jdbi db = Jdbi.create(() -> {
             try {
                 return DriverManager.getConnection(this.dbRule.getConnectionString());
@@ -63,7 +75,7 @@ public class TestJdbi {
     }
 
     @Test
-    public void testCorrectExceptionOnSQLException() throws Exception {
+    public void testCorrectExceptionOnSQLException() {
         Jdbi db = Jdbi.create(() -> {
             throw new SQLException();
         });
@@ -72,7 +84,7 @@ public class TestJdbi {
     }
 
     @Test
-    public void testWithHandle() throws Exception {
+    public void testWithHandle() {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         String value = db.withHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
@@ -82,7 +94,7 @@ public class TestJdbi {
     }
 
     @Test
-    public void testUseHandle() throws Exception {
+    public void testUseHandle() {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         db.useHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
@@ -90,4 +102,22 @@ public class TestJdbi {
             assertThat(value).isEqualTo("Brian");
         });
     }
+
+    @Test
+    public void testGlobalStatementCustomizers() throws Exception {
+        dbRule.getJdbi().addCustomizer(StatementCustomizers.maxRows(1));
+
+        handle = dbRule.openHandle();
+
+        handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
+        handle.execute("insert into something (id, name) values (?, ?)", 2, "world");
+
+        List<Something> rs = handle.createQuery("select id, name from something")
+                .mapToBean(Something.class)
+                .list();
+
+        assertThat(rs).hasSize(1);
+    }
+
 }
+

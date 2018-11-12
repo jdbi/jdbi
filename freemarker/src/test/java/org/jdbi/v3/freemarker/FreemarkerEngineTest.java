@@ -38,12 +38,12 @@ public class FreemarkerEngineTest {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testFindBeanWithBind() throws Exception {
+    public void testFindBeanWithBind() {
         handle.execute("insert into something (id, name) values (6, 'Martin Freeman')");
 
         Something s = handle.attach(Wombat.class).findByBoundId(6L);
@@ -51,7 +51,7 @@ public class FreemarkerEngineTest {
     }
 
     @Test
-    public void testFindBeanWithDefine() throws Exception {
+    public void testFindBeanWithDefine() {
         handle.execute("insert into something (id, name) values (6, 'Peter Jackson')");
 
         Something s = handle.attach(Wombat.class).findByDefinedId(6L);
@@ -59,7 +59,7 @@ public class FreemarkerEngineTest {
     }
 
     @Test
-    public void testFindNamesWithDefinedIds() throws Exception {
+    public void testFindNamesWithDefinedIds() {
         handle.execute("insert into something (id, name) values (6, 'Jack')");
         handle.execute("insert into something (id, name) values (7, 'Wolf')");
 
@@ -68,7 +68,7 @@ public class FreemarkerEngineTest {
     }
 
     @Test
-    public void testFindNamesConditionalExecutionWithNullValue() throws Exception {
+    public void testFindNamesConditionalExecutionWithNullValue() {
         handle.execute("insert into something (id, name) values (6, 'Jack')");
         handle.execute("insert into something (id, name) values (7, 'Wolf')");
 
@@ -77,7 +77,7 @@ public class FreemarkerEngineTest {
     }
 
     @Test
-    public void testFindNamesWithConditionalExecutionWithNonNullValue() throws Exception {
+    public void testFindNamesWithConditionalExecutionWithNonNullValue() {
         handle.execute("insert into something (id, name) values (6, 'Jack')");
         handle.execute("insert into something (id, name) values (7, 'Wolf')");
 

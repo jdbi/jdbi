@@ -22,6 +22,6 @@ public class JdbiStreams {
     }
 
     public static <T> Stream<T> toStream(Optional<T> optional) {
-        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
+        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 }

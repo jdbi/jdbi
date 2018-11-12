@@ -38,7 +38,7 @@ public class TestTooManyCursors {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         ConnectionFactory cf = dbRule.getConnectionFactory();
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
         Jdbi db = Jdbi.create(errorCf);

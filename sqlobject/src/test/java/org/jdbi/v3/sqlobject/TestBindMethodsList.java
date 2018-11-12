@@ -45,20 +45,20 @@ public class TestBindMethodsList {
     }
 
     @Test
-    public void bindMethodsListWithNoValue() throws Exception {
+    public void bindMethodsListWithNoValue() {
         assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("insert into thing (id, foo, bar, baz) VALUES <items>")
             .bindMethodsList("items", Collections.emptyList(), Arrays.asList("getFoo", "getBar"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void bindMethodsListWithNoMethods() throws Exception {
+    public void bindMethodsListWithNoMethods() {
         Thing thing = new Thing(1, "foo", "bar", "baz");
         assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("insert into (id, foo, bar, baz) VALUES <items>")
             .bindMethodsList("items", Collections.singletonList(thing), Collections.emptyList())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void happyPath() throws Exception {
+    public void happyPath() {
         Thing thing1 = new Thing(1, "foo1", "bar1", "baz1");
         Thing thing2 = new Thing(2, "foo2", "bar2", "baz2");
 

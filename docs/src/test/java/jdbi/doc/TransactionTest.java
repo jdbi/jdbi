@@ -63,7 +63,7 @@ public class TransactionTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle.useTransaction(h -> {
             h.execute("DROP TABLE IF EXISTS users");
             h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");

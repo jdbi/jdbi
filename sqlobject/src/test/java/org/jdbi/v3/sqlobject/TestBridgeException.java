@@ -33,7 +33,7 @@ public class TestBridgeException {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
-    public void testBridgeExceptionPassthru() throws Throwable {
+    public void testBridgeExceptionPassthru() {
         final ExceptionalBridge dao = this.dbRule.getSharedHandle().attach(ExceptionallyTypedBridge.class);
         final Object arg = 3;
         Assertions.assertThatThrownBy(() -> {

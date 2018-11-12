@@ -18,6 +18,7 @@ import java.time.Duration;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
 
@@ -72,6 +73,6 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
         if (isNegative) {
             interval.scale(-1);
         }
-        return (i, p, cx) -> p.setObject(i, interval, Types.OTHER);
+        return new LoggableSetObjectArgument<>(interval, Types.OTHER);
     }
 }

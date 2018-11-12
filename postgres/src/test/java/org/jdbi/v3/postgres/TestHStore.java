@@ -56,7 +56,7 @@ public class TestHStore {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists campaigns");

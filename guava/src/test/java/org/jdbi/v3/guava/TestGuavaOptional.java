@@ -52,7 +52,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalPresent() throws Exception {
+    public void testDynamicBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
@@ -61,7 +61,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalEmpty() throws Exception {
+    public void testDynamicBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.absent(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
@@ -71,7 +71,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalOfCustomType() throws Exception {
+    public void testDynamicBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
@@ -80,7 +80,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
+    public void testDynamicBindOptionalOfUnregisteredCustomType() {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
@@ -89,7 +89,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testBindOptionalPresent() throws Exception {
+    public void testBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of("brian"))
                 .mapToBean(Something.class)
@@ -99,7 +99,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testBindOptionalEmpty() throws Exception {
+    public void testBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.absent())
                 .mapToBean(Something.class)
@@ -109,7 +109,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testBindOptionalOfCustomType() throws Exception {
+    public void testBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
@@ -120,7 +120,7 @@ public class TestGuavaOptional {
     }
 
     @Test
-    public void testBindOptionalOfUnregisteredCustomType() throws Exception {
+    public void testBindOptionalOfUnregisteredCustomType() {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))

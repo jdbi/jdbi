@@ -38,14 +38,14 @@ public class TestCreateSqlObjectAnnotation {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dbRule.getJdbi().registerRowMapper(new SomethingMapper());
         handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test
-    public void testSimpleCreate() throws Exception {
+    public void testSimpleCreate() {
         Foo foo = handle.attach(Foo.class);
         foo.insert(1, "Stephane");
         Something s = foo.createBar().findById(1);
@@ -53,14 +53,14 @@ public class TestCreateSqlObjectAnnotation {
     }
 
     @Test
-    public void testInsertAndFind() throws Exception {
+    public void testInsertAndFind() {
         Foo foo = handle.attach(Foo.class);
         Something s = foo.insertAndFind(1, "Stephane");
         assertThat(s).isEqualTo(new Something(1, "Stephane"));
     }
 
     @Test
-    public void testTransactionPropagates() throws Exception {
+    public void testTransactionPropagates() {
         Foo foo = dbRule.getJdbi().open().attach(Foo.class);
 
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
@@ -103,7 +103,7 @@ public class TestCreateSqlObjectAnnotation {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() throws Exception {
+    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() {
         expectedException.expect(UnableToCreateSqlObjectException.class);
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
             + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
@@ -117,7 +117,7 @@ public class TestCreateSqlObjectAnnotation {
     }
 
     @Test
-    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() throws Exception {
+    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() {
         expectedException.expect(UnableToCreateSqlObjectException.class);
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
             + "so should return void, int[], or boolean[] but is returning: int");

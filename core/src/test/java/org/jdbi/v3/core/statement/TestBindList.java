@@ -60,7 +60,7 @@ public class TestBindList {
     }
 
     @Test
-    public void testBindListWithHashPrefixParser() throws Exception {
+    public void testBindListWithHashPrefixParser() {
         Jdbi jdbi = Jdbi.create(dbRule.getConnectionFactory());
         jdbi.setSqlParser(new HashPrefixSqlParser());
         jdbi.useHandle(handle -> {

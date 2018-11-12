@@ -134,11 +134,11 @@ public class Handle implements Closeable, Configurable<Handle> {
             rollback();
         }
 
-        Throwable suppressed = null;
+        Exception suppressed = null;
         try {
             statementBuilder.close(getConnection());
-        } catch (Throwable t) {
-            suppressed = t;
+        } catch (Exception e) {
+            suppressed = e;
         }
 
         try {

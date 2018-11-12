@@ -47,12 +47,12 @@ public class TestTransactionAnnotation {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void testTx() throws Exception {
+    public void testTx() {
         Dao dao = handle.attach(Dao.class);
         Something s = dao.insertAndFetch(1, "Ian");
         assertThat(s).isEqualTo(new Something(1, "Ian"));
@@ -71,7 +71,7 @@ public class TestTransactionAnnotation {
     }
 
     @Test
-    public void testTxActuallyCommits() throws Exception {
+    public void testTxActuallyCommits() {
         Handle h2 = this.dbRule.openHandle();
         Dao one = handle.attach(Dao.class);
         Dao two = h2.attach(Dao.class);
@@ -129,7 +129,7 @@ public class TestTransactionAnnotation {
     @RegisterRowMapper(SomethingMapper.class)
     public interface Other {
         @Transaction
-        default void insert(CountDownLatch inserted, int id, String name) throws InterruptedException {
+        default void insert(CountDownLatch inserted, int id, String name) {
             reallyInsert(id, name);
             inserted.countDown();
         }

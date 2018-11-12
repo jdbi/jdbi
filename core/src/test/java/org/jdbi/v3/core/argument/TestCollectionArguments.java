@@ -26,7 +26,7 @@ public class TestCollectionArguments {
     public PgDatabaseRule db = new PgDatabaseRule();
 
     @Test
-    public void testBindTypeErased() throws Exception {
+    public void testBindTypeErased() {
         try (Handle h = db.openHandle()) {
             assertThatThrownBy(() ->
                 h.execute("SELECT * FROM something WHERE id = ANY(:ids)", Collections.singleton(1)))
