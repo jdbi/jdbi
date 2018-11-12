@@ -45,7 +45,7 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
 
     @Override
     protected Jdbi createInstance() throws Exception {
-        final Jdbi jdbi = Jdbi.create(new SpringConnectionHandler(dataSource));
+        final Jdbi jdbi = Jdbi.create(new SpringConnectionFactory(dataSource));
 
         if (autoInstallPlugins) {
             jdbi.installPlugins();

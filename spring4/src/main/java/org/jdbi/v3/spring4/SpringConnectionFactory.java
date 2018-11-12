@@ -13,32 +13,28 @@
  */
 package org.jdbi.v3.spring4;
 
-import org.jdbi.v3.core.ConnectionHandler;
+import org.jdbi.v3.core.ConnectionFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * @author Dmitry Tsydzik
- * @since 11/8/18
- */
-public class SpringConnectionHandler implements ConnectionHandler {
+public class SpringConnectionFactory implements ConnectionFactory {
 
     private final DataSource dataSource;
 
-    public SpringConnectionHandler(DataSource dataSource) {
+    public SpringConnectionFactory(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection openConnection() throws SQLException {
         return DataSourceUtils.getConnection(dataSource);
     }
 
     @Override
-    public void releaseConnection(Connection connection) throws SQLException {
+    public void closeConnection(Connection connection) throws SQLException {
         DataSourceUtils.releaseConnection(connection, dataSource);
     }
 }
