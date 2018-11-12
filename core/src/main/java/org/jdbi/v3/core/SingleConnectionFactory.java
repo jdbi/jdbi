@@ -18,11 +18,11 @@ import java.sql.Connection;
 /**
  * Connection handler which always provides a single connection.  Close operation is ignored.
  */
-public class SingleConnectionFactory implements ConnectionFactory {
+class SingleConnectionFactory implements ConnectionFactory {
 
     private final Connection connection;
 
-    public SingleConnectionFactory(Connection connection) {
+    SingleConnectionFactory(Connection connection) {
         this.connection = connection;
     }
 
