@@ -1,3 +1,7 @@
+3.6.0
+  - New API
+    - ConnectionFactory now also may customize connection closing
+
 3.5.2
   - Bug Fixes
     - bindList throws an NPE if called with an immutable list,
