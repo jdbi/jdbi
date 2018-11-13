@@ -70,6 +70,9 @@ public class BeanMapper<T> implements RowMapper<T> {
     private static final String INVOCATION_TARGET_EXCEPTION =
         "Invocation target exception trying to invoker setter for the %s property";
 
+    private static final String REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION =
+        "Write method of %s for property %s is not compatible with the value passed";
+
     /**
      * Returns a mapper factory that maps to the given bean class
      *
@@ -255,6 +258,9 @@ public class BeanMapper<T> implements RowMapper<T> {
             throw new IllegalArgumentException(String.format(SETTER_NOT_ACCESSIBLE, property.getName()), e);
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(String.format(INVOCATION_TARGET_EXCEPTION, property.getName()), e);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format(REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION,
+                property.getPropertyType(), property.getName()), e);
         }
     }
 }
