@@ -63,6 +63,15 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * @param connection db connection
+     *
+     * @return a Jdbi which works on single connection
+     */
+    public static Jdbi create(Connection connection) {
+        return create(new SingleConnectionFactory(connection));
+    }
+
+    /**
      * @param dataSource the data source.
      *
      * @return a Jdbi which uses the given data source as a connection factory.
@@ -290,7 +299,7 @@ public class Jdbi implements Configurable<Jdbi> {
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(config.createCopy(), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createCopy(), connectionFactory::closeConnection, transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

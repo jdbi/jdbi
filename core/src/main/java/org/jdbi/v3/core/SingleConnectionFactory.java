@@ -14,27 +14,23 @@
 package org.jdbi.v3.core;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
- * Supplies {@link Connection} instances to a created {@link Handle} and allows
- * custom close handling.
+ * Connection handler which always provides a single connection.  Close operation is ignored.
  */
-@FunctionalInterface
-public interface ConnectionFactory {
-    /**
-     * Open a connection.
-     * @return a Connection
-     * @throws SQLException if anything goes wrong
-     */
-    Connection openConnection() throws SQLException;
+class SingleConnectionFactory implements ConnectionFactory {
 
-    /**
-     * Close a connection.
-     * @param conn the connection to close
-     * @throws SQLException if anything goes wrong
-     */
-    default void closeConnection(Connection conn) throws SQLException {
-        conn.close();
+    private final Connection connection;
+
+    SingleConnectionFactory(Connection connection) {
+        this.connection = connection;
     }
+
+    @Override
+    public Connection openConnection() {
+        return connection;
+    }
+
+    @Override
+    public void closeConnection(Connection connection) {}
 }
