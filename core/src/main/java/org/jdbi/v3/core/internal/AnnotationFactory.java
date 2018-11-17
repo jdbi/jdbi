@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.internal;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 public class AnnotationFactory {
@@ -24,28 +25,32 @@ public class AnnotationFactory {
         T annotation = (T) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class[]{annotationType},
-            (proxy, method, args) -> {
-                String name = method.getName();
-                if ("annotationType".equals(name) && method.getParameterCount() == 0) {
-                    return annotationType;
-                }
-
-                if ("equals".equals(name) && method.getParameterCount() == 1
-                    && Object.class.equals(method.getParameterTypes()[0])) {
-                    Annotation that = (Annotation) args[0];
-                    return annotationType.equals(that.annotationType());
-                }
-
-                if ("hashCode".equals(name) && method.getParameterCount() == 0) {
-                    return 0;
-                }
-
-                if ("toString".equals(name) && method.getParameterCount() == 0) {
-                    return "@" + annotationType.getCanonicalName() + "()";
-                }
-
-                throw new IllegalStateException("Unknown method " + method + " for annotation type " + annotationType);
-            });
+            getInvocationHandler(annotationType));
         return annotation;
+    }
+
+    private static <T extends Annotation> InvocationHandler getInvocationHandler(Class<T> annotationType) {
+        return (proxy, method, args) -> {
+            String name = method.getName();
+            if ("annotationType".equals(name) && method.getParameterCount() == 0) {
+                return annotationType;
+            }
+
+            if ("equals".equals(name) && method.getParameterCount() == 1
+                && Object.class.equals(method.getParameterTypes()[0])) {
+                Annotation that = (Annotation) args[0];
+                return annotationType.equals(that.annotationType());
+            }
+
+            if ("hashCode".equals(name) && method.getParameterCount() == 0) {
+                return 0;
+            }
+
+            if ("toString".equals(name) && method.getParameterCount() == 0) {
+                return "@" + annotationType.getCanonicalName() + "()";
+            }
+
+            throw new IllegalStateException("Unknown method " + method + " for annotation type " + annotationType);
+        };
     }
 }
