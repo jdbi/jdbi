@@ -143,6 +143,8 @@ module you want to use:
 Jdbi provides several other modules, which enhance the core API with additional
 features.
 
+=== Modules
+
 [glossary]
 jdbi3-sqlobject::
     The SQL Object extension. Most Jdbi users use this.
@@ -167,6 +169,11 @@ jdbi3-stringtemplate4::
     Use the StringTemplate4 template engine, instead of JDBI's built in engine.
 jdbi3-vavr::
     Support for Vavr Tuples, Collections and Value arguments
+
+=== Forethoughts
+
+[TIP]
+Before you go on, you'll probably want to add our annotation `org.jdbi.v3.meta.Beta` to your IDE's "unstable API usage" blacklist.
 
 == Core API
 
