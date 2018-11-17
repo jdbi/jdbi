@@ -21,10 +21,8 @@ import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.meta.Beta;
 
 @FunctionalInterface
-@Beta
 interface QualifiedColumnMapperFactory {
     Optional<ColumnMapper<?>> build(QualifiedType type, ConfigRegistry config);
 

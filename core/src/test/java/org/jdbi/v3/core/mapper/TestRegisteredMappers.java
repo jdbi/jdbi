@@ -51,8 +51,8 @@ public class TestRegisteredMappers {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void registerByGenericType() {
+        @SuppressWarnings("unchecked")
         RowMapper<Iterable<Calendar>> mapper = mock(RowMapper.class);
         GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
 

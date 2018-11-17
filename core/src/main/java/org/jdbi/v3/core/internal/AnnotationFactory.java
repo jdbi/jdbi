@@ -19,18 +19,19 @@ import java.lang.reflect.Proxy;
 public class AnnotationFactory {
     private AnnotationFactory() {}
 
-    @SuppressWarnings("unchecked")
     public static <T extends Annotation> T create(Class<T> annotationType) {
-        return (T) Proxy.newProxyInstance(
+        @SuppressWarnings("unchecked")
+        T annotation = (T) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
-            new Class[] {annotationType},
+            new Class[]{annotationType},
             (proxy, method, args) -> {
                 String name = method.getName();
                 if ("annotationType".equals(name) && method.getParameterCount() == 0) {
                     return annotationType;
                 }
 
-                if ("equals".equals(name) && method.getParameterCount() == 1 && Object.class.equals(method.getParameterTypes()[0])) {
+                if ("equals".equals(name) && method.getParameterCount() == 1
+                    && Object.class.equals(method.getParameterTypes()[0])) {
                     Annotation that = (Annotation) args[0];
                     return annotationType.equals(that.annotationType());
                 }
@@ -45,5 +46,6 @@ public class AnnotationFactory {
 
                 throw new IllegalStateException("Unknown method " + method + " for annotation type " + annotationType);
             });
+        return annotation;
     }
 }

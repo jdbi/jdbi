@@ -16,12 +16,10 @@ package org.jdbi.v3.core.argument;
 import java.sql.Types;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.NVarchar;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Argument factory for {@code @NVarchar String} qualified type.
  */
-@Beta
 @NVarchar
 class NVarcharArgumentFactory extends AbstractArgumentFactory<String> {
     NVarcharArgumentFactory() {

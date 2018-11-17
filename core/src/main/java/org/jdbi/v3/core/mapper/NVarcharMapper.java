@@ -18,12 +18,10 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Column mapper for Java {@code @NVarchar String} qualified type.
  */
-@Beta
 @NVarchar
 class NVarcharMapper implements ColumnMapper<String> {
     @Override

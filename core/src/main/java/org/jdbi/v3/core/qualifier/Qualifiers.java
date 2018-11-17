@@ -20,7 +20,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
@@ -47,7 +46,8 @@ public class Qualifiers {
     public static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
         return Arrays.stream(elements)
             .filter(Objects::nonNull)
-            .flatMap(element -> Stream.of(element.getAnnotations()))
+            .map(AnnotatedElement::getAnnotations)
+            .flatMap(Arrays::stream)
             .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
             .collect(toSet());
     }

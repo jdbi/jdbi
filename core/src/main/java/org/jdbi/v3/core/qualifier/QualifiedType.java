@@ -16,6 +16,7 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -58,15 +59,13 @@ public final class QualifiedType {
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
     public static QualifiedType of(Type type, Annotation... qualifiers) {
-        return new QualifiedType(
-            type,
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(qualifiers))));
+        return of(type, Arrays.asList(qualifiers));
     }
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(Type type, Set<? extends Annotation> qualifiers) {
+    public static QualifiedType of(Type type, Collection<? extends Annotation> qualifiers) {
         return new QualifiedType(
             type,
             Collections.unmodifiableSet(new HashSet<>(qualifiers)));
@@ -97,7 +96,7 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
-    public static QualifiedType of(GenericType<?> type, Set<? extends Annotation> qualifiers) {
+    public static QualifiedType of(GenericType<?> type, Collection<? extends Annotation> qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
     }
 
