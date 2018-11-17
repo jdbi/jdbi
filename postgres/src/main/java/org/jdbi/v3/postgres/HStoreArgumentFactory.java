@@ -26,6 +26,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  */
 // We must use a raw type to ensure we match all Map types rather than any particular generic type
 @SuppressWarnings("rawtypes")
+@HStore
 public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
     public HStoreArgumentFactory() {
         super(Types.OTHER);

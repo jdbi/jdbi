@@ -23,6 +23,7 @@ import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithP
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex
 import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
+import org.jdbi.v3.core.qualifier.QualifiedType
 import org.jdbi.v3.core.statement.StatementContext
 import java.sql.ResultSet
 import java.util.Optional
@@ -164,7 +165,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         if (nested == null) {
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
             if (columnIndex.isPresent) {
-                val type = parameter.type.javaType
+                val type = QualifiedType.of(
+                    parameter.type.javaType,
+                    getQualifiers(parameter))
 
                 return ctx.findColumnMapperFor(type)
                     .map { mapper ->

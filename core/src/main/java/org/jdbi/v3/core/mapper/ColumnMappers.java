@@ -22,6 +22,8 @@ import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
@@ -29,21 +31,22 @@ import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
  * Configuration registry for {@link ColumnMapperFactory} instances.
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
-    private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Type, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
+    private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<QualifiedType, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
     public ColumnMappers() {
         // TODO move to BuiltInSupportPlugin
-        factories.add(new EnumMapperFactory());
-        factories.add(new OptionalMapperFactory());
-        factories.add(new PrimitiveMapperFactory());
-        factories.add(new BoxedMapperFactory());
-        factories.add(new EssentialsMapperFactory());
-        factories.add(new InternetMapperFactory());
-        factories.add(new SqlTimeMapperFactory());
-        factories.add(new JavaTimeMapperFactory());
-        factories.add(new SqlArrayMapperFactory());
+        register(new SqlArrayMapperFactory());
+        register(new JavaTimeMapperFactory());
+        register(new SqlTimeMapperFactory());
+        register(new InternetMapperFactory());
+        register(new EssentialsMapperFactory());
+        register(new BoxedMapperFactory());
+        register(new PrimitiveMapperFactory());
+        register(new OptionalMapperFactory());
+        register(new EnumMapperFactory());
+        register(new NVarcharMapper());
     }
 
     @Override
@@ -72,6 +75,18 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     /**
+     * Register a column mapper for a given explicit {@link GenericType}
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param type the generic type to match with equals.
+     * @param mapper the column mapper
+     * @return this
+     */
+    public <T> ColumnMappers register(GenericType<T> type, ColumnMapper<T> mapper) {
+        return this.register(ColumnMapperFactory.of(type.getType(), mapper));
+    }
+
+    /**
      * Register a column mapper for a given explicit {@link Type}
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
@@ -84,6 +99,19 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     /**
+     * Register a column mapper for a given {@link QualifiedType}
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param type the type to match with equals.
+     * @param mapper the column mapper
+     * @return this
+     */
+    @Beta
+    public ColumnMappers register(QualifiedType type, ColumnMapper<?> mapper) {
+        return this.register(QualifiedColumnMapperFactory.of(type, mapper));
+    }
+
+    /**
      * Register a column mapper factory.
      * <p>
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
@@ -92,6 +120,10 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return this
      */
     public ColumnMappers register(ColumnMapperFactory factory) {
+        return register(QualifiedColumnMapperFactory.adapt(factory));
+    }
+
+    private ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
         return this;
@@ -130,6 +162,17 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findFor(Type type) {
+        return findFor(QualifiedType.of(type));
+    }
+
+    /**
+     * Obtain a column mapper for the given qualified type.
+     *
+     * @param type the qualified target type to map to
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
+    @Beta
+    public Optional<ColumnMapper<?>> findFor(QualifiedType type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175

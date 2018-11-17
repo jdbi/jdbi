@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,11 +35,13 @@ import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -165,7 +168,9 @@ public class BeanMapper<T> implements RowMapper<T> {
         final List<PropertyDescriptor> properties = new ArrayList<>();
 
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-            Nested anno = Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+            Method getter = descriptor.getReadMethod();
+            Method setter = descriptor.getWriteMethod();
+            Nested anno = Stream.of(getter, setter)
                 .filter(Objects::nonNull)
                 .map(m -> m.getAnnotation(Nested.class))
                 .filter(Objects::nonNull)
@@ -177,7 +182,13 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(descriptor))
                     .ifPresent(index -> {
-                        Type type = propertyType(descriptor);
+                        Parameter setterParam = Optional.ofNullable(setter)
+                            .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
+                            .orElse(null);
+
+                        QualifiedType type = QualifiedType.of(
+                            propertyType(descriptor),
+                            getQualifiers(getter, setter, setterParam));
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((r, n, c) -> r.getObject(n));
 

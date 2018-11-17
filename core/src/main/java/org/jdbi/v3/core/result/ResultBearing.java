@@ -23,8 +23,11 @@ import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -84,6 +87,24 @@ public interface ResultBearing {
     }
 
     /**
+     * Maps this result set to a {@link ResultIterable} of the given qualified element type.
+     *
+     * @param type the type to map the result set rows to
+     * @param qualifiers the set of element type qualifiers
+     * @param <T> the type to map the result set rows to
+     * @return a {@link ResultIterable} of the given type.
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default <T> ResultIterable<T> mapTo(Class<T> type, Annotation... qualifiers) {
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+    }
+
+    /**
      * Maps this result set to a {@link ResultIterable} of the given element type.
      *
      * @param type the type to map the result set rows to
@@ -100,6 +121,24 @@ public interface ResultBearing {
     }
 
     /**
+     * Maps this result set to a {@link ResultIterable} of the given qualified element type.
+     *
+     * @param type the type to map the result set rows to
+     * @param qualifiers the set of element type qualifiers
+     * @param <T>  the type to map the result set rows to
+     * @return a {@link ResultIterable} of the given type.
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default <T> ResultIterable<T> mapTo(GenericType<T> type, Annotation... qualifiers) {
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+    }
+
+    /**
      * Maps this result set to a {@link ResultIterable} of the given element type.
      *
      * @param type the type to map the result set rows to
@@ -110,6 +149,21 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default ResultIterable<?> mapTo(Type type) {
+        return mapTo(QualifiedType.of(type));
+    }
+
+    /**
+     * Maps this result set to a {@link ResultIterable} of the given qualified element type.
+     *
+     * @param type the qualified type to map the result set rows to
+     * @return a {@link ResultIterable} of the given type.
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    default ResultIterable<?> mapTo(QualifiedType type) {
         return scanResultSet((supplier, ctx) -> {
             RowMapper<?> mapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));

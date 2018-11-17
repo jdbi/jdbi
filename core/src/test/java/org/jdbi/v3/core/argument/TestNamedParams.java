@@ -104,12 +104,7 @@ public class TestNamedParams {
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
-            .bindBean("my", new Object() {
-                @SuppressWarnings("unused")
-                public Something getNested() {
-                    return thing;
-                }
-            })
+            .bindBean("my", new NestsSomething(thing))
             .execute()).isEqualTo(1);
 
         assertThat(h
@@ -117,6 +112,18 @@ public class TestNamedParams {
             .mapToBean(Something.class)
             .findOnly())
             .isEqualTo(thing);
+    }
+
+    public static class NestsSomething {
+        private final Something nested;
+
+        NestsSomething(Something nested) {
+            this.nested = nested;
+        }
+
+        public Something getNested() {
+            return nested;
+        }
     }
 
     @Test
@@ -282,15 +289,16 @@ public class TestNamedParams {
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         s.bindMap(args);
-        s.bindBean(new Object() {
-            @SuppressWarnings("unused")
-            public String getName() {
-                return "Keith";
-            }
-        });
+        s.bindBean(new Keith());
         int insertCount = s.execute();
         assertThat(insertCount).isEqualTo(1);
         Something something = h.createQuery("select id, name from something").mapToBean(Something.class).findOnly();
         assertThat(something).isEqualTo(new Something(0, "Keith"));
+    }
+
+    public static class Keith {
+        public String getName() {
+            return "Keith";
+        }
     }
 }

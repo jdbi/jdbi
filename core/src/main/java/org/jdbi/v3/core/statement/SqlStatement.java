@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -43,13 +45,14 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.argument.ObjectFieldArguments;
-import org.jdbi.v3.core.argument.ObjectMethodArguments;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
+import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -299,6 +302,32 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, String value) {
         return bind(name, toArgument(String.class, value));
+    }
+
+    /**
+     * Bind a {@code String} argument positionally, as {@code NVARCHAR} type.
+     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindNVarchar(int position, String value) {
+        return bind(position, toArgument(QualifiedType.of(String.class, nVarchar()), value));
+    }
+
+    /**
+     * Bind a {@code String} argument by name, as {@code NVARCHAR} type.
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindNVarchar(String name, String value) {
+        return bind(name, toArgument(QualifiedType.of(String.class, nVarchar()), value));
     }
 
     /**
@@ -1007,6 +1036,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
+     * Bind an argument dynamically by the qualified type passed in.
+     *
+     * @param position     position to bind the parameter at, starting at 0
+     * @param value        to bind
+     * @param argumentType type token for value argument
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindByType(int position, Object value, QualifiedType argumentType) {
+        return bind(position, toArgument(argumentType, value));
+    }
+
+    /**
      * Bind an argument dynamically by the type passed in.
      *
      * @param name         token name to bind the parameter to
@@ -1030,6 +1073,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindByType(String name, Object value, GenericType<?> argumentType) {
         return bindByType(name, value, argumentType.getType());
+    }
+
+    /**
+     * Bind an argument dynamically by the type passed in.
+     *
+     * @param name         token name to bind the parameter to
+     * @param value        to bind
+     * @param argumentType type for value argument
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindByType(String name, Object value, QualifiedType argumentType) {
+        return bind(name, toArgument(argumentType, value));
     }
 
     private Argument toArgument(Object value) {
@@ -1063,6 +1120,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         }
     }
 
+    private Argument toArgument(QualifiedType type, Object value) {
+        return getConfig(Arguments.class).findFor(type, value)
+                .orElseThrow(() -> factoryNotFound(type, value));
+    }
+
     private UnsupportedOperationException factoryNotFound(Type type, Object value) {
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
@@ -1072,6 +1134,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             }
         }
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);
+    }
+
+    private UnsupportedOperationException factoryNotFound(QualifiedType qualifiedType, Object value) {
+        Type type = qualifiedType.getType();
+        if (type instanceof Class<?>) { // not a ParameterizedType
+            final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
+            if (params.length > 0) {
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
+                    + "' with qualifiers '" + qualifiedType.getQualifiers()
+                    + "'. To bind a generic type, prefer using bindByType.");
+            }
+        }
+        return new UnsupportedOperationException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType);
     }
 
     /**

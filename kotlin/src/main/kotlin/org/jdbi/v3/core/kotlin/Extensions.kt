@@ -16,9 +16,15 @@ package org.jdbi.v3.core.kotlin
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.extension.ExtensionCallback
 import org.jdbi.v3.core.extension.ExtensionConsumer
+import org.jdbi.v3.core.kotlin.internal.KotlinPropertyArguments
+import org.jdbi.v3.core.qualifier.Qualifier
 import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
+import org.jdbi.v3.core.statement.SqlStatement
+import org.jdbi.v3.meta.Beta
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 private val metadataFqName = "kotlin.Metadata"
 
@@ -30,10 +36,20 @@ inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> {
     return this.mapTo(T::class.java)
 }
 
-inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit): Unit {
+inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit) {
     this.iterator().use {
         block(it.asSequence())
     }
+}
+
+@Beta
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj: Any): This {
+    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, name))
+}
+
+@Beta
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This {
+    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 }
 
 /**
@@ -68,4 +84,17 @@ fun <E : Any, R, X : Exception> Jdbi.withExtension(extensionType: KClass<E>, cal
  */
 fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callback: ExtensionConsumer<E, X>) {
     useExtension(extensionType.java, callback)
+}
+
+/**
+ * Returns the set of qualifying annotations on the given Kotlin elements.
+ * @param elements the annotated element. Null elements are ignored.
+ * @return the set of qualifying annotations on the given elements.
+ */
+@Beta
+fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> {
+    return elements.filterNotNull()
+        .flatMap { element -> element.annotations }
+        .filter { anno -> anno.annotationClass.findAnnotation<Qualifier>() != null }
+        .toSet()
 }

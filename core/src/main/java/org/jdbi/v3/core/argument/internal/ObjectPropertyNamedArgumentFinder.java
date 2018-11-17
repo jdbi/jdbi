@@ -11,14 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.argument.internal;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
@@ -26,19 +28,19 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * Base {@link NamedArgumentFinder} implementation that can be used when binding properties of an object, with an
  * optional prefix.
  */
-abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
+public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
     final String prefix;
-    final Object object;
+    protected final Object obj;
 
     private final Map<String, Optional<NamedArgumentFinder>> childArgumentFinders = new ConcurrentHashMap<>();
 
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
-     * @param object the object bind on
+     * @param obj the object bind on
      */
-    ObjectPropertyNamedArgumentFinder(String prefix, Object object) {
+    protected ObjectPropertyNamedArgumentFinder(String prefix, Object obj) {
         this.prefix = prefix == null || prefix.isEmpty() ? "" : prefix + ".";
-        this.object = object;
+        this.obj = obj;
     }
 
     @Override
@@ -64,7 +66,7 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
                         String.format("No argument factory registered for type [%s] for element [%s] on [%s]",
                             tv.type,
                             name,
-                            object),
+                            obj),
                         ctx)));
         }
 
@@ -85,17 +87,8 @@ abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder 
                 parentName + '?'));
     }
 
-    abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
+    protected abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
 
-    abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
+    protected abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
 
-    static class TypedValue {
-        public final Type type;
-        public final Object value;
-
-        TypedValue(Type type, Object value) {
-            this.type = type;
-            this.value = value;
-        }
-    }
 }

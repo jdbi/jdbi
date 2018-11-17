@@ -14,31 +14,35 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 
 /**
- * A generic ColumnMapperFactory that reflectively inspects a
+ * A generic QualifiedColumnMapperFactory that reflectively inspects a
  * {@code ColumnMapper<T>} and maps only to columns of type
- * {@code T}.  The type parameter T must be accessible
+ * {@code T}, with type qualifiers equal to the qualifiers present on
+ * the mapper class. The type parameter T must be accessible
  * via reflection or an {@link UnsupportedOperationException}
  * will be thrown.
  */
-class InferredColumnMapperFactory implements ColumnMapperFactory {
-    private final Type maps;
+class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
+    private final QualifiedType maps;
     private final ColumnMapper<?> mapper;
 
     InferredColumnMapperFactory(ColumnMapper<?> mapper) {
-        this.maps = findGenericParameter(mapper.getClass(), ColumnMapper.class)
-                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here"));
+        this.maps = QualifiedType.of(
+            findGenericParameter(mapper.getClass(), ColumnMapper.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")),
+            getQualifiers(mapper.getClass()));
         this.mapper = mapper;
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(QualifiedType type, ConfigRegistry config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

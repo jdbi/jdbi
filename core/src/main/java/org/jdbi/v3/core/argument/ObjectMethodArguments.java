@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -20,12 +21,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -63,7 +69,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         Method method = methods.get(name);
 
         if (method == null) {
@@ -71,19 +77,20 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         Type type = method.getGenericReturnType();
+        Set<Annotation> qualifiers = getQualifiers(method);
         Object value = invokeMethod(method, ctx);
 
-        return Optional.of(new TypedValue(type, value));
+        return Optional.of(new TypedValue(type, qualifiers, value));
     }
 
     @Override
-    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+    protected NamedArgumentFinder getNestedArgumentFinder(Object obj) {
         return new ObjectMethodArguments(null, obj);
     }
 
     @Override
     public String toString() {
-        return "{lazy object functions arguments \"" + object + "\"";
+        return "{lazy object functions arguments \"" + obj + "\"";
     }
 
     private static Method bridgeMethodMerge(Method a, Method b) {

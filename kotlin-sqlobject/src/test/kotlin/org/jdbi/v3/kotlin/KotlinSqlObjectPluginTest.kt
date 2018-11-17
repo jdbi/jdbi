@@ -13,8 +13,15 @@
  */
 package org.jdbi.v3.kotlin
 
+import org.assertj.core.api.Assertions.assertThat
+import org.jdbi.v3.core.kotlin.mapTo
+import org.jdbi.v3.core.qualifier.Reversed
+import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
+import org.jdbi.v3.core.qualifier.ReversedStringMapper
 import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.SqlObject
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
 import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -108,8 +115,31 @@ class KotlinSqlObjectPluginTest {
         val exception = UnsupportedOperationException("Testing exception propagation")
         val actualException = assertFails { dao.throwsException(exception) }
         assertEquals(exception, actualException)
-
     }
 
+    @Test
+    fun qualifiedBindParameter() {
+        val dao = db.jdbi.onDemand<QualifiedDao>()
+        dao.insert(1, "abc")
+        assertThat(db.sharedHandle
+            .select("SELECT name FROM something WHERE id = 1")
+            .mapTo<String>()
+            .findOnly())
+            .isEqualTo("cba")
 
+        db.sharedHandle.execute("insert into something (id, name) values (2, 'xyz')")
+
+        assertThat(dao.select(2)).isEqualTo("zyx")
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory::class)
+    @RegisterColumnMapper(ReversedStringMapper::class)
+    interface QualifiedDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        fun insert(id: Int, @Reversed name: String)
+
+        @SqlQuery("select name from something where id = :id")
+        @Reversed
+        fun select(id: Int): String
+    }
 }

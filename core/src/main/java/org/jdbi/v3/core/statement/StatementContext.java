@@ -48,6 +48,8 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.Objects.requireNonNull;
 
@@ -151,6 +153,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Obtain an argument for given value in this context
+     *
+     * @param type  the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    @Beta
+    public Optional<Argument> findArgumentFor(QualifiedType type, Object value) {
+        return getConfig(Arguments.class).findFor(type, value);
+    }
+
+    /**
      * @return the strategy used to bind array-type arguments to SQL statements
      */
     public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
@@ -203,6 +217,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Obtain a mapper for the given qualified type in this context.
+     *
+     * @param type the target qualified type to map to
+     * @return a mapper for the given qualified type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    @Beta
+    public Optional<RowMapper<?>> findMapperFor(QualifiedType type) {
+        return getConfig(Mappers.class).findFor(type);
+    }
+
+    /**
      * Obtain a column mapper for the given type in this context.
      *
      * @param <T> the type to map
@@ -231,6 +257,17 @@ public class StatementContext implements Closeable {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
+        return getConfig(ColumnMappers.class).findFor(type);
+    }
+
+    /**
+     * Obtain a column mapper for the given qualified type in this context.
+     *
+     * @param type the qualified target type to map to
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
+    @Beta
+    public Optional<ColumnMapper<?>> findColumnMapperFor(QualifiedType type) {
         return getConfig(ColumnMappers.class).findFor(type);
     }
 

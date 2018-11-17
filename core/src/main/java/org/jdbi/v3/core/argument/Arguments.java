@@ -18,9 +18,12 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
@@ -32,7 +35,7 @@ import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
  * The factories are consulted in reverse order of registration (i.e. last-registered wins).
  */
 public class Arguments implements JdbiConfig<Arguments> {
-    private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
@@ -51,6 +54,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new JavaTimeArgumentFactory());
         register(new SqlArrayArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
+        register(new NVarcharArgumentFactory());
         register(new EnumArgumentFactory());
         register(new OptionalArgumentFactory());
     }
@@ -61,7 +65,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     private Arguments(Arguments that) {
-        argumentFactories.addAll(that.argumentFactories);
+        factories.addAll(that.factories);
         untypedNullArgument = that.untypedNullArgument;
     }
 
@@ -72,7 +76,11 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return this
      */
     public Arguments register(ArgumentFactory factory) {
-        argumentFactories.add(0, factory);
+        return register(QualifiedArgumentFactory.adapt(factory));
+    }
+
+    private Arguments register(QualifiedArgumentFactory factory) {
+        factories.add(0, factory);
         return this;
     }
 
@@ -84,9 +92,21 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findFor(Type type, Object value) {
-        return argumentFactories.stream()
-                .flatMap(factory -> toStream(factory.build(type, value, registry)))
-                .findFirst();
+        return findFor(QualifiedType.of(type), value);
+    }
+
+    /**
+     * Obtain an argument for given value in the given context.
+     *
+     * @param type  the qualified type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    @Beta
+    public Optional<Argument> findFor(QualifiedType type, Object value) {
+        return factories.stream()
+            .flatMap(factory -> toStream(factory.build(type, value, registry)))
+            .findFirst();
     }
 
     /**

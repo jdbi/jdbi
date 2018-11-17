@@ -37,13 +37,13 @@ public class TestOptionalArgumentH2 {
 
     @Test
     public void testNotOptional() {
-        assertThatThrownBy(() -> insert("value.text", getTestBeanEmpty())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> insert("value.text", new EmptyBean())).isInstanceOf(IllegalArgumentException.class);
         assertThat(select().isPresent()).isFalse();
     }
 
     @Test
     public void testOptional() {
-        insert("value?.text", getTestBeanEmpty());
+        insert("value?.text", new EmptyBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().value).isNull();
@@ -52,7 +52,7 @@ public class TestOptionalArgumentH2 {
 
     @Test
     public void testNotOptionalFullBean() {
-        insert("value.text", getTestBeanFull());
+        insert("value.text", new FullBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().value).isEqualTo("TEST");
@@ -61,7 +61,7 @@ public class TestOptionalArgumentH2 {
 
     @Test
     public void testOptionalFullBean() {
-        insert("value?.text", getTestBeanFull());
+        insert("value?.text", new FullBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().value).isEqualTo("TEST");
@@ -82,32 +82,30 @@ public class TestOptionalArgumentH2 {
                 .findFirst());
     }
 
-    private Object getTestBeanFull() {
-        return new Object() {
-            public long getId() {
-                return 1;
-            }
+    public static class FullBean {
+        public long getId() {
+            return 1;
+        }
 
-            public Object getValue() {
-                return new Object() {
-                    public String getText() {
-                        return "TEST";
-                    }
-                };
-            }
-        };
+        public Object getValue() {
+            return new NestedBean();
+        }
     }
 
-    private Object getTestBeanEmpty() {
-        return new Object() {
-            public long getId() {
-                return 1;
-            }
+    public static class NestedBean {
+        public String getText() {
+            return "TEST";
+        }
+    }
 
-            public Object getValue() {
-                return null;
-            }
-        };
+    public static class EmptyBean {
+        public long getId() {
+            return 1;
+        }
+
+        public Object getValue() {
+            return null;
+        }
     }
 
     private class IdValue {

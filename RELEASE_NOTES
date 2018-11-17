@@ -1,6 +1,13 @@
 3.6.0
   - New API
     - ConnectionFactory now also may customize connection closing
+  - New beta API
+    - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
+      data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
+      map to String, but are bound and mapped with different JDBC APIs.
+    - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
+    - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
+    - Support for HSTORE columns, using the @HStore annotation
 
 3.5.2
   - Bug Fixes

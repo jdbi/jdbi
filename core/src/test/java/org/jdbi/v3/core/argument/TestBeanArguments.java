@@ -13,6 +13,13 @@
  */
 package org.jdbi.v3.core.argument;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.Types;
+
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -21,13 +28,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.Types;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
 
 public class TestBeanArguments {
     @Rule
@@ -40,169 +40,165 @@ public class TestBeanArguments {
 
     @Test
     public void testBindBare() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public BigDecimal getFoo() {
-                return BigDecimal.ONE;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(5, stmt, null);
+        new BeanPropertyArguments("", new Foo(BigDecimal.ONE))
+            .find("foo", ctx)
+            .get()
+            .apply(5, stmt, null);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
 
     @Test
     public void testBindNull() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public BigDecimal getFoo() {
-                return null;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("", new Foo(null))
+            .find("foo", ctx)
+            .get()
+            .apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.NUMERIC);
     }
 
+    public static class Foo {
+        private final BigDecimal foo;
+
+        Foo(BigDecimal foo) {
+            this.foo = foo;
+        }
+
+        public BigDecimal getFoo() {
+            return foo;
+        }
+    }
+
     @Test
     public void testBindPrefix() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public String getBar() {
-                return "baz";
-            }
-        };
-
-        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("foo", new Bar())
+            .find("foo.bar", ctx)
+            .get()
+            .apply(3, stmt, null);
 
         verify(stmt).setString(3, "baz");
     }
 
+    public static class Bar {
+        public String getBar() {
+            return "baz";
+        }
+    }
+
     @Test
     public void testBindIllegalAccess() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public String getBar() throws IllegalAccessException {
-                throw new IllegalAccessException();
-            }
-        };
-
-        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new ThrowsIllegalAccessException()).find("foo.bar", ctx))
             .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    public static class ThrowsIllegalAccessException {
+        public String getBar() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
     }
 
     @Test
     public void testBindNoGetter() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public void setBar(String bar) {}
-        };
-
-        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NoGetter()).find("foo.bar", ctx))
             .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    public static class NoGetter {
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
     }
 
     @Test
     public void testBindNonPublicGetter() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            protected String getBar() {
-                return "baz";
-            }
-
-            @SuppressWarnings("unused")
-            public void setBar(String bar) {}
-        };
-
-        assertThatThrownBy(() -> new BeanPropertyArguments("foo", bean).find("foo.bar", ctx))
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NonPublicGetter()).find("foo.bar", ctx))
             .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    public static class NonPublicGetter {
+        @SuppressWarnings("unused")
+        protected String getBar() {
+            return "baz";
+        }
+
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
     }
 
     @Test
     public void testBindNestedOptionalNull() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return null;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.id", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.OTHER);
     }
 
     @Test
     public void testBindNestedNestedOptionalNull() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return null;
-            }
-        };
-
-        new BeanPropertyArguments("", bean).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.OTHER);
     }
 
     @Test
     public void testBindNestedNestedNull() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return null;
-            }
-        };
-
-        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.id", ctx).get().apply(3, stmt, null))
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+                .find("foo.bar.id", ctx)
+                .get()
+                .apply(3, stmt, null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testBindNestedNestedWrongOptionalNull1() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return null;
-            }
-        };
-
-        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar?.id", ctx).get().apply(3, stmt, null))
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar?.id", ctx)
+            .get()
+            .apply(3, stmt, null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testBindNestedNestedWrongOptionalNull2() {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return null;
-            }
-        };
 
-        assertThatThrownBy(() -> new BeanPropertyArguments("", bean).find("foo.bar.?id", ctx).get().apply(3, stmt, null))
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar.?id", ctx)
+            .get()
+            .apply(3, stmt, null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testBindNestedOptionalNonNull() throws Exception {
-        Object bean = new Object() {
-            @SuppressWarnings("unused")
-            public Object getFoo() {
-                return new Object() {
-                    public long getId() {
-                        return 69;
-                    }
-                };
-            }
-        };
+        Object bean = new FooProperty(new IdProperty(69));
 
         new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setLong(3, 69);
+    }
+
+    public static class FooProperty {
+        private final Object foo;
+
+        FooProperty(Object foo) {
+            this.foo = foo;
+        }
+
+        @SuppressWarnings("unused")
+        public Object getFoo() {
+            return foo;
+        }
+    }
+
+    public static class IdProperty {
+        private final long id;
+
+        IdProperty(long id) {
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
     }
 
     @Test
