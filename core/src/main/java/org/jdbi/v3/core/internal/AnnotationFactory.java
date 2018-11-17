@@ -21,11 +21,13 @@ public class AnnotationFactory {
     private AnnotationFactory() {}
 
     public static <T extends Annotation> T create(Class<T> annotationType) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class[] interfaces = {annotationType};
+        InvocationHandler invocationHandler = getInvocationHandler(annotationType);
+
         @SuppressWarnings("unchecked")
-        T annotation = (T) Proxy.newProxyInstance(
-            Thread.currentThread().getContextClassLoader(),
-            new Class[]{annotationType},
-            getInvocationHandler(annotationType));
+        T annotation = (T) Proxy.newProxyInstance(classLoader, interfaces, invocationHandler);
+
         return annotation;
     }
 
