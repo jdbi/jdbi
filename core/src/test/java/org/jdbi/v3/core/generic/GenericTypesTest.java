@@ -66,7 +66,17 @@ public class GenericTypesTest {
     }
 
     @Test
-    public void resolveType() throws Exception {
+    public void findMultipleGenericParameters() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 0))
+            .contains(String.class);
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 1))
+            .contains(Integer.class);
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 2))
+            .contains(Void.class);
+    }
+
+    @Test
+    public void resolveType() throws NoSuchMethodException {
         abstract class A<T> {
             abstract T a();
         }
@@ -117,6 +127,12 @@ public class GenericTypesTest {
 
     private static class Baz<T> extends Bar<T> {
         private static Baz<String> descendentTypeGeneric() {
+            return null;
+        }
+    }
+
+    private static class Xyz<X, Y, Z> {
+        private static Xyz<String, Integer, Void> sample() {
             return null;
         }
     }
