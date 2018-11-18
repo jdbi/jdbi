@@ -21,87 +21,66 @@ import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypesTest {
-
-    class Foo<T> {}
-
-    @SuppressWarnings("rawtypes")
-    Foo raw() {
-        return null;
+    @Test
+    public void getErasedTypeOfRaw() throws NoSuchMethodException {
+        assertThat(GenericTypes.getErasedType(methodReturnType(Foo.class, "raw"))).isEqualTo(Foo.class);
     }
 
     @Test
-    public void getErasedTypeOfRaw() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("raw"))).isEqualTo(Foo.class);
+    public void findGenericParameterOfRaw() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Foo.class, "raw"), Foo.class)).isEqualTo(empty());
     }
 
     @Test
-    public void findGenericParameterOfRaw() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("raw"), Foo.class)).isEqualTo(empty());
-    }
-
-    Foo<String> generic() {
-        return null;
+    public void getErasedTypeOfGeneric() throws NoSuchMethodException {
+        assertThat(GenericTypes.getErasedType(methodReturnType(Foo.class, "generic"))).isEqualTo(Foo.class);
     }
 
     @Test
-    public void getErasedTypeOfGeneric() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("generic"))).isEqualTo(Foo.class);
-    }
-
-    @Test
-    public void findGenericParameterOfGeneric() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("generic"), Foo.class))
+    public void findGenericParameterOfGeneric() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Foo.class, "generic"), Foo.class))
                 .contains(String.class);
     }
 
-    Foo<Foo<String>> nestedGeneric() {
-        return null;
+    @Test
+    public void getErasedTypeOfNestedGeneric() throws NoSuchMethodException {
+        assertThat(GenericTypes.getErasedType(methodReturnType(Foo.class, "nestedGeneric"))).isEqualTo(Foo.class);
     }
 
     @Test
-    public void getErasedTypeOfNestedGeneric() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("nestedGeneric"))).isEqualTo(Foo.class);
+    public void findGenericParameterOfNestedGeneric() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Foo.class, "nestedGeneric"), Foo.class))
+                .contains(methodReturnType(Foo.class, "generic"));
     }
 
     @Test
-    public void findGenericParameterOfNestedGeneric() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("nestedGeneric"), Foo.class))
-                .contains(methodReturnType("generic"));
-    }
-
-    class Bar<T> extends Foo<T> {}
-
-    Bar<Integer> subTypeGeneric() {
-        return null;
-    }
-
-    @Test
-    public void findGenericParameterOfSuperClass() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("subTypeGeneric"), Foo.class))
+    public void findGenericParameterOfSuperClass() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Bar.class, "subTypeGeneric"), Foo.class))
                 .isEqualTo(Optional.of(Integer.class));
     }
 
-    class Baz<T> extends Bar<T> {}
-
-    Baz<String> descendentTypeGeneric() {
-        return null;
-    }
-
     @Test
-    public void findGenericParameterOfAncestorClass() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("descendentTypeGeneric"), Foo.class))
+    public void findGenericParameterOfAncestorClass() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Baz.class, "descendentTypeGeneric"), Foo.class))
                 .contains(String.class);
     }
 
-    private Type methodReturnType(String methodName) throws NoSuchMethodException {
-        return getClass().getDeclaredMethod(methodName).getGenericReturnType();
+    @Test
+    public void findMultipleGenericParameters() throws NoSuchMethodException {
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 0))
+            .contains(String.class);
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 1))
+            .contains(Integer.class);
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 2))
+            .contains(Void.class);
     }
 
     @Test
-    public void resolveType() throws Exception {
+    public void resolveType() throws NoSuchMethodException {
         abstract class A<T> {
             abstract T a();
         }
+
         abstract class B extends A<String> {}
 
         assertThat(GenericTypes.resolveType(A.class.getDeclaredMethod("a").getGenericReturnType(), B.class))
@@ -109,7 +88,7 @@ public class GenericTypesTest {
     }
 
     @Test
-    public void resolveTypeUnrelatedContext() throws Exception {
+    public void resolveTypeUnrelatedContext() throws NoSuchMethodException {
         abstract class A1<T> {
             abstract T a();
         }
@@ -120,5 +99,41 @@ public class GenericTypesTest {
 
         Type t = A1.class.getDeclaredMethod("a").getGenericReturnType();
         assertThat(GenericTypes.resolveType(t, B.class)).isEqualTo(t);
+    }
+
+    private static Type methodReturnType(Class<?> clazz, String methodName) throws NoSuchMethodException {
+        return clazz.getDeclaredMethod(methodName).getGenericReturnType();
+    }
+
+    private static class Foo<T> {
+        private static Foo raw() {
+            return null;
+        }
+
+        private static Foo<String> generic() {
+            return null;
+        }
+
+        private static Foo<Foo<String>> nestedGeneric() {
+            return null;
+        }
+    }
+
+    private static class Bar<T> extends Foo<T> {
+        private static Bar<Integer> subTypeGeneric() {
+            return null;
+        }
+    }
+
+    private static class Baz<T> extends Bar<T> {
+        private static Baz<String> descendentTypeGeneric() {
+            return null;
+        }
+    }
+
+    private static class Xyz<X, Y, Z> {
+        private static Xyz<String, Integer, Void> sample() {
+            return null;
+        }
     }
 }
