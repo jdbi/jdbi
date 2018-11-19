@@ -19,7 +19,6 @@ package io.r2dbc.client;
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.mssql.MssqlConnectionConfiguration;
 import io.r2dbc.mssql.MssqlConnectionFactory;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -55,11 +54,6 @@ final class MssqlExample implements Example<String> {
         }
 
         return jdbcOperations;
-    }
-
-    @Override
-    @Disabled("Batch-PreparedStatements not yet supported")
-    public void prepareStatement() {
     }
 
     @Override
