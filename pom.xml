@@ -40,10 +40,10 @@
         <mssql-jdbc.version>7.0.0.jre8</mssql-jdbc.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <r2dbc-spi.version>1.0.0.BUILD-SNAPSHOT</r2dbc-spi.version>
-        <r2dbc-postgresql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-postgresql.version>
-        <r2dbc-h2.version>1.0.0.BUILD-SNAPSHOT</r2dbc-h2.version>
-        <r2dbc-mssql.version>1.0.0.BUILD-SNAPSHOT</r2dbc-mssql.version>
+        <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
+        <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
+        <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
+        <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
         <reactor.version>Californium-SR2</reactor.version>
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
         <testcontainers.version>1.9.1</testcontainers.version>
