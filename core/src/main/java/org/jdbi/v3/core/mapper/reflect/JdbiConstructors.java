@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +26,40 @@ import java.util.stream.Stream;
 public class JdbiConstructors {
     private JdbiConstructors() {
         throw new UnsupportedOperationException("utility class");
+    }
+
+    /**
+     * Find an invokable instance factory, such as a constructor or a static factory method.
+     * Prefer an {@link JdbiConstructor} annotated constructor or static factory method if
+     * one is present. Throws if multiple or zero candidates are found.
+     *
+     * @param <T>  the type to inspect
+     * @param type the type to inspect
+     * @return the preferred constructor or static factory method
+     */
+    static <T> InstanceFactory<T> findFactoryFor(Class<T> type) {
+        @SuppressWarnings("unchecked")
+        final Constructor<T>[] constructors = (Constructor<T>[]) type.getDeclaredConstructors();
+
+        List<Constructor<T>> explicitConstructors = Stream.of(constructors)
+            .filter(constructor -> constructor.isAnnotationPresent(JdbiConstructor.class))
+            .collect(Collectors.toList());
+
+        List<Method> explicitFactoryMethods = Stream.of(type.getDeclaredMethods())
+            .filter(method -> method.isAnnotationPresent(JdbiConstructor.class))
+            .collect(Collectors.toList());
+
+        if (explicitConstructors.size() + explicitFactoryMethods.size() > 1) {
+            throw new IllegalArgumentException(type + " may have at most one constructor or static factory method annotated @JdbiConstructor");
+        }
+        if (explicitConstructors.size() == 1) {
+            return new ConstructorInstanceFactory<>(explicitConstructors.get(0));
+        }
+        if (explicitFactoryMethods.size() == 1) {
+            return new StaticMethodInstanceFactory<>(type, explicitFactoryMethods.get(0));
+        }
+
+        return new ConstructorInstanceFactory<>(findImplicitConstructorFor(type));
     }
 
     /**
@@ -49,7 +84,14 @@ public class JdbiConstructors {
             return annotatedConstructors.get(0);
         }
 
-        annotatedConstructors = Stream.of(constructors)
+        return findImplicitConstructorFor(type);
+    }
+
+    private static <T> Constructor<T> findImplicitConstructorFor(Class<T> type) {
+        @SuppressWarnings("unchecked")
+        final Constructor<T>[] constructors = (Constructor<T>[]) type.getDeclaredConstructors();
+
+        List<Constructor<T>> annotatedConstructors = Stream.of(constructors)
                 .filter(c -> c.isAnnotationPresent(ConstructorProperties.class))
                 .collect(Collectors.toList());
 
