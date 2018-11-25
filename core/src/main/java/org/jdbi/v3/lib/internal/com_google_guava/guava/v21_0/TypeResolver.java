@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -31,9 +31,9 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkState;
 
 public final class TypeResolver {
 

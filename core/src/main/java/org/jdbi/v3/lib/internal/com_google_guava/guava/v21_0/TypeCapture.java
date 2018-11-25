@@ -12,12 +12,12 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
 
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 abstract class TypeCapture<T> {
