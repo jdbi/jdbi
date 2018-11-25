@@ -136,6 +136,7 @@
                     <configuration>
                         <excludes combine.children="append">
                             <exclude>**/*.stg</exclude>
+                            <exclude>src/main/java/org/jdbi/v3/lib/**/*.java</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
