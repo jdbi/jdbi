@@ -16,9 +16,6 @@
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link BiFunction} that allows for checked exceptions.
@@ -37,24 +34,4 @@ public interface CheckedBiFunction<T, U, R> {
      */
     R apply(T t, U u) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#biFunction(CheckedBiFunction)}
-     */
-    static <T, U, R> BiFunction<T, U, R> sneaky(CheckedBiFunction<T, U, R> function) {
-        return Sneaky.biFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#biFunction(CheckedBiFunction)}
-     */
-    static <T, U, R> BiFunction<T, U, R> unchecked(CheckedBiFunction<T, U, R> function) {
-        return Unchecked.biFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#biFunction(CheckedBiFunction, Consumer)}
-     */
-    static <T, U, R> BiFunction<T, U, R> unchecked(CheckedBiFunction<T, U, R> function, Consumer<Throwable> handler) {
-        return Unchecked.biFunction(function, handler);
-    }
 }

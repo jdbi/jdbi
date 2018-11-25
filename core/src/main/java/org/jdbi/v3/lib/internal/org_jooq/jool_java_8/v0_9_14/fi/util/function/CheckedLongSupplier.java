@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.LongSupplier;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link LongSupplier} that allows for checked exceptions.
@@ -35,24 +32,4 @@ public interface CheckedLongSupplier {
      */
     long getAsLong() throws Throwable;
 
-    /**
-     * @see {@link Sneaky#longSupplier(CheckedLongSupplier)}
-     */
-    static LongSupplier sneaky(CheckedLongSupplier supplier) {
-        return Sneaky.longSupplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#longSupplier(CheckedLongSupplier)}
-     */
-    static LongSupplier unchecked(CheckedLongSupplier supplier) {
-        return Unchecked.longSupplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#longSupplier(CheckedLongSupplier, Consumer)}
-     */
-    static LongSupplier unchecked(CheckedLongSupplier supplier, Consumer<Throwable> handler) {
-        return Unchecked.longSupplier(supplier, handler);
-    }
 }

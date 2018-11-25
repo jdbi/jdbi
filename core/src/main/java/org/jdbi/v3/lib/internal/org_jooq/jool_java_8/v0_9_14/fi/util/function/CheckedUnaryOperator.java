@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link UnaryOperator} that allows for checked exceptions.
@@ -28,24 +25,4 @@ import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 @FunctionalInterface
 public interface CheckedUnaryOperator<T> extends CheckedFunction<T, T> {
 
-    /**
-     * @see {@link Sneaky#unaryOperator(CheckedUnaryOperator)}
-     */
-    static <T> UnaryOperator<T> sneaky(CheckedUnaryOperator<T> operator) {
-        return Sneaky.unaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#unaryOperator(CheckedUnaryOperator)}
-     */
-    static <T> UnaryOperator<T> unchecked(CheckedUnaryOperator<T> operator) {
-        return Unchecked.unaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#unaryOperator(CheckedUnaryOperator, Consumer)}
-     */
-    static <T> UnaryOperator<T> unchecked(CheckedUnaryOperator<T> operator, Consumer<Throwable> handler) {
-        return Unchecked.unaryOperator(operator, handler);
-    }
 }

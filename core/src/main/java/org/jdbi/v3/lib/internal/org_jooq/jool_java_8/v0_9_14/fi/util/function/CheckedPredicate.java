@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link Predicate} that allows for checked exceptions.
@@ -37,24 +34,4 @@ public interface CheckedPredicate<T> {
      */
     boolean test(T t) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#predicate(CheckedPredicate)}
-     */
-    static <T> Predicate<T> sneaky(CheckedPredicate<T> predicate) {
-        return Sneaky.predicate(predicate);
-    }
-
-    /**
-     * @see {@link Unchecked#predicate(CheckedPredicate)}
-     */
-    static <T> Predicate<T> unchecked(CheckedPredicate<T> predicate) {
-        return Unchecked.predicate(predicate);
-    }
-
-    /**
-     * @see {@link Unchecked#predicate(CheckedPredicate, Consumer)}
-     */
-    static <T> Predicate<T> unchecked(CheckedPredicate<T> function, Consumer<Throwable> handler) {
-        return Unchecked.predicate(function, handler);
-    }
 }

@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link IntUnaryOperator} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedIntUnaryOperator {
      */
     int applyAsInt(int operand) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#intUnaryOperator(CheckedIntUnaryOperator)}
-     */
-    static IntUnaryOperator sneaky(CheckedIntUnaryOperator operator) {
-        return Sneaky.intUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#intUnaryOperator(CheckedIntUnaryOperator)}
-     */
-    static IntUnaryOperator unchecked(CheckedIntUnaryOperator operator) {
-        return Unchecked.intUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#intUnaryOperator(CheckedIntUnaryOperator, Consumer)}
-     */
-    static IntUnaryOperator unchecked(CheckedIntUnaryOperator operator, Consumer<Throwable> handler) {
-        return Unchecked.intUnaryOperator(operator, handler);
-    }
 }

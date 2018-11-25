@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link DoubleSupplier} that allows for checked exceptions.
@@ -35,24 +32,4 @@ public interface CheckedDoubleSupplier {
      */
     double getAsDouble() throws Throwable;
 
-    /**
-     * @see {@link Sneaky#doubleSupplier(CheckedDoubleSupplier)}
-     */
-    static DoubleSupplier sneaky(CheckedDoubleSupplier supplier) {
-        return Sneaky.doubleSupplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleSupplier(CheckedDoubleSupplier)}
-     */
-    static DoubleSupplier unchecked(CheckedDoubleSupplier supplier) {
-        return Unchecked.doubleSupplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleSupplier(CheckedDoubleSupplier, Consumer)}
-     */
-    static DoubleSupplier unchecked(CheckedDoubleSupplier supplier, Consumer<Throwable> handler) {
-        return Unchecked.doubleSupplier(supplier, handler);
-    }
 }

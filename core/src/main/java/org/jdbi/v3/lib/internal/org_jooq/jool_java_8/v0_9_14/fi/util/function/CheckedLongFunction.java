@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.LongFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link LongFunction} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedLongFunction<R> {
      */
     R apply(long value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#longFunction(CheckedLongFunction)}
-     */
-    static <R> LongFunction<R> sneaky(CheckedLongFunction<R> function) {
-        return Sneaky.longFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#longFunction(CheckedLongFunction)}
-     */
-    static <R> LongFunction<R> unchecked(CheckedLongFunction<R> function) {
-        return Unchecked.longFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#longFunction(CheckedLongFunction, Consumer)}
-     */
-    static <R> LongFunction<R> unchecked(CheckedLongFunction<R> function, Consumer<Throwable> handler) {
-        return Unchecked.longFunction(function, handler);
-    }
 }

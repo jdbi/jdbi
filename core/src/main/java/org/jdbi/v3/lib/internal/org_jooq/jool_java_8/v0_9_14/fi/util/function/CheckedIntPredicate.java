@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.IntPredicate;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link IntPredicate} that allows for checked exceptions.
@@ -37,24 +34,4 @@ public interface CheckedIntPredicate {
      */
     boolean test(int value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#intPredicate(CheckedIntPredicate)}
-     */
-    static IntPredicate sneaky(CheckedIntPredicate predicate) {
-        return Sneaky.intPredicate(predicate);
-    }
-
-    /**
-     * @see {@link Unchecked#intPredicate(CheckedIntPredicate)}
-     */
-    static IntPredicate unchecked(CheckedIntPredicate predicate) {
-        return Unchecked.intPredicate(predicate);
-    }
-
-    /**
-     * @see {@link Unchecked#intPredicate(CheckedIntPredicate, Consumer)}
-     */
-    static IntPredicate unchecked(CheckedIntPredicate function, Consumer<Throwable> handler) {
-        return Unchecked.intPredicate(function, handler);
-    }
 }

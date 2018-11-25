@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleToLongFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link DoubleToLongFunction} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedDoubleToLongFunction {
      */
     long applyAsLong(double value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#doubleToLongFunction(CheckedDoubleToLongFunction)}
-     */
-    static DoubleToLongFunction sneaky(CheckedDoubleToLongFunction function) {
-        return Sneaky.doubleToLongFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleToLongFunction(CheckedDoubleToLongFunction)}
-     */
-    static DoubleToLongFunction unchecked(CheckedDoubleToLongFunction function) {
-        return Unchecked.doubleToLongFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleToLongFunction(CheckedDoubleToLongFunction, Consumer)}
-     */
-    static DoubleToLongFunction unchecked(CheckedDoubleToLongFunction function, Consumer<Throwable> handler) {
-        return Unchecked.doubleToLongFunction(function, handler);
-    }
 }

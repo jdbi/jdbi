@@ -16,9 +16,6 @@
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util;
 
 import java.util.Comparator;
-import java.util.function.Consumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link Comparator} that allows for checked exceptions.
@@ -33,24 +30,4 @@ public interface CheckedComparator<T> {
      */
     int compare(T o1, T o2) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#comparator(CheckedComparator)}
-     */
-    static <T> Comparator<T> sneaky(CheckedComparator<T> comparator) {
-        return Sneaky.comparator(comparator);
-    }
-
-    /**
-     * @see {@link Unchecked#comparator(CheckedComparator)}
-     */
-    static <T> Comparator<T> unchecked(CheckedComparator<T> comparator) {
-        return Unchecked.comparator(comparator);
-    }
-
-    /**
-     * @see {@link Unchecked#comparator(CheckedComparator, Consumer)}
-     */
-    static <T> Comparator<T> unchecked(CheckedComparator<T> comparator, Consumer<Throwable> handler) {
-        return Unchecked.comparator(comparator, handler);
-    }
 }

@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.LongUnaryOperator;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link LongUnaryOperator} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedLongUnaryOperator {
      */
     long applyAsLong(long operand) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#longUnaryOperator(CheckedLongUnaryOperator)}
-     */
-    static LongUnaryOperator sneaky(CheckedLongUnaryOperator operator) {
-        return Sneaky.longUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#longUnaryOperator(CheckedLongUnaryOperator)}
-     */
-    static LongUnaryOperator unchecked(CheckedLongUnaryOperator operator) {
-        return Unchecked.longUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#longUnaryOperator(CheckedLongUnaryOperator, Consumer)}
-     */
-    static LongUnaryOperator unchecked(CheckedLongUnaryOperator operator, Consumer<Throwable> handler) {
-        return Unchecked.longUnaryOperator(operator, handler);
-    }
 }

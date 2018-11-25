@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link Supplier} that allows for checked exceptions.
@@ -35,24 +32,4 @@ public interface CheckedSupplier<T> {
      */
     T get() throws Throwable;
 
-    /**
-     * @see {@link Sneaky#supplier(CheckedSupplier)}
-     */
-    static <T> Supplier<T> sneaky(CheckedSupplier<T> supplier) {
-        return Sneaky.supplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#supplier(CheckedSupplier)}
-     */
-    static <T> Supplier<T> unchecked(CheckedSupplier<T> supplier) {
-        return Unchecked.supplier(supplier);
-    }
-
-    /**
-     * @see {@link Unchecked#supplier(CheckedSupplier, Consumer)}
-     */
-    static <T> Supplier<T> unchecked(CheckedSupplier<T> supplier, Consumer<Throwable> handler) {
-        return Unchecked.supplier(supplier, handler);
-    }
 }

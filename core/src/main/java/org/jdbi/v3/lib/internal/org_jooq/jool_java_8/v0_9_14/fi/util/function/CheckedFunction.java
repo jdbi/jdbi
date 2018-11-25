@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link Function} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedFunction<T, R> {
      */
     R apply(T t) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#function(CheckedFunction)}
-     */
-    static <T, R> Function<T, R> sneaky(CheckedFunction<T, R> function) {
-        return Sneaky.function(function);
-    }
-
-    /**
-     * @see {@link Unchecked#function(CheckedFunction)}
-     */
-    static <T, R> Function<T, R> unchecked(CheckedFunction<T, R> function) {
-        return Unchecked.function(function);
-    }
-
-    /**
-     * @see {@link Unchecked#function(CheckedFunction, Consumer)}
-     */
-    static <T, R> Function<T, R> unchecked(CheckedFunction<T, R> function, Consumer<Throwable> handler) {
-        return Unchecked.function(function, handler);
-    }
 }

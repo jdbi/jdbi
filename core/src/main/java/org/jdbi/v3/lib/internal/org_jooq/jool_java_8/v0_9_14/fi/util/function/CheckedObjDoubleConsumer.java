@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.ObjDoubleConsumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link ObjDoubleConsumer} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedObjDoubleConsumer<T> {
      */
     void accept(T t, double value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#objDoubleConsumer(CheckedObjDoubleConsumer)}
-     */
-    static <T> ObjDoubleConsumer<T> sneaky(CheckedObjDoubleConsumer<T> consumer) {
-        return Sneaky.objDoubleConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#objDoubleConsumer(CheckedObjDoubleConsumer)}
-     */
-    static <T> ObjDoubleConsumer<T> unchecked(CheckedObjDoubleConsumer<T> consumer) {
-        return Unchecked.objDoubleConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#objDoubleConsumer(CheckedObjDoubleConsumer, Consumer)}
-     */
-    static <T> ObjDoubleConsumer<T> unchecked(CheckedObjDoubleConsumer<T> consumer, Consumer<Throwable> handler) {
-        return Unchecked.objDoubleConsumer(consumer, handler);
-    }
 }

@@ -16,7 +16,49 @@
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14;
 
 
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.LongToIntFunction;
+import java.util.function.LongUnaryOperator;
+import java.util.function.ObjDoubleConsumer;
+import java.util.function.ObjIntConsumer;
+import java.util.function.ObjLongConsumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntBiFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongBiFunction;
+import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.lang.CheckedRunnable;
 import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.CheckedComparator;
 import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.concurrent.CheckedCallable;
@@ -25,7 +67,49 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
-import java.util.function.*;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedBiConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedBiFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedBiPredicate;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedBinaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedBooleanSupplier;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleBinaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoublePredicate;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleSupplier;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleToIntFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleToLongFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedDoubleUnaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntBinaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntPredicate;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntSupplier;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntToDoubleFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntToLongFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedIntUnaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongBinaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongPredicate;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongSupplier;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongToDoubleFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongToIntFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedLongUnaryOperator;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedObjDoubleConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedObjIntConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedObjLongConsumer;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedPredicate;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedSupplier;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToDoubleBiFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToDoubleFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToIntBiFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToIntFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToLongBiFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedToLongFunction;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function.CheckedUnaryOperator;
 
 /**
  * Improved interoperability between checked exceptions and Java 8.
@@ -44,7 +128,7 @@ public final class Unchecked {
     /**
      * A {@link Consumer} that wraps any {@link Throwable} in a {@link RuntimeException}.
      */
-    public static final Consumer<Throwable> THROWABLE_TO_RUNTIME_EXCEPTION = t -> {
+    private static final Consumer<Throwable> THROWABLE_TO_RUNTIME_EXCEPTION = t -> {
         if (t instanceof Error)
             throw (Error) t;
 
@@ -58,19 +142,38 @@ public final class Unchecked {
         if (t instanceof InterruptedException)
             Thread.currentThread().interrupt();
 
-        throw new UncheckedException(t);
+        // different from standard impl: sneaky throw instead of wrap
+        throw throwChecked(t);
     };
 
+    // RETHROW_ALL omitted as a design consideration
+
+    // <from SeqUtils>
+
     /**
-     * A {@link Consumer} that rethrows all exceptions, including checked exceptions.
+     * Sneaky throw any type of Throwable.
      */
-    public static final Consumer<Throwable> RETHROW_ALL = SeqUtils::sneakyThrow;
+    private static void sneakyThrow(Throwable throwable) {
+        Unchecked.sneakyThrow0(throwable);
+    }
+
+    /**
+     * Sneaky throw any type of Throwable.
+     */
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void sneakyThrow0(Throwable throwable) throws E {
+        throw (E) throwable;
+    }
+
+    // </from SeqUtils>
 
     /**
      * "sneaky-throw" a checked exception or throwable.
      */
-    public static void throwChecked(Throwable t) {
-        SeqUtils.sneakyThrow(t);
+    public static RuntimeException throwChecked(Throwable t) {
+        Unchecked.sneakyThrow(t);
+        // unreachable
+        return new RuntimeException();
     }
 
     // -----------------------------------------------------------------------------------------------------------------

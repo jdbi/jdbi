@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.IntToDoubleFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link IntToDoubleFunction} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedIntToDoubleFunction {
      */
     double applyAsDouble(int value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#intToDoubleFunction(CheckedIntToDoubleFunction)}
-     */
-    static IntToDoubleFunction sneaky(CheckedIntToDoubleFunction function) {
-        return Sneaky.intToDoubleFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#intToDoubleFunction(CheckedIntToDoubleFunction)}
-     */
-    static IntToDoubleFunction unchecked(CheckedIntToDoubleFunction function) {
-        return Unchecked.intToDoubleFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#intToDoubleFunction(CheckedIntToDoubleFunction, Consumer)}
-     */
-    static IntToDoubleFunction unchecked(CheckedIntToDoubleFunction function, Consumer<Throwable> handler) {
-        return Unchecked.intToDoubleFunction(function, handler);
-    }
 }

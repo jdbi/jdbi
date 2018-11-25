@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.LongToIntFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link LongToIntFunction} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedLongToIntFunction {
      */
     int applyAsInt(long value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#longToIntFunction(CheckedLongToIntFunction)}
-     */
-    static LongToIntFunction sneaky(CheckedLongToIntFunction function) {
-        return Sneaky.longToIntFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#longToIntFunction(CheckedLongToIntFunction)}
-     */
-    static LongToIntFunction unchecked(CheckedLongToIntFunction function) {
-        return Unchecked.longToIntFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#longToIntFunction(CheckedLongToIntFunction, Consumer)}
-     */
-    static LongToIntFunction unchecked(CheckedLongToIntFunction function, Consumer<Throwable> handler) {
-        return Unchecked.longToIntFunction(function, handler);
-    }
 }

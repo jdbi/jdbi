@@ -15,10 +15,6 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.lang;
 
-import java.util.function.Consumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
-
 /**
  * A {@link Runnable} that allows for checked exceptions.
  *
@@ -32,24 +28,4 @@ public interface CheckedRunnable {
      */
     void run() throws Throwable;
 
-    /**
-     * @see {@link Sneaky#runnable(CheckedRunnable)}
-     */
-    static Runnable sneaky(CheckedRunnable runnable) {
-        return Sneaky.runnable(runnable);
-    }
-
-    /**
-     * @see {@link Unchecked#runnable(CheckedRunnable)}
-     */
-    static Runnable unchecked(CheckedRunnable runnable) {
-        return Unchecked.runnable(runnable);
-    }
-
-    /**
-     * @see {@link Unchecked#runnable(CheckedRunnable, Consumer)}
-     */
-    static Runnable unchecked(CheckedRunnable runnable, Consumer<Throwable> handler) {
-        return Unchecked.runnable(runnable, handler);
-    }
 }

@@ -16,9 +16,6 @@
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
 import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link BinaryOperator} that allows for checked exceptions.
@@ -28,24 +25,4 @@ import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 @FunctionalInterface
 public interface CheckedBinaryOperator<T> extends CheckedBiFunction<T, T, T> {
 
-    /**
-     * @see {@link Sneaky#binaryOperator(CheckedBinaryOperator)}
-     */
-    static <T> BinaryOperator<T> sneaky(CheckedBinaryOperator<T> operator) {
-        return Sneaky.binaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#binaryOperator(CheckedBinaryOperator)}
-     */
-    static <T> BinaryOperator<T> unchecked(CheckedBinaryOperator<T> operator) {
-        return Unchecked.binaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#binaryOperator(CheckedBinaryOperator, Consumer)}
-     */
-    static <T> BinaryOperator<T> unchecked(CheckedBinaryOperator<T> operator, Consumer<Throwable> handler) {
-        return Unchecked.binaryOperator(operator, handler);
-    }
 }

@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.LongConsumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link LongConsumer} that allows for checked exceptions.
@@ -35,24 +32,4 @@ public interface CheckedLongConsumer {
      */
     void accept(long value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#longConsumer(CheckedLongConsumer)}
-     */
-    static LongConsumer sneaky(CheckedLongConsumer consumer) {
-        return Sneaky.longConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#longConsumer(CheckedLongConsumer)}
-     */
-    static LongConsumer unchecked(CheckedLongConsumer consumer) {
-        return Unchecked.longConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#longConsumer(CheckedLongConsumer, Consumer)}
-     */
-    static LongConsumer unchecked(CheckedLongConsumer consumer, Consumer<Throwable> handler) {
-        return Unchecked.longConsumer(consumer, handler);
-    }
 }

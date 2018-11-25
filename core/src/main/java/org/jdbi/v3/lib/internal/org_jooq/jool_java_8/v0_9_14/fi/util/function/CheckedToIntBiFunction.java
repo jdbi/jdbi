@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.ToIntBiFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link ToIntBiFunction} that allows for checked exceptions.
@@ -37,24 +34,4 @@ public interface CheckedToIntBiFunction<T, U> {
      */
     int applyAsInt(T t, U u) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#toIntBiFunction(CheckedToIntBiFunction)}
-     */
-    static <T, U> ToIntBiFunction<T, U> sneaky(CheckedToIntBiFunction<T, U> function) {
-        return Sneaky.toIntBiFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#toIntBiFunction(CheckedToIntBiFunction)}
-     */
-    static <T, U> ToIntBiFunction<T, U> unchecked(CheckedToIntBiFunction<T, U> function) {
-        return Unchecked.toIntBiFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#toIntBiFunction(CheckedToIntBiFunction, Consumer)}
-     */
-    static <T, U> ToIntBiFunction<T, U> unchecked(CheckedToIntBiFunction<T, U> function, Consumer<Throwable> handler) {
-        return Unchecked.toIntBiFunction(function, handler);
-    }
 }

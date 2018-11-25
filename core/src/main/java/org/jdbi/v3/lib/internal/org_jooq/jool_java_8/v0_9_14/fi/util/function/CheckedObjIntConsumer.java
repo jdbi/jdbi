@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link ObjIntConsumer} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedObjIntConsumer<T> {
      */
     void accept(T t, int value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#objIntConsumer(CheckedObjIntConsumer)}
-     */
-    static <T> ObjIntConsumer<T> sneaky(CheckedObjIntConsumer<T> consumer) {
-        return Sneaky.objIntConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#objIntConsumer(CheckedObjIntConsumer)}
-     */
-    static <T> ObjIntConsumer<T> unchecked(CheckedObjIntConsumer<T> consumer) {
-        return Unchecked.objIntConsumer(consumer);
-    }
-
-    /**
-     * @see {@link Unchecked#objIntConsumer(CheckedObjIntConsumer, Consumer)}
-     */
-    static <T> ObjIntConsumer<T> unchecked(CheckedObjIntConsumer<T> consumer, Consumer<Throwable> handler) {
-        return Unchecked.objIntConsumer(consumer, handler);
-    }
 }

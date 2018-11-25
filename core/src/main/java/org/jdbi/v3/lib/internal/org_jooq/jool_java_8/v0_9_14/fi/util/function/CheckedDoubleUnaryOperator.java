@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link DoubleUnaryOperator} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedDoubleUnaryOperator {
      */
     double applyAsDouble(double operand) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#doubleUnaryOperator(CheckedDoubleUnaryOperator)}
-     */
-    static DoubleUnaryOperator sneaky(CheckedDoubleUnaryOperator operator) {
-        return Sneaky.doubleUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleUnaryOperator(CheckedDoubleUnaryOperator)}
-     */
-    static DoubleUnaryOperator unchecked(CheckedDoubleUnaryOperator operator) {
-        return Unchecked.doubleUnaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleUnaryOperator(CheckedDoubleUnaryOperator, Consumer)}
-     */
-    static DoubleUnaryOperator unchecked(CheckedDoubleUnaryOperator operator, Consumer<Throwable> handler) {
-        return Unchecked.doubleUnaryOperator(operator, handler);
-    }
 }

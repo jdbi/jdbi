@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleBinaryOperator;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link DoubleBinaryOperator} that allows for checked exceptions.
@@ -37,24 +34,4 @@ public interface CheckedDoubleBinaryOperator {
      */
     double applyAsDouble(double left, double right) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#doubleBinaryOperator(CheckedDoubleBinaryOperator)}
-     */
-    static DoubleBinaryOperator sneaky(CheckedDoubleBinaryOperator operator) {
-        return Sneaky.doubleBinaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleBinaryOperator(CheckedDoubleBinaryOperator)}
-     */
-    static DoubleBinaryOperator unchecked(CheckedDoubleBinaryOperator operator) {
-        return Unchecked.doubleBinaryOperator(operator);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleBinaryOperator(CheckedDoubleBinaryOperator, Consumer)}
-     */
-    static DoubleBinaryOperator unchecked(CheckedDoubleBinaryOperator operator, Consumer<Throwable> handler) {
-        return Unchecked.doubleBinaryOperator(operator, handler);
-    }
 }

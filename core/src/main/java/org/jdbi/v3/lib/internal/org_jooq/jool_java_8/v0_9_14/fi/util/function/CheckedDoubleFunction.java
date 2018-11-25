@@ -15,10 +15,7 @@
  */
 package org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.fi.util.function;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Sneaky;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 /**
  * A {@link DoubleFunction} that allows for checked exceptions.
@@ -36,24 +33,4 @@ public interface CheckedDoubleFunction<R> {
      */
     R apply(double value) throws Throwable;
 
-    /**
-     * @see {@link Sneaky#doubleFunction(CheckedDoubleFunction)}
-     */
-    static <R> DoubleFunction<R> sneaky(CheckedDoubleFunction<R> function) {
-        return Sneaky.doubleFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleFunction(CheckedDoubleFunction)}
-     */
-    static <R> DoubleFunction<R> unchecked(CheckedDoubleFunction<R> function) {
-        return Unchecked.doubleFunction(function);
-    }
-
-    /**
-     * @see {@link Unchecked#doubleFunction(CheckedDoubleFunction, Consumer)}
-     */
-    static <R> DoubleFunction<R> unchecked(CheckedDoubleFunction<R> function, Consumer<Throwable> handler) {
-        return Unchecked.doubleFunction(function, handler);
-    }
 }
