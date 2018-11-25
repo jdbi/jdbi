@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.jdbi.v3.core.internal.Throwables;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 import static java.util.stream.Collectors.toList;
 
@@ -67,7 +67,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
         } catch (InvocationTargetException e) {
-            throw Throwables.throwOnlyUnchecked(e.getCause());
+            throw Unchecked.throwChecked(e.getCause());
         } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
@@ -75,7 +75,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor(Method.class).newInstance(method);
         } catch (InvocationTargetException e) {
-            throw Throwables.throwOnlyUnchecked(e.getCause());
+            throw Unchecked.throwChecked(e.getCause());
         } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
@@ -83,7 +83,7 @@ class SqlMethodHandlerFactory implements HandlerFactory {
         try {
             return handlerType.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
-            throw Throwables.throwOnlyUnchecked(e.getCause());
+            throw Unchecked.throwChecked(e.getCause());
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. "
                     + "Expected a constructor with parameters (Class, Method), (Method), or ().", e);

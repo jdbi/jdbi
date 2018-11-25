@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.Throwables;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
@@ -60,7 +60,7 @@ public class UseTemplateEngineImpl implements Configurer {
             } catch (NoSuchMethodException ignored) {
                 return null;
             } catch (Throwable t) {
-                throw Throwables.throwOnlyUnchecked(t);
+                throw Unchecked.throwChecked(t);
             }
         };
     }

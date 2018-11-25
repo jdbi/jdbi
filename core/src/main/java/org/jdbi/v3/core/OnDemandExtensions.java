@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
-import org.jdbi.v3.core.internal.Throwables;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
@@ -70,13 +70,13 @@ class OnDemandExtensions {
                         new Class[]{extensionType}, handler));
     }
 
-    private static Object invoke(Object target, Method method, Object[] args) throws Exception {
-        return Throwables.throwingOnlyException(() -> {
-            if (Proxy.isProxyClass(target.getClass())) {
-                return Proxy.getInvocationHandler(target).invoke(target, method, args);
-            } else {
-                return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
-            }
-        });
+    private static Object invoke(Object target, Method method, Object[] args) {
+        if (Proxy.isProxyClass(target.getClass())) {
+            InvocationHandler handler = Proxy.getInvocationHandler(target);
+            return Unchecked.<Object[], Object>function((params) -> handler.invoke(target, method, params)).apply(args);
+        } else {
+            MethodHandle handle = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method).bindTo(target);
+            return Unchecked.<Object[], Object>function(handle::invokeWithArguments).apply(args);
+        }
     }
 }

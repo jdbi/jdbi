@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.Throwables;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 import static java.util.Collections.synchronizedMap;
 
@@ -98,6 +98,6 @@ class DefaultMethodHandler implements Handler {
 
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-        return Throwables.throwingOnlyUnchecked(() -> methodHandle.bindTo(target).invokeWithArguments(args));
+        return Unchecked.function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
     }
 }
