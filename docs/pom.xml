@@ -28,7 +28,6 @@
 
     <properties>
         <basepom.check.skip-license>true</basepom.check.skip-license>
-        <basepom.javadoc.skip>false</basepom.javadoc.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
