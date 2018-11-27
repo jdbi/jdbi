@@ -1,6 +1,7 @@
 3.6.0
   - New API
     - ConnectionFactory now also may customize connection closing
+    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V` in `Map<K, V>`
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
