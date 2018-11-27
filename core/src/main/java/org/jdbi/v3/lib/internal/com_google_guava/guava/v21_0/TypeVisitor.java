@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.GenericArrayType;
