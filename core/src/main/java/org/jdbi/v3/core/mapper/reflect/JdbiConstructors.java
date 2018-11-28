@@ -44,7 +44,7 @@ public class JdbiConstructors {
                 .collect(Collectors.toList());
 
         if (annotatedConstructors.size() > 1) {
-            throw new IllegalArgumentException(type + " must have at most one constructor annotated @JdbiConstructor");
+            throw new IllegalArgumentException(type + " may have at most one constructor annotated @JdbiConstructor");
         } else if (annotatedConstructors.size() == 1) {
             return annotatedConstructors.get(0);
         }
@@ -54,7 +54,7 @@ public class JdbiConstructors {
                 .collect(Collectors.toList());
 
         if (annotatedConstructors.size() > 1) {
-            throw new IllegalArgumentException(type + " must have at most one constructor annotated @ConstructorProperties");
+            throw new IllegalArgumentException(type + " may have at most one constructor annotated @ConstructorProperties");
         } else if (annotatedConstructors.size() == 1) {
             return annotatedConstructors.get(0);
         }
