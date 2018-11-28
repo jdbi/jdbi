@@ -16,7 +16,6 @@ package org.jdbi.v3.core.mapper.reflect;
 import java.beans.ConstructorProperties;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,13 +26,13 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
@@ -271,7 +270,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                 params[i] = mappers[i].map(r, c);
             }
 
-            return construct(params);
+            return Unchecked.<Object[], T>function(constructor::newInstance).apply(params);
         });
     }
 
@@ -301,19 +300,5 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         return String.format("%s constructor parameter %s",
             constructor.getDeclaringClass().getSimpleName(),
             parameter.getName());
-    }
-
-    private T construct(Object[] params) {
-        try {
-            return constructor.newInstance(params);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
-            }
-            if (e.getCause() instanceof Error) {
-                throw (Error) e.getCause();
-            }
-            throw new RuntimeException(e);
-        }
     }
 }

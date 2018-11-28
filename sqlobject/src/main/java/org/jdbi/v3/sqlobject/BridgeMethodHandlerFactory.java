@@ -40,7 +40,7 @@ class BridgeMethodHandlerFactory implements HandlerFactory {
             })
             .<Handler>map(m -> {
                 final MethodHandle mh = unreflect(sqlObjectType, m);
-                return (target, args, handle) -> Unchecked.function(mh.bindTo(target)::invokeWithArguments).apply(args);
+                return (target, args, handle) -> Unchecked.<Object[], Object>function(mh.bindTo(target)::invokeWithArguments).apply(args);
             })
             .findFirst();
     }

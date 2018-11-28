@@ -173,7 +173,7 @@ public final class Unchecked {
     public static RuntimeException throwChecked(Throwable t) {
         Unchecked.sneakyThrow(t);
         // unreachable
-        return new RuntimeException();
+        return new RuntimeException("should never be reached");
     }
 
     // -----------------------------------------------------------------------------------------------------------------

@@ -23,6 +23,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -65,14 +66,10 @@ public class TestRegisterRowMapperFactory {
         @Override
         public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
             Class<?> erasedType = getErasedType(type);
-            try {
-                MapWith mapWith = erasedType.getAnnotation(MapWith.class);
-                return mapWith == null
-                        ? Optional.empty()
-                        : Optional.of(mapWith.value().newInstance());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            MapWith mapWith = erasedType.getAnnotation(MapWith.class);
+            return mapWith == null
+                ? Optional.empty()
+                : Optional.of(Unchecked.supplier(mapWith.value()::newInstance).get());
         }
     }
 

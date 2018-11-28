@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
@@ -228,7 +229,7 @@ public class Types {
                 } catch (NoSuchMethodException e) {
                     throw new AssertionError("Type.getTypeName should be available in Java 8", e);
                 } catch (InvocationTargetException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw Unchecked.throwChecked(e);
                 }
             }
         };

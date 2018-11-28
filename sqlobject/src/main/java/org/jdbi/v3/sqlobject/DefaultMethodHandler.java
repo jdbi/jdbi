@@ -23,12 +23,31 @@ import java.util.WeakHashMap;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
+import static java.lang.invoke.MethodHandles.Lookup.PACKAGE;
+import static java.lang.invoke.MethodHandles.Lookup.PRIVATE;
+import static java.lang.invoke.MethodHandles.Lookup.PROTECTED;
+import static java.lang.invoke.MethodHandles.Lookup.PUBLIC;
 import static java.util.Collections.synchronizedMap;
 
 class DefaultMethodHandler implements Handler {
+    private static final int ANY_ACCESS = PUBLIC | PRIVATE | PROTECTED | PACKAGE;
     // MethodHandles.privateLookupIn(Class, Lookup) was added in JDK 9.
     // JDK 9 allows us to unreflectSpecial() on an interface default method, where JDK 8 did not.
     private static final Method PRIVATE_LOOKUP_IN = privateLookupIn();
+    private static final Map<Class<?>, MethodHandles.Lookup> PRIVATE_LOOKUPS = synchronizedMap(new WeakHashMap<>());
+
+    private final MethodHandle methodHandle;
+
+    DefaultMethodHandler(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+
+        methodHandle = Unchecked.biFunction(lookupFor(declaringClass)::unreflectSpecial).apply(method, declaringClass);
+    }
+
+    @Override
+    public Object invoke(Object target, Object[] args, HandleSupplier handle) {
+        return Unchecked.<Object[], Object>function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
+    }
 
     private static Method privateLookupIn() {
         try {
@@ -38,8 +57,6 @@ class DefaultMethodHandler implements Handler {
             return null;
         }
     }
-
-    private static final Map<Class<?>, MethodHandles.Lookup> PRIVATE_LOOKUPS = synchronizedMap(new WeakHashMap<>());
 
     static MethodHandles.Lookup lookupFor(Class<?> clazz) {
         if (PRIVATE_LOOKUP_IN != null) {
@@ -65,39 +82,16 @@ class DefaultMethodHandler implements Handler {
 
         // This workaround is only used in JDK 8.x runtimes. JDK 9+ runtimes use MethodHandles.privateLookupIn()
         // above.
-        return PRIVATE_LOOKUPS.computeIfAbsent(clazz, type -> {
-            try {
-
-                final Constructor<MethodHandles.Lookup> constructor =
-                        MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-                if (!constructor.isAccessible()) {
-                    constructor.setAccessible(true);
-                }
-                return constructor.newInstance(type,
-                        MethodHandles.Lookup.PUBLIC
-                            | MethodHandles.Lookup.PRIVATE
-                            | MethodHandles.Lookup.PROTECTED
-                            | MethodHandles.Lookup.PACKAGE);
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return PRIVATE_LOOKUPS.computeIfAbsent(clazz, Unchecked.function(DefaultMethodHandler::getConstructorLookup));
     }
 
-    private final MethodHandle methodHandle;
+    private static MethodHandles.Lookup getConstructorLookup(Class<?> type) throws ReflectiveOperationException {
+        Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
 
-    DefaultMethodHandler(Method method) {
-        try {
-            Class<?> declaringClass = method.getDeclaringClass();
-
-            methodHandle = lookupFor(declaringClass).unreflectSpecial(method, declaringClass);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
+        if (!constructor.isAccessible()) {
+            constructor.setAccessible(true);
         }
-    }
 
-    @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-        return Unchecked.function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
+        return constructor.newInstance(type, ANY_ACCESS);
     }
 }
