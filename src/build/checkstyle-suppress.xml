@@ -17,5 +17,8 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
+    <!-- these really don't matter in tests -->
     <suppress checks="InnerTypeLast|VariableDeclarationUsageDistance|NoFinalizer" files="[A-z0-9_]*Test[A-z0-9_]*\.java$"/>
+    <!-- ignore libs -->
+    <suppress checks=".+" files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]jdbi[\\/]v3[\\/]lib[\\/].+[\\/][A-z0-9_]*\.java$"/>
 </suppressions>

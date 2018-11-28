@@ -121,6 +121,7 @@
                             <link>http://docs.oracle.com/javase/8/docs/api/</link>
                         </links>
                         <nodeprecated>true</nodeprecated>
+                        <excludePackageNames>org.jdbi.*.lib.*</excludePackageNames>
                     </configuration>
                 </plugin>
                 <plugin>
