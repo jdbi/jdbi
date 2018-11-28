@@ -92,7 +92,7 @@ public class GenericTypes {
      *            parameter
      * @param n the index in <code>Foo&lt;X, Y, Z, ...&gt;</code>
      * @return the parameter on the supertype, if it is concretely defined.
-     * @throws ArrayIndexOutOfBoundsException if n > the number of type variables the type has
+     * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
         Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[n], type);
