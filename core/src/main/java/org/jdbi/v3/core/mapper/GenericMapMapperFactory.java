@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
@@ -34,85 +36,74 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 // TODO jdbi4: consolidate with MapMapper and include by default
 public class GenericMapMapperFactory implements RowMapperFactory {
+    // invoked by sqlobject
     @Override
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-        // it's a non-raw Map...
-        if (!(type instanceof ParameterizedType) || GenericTypes.getErasedType(type) != Map.class) {
-            return Optional.empty();
-        }
-        Optional<Type> maybeKeyType = GenericTypes.findGenericParameter(type, Map.class, 0);
-
-        // ... with a concrete K type...
-        if (!maybeKeyType.isPresent()) {
-            return Optional.empty();
-        }
-        Type keyType = maybeKeyType.get();
-
-        // ... which is a String...
-        if (keyType != String.class) {
-            return Optional.empty();
-        }
-        Optional<Type> maybeValueType = GenericTypes.findGenericParameter(type, Map.class, 1);
-
-        // ... and a concrete V type...
-        if (!maybeValueType.isPresent()) {
-            return Optional.empty();
-        }
-        Type valueType = maybeValueType.get();
-
-        // ... that is not Object...
-        if (valueType == Object.class) {
-            return Optional.empty();
-        }
-        Optional<ColumnMapper<?>> maybeColumnMapper = config.get(ColumnMappers.class).findFor(valueType);
-
-        // ... for which there is a ColumnMapper
-        return maybeColumnMapper.map(t -> forValueType(valueType));
+    public Optional<RowMapper<?>> build(Type mapType, ConfigRegistry config) {
+        return Optional.of(mapType)
+            .filter(ParameterizedType.class::isInstance)
+            .map(ParameterizedType.class::cast)
+            .filter(maybeMap -> Map.class.equals(maybeMap.getRawType()))
+            .filter(map -> String.class.equals(GenericTypes.findGenericParameter(map, Map.class, 0).orElse(null)))
+            .flatMap(map -> GenericTypes.findGenericParameter(map, Map.class, 1))
+            .filter(value -> !Object.class.equals(value))
+            .flatMap(config.get(ColumnMappers.class)::findFor)
+            .map(GenericMapMapper::new);
     }
 
+    // invoked manually or by fluent api
+    @SuppressWarnings("unchecked")
     @Beta
-    public static <X> RowMapper<Map<String, X>> forValueType(Type valueType) {
-        return new GenericMapMapper<>(valueType);
+    public static <T> GenericMapMapper<T> getMapperForValueType(Class<T> valueType, ConfigRegistry config) {
+        return (GenericMapMapper<T>) getMapperForValueType((Type) valueType, config);
     }
 
-    private static class GenericMapMapper<X> implements RowMapper<Map<String, X>> {
-        private final Type type;
+    // invoked manually or by fluent api
+    @SuppressWarnings("unchecked")
+    @Beta
+    public static <T> GenericMapMapper<T> getMapperForValueType(GenericType<T> valueType, ConfigRegistry config) {
+        return (GenericMapMapper<T>) getMapperForValueType(valueType.getType(), config);
+    }
 
-        private GenericMapMapper(Type type) {
-            this.type = type;
+    private static GenericMapMapper<?> getMapperForValueType(Type valueType, ConfigRegistry config) {
+        return config.get(ColumnMappers.class)
+            .findFor(valueType)
+            .map(GenericMapMapper::wildcard)
+            .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
+    }
+
+    private static class GenericMapMapper<T> implements RowMapper<Map<String, T>> {
+        private final ColumnMapper<T> mapper;
+
+        private GenericMapMapper(ColumnMapper<T> mapper) {
+            this.mapper = mapper;
+        }
+
+        private static GenericMapMapper<?> wildcard(ColumnMapper<?> mapper) {
+            return new GenericMapMapper<>(mapper);
         }
 
         @Override
-        public Map<String, X> map(ResultSet rs, StatementContext ctx) throws SQLException {
+        public Map<String, T> map(ResultSet rs, StatementContext ctx) throws SQLException {
             return specialize(rs, ctx).map(rs, ctx);
         }
 
         @Override
-        public RowMapper<Map<String, X>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-            Optional<ColumnMapper<?>> maybeColumnMapper = ctx.getConfig(ColumnMappers.class).findFor(type);
+        public RowMapper<Map<String, T>> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
+            List<String> keyNames = getMapKeys(rs.getMetaData(), ctx.getConfig(MapMappers.class).getCaseChange());
 
-            // unfortunately this cannot be checked sooner
-            if (maybeColumnMapper.isPresent()) {
-                ColumnMapper<?> columnMapper = maybeColumnMapper.get();
-                List<String> columnNames = getColumnNames(rs.getMetaData(), ctx.getConfig(MapMappers.class).getCaseChange());
+            return (r, c) -> {
+                Map<String, T> row = new HashMap<>();
 
-                return (r, c) -> {
-                    Map<String, X> row = new HashMap<>();
+                for (int i = 0; i < keyNames.size(); i++) {
+                    T value = mapper.map(r, i + 1, ctx);
+                    row.put(keyNames.get(i), value);
+                }
 
-                    for (int i = 0; i < columnNames.size(); i++) {
-                        @SuppressWarnings("unchecked")
-                        X value = (X) columnMapper.map(r, i + 1, ctx);
-                        row.put(columnNames.get(i), value);
-                    }
-
-                    return row;
-                };
-            } else {
-                throw new RuntimeException("no mapper found for type " + type.getTypeName());
-            }
+                return row;
+            };
         }
 
-        private static List<String> getColumnNames(ResultSetMetaData meta, UnaryOperator<String> caseChange) throws SQLException {
+        private static List<String> getMapKeys(ResultSetMetaData meta, UnaryOperator<String> caseChange) throws SQLException {
             // important: ordered, not sorted, and unique
             Set<String> names = new LinkedHashSet<>();
             int columnCount = meta.getColumnCount();
@@ -121,12 +112,12 @@ public class GenericMapMapperFactory implements RowMapperFactory {
                 String columnName = meta.getColumnName(i + 1);
                 String columnLabel = meta.getColumnLabel(i + 1);
 
-                String name = columnLabel == null ? columnName : columnLabel;
-                name = caseChange.apply(name);
+                String key = columnLabel == null ? columnName : columnLabel;
+                String renamedKey = caseChange.apply(key);
 
-                boolean added = names.add(name);
+                boolean added = names.add(renamedKey);
                 if (!added) {
-                    throw new RuntimeException("column \"" + name + "\" appears twice in this resultset!");
+                    throw new RuntimeException(MessageFormat.format("map key \"{0}\" (from column \"{1}\") appears twice in this resultset!", renamedKey, key));
                 }
             }
 

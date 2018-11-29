@@ -23,6 +23,7 @@ import org.jdbi.v3.core.mapper.GenericMapMapperFactory;
 import org.jdbi.v3.core.mapper.MapMappers;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class GenericMapMapperFactoryTest {
-    private static final String QUERY = "select 1.0 as one, 2.0 as two, 3.0 as three from (values(null))";
+    private static final String QUERY = "select 1.0 as one, 2.0 as two, 3.0 as three";
 
     @Rule
     public SqliteDatabaseRule db = new SqliteDatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -45,7 +46,7 @@ public class GenericMapMapperFactoryTest {
     }
 
     @Test
-    public void testGenericMapFluent() {
+    public void canFluentMapToGenericTypeOfMap() {
         jdbi.useHandle(h -> {
             Map<String, BigDecimal> map = h.createQuery(QUERY)
                 .mapTo(new GenericType<Map<String, BigDecimal>>() {})
@@ -58,10 +59,10 @@ public class GenericMapMapperFactoryTest {
     }
 
     @Test
-    public void testGenericMapFluentConvenient() {
+    public void canFluentMapToMapWithGenericTypeForValue() {
         jdbi.useHandle(h -> {
             Map<String, BigDecimal> map = h.createQuery(QUERY)
-                .mapToGenericMap(BigDecimal.class)
+                .mapToMap(new GenericType<BigDecimal>() {})
                 .findOnly();
 
             assertThat(map)
@@ -71,9 +72,22 @@ public class GenericMapMapperFactoryTest {
     }
 
     @Test
-    public void testGenericMapReturnType() {
-        jdbi.useExtension(Foo.class, foo -> {
-            List<Map<String, BigDecimal>> list = foo.getMapList();
+    public void canFluentMapToMapWithClassForValue() {
+        jdbi.useHandle(h -> {
+            Map<String, BigDecimal> map = h.createQuery(QUERY)
+                .mapToMap(BigDecimal.class)
+                .findOnly();
+
+            assertThat(map)
+                .containsOnlyKeys("one", "two", "three")
+                .containsValues(new BigDecimal("1.0"), new BigDecimal("2.0"), new BigDecimal("3.0"));
+        });
+    }
+
+    @Test
+    public void canMapToMapWithSqlObject() {
+        jdbi.useExtension(WithTypicalMap.class, withTypicalMap -> {
+            List<Map<String, BigDecimal>> list = withTypicalMap.getMapList();
 
             assertThat(list).hasSize(1);
 
@@ -86,31 +100,65 @@ public class GenericMapMapperFactoryTest {
     }
 
     @Test
-    public void testNoMatchingMapper() {
+    public void mapToMapFailsOnUnmappableClass() {
         jdbi.useHandle(h -> {
-            ResultIterable<Map<String, Bar>> query = h.createQuery(QUERY).mapToGenericMap(Bar.class);
+            Query query = h.createQuery(QUERY);
 
-            assertThatThrownBy(query::findOnly)
-                .hasMessage("no mapper found for type " + Bar.class.getName());
+            assertThatThrownBy(() -> query.mapToMap(Alien.class))
+                .hasMessage("no column mapper found for type " + Alien.class);
         });
     }
 
     @Test
-    public void testDuplicateColumnNameByCaseChange() {
+    public void mapToMapFailsOnUnmappableGenericType() {
         jdbi.useHandle(h -> {
-            h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOWER);
-            // one and ONE
-            ResultIterable<Map<String, BigDecimal>> query = h.createQuery(QUERY.replace("two", "ONE")).mapToGenericMap(BigDecimal.class);
+            Query query = h.createQuery(QUERY);
 
-            assertThatThrownBy(query::findOnly)
-                .hasMessageContaining("column \"one\" appears twice");
+            assertThatThrownBy(() -> query.mapToMap(new GenericType<Alien>() {}))
+                .hasMessage("no column mapper found for type " + Alien.class);
         });
     }
 
-    public interface Foo {
+    @Test
+    public void sqlObjectMethodFailsOnCallForUnmappableType() {
+        jdbi.useExtension(
+            WithUnsupportedMap.class, withUnsupportedMap -> assertThatThrownBy(withUnsupportedMap::getMapList)
+                .hasMessage("No mapper registered for type java.util.Map<java.lang.String, " + Alien.class.getName() + ">")
+        );
+    }
+
+    @Test
+    public void duplicateColumnsWithoutCaseChangeCauseException() {
+        jdbi.useHandle(h -> {
+            h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.NOP);
+            ResultIterable<Map<String, BigDecimal>> query = h.createQuery(QUERY.replace("two", "one")).mapToMap(BigDecimal.class);
+
+            assertThatThrownBy(query::findOnly)
+                .hasMessageContaining("map key \"one\" (from column \"one\") appears twice");
+        });
+    }
+
+    @Test
+    public void duplicateKeysAfterCaseChangeCauseException() {
+        jdbi.useHandle(h -> {
+            h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOWER);
+            // one and ONE
+            ResultIterable<Map<String, BigDecimal>> query = h.createQuery(QUERY.replace("two", "ONE")).mapToMap(BigDecimal.class);
+
+            assertThatThrownBy(query::findOnly)
+                .hasMessageContaining("map key \"one\" (from column \"ONE\") appears twice");
+        });
+    }
+
+    public interface WithTypicalMap {
         @SqlQuery(QUERY)
         List<Map<String, BigDecimal>> getMapList();
     }
 
-    public static class Bar {}
+    public static class Alien {}
+
+    public interface WithUnsupportedMap {
+        @SqlQuery(QUERY)
+        List<Map<String, Alien>> getMapList();
+    }
 }

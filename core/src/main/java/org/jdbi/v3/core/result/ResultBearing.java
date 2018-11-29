@@ -172,18 +172,6 @@ public interface ResultBearing {
     }
 
     /**
-     * Maps this result set to a {@link Map} of {@link String} and the given value class.
-     *
-     * @param valueType the class to map the result set columns to
-     * @return a {@link Map} of String and the given type.
-     * @see Configurable#registerColumnMapper(ColumnMapper)
-     */
-    @Beta
-    default <T> ResultIterable<Map<String, T>> mapToGenericMap(Class<T> valueType) {
-        return map(GenericMapMapperFactory.forValueType(valueType));
-    }
-
-    /**
      * Maps this result set to a {@link ResultIterable} of the given element type, using {@link BeanMapper}.
      *
      * @param type the bean type to map the result set rows to
@@ -202,6 +190,30 @@ public interface ResultBearing {
      */
     default ResultIterable<Map<String, Object>> mapToMap() {
         return map(new MapMapper());
+    }
+
+    /**
+     * Maps this result set to a {@link Map} of {@link String} and the given value class.
+     *
+     * @param valueType the class to map the resultset columns to
+     * @return a {@link Map} of String and the given type.
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
+        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+    }
+
+    /**
+     * Maps this result set to a {@link Map} of {@link String} and the given value type.
+     *
+     * @param valueType the type to map the resultset columns to
+     * @return a {@link Map} of String and the given type.
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
+        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
