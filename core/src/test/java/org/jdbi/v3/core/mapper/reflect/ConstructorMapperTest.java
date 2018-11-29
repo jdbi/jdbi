@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -38,7 +39,8 @@ public class ConstructorMapperTest {
             .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class))
             .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
             .registerRowMapper(ConstructorMapper.factory(NullableNestedBean.class))
-            .registerRowMapper(ConstructorMapper.factory(NullableParameterBean.class));
+            .registerRowMapper(ConstructorMapper.factory(NullableParameterBean.class))
+            .registerRowMapper(ConstructorMapper.factory(StaticFactoryMethodBean.class));
 
         dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
@@ -296,6 +298,57 @@ public class ConstructorMapperTest {
 
         NestedPrefixBean(@Nested("nested") ConstructorBean nested) {
             this.nested = nested;
+        }
+    }
+
+    @Test
+    public void testFactoryMethod() {
+        StaticFactoryMethodBean bean = selectOne("SELECT s, i FROM bean", StaticFactoryMethodBean.class);
+
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    @Test
+    public void testFactoryMethodReversed() {
+        StaticFactoryMethodBean bean = selectOne("SELECT i, s FROM bean", StaticFactoryMethodBean.class);
+
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    static class StaticFactoryMethodBean {
+        private final String s;
+        private final int i;
+
+        StaticFactoryMethodBean(String s, int i, int pass) {
+            assertThat(pass).isEqualTo(42); // Make sure this constructor is not used directly
+            this.s = s;
+            this.i = i;
+        }
+
+        @JdbiConstructor
+        static StaticFactoryMethodBean create(String s, int i) {
+            return new StaticFactoryMethodBean(s, i, 42);
+        }
+    }
+
+    @Test
+    public void testMultipleFactoryMethods() {
+        assertThatThrownBy(() -> ConstructorMapper.factory(MultipleStaticFactoryMethodsBean.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageMatching("class .* may have at most one constructor or static factory method annotated @JdbiConstructor");
+    }
+
+    static class MultipleStaticFactoryMethodsBean {
+        @JdbiConstructor
+        static MultipleStaticFactoryMethodsBean one(String s) {
+            return new MultipleStaticFactoryMethodsBean();
+        }
+
+        @JdbiConstructor
+        static MultipleStaticFactoryMethodsBean two(String s) {
+            return new MultipleStaticFactoryMethodsBean();
         }
     }
 }

@@ -32,9 +32,8 @@ import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.lib.internal.org_jooq.jool_java_8.v0_9_14.Unchecked;
 
-import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
+import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findFactoryFor;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -54,22 +53,22 @@ public class ConstructorMapper<T> implements RowMapper<T> {
     private static final String DEFAULT_PREFIX = "";
 
     private static final String UNMATCHED_CONSTRUCTOR_PARAMETERS =
-        "Constructor '%s' could not match any parameter to any columns in the result set. "
+        "Instance factory '%s' could not match any parameter to any columns in the result set. "
             + "Verify that the Java compiler is configured to emit parameter names, "
             + "that your result set has the columns expected, annotate the "
             + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
 
     private static final String UNMATCHED_CONSTRUCTOR_PARAMETER =
-        "Constructor '%s' parameter '%s' has no matching columns in the result set. "
+        "Instance factory '%s' parameter '%s' has no matching columns in the result set. "
             + "Verify that the Java compiler is configured to emit parameter names, "
             + "that your result set has the columns expected, annotate the "
             + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
 
     private static final String UNMATCHED_COLUMNS_STRICT =
-        "Mapping constructor-injected type %s could not match parameters for columns: %s";
+        "Mapping instance factory %s could not match parameters for columns: %s";
 
     private static final String MISSING_COLUMN_MAPPER =
-        "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'";
+        "Could not find column mapper for type '%s' of parameter '%s' for instance factory '%s'";
 
     /**
      * Use the only declared constructor to map a class.
@@ -121,7 +120,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
      * @return the mapper
      */
     public static <T> RowMapper<T> of(Class<T> type) {
-        return ConstructorMapper.of(findConstructorFor(type));
+        return ConstructorMapper.of(type, DEFAULT_PREFIX);
     }
 
     /**
@@ -133,7 +132,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
      * @return the mapper
      */
     public static <T> RowMapper<T> of(Class<T> type, String prefix) {
-        return ConstructorMapper.of(findConstructorFor(type), prefix);
+        return new ConstructorMapper<>(findFactoryFor(type), prefix);
     }
 
     /**
@@ -156,18 +155,18 @@ public class ConstructorMapper<T> implements RowMapper<T> {
      * @return the mapper
      */
     public static <T> RowMapper<T> of(Constructor<T> constructor, String prefix) {
-        return new ConstructorMapper<>(constructor, prefix);
+        return new ConstructorMapper<>(new ConstructorInstanceFactory<>(constructor), prefix);
     }
 
-    private final Constructor<T> constructor;
+    private final InstanceFactory<T> factory;
     private final String prefix;
     private final ConstructorProperties constructorProperties;
     private final Map<Parameter, ConstructorMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
-    private ConstructorMapper(Constructor<T> constructor, String prefix) {
-        this.constructor = constructor;
+    private ConstructorMapper(InstanceFactory<T> factory, String prefix) {
+        this.factory = factory;
         this.prefix = prefix.toLowerCase();
-        this.constructorProperties = constructor.getAnnotation(ConstructorProperties.class);
+        this.constructorProperties = factory.getAnnotation(ConstructorProperties.class);
     }
 
     @Override
@@ -184,13 +183,13 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
         RowMapper<T> mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
             .orElseThrow(() -> new IllegalArgumentException(String.format(
-                UNMATCHED_CONSTRUCTOR_PARAMETERS, constructor)));
+                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
             throw new IllegalArgumentException(
-                String.format(UNMATCHED_COLUMNS_STRICT, constructor.getDeclaringClass().getSimpleName(), unmatchedColumns));
+                String.format(UNMATCHED_COLUMNS_STRICT, factory, unmatchedColumns));
         }
 
         return mapper;
@@ -200,8 +199,8 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
                                                List<String> unmatchedColumns) {
-        final int count = constructor.getParameterCount();
-        final Parameter[] parameters = constructor.getParameters();
+        final int count = factory.getParameterCount();
+        final Parameter[] parameters = factory.getParameters();
 
         final RowMapper<?>[] mappers = new RowMapper<?>[count];
 
@@ -226,7 +225,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     mappers[i] = ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(
-                            String.format(MISSING_COLUMN_MAPPER, type, paramName, constructor)));
+                            String.format(MISSING_COLUMN_MAPPER, type, paramName, factory)));
 
                     matchedColumns = true;
                     unmatchedColumns.remove(columnNames.get(colIndex));
@@ -240,7 +239,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
                 final Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
                     .computeIfAbsent(parameter, p ->
-                        new ConstructorMapper<>(findConstructorFor(p.getType()), nestedPrefix))
+                        new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
                     .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
                 if (nestedMapper.isPresent()) {
@@ -260,7 +259,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
         if (!unmatchedParameters.isEmpty()) {
             throw new IllegalArgumentException(String.format(
-                UNMATCHED_CONSTRUCTOR_PARAMETER, constructor, unmatchedParameters));
+                UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
         return Optional.of((r, c) -> {
@@ -270,7 +269,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                 params[i] = mappers[i].map(r, c);
             }
 
-            return Unchecked.<Object[], T>function(constructor::newInstance).apply(params);
+            return factory.newInstance(params);
         });
     }
 
@@ -298,7 +297,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
     private String debugName(Parameter parameter) {
         return String.format("%s constructor parameter %s",
-            constructor.getDeclaringClass().getSimpleName(),
+            factory.getDeclaringClass().getSimpleName(),
             parameter.getName());
     }
 }
