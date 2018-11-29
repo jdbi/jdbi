@@ -12,13 +12,13 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
 
 public class Reflection {
     private Reflection() {

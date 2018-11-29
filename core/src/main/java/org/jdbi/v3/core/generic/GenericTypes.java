@@ -19,8 +19,8 @@ import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.core.generic.internal.TypeParameter;
-import org.jdbi.v3.core.generic.internal.TypeToken;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
 
 /**
  * Utilities for working with generic types.
@@ -92,7 +92,7 @@ public class GenericTypes {
      *            parameter
      * @param n the index in <code>Foo&lt;X, Y, Z, ...&gt;</code>
      * @return the parameter on the supertype, if it is concretely defined.
-     * @throws ArrayIndexOutOfBoundsException if n > the number of type variables the type has
+     * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
         Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[n], type);

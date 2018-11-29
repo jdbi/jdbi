@@ -1,8 +1,6 @@
 #!/bin/sh
 set -xe
 
-export CODE_STYLE=Y
-
 OPTS="-DskipTests=true -Dmaven.javadoc.skip=true -B"
 
 PROFILES="toolchains"

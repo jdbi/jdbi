@@ -1,9 +1,7 @@
 #!/bin/sh
 set -xe
 
-export DOCUMENTATION=Y
-
-OPTS="-DskipTests=true -Dbasepom.check.skip-all=true -B"
+OPTS="-Dbasepom.javadoc.skip=false -DskipTests=true -Dbasepom.check.skip-all=true -B"
 
 PROFILES="toolchains"
 

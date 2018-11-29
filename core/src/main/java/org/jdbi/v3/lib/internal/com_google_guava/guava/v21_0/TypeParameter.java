@@ -12,14 +12,14 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import javax.annotation.Nullable;
 
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkArgument;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
 
 public abstract class TypeParameter<T> extends TypeCapture<T> {
     final TypeVariable<?> typeVariable;

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.jdbi.v3.core.generic.internal;
+package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -24,8 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static java.util.Collections.singletonMap;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkNotNull;
-import static org.jdbi.v3.core.generic.internal.Preconditions.checkState;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
+import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkState;
 
 public class TypeToken<T> extends TypeCapture<T> {
 
