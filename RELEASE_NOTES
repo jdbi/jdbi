@@ -1,7 +1,8 @@
 3.6.0
   - New API
     - ConnectionFactory now also may customize connection closing
-    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V` in `Map<K, V>`
+    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V`
+      in `Map<K, V>`
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
@@ -9,6 +10,11 @@
     - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
     - Support for HSTORE columns, using the @HStore annotation
+  - Discontinued API
+    - Due to ongoing stability problems arising to Oracle's Maven servers, development on the
+      jdbi3-oracle12 artifact has been discontinued, sources removed from the
+      project, and the earth salted for good measure. For posterity, jdbi3-bom dependency
+      management pins jdbi3-oracle12 to version 3.5.2.
 
 3.5.2
   - Bug Fixes
