@@ -51,23 +51,20 @@ public class GenericMapMapperFactory implements RowMapperFactory {
     }
 
     // invoked manually or by fluent api
-    @SuppressWarnings("unchecked")
     @Beta
     public static <T> GenericMapMapper<T> getMapperForValueType(Class<T> valueType, ConfigRegistry config) {
-        return (GenericMapMapper<T>) getMapperForValueType((Type) valueType, config);
+        return config.get(ColumnMappers.class)
+            .findFor(valueType)
+            .map(GenericMapMapper::new)
+            .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
     }
 
     // invoked manually or by fluent api
-    @SuppressWarnings("unchecked")
     @Beta
     public static <T> GenericMapMapper<T> getMapperForValueType(GenericType<T> valueType, ConfigRegistry config) {
-        return (GenericMapMapper<T>) getMapperForValueType(valueType.getType(), config);
-    }
-
-    private static GenericMapMapper<?> getMapperForValueType(Type valueType, ConfigRegistry config) {
         return config.get(ColumnMappers.class)
             .findFor(valueType)
-            .map(GenericMapMapper::wildcard)
+            .map(GenericMapMapper::new)
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
     }
 
@@ -76,10 +73,6 @@ public class GenericMapMapperFactory implements RowMapperFactory {
 
         private GenericMapMapper(ColumnMapper<T> mapper) {
             this.mapper = mapper;
-        }
-
-        private static GenericMapMapper<?> wildcard(ColumnMapper<?> mapper) {
-            return new GenericMapMapper<>(mapper);
         }
 
         @Override

@@ -113,9 +113,10 @@ public class GenericMapMapperFactoryTest {
     public void mapToMapFailsOnUnmappableGenericType() {
         jdbi.useHandle(h -> {
             Query query = h.createQuery(QUERY);
+            GenericType<Alien> type = new GenericType<Alien>() {};
 
-            assertThatThrownBy(() -> query.mapToMap(new GenericType<Alien>() {}))
-                .hasMessage("no column mapper found for type " + Alien.class);
+            assertThatThrownBy(() -> query.mapToMap(type))
+                .hasMessage("no column mapper found for type " + type);
         });
     }
 
