@@ -2989,7 +2989,7 @@ In the preceding example, the `User` mapper uses a "u" column name prefix, and
 the `Phone` mapper uses "p". Since each mapper only reads the column with the
 expected prefix, the respective `id` columns are unambigous.
 
-A unique index (e.g. by ID column) can be obtains by setting the key column
+A unique index (e.g. by ID column) can be obtained by setting the key column
 name:
 
 [source,java,indent=0]
