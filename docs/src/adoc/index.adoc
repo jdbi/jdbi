@@ -3025,8 +3025,11 @@ is a single `Map.Entry`. However, what if the `Map` we want to return is
 actually a single row or even a single column?
 
 Jdbi's link:{jdbidocs}/core/mapper/MapMapper.html[MapMapper^] maps each row to a
-`Map<String, Object>`, where column names (converted to lowercase) are mapped to
-column values.
+`Map<String, Object>`, where column names are mapped to column values.
+
+[NOTE]
+Jdbi's default setting is to convert column names to lowercase for Map keys. This behavior can be
+changed via the `MapMappers` config class.
 
 By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
 values. Use the `@SingleValue` annotation to override this, so that the return
@@ -3038,6 +3041,19 @@ type is treated as a single value instead of a collection:
 @RegisterRowMapper(MapMapper.class)
 @SingleValue
 Map<String, Object> getById(long userId);
+----
+
+Starting with Jdbi 3.6.0, there's the
+link:{jdbidocs}/core/mapper/GenericMapMapper.html[GenericMapMapper^],
+which provides the same feature but allows value types other than `Object`
+as long as a suitable ColumnMapper is registered and all columns are of this type:
+
+[source,java]
+----
+@SqlQuery("select 1.0 as LOW, 2.0 as MEDIUM, 3.0 as HIGH")
+@RegisterRowMapperFactory(GenericMapMapper.class)
+@SingleValue
+Map<String, BigDecimal> getNumericLevels();
 ----
 
 [TIP]
