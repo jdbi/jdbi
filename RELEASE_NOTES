@@ -2,7 +2,9 @@
   - New API
     - ConnectionFactory now also may customize connection closing
     - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V` in `Map<K, V>`
-    - GenericMapMapperFactory enables fluent and SqlObject support for mapping to `Map<String, V>` for any `V` that can be handled by a ColumnMapper.
+    - GenericMapMapperFactory enables fluent API and SqlObject support for mapping homogenously typed rows
+      (e.g. "select 1.0 as low, 2.0 as medium, 3.0 as high") to `Map<String, V>` for any `V`
+      that can be handled by a ColumnMapper.
     - ResultBearing.mapToMap overloads to use the GenericMapMapperFactory
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL

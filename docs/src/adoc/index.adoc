@@ -3044,14 +3044,14 @@ Map<String, Object> getById(long userId);
 ----
 
 Starting with Jdbi 3.6.0, there's the
-link:{jdbidocs}/core/mapper/GenericMapMapper.html[GenericMapMapper^],
+link:{jdbidocs}/core/mapper/GenericMapMapperFactory.html[GenericMapMapperFactory^],
 which provides the same feature but allows value types other than `Object`
 as long as a suitable ColumnMapper is registered and all columns are of this type:
 
 [source,java]
 ----
 @SqlQuery("select 1.0 as LOW, 2.0 as MEDIUM, 3.0 as HIGH")
-@RegisterRowMapperFactory(GenericMapMapper.class)
+@RegisterRowMapperFactory(GenericMapMapperFactory.class)
 @SingleValue
 Map<String, BigDecimal> getNumericLevels();
 ----
