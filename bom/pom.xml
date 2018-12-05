@@ -90,11 +90,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-oracle12</artifactId>
-                <version>3.5.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${project.version}</version>
             </dependency>

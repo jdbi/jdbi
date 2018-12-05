@@ -90,7 +90,7 @@ include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
 
 Jdbi has a flexible plugin architecture which makes it easy to fold in support
 for your favorite libraries (Guava, JodaTime, Spring, Vavr) or database vendor
-(H2, Postgres).
+(H2, Oracle, Postgres).
 
 Jdbi is not an ORM. There is no session cache, change tracking, "open session
 in view", or cajoling the library to understand your schema.
@@ -159,6 +159,8 @@ jdbi3-kotlin::
 jdbi3-kotlin-sqlobject::
     Enhance the SQL Object extension to support Kotlin default methods and
     method default parameters.
+jdbi3-oracle12::
+    Support Oracle returning DML statements.
 jdbi3-postgres::
     Support for most data types supported by Postgres driver.
 jdbi3-spring4::
@@ -3855,6 +3857,25 @@ An example from the test class:
 ----
 include::{exampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
+
+=== Oracle 12
+
+This module adds support for Oracle `RETURNING` DML expressions.
+
+To use this feature, add a Maven dependency:
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-oracle12</artifactId>
+</dependency>
+----
+
+Then, use the `OracleReturning` class with an `Update` or `PreparedBatch`
+to get the returned DML.
+
+// TODO: usage example
 
 === PostgreSQL
 

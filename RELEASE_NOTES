@@ -10,11 +10,12 @@
     - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
     - Support for HSTORE columns, using the @HStore annotation
-  - Discontinued API
-    - Due to ongoing stability problems arising to Oracle's Maven servers, development on the
-      jdbi3-oracle12 artifact has been discontinued, sources removed from the
-      project, and the earth salted for good measure. For posterity, jdbi3-bom dependency
-      management pins jdbi3-oracle12 to version 3.5.2.
+  - Oracle DB support changes
+    - Due to ongoing stability problems with Oracle's Maven servers, we are splitting the
+      jdbi3-oracle12 artifact out of the main project, to a new home at
+      https://github.com/jdbi/jdbi3-oracle12. This means that jdbi3-oracle12 versions will no
+      longer stay in lockstep with the rest of Jdbi. Accordingly, we have removed jdbi3-oracle12
+      from the BOM.
 
 3.5.2
   - Bug Fixes
