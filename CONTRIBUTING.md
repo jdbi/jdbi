@@ -37,6 +37,12 @@ Since our tests essentially describe and verify jdbi's behavior, changing their 
 
 Jdbi should be useful for as many projects as possible with as little work as possible, within reason. It should be useful out of the box with sane defaults, but always configurable to the extent users are likely to need.
 
+## Pull requests
+
+Expect your pull request to be scrutinized in even the tiniest details (down to grammar in javadoc), and to need to address many remarks even for small changes. We strive for a healthy balance between subjective perfection and practical considerations, but we are firmly against doing a quick and sloppy job that will require a lot of follow-up work later.
+
+Due to the volume of feedback in a typical PR, we may push changes directly to your PR branch if we are able to, in order to save time and frustration for everyone.
+
 # Enable `-parameters` compiler flag in your IDE:
 
 Most of our SQL Object tests rely on SQL method parameter names. However by default, `javac` does not compile these
