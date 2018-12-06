@@ -23,7 +23,7 @@ Completely new API should, in most cases, be marked with `@Beta`. This lets user
 
 ## Technical design
 
-We favor constructors — especially the default one — over factory methods where possible. Adding factory methods is not discouraged, but restricting the visibility of useful constructors without technical reason is.
+We like both constructors and factory methods/builders, but require that they be used appropriately. Constructors are great for dumb classes, factories are better in case any defensive logic is involved.
 
 Remember to implement thread safety wherever objects are likely to be shared between threads, but don't implement it where it definitely isn't needed. Making objects stateless or immutable is strongly encouraged!
 
@@ -36,6 +36,12 @@ Since our tests essentially describe and verify jdbi's behavior, changing their 
 ## Functionality
 
 Jdbi should be useful for as many projects as possible with as little work as possible, within reason. It should be useful out of the box with sane defaults, but always configurable to the extent users are likely to need.
+
+## Pull requests
+
+Expect your pull request to be scrutinized in even the tiniest details (down to grammar in javadoc), and to need to address many remarks even for small changes. We strive for a healthy balance between subjective perfection and practical considerations, but we are firmly against doing a quick and sloppy job that will require a lot of follow-up work later.
+
+Due to the volume of feedback in a typical PR, we may push changes directly to your PR branch if we are able to, in order to save time and frustration for everyone.
 
 # Enable `-parameters` compiler flag in your IDE:
 
