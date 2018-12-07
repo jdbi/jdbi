@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
+
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
@@ -501,6 +502,8 @@ public class StatementContext implements Closeable {
 
     /**
      * Convenience method to measure elapsed time between start of query execution and completion or exception as appropriate. Do not call with a null argument or before a query has executed/exploded.
+     * @param unit the time unit to convert to
+     * @return the elapsed time in the given unit
      */
     public long getElapsedTime(ChronoUnit unit) {
         return unit.between(executionMoment, completionMoment == null ? exceptionMoment : completionMoment);

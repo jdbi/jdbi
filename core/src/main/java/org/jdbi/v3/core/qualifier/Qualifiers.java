@@ -32,7 +32,7 @@ public class Qualifiers {
     private Qualifiers() {}
 
     /**
-     * Returns an {@link NVarchar} qualifying annotation instance.
+     * @return an {@link NVarchar} qualifying annotation instance.
      */
     public static NVarchar nVarchar() {
         return AnnotationFactory.create(NVarchar.class);

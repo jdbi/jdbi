@@ -39,6 +39,9 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
      * as using {@code type} raw.
+     *
+     * @param type the unqualified type
+     * @return the unqualified QualifiedType
      */
     public static QualifiedType of(Type type) {
         return new QualifiedType(
@@ -48,6 +51,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifier.
+     *
+     * @param type the type
+     * @param qualifier the single qualifier
+     * @return the QualifiedType
      */
     public static QualifiedType of(Type type, Annotation qualifier) {
         return new QualifiedType(
@@ -57,6 +64,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
+     *
+     * @param type the type
+     * @param qualifiers the qualifiers
+     * @return the QualifiedType
      */
     public static QualifiedType of(Type type, Annotation... qualifiers) {
         return of(type, Arrays.asList(qualifiers));
@@ -64,6 +75,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
+     *
+     * @param type the type
+     * @param qualifiers the qualifiers
+     * @return the QualifiedType
      */
     public static QualifiedType of(Type type, Collection<? extends Annotation> qualifiers) {
         return new QualifiedType(
@@ -74,6 +89,9 @@ public final class QualifiedType {
     /**
      * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
      * as using {@code type} raw.
+     *
+     * @param type the unqualified generic type
+     * @return the unqualified QualifiedType
      */
     public static QualifiedType of(GenericType<?> type) {
         return QualifiedType.of(type.getType());
@@ -81,6 +99,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifier.
+     *
+     * @param type the type
+     * @param qualifier the single qualifier
+     * @return the QualifiedType
      */
     public static QualifiedType of(GenericType<?> type, Annotation qualifier) {
         return QualifiedType.of(type.getType(), qualifier);
@@ -88,6 +110,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
+     *
+     * @param type the type
+     * @param qualifiers the qualifiers
+     * @return the QualifiedType
      */
     public static QualifiedType of(GenericType<?> type, Annotation... qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
@@ -95,6 +121,10 @@ public final class QualifiedType {
 
     /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
+     *
+     * @param type the type
+     * @param qualifiers the qualifiers
+     * @return the QualifiedType
      */
     public static QualifiedType of(GenericType<?> type, Collection<? extends Annotation> qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
@@ -106,14 +136,14 @@ public final class QualifiedType {
     }
 
     /**
-     * Returns the type being qualified
+     * @return the type being qualified
      */
     public Type getType() {
         return type;
     }
 
     /**
-     * Returns the type qualifiers.
+     * @return the type qualifiers.
      */
     public Set<Annotation> getQualifiers() {
         return qualifiers;

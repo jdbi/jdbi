@@ -50,8 +50,7 @@ public class GenericTypes {
      * </p>
      * parameter
      *
-     * @param type
-     *            the type
+     * @param type the type
      * @return the erased class
      */
     public static Class<?> getErasedType(Type type) {
@@ -59,7 +58,12 @@ public class GenericTypes {
     }
 
     /**
-     * Same as {@link #findGenericParameter(Type, Class, int)} with n = 0
+     * Same as {@link #findGenericParameter(Type, Class, int)} with n = 0.
+     *
+     * @param type the type
+     * @param parameterizedSupertype the parameterized supertype
+     * @return the first parameter type
+     * @see #findGenericParameter(Type, Class, int)
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
         return findGenericParameter(type, parameterizedSupertype, 0);
@@ -74,24 +78,25 @@ public class GenericTypes {
      * Example:
      * </p>
      * <ul>
-     * <li>if <code>type</code> is <code>ArrayList&lt;String&gt;</code>,
-     * <code>parameterizedSuperType</code> is <code>List.class</code>,
-     * and <code>n</code> is <code>0</code>,
-     * returns <code>Optional.of(String.class)</code>.</li>
-     * <li>if <code>type</code> is <code>Map&lt;String, Integer&gt;</code>,
-     * <code>parameterizedSuperType</code> is <code>Map.class</code>,
-     * and <code>n</code> is <code>1</code>,
-     * returns <code>Optional.of(Integer.class)</code>.</li>
-     * <li>if <code>type</code> is <code>ArrayList.class</code> (raw),
-     * <code>parameterizedSuperType</code> is <code>List.class</code>,
-     * and <code>n</code> is <code>0</code>,
-     * returns <code>Optional.empty()</code>.</li>
+     * <li>if {@code type} is {@code ArrayList<String>},
+     * {@code parameterizedSuperType} is {@code List.class},
+     * and {@code n} is {@code 0},
+     * returns {@code Optional.of(String.class)}.</li>
+     *
+     * <li>if {@code type} is {@code Map<String, Integer>},
+     * {@code parameterizedSuperType} is {@code Map.class},
+     * and {@code n} is {@code 1},
+     * returns {@code Optional.of(Integer.class)}.</li>
+     *
+     * <li>if {@code type} is {@code ArrayList.class} (raw),
+     * {@code parameterizedSuperType} is {@code List.class},
+     * and {@code n} is {@code 0},
+     * returns {@code Optional.empty()}.</li>
      * </ul>
      *
      * @param type the subtype of parameterizedSupertype
-     * @param parameterizedSupertype the parameterized supertype from which we want the generic
-     *            parameter
-     * @param n the index in <code>Foo&lt;X, Y, Z, ...&gt;</code>
+     * @param parameterizedSupertype the parameterized supertype from which we want the generic parameter
+     * @param n the index in {@code Foo<X, Y, Z, ...>}
      * @return the parameter on the supertype, if it is concretely defined.
      * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
@@ -103,9 +108,9 @@ public class GenericTypes {
     }
 
     /**
-     * Resolves the <code>type</code> parameter in the context of <code>contextType</code>. For example, if
-     * <code>type</code> is <code>List.class.getMethod("get", int.class).getGenericReturnType()</code>, and
-     * <code>contextType</code> is <code>List&lt;String&gt;</code>, this method returns <code>String.class</code>
+     * Resolves the {@code type} parameter in the context of {@code contextType}. For example, if
+     * {@code type} is {@code List.class.getMethod("get", int.class).getGenericReturnType()}, and
+     * {@code contextType} is {@code List<String>}, this method returns {@code String.class}
      * @param type the type to be resolved in the scope of <code>contextType</code>
      * @param contextType the context type in which <code>type</code> is interpreted to resolve the type.
      * @return the resolved type.

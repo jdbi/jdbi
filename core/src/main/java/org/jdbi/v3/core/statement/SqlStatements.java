@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 
@@ -203,6 +204,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Jdbi does not implement its own timeout mechanism: it simply calls {@link java.sql.Statement#setQueryTimeout}, leaving timeout handling to your jdbc driver.
      *
      * @param seconds the time in seconds to wait for a query to complete; 0 to disable the timeout; null to leave it at defaults (i.e. Jdbi will not call {@code setQueryTimeout(int)})
+     * @return this
      */
     @Beta
     public SqlStatements setQueryTimeout(@Nullable Integer seconds) {
@@ -221,6 +223,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
      *
      * @see org.jdbi.v3.core.argument.Argument
+     * @param allowUnusedBindings the new setting
+     * @return this
      */
     public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
         this.allowUnusedBindings = allowUnusedBindings;

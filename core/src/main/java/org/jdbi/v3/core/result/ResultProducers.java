@@ -128,6 +128,8 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
     /**
      * Normally a query that doesn't return a result set throws an exception.
      * With this option, we will replace it with an empty result set instead.
+     * @param allowNoResults the new allowNoResults setting
+     * @return this
      */
     public ResultProducers allowNoResults(boolean allowNoResults) {
         this.allowNoResults = allowNoResults;

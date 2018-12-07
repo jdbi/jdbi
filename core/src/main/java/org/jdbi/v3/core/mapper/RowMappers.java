@@ -65,6 +65,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     /**
      * Register a row mapper for a given type.
      *
+     * @param <T> the type
      * @param type the type to match with equals.
      * @param mapper the row mapper
      * @return this

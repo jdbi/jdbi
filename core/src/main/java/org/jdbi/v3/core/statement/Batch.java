@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,9 @@ public class Batch extends BaseStatement<Batch> {
      * doesn't print out when you log them.  Convert them to be
      * {@link Throwable#addSuppressed(Throwable)} exceptions,
      * which do print out with common logging frameworks.
+     *
+     * @param e the exception
+     * @return the 'suppressed' munged exception change
      */
     static SQLException mungeBatchException(SQLException e) {
         for (SQLException next = e.getNextException(); next != null; next = next.getNextException()) {

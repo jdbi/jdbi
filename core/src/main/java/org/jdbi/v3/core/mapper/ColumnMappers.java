@@ -78,6 +78,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Register a column mapper for a given explicit {@link GenericType}
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
+     * @param <T> the type
      * @param type the generic type to match with equals.
      * @param mapper the column mapper
      * @return this

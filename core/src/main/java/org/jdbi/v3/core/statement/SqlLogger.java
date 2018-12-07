@@ -27,16 +27,23 @@ public interface SqlLogger {
 
     /**
      * Will be called before a query is executed. Note that no timing information will be available in the {@link StatementContext} yet.
+     *
+     * @param context the statement context
      */
     default void logBeforeExecution(StatementContext context) {}
 
     /**
      * Will be called after a query has been executed. The {@link StatementContext} will contain a start {@link StatementContext#getExecutionMoment} and end {@link StatementContext#getCompletionMoment} time.
+     *
+     * @param context the statement context
      */
     default void logAfterExecution(StatementContext context) {}
 
     /**
      * Will be called after a query has failed. The {@link StatementContext} will contain a start {@link StatementContext#getExecutionMoment} and failure {@link StatementContext#getExceptionMoment} time.
+     *
+     * @param context the statement context
+     * @param ex the exception
      */
     default void logException(StatementContext context, SQLException ex) {}
 }

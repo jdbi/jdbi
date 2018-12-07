@@ -32,6 +32,7 @@ public class IterableLike {
     }
 
     /**
+     * @param maybeIterable the object that might be iterable
      * @return whether {@code IterableLike} can iterate over the given object
      */
     public static boolean isIterable(Object maybeIterable) {
@@ -44,6 +45,7 @@ public class IterableLike {
      * Given an iterable object (which may be a iterator, iterable, primitive
      * or reference array), return an iterator over its (possibly boxed) elements.
      *
+     * @param iterable the iterable-like
      * @return an iterator of the given array's elements
      */
     @SuppressWarnings("unchecked")

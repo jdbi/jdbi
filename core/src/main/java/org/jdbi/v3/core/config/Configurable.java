@@ -15,6 +15,7 @@ package org.jdbi.v3.core.config;
 
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
+
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -225,6 +226,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
+     * @param <T> the type
      * @param type the generic type to register
      * @param mapper the mapper to use on that type
      * @return this
@@ -289,6 +291,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
      *
+     * @param <T> the type
      * @param type to match
      * @param mapper row mapper
      * @return this

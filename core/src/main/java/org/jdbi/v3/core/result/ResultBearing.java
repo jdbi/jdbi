@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
 import org.jdbi.v3.core.collector.NoSuchCollectorException;
 import org.jdbi.v3.core.config.Configurable;
@@ -195,6 +196,7 @@ public interface ResultBearing {
     /**
      * Maps this result set to a {@link Map} of {@link String} and the given value class.
      *
+     * @param <T> the value type
      * @param valueType the class to map the resultset columns to
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
@@ -207,6 +209,7 @@ public interface ResultBearing {
     /**
      * Maps this result set to a {@link Map} of {@link String} and the given value type.
      *
+     * @param <T> the value type
      * @param valueType the type to map the resultset columns to
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)

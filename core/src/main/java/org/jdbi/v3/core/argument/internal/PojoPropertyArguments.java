@@ -24,7 +24,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
- * Inspect a object and bind parameters via {@link PojoPropertiesFactory}.
+ * Inspect a object and bind parameters via {@link BeanMapper}'s properties.
  */
 public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
     private final Map<String, ? extends PojoProperty<?>> properties;
