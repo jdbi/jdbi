@@ -60,6 +60,7 @@
         <module>vavr</module>
         <module>sqlite</module>
         <module>testing</module>
+        <module>lib-loader</module>
     </modules>
 
     <scm>
@@ -107,6 +108,11 @@
                 <classifier>tests</classifier>
             </dependency>
 
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-lib-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-commons-text</artifactId>
