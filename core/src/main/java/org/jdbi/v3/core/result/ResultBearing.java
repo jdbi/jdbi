@@ -13,20 +13,6 @@
  */
 package org.jdbi.v3.core.result;
 
-import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
-import org.jdbi.v3.core.collector.NoSuchCollectorException;
-import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.MapMapper;
-import org.jdbi.v3.core.mapper.NoSuchMapperException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -37,6 +23,20 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
+import org.jdbi.v3.core.collector.NoSuchCollectorException;
+import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.GenericMapMapperFactory;
+import org.jdbi.v3.core.mapper.MapMapper;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
@@ -190,6 +190,30 @@ public interface ResultBearing {
      */
     default ResultIterable<Map<String, Object>> mapToMap() {
         return map(new MapMapper());
+    }
+
+    /**
+     * Maps this result set to a {@link Map} of {@link String} and the given value class.
+     *
+     * @param valueType the class to map the resultset columns to
+     * @return a {@link Map} of String and the given type.
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
+        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+    }
+
+    /**
+     * Maps this result set to a {@link Map} of {@link String} and the given value type.
+     *
+     * @param valueType the type to map the resultset columns to
+     * @return a {@link Map} of String and the given type.
+     * @see Configurable#registerColumnMapper(ColumnMapper)
+     */
+    @Beta
+    default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
+        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
