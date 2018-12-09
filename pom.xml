@@ -79,7 +79,8 @@
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
-        <dep.antlr.version>3.4</dep.antlr.version>
+        <dep.antlr-runtime.version>3.4</dep.antlr-runtime.version>
+        <dep.antlr.version>2.7.7</dep.antlr.version>
         <dep.checkstyle.version>8.10</dep.checkstyle.version>
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
@@ -223,8 +224,25 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr-runtime</artifactId>
-                <version>${dep.antlr.version}</version>
+                <version>${dep.antlr-runtime.version}</version>
+
+                <exclusions>
+                    <exclusion>
+                        <artifactId>antlr</artifactId>
+                        <groupId>antlr</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>stringtemplate</artifactId>
+                        <groupId>org.antlr</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
+
+            <!--<dependency>-->
+            <!--<groupId>antlr</groupId>-->
+            <!--<artifactId>antlr</artifactId>-->
+            <!--<version>${dep.antlr.version}</version>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -516,7 +534,7 @@
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>${dep.antlr.version}</version>
+                    <version>${dep.antlr-runtime.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>

@@ -39,13 +39,29 @@
     </licenses>
 
     <properties>
+        <basepom.check.phase-dependency-management>validate</basepom.check.phase-dependency-management>
         <basepom.check.phase-license>validate</basepom.check.phase-license>
     </properties>
 
     <dependencies>
+
+        <!-- shaded -->
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
+        </dependency>
+
+        <!-- shaded -->
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>expiringmap</artifactId>
+        </dependency>
+
+        <!-- shaded -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -56,26 +72,18 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>expiringmap</artifactId>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -179,7 +187,17 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- XXX: disable shading because it doesn't do Java 8 yet...
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -190,36 +208,53 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                            <minimizeJar>true</minimizeJar>
+
                             <artifactSet>
                                 <includes>
-                                    <include>org.antlr:antlr-runtime</include>
                                     <include>com.google.guava:guava</include>
+                                    <include>org.antlr:antlr</include>
+                                    <include>org.antlr:antlr-runtime</include>
+                                    <include>org.antlr:stringtemplate</include>
+                                    <include>net.jodah:expiringmap</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.antlr.runtime</pattern>
-                                    <shadedPattern>org.jdbi.v3.org.antlr.runtime</shadedPattern>
+                                    <pattern>antlr</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.internal.antlr</shadedPattern>
                                 </relocation>
 
                                 <relocation>
-                                    <pattern>com.google.guava</pattern>
-                                    <shadedPattern>org.jdbi.v3.com.google.guava</shadedPattern>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.internal.guava</shadedPattern>
+                                </relocation>
+
+                                <relocation>
+                                    <pattern>net.jodah.expiringmap</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.internal.expiringmap</shadedPattern>
+                                </relocation>
+
+                                <relocation>
+                                    <pattern>org.antlr.runtime</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.internal.antlrruntime</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
+                    <ignoredUnusedDeclaredDependencies>
+                        <dependency>antlr:antlr</dependency>
+                    </ignoredUnusedDeclaredDependencies>
                 </configuration>
             </plugin>
         </plugins>

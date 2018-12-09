@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 import io.vavr.collection.Multimap;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
-import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
-
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 
 /**
  * a helper similar to {@link org.jdbi.v3.core.generic.GenericTypes} but for Vavr Maps
@@ -64,13 +64,39 @@ class VavrGenericMapUtil {
     }
 
     private static Type resolveMapEntryType(Type keyType, Type valueType) {
-        return resolveMapEntryType(TypeToken.of(keyType), TypeToken.of(valueType));
-    }
+        return new ParameterizedType() {
+            @Override
+            public Type[] getActualTypeArguments() {
+                return new Type[] {keyType, valueType};
+            }
 
-    private static <K, V> Type resolveMapEntryType(TypeToken<K> keyType, TypeToken<V> valueType) {
-        return new TypeToken<Tuple2<K, V>>() {}
-                .where(new TypeParameter<K>() {}, keyType)
-                .where(new TypeParameter<V>() {}, valueType)
-                .getType();
+            @Override
+            public Type getRawType() {
+                return Tuple2.class;
+            }
+
+            @Override
+            public Type getOwnerType() {
+                return null;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof ParameterizedType)) {
+                    return false;
+                }
+                ParameterizedType that = (ParameterizedType) obj;
+
+                return that.getOwnerType() == null
+                    && Tuple2.class.equals(that.getRawType())
+                    && keyType.equals(that.getActualTypeArguments()[0])
+                    && valueType.equals(that.getActualTypeArguments()[1]);
+            }
+
+            @Override
+            public int hashCode() {
+                return Tuple2.class.hashCode() ^ Arrays.asList(keyType, valueType).hashCode();
+            }
+        };
     }
 }
