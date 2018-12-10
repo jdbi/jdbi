@@ -1,4 +1,6 @@
 3.6.0
+  - Maven dependency changes
+    - removed net.jodah:expiringmap dependency by internalizing it
   - New API
     - ConnectionFactory now also may customize connection closing
     - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V`

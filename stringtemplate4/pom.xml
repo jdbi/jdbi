@@ -42,6 +42,11 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-lib-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
             <optional>true</optional>
         </dependency>
@@ -49,11 +54,6 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>expiringmap</artifactId>
         </dependency>
 
         <dependency>

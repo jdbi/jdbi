@@ -44,6 +44,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-lib-loader</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
@@ -60,11 +65,6 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>expiringmap</artifactId>
         </dependency>
 
         <dependency>

@@ -27,12 +27,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap.ExpirationPolicy;
+import org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap.ExpiringMap;
 
 import static java.util.stream.Collectors.toMap;
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;

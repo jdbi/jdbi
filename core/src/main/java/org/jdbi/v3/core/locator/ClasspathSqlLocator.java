@@ -21,11 +21,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.antlr.runtime.ANTLRInputStream;
 import org.jdbi.v3.core.internal.SqlScriptParser;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
+import org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap.ExpirationPolicy;
+import org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap.ExpiringMap;
 
 /**
  * Locates SQL in {@code .sql} files on the classpath.  Given a class and
