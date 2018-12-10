@@ -45,23 +45,22 @@
 
     <dependencies>
 
-        <!-- shaded -->
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
+            <optional>true</optional> <!-- shaded, prevent transitive dep -->
         </dependency>
 
-        <!-- shaded -->
         <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>expiringmap</artifactId>
+            <optional>true</optional> <!-- shaded, prevent transitive dep -->
         </dependency>
 
-        <!-- shaded -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <optional>true</optional>
+            <optional>true</optional> <!-- shaded, prevent transitive dep -->
         </dependency>
 
         <dependency>
@@ -216,18 +215,11 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.google.guava:guava</include>
-                                    <include>org.antlr:antlr</include>
                                     <include>org.antlr:antlr-runtime</include>
-                                    <include>org.antlr:stringtemplate</include>
                                     <include>net.jodah:expiringmap</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
-                                <relocation>
-                                    <pattern>antlr</pattern>
-                                    <shadedPattern>org.jdbi.v3.core.internal.antlr</shadedPattern>
-                                </relocation>
-
                                 <relocation>
                                     <pattern>com.google</pattern>
                                     <shadedPattern>org.jdbi.v3.core.internal.guava</shadedPattern>
