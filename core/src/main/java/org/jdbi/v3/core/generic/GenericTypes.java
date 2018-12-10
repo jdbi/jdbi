@@ -18,9 +18,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
-
-import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
-import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
+import org.jdbi.v3.lib.internal.guava.com.google.common.reflect.TypeParameter;
+import org.jdbi.v3.lib.internal.guava.com.google.common.reflect.TypeToken;
 
 /**
  * Utilities for working with generic types.
