@@ -48,19 +48,22 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
-            <optional>true</optional> <!-- shaded, prevent transitive dep -->
+            <!-- shaded, prevent transitive dep -->
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>expiringmap</artifactId>
-            <optional>true</optional> <!-- shaded, prevent transitive dep -->
+            <!-- shaded, prevent transitive dep -->
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <optional>true</optional> <!-- shaded, prevent transitive dep -->
+            <!-- shaded, prevent transitive dep -->
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -237,16 +240,6 @@
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <ignoredUnusedDeclaredDependencies>
-                        <dependency>antlr:antlr</dependency>
-                    </ignoredUnusedDeclaredDependencies>
                 </configuration>
             </plugin>
         </plugins>
