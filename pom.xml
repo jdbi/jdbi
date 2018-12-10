@@ -74,7 +74,6 @@
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.maven.version>3.2.5</basepom.maven.version>
 
-        <basepom.release.profiles>basepom.oss-release,oracle</basepom.release.profiles>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
@@ -85,7 +84,6 @@
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
-        <dep.oracle.version>12.1.0.2</dep.oracle.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
         <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
@@ -143,11 +141,6 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-kotlin-sqlobject</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-oracle12</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -308,17 +301,6 @@
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
                 <version>0.11.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.oracle.jdbc</groupId>
-                <artifactId>ojdbc7</artifactId>
-                <version>${dep.oracle.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.oracle.jdbc</groupId>
-                <artifactId>oraclepki</artifactId>
-                <version>${dep.oracle.version}</version>
             </dependency>
 
             <dependency>
@@ -761,29 +743,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>oracle</id>
-            <activation>
-                <file>
-                    <exists>${maven.multiModuleProjectDirectory}/.build-oracle</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>oracle12</module>
-            </modules>
-            <repositories>
-                <repository>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>always</updatePolicy>
-                    </releases>
-                    <id>maven.oracle.com</id>
-                    <name>oracle-maven-repo</name>
-                    <url>https://maven.oracle.com</url>
-                    <layout>default</layout>
-                </repository>
-            </repositories>
         </profile>
     </profiles>
 </project>

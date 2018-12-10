@@ -1,21 +1,29 @@
 3.6.0
   - New API
     - ConnectionFactory now also may customize connection closing
-    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V` in `Map<K, V>`
+    - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V`
+      in `Map<K, V>`
     - @JdbiConstructor can now be placed on a static factory method
-    - GenericMapMapperFactory enables fluent API and SqlObject support for mapping homogenously typed rows
-      (e.g. "select 1.0 as low, 2.0 as medium, 3.0 as high") to `Map<String, V>` for any `V`
-      that can be handled by a ColumnMapper.
+    - GenericMapMapperFactory enables fluent API and SqlObject support for mapping homogenously
+      typed rows (e.g. "select 1.0 as low, 2.0 as medium, 3.0 as high") to `Map<String, V>` for any
+      `V` that can be handled by a ColumnMapper.
     - ResultBearing.mapToMap overloads to use the GenericMapMapperFactory
     - ParsedSql can be created with ParsedSql.of(String, ParsedParameters) factory
-    - ParsedParameters can be created with ParsedSql.positional(int) and ParsedSql.named(List<String>) factories
+    - ParsedParameters can be created with ParsedSql.positional(int) and
+      ParsedSql.named(List<String>) factories.
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
       map to String, but are bound and mapped with different JDBC APIs.
     - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
-    - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation.
+    - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation
     - Support for HSTORE columns, using the @HStore annotation
+  - Oracle DB support changes
+    - Due to ongoing stability problems with Oracle's Maven servers, we have split the
+      jdbi3-oracle12 artifact out of the main project, to a new home at
+      https://github.com/jdbi/jdbi3-oracle12. This means that jdbi3-oracle12 versions will no
+      longer stay in sync with the rest of Jdbi. Accordingly, we have removed jdbi3-oracle12
+      from the BOM.
 
 3.5.2
   - Bug Fixes
