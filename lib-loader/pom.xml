@@ -38,10 +38,16 @@
                         <configuration>
                             <skip>false</skip>
                             <includes>**/*.java</includes>
-                            <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal</outputDirectory>
 
                             <artifactItems>
-
+                                <artifactItem>
+                                    <groupId>net.jodah</groupId>
+                                    <artifactId>expiringmap</artifactId>
+                                    <version>0.5.6</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/expiringmap</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -59,7 +65,7 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                
+                                <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/expiringmap" encoding="UTF-8" token="net.jodah.expiringmap" value="org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap" />
                             </tasks>
                         </configuration>
                     </execution>
