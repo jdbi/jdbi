@@ -48,6 +48,63 @@
                                     <classifier>sources</classifier>
                                     <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/expiringmap</outputDirectory>
                                 </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>com.google.guava</groupId>
+                                    <artifactId>guava</artifactId>
+                                    <version>27.0.1-jre</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.guava</groupId>
+                                    <artifactId>failureaccess</artifactId>
+                                    <version>1.0.1</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.code.findbugs</groupId>
+                                    <artifactId>jsr305</artifactId>
+                                    <version>3.0.2</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.checkerframework</groupId>
+                                    <artifactId>checker-qual</artifactId>
+                                    <version>2.5.2</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.errorprone</groupId>
+                                    <artifactId>error_prone_annotations</artifactId>
+                                    <version>2.2.0</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.j2objc</groupId>
+                                    <artifactId>j2objc-annotations</artifactId>
+                                    <version>1.1</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.codehaus.mojo</groupId>
+                                    <artifactId>animal-sniffer-annotations</artifactId>
+                                    <version>1.17</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <outputDirectory>${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -66,6 +123,11 @@
                         <configuration>
                             <tasks>
                                 <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/expiringmap" encoding="UTF-8" token="net.jodah.expiringmap" value="org.jdbi.v3.lib.internal.expiringmap.net.jodah.expiringmap" />
+
+                                <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava" encoding="UTF-8" token="com.google" value="org.jdbi.v3.lib.internal.guava.com.google" />
+                                <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava" encoding="UTF-8" token="org.codehaus" value="org.jdbi.v3.lib.internal.guava.org.codehaus" />
+                                <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava" encoding="UTF-8" token="org.checkerframework" value="org.jdbi.v3.lib.internal.guava.org.checkerframework" />
+                                <replace dir="${project.build.directory}/generated-sources/org/jdbi/v3/lib/internal/guava" encoding="UTF-8" token="javax.annotation" value="org.jdbi.v3.lib.internal.guava.javax.annotation" />
                             </tasks>
                         </configuration>
                     </execution>
