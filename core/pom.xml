@@ -204,6 +204,8 @@
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <minimizeJar>true</minimizeJar>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
 
                             <artifactSet>
                                 <includes>
