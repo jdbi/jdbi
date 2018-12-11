@@ -15,10 +15,11 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 class SqlLoggerUtil {
     private SqlLoggerUtil() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     static <T> T wrap(SqlLoggable<T> r, StatementContext ctx, SqlLogger logger) throws SQLException {

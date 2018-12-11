@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -30,7 +31,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 public class SqlAnnotations {
     private SqlAnnotations() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

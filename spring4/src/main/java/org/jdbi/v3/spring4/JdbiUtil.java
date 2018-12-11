@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.internal.UtilityClassException;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -28,7 +29,7 @@ public class JdbiUtil {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
 
     private JdbiUtil() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

@@ -19,6 +19,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
 import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
 
@@ -37,7 +38,7 @@ public class GenericTypes {
     }
 
     private GenericTypes() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

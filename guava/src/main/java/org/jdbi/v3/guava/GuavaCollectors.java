@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 import static org.jdbi.v3.core.collector.MapCollectors.toMap;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
@@ -74,7 +75,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
  */
 public class GuavaCollectors {
     private GuavaCollectors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

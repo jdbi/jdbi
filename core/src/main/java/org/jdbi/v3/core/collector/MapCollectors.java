@@ -16,10 +16,11 @@ package org.jdbi.v3.core.collector;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class MapCollectors {
     private MapCollectors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {

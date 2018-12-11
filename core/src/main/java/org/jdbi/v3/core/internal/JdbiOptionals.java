@@ -21,7 +21,7 @@ import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 public class JdbiOptionals {
     private JdbiOptionals() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     @SafeVarargs
