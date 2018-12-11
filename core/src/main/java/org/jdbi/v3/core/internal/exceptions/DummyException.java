@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.internal.exceptions;
 
+@SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public class DummyException extends RuntimeException {
     private DummyException() {
         throw new UnsupportedOperationException("this exception should never actually be instantiated or thrown");
