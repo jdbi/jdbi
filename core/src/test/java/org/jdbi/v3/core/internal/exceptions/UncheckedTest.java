@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.internal.exceptions;
 
 import java.sql.SQLException;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,24 +23,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class UncheckedTest {
     @Test
     public void hidesThrowsClause() {
-        CheckedFunction<String, Object> throwing = UncheckedTest::failToGet;
+        CheckedSupplier<Void> throwing = UncheckedTest::failToGet;
 
-        assertThatThrownBy(() -> throwing.apply(""))
+        assertThatThrownBy(throwing::get)
             .describedAs("throws a checked exception")
             .isInstanceOf(SQLException.class);
 
-        Function<String, Object> muted = Unchecked.function(throwing);
+        Supplier<Void> muted = Unchecked.supplier(throwing);
 
         assertThat(muted)
             .describedAs("does not declare a checked exception")
-            .isInstanceOf(Function.class);
+            .isInstanceOf(Supplier.class);
 
-        assertThatThrownBy(() -> muted.apply(""))
+        assertThatThrownBy(muted::get)
             .describedAs("still throws a checked exception")
             .isInstanceOf(SQLException.class);
     }
 
-    private static Object failToGet(String key) throws SQLException {
+    private static Void failToGet() throws SQLException {
         throw new SQLException();
     }
 }
