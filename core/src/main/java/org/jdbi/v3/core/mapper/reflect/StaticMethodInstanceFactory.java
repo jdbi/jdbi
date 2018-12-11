@@ -15,10 +15,10 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.jdbi.v3.core.internal.Throwables.throwingOnlyUnchecked;
 
 class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
     private final Class<T> type;
@@ -41,7 +41,7 @@ class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
 
     @Override
     T newInstance(Object... params) {
-        return throwingOnlyUnchecked(() -> type.cast(method.invoke(null, params)));
+        return type.cast(Unchecked.<Object, Object[], Object>biFunction(method::invoke).apply(null, params));
     }
 
     @Override

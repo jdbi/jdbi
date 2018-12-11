@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.jdbi.v3.core.internal.Throwables;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 class BridgeMethodHandlerFactory implements HandlerFactory {
     @Override
@@ -40,7 +40,7 @@ class BridgeMethodHandlerFactory implements HandlerFactory {
             })
             .<Handler>map(m -> {
                 final MethodHandle mh = unreflect(sqlObjectType, m);
-                return (target, args, handle) -> Throwables.throwingOnlyUnchecked(() -> mh.bindTo(target).invokeWithArguments(args));
+                return (target, args, handle) -> Unchecked.<Object[], Object>function(mh.bindTo(target)::invokeWithArguments).apply(args);
             })
             .findFirst();
     }

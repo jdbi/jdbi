@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -65,14 +66,10 @@ public class TestRegisterRowMapperFactory {
         @Override
         public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
             Class<?> erasedType = getErasedType(type);
-            try {
-                MapWith mapWith = erasedType.getAnnotation(MapWith.class);
-                return mapWith == null
-                        ? Optional.empty()
-                        : Optional.of(mapWith.value().newInstance());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            MapWith mapWith = erasedType.getAnnotation(MapWith.class);
+            return mapWith == null
+                ? Optional.empty()
+                : Optional.of(Unchecked.supplier(mapWith.value()::newInstance).get());
         }
     }
 
