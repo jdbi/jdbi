@@ -1,4 +1,6 @@
 /*
+ * Copyright (c), Data Geekery GmbH, contact@datageekery.com
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,8 +44,7 @@ public class Sneaky {
             throw new UncheckedIOException((IOException) t);
         }
 
-        /* TODO original jool code, wat do?
-        // [#230] Clients will not expect needing to handle this.
+        /* TODO original jool code, wat do? https://github.com/jOOQ/jOOL/issues/230
         if (t instanceof InterruptedException) {
             Thread.currentThread().interrupt();
         }
