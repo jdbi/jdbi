@@ -20,6 +20,7 @@ import java.lang.reflect.Proxy;
 
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
 import org.jdbi.v3.core.internal.Throwables;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
@@ -37,7 +38,7 @@ class OnDemandExtensions {
     }
 
     private OnDemandExtensions() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     static <E> E create(Jdbi db, Class<E> extensionType) {

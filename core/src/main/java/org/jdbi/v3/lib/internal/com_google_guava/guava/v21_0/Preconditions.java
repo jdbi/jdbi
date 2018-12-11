@@ -14,10 +14,12 @@
 
 package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
+import org.jdbi.v3.core.internal.UtilityClassException;
+
 @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
 public final class Preconditions {
     private Preconditions() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     public static void checkArgument(boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {

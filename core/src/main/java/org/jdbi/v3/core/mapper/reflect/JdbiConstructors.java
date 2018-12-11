@@ -19,13 +19,14 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**
  * Utilities for {@link JdbiConstructor} annotation.
  */
 public class JdbiConstructors {
     private JdbiConstructors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

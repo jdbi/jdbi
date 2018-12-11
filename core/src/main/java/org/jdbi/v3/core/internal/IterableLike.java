@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
  */
 public class IterableLike {
     private IterableLike() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

@@ -16,13 +16,14 @@ package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
 
 public class Reflection {
     private Reflection() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     public static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {

@@ -18,7 +18,7 @@ import java.io.UncheckedIOException;
 
 public class Throwables {
     private Throwables() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**

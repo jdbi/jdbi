@@ -20,13 +20,14 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**
  * Factory methods for {@link Collector collectors} of optional types.
  */
 public class OptionalCollectors {
     private OptionalCollectors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**
