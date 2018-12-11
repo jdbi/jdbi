@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
@@ -112,5 +113,9 @@ public class PostgresPlugin implements JdbiPlugin {
         // legacy unqualified HSTORE
         jdbi.registerArgument(new HStoreArgumentFactory()::build);
         jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
+
+        if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) { // optional integration
+            jdbi.registerArgument(new JsonArgumentFactory());
+        }
     }
 }

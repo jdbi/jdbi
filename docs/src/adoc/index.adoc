@@ -3715,6 +3715,41 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
+=== Jackson 2
+
+This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` in your database.
+Currently tested with Postgres `json` types.
+
+[source,java]
+----
+// First, install the plugin and create a json column
+jdbi.installPlugin(new Jackson2Plugin());
+// You may need database support
+jdbi.installPlugin(new PostgresPlugin());
+jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper); // optional
+
+handle.execute("create table jsons (id serial not null, value json not null)");
+
+class Whozit {} // any Jackson serializable type
+
+// Then, you can use @Json qualifying type:
+interface JsonDao {
+    @SqlUpdate("insert into jsons (json) values(:value)")
+    int insert(@Json Whozit value); // on parameters
+
+    @SqlQuery("select value from jsons")
+    @Json // on result types
+    List<Whozit> select();
+}
+
+// It also works on bean or property-mapped properties:
+class MyBean {
+    private final Whozit property;
+    @Json
+    public Whozit getProperty() { return ...; }
+}
+----
+
 === JodaTime
 
 This plugin adds support for using joda-time's `DateTime` type.

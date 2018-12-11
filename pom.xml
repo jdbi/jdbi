@@ -48,8 +48,10 @@
         <module>commons-text</module>
         <module>freemarker</module>
         <module>guava</module>
+        <module>jackson2</module>
         <module>jodatime2</module>
         <module>jpa</module>
+        <module>json</module>
         <module>postgres</module>
         <module>spring4</module>
         <module>docs</module>
@@ -81,6 +83,7 @@
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.checkstyle.version>8.10</dep.checkstyle.version>
         <dep.dokka.version>0.9.17</dep.dokka.version>
+        <dep.jackson2.version>2.6.0</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
@@ -124,12 +127,22 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jackson2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-json</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -247,6 +260,22 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${dep.jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${dep.jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${dep.jackson2.version}</version>
             </dependency>
 
             <dependency>
