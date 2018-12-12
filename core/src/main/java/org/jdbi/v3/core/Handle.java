@@ -461,7 +461,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param level the isolation level to use
      */
     public void setTransactionIsolation(TransactionIsolationLevel level) {
-        setTransactionIsolation(level.intValue());
+        if (level != TransactionIsolationLevel.UNKNOWN) {
+            setTransactionIsolation(level.intValue());
+        }
     }
 
     /**
@@ -471,11 +473,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public void setTransactionIsolation(int level) {
         try {
-            if (connection.getTransactionIsolation() == level) {
-                // already set, noop
-                return;
+            if (connection.getTransactionIsolation() != level) {
+                connection.setTransactionIsolation(level);
             }
-            connection.setTransactionIsolation(level);
         } catch (SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException(level, e);
         }

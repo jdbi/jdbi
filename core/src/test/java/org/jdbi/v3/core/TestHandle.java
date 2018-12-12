@@ -14,10 +14,14 @@
 package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestHandle {
     @Rule
@@ -61,5 +65,16 @@ public class TestHandle {
     public void testMrWinter() {
         final Handle h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE \"\u2603\" (pk int primary key)");
+    }
+
+    @Test
+    public void unknownTransactionLevelIsOk() {
+        Handle h = dbRule.openHandle();
+
+        assertThatThrownBy(() -> h.setTransactionIsolation(Integer.MIN_VALUE))
+            .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class);
+
+        assertThatCode(() -> h.setTransactionIsolation(TransactionIsolationLevel.UNKNOWN))
+            .doesNotThrowAnyException();
     }
 }
