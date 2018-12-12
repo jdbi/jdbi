@@ -399,7 +399,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X {
-        return withHandle(handle -> handle.<R, X>inTransaction(level, callback));
+        return withHandle(handle -> handle.inTransaction(level, callback));
     }
 
     /**

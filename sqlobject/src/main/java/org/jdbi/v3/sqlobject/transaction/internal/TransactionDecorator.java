@@ -55,11 +55,7 @@ public class TransactionDecorator implements HandlerDecorator {
             }
 
             try {
-                if (isolation == TransactionIsolationLevel.UNKNOWN) {
-                    return h.inTransaction(callback);
-                } else {
-                    return h.inTransaction(isolation, callback);
-                }
+                return h.inTransaction(isolation, callback);
             } finally {
                 if (flipReadOnly) {
                     h.setReadOnly(!readOnly);
