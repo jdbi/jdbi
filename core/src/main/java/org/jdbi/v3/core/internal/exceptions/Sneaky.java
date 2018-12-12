@@ -44,11 +44,9 @@ public class Sneaky {
             throw new UncheckedIOException((IOException) t);
         }
 
-        /* TODO original jool code, wat do? https://github.com/jOOQ/jOOL/issues/230
         if (t instanceof InterruptedException) {
             Thread.currentThread().interrupt();
         }
-        */
 
         throwEvadingChecks(t);
 
