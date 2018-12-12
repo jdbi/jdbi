@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.Constructor;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 import static java.util.Objects.requireNonNull;
-import static org.jdbi.v3.core.internal.Throwables.throwingOnlyUnchecked;
 
 class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
     private final Constructor<T> constructor;
@@ -28,7 +28,7 @@ class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
 
     @Override
     T newInstance(Object... params) {
-        return throwingOnlyUnchecked(() -> constructor.newInstance(params));
+        return Unchecked.<Object[], T>function(constructor::newInstance).apply(params);
     }
 
     @Override

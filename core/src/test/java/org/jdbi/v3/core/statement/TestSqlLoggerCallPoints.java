@@ -21,12 +21,13 @@ import java.util.function.Predicate;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class TestSqlLoggerCallPoints {
     private static final String CREATE = "create table foo(bar int primary key not null)";
@@ -68,14 +69,15 @@ public class TestSqlLoggerCallPoints {
     public void testStatementException() {
         h.execute(CREATE);
 
-        try {
-            h.createUpdate(INSERT_NULL).execute();
-            Assert.fail();
-        } catch (RuntimeException e) {
-            assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_NULL, INSERT_NULL);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
-            assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
-        }
+        Throwable e = catchThrowable(h.createUpdate(INSERT_NULL)::execute);
+
+        assertThat(e)
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseInstanceOf(SQLException.class);
+
+        assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_NULL, INSERT_NULL);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
+        assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
     }
 
     @Test
@@ -94,15 +96,12 @@ public class TestSqlLoggerCallPoints {
     public void testBatchException() {
         h.execute(CREATE);
 
-        try {
-            h.createBatch().add(INSERT_NULL).execute();
-            Assert.fail();
-        } catch (RuntimeException e) {
-            // unfortunately...
-            assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
-            assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
-        }
+        Throwable e = catchThrowable(h.createBatch().add(INSERT_NULL)::execute);
+
+        // unfortunately...
+        assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
+        assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
     }
 
     @Test
@@ -120,28 +119,22 @@ public class TestSqlLoggerCallPoints {
     public void testPreparedBatchException() {
         h.execute(CREATE);
 
-        try {
-            h.prepareBatch(INSERT_PREPARED).bindByType(0, null, Integer.class).execute();
-            Assert.fail();
-        } catch (RuntimeException e) {
-            assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
-            assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
-            assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
-        }
+        Throwable e = catchThrowable(h.prepareBatch(INSERT_PREPARED).bindByType(0, null, Integer.class)::execute);
+
+        assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, INSERT_PREPARED, INSERT_PREPARED);
+        assertThat(logger.getTimings()).hasSize(2).allMatch(IS_POSITIVE);
+        assertThat(logger.getExceptions()).containsExactly((SQLException) e.getCause());
     }
 
     @Test
     public void testNotSql() {
         String query = "herp derp";
 
-        try {
-            h.execute(query);
-            Assert.fail();
-        } catch (RuntimeException e) {
-            assertThat(logger.getRawSql()).isEmpty();
-            assertThat(logger.getTimings()).isEmpty();
-            assertThat(logger.getExceptions()).isEmpty();
-        }
+        assertThatThrownBy(() -> h.execute(query)).isNotNull();
+
+        assertThat(logger.getRawSql()).isEmpty();
+        assertThat(logger.getTimings()).isEmpty();
+        assertThat(logger.getExceptions()).isEmpty();
     }
 
     private static class TalkativeSqlLogger implements SqlLogger {

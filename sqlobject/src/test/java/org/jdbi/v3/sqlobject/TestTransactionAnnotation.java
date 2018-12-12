@@ -13,21 +13,19 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -35,14 +33,13 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class TestTransactionAnnotation {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private Handle handle;
 
@@ -59,15 +56,17 @@ public class TestTransactionAnnotation {
     }
 
     @Test
-    public void testTxFail() throws Exception {
+    public void testTxFail() {
         Dao dao = handle.attach(Dao.class);
 
-        exception.expectMessage("woof");
-        try {
-            dao.failed(1, "Ian");
-        } finally {
-            assertThat(dao.findById(1)).isNull();
-        }
+        Throwable ex = catchThrowable(() -> dao.fail(1, "Ian"));
+
+        assertThat(ex).isInstanceOf(UncheckedIOException.class);
+        assertThat(ex.getCause())
+            .isInstanceOf(IOException.class)
+            .hasMessage("woof");
+
+        assertThat(dao.findById(1)).isNull();
     }
 
     @Test
@@ -92,33 +91,20 @@ public class TestTransactionAnnotation {
         final CountDownLatch committed = new CountDownLatch(1);
 
         final Other o = dbRule.getJdbi().onDemand(Other.class);
-        Future<Void> rf = es.submit(() -> {
-            try {
-                o.insert(inserted, 1, "diwaker");
-                committed.countDown();
+        Future<Void> rf = es.submit(Unchecked.callable(() -> {
+            o.insert(inserted, 1, "diwaker");
+            committed.countDown();
+            return null;
+        }));
 
-                return null;
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail(e.getMessage());
-                return null;
-            }
-        });
+        Future<Void> tf = es.submit(Unchecked.callable(() -> {
+            inserted.await();
+            committed.await();
 
-        Future<Void> tf = es.submit(() -> {
-            try {
-                inserted.await();
-                committed.await();
-
-                Something s2 = o.find(1);
-                assertThat(s2).isEqualTo(new Something(1, "diwaker"));
-                return null;
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail(e.getMessage());
-                return null;
-            }
-        });
+            Something s2 = o.find(1);
+            assertThat(s2).isEqualTo(new Something(1, "diwaker"));
+            return null;
+        }));
 
         rf.get();
         tf.get();
@@ -156,7 +142,7 @@ public class TestTransactionAnnotation {
         }
 
         @Transaction
-        default Something failed(int id, String name) throws IOException {
+        default Something fail(int id, String name) throws IOException {
             insert(id, name);
             throw new IOException("woof");
         }
