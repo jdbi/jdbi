@@ -458,6 +458,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Set the transaction isolation level on the underlying connection.
      *
+     * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver
+     *
      * @param level the isolation level to use
      */
     public void setTransactionIsolation(TransactionIsolationLevel level) {
