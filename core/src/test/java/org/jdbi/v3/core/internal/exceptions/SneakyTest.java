@@ -16,7 +16,6 @@ package org.jdbi.v3.core.internal.exceptions;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,7 +48,7 @@ public class SneakyTest {
 
     @Test
     public void genericCheckedExceptionThrownDirectly() {
-        Exception ex = new SQLException();
+        Exception ex = new WhateverException();
 
         assertThatThrownBy(() -> Sneaky.throwAnyway(ex))
             .isSameAs(ex);
@@ -57,10 +56,12 @@ public class SneakyTest {
 
     @Test
     public void invocationTargetExceptionIsUnwrapped() {
-        Throwable cause = new OutOfMemoryError();
+        Throwable cause = new WhateverException();
         InvocationTargetException ite = new InvocationTargetException(cause);
 
         assertThatThrownBy(() -> Sneaky.throwAnyway(ite))
             .isSameAs(cause);
     }
+
+    public static class WhateverException extends Exception {}
 }
