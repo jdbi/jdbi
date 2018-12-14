@@ -158,4 +158,13 @@ public class TestMessageFormatTemplateEngine {
         assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx))
             .isEqualTo("select * from foo where name = 'john' and stuff = '{0}'");
     }
+
+    @Test
+    public void deprecationReason() {
+        attributes.put("0", 1_000_000);
+
+        assertThat(templateEngine.render("select * from foo where name = ''{0}''", ctx))
+            .describedAs("outputs decimal separators")
+            .isEqualTo("select * from foo where name = '1,000,000'");
+    }
 }
