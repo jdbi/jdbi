@@ -21,6 +21,8 @@ import java.util.Set;
 /**
  * Uses the equivalent of {@link MessageFormat#format(String, Object...)} as a template engine.
  *
+ * <p><b>Caution:</b> {@link MessageFormat} formats integers with decimal separators, e.g. <code>1000</code> &rarr; <code>"1,000"</code>.</p>
+ *
  * You must use "0", "1", "2", etc as keys: start at 0, increment by 1. Keys must be numerically unique. You must {@link org.jdbi.v3.core.config.Configurable#define(String, Object)} as many key/value pairs as there are placeholders in the pattern string.
  *
  * You may {@code define} key/value pairs in any order. Keys may contain leading {@code '0'}s.
