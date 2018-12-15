@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.jackson2;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.TestJsonPlugin;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.testing.JdbiRule;
@@ -28,7 +31,12 @@ public class TestJackson2Plugin extends TestJsonPlugin {
         setJdbi(db.getJdbi().installPlugin(new Jackson2Plugin()));
     }
 
-//    public static class Whozit {
+    @Override
+    protected Class<? extends BaseBeany> getBeanyClass() {
+        return JacksonBeany.class;
+    }
+
+    //    public static class Whozit {
 //        private final String food;
 //        private final int bitcoins;
 //
@@ -56,68 +64,45 @@ public class TestJackson2Plugin extends TestJsonPlugin {
 //        List<Whozit> select();
 //    }
 //
-//    public static class Beany {
-//        private int id;
-//        private Nested1 nested1;
-//        private Nested2 nested2;
-//
-//        public Beany() {}
-//        Beany(int id, int a, String b) {
-//            this.id = id;
-//            this.nested1 = new Nested1(a);
-//            this.nested2 = new Nested2(b);
-//        }
-//
-//        public int getId() {
-//            return id;
-//        }
-//
-//        public void setId(int id) {
-//            this.id = id;
-//        }
-//
-//        @Json
-//        public Nested1 getNested1() {
-//            return nested1;
-//        }
-//
-//        public void setNested1(Nested1 nested1) {
-//            this.nested1 = nested1;
-//        }
-//
-//        @Json
-//        public Nested2 getNested2() {
-//            return nested2;
-//        }
-//
-//        public void setNested2(Nested2 nested2) {
-//            this.nested2 = nested2;
-//        }
-//    }
-//
-//    public static class Nested1 {
-//        private final int a;
-//
-//        @JsonCreator
-//        public Nested1(@JsonProperty("a") int a) {
-//            this.a = a;
-//        }
-//
-//        public int getA() {
-//            return a;
-//        }
-//    }
-//
-//    public static class Nested2 {
-//        private final String b;
-//
-//        @JsonCreator
-//        public Nested2(@JsonProperty("b") String b) {
-//            this.b = b;
-//        }
-//
-//        public String getB() {
-//            return b;
-//        }
-//    }
+    public static class JacksonBeany extends BaseBeany {
+        // jackson apparently determines mapping based on fields, not methods, so we have to completely rewrite the parent class...
+        private JacksonNested1 nested1;
+        private JacksonNested2 nested2;
+
+        public JacksonBeany() {}
+
+        @Json
+        @Override
+        public JacksonNested1 getNested1() {
+            return nested1;
+        }
+
+        public void setNested1(JacksonNested1 nested1) {
+            this.nested1 = nested1;
+        }
+
+        @Json
+        @Override
+        public JacksonNested2 getNested2() {
+            return nested2;
+        }
+
+        public void setNested2(JacksonNested2 nested2) {
+            this.nested2 = nested2;
+        }
+    }
+
+    public static class JacksonNested1 extends BaseNested1 {
+        @JsonCreator
+        public JacksonNested1(@JsonProperty("a") int a) {
+            super(a);
+        }
+    }
+
+    public static class JacksonNested2 extends BaseNested2 {
+        @JsonCreator
+        public JacksonNested2(@JsonProperty("b") String b) {
+            super(b);
+        }
+    }
 }

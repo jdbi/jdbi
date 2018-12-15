@@ -56,7 +56,7 @@ public abstract class TestJsonPlugin {
                 .execute()).isEqualTo(1);
 
             BaseBeany beany = h.createQuery("select * from beany")
-                .mapToBean(BaseBeany.class)
+                .mapToBean(getBeanyClass())
                 .findOnly();
 
             assertThat(beany.getId()).isEqualTo(42);
@@ -64,6 +64,8 @@ public abstract class TestJsonPlugin {
             assertThat(beany.getNested2().getB()).isEqualTo("quux");
         });
     }
+
+    protected abstract Class<? extends BaseBeany> getBeanyClass();
 
     @Test
     public void testNull() {
@@ -114,7 +116,7 @@ public abstract class TestJsonPlugin {
 
         public BaseBeany() {}
 
-        BaseBeany(int id, int a, String b) {
+        private BaseBeany(int id, int a, String b) {
             this.id = id;
             this.nested1 = new BaseNested1(a);
             this.nested2 = new BaseNested2(b);
