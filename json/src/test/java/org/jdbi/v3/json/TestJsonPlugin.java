@@ -32,12 +32,14 @@ public abstract class TestJsonPlugin {
     }
 
     @Test
-    public void testJsonMapping() {
+    public void testSqlObject() {
         jdbi.useHandle(h -> {
-            h.execute("create table whozits (id serial primary key, whozit json not null)");
-            final BaseJsonWhozitDao dao = h.attach(getDaoClass());
-            dao.insert(new BaseWhozit("yams", 42));
-            dao.insert(new BaseWhozit("apples", 24));
+            h.execute("create table subjects (id serial primary key, subject json not null)");
+
+            BaseDao<BaseDaoSubject> dao = h.attach(getDaoClass());
+
+            dao.insert(new BaseDaoSubject("yams", 42));
+            dao.insert(new BaseDaoSubject("apples", 24));
 
             assertThat(dao.select())
                 .extracting("food", "bitcoins")
@@ -47,18 +49,18 @@ public abstract class TestJsonPlugin {
         });
     }
 
-    protected abstract Class<? extends BaseJsonWhozitDao> getDaoClass();
+    protected abstract Class<? extends BaseDao> getDaoClass();
 
     @Test
-    public void testJsonNested() {
+    public void testFluentApiWithNesting() {
         jdbi.useHandle(h -> {
-            h.execute("create table beany (id serial primary key, nested1 json, nested2 json)");
-            assertThat(h.createUpdate("insert into beany(id, nested1, nested2) values (:id, :nested1, :nested2)")
-                .bindBean(new BaseBeany(42, 64, "quux"))
+            h.execute("create table bean (id serial primary key, nested1 json, nested2 json)");
+            assertThat(h.createUpdate("insert into bean(id, nested1, nested2) values (:id, :nested1, :nested2)")
+                .bindBean(new BaseBean(42, 64, "quux"))
                 .execute()).isEqualTo(1);
 
-            BaseBeany beany = h.createQuery("select * from beany")
-                .mapToBean(getBeanyClass())
+            BaseBean beany = h.createQuery("select * from bean")
+                .mapToBean(getBeanClass())
                 .findOnly();
 
             assertThat(beany.getId()).isEqualTo(42);
@@ -67,32 +69,32 @@ public abstract class TestJsonPlugin {
         });
     }
 
-    protected abstract Class<? extends BaseBeany> getBeanyClass();
+    protected abstract Class<? extends BaseBean> getBeanClass();
 
     @Test
     public void testNull() {
         jdbi.useHandle(h -> {
-            h.execute("create table whozits (id serial primary key, whozit json)");
+            h.execute("create table subjects (id serial primary key, subject json)");
 
-            final BaseJsonWhozitDao<BaseWhozit> dao = h.attach(BaseJsonWhozitDao.class);
+            BaseDao<BaseDaoSubject> dao = h.attach(BaseDao.class);
 
             dao.insert(null);
 
-            assertThat(h.createQuery("select whozit from whozits")
+            assertThat(h.createQuery("select subject from subjects")
                 .mapTo(String.class)
                 .findOnly())
                 .isNull();
 
             assertThat(dao.select())
-                .containsExactly((BaseWhozit) null);
+                .containsExactly((BaseDaoSubject) null);
         });
     }
 
-    public static class BaseWhozit {
+    public static class BaseDaoSubject {
         private final String food;
         private final int bitcoins;
 
-        public BaseWhozit(String food, int bitcoins) {
+        public BaseDaoSubject(String food, int bitcoins) {
             this.food = food;
             this.bitcoins = bitcoins;
         }
@@ -106,23 +108,23 @@ public abstract class TestJsonPlugin {
         }
     }
 
-    public interface BaseJsonWhozitDao<T extends BaseWhozit> {
-        @SqlUpdate("insert into whozits (whozit) values(?)")
+    public interface BaseDao<T extends BaseDaoSubject> {
+        @SqlUpdate("insert into subjects (subject) values(?)")
         int insert(@Json T value);
 
-        @SqlQuery("select whozit from whozits")
+        @SqlQuery("select subject from subjects")
         @Json
         List<T> select();
     }
 
-    public static class BaseBeany {
+    public static class BaseBean {
         private int id;
         private BaseNested1 nested1;
         private BaseNested2 nested2;
 
-        public BaseBeany() {}
+        public BaseBean() {}
 
-        private BaseBeany(int id, int a, String b) {
+        private BaseBean(int id, int a, String b) {
             this.id = id;
             this.nested1 = new BaseNested1(a);
             this.nested2 = new BaseNested2(b);

@@ -32,30 +32,30 @@ public class TestJackson2Plugin extends TestJsonPlugin {
     }
 
     @Override
-    protected Class<? extends BaseBeany> getBeanyClass() {
-        return JacksonBeany.class;
+    protected Class<? extends BaseBean> getBeanClass() {
+        return JacksonBean.class;
     }
 
     @Override
-    protected Class<? extends TestJsonPlugin.BaseJsonWhozitDao> getDaoClass() {
-        return JacksonJsonWhozitDao.class;
+    protected Class<? extends BaseDao> getDaoClass() {
+        return JacksonDao.class;
     }
 
-    public static class JacksonWhozit extends BaseWhozit {
+    public static class JacksonDaoSubject extends BaseDaoSubject {
         @JsonCreator
-        public JacksonWhozit(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
+        public JacksonDaoSubject(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
             super(food, bitcoins);
         }
     }
 
-    public interface JacksonJsonWhozitDao extends BaseJsonWhozitDao<JacksonWhozit> {}
+    public interface JacksonDao extends BaseDao<JacksonDaoSubject> {}
 
-    public static class JacksonBeany extends BaseBeany {
+    public static class JacksonBean extends BaseBean {
         // jackson apparently determines mapping based on fields, not methods, so we have to completely rewrite the parent class...
         private JacksonNested1 nested1;
         private JacksonNested2 nested2;
 
-        public JacksonBeany() {}
+        public JacksonBean() {}
 
         @Json
         @Override
