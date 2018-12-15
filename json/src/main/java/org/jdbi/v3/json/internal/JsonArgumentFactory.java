@@ -29,7 +29,7 @@ class JsonArgumentFactory implements ArgumentFactory {
         return Optional.of((p, s, c) -> {
             c.findArgumentFor(
                     Json.class,
-                    c.getConfig(JsonConfig.class).getImpl().toJson(type, value, c))
+                    c.getConfig(JsonConfig.class).getJsonMapper().toJson(type, value, c))
                 .orElseThrow(() -> new IllegalStateException("No Json binder registered, did you install e.g. PostgresPlugin?"))
                 .apply(p, s, c);
         });
