@@ -99,6 +99,19 @@ public class TestJackson2Plugin {
         assertThat(beany.getNested2().getB()).isEqualTo("quux");
     }
 
+    @Test
+    public void testNull() {
+        h.execute("create table whozits (id serial primary key, whozit json)");
+        final JsonDao dao = h.attach(JsonDao.class);
+        dao.insert(null);
+        assertThat(h.createQuery("select whozit from whozits")
+                .mapTo(String.class)
+                .findOnly())
+            .isNull();
+        assertThat(dao.select())
+            .containsExactly(new Whozit[] {null});
+    }
+
     public static class Beany {
         private int id;
         private N1 nested1;
