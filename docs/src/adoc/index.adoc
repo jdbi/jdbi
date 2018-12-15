@@ -599,11 +599,14 @@ LocalDate releaseDate = handle.createQuery(
 
 === Templating
 
-Queries usually take form step-by-step. Rarely can a query be written in source code and executed verbatim, without any changes. The form of preparation everyone knows already is _parameterizing_ the query and binding arguments to it separately. This binding step is a transformation that turns the parameterized query string (`... where foo = ?`) into one containing actual values (`... where foo = 'bar'`).
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
 
-Arguments are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
 
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and... variable substitution. Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
 
 [source,java]
 ----
