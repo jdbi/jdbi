@@ -18,7 +18,7 @@
     - Support for NVARCHAR columns, using the @NVarchar qualifying annotation
     - Support for Postgres MACADDR columns, using the @MacAddr qualifying annotation
     - Support for HSTORE columns, using the @HStore annotation
-    - @Json type qualifier with Jackson 2.0 bindings
+    - @Json type qualifier with Jackson 2.0 and Gson 2.8 bindings
   - Oracle DB support changes
     - Due to ongoing stability problems with Oracle's Maven servers, we have split the
       jdbi3-oracle12 artifact out of the main project, to a new home at
