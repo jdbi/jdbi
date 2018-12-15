@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-json</artifactId>
-    <name>jdbi3 jackson2</name>
+    <name>jdbi3 json</name>
     <description>Jdbi Json column support</description>
 
     <dependencies>
