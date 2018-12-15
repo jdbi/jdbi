@@ -41,38 +41,10 @@ public class TestJackson2Plugin {
         h = db.getHandle();
     }
 
-    public static class Whozit {
-        private final String food;
-        private final int bitcoins;
-
-        @JsonCreator
-        public Whozit(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
-            this.food = food;
-            this.bitcoins = bitcoins;
-        }
-
-        public String getFood() {
-            return food;
-        }
-
-        public int getBitcoins() {
-            return bitcoins;
-        }
-    }
-
-    interface JsonDao {
-        @SqlUpdate("insert into whozits (whozit) values(?)")
-        int insert(@Json Whozit value);
-
-        @SqlQuery("select whozit from whozits")
-        @Json
-        List<Whozit> select();
-    }
-
     @Test
     public void testJsonMapping() {
         h.execute("create table whozits (id serial primary key, whozit json not null)");
-        final JsonDao dao = h.attach(JsonDao.class);
+        final JsonWhozitDao dao = h.attach(JsonWhozitDao.class);
         dao.insert(new Whozit("yams", 42));
         dao.insert(new Whozit("apples", 24));
 
@@ -102,26 +74,54 @@ public class TestJackson2Plugin {
     @Test
     public void testNull() {
         h.execute("create table whozits (id serial primary key, whozit json)");
-        final JsonDao dao = h.attach(JsonDao.class);
+        final JsonWhozitDao dao = h.attach(JsonWhozitDao.class);
         dao.insert(null);
         assertThat(h.createQuery("select whozit from whozits")
                 .mapTo(String.class)
                 .findOnly())
             .isNull();
         assertThat(dao.select())
-            .containsExactly(new Whozit[] {null});
+            .containsExactly((Whozit) null);
+    }
+
+    public static class Whozit {
+        private final String food;
+        private final int bitcoins;
+
+        @JsonCreator
+        public Whozit(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
+            this.food = food;
+            this.bitcoins = bitcoins;
+        }
+
+        public String getFood() {
+            return food;
+        }
+
+        public int getBitcoins() {
+            return bitcoins;
+        }
+    }
+
+    interface JsonWhozitDao {
+        @SqlUpdate("insert into whozits (whozit) values(?)")
+        int insert(@Json Whozit value);
+
+        @SqlQuery("select whozit from whozits")
+        @Json
+        List<Whozit> select();
     }
 
     public static class Beany {
         private int id;
-        private N1 nested1;
-        private N2 nested2;
+        private Nested1 nested1;
+        private Nested2 nested2;
 
         public Beany() {}
         Beany(int id, int a, String b) {
             this.id = id;
-            this.nested1 = new N1(a);
-            this.nested2 = new N2(b);
+            this.nested1 = new Nested1(a);
+            this.nested2 = new Nested2(b);
         }
 
         public int getId() {
@@ -133,29 +133,29 @@ public class TestJackson2Plugin {
         }
 
         @Json
-        public N1 getNested1() {
+        public Nested1 getNested1() {
             return nested1;
         }
 
-        public void setNested1(N1 nested1) {
+        public void setNested1(Nested1 nested1) {
             this.nested1 = nested1;
         }
 
         @Json
-        public N2 getNested2() {
+        public Nested2 getNested2() {
             return nested2;
         }
 
-        public void setNested2(N2 nested2) {
+        public void setNested2(Nested2 nested2) {
             this.nested2 = nested2;
         }
     }
 
-    public static class N1 {
+    public static class Nested1 {
         private final int a;
 
         @JsonCreator
-        public N1(@JsonProperty("a") int a) {
+        public Nested1(@JsonProperty("a") int a) {
             this.a = a;
         }
 
@@ -164,11 +164,11 @@ public class TestJackson2Plugin {
         }
     }
 
-    public static class N2 {
+    public static class Nested2 {
         private final String b;
 
         @JsonCreator
-        public N2(@JsonProperty("b") String b) {
+        public Nested2(@JsonProperty("b") String b) {
             this.b = b;
         }
 
