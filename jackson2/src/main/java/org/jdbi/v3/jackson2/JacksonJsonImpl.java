@@ -19,13 +19,13 @@ import java.lang.reflect.Type;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.json.internal.JsonMapperImpl;
+import org.jdbi.v3.json.internal.JsonMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-class JacksonJsonImpl implements JsonMapperImpl {
+class JacksonJsonImpl implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, StatementContext ctx) {
         try {
@@ -36,7 +36,7 @@ class JacksonJsonImpl implements JsonMapperImpl {
     }
 
     @Override
-    public <T> T fromJson(Type type, String json, StatementContext ctx) {
+    public Object fromJson(Type type, String json, StatementContext ctx) {
         try {
             return getMapper(ctx).readValue(json, new TypeReference<Object>() {
                 @Override

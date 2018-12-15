@@ -30,7 +30,7 @@ import org.jdbi.v3.meta.Beta;
 public class Jackson2Plugin extends AbstractJsonPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(JsonConfig.class).setImpl(new JacksonJsonImpl());
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JacksonJsonImpl());
         super.customizeJdbi(jdbi);
     }
 }

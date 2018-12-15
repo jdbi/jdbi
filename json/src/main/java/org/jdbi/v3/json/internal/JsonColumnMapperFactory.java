@@ -33,7 +33,7 @@ class JsonColumnMapperFactory implements ColumnMapperFactory {
                 () -> c.findColumnMapperFor(QualifiedType.of(Json.class)).map(JsonColumnMapperFactory::bludgeon),
                 () -> c.findColumnMapperFor(String.class))
                     .orElseThrow(() -> new IllegalStateException("No column mapper found for '@Json String' or 'String', this really shouldn't happen..."));
-            return c.getConfig(JsonConfig.class).getImpl().fromJson(type, jsonStringMapper.map(r, i, c), c);
+            return c.getConfig(JsonConfig.class).getJsonMapper().fromJson(type, jsonStringMapper.map(r, i, c), c);
         });
     }
 
