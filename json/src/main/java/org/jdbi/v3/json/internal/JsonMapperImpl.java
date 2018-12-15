@@ -19,5 +19,5 @@ import org.jdbi.v3.core.statement.StatementContext;
 
 public interface JsonMapperImpl {
     String toJson(Type type, Object value, StatementContext ctx);
-    <T> T fromJson(Type type, String json, StatementContext ctx);
+    Object fromJson(Type type, String json, StatementContext ctx);
 }

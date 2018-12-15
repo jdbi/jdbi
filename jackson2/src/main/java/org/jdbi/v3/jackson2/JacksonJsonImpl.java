@@ -36,7 +36,7 @@ class JacksonJsonImpl implements JsonMapperImpl {
     }
 
     @Override
-    public <T> T fromJson(Type type, String json, StatementContext ctx) {
+    public Object fromJson(Type type, String json, StatementContext ctx) {
         try {
             return getMapper(ctx).readValue(json, new TypeReference<Object>() {
                 @Override
