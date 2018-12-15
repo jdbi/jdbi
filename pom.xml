@@ -147,6 +147,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-json</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-kotlin</artifactId>
                 <version>${project.version}</version>
             </dependency>
