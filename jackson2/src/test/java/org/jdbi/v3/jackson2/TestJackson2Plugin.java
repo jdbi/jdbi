@@ -36,34 +36,20 @@ public class TestJackson2Plugin extends TestJsonPlugin {
         return JacksonBeany.class;
     }
 
-    //    public static class Whozit {
-//        private final String food;
-//        private final int bitcoins;
-//
-//        @JsonCreator
-//        public Whozit(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
-//            this.food = food;
-//            this.bitcoins = bitcoins;
-//        }
-//
-//        public String getFood() {
-//            return food;
-//        }
-//
-//        public int getBitcoins() {
-//            return bitcoins;
-//        }
-//    }
-//
-//    interface JsonWhozitDao {
-//        @SqlUpdate("insert into whozits (whozit) values(?)")
-//        int insert(@Json Whozit value);
-//
-//        @SqlQuery("select whozit from whozits")
-//        @Json
-//        List<Whozit> select();
-//    }
-//
+    @Override
+    protected Class<? extends TestJsonPlugin.BaseJsonWhozitDao> getDaoClass() {
+        return JacksonJsonWhozitDao.class;
+    }
+
+    public static class JacksonWhozit extends BaseWhozit {
+        @JsonCreator
+        public JacksonWhozit(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
+            super(food, bitcoins);
+        }
+    }
+
+    public interface JacksonJsonWhozitDao extends BaseJsonWhozitDao<JacksonWhozit> {}
+
     public static class JacksonBeany extends BaseBeany {
         // jackson apparently determines mapping based on fields, not methods, so we have to completely rewrite the parent class...
         private JacksonNested1 nested1;

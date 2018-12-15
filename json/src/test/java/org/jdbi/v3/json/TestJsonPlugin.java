@@ -35,7 +35,7 @@ public abstract class TestJsonPlugin {
     public void testJsonMapping() {
         jdbi.useHandle(h -> {
             h.execute("create table whozits (id serial primary key, whozit json not null)");
-            final BaseJsonWhozitDao dao = h.attach(BaseJsonWhozitDao.class);
+            final BaseJsonWhozitDao dao = h.attach(getDaoClass());
             dao.insert(new BaseWhozit("yams", 42));
             dao.insert(new BaseWhozit("apples", 24));
 
@@ -46,6 +46,8 @@ public abstract class TestJsonPlugin {
                     new Tuple("apples", 24));
         });
     }
+
+    protected abstract Class<? extends BaseJsonWhozitDao> getDaoClass();
 
     @Test
     public void testJsonNested() {
@@ -71,12 +73,16 @@ public abstract class TestJsonPlugin {
     public void testNull() {
         jdbi.useHandle(h -> {
             h.execute("create table whozits (id serial primary key, whozit json)");
-            final BaseJsonWhozitDao dao = h.attach(BaseJsonWhozitDao.class);
+
+            final BaseJsonWhozitDao<BaseWhozit> dao = h.attach(BaseJsonWhozitDao.class);
+
             dao.insert(null);
+
             assertThat(h.createQuery("select whozit from whozits")
                 .mapTo(String.class)
                 .findOnly())
                 .isNull();
+
             assertThat(dao.select())
                 .containsExactly((BaseWhozit) null);
         });
@@ -100,13 +106,13 @@ public abstract class TestJsonPlugin {
         }
     }
 
-    interface BaseJsonWhozitDao {
+    public interface BaseJsonWhozitDao<T extends BaseWhozit> {
         @SqlUpdate("insert into whozits (whozit) values(?)")
-        int insert(@Json BaseWhozit value);
+        int insert(@Json T value);
 
         @SqlQuery("select whozit from whozits")
         @Json
-        List<BaseWhozit> select();
+        List<T> select();
     }
 
     public static class BaseBeany {
