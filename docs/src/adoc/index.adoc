@@ -5233,13 +5233,14 @@ SqlParser parser = (sql, ctx) -> {
 jdbi.setParser(parser);
 ----
 
-=== TimingCollector
+=== SqlLogger
 
-The *TimingCollector* interface is called after executing each statement
-and given the statement context and duration of execution in nanoseconds.
+The link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] interface is called before and after executing each statement,
+and given the current `StatementContext`, to log any relevant information desired.
 
-This interface isn't completely thought out yet; the developers welcome
-feedback on how to improve timing collection.
+[NOTE]
+The time information in `StatementContext` is based on the `Clock` set in
+the link:{jdbidocs}/core/Time.html[Time^] configuration.
 
 === ResultProducer
 
