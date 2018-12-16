@@ -14,7 +14,9 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
+import org.jdbi.v3.core.Time;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 class SqlLoggerUtil {
@@ -23,18 +25,20 @@ class SqlLoggerUtil {
     }
 
     static <T> T wrap(SqlLoggable<T> r, StatementContext ctx, SqlLogger logger) throws SQLException {
+        Clock clock = ctx.getConfig(Time.class).getClock();
+
         try {
-            ctx.setExecutionMoment(Instant.now());
+            ctx.setExecutionMoment(Instant.now(clock));
             logger.logBeforeExecution(ctx);
 
             T result = r.invoke();
 
-            ctx.setCompletionMoment(Instant.now());
+            ctx.setCompletionMoment(Instant.now(clock));
             logger.logAfterExecution(ctx);
 
             return result;
         } catch (SQLException e) {
-            ctx.setExceptionMoment(Instant.now());
+            ctx.setExceptionMoment(Instant.now(clock));
             logger.logException(ctx, e);
             throw e;
         }
