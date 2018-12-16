@@ -16,10 +16,17 @@ package org.jdbi.v3.sqlobject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Objects;
+import org.jdbi.v3.core.Time;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -31,94 +38,122 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link Timestamped} annotation
  */
 public class TestTimestamped {
-    public PersonDAO personDAO;
-
+    private static final ZonedDateTime T0 = LocalDate.of(2018, Month.JANUARY, 1).atTime(LocalTime.of(12, 0, 0)).atZone(ZoneOffset.UTC);
+    private static final Timestamp T0_TIMESTAMP = Timestamp.from(T0.toInstant());
     @Rule
     public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
+    @Rule
+    public MockitoRule mockito = MockitoJUnit.rule();
+    @Mock
+    private Clock clock;
+
+    private PersonDAO personDAO;
+    private VerifyingLogger logger;
 
     @Before
     public void before() {
+        when(clock.instant()).thenReturn(T0.toInstant());
+        when(clock.getZone()).thenReturn(T0.getZone());
+        dbRule.getJdbi().getConfig(Time.class).setClock(clock);
+
         personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
     }
 
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
-        // This is one way we can get the binding information of the executed query
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
-
         Person p = new Person("John", "Phiri");
         p.setId(1);
+
+        logNextTimestamp("now");
         personDAO.insert(p);
+        verifyLastTimestamp(T0);
 
-        // Clear the timing colletor
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
-
-        Person found = personDAO.get(1);
-
-        assertThat(found.getCreated()).isNotNull();
-        assertThat(found.getModified()).isNotNull();
+        Person inserted = personDAO.get(1);
+        assertThat(inserted.getCreated()).isEqualTo(T0_TIMESTAMP);
+        assertThat(inserted.getModified()).isEqualTo(T0_TIMESTAMP);
     }
 
     @Test
     public void shouldAllowCustomTimestampParameter() {
-        LocalDateTime timeBefore = LocalDateTime.now().minusMinutes(1);
-
         Person p = new Person("John", "Phiri");
         p.setId(1);
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("createdAt", ctx)).isPresent());
 
+        logNextTimestamp("createdAt");
         personDAO.insertWithCustomTimestampFields(p);
+        verifyLastTimestamp(T0);
 
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
-
-        Person fetched = personDAO.get(1);
-
-        assertThat(p.getFirstName()).isEqualTo(fetched.getFirstName());
-        assertThat(p.getLastName()).isEqualTo(fetched.getLastName());
-        assertThat(fetched.getCreated()).isNotNull();
-        assertThat(fetched.getModified()).isNotNull();
-
-        assertThat(fetched.getCreated()).isEqualTo(fetched.getModified());
-
-        assertThat(timeBefore).isBefore(fetched.getCreated().toLocalDateTime());
+        Person inserted = personDAO.get(1);
+        assertThat(p.getFirstName()).isEqualTo(inserted.getFirstName());
+        assertThat(p.getLastName()).isEqualTo(inserted.getLastName());
+        assertThat(inserted.getCreated()).isEqualTo(T0_TIMESTAMP);
+        assertThat(inserted.getModified()).isEqualTo(T0_TIMESTAMP);
     }
 
     @Test
     public void shouldUpdateModifiedTimestamp() {
-        Person p = new Person("John", "Phiri");
 
+        Person p = new Person("John", "Phiri");
         p.setId(3);
 
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
-
+        logNextTimestamp("now");
         personDAO.insert(p);
+        verifyLastTimestamp(T0);
 
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        when(clock.instant()).thenReturn(T0.plusSeconds(10).toInstant());
 
         Person personAfterCreate = personDAO.get(3);
-
         personAfterCreate.setLastName("Banda");
 
         personDAO.updatePerson(personAfterCreate);
+        verifyLastTimestamp(T0.plusSeconds(10));
 
         Person personAfterUpdate = personDAO.get(3);
 
         assertThat(personAfterUpdate.getLastName()).isEqualToIgnoringCase("Banda");
+        assertThat(personAfterUpdate.getCreated())
+            .isEqualTo(T0_TIMESTAMP)
+            .isEqualTo(personAfterCreate.getCreated());
 
-        assertThat(personAfterUpdate.getCreated()).isEqualTo(personAfterCreate.getCreated());
+        assertThat(personAfterUpdate.getModified())
+            .isEqualTo(Timestamp.from(T0.plusSeconds(10).toInstant()));
+    }
 
-        assertThat(personAfterUpdate.getModified()).isAfter(personAfterCreate.getModified());
+    private void logNextTimestamp(String name) {
+        logger = new VerifyingLogger(name);
+        dbRule.getJdbi().setSqlLogger(logger);
+    }
+
+    private void verifyLastTimestamp(ZonedDateTime expected) {
+        assertThat(logger.found).isEqualTo(expected.toString());
+    }
+
+    // This is one way we can get the binding information of the executed query
+    private static class VerifyingLogger implements SqlLogger {
+        private final String name;
+        private String found;
+
+        private VerifyingLogger(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void logBeforeExecution(StatementContext context) {
+            context.getBinding().findForName(name, context)
+                // because it's an Argument
+                .ifPresent(v -> found = v.toString());
+        }
     }
 
     @RegisterRowMapper(PersonRowMapper.class)
@@ -223,25 +258,15 @@ public class TestTimestamped {
                 return false;
             }
 
-            Person person = (Person) o;
-
-            if (id != person.id) {
-                return false;
-            }
-            if (!firstName.equals(person.firstName)) {
-                return false;
-            }
-            return lastName != null ? lastName.equals(person.lastName) : person.lastName == null;
+            Person other = (Person) o;
+            return Objects.equals(id, other.id)
+                && Objects.equals(firstName, other.firstName)
+                && Objects.equals(lastName, other.lastName);
         }
 
         @Override
         public int hashCode() {
-            int result = id;
-            result = 31 * result + firstName.hashCode();
-            result = 31 * result + lastName.hashCode();
-            result = 31 * result + (created != null ? created.hashCode() : 0);
-            result = 31 * result + (modified != null ? modified.hashCode() : 0);
-            return result;
+            return Objects.hash(id, firstName, lastName, created, modified);
         }
     }
 }
