@@ -22,8 +22,8 @@
     </parent>
 
     <artifactId>jdbi3-spring4</artifactId>
-    <name>jdbi3 Spring 4</name>
-    <description>jdbi Spring 4 integration</description>
+    <name>jdbi3 Spring</name>
+    <description>jdbi Spring integration</description>
     <url>http://jdbi.org/</url>
 
     <licenses>
