@@ -22,15 +22,11 @@ import org.jdbi.v3.json.internal.JsonMapper;
 class GsonJsonImpl implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, StatementContext ctx) {
-        return value == null ? null : ctx.getConfig(Gson2Config.class).getGson().toJson(value);
+        return ctx.getConfig(Gson2Config.class).getGson().toJson(value);
     }
 
     @Override
     public Object fromJson(Type type, String json, StatementContext ctx) {
-        if (json == null) {
-            return null;
-        }
-
         try {
             return ctx.getConfig(Gson2Config.class).getGson().fromJson(json, type);
         } catch (JsonParseException e) {

@@ -29,9 +29,6 @@ class JacksonJsonImpl implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, StatementContext ctx) {
         try {
-            if (value == null) {
-                return null;
-            }
             return getMapper(ctx).writeValueAsString(value);
         } catch (JsonProcessingException e) {
             throw new UnableToCreateStatementException(e, ctx);
@@ -41,9 +38,6 @@ class JacksonJsonImpl implements JsonMapper {
     @Override
     public Object fromJson(Type type, String json, StatementContext ctx) {
         try {
-            if (json == null) {
-                return null;
-            }
             return getMapper(ctx).readValue(json, new TypeReference<Object>() {
                 @Override
                 public Type getType() {
