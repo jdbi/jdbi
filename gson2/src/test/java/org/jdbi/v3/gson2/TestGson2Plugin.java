@@ -25,18 +25,6 @@ public class TestGson2Plugin extends TestJsonPlugin {
 
     @Before
     public void before() {
-        setJdbi(db.getJdbi().installPlugin(new Gson2Plugin()));
+        jdbi = db.getJdbi().installPlugin(new Gson2Plugin());
     }
-
-    @Override
-    protected Class<? extends BaseBean> getBeanClass() {
-        return BaseBean.class;
-    }
-
-    @Override
-    protected Class<? extends BaseDao> getDaoClass() {
-        return GsonDao.class;
-    }
-
-    public interface GsonDao extends BaseDao<BaseDaoSubject> {}
 }

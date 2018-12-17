@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.jackson2;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.TestJsonPlugin;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class TestJackson2Plugin extends TestJsonPlugin {
     @Rule
@@ -28,67 +28,7 @@ public class TestJackson2Plugin extends TestJsonPlugin {
 
     @Before
     public void before() {
-        setJdbi(db.getJdbi().installPlugin(new Jackson2Plugin()));
-    }
-
-    @Override
-    protected Class<? extends BaseBean> getBeanClass() {
-        return JacksonBean.class;
-    }
-
-    @Override
-    protected Class<? extends BaseDao> getDaoClass() {
-        return JacksonDao.class;
-    }
-
-    public static class JacksonDaoSubject extends BaseDaoSubject {
-        @JsonCreator
-        public JacksonDaoSubject(@JsonProperty("food") String food, @JsonProperty("bitcoins") int bitcoins) {
-            super(food, bitcoins);
-        }
-    }
-
-    public interface JacksonDao extends BaseDao<JacksonDaoSubject> {}
-
-    public static class JacksonBean extends BaseBean {
-        // jackson apparently determines mapping based on fields, not methods, so we have to completely rewrite the parent class...
-        private JacksonNested1 nested1;
-        private JacksonNested2 nested2;
-
-        public JacksonBean() {}
-
-        @Json
-        @Override
-        public JacksonNested1 getNested1() {
-            return nested1;
-        }
-
-        public void setNested1(JacksonNested1 nested1) {
-            this.nested1 = nested1;
-        }
-
-        @Json
-        @Override
-        public JacksonNested2 getNested2() {
-            return nested2;
-        }
-
-        public void setNested2(JacksonNested2 nested2) {
-            this.nested2 = nested2;
-        }
-    }
-
-    public static class JacksonNested1 extends BaseNested1 {
-        @JsonCreator
-        public JacksonNested1(@JsonProperty("a") int a) {
-            super(a);
-        }
-    }
-
-    public static class JacksonNested2 extends BaseNested2 {
-        @JsonCreator
-        public JacksonNested2(@JsonProperty("b") String b) {
-            super(b);
-        }
+        jdbi = db.getJdbi().installPlugin(new Jackson2Plugin());
+        jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper().registerModule(new ParameterNamesModule()));
     }
 }

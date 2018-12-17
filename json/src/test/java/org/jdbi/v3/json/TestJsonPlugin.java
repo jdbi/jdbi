@@ -18,28 +18,22 @@ import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Ignore
 public abstract class TestJsonPlugin {
-    private Jdbi jdbi;
-
-    protected void setJdbi(Jdbi jdbi) {
-        this.jdbi = jdbi;
-    }
+    protected Jdbi jdbi;
 
     @Test
     public void testSqlObject() {
         jdbi.useHandle(h -> {
             h.execute("create table subjects (id serial primary key, subject json not null)");
 
-            BaseDao<BaseDaoSubject> dao = h.attach(getDaoClass());
+            JsonDao dao = h.attach(JsonDao.class);
 
-            dao.insert(new BaseDaoSubject("yams", 42));
-            dao.insert(new BaseDaoSubject("apples", 24));
+            dao.insert(new JsonBean("yams", 42));
+            dao.insert(new JsonBean("apples", 24));
 
             assertThat(dao.select())
                 .extracting("food", "bitcoins")
@@ -49,34 +43,30 @@ public abstract class TestJsonPlugin {
         });
     }
 
-    protected abstract Class<? extends BaseDao> getDaoClass();
-
     @Test
     public void testFluentApiWithNesting() {
         jdbi.useHandle(h -> {
             h.execute("create table bean (id serial primary key, nested1 json, nested2 json)");
             assertThat(h.createUpdate("insert into bean(id, nested1, nested2) values (:id, :nested1, :nested2)")
-                .bindBean(new BaseBean(42, 64, "quux"))
+                .bindBean(new NestedJsonBean(42, 64, "quux"))
                 .execute()).isEqualTo(1);
 
-            BaseBean beany = h.createQuery("select * from bean")
-                .mapToBean(getBeanClass())
+            NestedJsonBean beany = h.createQuery("select * from bean")
+                .mapToBean(NestedJsonBean.class)
                 .findOnly();
 
             assertThat(beany.getId()).isEqualTo(42);
             assertThat(beany.getNested1().getA()).isEqualTo(64);
-            assertThat(beany.getNested2().getB()).isEqualTo("quux");
+            assertThat(beany.getNested2().getA()).isEqualTo("quux");
         });
     }
-
-    protected abstract Class<? extends BaseBean> getBeanClass();
 
     @Test
     public void testNull() {
         jdbi.useHandle(h -> {
             h.execute("create table subjects (id serial primary key, subject json)");
 
-            BaseDao<BaseDaoSubject> dao = h.attach(BaseDao.class);
+            JsonDao dao = h.attach(JsonDao.class);
 
             dao.insert(null);
 
@@ -86,15 +76,15 @@ public abstract class TestJsonPlugin {
                 .isNull();
 
             assertThat(dao.select())
-                .containsExactly((BaseDaoSubject) null);
+                .containsExactly((JsonBean) null);
         });
     }
 
-    public static class BaseDaoSubject {
+    public static class JsonBean {
         private final String food;
         private final int bitcoins;
 
-        public BaseDaoSubject(String food, int bitcoins) {
+        public JsonBean(String food, int bitcoins) {
             this.food = food;
             this.bitcoins = bitcoins;
         }
@@ -108,26 +98,26 @@ public abstract class TestJsonPlugin {
         }
     }
 
-    public interface BaseDao<T extends BaseDaoSubject> {
+    public interface JsonDao {
         @SqlUpdate("insert into subjects (subject) values(?)")
-        int insert(@Json T value);
+        int insert(@Json JsonBean value);
 
         @SqlQuery("select subject from subjects")
         @Json
-        List<T> select();
+        List<JsonBean> select();
     }
 
-    public static class BaseBean {
+    public static class NestedJsonBean {
         private int id;
-        private BaseNested1 nested1;
-        private BaseNested2 nested2;
+        private Nested1 nested1;
+        private Nested2 nested2;
 
-        public BaseBean() {}
+        public NestedJsonBean() {}
 
-        private BaseBean(int id, int a, String b) {
+        private NestedJsonBean(int id, int a, String b) {
             this.id = id;
-            this.nested1 = new BaseNested1(a);
-            this.nested2 = new BaseNested2(b);
+            this.nested1 = new Nested1(a, "1");
+            this.nested2 = new Nested2(b, 2);
         }
 
         public int getId() {
@@ -139,44 +129,56 @@ public abstract class TestJsonPlugin {
         }
 
         @Json
-        public BaseNested1 getNested1() {
+        public Nested1 getNested1() {
             return nested1;
         }
 
-        public void setNested1(BaseNested1 nested1) {
+        public void setNested1(Nested1 nested1) {
             this.nested1 = nested1;
         }
 
         @Json
-        public BaseNested2 getNested2() {
+        public Nested2 getNested2() {
             return nested2;
         }
 
-        public void setNested2(BaseNested2 nested2) {
+        public void setNested2(Nested2 nested2) {
             this.nested2 = nested2;
         }
     }
 
-    public static class BaseNested1 {
+    public static class Nested1 {
         private final int a;
+        private final String b;
 
-        public BaseNested1(int a) {
+        public Nested1(int a, String b) {
             this.a = a;
+            this.b = b;
         }
 
         public int getA() {
             return a;
         }
+
+        public String getB() {
+            return b;
+        }
     }
 
-    public static class BaseNested2 {
-        private final String b;
+    public static class Nested2 {
+        private final String a;
+        private final int b;
 
-        public BaseNested2(String b) {
+        public Nested2(String a, int b) {
+            this.a = a;
             this.b = b;
         }
 
-        public String getB() {
+        public String getA() {
+            return a;
+        }
+
+        public int getB() {
             return b;
         }
     }
