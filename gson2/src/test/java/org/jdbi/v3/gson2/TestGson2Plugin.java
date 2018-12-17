@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jackson2;
+package org.jdbi.v3.gson2;
 
 import org.jdbi.v3.json.TestJsonPlugin;
 import org.jdbi.v3.postgres.PostgresDbRule;
@@ -19,16 +19,12 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
-public class TestJackson2Plugin extends TestJsonPlugin {
+public class TestGson2Plugin extends TestJsonPlugin {
     @Rule
     public JdbiRule db = PostgresDbRule.rule();
 
     @Before
     public void before() {
-        jdbi = db.getJdbi().installPlugin(new Jackson2Plugin());
-        jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper().registerModule(new ParameterNamesModule()));
+        jdbi = db.getJdbi().installPlugin(new Gson2Plugin());
     }
 }

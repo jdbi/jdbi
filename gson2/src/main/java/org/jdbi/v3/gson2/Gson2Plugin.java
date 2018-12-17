@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jackson2;
+package org.jdbi.v3.gson2;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.json.JsonConfig;
@@ -19,17 +19,17 @@ import org.jdbi.v3.json.internal.AbstractJsonPlugin;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Jackson 2 integration plugin.
+ * Gson 2 integration plugin.
  *
- * Adds support for {@code @Json} qualifying annotation via {@link com.fasterxml.jackson.databind.ObjectMapper}.
+ * Adds support for {@code @Json} qualifying annotation via {@link com.google.gson.Gson}.
  *
  * @see org.jdbi.v3.json.Json
  */
 @Beta
-public class Jackson2Plugin extends AbstractJsonPlugin {
+public class Gson2Plugin extends AbstractJsonPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JacksonJsonImpl());
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new GsonJsonImpl());
         super.customizeJdbi(jdbi);
     }
 }

@@ -11,45 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jackson2;
+package org.jdbi.v3.gson2;
 
-import java.io.IOException;
+import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
-
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.json.internal.JsonMapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-class JacksonJsonImpl implements JsonMapper {
+class GsonJsonImpl implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, StatementContext ctx) {
-        try {
-            return getMapper(ctx).writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new UnableToCreateStatementException(e, ctx);
-        }
+        return ctx.getConfig(Gson2Config.class).getGson().toJson(value);
     }
 
     @Override
     public Object fromJson(Type type, String json, StatementContext ctx) {
         try {
-            return getMapper(ctx).readValue(json, new TypeReference<Object>() {
-                @Override
-                public Type getType() {
-                    return type;
-                }
-            });
-        } catch (IOException e) {
+            return ctx.getConfig(Gson2Config.class).getGson().fromJson(json, type);
+        } catch (JsonParseException e) {
             throw new UnableToProduceResultException(e, ctx);
         }
-    }
-
-    private ObjectMapper getMapper(StatementContext ctx) {
-        return ctx.getConfig(Jackson2Config.class).getMapper();
     }
 }
