@@ -22,7 +22,7 @@
 
     <artifactId>jdbi3-jackson2</artifactId>
     <name>jdbi3 jackson2</name>
-    <description>Jdbi Jackson 2.0 integration</description>
+    <description>Jdbi Jackson 2 integration</description>
     <url>http://jdbi.org/</url>
 
     <dependencies>
