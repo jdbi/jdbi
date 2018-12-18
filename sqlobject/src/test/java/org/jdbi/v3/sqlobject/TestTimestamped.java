@@ -17,11 +17,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.Objects;
 import org.jdbi.v3.core.Time;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -38,12 +41,9 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link Timestamped} annotation
@@ -53,18 +53,13 @@ public class TestTimestamped {
     private static final Timestamp T0_TIMESTAMP = Timestamp.from(T0.toInstant());
     @Rule
     public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
-    @Mock
-    private Clock clock;
+    private TestClock clock = new TestClock(T0);
 
     private PersonDAO personDAO;
     private VerifyingLogger logger;
 
     @Before
     public void before() {
-        when(clock.instant()).thenReturn(T0.toInstant());
-        when(clock.getZone()).thenReturn(T0.getZone());
         dbRule.getJdbi().getConfig(Time.class).setClock(clock);
 
         personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
@@ -111,7 +106,7 @@ public class TestTimestamped {
         personDAO.insert(p);
         verifyLastTimestamp(T0);
 
-        when(clock.instant()).thenReturn(T0.plusSeconds(10).toInstant());
+        clock.advance(10, SECONDS);
 
         Person personAfterCreate = personDAO.get(3);
         personAfterCreate.setLastName("Banda");
@@ -267,6 +262,33 @@ public class TestTimestamped {
         @Override
         public int hashCode() {
             return Objects.hash(id, firstName, lastName, created, modified);
+        }
+    }
+
+    private static class TestClock extends Clock {
+        private ZonedDateTime time;
+
+        private TestClock(ZonedDateTime time) {
+            this.time = time;
+        }
+
+        private void advance(int amount, TemporalUnit scale) {
+            time = time.plus(amount, scale);
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return time.getZone();
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            return new TestClock(time.withZoneSameInstant(zone));
+        }
+
+        @Override
+        public Instant instant() {
+            return time.toInstant();
         }
     }
 }
