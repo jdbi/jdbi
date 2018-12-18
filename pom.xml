@@ -74,7 +74,6 @@
     </scm>
 
     <properties>
-
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.maven.version>3.2.5</basepom.maven.version>
 
@@ -96,6 +95,7 @@
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <lombok.version>1.18.4</lombok.version>
         <project.build.targetJdk>1.8</project.build.targetJdk>
     </properties>
 
@@ -449,6 +449,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${dep.plugin.spotbugs.version}</version>
@@ -482,6 +488,11 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <pluginRepositories>
@@ -513,6 +524,11 @@
                                 <groupId>org.immutables</groupId>
                                 <artifactId>value</artifactId>
                                 <version>${dep.immutables.version}</version>
+                            </annotationProcessorPath>
+                            <annotationProcessorPath>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
                             </annotationProcessorPath>
                         </annotationProcessorPaths>
                     </configuration>
