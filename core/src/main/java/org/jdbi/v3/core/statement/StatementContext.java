@@ -491,7 +491,7 @@ public class StatementContext implements Closeable {
      */
     @Nullable
     public ZonedDateTime getExecutionTimestamp() {
-        return executionMoment.atZone(getConfig(Time.class).getClock().getZone());
+        return executionMoment == null ? null : executionMoment.atZone(getConfig(Time.class).getClock().getZone());
     }
 
     /**
@@ -514,7 +514,7 @@ public class StatementContext implements Closeable {
      */
     @Nullable
     public ZonedDateTime getCompletionTimestamp() {
-        return completionMoment.atZone(getConfig(Time.class).getClock().getZone());
+        return completionMoment == null ? null : completionMoment.atZone(getConfig(Time.class).getClock().getZone());
     }
 
     /**
@@ -537,7 +537,7 @@ public class StatementContext implements Closeable {
      */
     @Nullable
     public ZonedDateTime getExceptionTimestamp() {
-        return exceptionMoment.atZone(getConfig(Time.class).getClock().getZone());
+        return exceptionMoment == null ? null : exceptionMoment.atZone(getConfig(Time.class).getClock().getZone());
     }
 
     /**

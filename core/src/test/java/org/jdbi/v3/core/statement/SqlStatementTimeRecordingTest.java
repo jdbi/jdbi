@@ -113,10 +113,14 @@ public class SqlStatementTimeRecordingTest {
         public void logAfterExecution(StatementContext context) {
             after = context.getCompletionMoment();
             afterZdt = context.getCompletionTimestamp();
+            exception = context.getExceptionMoment();
+            exceptionZdt = context.getExceptionTimestamp();
         }
 
         @Override
         public void logException(StatementContext context, SQLException ex) {
+            after = context.getCompletionMoment();
+            afterZdt = context.getCompletionTimestamp();
             exception = context.getExceptionMoment();
             exceptionZdt = context.getExceptionTimestamp();
         }
