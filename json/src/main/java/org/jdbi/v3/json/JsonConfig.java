@@ -14,13 +14,16 @@
 package org.jdbi.v3.json;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.json.internal.StubJsonMapper;
 import org.jdbi.v3.meta.Beta;
 
 @Beta
 public class JsonConfig implements JdbiConfig<JsonConfig> {
     private JsonMapper mapper;
 
-    public JsonConfig() {}
+    public JsonConfig() {
+        mapper = new StubJsonMapper();
+    }
 
     private JsonConfig(JsonConfig other) {
         this.mapper = other.mapper;
@@ -32,9 +35,6 @@ public class JsonConfig implements JdbiConfig<JsonConfig> {
     }
 
     public JsonMapper getJsonMapper() {
-        if (mapper == null) {
-            throw new IllegalStateException("No json implementation loaded, did you install e.g. Jackson2Module?");
-        }
         return mapper;
     }
 
