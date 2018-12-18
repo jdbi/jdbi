@@ -30,7 +30,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return Optional.of((r, i, c) -> {
             final ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> c.findColumnMapperFor(QualifiedType.of(Json.class)).map(JsonColumnMapperFactory::bludgeon),
+                () -> c.findColumnMapperFor(QualifiedType.of(Json.class)).map(JsonColumnMapperFactory::asStringMapper),
                 () -> c.findColumnMapperFor(String.class))
                     .orElseThrow(() -> new IllegalStateException("No column mapper found for '@Json String' or 'String', this really shouldn't happen..."));
             final String jsonValue = jsonStringMapper.map(r, i, c);
@@ -39,7 +39,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static ColumnMapper<String> bludgeon(ColumnMapper<?> mapper) {
+    private static ColumnMapper<String> asStringMapper(ColumnMapper<?> mapper) {
         return (ColumnMapper<String>) mapper;
     }
 }
