@@ -26,20 +26,25 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
+/**
+ * converts json text fetched by another mapper into a value object
+ */
 @Json
 public class JsonColumnMapperFactory implements ColumnMapperFactory {
     private static final String JSON_NOT_RETRIEVABLE = String.format(
-        "No column mapper found for `@%s`, '@%s String', or 'String'",
-        Json.class.getSimpleName(),
+        "No column mapper found for '@%s String', or 'String'",
         Json.class.getSimpleName()
     );
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        if (String.class.equals(type)) {
+            return Optional.empty();
+        }
+
         return Optional.of((rs, i, ctx) -> {
-            // look for the most specialized json support first, revert to simpler methods if absent
+            // look for specialized json support first, revert to simple String mapping if absent
             ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> ctx.findColumnMapperFor(Json.class).map(JsonColumnMapperFactory::asStringMapper),
                 () -> ctx.findColumnMapperFor(QualifiedType.of(String.class, AnnotationFactory.create(Json.class))).map(JsonColumnMapperFactory::asStringMapper),
                 () -> ctx.findColumnMapperFor(String.class))
                     .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE, ctx));

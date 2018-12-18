@@ -13,12 +13,10 @@
  */
 package org.jdbi.v3.json;
 
-import org.jdbi.v3.core.internal.AnnotationFactory;
-import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.statement.Update;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,23 +28,35 @@ public class StubJsonMapperTest {
     public final JdbiRule h2 = JdbiRule.h2().withPlugins();
 
     @Test
-    public void stubIsInstalled() {
+    public void defaultFactoriesAreWorkingForSqlObject() {
         h2.getJdbi().useHandle(h -> {
-            h.createUpdate("create table json(val varchar)").execute();
+            FooDao dao = h.attach(FooDao.class);
 
-            Update insert = h.createUpdate("insert into json(val) values(:json)")
-                .bindByType("json", new Object(), QualifiedType.of(Object.class, AnnotationFactory.create(Json.class)));
+            dao.table();
 
-            assertThatThrownBy(insert::execute)
+            assertThatThrownBy(() -> dao.insert(new Foo()))
                 .isInstanceOf(UnableToCreateStatementException.class)
-                .hasMessageContaining("need to install a JsonMapper");
+                .hasMessageContaining("need to install")
+                .hasMessageContaining("a JsonMapper");
 
-            ResultIterable<?> select = h.createQuery("select '{}'")
-                .mapTo(QualifiedType.of(String.class, AnnotationFactory.create(Json.class)));
-
-            assertThatThrownBy(select::findOnly)
+            assertThatThrownBy(dao::get)
                 .isInstanceOf(UnableToProduceResultException.class)
-                .hasMessageContaining("need to install a JsonMapper");
+                .hasMessageContaining("need to install")
+                .hasMessageContaining("a JsonMapper");
         });
+    }
+    
+    public static class Foo {}
+
+    private interface FooDao {
+        @SqlUpdate("create table json(val varchar)")
+        void table();
+
+        @SqlUpdate("insert into json(val) values(:json)")
+        void insert(@Json Foo json);
+
+        @SqlQuery("select '{}'")
+        @Json
+        Foo get();
     }
 }
