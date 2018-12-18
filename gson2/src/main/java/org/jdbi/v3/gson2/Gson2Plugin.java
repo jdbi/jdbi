@@ -15,7 +15,7 @@ package org.jdbi.v3.gson2;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.json.JsonConfig;
-import org.jdbi.v3.json.internal.AbstractJsonPlugin;
+import org.jdbi.v3.json.internal.JsonPlugin;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -26,7 +26,7 @@ import org.jdbi.v3.meta.Beta;
  * @see org.jdbi.v3.json.Json
  */
 @Beta
-public class Gson2Plugin extends AbstractJsonPlugin {
+public class Gson2Plugin extends JsonPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.getConfig(JsonConfig.class).setJsonMapper(new GsonJsonImpl());

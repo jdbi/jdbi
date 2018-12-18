@@ -16,7 +16,7 @@ package org.jdbi.v3.json.internal;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public class AbstractJsonPlugin implements JdbiPlugin {
+public class JsonPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new JsonArgumentFactory());
