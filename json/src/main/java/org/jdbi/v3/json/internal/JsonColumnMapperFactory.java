@@ -25,7 +25,7 @@ import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
 @Json
-class JsonColumnMapperFactory implements ColumnMapperFactory {
+public class JsonColumnMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return Optional.of((r, i, c) -> {

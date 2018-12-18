@@ -11,10 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.json.internal;
+package org.jdbi.v3.json;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.json.internal.JsonArgumentFactory;
+import org.jdbi.v3.json.internal.JsonColumnMapperFactory;
 
 public class JsonPlugin implements JdbiPlugin {
     @Override

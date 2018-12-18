@@ -23,7 +23,7 @@ import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
 @Json
-class JsonArgumentFactory implements ArgumentFactory {
+public class JsonArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         return Optional.of((p, s, c) -> {

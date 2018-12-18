@@ -15,7 +15,7 @@ package org.jdbi.v3.gson2;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.json.JsonConfig;
-import org.jdbi.v3.json.internal.JsonPlugin;
+import org.jdbi.v3.json.JsonPlugin;
 import org.jdbi.v3.meta.Beta;
 
 /**
