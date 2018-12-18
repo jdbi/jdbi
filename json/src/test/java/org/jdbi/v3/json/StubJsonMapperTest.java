@@ -45,7 +45,7 @@ public class StubJsonMapperTest {
                 .hasMessageContaining("a JsonMapper");
         });
     }
-    
+
     public static class Foo {}
 
     private interface FooDao {

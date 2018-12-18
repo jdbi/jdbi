@@ -22,12 +22,14 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.json.Json;
 
+@Json
 class JsonArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (type != Json.class) {
+        if (type != String.class) {
             return Optional.empty();
         }
+
         return Optional.of((p, s, c) -> s.setObject(p, value, Types.OTHER));
     }
 }

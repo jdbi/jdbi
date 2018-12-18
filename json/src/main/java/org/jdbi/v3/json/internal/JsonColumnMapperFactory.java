@@ -27,7 +27,7 @@ import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
 /**
- * converts json text fetched by another mapper into a value object
+ * converts a {@code (@Json) String} fetched by another mapper into a value object
  */
 @Json
 public class JsonColumnMapperFactory implements ColumnMapperFactory {

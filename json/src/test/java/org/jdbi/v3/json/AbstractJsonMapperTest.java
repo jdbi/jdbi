@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class TestJsonPlugin {
+public abstract class AbstractJsonMapperTest {
     protected Jdbi jdbi;
 
     @Test

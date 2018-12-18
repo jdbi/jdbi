@@ -27,7 +27,7 @@ import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
 /**
- * converts a value object to json text and delegates to another factory to perform the binding
+ * converts a value object to json text and delegates to another factory to perform the {@code (@Json) String} binding
  */
 @Json
 public class JsonArgumentFactory implements ArgumentFactory {
