@@ -46,6 +46,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
