@@ -11,12 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.json.internal;
+package org.jdbi.v3.json;
 
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
+/**
+ * Implement this interface and {@link JsonConfig#setJsonMapper(JsonMapper)} it
+ * to be able to convert objects to/from JSON between your application and database.
+ *
+ * jdbi3-jackson2 and jdbi3-gson2 are readily available for this.
+ */
 public interface JsonMapper {
     String toJson(Type type, Object value, StatementContext ctx);
     Object fromJson(Type type, String json, StatementContext ctx);

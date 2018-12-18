@@ -14,7 +14,6 @@
 package org.jdbi.v3.json;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.json.internal.JsonMapper;
 import org.jdbi.v3.meta.Beta;
 
 @Beta

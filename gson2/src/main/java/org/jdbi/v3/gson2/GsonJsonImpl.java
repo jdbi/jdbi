@@ -17,7 +17,7 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.json.internal.JsonMapper;
+import org.jdbi.v3.json.JsonMapper;
 
 class GsonJsonImpl implements JsonMapper {
     @Override
