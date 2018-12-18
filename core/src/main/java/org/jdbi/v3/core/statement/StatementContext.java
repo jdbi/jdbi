@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,8 +32,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Time;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -475,26 +478,71 @@ public class StatementContext implements Closeable {
         this.concurrentUpdatable = concurrentUpdatable;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution began
+     */
+    @Nullable
     public Instant getExecutionMoment() {
         return executionMoment;
     }
 
+    /**
+     * @return the {@link ZonedDateTime} at which query execution began
+     */
+    @Nullable
+    public ZonedDateTime getExecutionTimestamp() {
+        return executionMoment.atZone(getConfig(Time.class).getClock().getZone());
+    }
+
+    /**
+     * for jdbi-internal use only
+     */
     public void setExecutionMoment(Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so successfully
+     */
+    @Nullable
     public Instant getCompletionMoment() {
         return completionMoment;
     }
 
+    /**
+     * @return the {@link ZonedDateTime} at which query execution ended, if it did so successfully
+     */
+    @Nullable
+    public ZonedDateTime getCompletionTimestamp() {
+        return completionMoment.atZone(getConfig(Time.class).getClock().getZone());
+    }
+
+    /**
+     * for jdbi-internal use only
+     */
     public void setCompletionMoment(Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so with an exception
+     */
+    @Nullable
     public Instant getExceptionMoment() {
         return exceptionMoment;
     }
 
+    /**
+     * @return the {@link ZonedDateTime} at which query execution ended, if it did so with an exception
+     */
+    @Nullable
+    public ZonedDateTime getExceptionTimestamp() {
+        return exceptionMoment.atZone(getConfig(Time.class).getClock().getZone());
+    }
+
+    /**
+     * for jdbi-internal use only
+     */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
     }

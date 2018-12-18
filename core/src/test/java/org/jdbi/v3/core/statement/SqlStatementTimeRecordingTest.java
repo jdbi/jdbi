@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.jdbi.v3.core.Time;
 import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
@@ -37,8 +38,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SqlStatementTimeRecordingTest {
-    private static final Instant T0 = LocalDate.of(2018, Month.JANUARY, 1).atTime(LocalTime.of(12, 0, 0)).atZone(ZoneOffset.UTC).toInstant();
-    private static final Instant
+    private static final ZonedDateTime T0 = LocalDate.of(2018, Month.JANUARY, 1).atTime(LocalTime.of(12, 0, 0)).atZone(ZoneOffset.UTC);
+    private static final ZonedDateTime
         T1 = T0.plusSeconds(10),
         T2 = T0.plusSeconds(20),
         T3 = T0.plusSeconds(30);
@@ -52,7 +53,8 @@ public class SqlStatementTimeRecordingTest {
 
     @Before
     public void before() {
-        when(clock.instant()).thenReturn(T0, T1, T2, T3);
+        when(clock.instant()).thenReturn(T0.toInstant(), T1.toInstant(), T2.toInstant(), T3.toInstant());
+        when(clock.getZone()).thenReturn(T0.getZone());
         db.getJdbi().getConfig(Time.class).setClock(clock);
     }
 
@@ -69,41 +71,54 @@ public class SqlStatementTimeRecordingTest {
                 h.createUpdate("create table foo(bar int primary key not null)").execute();
 
                 verify(clock, times(2)).instant();
+                verify(clock, times(2)).getZone();
 
-                assertThat(logger.before).isEqualTo(T0);
-                assertThat(logger.after).isEqualTo(T1);
+                assertThat(logger.before).isEqualTo(T0.toInstant());
+                assertThat(logger.beforeZdt).isEqualTo(T0);
+                assertThat(logger.after).isEqualTo(T1.toInstant());
+                assertThat(logger.afterZdt).isEqualTo(T1);
                 assertThat(logger.exception).isNull();
+                assertThat(logger.exceptionZdt).isNull();
 
                 logger.before = null;
+                logger.beforeZdt = null;
                 logger.after = null;
+                logger.afterZdt = null;
 
                 assertThatThrownBy(h.createUpdate("insert into foo(bar) values (null)")::execute)
                     .isInstanceOf(UnableToExecuteStatementException.class);
 
                 verify(clock, times(4)).instant();
 
-                assertThat(logger.before).isEqualTo(T2);
+                assertThat(logger.before).isEqualTo(T2.toInstant());
+                assertThat(logger.beforeZdt).isEqualTo(T2);
                 assertThat(logger.after).isNull();
-                assertThat(logger.exception).isEqualTo(T3);
+                assertThat(logger.afterZdt).isNull();
+                assertThat(logger.exception).isEqualTo(T3.toInstant());
+                assertThat(logger.exceptionZdt).isEqualTo(T3);
             });
     }
 
     private static class TimerSqlLogger implements SqlLogger {
         private Instant before, after, exception;
+        private ZonedDateTime beforeZdt, afterZdt, exceptionZdt;
 
         @Override
         public void logBeforeExecution(StatementContext context) {
             before = context.getExecutionMoment();
+            beforeZdt = context.getExecutionTimestamp();
         }
 
         @Override
         public void logAfterExecution(StatementContext context) {
             after = context.getCompletionMoment();
+            afterZdt = context.getCompletionTimestamp();
         }
 
         @Override
         public void logException(StatementContext context, SQLException ex) {
             exception = context.getExceptionMoment();
+            exceptionZdt = context.getExceptionTimestamp();
         }
     }
 }
