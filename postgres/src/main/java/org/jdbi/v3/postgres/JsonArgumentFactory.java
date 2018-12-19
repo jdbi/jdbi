@@ -13,23 +13,20 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.Optional;
-
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.json.Json;
 
 @Json
-class JsonArgumentFactory implements ArgumentFactory {
-    @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (type != String.class) {
-            return Optional.empty();
-        }
+class JsonArgumentFactory extends AbstractArgumentFactory<String> {
+    JsonArgumentFactory() {
+        super(Types.OTHER);
+    }
 
-        return Optional.of((p, s, c) -> s.setObject(p, value, Types.OTHER));
+    @Override
+    protected Argument build(String value, ConfigRegistry config) {
+        return (p, s, c) -> s.setObject(p, value, Types.OTHER);
     }
 }
