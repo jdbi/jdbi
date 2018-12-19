@@ -15,6 +15,8 @@ package org.jdbi.v3.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.kotlin.mapTo
+import org.jdbi.v3.core.mapper.reflect.ColumnName
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 import org.jdbi.v3.core.qualifier.Reversed
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.v3.core.qualifier.ReversedStringMapper
@@ -22,6 +24,8 @@ import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.SqlObject
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
+import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper
+import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers
 import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
 import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
@@ -149,5 +153,27 @@ class KotlinSqlObjectPluginTest {
         @SqlQuery("select name from something where id = :id")
         @Reversed
         fun select(id: Int): String
+    }
+
+    data class DataClassWithJdbiConstructor @JdbiConstructor constructor(@ColumnName("not_s") val s: String, @ColumnName("i") val i: Int = 5)
+
+    interface TestDao {
+        @SqlQuery("SELECT s as not_s, i as i from bean where s = :s")
+        @RegisterConstructorMappers(RegisterConstructorMapper(DataClassWithJdbiConstructor::class))
+        fun findOne(s: String): DataClassWithJdbiConstructor
+    }
+
+    @Test
+    fun testDataClassWithJdbiConstructor() {
+        db.sharedHandle.execute("CREATE TABLE bean (s varchar, i integer)")
+
+        db.sharedHandle.execute("INSERT INTO bean VALUES('x', 2)")
+
+        val dao = db.jdbi.onDemand(TestDao::class.java)
+
+        val result = dao.findOne("x")
+
+        assertThat(result.s).isEqualTo("x")
+        assertThat(result.i).isEqualTo(2)
     }
 }
