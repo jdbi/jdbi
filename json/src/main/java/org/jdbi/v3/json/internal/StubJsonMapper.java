@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.json.internal;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -24,9 +22,8 @@ import org.jdbi.v3.json.JsonMapper;
 
 public class StubJsonMapper implements JsonMapper {
     private static final String NO_IMPL_INSTALLED = String.format(
-        "you need to install (%s.%s) a %s impl, like jdbi3-jackson2 or jdbi3-gson2",
+        "you need to install (see %s) a %s impl, like jdbi3-jackson2 or jdbi3-gson2",
         JsonConfig.class.getSimpleName(),
-        Unchecked.<String, Class[], Method>biFunction(JsonConfig.class::getMethod).apply("setJsonMapper", new Class[] {JsonMapper.class}).getName(),
         JsonMapper.class.getSimpleName()
     );
 
