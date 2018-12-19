@@ -3360,6 +3360,30 @@ public interface Foo {
 }
 ----
 
+==== @Timestamped
+
+You can annotate any statement with `@Timestamped` to bind an `OffsetDateTime`,
+of which the value is the current time, under the binding `now`:
+
+[source,java]
+----
+public interface Bar {
+    @SqlUpdate("insert into times(val) values(:now)")
+    @Timestamped
+    int insert();
+}
+----
+
+You can customize the binding name:
+
+[source,java]
+----
+@Timestamped("timestamp")
+----
+
+link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] gives you control over
+the timezone used for this.
+
 === Consumer Methods
 
 As a special case, you may provide a `Consumer<T>` argument in addition to other bound parameters.
