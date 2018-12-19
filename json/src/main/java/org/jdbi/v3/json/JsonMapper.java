@@ -16,6 +16,7 @@ package org.jdbi.v3.json;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Implement this interface and {@link JsonConfig#setJsonMapper(JsonMapper)} it
@@ -23,6 +24,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * jdbi3-jackson2 and jdbi3-gson2 are readily available for this.
  */
+@Beta
 public interface JsonMapper {
     String toJson(Type type, Object value, StatementContext ctx);
     Object fromJson(Type type, String json, StatementContext ctx);
