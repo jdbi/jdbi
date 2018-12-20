@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
@@ -475,26 +476,47 @@ public class StatementContext implements Closeable {
         this.concurrentUpdatable = concurrentUpdatable;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution began
+     */
+    @Nullable
     public Instant getExecutionMoment() {
         return executionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setExecutionMoment(Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so successfully
+     */
+    @Nullable
     public Instant getCompletionMoment() {
         return completionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setCompletionMoment(Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so with an exception
+     */
+    @Nullable
     public Instant getExceptionMoment() {
         return exceptionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
     }
