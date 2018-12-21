@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -56,10 +57,21 @@ public final class QualifiedType {
     }
 
     /**
+     * Creates a QualifiedType for {@code type} with the given qualifier.
+     */
+    public static QualifiedType of(Type type, Class<? extends Annotation> qualifierType) {
+        return of(type, AnnotationFactory.create(qualifierType));
+    }
+
+    /**
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
     public static QualifiedType of(Type type, Annotation... qualifiers) {
         return of(type, Arrays.asList(qualifiers));
+    }
+
+    public static QualifiedType of(Type type, Class<? extends Annotation>... qualifiers) {
+        return of(type, Arrays.stream(qualifiers).map(AnnotationFactory::create).toArray(Annotation[]::new));
     }
 
     /**
@@ -90,6 +102,13 @@ public final class QualifiedType {
      * Creates a QualifiedType for {@code type} with the given qualifiers.
      */
     public static QualifiedType of(GenericType<?> type, Annotation... qualifiers) {
+        return QualifiedType.of(type.getType(), qualifiers);
+    }
+
+    /**
+     * Creates a QualifiedType for {@code type} with the given qualifiers.
+     */
+    public static QualifiedType of(GenericType<?> type, Class<? extends Annotation>... qualifiers) {
         return QualifiedType.of(type.getType(), qualifiers);
     }
 

@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
@@ -26,9 +25,9 @@ import org.junit.Test;
 public class TestQualifiedType {
     @Test
     public void testQualifiedType() {
-        assertThat(QualifiedType.of(String.class, nVarchar()))
-            .isEqualTo(QualifiedType.of(String.class, nVarchar()))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, nVarchar()))
+        assertThat(QualifiedType.of(String.class, NVarchar.class))
+            .isEqualTo(QualifiedType.of(String.class, NVarchar.class))
+            .hasSameHashCodeAs(QualifiedType.of(String.class, NVarchar.class))
             .hasToString("@org.jdbi.v3.core.qualifier.NVarchar() java.lang.String");
 
         assertThat(QualifiedType.of(int.class))

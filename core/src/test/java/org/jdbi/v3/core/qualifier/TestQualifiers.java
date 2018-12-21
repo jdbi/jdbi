@@ -23,20 +23,6 @@ import org.junit.Test;
 
 public class TestQualifiers {
     @Test
-    @NVarchar
-    public void nVarchar() throws Exception {
-        NVarchar synthetic = Qualifiers.nVarchar();
-        NVarchar real = getClass()
-            .getMethod("nVarchar")
-            .getAnnotation(NVarchar.class);
-
-        assertThat(real).isEqualTo(synthetic);
-        assertThat(synthetic).isEqualTo(real);
-        assertThat(synthetic.hashCode()).isEqualTo(real.hashCode());
-        assertThat(synthetic.toString()).isEqualTo(real.toString());
-    }
-
-    @Test
     public void getQualifiers() throws Exception {
         assertThat(foo(1))
             .isEqualTo(foo(1))
