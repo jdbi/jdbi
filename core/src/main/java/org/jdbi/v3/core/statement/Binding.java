@@ -14,10 +14,14 @@
 package org.jdbi.v3.core.statement;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -31,9 +35,10 @@ public class Binding {
     private final Map<Integer, Argument> positionals = new HashMap<>();
     private final Map<String, Argument> named = new HashMap<>();
     private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    private final Set<String> names = new HashSet<>();
 
     /**
-     * Bind a positional parameter at the given index (0-based)
+     * Bind a positional parameter at the given index (0-based).
      * @param position binding position
      * @param argument the argument to bind
      */
@@ -42,24 +47,26 @@ public class Binding {
     }
 
     /**
-     * Bind a named parameter for the given name
+     * Bind a named parameter for the given name.
      * @param name bound argument name
      * @param argument the argument to bind
      */
     public void addNamed(String name, Argument argument) {
         this.named.put(name, argument);
+        names.add(name);
     }
 
     /**
-     * Bind a named argument finder
+     * Bind a named argument finder.
      * @param args the argument finder to bind
      */
     public void addNamedArgumentFinder(NamedArgumentFinder args) {
         namedArgumentFinder.add(args);
+        names.addAll(args.getNames());
     }
 
     /**
-     * Look up an argument by name
+     * Look up an argument by name.
      *
      * @param name the key to lookup the value of
      * @param ctx the statement context
@@ -77,10 +84,16 @@ public class Binding {
     }
 
     /**
-     * Look up an argument by position
+     * @return the set of known binding names
+     */
+    public Collection<String> getNames() {
+        return Collections.unmodifiableSet(names);
+    }
+
+    /**
+     * Look up an argument by position.
      *
      * @param position starts at 0, not 1
-     *
      * @return argument bound to that position
      */
     public Optional<Argument> findForPosition(int position) {

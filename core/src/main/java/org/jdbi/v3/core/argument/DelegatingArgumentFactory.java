@@ -18,7 +18,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableSetNullOrBinderArgument;
+
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
@@ -43,6 +44,6 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory {
     }
 
     <T> void register(Class<T> klass, int sqlType, StatementBinder<T> binder) {
-        builders.put(klass, (T value) -> new LoggableSetNullOrBinderArgument<>(value, sqlType, binder));
+        builders.put(klass, (T value) -> value == null ? new NullArgument(sqlType) : new LoggableBinderArgument<>(value, binder));
     }
 }

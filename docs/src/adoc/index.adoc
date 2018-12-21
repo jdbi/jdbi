@@ -274,7 +274,7 @@ or `useHandle` over `open` whenever possible.
 
 Arguments are Jdbi's representation of SQL statement parameters, as in `select * from Foo where bar = ?`.
 
-For this query, you would usually define the 1st parameter as a varchar: `'Baz'`. In Jdbi terms, this means _binding_ an _Argument_ that will insert a String into the placeholder as a varchar. Arguments can perform other bindings: a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int, or a complex object could be serialized to a byte array and bound as a SQL blob.
+For this query, you would usually bind the 1st parameter as a varchar: `'Baz'`. In Jdbi terms, this means _binding_ an _Argument_ that will insert a String into the placeholder as a varchar. Arguments can perform other bindings: a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int, or a complex object could be serialized to a byte array and bound as a SQL blob.
 
 [TIP]
 Think of Arguments as functions that map Java objects to SQL data values.
@@ -683,6 +683,9 @@ handle.createQuery("select * from emotion where emoticon = <sticker>;")
     // exception: no binding/argument named "-)" present
     .list();
 ----
+
+Bindings and definitions are usually separate.  You can define all bindings that don't already
+have template definitions using the `stmt.defineBinds()` or `@DefineBinds` customizers.
 
 Also see the section about <<TemplateEngine>>.
 
