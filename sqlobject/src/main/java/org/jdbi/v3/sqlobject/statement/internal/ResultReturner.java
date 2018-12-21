@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
@@ -26,9 +29,6 @@ import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
@@ -58,7 +58,7 @@ abstract class ResultReturner {
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        QualifiedType qualifiedReturnType = QualifiedType.of(returnType, getQualifiers(method));
+        QualifiedType qualifiedReturnType = QualifiedType.of(returnType).with(getQualifiers(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             return findConsumer(method)
@@ -296,8 +296,8 @@ abstract class ResultReturner {
                 GenericTypes.findGenericParameter(parameterType, Consumer.class)
                     .orElseThrow(() -> new IllegalStateException(
                         "Cannot reflect Consumer<T> element type T in method consumer parameter "
-                            + parameterType)),
-                getQualifiers(method.getParameters()[consumerIndex]));
+                            + parameterType)))
+                .with(getQualifiers(method.getParameters()[consumerIndex]));
         }
 
         @Override

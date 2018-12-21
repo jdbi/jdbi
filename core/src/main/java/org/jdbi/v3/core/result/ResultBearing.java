@@ -100,26 +100,8 @@ public interface ResultBearing {
      */
     @Beta
     @SuppressWarnings("unchecked")
-    default <T> ResultIterable<T> mapTo(Class<T> type, Annotation... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
-    }
-
-    /**
-     * Maps this result set to a {@link ResultIterable} of the given qualified element type.
-     *
-     * @param type the type to map the result set rows to
-     * @param qualifiers the set of element type qualifiers
-     * @param <T> the type to map the result set rows to
-     * @return a {@link ResultIterable} of the given type.
-     * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapper)
-     */
-    @Beta
-    @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(Class<T> type, Class<? extends Annotation>... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type).with(qualifiers));
     }
 
     /**
@@ -152,26 +134,8 @@ public interface ResultBearing {
      */
     @Beta
     @SuppressWarnings("unchecked")
-    default <T> ResultIterable<T> mapTo(GenericType<T> type, Annotation... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
-    }
-
-    /**
-     * Maps this result set to a {@link ResultIterable} of the given qualified element type.
-     *
-     * @param type the type to map the result set rows to
-     * @param qualifiers the set of element type qualifiers
-     * @param <T>  the type to map the result set rows to
-     * @return a {@link ResultIterable} of the given type.
-     * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
-     * @see Configurable#registerColumnMapper(ColumnMapper)
-     */
-    @Beta
-    @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(GenericType<T> type, Class<? extends Annotation>... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type).with(qualifiers));
     }
 
     /**

@@ -110,7 +110,7 @@ public class TestQualifiedHStore {
     public void testWritesViaFluentApi() {
         handle.createUpdate("insert into campaigns(id, caps) values (:id, :caps)")
             .bind("id", 3)
-            .bindByType("caps", caps, QualifiedType.of(STRING_MAP, HStore.class))
+            .bindByType("caps", caps, QualifiedType.of(STRING_MAP).with(HStore.class))
             .execute();
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 3)
