@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.array;
 
+import java.util.function.Function;
+
 /**
  * Strategy for converting elements of array-like arguments into SQL array elements.
  *
@@ -35,4 +37,15 @@ public interface SqlArrayType<T> {
      * @return the converted element
      */
     Object convertArrayElement(T element);
+
+    /**
+     * Create a SqlArrayType from the given type and convert function.
+     *
+     * @param typeName the vendor sql type to use
+     * @param conversion convert the array element to the jdbc representation
+     * @return the created array type
+     */
+    static <T> SqlArrayType<T> of(String typeName, Function<T, ?> conversion) {
+        return new SqlArrayTypeImpl<T>(typeName, conversion);
+    }
 }

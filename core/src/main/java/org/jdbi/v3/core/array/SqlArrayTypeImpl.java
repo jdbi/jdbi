@@ -13,18 +13,15 @@
  */
 package org.jdbi.v3.core.array;
 
-import java.util.Optional;
+import java.util.function.Function;
 
-class VendorSupportedArrayType<T> implements SqlArrayType<T> {
-    static <T> SqlArrayTypeFactory factory(Class<T> type, String sqlTypeName) {
-        SqlArrayType<T> arrayType = new VendorSupportedArrayType<>(sqlTypeName);
-        return (t, ctx) -> t.equals(type) ? Optional.of(arrayType) : Optional.empty();
-    }
-
+class SqlArrayTypeImpl<T> implements SqlArrayType<T> {
     private final String typeName;
+    private final Function<T, ?> conversion;
 
-    VendorSupportedArrayType(String typeName) {
+    SqlArrayTypeImpl(String typeName, Function<T, ?> conversion) {
         this.typeName = typeName;
+        this.conversion = conversion;
     }
 
     @Override
@@ -34,6 +31,6 @@ class VendorSupportedArrayType<T> implements SqlArrayType<T> {
 
     @Override
     public Object convertArrayElement(T element) {
-        return element;
+        return conversion.apply(element);
     }
 }
