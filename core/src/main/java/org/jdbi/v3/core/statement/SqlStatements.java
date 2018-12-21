@@ -17,11 +17,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 
@@ -39,7 +41,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
     public SqlStatements() {
-        attributes = new ConcurrentHashMap<>();
+        attributes = Collections.synchronizedMap(new HashMap<>());
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
@@ -47,7 +49,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     private SqlStatements(SqlStatements that) {
-        this.attributes = new ConcurrentHashMap<>(that.attributes);
+        this.attributes = Collections.synchronizedMap(that.getAttributes()); // already copied
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
@@ -64,11 +66,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      */
     public SqlStatements define(String key, Object value) {
-        if (value == null) {
-            attributes.remove(key);
-        } else {
-            attributes.put(key, value);
-        }
+        attributes.put(key, value);
         return this;
     }
 
@@ -101,7 +99,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return the defined attributes.
      */
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return new HashMap<>(attributes);
     }
 
     /**
