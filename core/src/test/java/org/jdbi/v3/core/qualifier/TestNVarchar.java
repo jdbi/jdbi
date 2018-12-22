@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,7 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TestNVarchar {
-    private static final QualifiedType NVARCHAR_STRING = QualifiedType.of(String.class, nVarchar());
+    private static final QualifiedType NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();
@@ -77,13 +76,13 @@ public class TestNVarchar {
 
             assertThat(
                 handle.select("SELECT name FROM nvarchars ORDER BY id")
-                    .mapTo(String.class, nVarchar())
+                    .mapTo(String.class, NVarchar.class)
                     .list())
                 .containsExactly("foo", "bar", "baz", "qux");
 
             assertThat(
                 handle.select("SELECT name FROM nvarchars ORDER BY id")
-                    .mapTo(new GenericType<String>() {}, nVarchar())
+                    .mapTo(new GenericType<String>() {}, NVarchar.class)
                     .list())
                 .containsExactly("foo", "bar", "baz", "qux");
 

@@ -41,7 +41,7 @@ public class JpaMember {
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
-        this.qualifiedType = QualifiedType.of(field.getGenericType(), getQualifiers(field));
+        this.qualifiedType = QualifiedType.of(field.getGenericType()).with(getQualifiers(field));
         field.setAccessible(true);
         this.accessor = field::get;
         this.mutator = field::set;
@@ -57,8 +57,8 @@ public class JpaMember {
         getter.setAccessible(true);
         setter.setAccessible(true);
 
-        this.qualifiedType = QualifiedType.of(getter.getGenericReturnType(),
-            getQualifiers(getter, setter, setterParam));
+        this.qualifiedType = QualifiedType.of(getter.getGenericReturnType())
+            .with(getQualifiers(getter, setter, setterParam));
 
         this.accessor = getter::invoke;
         this.mutator = setter::invoke;

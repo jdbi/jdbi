@@ -45,6 +45,7 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
+import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
@@ -52,7 +53,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
-import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -314,7 +314,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public final This bindNVarchar(int position, String value) {
-        return bind(position, toArgument(QualifiedType.of(String.class, nVarchar()), value));
+        return bind(position, toArgument(QualifiedType.of(String.class).with(NVarchar.class), value));
     }
 
     /**
@@ -327,7 +327,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public final This bindNVarchar(String name, String value) {
-        return bind(name, toArgument(QualifiedType.of(String.class, nVarchar()), value));
+        return bind(name, toArgument(QualifiedType.of(String.class).with(NVarchar.class), value));
     }
 
     /**

@@ -165,9 +165,8 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         if (nested == null) {
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
             if (columnIndex.isPresent) {
-                val type = QualifiedType.of(
-                    parameter.type.javaType,
-                    getQualifiers(parameter))
+                val type = QualifiedType.of(parameter.type.javaType)
+                    .with(getQualifiers(parameter))
 
                 return ctx.findColumnMapperFor(type)
                     .map { mapper ->

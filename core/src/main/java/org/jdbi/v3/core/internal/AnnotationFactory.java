@@ -21,6 +21,13 @@ public class AnnotationFactory {
     private AnnotationFactory() {}
 
     public static <T extends Annotation> T create(Class<T> annotationType) {
+        if (annotationType.getDeclaredMethods().length > 0) {
+            throw new IllegalArgumentException(String.format(
+                "Cannot synthesize annotation @%s from %s.class because it has attributes",
+                annotationType.getSimpleName(),
+                annotationType.getSimpleName()));
+        }
+
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class[] interfaces = {annotationType};
         InvocationHandler invocationHandler = getInvocationHandler(annotationType);
@@ -49,7 +56,7 @@ public class AnnotationFactory {
             }
 
             if ("toString".equals(name) && method.getParameterCount() == 0) {
-                return "@" + annotationType.getCanonicalName() + "()";
+                return "@" + annotationType.getName() + "()";
             }
 
             throw new IllegalStateException("Unknown method " + method + " for annotation type " + annotationType);
