@@ -13,15 +13,17 @@
  */
 package org.jdbi.v3.testing;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.sql.DataSource;
+
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * JUnit {@code @Rule} to manage a Jdbi instance pointed to a managed database.
@@ -132,7 +134,7 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
+    public void before() throws Throwable {
         if (migration != null) {
             final Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
@@ -150,7 +152,7 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void after() {
         if (migration != null && migration.cleanAfter) {
             final Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());

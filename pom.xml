@@ -63,6 +63,7 @@
         <module>noparameters</module>
         <module>vavr</module>
         <module>sqlite</module>
+        <module>benchmark</module>
         <module>testing</module>
     </modules>
 
