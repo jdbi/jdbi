@@ -13,21 +13,27 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.meta.Beta;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
  */
 @Beta
 public class Qualifiers {
+    private static final ExpiringMap<Class<?>, Set<Annotation>> ANNOS = ExpiringMap.builder()
+            .expiration(10, TimeUnit.MINUTES)
+            .build();
+
     private Qualifiers() {}
 
     /**
@@ -42,5 +48,9 @@ public class Qualifiers {
             .flatMap(Arrays::stream)
             .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
             .collect(toSet());
+    }
+
+    public static Set<Annotation> getQualifiers(Class<?> clazz) {
+        return ANNOS.computeIfAbsent(clazz, x -> getQualifiers((AnnotatedElement) clazz));
     }
 }
