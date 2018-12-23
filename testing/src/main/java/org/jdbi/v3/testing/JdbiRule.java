@@ -78,6 +78,14 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     /**
+     * Create a JdbiRule with an in-memory Sqlite database instance.
+     * Your project must depend on the {@code sqlite-jdbc} database artifact.
+     */
+    public static JdbiRule sqlite() {
+        return new EmbeddedSqliteJdbiRule();
+    }
+
+    /**
      * Run database migration scripts from {@code db/migration} on the classpath, using Flyway.
      * @deprecated use {@link #withMigration(Migration)}
      * @return this

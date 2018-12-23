@@ -14,6 +14,7 @@
     - SQL array registration improvements:
       - SqlArrayType.of(String, Function) / SqlArrayTypeFactory.of(Class, String, Function) factory methods
       - Configurable.registerArrayType(Class, String, Function) convenience method
+    - Sqlite support in JdbiRule (jdbi3-testing)
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
