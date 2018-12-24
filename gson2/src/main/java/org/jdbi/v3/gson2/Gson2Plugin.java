@@ -31,6 +31,6 @@ public class Gson2Plugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new GsonJsonImpl());
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new GsonJsonMapper());
     }
 }

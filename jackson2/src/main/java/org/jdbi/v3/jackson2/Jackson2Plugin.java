@@ -31,6 +31,6 @@ public class Jackson2Plugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JacksonJsonImpl());
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JacksonJsonMapper());
     }
 }
