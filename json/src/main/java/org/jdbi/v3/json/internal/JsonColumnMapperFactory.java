@@ -15,9 +15,7 @@ package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -45,7 +43,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
         return Optional.of((rs, i, ctx) -> {
             // look for specialized json support first, revert to simple String mapping if absent
             ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class, AnnotationFactory.create(Json.class))).map(JsonColumnMapperFactory::asStringMapper),
+                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class).with(Json.class)).map(JsonColumnMapperFactory::asStringMapper),
                 () -> ctx.findColumnMapperFor(String.class))
                     .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE, ctx));
 

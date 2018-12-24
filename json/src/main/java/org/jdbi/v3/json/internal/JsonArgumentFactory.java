@@ -15,11 +15,9 @@ package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -47,7 +45,7 @@ public class JsonArgumentFactory implements ArgumentFactory {
 
             // look for specialized json support first, revert to simple String binding if absent
             Argument stringBinder = JdbiOptionals.findFirstPresent(
-                () -> ctx.findArgumentFor(QualifiedType.of(String.class, AnnotationFactory.create(Json.class)), json),
+                () -> ctx.findArgumentFor(QualifiedType.of(String.class).with(Json.class), json),
                 () -> ctx.findArgumentFor(String.class, json))
                     .orElseThrow(() -> new UnableToCreateStatementException(JSON_NOT_STORABLE));
 
