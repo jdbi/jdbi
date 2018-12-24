@@ -3718,40 +3718,83 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
-=== Jackson 2
+=== JSON
 
-This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` in your database.
+This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` text in your database.
 Currently tested with Postgres `json` types.
+
+[WARNING]
+This feature requires a backing implementation (see below),
+similar to how SLF4J is only an API and needs a runtime backend.
+
+==== Operation
+
+Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` instances —
+will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^] link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_
+as `@Json String`. This `json text` will then be passed into the binding process anew.
+
+An ArgumentFactory qualified for `@Json String` will be called first, if any are registered, to give
+databases a chance to offer their specific `json` support.
+Otherwise, regular `String` factories will be called to bind the jsonified object as plaintext.
+
+Mapping works just the same way, but in reverse: an output type qualified as `@Json T` will be fetched from a
+`@Json String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
+
+[TIP]
+Our PostgresPlugin provides such qualified factories that will
+bind the `@Json String` to `json`-typed columns.
+
+==== Usage
 
 [source,java]
 ----
-// First, install the plugin and create a json column
-jdbi.installPlugin(new Jackson2Plugin());
-// You may need database support
-jdbi.installPlugin(new PostgresPlugin());
-jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper); // optional
+handle.execute("create table myjsons (id serial not null, value json not null)");
 
-handle.execute("create table jsons (id serial not null, value json not null)");
-
-class Whozit {} // any Jackson serializable type
+// any json-serializable type
+class MyJson {}
 
 // Then, you can use @Json qualifying type:
-interface JsonDao {
-    @SqlUpdate("insert into jsons (json) values(:value)")
-    int insert(@Json Whozit value); // on parameters
+interface MyJsonDao {
+    @SqlUpdate("insert into myjsons (json) values(:value)")
+    // on parameters
+    int insert(@Json MyJson value);
 
-    @SqlQuery("select value from jsons")
-    @Json // on result types
-    List<Whozit> select();
+    @SqlQuery("select value from myjsons")
+    // on result types
+    @Json
+    List<MyJson> select();
 }
 
 // It also works on bean or property-mapped properties:
 class MyBean {
-    private final Whozit property;
+    private final MyJson property;
     @Json
-    public Whozit getProperty() { return ...; }
+    public MyJson getProperty() { return ...; }
 }
 ----
+
+==== Jackson 2
+
+This plugin provides `json` backing through Jackson 2.
+
+[source,java]
+----
+jdbi.installPlugin(new Jackson2Plugin());
+// optional
+jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+----
+
+==== Gson 2
+
+This plugin provides `json` backing through Gson 2.
+
+[source,java]
+----
+jdbi.installPlugin(new Gson2Plugin());
+// optional
+jdbi.getConfig(Gson2Config.class).setGson(myGson);
+----
+
 
 === JodaTime
 
