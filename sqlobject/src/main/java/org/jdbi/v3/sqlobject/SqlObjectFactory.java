@@ -24,9 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -152,15 +153,23 @@ public class SqlObjectFactory implements ExtensionFactory {
                                                       ConfigRegistry instanceConfig,
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
+        Map<Method, ConfigRegistry> methodConfigs = new ConcurrentHashMap<>();
+
+        Function<Method, ConfigRegistry> createConfigForMethod = method -> {
+            ConfigRegistry config = instanceConfig.createCopy();
+            forEachConfigurer(method, (configurer, annotation) -> configurer.configureForMethod(config, annotation, sqlObjectType, method));
+            return config;
+        };
+
         return (proxy, method, args) -> {
+            ConfigRegistry methodConfig = methodConfigs.computeIfAbsent(method, createConfigForMethod).createCopy();
             Handler handler = handlers.get(method);
 
-            ConfigRegistry methodConfig = instanceConfig.createCopy();
-            forEachConfigurer(method, (configurer, annotation) ->
-                    configurer.configureForMethod(methodConfig, annotation, sqlObjectType, method));
-
-            return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method), methodConfig,
-                    () -> handler.invoke(proxy, args == null ? NO_ARGS : args, handle));
+            return handle.invokeInContext(
+                new ExtensionMethod(sqlObjectType, method),
+                methodConfig,
+                () -> handler.invoke(proxy, args == null ? NO_ARGS : args, handle)
+            );
         };
     }
 
