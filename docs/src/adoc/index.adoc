@@ -3811,11 +3811,16 @@ bind the `@Json String` to `json`-typed columns.
 [source,java]
 ----
 handle.execute("create table myjsons (id serial not null, value json not null)");
+----
 
+SqlObject:
+
+[source,java]
+----
 // any json-serializable type
 class MyJson {}
 
-// Then, you can use @Json qualifying type:
+// use @Json qualifier:
 interface MyJsonDao {
     @SqlUpdate("insert into myjsons (json) values(:value)")
     // on parameters
@@ -3827,12 +3832,24 @@ interface MyJsonDao {
     List<MyJson> select();
 }
 
-// It also works on bean or property-mapped properties:
+// also works on bean or property-mapped properties:
 class MyBean {
     private final MyJson property;
     @Json
     public MyJson getProperty() { return ...; }
 }
+----
+
+Fluent API:
+
+[source,java]
+----
+QualifiedType qualifier = QualifiedType.of(MyJson.class).with(Json.class);
+
+h.createUpdate("insert into myjsons(json) values(:json)")
+    .bindByType("json", new MyJson(), qualifier)
+    .execute();
+
 ----
 
 ==== Jackson 2
