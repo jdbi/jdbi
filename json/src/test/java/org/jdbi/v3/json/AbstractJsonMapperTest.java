@@ -14,8 +14,10 @@
 package org.jdbi.v3.json;
 
 import java.util.List;
+import java.util.Objects;
 import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Test;
@@ -40,6 +42,24 @@ public abstract class AbstractJsonMapperTest {
                 .containsExactlyInAnyOrder(
                     new Tuple("yams", 42),
                     new Tuple("apples", 24));
+        });
+    }
+
+    @Test
+    public void testFluentApi() {
+        jdbi.useHandle(h -> {
+            h.execute("create table subjects (id serial primary key, subject json not null)");
+
+            JsonBean in = new JsonBean("nom", 10);
+            h.createUpdate("insert into subjects(id, subject) values(1, :bean)")
+                .bindByType("bean", in, QualifiedType.of(JsonBean.class).with(Json.class))
+                .execute();
+
+            JsonBean out = h.createQuery("select subject from subjects")
+                .mapTo(JsonBean.class, Json.class)
+                .findOnly();
+
+            assertThat(out).isEqualTo(in);
         });
     }
 
@@ -95,6 +115,18 @@ public abstract class AbstractJsonMapperTest {
 
         public int getBitcoins() {
             return bitcoins;
+        }
+
+        @Override
+        public boolean equals(Object x) {
+            JsonBean other = (JsonBean) x;
+            return bitcoins == other.bitcoins
+                && Objects.equals(food, other.food);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(food, bitcoins);
         }
     }
 

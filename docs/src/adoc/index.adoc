@@ -3850,6 +3850,10 @@ h.createUpdate("insert into myjsons(json) values(:json)")
     .bindByType("json", new MyJson(), qualifier)
     .execute();
 
+MyJson result = h.createQuery("select json from myjsons")
+    .mapTo(MyJson.class, Json.class)
+    .findOnly();
+
 ----
 
 ==== Jackson 2
