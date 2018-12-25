@@ -366,7 +366,7 @@ handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
       .execute();
 ----
 
-You can bind multiple values at once, from either a `List<T>` or a list of arguments. Note that this requires your binding to be written using the `<boundValue>` form (as opposed to `:boundValue` for most of the other bindings.)
+You can bind multiple values at once, from either a `List<T>` or a vararg:
 
 [source,java]
 ----
@@ -385,6 +385,11 @@ handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)"
       .mapTo(String.class)
       .list();
 ----
+
+[NOTE]
+Using `bindList` requires writing your SQL with an attribute, not a binding,
+despite the fact that your values are bound. The attribute is a placeholder that will be
+safely rendered to a comma-separated list of bindings.
 
 You can bind multiple arguments from properties of a Java Bean:
 
