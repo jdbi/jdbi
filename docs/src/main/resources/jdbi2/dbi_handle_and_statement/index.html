@@ -30,13 +30,13 @@
   <div id="site">
     <div id="header">
       <h1>
-	      <a href="/jdbi2">JDBI</a>
+	      <a href="/jdbi2/">JDBI</a>
         <span id="navigation">
           <a href="/jdbi2/archive.html">Docs</a> |
-          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="https://github.com/jdbi/jdbi/">Source</a> |
           <a href="/jdbi2/getting_jdbi/">Download</a> |
-          <a href="/jdbi2/apidocs">Javadoc</a> |
-          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/apidocs/">Javadoc</a> |
+          <a href="/jdbi2/faq/">FAQ</a> |
           <a href="/jdbi2/community.html">Community</a> 
         </span>
       </h1>
@@ -48,13 +48,13 @@
     </h1>
 <h1 id='dbi'>DBI</h1>
 
-<p>When starting with JDBI, the first thing you need to do is construct a <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> instance. The DBI instance provides connections to the database via <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/Handle.html'>Handle</a> instances. DBIs can be constructed three primary ways.</p>
+<p>When starting with JDBI, the first thing you need to do is construct a <a href='/jdbi2/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> instance. The DBI instance provides connections to the database via <a href='/jdbi2/apidocs/org/skife/jdbi/v2/Handle.html'>Handle</a> instances. DBIs can be constructed three primary ways.</p>
 
 <p>The first is to pass a JDBC <a href='http://download.oracle.com/javase/6/docs/api/javax/sql/DataSource.html'>DataSource</a> instance to the constructor. In this case connections will be obtained from the datasource. This is generally the best option for cases where you want connection pooling.</p>
 
-<p>The second method is to pass in a combination of a JDBC url, properties, and/or a username and password. See the constructors on <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> for the exact combinations. All these forms pass through to the JDBC <a href='http://download.oracle.com/javase/6/docs/api/java/sql/DriverManager.html'>DriverManager</a> against its matching static methods.</p>
+<p>The second method is to pass in a combination of a JDBC url, properties, and/or a username and password. See the constructors on <a href='/jdbi2/apidocs/org/skife/jdbi/v2/DBI.html'>DBI</a> for the exact combinations. All these forms pass through to the JDBC <a href='http://download.oracle.com/javase/6/docs/api/java/sql/DriverManager.html'>DriverManager</a> against its matching static methods.</p>
 
-<p>The third form uses a JDBI specific interface, <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/tweak/ConnectionFactory.html'>ConnectionFactory</a> which allows for unusual ways of obtaining connections, such as for interfacing with thread-bound connection instances in Spring, or other exotic techniques.</p>
+<p>The third form uses a JDBI specific interface, <a href='/jdbi2/apidocs/org/skife/jdbi/v2/tweak/ConnectionFactory.html'>ConnectionFactory</a> which allows for unusual ways of obtaining connections, such as for interfacing with thread-bound connection instances in Spring, or other exotic techniques.</p>
 
 <h2 id='dbi_options'>DBI Options</h2>
 
@@ -105,7 +105,7 @@
 
 <h1 id='creating_sqlstatements'>Creating SQLStatements</h1>
 
-<p>A more sophisticated way to execute sql is to create <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/SQLStatement.html'>SQLStatement</a> instances. Variants exist for <a href='/fluent_calls'>calls</a>, updates, <a href='/fluent_queries/'>queries</a>, and <a href='/fluent_batches/'>prepared batches</a>. The general form for updates looks like:</p>
+<p>A more sophisticated way to execute sql is to create <a href='/jdbi2/apidocs/org/skife/jdbi/v2/SQLStatement.html'>SQLStatement</a> instances. Variants exist for <a href='/fluent_calls'>calls</a>, updates, <a href='/fluent_queries/'>queries</a>, and <a href='/fluent_batches/'>prepared batches</a>. The general form for updates looks like:</p>
 <div class='highlight'><pre><code class='java'><span /><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
 <span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
 <span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
@@ -118,7 +118,7 @@
 <span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
 </code></pre>
 </div>
-<p>The call to Handle#createStatement creates an <a href='http://jdbi.org/apidocs/org/skife/jdbi/v2/Update.html'>Update</a> instance, which we then bind two <a href='/named_parameters/'>named arguments</a> to, and finally execute. In addition to binding parameters, we can set properties on the generated statement, such as the query timeout. SQLStatement instances generally return the same instance from each call on the statement, until the statement is executed. This allows for method chaining, as above. This method chaining is by no means required, however. The above example works the same way when written as:</p>
+<p>The call to Handle#createStatement creates an <a href='/jdbi2/apidocs/org/skife/jdbi/v2/Update.html'>Update</a> instance, which we then bind two <a href='/named_parameters/'>named arguments</a> to, and finally execute. In addition to binding parameters, we can set properties on the generated statement, such as the query timeout. SQLStatement instances generally return the same instance from each call on the statement, until the statement is executed. This allows for method chaining, as above. This method chaining is by no means required, however. The above example works the same way when written as:</p>
 <div class='highlight'><pre><code class='java'><span /><span class='n'>Update</span> <span class='n'>s</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createStatement</span><span class='o'>(</span><span class='s'>&quot;insert into something(id, name) values (:id, :name)&quot;</span><span class='o'>);</span>
 <span class='n'>s</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>,</span> <span class='mi'>4</span><span class='o'>);</span>
 <span class='n'>s</span><span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>,</span> <span class='s'>&quot;Martin&quot;</span><span class='o'>);</span>
@@ -130,13 +130,13 @@
 <p>Queries are also SQLStatement instances, but they generally get more complicated so <a href='/fluent_queries/'>have their own section</a>.</p>
     <div id="pagination">
         
-            <a href="/jdbi2//getting_jdbi" class="back">❮❮ Getting JDBI </a>
+            <a href="/jdbi2/getting_jdbi/" class="back">❮❮ Getting JDBI </a>
         
         
-        <a href="/jdbi2/">Home</a> | <a href="/archive.html">Docs</a>
+        <a href="/jdbi2/">Home</a> | <a href="/jdbi2/archive.html">Docs</a>
         
         
-            <a href="/jdbi2//fluent_queries" class="forward"> Fluent Queries ❯❯</a>
+            <a href="/jdbi2/fluent_queries/" class="forward"> Fluent Queries ❯❯</a>
         
     </div>
 </div>
