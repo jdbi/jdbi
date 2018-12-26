@@ -63,6 +63,15 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * @param connection db connection
+     *
+     * @return a Jdbi which works on single connection
+     */
+    public static Jdbi create(Connection connection) {
+        return create(new SingleConnectionFactory(connection));
+    }
+
+    /**
      * @param dataSource the data source.
      *
      * @return a Jdbi which uses the given data source as a connection factory.
@@ -281,6 +290,7 @@ public class Jdbi implements Configurable<Jdbi> {
     public Handle open() {
         try {
             final long start = System.nanoTime();
+            @SuppressWarnings("PMD.CloseResource")
             Connection conn = connectionFactory.openConnection();
             final long stop = System.nanoTime();
 
@@ -289,7 +299,7 @@ public class Jdbi implements Configurable<Jdbi> {
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(config.createCopy(), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createCopy(), connectionFactory::closeConnection, transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
@@ -389,7 +399,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X {
-        return withHandle(handle -> handle.<R, X>inTransaction(level, callback));
+        return withHandle(handle -> handle.inTransaction(level, callback));
     }
 
     /**

@@ -13,20 +13,24 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static java.util.stream.Collectors.toMap;
-
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+
+import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
@@ -53,7 +57,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         Field field = fields.get(name);
 
         if (field == null) {
@@ -62,24 +66,25 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
         try {
             Type type = field.getGenericType();
-            Object value = field.get(object);
+            Set<Annotation> qualifiers = getQualifiers(field);
+            Object value = field.get(obj);
 
-            return Optional.of(new TypedValue(type, value));
+            return Optional.of(new TypedValue(type, qualifiers, value));
         } catch (IllegalAccessException e) {
-            throw new UnableToCreateStatementException(String.format("Access exception getting field for " +
-                    "bean property [%s] on [%s]",
-                name, object), e, ctx);
+            throw new UnableToCreateStatementException(String.format("Access exception getting field for "
+                    + "bean property [%s] on [%s]",
+                name, obj), e, ctx);
         }
     }
 
     @Override
-    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+    protected NamedArgumentFinder getNestedArgumentFinder(Object obj) {
         return new ObjectFieldArguments(null, obj);
     }
 
     @Override
     public String toString() {
-        return "{lazy bean field arguments \"" + object + "\"";
+        return "{lazy bean field arguments \"" + obj + "\"";
     }
 }
 

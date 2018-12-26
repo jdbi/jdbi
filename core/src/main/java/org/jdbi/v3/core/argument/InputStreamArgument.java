@@ -42,17 +42,22 @@ public class InputStreamArgument implements Argument {
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         if (ascii) {
-            if (value != null) {
-                statement.setAsciiStream(position, value, length);
-            } else {
+            if (value == null) {
                 statement.setNull(position, Types.LONGVARCHAR);
+            } else {
+                statement.setAsciiStream(position, value, length);
             }
         } else {
-            if (value != null) {
-                statement.setBinaryStream(position, value, length);
-            } else {
+            if (value == null) {
                 statement.setNull(position, Types.LONGVARBINARY);
+            } else {
+                statement.setBinaryStream(position, value, length);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "<stream object cannot be read for toString() calls>";
     }
 }

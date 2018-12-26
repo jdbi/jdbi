@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
@@ -38,12 +37,12 @@ public class TestRegisterArgumentFactory {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = dbRule.getJdbi();
     }
 
     @Test
-    public void testSingleAnnotation() throws Exception {
+    public void testSingleAnnotation() {
         db.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
@@ -52,7 +51,7 @@ public class TestRegisterArgumentFactory {
     }
 
     @Test
-    public void testMultipleAnnotations() throws Exception {
+    public void testMultipleAnnotations() {
         db.useExtension(ShortStack.class, s -> {
             s.insert(1, new Name("George", "Takei"));
 

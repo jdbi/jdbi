@@ -13,14 +13,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
+
+import static java.util.stream.Collectors.toList;
 
 class SqlMethodHandlerFactory implements HandlerFactory {
     @Override
@@ -44,8 +45,8 @@ class SqlMethodHandlerFactory implements HandlerFactory {
 
         if (method.isDefault() && !method.isSynthetic()) {
             throw new IllegalStateException(String.format(
-                    "Default method %s.%s has @%s annotation. " +
-                            "SQL object methods may be default, or have a SQL method annotation, but not both.",
+                    "Default method %s.%s has @%s annotation. "
+                            + "SQL object methods may be default, or have a SQL method annotation, but not both.",
                     sqlObjectType.getSimpleName(),
                     method.getName(),
                     sqlMethodAnnotations.get(0).getSimpleName()));
@@ -61,38 +62,31 @@ class SqlMethodHandlerFactory implements HandlerFactory {
                         method.getName()))));
     }
 
+    @SuppressWarnings("PMD.PreserveStackTrace")
     private Handler buildHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
         try {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
         } catch (InvocationTargetException e) {
-            throw toUnchecked(e.getCause());
-        } catch (ReflectiveOperationException e) {
+            throw Sneaky.throwAnyway(e.getCause());
+        } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
 
         try {
             return handlerType.getConstructor(Method.class).newInstance(method);
         } catch (InvocationTargetException e) {
-            throw toUnchecked(e.getCause());
-        } catch (ReflectiveOperationException e) {
+            throw Sneaky.throwAnyway(e.getCause());
+        } catch (ReflectiveOperationException ignored) {
             // fall-through
         }
 
         try {
             return handlerType.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
-            throw toUnchecked(e.getCause());
+            throw Sneaky.throwAnyway(e.getCause());
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. " +
-                    "Expected a constructor with parameters (Class, Method), (Method), or ().", e);
+            throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. "
+                    + "Expected a constructor with parameters (Class, Method), (Method), or ().", e);
         }
-    }
-
-    private RuntimeException toUnchecked(Throwable t) {
-        if (t instanceof RuntimeException) {
-            return (RuntimeException) t;
-        }
-
-        return new RuntimeException(t);
     }
 }

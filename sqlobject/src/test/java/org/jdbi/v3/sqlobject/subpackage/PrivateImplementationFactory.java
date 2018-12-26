@@ -23,14 +23,16 @@ import org.jdbi.v3.sqlobject.TestBeanBinder;
  * outside of the package via polymorphism.
  */
 public class PrivateImplementationFactory {
+    private PrivateImplementationFactory() {}
+
+    public static TestBeanBinder.PublicInterface create() {
+        return new PrivateImplementation();
+    }
+
     private static class PrivateImplementation implements TestBeanBinder.PublicInterface {
         @Override
         public String getValue() {
             return "IShouldBind";
         }
-    }
-
-    public static TestBeanBinder.PublicInterface create() {
-        return new PrivateImplementation();
     }
 }

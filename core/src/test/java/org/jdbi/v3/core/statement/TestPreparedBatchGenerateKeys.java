@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestPreparedBatchGenerateKeys {
 
     @Test
-    public void testBatchInsertWithKeyGeneration() throws Exception {
+    public void testBatchInsertWithKeyGeneration() {
 
         Jdbi db = Jdbi.create("jdbc:hsqldb:mem:jdbi-batch-keys-test", "sa", "");
 

@@ -51,46 +51,45 @@ import java.util.stream.Collector;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
+@SuppressWarnings("PMD.ReplaceVectorWithList")
 class VavrCollectorFactory implements CollectorFactory {
 
     private final Map<Class<?>, Class<?>> defaultImplementations = HashMap.of(
-            Traversable.class, List.class,
-            Seq.class, Vector.class,
-            IndexedSeq.class, Vector.class,
-            LinearSeq.class, List.class,
-            Set.class, HashSet.class,
-            SortedSet.class, TreeSet.class,
-            Map.class, HashMap.class,
-            SortedMap.class, TreeMap.class,
-            Multimap.class, HashMultimap.class,
-            SortedMultimap.class, TreeMultimap.class
-   );
+        Traversable.class, List.class,
+        Seq.class, Vector.class,
+        IndexedSeq.class, Vector.class,
+        LinearSeq.class, List.class,
+        Set.class, HashSet.class,
+        SortedSet.class, TreeSet.class,
+        Map.class, HashMap.class,
+        SortedMap.class, TreeMap.class,
+        Multimap.class, HashMultimap.class,
+        SortedMultimap.class, TreeMultimap.class
+    );
 
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors; {
-        collectors = HashMap.ofEntries(
-                // Values
-                Tuple.of(Option.class, VavrCollectors.toOption()),
-                // Seqs
-                Tuple.of(Array.class, Array.collector()),
-                Tuple.of(Vector.class, Vector.collector()),
-                Tuple.of(List.class, List.collector()),
-                Tuple.of(Stream.class, Stream.collector()),
-                Tuple.of(Queue.class, Queue.collector()),
-                Tuple.of(PriorityQueue.class, PriorityQueue.collector()),
-                // Sets
-                Tuple.of(HashSet.class, HashSet.collector()),
-                Tuple.of(LinkedHashSet.class, LinkedHashSet.collector()),
-                Tuple.of(TreeSet.class, TreeSet.collector()),
-                // Maps
-                Tuple.of(HashMap.class, HashMap.collector()),
-                Tuple.of(LinkedHashMap.class, LinkedHashMap.collector()),
-                Tuple.of(TreeMap.class, TreeMap.collector()),
-                // Multimaps
-                Tuple.of(HashMultimap.class, HashMultimap.withSeq().collector()),
-                Tuple.of(LinkedHashMultimap.class, LinkedHashMultimap.withSeq().collector()),
-                Tuple.of(TreeMultimap.class, TreeMultimap.withSeq().collector())
-       );
-    }
+    private final Map<Class<?>, Collector<?, ?, ?>> collectors = HashMap.ofEntries(
+        // Values
+        Tuple.of(Option.class, VavrCollectors.toOption()),
+        // Seqs
+        Tuple.of(Array.class, Array.collector()),
+        Tuple.of(Vector.class, Vector.collector()),
+        Tuple.of(List.class, List.collector()),
+        Tuple.of(Stream.class, Stream.collector()),
+        Tuple.of(Queue.class, Queue.collector()),
+        Tuple.of(PriorityQueue.class, PriorityQueue.collector()),
+        // Sets
+        Tuple.of(HashSet.class, HashSet.collector()),
+        Tuple.of(LinkedHashSet.class, LinkedHashSet.collector()),
+        Tuple.of(TreeSet.class, TreeSet.collector()),
+        // Maps
+        Tuple.of(HashMap.class, HashMap.collector()),
+        Tuple.of(LinkedHashMap.class, LinkedHashMap.collector()),
+        Tuple.of(TreeMap.class, TreeMap.collector()),
+        // Multimaps
+        Tuple.of(HashMultimap.class, HashMultimap.withSeq().collector()),
+        Tuple.of(LinkedHashMultimap.class, LinkedHashMultimap.withSeq().collector()),
+        Tuple.of(TreeMultimap.class, TreeMultimap.withSeq().collector())
+    );
 
     @Override
     public boolean accepts(Type containerType) {

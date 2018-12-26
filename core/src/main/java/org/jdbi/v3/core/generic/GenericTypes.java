@@ -19,8 +19,9 @@ import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.core.generic.internal.TypeParameter;
-import org.jdbi.v3.core.generic.internal.TypeToken;
+import org.jdbi.v3.core.internal.UtilityClassException;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
 
 /**
  * Utilities for working with generic types.
@@ -37,7 +38,7 @@ public class GenericTypes {
     }
 
     private GenericTypes() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**
@@ -58,34 +59,47 @@ public class GenericTypes {
     }
 
     /**
+     * Same as {@link #findGenericParameter(Type, Class, int)} with n = 0
+     */
+    public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
+        return findGenericParameter(type, parameterizedSupertype, 0);
+    }
+
+    /**
      * For the given type which extends parameterizedSupertype, returns the
-     * first generic parameter for parameterized supertype, if concretely
+     * nth generic parameter for the parameterized supertype, if concretely
      * expressed.
      *
      * <p>
      * Example:
      * </p>
      * <ul>
-     * <li>if <code>type</code> is <code>ArrayList&lt;String&gt;</code> and
-     * <code>parameterizedSuperType</code> is <code>List.class</code>, returns
-     * <code>Optional.of(String.class)</code>.</li>
-     * <li>if <code>type</code> is <code>ArrayList.class</code> (raw) and
-     * <code>parameterizedSuperType</code> is <code>List.class</code>, returns
-     * <code>Optional.empty()</code>.</li>
+     * <li>if <code>type</code> is <code>ArrayList&lt;String&gt;</code>,
+     * <code>parameterizedSuperType</code> is <code>List.class</code>,
+     * and <code>n</code> is <code>0</code>,
+     * returns <code>Optional.of(String.class)</code>.</li>
+     * <li>if <code>type</code> is <code>Map&lt;String, Integer&gt;</code>,
+     * <code>parameterizedSuperType</code> is <code>Map.class</code>,
+     * and <code>n</code> is <code>1</code>,
+     * returns <code>Optional.of(Integer.class)</code>.</li>
+     * <li>if <code>type</code> is <code>ArrayList.class</code> (raw),
+     * <code>parameterizedSuperType</code> is <code>List.class</code>,
+     * and <code>n</code> is <code>0</code>,
+     * returns <code>Optional.empty()</code>.</li>
      * </ul>
      *
-     * @param type
-     *            the subtype of parameterizedSupertype
-     * @param parameterizedSupertype
-     *            the parameterized supertype from which we want the generic
+     * @param type the subtype of parameterizedSupertype
+     * @param parameterizedSupertype the parameterized supertype from which we want the generic
      *            parameter
+     * @param n the index in <code>Foo&lt;X, Y, Z, ...&gt;</code>
      * @return the parameter on the supertype, if it is concretely defined.
+     * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
-    public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
-        Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[0], type);
+    public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
+        Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[n], type);
         return parameterType instanceof Class || parameterType instanceof ParameterizedType
-                ? Optional.of(parameterType)
-                : Optional.empty();
+            ? Optional.of(parameterType)
+            : Optional.empty();
     }
 
     /**

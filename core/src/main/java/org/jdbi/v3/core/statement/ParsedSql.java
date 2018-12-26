@@ -21,7 +21,7 @@ import java.util.Objects;
  * The SQL and parameters parsed from an SQL statement.
  */
 public class ParsedSql {
-    private static final String POSITIONAL_PARAM = "?";
+    static final String POSITIONAL_PARAM = "?";
 
     private final String sql;
     private final ParsedParameters parameters;
@@ -55,8 +55,8 @@ public class ParsedSql {
             return false;
         }
         ParsedSql that = (ParsedSql) o;
-        return Objects.equals(sql, that.sql) &&
-                Objects.equals(parameters, that.parameters);
+        return Objects.equals(sql, that.sql)
+            && Objects.equals(parameters, that.parameters);
     }
 
     @Override
@@ -66,10 +66,30 @@ public class ParsedSql {
 
     @Override
     public String toString() {
-        return "ParsedSql{" +
-                "sql='" + sql + '\'' +
-                ", parameters=" + parameters +
-                '}';
+        return "ParsedSql{"
+            + "sql='" + sql + '\''
+            + ", parameters=" + parameters
+            + '}';
+    }
+
+    /**
+     * A static factory of {@link ParsedSql} instances. The statement
+     * may contain only positional parameters
+     * (the {@value #POSITIONAL_PARAM} character). If your SQL
+     * code contains named parameters (for example variables preceded
+     * by a colon) then you have to replace them with positional
+     * parameters and specify the mapping in the
+     * {@link ParsedParameters}. You cannot mix named and positional
+     * parameters in one SQL statement.
+     *
+     * @param sql the SQL code containing only positional parameters
+     * @param parameters the ordered list of named parameters, or positional parameters
+     * @return New {@link ParsedSql} instance
+     * @see ParsedParameters#positional(int)
+     * @see ParsedParameters#named(List)
+     */
+    public static ParsedSql of(String sql, ParsedParameters parameters) {
+        return new ParsedSql(sql, parameters);
     }
 
     /**
@@ -110,7 +130,7 @@ public class ParsedSql {
         public Builder appendPositionalParameter() {
             positional = true;
             parameterNames.add(POSITIONAL_PARAM);
-            return append("?");
+            return append(POSITIONAL_PARAM);
         }
 
         /**
@@ -123,7 +143,7 @@ public class ParsedSql {
         public Builder appendNamedParameter(String name) {
             named = true;
             parameterNames.add(name);
-            return append("?");
+            return append(POSITIONAL_PARAM);
         }
 
         /**

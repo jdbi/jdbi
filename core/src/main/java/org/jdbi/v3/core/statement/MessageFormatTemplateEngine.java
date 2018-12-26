@@ -37,9 +37,12 @@ import java.util.Set;
  *         .define("2", "abc")
  *         .invoke());
  * }</pre>
+ *
+ * @deprecated {@link MessageFormat} formats integers with decimal separators, e.g. <code>1000</code> &rarr; <code>"1,000"</code>. This hindsight realization has led us to discourage its use.
  */
-public enum MessageFormatTemplateEngine implements TemplateEngine {
-    INSTANCE;
+@Deprecated
+public class MessageFormatTemplateEngine implements TemplateEngine {
+    public MessageFormatTemplateEngine() {}
 
     @Override
     public String render(String template, StatementContext ctx) {
@@ -63,7 +66,7 @@ public enum MessageFormatTemplateEngine implements TemplateEngine {
             throw new IllegalArgumentException("expected " + expectedCount + " keys but got " + keySet.size());
         }
 
-        if (keySet.size() == 0) {
+        if (keySet.isEmpty()) {
             return;
         }
 

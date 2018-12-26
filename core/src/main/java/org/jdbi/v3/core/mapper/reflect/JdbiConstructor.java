@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
@@ -21,8 +22,9 @@ import java.lang.annotation.Target;
 
 /**
  * Indicate to {@link ConstructorMapper} and other reflective mappers
- * which constructor they should prefer, in case the class has more than one.
+ * how to construct an instance. The annotation can be placed on a constructor
+ * or static factory method.
  */
 @Retention(RUNTIME)
-@Target(CONSTRUCTOR)
+@Target({CONSTRUCTOR, METHOD})
 public @interface JdbiConstructor {}

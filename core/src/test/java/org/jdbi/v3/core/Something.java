@@ -44,7 +44,6 @@ public class Something {
         this.name = name;
     }
 
-
     public Integer getIntegerValue() {
         return integerValue;
     }
@@ -68,8 +67,12 @@ public class Something {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Something)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Something)) {
+            return false;
+        }
 
         Something that = (Something) o;
 
@@ -86,11 +89,11 @@ public class Something {
 
     @Override
     public String toString() {
-        return "Something{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", integerValue=" + integerValue +
-                ", intValue=" + intValue +
-                '}';
+        return "Something{"
+            + "id=" + id
+            + ", name='" + name + '\''
+            + ", integerValue=" + integerValue
+            + ", intValue=" + intValue
+            + '}';
     }
 }

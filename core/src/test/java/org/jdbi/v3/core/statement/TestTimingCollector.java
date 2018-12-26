@@ -13,20 +13,17 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.ParsedSql;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
     @Rule
@@ -36,13 +33,12 @@ public class TestTimingCollector {
 
     private TTC tc;
 
-    protected Handle openHandle() throws SQLException {
+    protected Handle openHandle() {
         tc = new TTC();
 
         dbRule.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
         return dbRule.getJdbi().open();
     }
-
 
     @Before
     public void setUp() throws Exception {
@@ -50,12 +46,14 @@ public class TestTimingCollector {
     }
 
     @After
-    public void doTearDown() throws Exception {
-        if (h != null) h.close();
+    public void doTearDown() {
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
         assertThat(c).isEqualTo(1);
@@ -66,7 +64,7 @@ public class TestTimingCollector {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
         String stmt2 = "update something set name = :name where id = :id";
         String stmt3 = "select * from something where id = :id";

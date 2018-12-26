@@ -14,7 +14,11 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.function.Consumer;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -38,15 +42,18 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace")
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     HandleCallback<R, X> callback) throws X {
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
-        X stack = null;
+        Deque<X> failures = new ArrayDeque<>();
         while (true) {
             try {
-                return getDelegate().inTransaction(handle, callback);
+                R result = getDelegate().inTransaction(handle, callback);
+                config.onSuccess.accept(new ArrayList<>(failures));
+                return result;
             } catch (Exception last) {
                 X x = (X) last;
 
@@ -55,16 +62,17 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     throw last;
                 }
 
-                // keep all exceptions thrown in the loop as a stack
-                if (stack == null) {
-                    stack = x;
-                } else {
-                    stack.addSuppressed(last);
-                }
+                failures.addLast(x);
+                config.onFailure.accept(new ArrayList<>(failures));
 
                 // no more attempts left? Throw ALL the exceptions! \o/
-                if (--attempts <= 0) {
-                    throw stack;
+                attempts -= 1;
+                if (attempts <= 0) {
+                    X toThrow = failures.removeLast();
+                    while (!failures.isEmpty()) {
+                        toThrow.addSuppressed(failures.removeLast());
+                    }
+                    throw toThrow;
                 }
             }
         }
@@ -109,8 +117,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      */
     public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
+        private static final Consumer<List<Exception>> NOP = list -> {};
+
         private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
+        private Consumer<List<Exception>> onFailure = NOP, onSuccess = NOP;
 
         /**
          * @param maxRetries number of retry attempts before aborting
@@ -134,11 +145,31 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             return this;
         }
 
+        /**
+         * @param onFailure consumer to handle the list of failures so far (e.g. for logging). Will not be called with an empty list, nor with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * @return this
+         */
+        public Configuration setOnFailure(Consumer<List<Exception>> onFailure) {
+            this.onFailure = onFailure;
+            return this;
+        }
+
+        /**
+         * @param onSuccess consumer to handle the list of failures that occurred during a transaction run, after the run has completed successfully (e.g. for logging). Will hopefully be called with an empty list, but with the same list of exceptions as the one passed to onFailure otherwise. Will not be called with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * @return this
+         */
+        public Configuration setOnSuccess(Consumer<List<Exception>> onSuccess) {
+            this.onSuccess = onSuccess;
+            return this;
+        }
+
         @Override
         public Configuration createCopy() {
             return new Configuration()
                     .setMaxRetries(maxRetries)
-                    .setSerializationFailureSqlState(serializationFailureSqlState);
+                    .setSerializationFailureSqlState(serializationFailureSqlState)
+                    .setOnFailure(onFailure)
+                    .setOnSuccess(onSuccess);
         }
     }
 }

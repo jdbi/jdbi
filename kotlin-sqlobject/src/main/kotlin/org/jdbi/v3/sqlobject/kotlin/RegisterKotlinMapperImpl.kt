@@ -14,9 +14,9 @@ class RegisterKotlinMapperImpl : Configurer {
         val prefix = registerKotlinMapper.prefix
         val mappers = registry.get(RowMappers::class.java)
         if (prefix.isEmpty()) {
-            mappers.register(KotlinMapper.factory(kotlinClass.java))
+            mappers.register(KotlinMapper(kotlinClass.java))
         } else {
-            mappers.register(KotlinMapper.factory(kotlinClass.java, prefix))
+            mappers.register(KotlinMapper(kotlinClass.java, prefix))
         }
     }
 

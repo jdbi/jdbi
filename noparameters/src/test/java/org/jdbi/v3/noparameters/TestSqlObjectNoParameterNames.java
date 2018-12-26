@@ -13,17 +13,12 @@
  */
 package org.jdbi.v3.noparameters;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assume.assumeFalse;
-
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindList;
@@ -33,6 +28,10 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assume.assumeFalse;
 
 public class TestSqlObjectNoParameterNames {
     @Rule
@@ -51,27 +50,27 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void implicitBindPositional() throws Exception {
+    public void implicitBindPositional() {
         assertThat(h.attach(BindDao.class).getByIdImplicitBindPositional(1)).isEqualTo(new Something(1, "Elsie Hughes"));
     }
 
     @Test
-    public void explicitBindPositional() throws Exception {
+    public void explicitBindPositional() {
         assertThat(h.attach(BindDao.class).getByIdExplicitBindPositional(1)).isEqualTo(new Something(1, "Elsie Hughes"));
     }
 
     @Test
-    public void implicitBindNamed() throws Exception {
+    public void implicitBindNamed() {
         assertThatThrownBy(() -> h.attach(BindDao.class).getByIdImplicitBindNamed(1))
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'id'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'id'");
     }
 
     @Test
-    public void explicitBindNamed() throws Exception {
+    public void explicitBindNamed() {
         assertThatThrownBy(() -> h.attach(BindDao.class).getByIdExplicitBindNamed(1))
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'id'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'id'");
     }
 
     public interface BindDao {
@@ -89,7 +88,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void bindListMissingName() throws Exception {
+    public void bindListMissingName() {
         assertThatThrownBy(() -> h.attach(BindListWithoutNameDao.class).listByIds(1))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("parameter was not given a name");
@@ -101,7 +100,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void bindListWithName() throws Exception {
+    public void bindListWithName() {
         assertThat(h.attach(BindListWithNameDao.class).listByIds(1))
                 .contains(new Something(1, "Elsie Hughes"));
     }
@@ -112,7 +111,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void defineMissingName() throws Exception {
+    public void defineMissingName() {
         assertThatThrownBy(() -> h.attach(DefineWithoutNameDao.class).getById(1))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("parameter was not given a name");
@@ -125,7 +124,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void defineWithName() throws Exception {
+    public void defineWithName() {
         assertThat(h.attach(DefineWithNameDao.class).getById(1))
                 .isEqualTo(new Something(1, "Elsie Hughes"));
     }
@@ -137,7 +136,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void defineListWithoutName() throws Exception {
+    public void defineListWithoutName() {
         assertThatThrownBy(() -> h.attach(DefineListWithoutNameDao.class).listByIds("1"))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("parameter was not given a name");
@@ -150,7 +149,7 @@ public class TestSqlObjectNoParameterNames {
     }
 
     @Test
-    public void defineListWithName() throws Exception {
+    public void defineListWithName() {
         assertThat(h.attach(DefineListWithNameDao.class).listByIds("1"))
                 .containsExactly(new Something(1, "Elsie Hughes"));
     }

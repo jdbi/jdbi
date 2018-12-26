@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -27,12 +24,14 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestArgumentFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testRegisterOnJdbi() throws Exception {
+    public void testRegisterOnJdbi() {
         final Jdbi db = dbRule.getJdbi();
         db.registerArgument(new NameAF());
         try (Handle h = db.open()) {
@@ -41,14 +40,14 @@ public class TestArgumentFactory {
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name).isEqualTo("Brian McCallister");
+            assertThat(fullName).isEqualTo("Brian McCallister");
         }
     }
 
     @Test
-    public void testRegisterOnHandle() throws Exception {
+    public void testRegisterOnHandle() {
         try (Handle h = dbRule.openHandle()) {
             h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
@@ -56,14 +55,14 @@ public class TestArgumentFactory {
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name).isEqualTo("Brian McCallister");
+            assertThat(fullName).isEqualTo("Brian McCallister");
         }
     }
 
     @Test
-    public void testRegisterOnStatement() throws Exception {
+    public void testRegisterOnStatement() {
         dbRule.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
          .registerArgument(new NameAF())
          .bind("id", 1)
@@ -72,7 +71,7 @@ public class TestArgumentFactory {
     }
 
     @Test
-    public void testOnPreparedBatch() throws Exception {
+    public void testOnPreparedBatch() {
         Handle h = dbRule.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());
@@ -85,8 +84,7 @@ public class TestArgumentFactory {
                            .mapTo(String.class)
                            .list();
 
-        assertThat(rs.get(0)).isEqualTo("Brian McCallister");
-        assertThat(rs.get(1)).isEqualTo("Henning S");
+        assertThat(rs).containsExactly("Brian McCallister", "Henning S");
     }
 
     public static class NameAF implements ArgumentFactory {

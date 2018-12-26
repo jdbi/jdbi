@@ -13,11 +13,19 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -28,19 +36,26 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TemplateEngine templateEngine;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
+    private Integer queryTimeout;
+    private boolean allowUnusedBindings;
+    private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
     public SqlStatements() {
-        attributes = new ConcurrentHashMap<>();
+        attributes = Collections.synchronizedMap(new HashMap<>());
         templateEngine = new DefinedAttributeTemplateEngine();
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
+        queryTimeout = null;
     }
 
     private SqlStatements(SqlStatements that) {
-        this.attributes = new ConcurrentHashMap<>(that.attributes);
+        this.attributes = Collections.synchronizedMap(that.getAttributes()); // already copied
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
         this.sqlLogger = that.sqlLogger;
+        this.queryTimeout = that.queryTimeout;
+        this.allowUnusedBindings = that.allowUnusedBindings;
+        this.customizers.addAll(that.customizers);
     }
 
     /**
@@ -84,7 +99,19 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return the defined attributes.
      */
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return new HashMap<>(attributes);
+    }
+
+    /**
+     * Provides a means for custom statement modification. Common customizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to customize a statement
+     * @return this
+     */
+    public SqlStatements addCustomizer(final StatementCustomizer customizer) {
+        this.customizers.add(customizer);
+        return this;
     }
 
     /**
@@ -165,8 +192,51 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
+    @Beta
+    public Integer getQueryTimeout() {
+        return queryTimeout;
+    }
+
+    /**
+     * Jdbi does not implement its own timeout mechanism: it simply calls {@link java.sql.Statement#setQueryTimeout}, leaving timeout handling to your jdbc driver.
+     *
+     * @param seconds the time in seconds to wait for a query to complete; 0 to disable the timeout; null to leave it at defaults (i.e. Jdbi will not call {@code setQueryTimeout(int)})
+     */
+    @Beta
+    public SqlStatements setQueryTimeout(@Nullable Integer seconds) {
+        if (seconds != null && seconds < 0) {
+            throw new IllegalArgumentException("queryTimeout must not be < 0");
+        }
+        this.queryTimeout = seconds;
+        return this;
+    }
+
+    public boolean isUnusedBindingAllowed() {
+        return allowUnusedBindings;
+    }
+
+    /**
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
+     *
+     * @see org.jdbi.v3.core.argument.Argument
+     */
+    public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
+        this.allowUnusedBindings = allowUnusedBindings;
+        return this;
+    }
+
+    void customize(Statement statement) throws SQLException {
+        if (queryTimeout != null) {
+            statement.setQueryTimeout(queryTimeout);
+        }
+    }
+
     @Override
     public SqlStatements createCopy() {
         return new SqlStatements(this);
+    }
+
+    Collection<StatementCustomizer> getCustomizers() {
+        return customizers;
     }
 }

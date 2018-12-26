@@ -51,15 +51,18 @@ public class Batch extends BaseStatement<Batch> {
      */
     public int[] execute() {
         // short circuit empty batch
-        if (parts.size() == 0) {
+        if (parts.isEmpty()) {
             return new int[] {};
         }
 
+        @SuppressWarnings("PMD.CloseResource")
         Statement stmt;
         try {
             try {
                 stmt = getHandle().getStatementBuilder().create(getHandle().getConnection(), getContext());
+
                 addCleanable(stmt::close);
+                getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
@@ -69,7 +72,7 @@ public class Batch extends BaseStatement<Batch> {
             try {
                 for (String part : parts) {
                     final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
-                    LOG.trace("  {}", sql);
+                    LOG.trace(" {}", sql);
                     stmt.addBatch(sql);
                 }
             } catch (SQLException e) {
@@ -77,7 +80,7 @@ public class Batch extends BaseStatement<Batch> {
             }
 
             try {
-                return getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }

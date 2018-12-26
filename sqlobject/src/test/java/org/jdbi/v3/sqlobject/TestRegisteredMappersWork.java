@@ -42,16 +42,15 @@ public class TestRegisteredMappersWork {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-
     public interface BooleanDao {
         @SqlQuery("select 1+1 = 2")
         boolean fetchABoolean();
     }
 
     @Test
-    public void testFoo() throws Exception {
-        boolean world_is_right = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
-        assertThat(world_is_right).isTrue();
+    public void testFoo() {
+        boolean worldIsRight = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
+        assertThat(worldIsRight).isTrue();
     }
 
     public static class Bean {
@@ -96,7 +95,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testBeanMapperFactory() throws Exception {
+    public void testBeanMapperFactory() {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -106,13 +105,13 @@ public class TestRegisteredMappersWork {
 
         bdb.insertBean(lima);
 
-        Bean another_lima = bdb.findByName("lima");
-        assertThat(another_lima.getName()).isEqualTo(lima.getName());
-        assertThat(another_lima.getColor()).isEqualTo(lima.getColor());
+        Bean anotherLima = bdb.findByName("lima");
+        assertThat(anotherLima.getName()).isEqualTo(lima.getName());
+        assertThat(anotherLima.getColor()).isEqualTo(lima.getColor());
     }
 
     @Test
-    public void testBeanMapperFactoryDefaultMethod() throws Exception {
+    public void testBeanMapperFactoryDefaultMethod() {
         BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
@@ -130,7 +129,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testRegistered() throws Exception {
+    public void testRegistered() {
         dbRule.getSharedHandle().registerRowMapper(new SomethingMapper());
 
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
@@ -142,7 +141,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testBuiltIn() throws Exception {
+    public void testBuiltIn() {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
@@ -151,7 +150,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testRegisterRowMapperAnnotationWorks() throws Exception {
+    public void testRegisterRowMapperAnnotationWorks() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
@@ -161,7 +160,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testNoRootRegistrations() throws Exception {
+    public void testNoRootRegistrations() {
         try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Henning')");
             assertThatThrownBy(() -> h.createQuery("select id, name from something where id = 1")
@@ -171,7 +170,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testNoErrorOnNoData() throws Exception {
+    public void testNoErrorOnNoData() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
@@ -183,7 +182,7 @@ public class TestRegisteredMappersWork {
     }
 
     @Test
-    public void testIteratorCloses() throws Exception {
+    public void testIteratorCloses() {
         Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
@@ -201,7 +200,6 @@ public class TestRegisteredMappersWork {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);
     }
-
 
     @RegisterRowMapper(MySomethingMapper.class)
     public interface Kabob {

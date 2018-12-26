@@ -19,20 +19,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
- * Utility class which constructs an {@link Jdbi} instance which can conveniently participate
- * in Spring's transaction management system.
+ * Utility class which constructs an {@link Jdbi} instance which can conveniently
+ * participate in Spring's transaction management system.
  */
-public class JdbiFactoryBean implements FactoryBean<Jdbi> {
+public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
@@ -45,12 +43,9 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi> {
         this.dataSource = dataSource;
     }
 
-    /**
-     * See {@link org.springframework.beans.factory.FactoryBean#getObject}
-     */
     @Override
-    public Jdbi getObject() throws Exception {
-        final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
+    protected Jdbi createInstance() throws Exception {
+        final Jdbi jdbi = Jdbi.create(new SpringConnectionFactory(dataSource));
 
         if (autoInstallPlugins) {
             jdbi.installPlugins();
@@ -69,16 +64,6 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi> {
     @Override
     public Class<Jdbi> getObjectType() {
         return Jdbi.class;
-    }
-
-    /**
-     * See {@link org.springframework.beans.factory.FactoryBean#isSingleton}
-     *
-     * @return false
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     /**
@@ -125,10 +110,11 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi> {
     /**
      * Verifies that a dataSource has been set
      */
-    @PostConstruct
-    private void afterPropertiesSet() {
+    @SuppressWarnings("unused")
+    public void afterPropertiesSet() throws Exception {
         if (dataSource == null) {
             throw new IllegalStateException("'dataSource' property must be set");
         }
+        super.afterPropertiesSet();
     }
 }

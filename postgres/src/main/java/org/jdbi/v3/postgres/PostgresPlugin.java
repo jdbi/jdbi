@@ -13,13 +13,52 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
- * Postgres plugin.
+ * Postgres plugin. Adds support for binding and mapping the following data types:
+ *
+ * <ul>
+ * <li>{@link java.net.InetAddress} (including {@link java.net.Inet4Address} and {@link java.net.Inet6Address})</li>
+ * <li>{@link java.time.LocalDate}</li>
+ * <li>{@link java.time.LocalTime}</li>
+ * <li>{@link java.time.LocalDateTime}</li>
+ * <li>{@link java.time.OffsetDateTime}</li>
+ * <li>{@link java.time.Duration} (see notes below)</li>
+ * <li>{@link java.time.Period} (see notes below)</li>
+ * <li>{@link java.util.Map Map&lt;String, String&gt;} (for {@code HSTORE} columns)</li>
+ * <li>{@link java.util.UUID}</li>
+ * </ul>
+ *
+ * <p>
+ * The following qualified types have {@link org.jdbi.v3.meta.Beta} support for binding and mapping:
+ *
+ * <ul>
+ * <li>{@link MacAddr @MacAddr java.lang.String} (for MACADDR columns)</li>
+ * <li>{@link HStore @HStore Map&lt;String, String&gt;} (for HSTORE columns)</li>
+ * </ul>
+ *
+ * <p>
+ * Also sets up SQL array support for the following types:
+ *
+ * <ul>
+ * <li>{@code double}</li>
+ * <li>{@code float}</li>
+ * <li>{@code int}</li>
+ * <li>{@code long}</li>
+ * <li>{@link java.lang.Double}</li>
+ * <li>{@link java.lang.Float}</li>
+ * <li>{@link java.lang.Integer}</li>
+ * <li>{@link java.lang.Long}</li>
+ * <li>{@link java.lang.String}</li>
+ * <li>{@link java.util.UUID}</li>
+ * </ul>
  *
  * <p>
  * A note about the mapping between the Postgres {@code interval} type and the Java {@link java.time.Period} and
@@ -43,29 +82,40 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
  */
 public class PostgresPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.registerArgument(new TypedEnumArgumentFactory());
-        db.registerArgument(new JavaTimeArgumentFactory());
-        db.registerArgument(new DurationArgumentFactory());
-        db.registerArgument(new PeriodArgumentFactory());
-        db.registerArgument(new InetArgumentFactory());
-        db.registerArgument(new HStoreArgumentFactory());
-        db.registerArgument(new UUIDArgumentFactory());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(new TypedEnumArgumentFactory());
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
+        jdbi.registerArgument(new DurationArgumentFactory());
+        jdbi.registerArgument(new PeriodArgumentFactory());
+        jdbi.registerArgument(new InetArgumentFactory());
+        jdbi.registerArgument(new HStoreArgumentFactory());
+        jdbi.registerArgument(new MacAddrArgumentFactory());
+        jdbi.registerArgument(new UUIDArgumentFactory());
 
-        db.registerArrayType(int.class, "integer");
-        db.registerArrayType(Integer.class, "integer");
-        db.registerArrayType(long.class, "bigint");
-        db.registerArrayType(Long.class, "bigint");
-        db.registerArrayType(String.class, "varchar");
-        db.registerArrayType(UUID.class, "uuid");
-        db.registerArrayType(float.class, "real");
-        db.registerArrayType(Float.class, "real");
-        db.registerArrayType(double.class, "double precision");
-        db.registerArrayType(Double.class, "double precision");
+        jdbi.registerArrayType(int.class, "integer");
+        jdbi.registerArrayType(Integer.class, "integer");
+        jdbi.registerArrayType(long.class, "bigint");
+        jdbi.registerArrayType(Long.class, "bigint");
+        jdbi.registerArrayType(String.class, "varchar");
+        jdbi.registerArrayType(UUID.class, "uuid");
+        jdbi.registerArrayType(float.class, "real");
+        jdbi.registerArrayType(Float.class, "real");
+        jdbi.registerArrayType(double.class, "double precision");
+        jdbi.registerArrayType(Double.class, "double precision");
 
-        db.registerColumnMapper(new JavaTimeMapperFactory());
-        db.registerColumnMapper(new HStoreColumnMapper());
-        db.registerColumnMapper(new DurationColumnMapperFactory());
-        db.registerColumnMapper(new PeriodColumnMapperFactory());
+        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
+
+        jdbi.registerColumnMapper(new HStoreColumnMapper());
+        jdbi.registerColumnMapper(new MacAddrColumnMapper());
+        jdbi.registerColumnMapper(new DurationColumnMapperFactory());
+        jdbi.registerColumnMapper(new PeriodColumnMapperFactory());
+
+        // legacy unqualified HSTORE
+        jdbi.registerArgument(new HStoreArgumentFactory()::build);
+        jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
+
+        if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) { // optional integration
+            jdbi.registerArgument(new JsonArgumentFactory());
+        }
     }
 }

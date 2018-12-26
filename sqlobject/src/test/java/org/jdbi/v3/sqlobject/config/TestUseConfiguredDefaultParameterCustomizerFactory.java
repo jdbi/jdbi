@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -41,14 +40,13 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
     private AtomicInteger invocationCounter = new AtomicInteger(0);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Jdbi db = dbRule.getJdbi();
 
         ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index, type) -> {
             invocationCounter.incrementAndGet();
             return (stmt, arg) -> stmt.bind("mybind" + index, arg);
         };
-
 
         db.configure(SqlObjects.class, c -> c.setDefaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
         handle = db.open();
@@ -69,7 +67,6 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
 
         assertThat(invocationCounter.get()).isEqualTo(0);
     }
-
 
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao {

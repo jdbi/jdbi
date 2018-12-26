@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import java.net.InetAddress;
@@ -30,6 +31,6 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
 
     @Override
     protected Argument build(InetAddress value, ConfigRegistry config) {
-        return (i, p, cx) -> p.setObject(i, value.getHostAddress(), Types.OTHER);
+        return new LoggableSetObjectArgument<>(value.getHostAddress(), Types.OTHER);
     }
 }

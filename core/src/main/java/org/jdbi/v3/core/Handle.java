@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.core;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -38,6 +35,8 @@ import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelE
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * This represents a connection to the database system. It is a wrapper around
  * a JDBC Connection object.  Handle provides essential methods for transaction
@@ -46,6 +45,7 @@ import org.slf4j.LoggerFactory;
 public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
+    private final ConnectionCloser closer;
     private final TransactionHandler transactions;
     private final Connection connection;
     private final boolean forceEndTransactions;
@@ -57,9 +57,11 @@ public class Handle implements Closeable, Configurable<Handle> {
     private boolean closed = false;
 
     Handle(ConfigRegistry config,
+           ConnectionCloser closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
            Connection connection) {
+        this.closer = closer;
         this.transactions = transactions;
         this.connection = connection;
 
@@ -117,36 +119,51 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     @Override
     public void close() {
-        if (!closed) {
-            boolean wasInTransaction = isInTransaction() && forceEndTransactions
-                    && config.get().get(Handles.class).isForceEndTransactions();
+        if (closed) {
+            return;
+        }
 
-            extensionMethod.remove();
-            config.remove();
+        boolean wasInTransaction = isInTransaction()
+            && forceEndTransactions
+            && config.get().get(Handles.class).isForceEndTransactions();
+
+        extensionMethod.remove();
+        config.remove();
+
+        if (wasInTransaction) {
+            rollback();
+        }
+
+        Exception suppressed = null;
+        try {
+            statementBuilder.close(getConnection());
+        } catch (Exception e) {
+            suppressed = e;
+        }
+
+        try {
+            closer.close(connection);
 
             if (wasInTransaction) {
-                rollback();
-            }
-
-            try {
-                statementBuilder.close(getConnection());
-            } finally {
-                try {
-                    connection.close();
-                    if (wasInTransaction) {
-                        throw new TransactionException("Improper transaction handling detected: A Handle with an open " +
-                                "transaction was closed. Transactions must be explicitly committed or rolled back " +
-                                "before closing the Handle. " +
-                                "Jdbi has rolled back this transaction automatically. " +
-                                "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
-                    }
-                } catch (SQLException e) {
-                    throw new CloseException("Unable to close Connection", e);
-                } finally {
-                    LOG.trace("Handle [{}] released", this);
-                    closed = true;
+                TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "
+                    + "transaction was closed. Transactions must be explicitly committed or rolled back "
+                    + "before closing the Handle. "
+                    + "Jdbi has rolled back this transaction automatically. "
+                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
+                if (suppressed != null) {
+                    txe.addSuppressed(suppressed);
                 }
+                throw txe;
             }
+        } catch (SQLException e) {
+            CloseException ce = new CloseException("Unable to close Connection", e);
+            if (suppressed != null) {
+                ce.addSuppressed(suppressed);
+            }
+            throw ce;
+        } finally {
+            LOG.trace("Handle [{}] released", this);
+            closed = true;
         }
     }
 
@@ -291,7 +308,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollback() {
         final long start = System.nanoTime();
         transactions.rollback(this);
-        LOG.trace("Handle [{}] rollback transaction in {}ms", this, ((System.nanoTime() - start) / 1000000L));
+        LOG.trace("Handle [{}] rollback transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
         return this;
     }
 
@@ -305,7 +322,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
         transactions.rollbackToSavepoint(this, savepointName);
-        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, ((System.nanoTime() - start) / 1000000L));
+        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, (System.nanoTime() - start) / 1000000L);
         return this;
     }
 
@@ -441,10 +458,14 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Set the transaction isolation level on the underlying connection.
      *
+     * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver
+     *
      * @param level the isolation level to use
      */
     public void setTransactionIsolation(TransactionIsolationLevel level) {
-        setTransactionIsolation(level.intValue());
+        if (level != TransactionIsolationLevel.UNKNOWN) {
+            setTransactionIsolation(level.intValue());
+        }
     }
 
     /**
@@ -454,11 +475,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public void setTransactionIsolation(int level) {
         try {
-            if (connection.getTransactionIsolation() == level) {
-                // already set, noop
-                return;
+            if (connection.getTransactionIsolation() != level) {
+                connection.setTransactionIsolation(level);
             }
-            connection.setTransactionIsolation(level);
         } catch (SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException(level, e);
         }
@@ -504,6 +523,10 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
+    }
+
+    interface ConnectionCloser {
+        void close(Connection conn) throws SQLException;
     }
 
     private class TransactionResetter implements Closeable {

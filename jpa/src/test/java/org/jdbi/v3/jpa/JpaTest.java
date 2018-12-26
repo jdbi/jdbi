@@ -13,39 +13,43 @@
  */
 package org.jdbi.v3.jpa;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-
-import org.assertj.core.api.AbstractListAssert;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
-import org.junit.Rule;
-import org.junit.Test;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.AbstractListAssert;
+import org.jdbi.v3.core.qualifier.Reversed;
+import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
+import org.jdbi.v3.core.qualifier.ReversedStringMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
     private static final String SELECT_BY_PROPERTY_NAME = "select id, name from something";
 
-    public static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
-    public static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
-    public static final String ID_ANNOTATION_NAME = "foo";
-    public static final String NAME_ANNOTATION_NAME = "bar";
+    private static final String INSERT_BY_ANNOTATION_NAME = "insert into something (id, name) values (:foo, :bar)";
+    private static final String SELECT_BY_ANNOTATION_NAME = "select id as foo, name as bar from something";
+    private static final String ID_ANNOTATION_NAME = "foo";
+    private static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     interface Thing {
         int getId();
+
         String getName();
     }
 
@@ -54,14 +58,28 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public EntityThing() {}
-        public EntityThing(int id, String name) { setId(id); setName(name); }
+        EntityThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        EntityThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface EntityThingDao {
@@ -74,7 +92,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testEntityNoColumnAnnotations() throws Exception {
+    public void testEntityNoColumnAnnotations() {
         EntityThing brian = new EntityThing(1, "Brian");
         EntityThing keith = new EntityThing(2, "Keith");
 
@@ -89,17 +107,33 @@ public class JpaTest {
 
     @Entity
     static class FieldThing implements Thing {
-        @Column private int id;
-        @Column private String name;
+        @Column
+        private int id;
+        @Column
+        private String name;
 
-        public FieldThing() {}
-        public FieldThing(int id, String name) { setId(id); setName(name); }
+        FieldThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        FieldThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface FieldThingDao {
@@ -112,7 +146,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testField() throws Exception {
+    public void testField() {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
@@ -126,17 +160,33 @@ public class JpaTest {
 
     @Entity
     static class NamedFieldThing implements Thing {
-        @Column(name = "foo") private int id;
-        @Column(name = "bar") private String name;
+        @Column(name = "foo")
+        private int id;
+        @Column(name = "bar")
+        private String name;
 
-        public NamedFieldThing() {}
-        public NamedFieldThing(int id, String name) { setId(id); setName(name); }
+        NamedFieldThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        NamedFieldThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedFieldThingDao {
@@ -149,7 +199,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedField() throws Exception {
+    public void testNamedField() {
         NamedFieldThing brian = new NamedFieldThing(1, "Brian");
         NamedFieldThing keith = new NamedFieldThing(2, "Keith");
 
@@ -167,14 +217,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public GetterThing() {}
-        public GetterThing(int id, String name) { setId(id); setName(name); }
+        GetterThing() {}
 
-        @Column public int getId() { return id; }
-        @Column public String getName() { return name; }
+        GetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        @Column
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface GetterThingDao {
@@ -187,7 +253,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testGetter() throws Exception {
+    public void testGetter() {
         GetterThing brian = new GetterThing(1, "Brian");
         GetterThing keith = new GetterThing(2, "Keith");
 
@@ -205,14 +271,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedGetterThing() {}
-        public NamedGetterThing(int id, String name) { setId(id); setName(name); }
+        NamedGetterThing() {}
 
-        @Column(name = "foo") public int getId() { return id; }
-        @Column(name = "bar") public String getName() { return name; }
+        NamedGetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        @Column(name = "foo")
+        public int getId() {
+            return id;
+        }
+
+        @Column(name = "bar")
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedGetterThingDao {
@@ -225,7 +307,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedGetter() throws Exception {
+    public void testNamedGetter() {
         NamedGetterThing brian = new NamedGetterThing(1, "Brian");
         NamedGetterThing keith = new NamedGetterThing(2, "Keith");
 
@@ -243,14 +325,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public SetterThing() {}
-        public SetterThing(int id, String name) { setId(id); setName(name); }
+        SetterThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        SetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column public void setId(int id) { this.id = id; }
-        @Column public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface SetterThingDao {
@@ -263,7 +361,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testSetter() throws Exception {
+    public void testSetter() {
         SetterThing brian = new SetterThing(1, "Brian");
         SetterThing keith = new SetterThing(2, "Keith");
 
@@ -281,14 +379,30 @@ public class JpaTest {
         private int id;
         private String name;
 
-        public NamedSetterThing() {}
-        public NamedSetterThing(int id, String name) { setId(id); setName(name); }
+        NamedSetterThing() {}
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        NamedSetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column(name = "foo") public void setId(int id) { this.id = id; }
-        @Column(name = "bar") public void setName(String name) { this.name = name; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column(name = "foo")
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column(name = "bar")
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface NamedSetterThingDao {
@@ -301,7 +415,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testNamedSetter() throws Exception {
+    public void testNamedSetter() {
         NamedSetterThing brian = new NamedSetterThing(1, "Brian");
         NamedSetterThing keith = new NamedSetterThing(2, "Keith");
 
@@ -316,18 +430,34 @@ public class JpaTest {
     @MappedSuperclass
     static class MappedSuperclassThing {
         private int id;
-        public int getId() { return id; }
-        public void setId(int id) { this.id = id; }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 
     @Entity
     static class ExtendsMappedSuperclassThing extends MappedSuperclassThing implements Thing {
-        public ExtendsMappedSuperclassThing() {}
-        public ExtendsMappedSuperclassThing(int id, String name) { setId(id); setName(name); }
+        ExtendsMappedSuperclassThing() {}
+
+        ExtendsMappedSuperclassThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
         private String name;
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface MappedSuperclassThingDao {
@@ -340,7 +470,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testMappedSuperclass() throws Exception {
+    public void testMappedSuperclass() {
         ExtendsMappedSuperclassThing brian = new ExtendsMappedSuperclassThing(1, "Brian");
         ExtendsMappedSuperclassThing keith = new ExtendsMappedSuperclassThing(2, "Keith");
 
@@ -354,17 +484,36 @@ public class JpaTest {
 
     @Entity
     static class AnnotationPriorityThing implements Thing {
-        @Column(name = ID_ANNOTATION_NAME) private int id;
+        @Column(name = ID_ANNOTATION_NAME)
+        private int id;
         private String name;
 
-        public AnnotationPriorityThing() {}
-        public AnnotationPriorityThing(int id, String name) { setId(id); setName(name); }
+        AnnotationPriorityThing() {}
 
-        @Column(name = "ignored") public int getId() { return id; }
-        @Column(name = NAME_ANNOTATION_NAME) public String getName() { return name; }
+        AnnotationPriorityThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
 
-        @Column(name = "ignored") public void setId(int id) { this.id = id; }
-        @Column(name = "ignored") public void setName(String name) { this.name = name; }
+        @Column(name = "ignored")
+        public int getId() {
+            return id;
+        }
+
+        @Column(name = NAME_ANNOTATION_NAME)
+        public String getName() {
+            return name;
+        }
+
+        @Column(name = "ignored")
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Column(name = "ignored")
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     public interface AnnotationPriorityThingDao {
@@ -377,7 +526,7 @@ public class JpaTest {
     }
 
     @Test
-    public void testAnnotationPriority() throws Exception {
+    public void testAnnotationPriority() {
         // fields before getters before setters
         AnnotationPriorityThing brian = new AnnotationPriorityThing(1, "Brian");
         AnnotationPriorityThing keith = new AnnotationPriorityThing(2, "Keith");
@@ -436,22 +585,42 @@ public class JpaTest {
 
     @MappedSuperclass
     static class OverriddenSuperclassThing implements Thing {
-        @Column(name = "foo") private int id;
-        @Column(name = "bar") private String name;
+        @Column(name = "foo")
+        private int id;
+        @Column(name = "bar")
+        private String name;
 
-        public int getId() { return id; }
-        public String getName() { return name; }
+        public int getId() {
+            return id;
+        }
 
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     @Entity
     static class OverridingSubclassThing extends OverriddenSuperclassThing {
-        public OverridingSubclassThing() {}
-        public OverridingSubclassThing(int id, String name) { setId(id); setName(name); }
+        OverridingSubclassThing() {}
 
-        @Override @Column(name = "meow") public int getId() { return super.getId(); }
+        OverridingSubclassThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
+
+        @Override
+        @Column(name = "meow")
+        public int getId() {
+            return super.getId();
+        }
     }
 
     public interface OverridingSubclassThingDao {
@@ -478,6 +647,361 @@ public class JpaTest {
         List<OverridingSubclassThing> rs = dao.list();
 
         assertThatThing(rs).containsOnlyOnce(brian, keith);
+    }
+
+    @Test
+    public void qualifiedField() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedFieldDao dao = handle.attach(QualifiedFieldDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedFieldThing(1, "cba"));
+
+            dao.insert(new QualifiedFieldThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedFieldDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedFieldThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedFieldThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedFieldThing {
+        @Column
+        private int id;
+
+        @Reversed
+        @Column
+        private String name;
+
+        public QualifiedFieldThing() {}
+
+        public QualifiedFieldThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedFieldThing that = (QualifiedFieldThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedFieldThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedGetter() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedGetterDao dao = handle.attach(QualifiedGetterDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedGetterThing(1, "cba"));
+
+            dao.insert(new QualifiedGetterThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedGetterDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedGetterThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedGetterThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedGetterThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedGetterThing() {}
+
+        public QualifiedGetterThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Column
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        @Reversed
+        @Column
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedGetterThing that = (QualifiedGetterThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedGetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedSetter() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedSetterDao dao = handle.attach(QualifiedSetterDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedSetterThing(1, "cba"));
+
+            dao.insert(new QualifiedSetterThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedSetterDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedSetterThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedSetterThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedSetterThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedSetterThing() {}
+
+        public QualifiedSetterThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Reversed
+        @Column
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedSetterThing that = (QualifiedSetterThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedSetterThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
+    }
+
+    @Test
+    public void qualifiedSetterParam() {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (1, 'abc')");
+
+            QualifiedSetterParamDao dao = handle.attach(QualifiedSetterParamDao.class);
+
+            assertThat(dao.get(1))
+                .isEqualTo(new QualifiedSetterParamThing(1, "cba"));
+
+            dao.insert(new QualifiedSetterParamThing(2, "xyz"));
+
+            assertThat(handle.select("SELECT name FROM something WHERE id = 2")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("zyx");
+        });
+    }
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
+    @RegisterColumnMapper(ReversedStringMapper.class)
+    public interface QualifiedSetterParamDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa QualifiedSetterParamThing thing);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        QualifiedSetterParamThing get(int id);
+    }
+
+    @Entity
+    public static class QualifiedSetterParamThing {
+        private int id;
+
+        private String name;
+
+        public QualifiedSetterParamThing() {}
+
+        public QualifiedSetterParamThing(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Column
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Column
+        public void setName(@Reversed String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            QualifiedSetterParamThing that = (QualifiedSetterParamThing) o;
+            return id == that.id
+                && Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "QualifiedSetterParamThing{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
+        }
     }
 
     private static <T extends Thing> AbstractListAssert<?, ? extends List<? extends T>, T, ?> assertThatThing(List<T> rs) {

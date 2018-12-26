@@ -121,8 +121,8 @@ public class TestGuavaCollectors {
 
     @Test
     public void mapCollectors() {
-        testMapCollector(ImmutableMap.class, new GenericType<ImmutableMap<Long,String>>(){});
-        testMapCollector(BiMap.class, new GenericType<BiMap<Long,String>>(){});
+        testMapCollector(ImmutableMap.class, new GenericType<ImmutableMap<Long, String>>(){});
+        testMapCollector(BiMap.class, new GenericType<BiMap<Long, String>>(){});
     }
 
     @SuppressWarnings("unchecked")
@@ -130,9 +130,9 @@ public class TestGuavaCollectors {
         JdbiCollectors registry = dbRule.getJdbi().getConfig(JdbiCollectors.class);
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
-                .contains(new GenericType<Map.Entry<Long,String>>(){}.getType());
+                .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());
 
-        Collector<Map.Entry<Long,String>, ?, M> collector = (Collector<Map.Entry<Long, String>, ?, M>) registry
+        Collector<Map.Entry<Long, String>, ?, M> collector = (Collector<Map.Entry<Long, String>, ?, M>) registry
                 .findFor(genericType.getType())
                 .orElseThrow(() -> new IllegalStateException("Missing collector for " + genericType));
 
@@ -144,16 +144,16 @@ public class TestGuavaCollectors {
 
     @Test
     public void multimapCollectors() {
-        testMultimapCollector(ImmutableMultimap.class, new GenericType<ImmutableMultimap<Long,String>>(){});
-        testMultimapCollector(ImmutableListMultimap.class, new GenericType<ImmutableListMultimap<Long,String>>(){});
-        testMultimapCollector(ImmutableSetMultimap.class, new GenericType<ImmutableSetMultimap<Long,String>>(){});
-        testMultimapCollector(Multimap.class, new GenericType<Multimap<Long,String>>(){});
-        testMultimapCollector(ListMultimap.class, new GenericType<ListMultimap<Long,String>>(){});
-        testMultimapCollector(ArrayListMultimap.class, new GenericType<ArrayListMultimap<Long,String>>(){});
-        testMultimapCollector(LinkedListMultimap.class, new GenericType<LinkedListMultimap<Long,String>>(){});
-        testMultimapCollector(SetMultimap.class, new GenericType<SetMultimap<Long,String>>(){});
-        testMultimapCollector(HashMultimap.class, new GenericType<HashMultimap<Long,String>>(){});
-        testMultimapCollector(TreeMultimap.class, new GenericType<TreeMultimap<Long,String>>(){});
+        testMultimapCollector(ImmutableMultimap.class, new GenericType<ImmutableMultimap<Long, String>>(){});
+        testMultimapCollector(ImmutableListMultimap.class, new GenericType<ImmutableListMultimap<Long, String>>(){});
+        testMultimapCollector(ImmutableSetMultimap.class, new GenericType<ImmutableSetMultimap<Long, String>>(){});
+        testMultimapCollector(Multimap.class, new GenericType<Multimap<Long, String>>(){});
+        testMultimapCollector(ListMultimap.class, new GenericType<ListMultimap<Long, String>>(){});
+        testMultimapCollector(ArrayListMultimap.class, new GenericType<ArrayListMultimap<Long, String>>(){});
+        testMultimapCollector(LinkedListMultimap.class, new GenericType<LinkedListMultimap<Long, String>>(){});
+        testMultimapCollector(SetMultimap.class, new GenericType<SetMultimap<Long, String>>(){});
+        testMultimapCollector(HashMultimap.class, new GenericType<HashMultimap<Long, String>>(){});
+        testMultimapCollector(TreeMultimap.class, new GenericType<TreeMultimap<Long, String>>(){});
     }
 
     @SuppressWarnings("unchecked")
@@ -161,9 +161,9 @@ public class TestGuavaCollectors {
         JdbiCollectors registry = dbRule.getJdbi().getConfig(JdbiCollectors.class);
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
-                .contains(new GenericType<Map.Entry<Long,String>>(){}.getType());
+                .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());
 
-        Collector<Map.Entry<Long,String>, ?, M> collector = (Collector<Map.Entry<Long, String>, ?, M>) registry
+        Collector<Map.Entry<Long, String>, ?, M> collector = (Collector<Map.Entry<Long, String>, ?, M>) registry
                 .findFor(genericType.getType())
                 .orElseThrow(() -> new IllegalStateException("Missing collector for " + genericType));
 

@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -29,6 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestSqlMethodDecorators {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -38,36 +38,36 @@ public class TestSqlMethodDecorators {
 
     private Handle handle;
 
-    private static final ThreadLocal<List<String>> invocations = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<List<String>> INVOCATIONS = ThreadLocal.withInitial(ArrayList::new);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
-        invocations.get().clear();
+        INVOCATIONS.get().clear();
     }
 
     @Test
-    public void testUnordered() throws Exception {
+    public void testUnordered() {
         Dao dao = handle.attach(Dao.class);
         dao.unordered();
 
-        assertThat(invocations.get()).isIn(asList("foo", "bar", "method"), asList("bar", "foo", "method"));
+        assertThat(INVOCATIONS.get()).isIn(asList("foo", "bar", "method"), asList("bar", "foo", "method"));
     }
 
     @Test
-    public void testOrderedFooBar() throws Exception {
+    public void testOrderedFooBar() {
         Dao dao = handle.attach(Dao.class);
         dao.orderedFooBar();
 
-        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }
 
     @Test
-    public void testOrderedBarFoo() throws Exception {
+    public void testOrderedBarFoo() {
         Dao dao = handle.attach(Dao.class);
         dao.orderedBarFoo();
 
-        assertThat(invocations.get()).containsExactly("bar", "foo", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("bar", "foo", "method");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class TestSqlMethodDecorators {
         OrderedOnType dao = handle.attach(OrderedOnType.class);
         dao.orderedFooBarOnType();
 
-        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class TestSqlMethodDecorators {
         OrderedOnType dao = handle.attach(OrderedOnType.class);
         dao.orderedBarFooOnMethod();
 
-        assertThat(invocations.get()).containsExactly("bar", "foo", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("bar", "foo", "method");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestSqlMethodDecorators {
         Dao dao = handle.attach(Dao.class);
         dao.abortingDecorator();
 
-        assertThat(invocations.get()).containsExactly("foo", "abort");
+        assertThat(INVOCATIONS.get()).containsExactly("foo", "abort");
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TestSqlMethodDecorators {
 
         handle.attach(Dao.class).orderedFooBar();
 
-        assertThat(invocations.get()).containsExactly("custom", "foo", "bar", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("custom", "foo", "bar", "method");
     }
 
     @Test
@@ -114,11 +114,11 @@ public class TestSqlMethodDecorators {
 
         handle.attach(Dao.class).orderedFooBar();
 
-        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
+        assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }
 
     static void invoked(String value) {
-        invocations.get().add(value);
+        INVOCATIONS.get().add(value);
     }
 
     public interface Dao {
@@ -209,7 +209,7 @@ public class TestSqlMethodDecorators {
     public @interface CustomSqlOperation {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) {
                 invoked("method");
                 return null;
             }

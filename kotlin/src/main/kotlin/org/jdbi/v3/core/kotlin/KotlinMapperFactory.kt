@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,10 @@ class KotlinMapperFactory : RowMapperFactory {
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
         val erasedType = getErasedType(type)
 
-        return if (erasedType.isKotlinClass()) {
+        //TODO: Validate if we should only handle 'data' classes with the Kotlin mapper
+        // Switching this might cause issues for users, might be better to do it for a major release
+        // See https://github.com/jdbi/jdbi/issues/1218 for more info
+        return if (erasedType.isKotlinClass() && !erasedType.isEnum) {
             Optional.of(KotlinMapper(erasedType))
         } else {
             Optional.empty()

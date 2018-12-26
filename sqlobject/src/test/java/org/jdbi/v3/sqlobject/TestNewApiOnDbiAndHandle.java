@@ -37,7 +37,7 @@ public class TestNewApiOnDbiAndHandle {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         db = Jdbi.create(ds);
@@ -49,7 +49,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.execute("drop table something");
         handle.close();
     }
@@ -70,7 +70,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @Test
-    public void testOnDemandSpiffy() throws Exception {
+    public void testOnDemandSpiffy() {
         Spiffy spiffy = db.onDemand(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
@@ -80,7 +80,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @Test
-    public void testAttach() throws Exception {
+    public void testAttach() {
         Spiffy spiffy = handle.attach(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
@@ -90,7 +90,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @Test
-    public void testCorrectExceptionIfUnableToConnectOnDemand(){
+    public void testCorrectExceptionIfUnableToConnectOnDemand() {
         assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
             .installPlugin(new SqlObjectPlugin())
             .onDemand(Spiffy.class)
@@ -98,7 +98,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @Test
-    public void testCorrectExceptionIfUnableToConnectOnOpen(){
+    public void testCorrectExceptionIfUnableToConnectOnOpen() {
         assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
             .installPlugin(new SqlObjectPlugin())
             .open()
@@ -106,7 +106,7 @@ public class TestNewApiOnDbiAndHandle {
     }
 
     @Test
-    public void testCorrectExceptionIfUnableToConnectOnAttach(){
+    public void testCorrectExceptionIfUnableToConnectOnAttach() {
         assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
             .installPlugin(new SqlObjectPlugin())
             .open()

@@ -56,7 +56,7 @@ public class TestHStore {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists campaigns");
@@ -130,7 +130,6 @@ public class TestHStore {
         campaignDao.insertCampaignFromMap(ImmutableMap.of("id", 3, "caps", caps));
         assertThat(campaignDao.getCampaignsCaps(3)).isEqualTo(caps);
     }
-
 
     public interface CampaignDao {
 

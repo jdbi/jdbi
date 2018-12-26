@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -25,6 +26,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  */
 // We must use a raw type to ensure we match all Map types rather than any particular generic type
 @SuppressWarnings("rawtypes")
+@HStore
 public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
     public HStoreArgumentFactory() {
         super(Types.OTHER);
@@ -32,6 +34,6 @@ public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
 
     @Override
     protected Argument build(Map value, ConfigRegistry config) {
-        return (i, p, cx) -> p.setObject(i, value);
+        return new LoggableSetObjectArgument<>(value);
     }
 }

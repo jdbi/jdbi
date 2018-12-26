@@ -15,6 +15,8 @@ package org.jdbi.v3.core.config;
 
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -25,6 +27,7 @@ import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -32,11 +35,14 @@ import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.TimingCollector;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -112,6 +118,10 @@ public interface Configurable<This> {
         return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
     }
 
+    default This addCustomizer(StatementCustomizer customizer) {
+        return configure(SqlStatements.class, c -> c.addCustomizer(customizer));
+    }
+
     /**
      * Convenience method for {@code getConfig(SqlStatements.class).define(key, value)}
      *
@@ -175,6 +185,19 @@ public interface Configurable<This> {
     }
 
     /**
+     * Convenience method for registering an array type as {@link SqlArrayTypeFactory#of(Class, String, Function)}.
+     *
+     * @param elementType element raw type
+     * @param sqlTypeName SQL type name
+     * @param conversion the function to convert to database representation
+     * @param <T> element type
+     * @return this
+     */
+    default <T> This registerArrayType(Class<T> elementType, String sqlTypeName, Function<T, ?> conversion) {
+        return registerArrayType(SqlArrayTypeFactory.of(elementType, sqlTypeName, conversion));
+    }
+
+    /**
      * Convenience method for {@code getConfig(SqlArrayTypes.class).register(arrayType)}
      *
      * @param arrayType SQL array type
@@ -217,11 +240,34 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
+     * @param type the generic type to register
+     * @param mapper the mapper to use on that type
+     * @return this
+     */
+    default <T> This registerColumnMapper(GenericType<T> type, ColumnMapper<T> mapper) {
+        return configure(ColumnMappers.class, c -> c.register(type, mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     *
      * @param type the type to register
      * @param mapper the mapper to use on that type
      * @return this
      */
     default This registerColumnMapper(Type type, ColumnMapper<?> mapper) {
+        return configure(ColumnMappers.class, c -> c.register(type, mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     *
+     * @param type the type to register
+     * @param mapper the mapper to use on that type
+     * @return this
+     */
+    @Beta
+    default This registerColumnMapper(QualifiedType type, ColumnMapper<?> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
 
@@ -262,6 +308,17 @@ public interface Configurable<This> {
      * @param mapper row mapper
      * @return this
      */
+    default <T> This registerRowMapper(GenericType<T> type, RowMapper<T> mapper) {
+        return configure(RowMappers.class, c -> c.register(type, mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     *
+     * @param type to match
+     * @param mapper row mapper
+     * @return this
+     */
     default This registerRowMapper(Type type, RowMapper<?> mapper) {
         return configure(RowMappers.class, c -> c.register(type, mapper));
     }
@@ -276,3 +333,4 @@ public interface Configurable<This> {
         return configure(RowMappers.class, c -> c.register(factory));
     }
 }
+

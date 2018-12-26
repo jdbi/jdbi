@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,13 +21,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -41,6 +42,18 @@ import org.jdbi.v3.core.statement.StatementContext;
  * The mapped class must have a default constructor.
  */
 public class FieldMapper<T> implements RowMapper<T> {
+    private static final String DEFAULT_PREFIX = "";
+
+    private static final String NO_MATCHING_COLUMNS =
+        "Mapping fields for type %s didn't find any matching columns in result set";
+
+    private static final String UNMATCHED_COLUMNS_STRICT =
+        "Mapping type %s could not match fields for columns: %s";
+
+    private static final String TYPE_NOT_INSTANTIABLE =
+        "A type, %s, was mapped which was not instantiable";
+    private static final String CANNOT_ACCESS_PROPERTY = "Unable to access property, %s";
+
     /**
      * Returns a mapper factory that maps to the given bean class
      *
@@ -85,8 +98,6 @@ public class FieldMapper<T> implements RowMapper<T> {
         return new FieldMapper<>(type, prefix);
     }
 
-    static final String DEFAULT_PREFIX = "";
-
     private final Class<T> type;
     private final String prefix;
     private final Map<Field, FieldMapper<?>> nestedMappers = new ConcurrentHashMap<>();
@@ -108,24 +119,22 @@ public class FieldMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
+        RowMapper<T> mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+            .orElseThrow(() -> new IllegalArgumentException(String.format(NO_MATCHING_COLUMNS, type)));
 
-        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
-            unmatchedColumns.stream().anyMatch(col -> col.startsWith(prefix))) {
-            throw new IllegalArgumentException(String.format(
-                "Mapping type %s could not match fields for columns: %s",
-                type.getSimpleName(),
-                unmatchedColumns));
+        if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
+            && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
+            throw new IllegalArgumentException(
+                String.format(UNMATCHED_COLUMNS_STRICT, type.getSimpleName(), unmatchedColumns));
         }
 
         return mapper;
     }
 
-    private RowMapper<T> specialize0(ResultSet rs,
-                                     StatementContext ctx,
-                                     List<String> columnNames,
-                                     List<ColumnNameMatcher> columnNameMatchers,
-                                     List<String> unmatchedColumns) throws SQLException {
+    private Optional<RowMapper<T>> specialize0(StatementContext ctx,
+                                               List<String> columnNames,
+                                               List<ColumnNameMatcher> columnNameMatchers,
+                                               List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<Field> fields = new ArrayList<>();
 
@@ -137,10 +146,11 @@ public class FieldMapper<T> implements RowMapper<T> {
 
                     findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(field))
                         .ifPresent(index -> {
-                            Type type = field.getGenericType();
+                            QualifiedType type = QualifiedType.of(field.getGenericType())
+                                .with(getQualifiers(field));
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
-                                .orElse((r, n, c) -> rs.getObject(n));
-                            mappers.add(new SingleColumnMapper(mapper, index + 1));
+                                .orElse((r, n, c) -> r.getObject(n));
+                            mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                             fields.add(field);
 
                             unmatchedColumns.remove(columnNames.get(index));
@@ -148,34 +158,36 @@ public class FieldMapper<T> implements RowMapper<T> {
                 } else {
                     String nestedPrefix = prefix + anno.value().toLowerCase();
 
-                    RowMapper<?> mapper = nestedMappers
-                        .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                        .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns);
-
-                    mappers.add(mapper);
-                    fields.add(field);
+                    if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
+                        nestedMappers
+                            .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
+                            .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                            .ifPresent(mapper -> {
+                                mappers.add(mapper);
+                                fields.add(field);
+                            });
+                    }
                 }
             }
         }
 
-        if (mappers.isEmpty() && columnNames.size() > 0) {
-            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
-                "didn't find any matching columns in result set", type));
+        if (mappers.isEmpty() && !columnNames.isEmpty()) {
+            return Optional.empty();
         }
 
-        return (r, c) -> {
+        return Optional.of((r, c) -> {
             T obj = construct();
 
             for (int i = 0; i < mappers.size(); i++) {
                 RowMapper<?> mapper = mappers.get(i);
                 Field field = fields.get(i);
 
-                Object value = mapper.map(rs, ctx);
+                Object value = mapper.map(r, ctx);
                 writeField(obj, field, value);
             }
 
             return obj;
-        };
+        });
     }
 
     private static String paramName(Field field) {
@@ -192,10 +204,7 @@ public class FieldMapper<T> implements RowMapper<T> {
         try {
             return type.newInstance();
         } catch (Exception e) {
-            String message = String.format(
-                "A type, %s, was mapped which was not instantiable",
-                type.getName());
-            throw new IllegalArgumentException(message, e);
+            throw new IllegalArgumentException(String.format(TYPE_NOT_INSTANTIABLE, type.getName()), e);
         }
     }
 
@@ -204,8 +213,7 @@ public class FieldMapper<T> implements RowMapper<T> {
             field.setAccessible(true);
             field.set(obj, value);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format("Unable to access " +
-                "property, %s", field.getName()), e);
+            throw new IllegalArgumentException(String.format(CANNOT_ACCESS_PROPERTY, field.getName()), e);
         }
     }
 }

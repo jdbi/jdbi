@@ -45,8 +45,28 @@ public class TestStringSubstitutorTemplateEngine {
     public void testDefaults() {
         attributes.put("name", "foo");
 
-        assertThat(StringSubstitutorTemplateEngine.defaults().render("create table ${name};", ctx))
+        assertThat(new StringSubstitutorTemplateEngine().render("create table ${name};", ctx))
             .isEqualTo("create table foo;");
+    }
+
+    @Test
+    public void testMissingAttribute() {
+        attributes.clear();
+
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
+
+        assertThat(engine.render("select * from foo where x=<x>", ctx))
+            .isEqualTo("select * from foo where x=<x>");
+    }
+
+    @Test
+    public void testNullAttribute() {
+        attributes.put("x", null);
+
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
+
+        assertThat(engine.render("select * from foo where x=<x>", ctx))
+            .isEqualTo("select * from foo where x=<x>");
     }
 
     @Test

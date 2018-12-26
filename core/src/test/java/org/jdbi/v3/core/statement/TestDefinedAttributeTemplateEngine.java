@@ -13,24 +13,23 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class TestDefinedAttributeTemplateEngine {
     private TemplateEngine templateEngine;
     private StatementContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         templateEngine = new DefinedAttributeTemplateEngine();
         ctx = mock(StatementContext.class);
     }
@@ -46,7 +45,7 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     @Test
-    public void testSubstitutesDefinedAttributes() throws Exception {
+    public void testSubstitutesDefinedAttributes() {
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
                 "table", "bar");
@@ -55,31 +54,37 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     @Test
-    public void testUndefinedAttribute() throws Exception {
+    public void testUndefinedAttribute() {
         assertThatThrownBy(() -> render("select * from <table>", Collections.emptyMap()))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testLeaveEnquotedTokensIntact() throws Exception {
+    public void testNullAttribute() {
+        assertThatThrownBy(() -> render("select * from something where id=<id>", Collections.singletonMap("id", null)))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    @Test
+    public void testLeaveEnquotedTokensIntact() {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
         assertThat(render(sql, ImmutableMap.of("foo", "no", "bar", "stahp"))).isEqualTo(sql);
     }
 
     @Test
-    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception {
+    public void testIgnoreAngleBracketsNotPartOfToken() {
         String sql = "select * from foo where end_date < ? and start_date > ?";
         assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
-    public void testCommentQuote() throws Exception {
+    public void testCommentQuote() {
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(render(sql)).isEqualTo(sql);
     }
 
     @Test
-    public void testColonInComment() throws Exception {
+    public void testColonInComment() {
         String sql = "/* comment with : colons :: inside it */ select 1";
         assertThat(render(sql)).isEqualTo(sql);
     }

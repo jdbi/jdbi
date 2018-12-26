@@ -23,6 +23,7 @@ import org.mockito.Mockito;
  * Utilities for testing jdbi internal classes.
  */
 public class HandleAccess {
+    private HandleAccess() {}
     /**
      * Create a handle with a fake connection,
      * useful for tests that do not actually hit
@@ -31,7 +32,7 @@ public class HandleAccess {
     public static Handle createHandle() {
         Connection fakeConnection = Mockito.mock(Connection.class);
 
-        return new Handle(new ConfigRegistry(), new LocalTransactionHandler(),
+        return new Handle(new ConfigRegistry(), Connection::close, new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), fakeConnection);
     }
 }

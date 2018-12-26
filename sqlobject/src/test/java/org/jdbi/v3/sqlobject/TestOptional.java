@@ -35,7 +35,7 @@ public class TestOptional {
     private DAO dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dbRule.getHandle().execute(
                 "create table something (id identity primary key, name varchar(50))");
         dao = dbRule.attach(DAO.class);

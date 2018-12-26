@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Connection;
 import java.util.concurrent.Callable;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -25,12 +22,14 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestSqlObjectMethodBehavior {
     private UselessDao dao;
     private UselessDao anotherDao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         HandleSupplier handleSupplier = new HandleSupplier() {
             @Override
             public ConfigRegistry getConfig() {
@@ -63,24 +62,24 @@ public class TestSqlObjectMethodBehavior {
      * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
      */
     @Test
-    public void testFinalizeDoesntConnect() throws Exception {
+    public void testFinalizeDoesntConnect() {
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 
     @Test
-    public void testEquals() throws Exception {
+    public void testEquals() {
         assertThat(dao).isEqualTo(dao);
         assertThat(dao).isNotEqualTo(anotherDao);
     }
 
     @Test
-    public void testHashCode() throws Exception {
+    public void testHashCode() {
         assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
         assertThat(dao.hashCode()).isNotEqualTo(anotherDao.hashCode());
     }
 
     @Test
-    public void testToStringDoesntConnect() throws Exception {
+    public void testToStringDoesntConnect() {
         dao.toString();
     }
 }

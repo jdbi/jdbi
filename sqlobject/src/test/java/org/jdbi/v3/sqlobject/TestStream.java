@@ -13,26 +13,25 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.stream.Stream;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestStream {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testReturnStream() throws Exception {
+    public void testReturnStream() {
         Something one = new Something(3, "foo");
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
@@ -42,7 +41,7 @@ public class TestStream {
         dao.insert(thr);
         dao.insert(two);
 
-        try (final Stream<Something> stream = dao.stream()) {
+        try (Stream<Something> stream = dao.stream()) {
             assertThat(stream).containsExactly(thr, two, one);
         }
 

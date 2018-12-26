@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
+import org.jdbi.v3.core.kotlin.internal.KotlinPropertyArguments
+import org.jdbi.v3.core.qualifier.QualifiedType
+import org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory
 import java.lang.reflect.Method
@@ -29,6 +32,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                                     paramIdx: Int,
                                     type: Type): SqlStatementParameterCustomizer {
 
+        val qualifiedType = QualifiedType.of(type).with(getQualifiers(parameter))
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
@@ -42,13 +46,14 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                 "${parameter.declaringExecutable} :: $parameter")
 
         return SqlStatementParameterCustomizer { stmt, arg ->
-            val maybeArgument = stmt.getContext().findArgumentFor(type, arg)
-            if (!maybeArgument.isPresent) {
-                stmt.bindBean(bindName, arg)
-            } else {
+            val maybeArgument = stmt.getContext().findArgumentFor(qualifiedType, arg)
+            if (maybeArgument.isPresent) {
                 val argument = maybeArgument.get()
                 stmt.bind(bindName, argument)
                 stmt.bind(paramIdx, argument)
+            } else {
+                // would prefer stmt.bindKotlin() but type checker doesn't like that stmt is wildcard
+                stmt.bindNamedArgumentFinder(KotlinPropertyArguments(arg, bindName))
             }
         }
     }

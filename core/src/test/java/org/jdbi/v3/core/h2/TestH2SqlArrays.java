@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.h2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,14 +20,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.h2.H2DatabasePlugin;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestH2SqlArrays {
     private static final GenericType<List<UUID>> UUID_LIST = new GenericType<List<UUID>>() {};
@@ -60,7 +58,7 @@ public class TestH2SqlArrays {
     };
 
     @Test
-    public void testUuidArray() throws Exception {
+    public void testUuidArray() {
         assertThat(
             h.createUpdate(U_INSERT)
                 .bind("u", testUuids)
@@ -74,7 +72,7 @@ public class TestH2SqlArrays {
     }
 
     @Test
-    public void testUuidList() throws Exception {
+    public void testUuidList() {
         assertThat(
             h.createUpdate(U_INSERT)
                 .bindByType("u", Arrays.asList(testUuids), UUID_LIST)
@@ -88,7 +86,7 @@ public class TestH2SqlArrays {
     }
 
     @Test
-    public void testUuidArrayList() throws Exception {
+    public void testUuidArrayList() {
         assertThat(
             h.createUpdate(U_INSERT)
                 .bindByType("u", new ArrayList<>(Arrays.asList(testUuids)), UUID_LIST)
@@ -102,7 +100,7 @@ public class TestH2SqlArrays {
     }
 
     @Test
-    public void testUuidHashSet() throws Exception {
+    public void testUuidHashSet() {
         assertThat(
             h.createUpdate(U_INSERT)
                 .bindByType("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
@@ -116,7 +114,7 @@ public class TestH2SqlArrays {
     }
 
     @Test
-    public void testUuidLinkedHashSet() throws Exception {
+    public void testUuidLinkedHashSet() {
         assertThat(
             h.createUpdate(U_INSERT)
                 .bindByType("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)

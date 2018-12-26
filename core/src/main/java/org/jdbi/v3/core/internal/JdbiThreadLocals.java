@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 
 public class JdbiThreadLocals {
     private JdbiThreadLocals() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     public static <V, L> V invokeInContext(ThreadLocal<L> threadLocal, L context, Callable<V> task) throws Exception {

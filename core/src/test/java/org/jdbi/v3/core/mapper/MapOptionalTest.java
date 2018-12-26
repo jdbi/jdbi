@@ -13,24 +13,23 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-
 import java.util.Optional;
 import java.util.OptionalInt;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+
 public class MapOptionalTest {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testMapOptional() throws Exception {
+    public void testMapOptional() {
         final Handle h = db.getSharedHandle();
         h.execute("insert into something(intValue, name) values(1, 'Duke')");
         h.execute("insert into something(intValue, name) values(null, null)");
@@ -40,7 +39,7 @@ public class MapOptionalTest {
                 .list())
             .extracting("intValue", "name")
             .containsExactly(
-                tuple(OptionalInt.of(1),   Optional.of("Duke")),
+                tuple(OptionalInt.of(1), Optional.of("Duke")),
                 tuple(OptionalInt.empty(), Optional.empty()));
     }
 

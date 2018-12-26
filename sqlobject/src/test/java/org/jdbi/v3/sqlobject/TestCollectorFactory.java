@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
@@ -40,7 +39,7 @@ public class TestCollectorFactory {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     @Test
-    public void testExists() throws Exception {
+    public void testExists() {
         Handle h = dbRule.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
@@ -53,7 +52,7 @@ public class TestCollectorFactory {
     }
 
     @Test
-    public void testDoesNotExist() throws Exception {
+    public void testDoesNotExist() {
         Handle h = dbRule.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
@@ -66,7 +65,7 @@ public class TestCollectorFactory {
     }
 
     @Test
-    public void testOnList() throws Exception {
+    public void testOnList() {
         Handle h = dbRule.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
@@ -80,7 +79,7 @@ public class TestCollectorFactory {
     }
 
     @Test
-    public void testWithSqlObject() throws Exception {
+    public void testWithSqlObject() {
         Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
@@ -90,7 +89,7 @@ public class TestCollectorFactory {
     }
 
     @Test
-    public void testWithSqlObjectSingleValue() throws Exception {
+    public void testWithSqlObjectSingleValue() {
         Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
@@ -106,7 +105,7 @@ public class TestCollectorFactory {
     }
 
     @Test
-    public void testWithSqlObjectSetReturnValue() throws Exception {
+    public void testWithSqlObjectSetReturnValue() {
         Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));

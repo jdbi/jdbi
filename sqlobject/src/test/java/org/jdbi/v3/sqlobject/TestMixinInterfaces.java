@@ -36,7 +36,7 @@ public class TestMixinInterfaces {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         db = Jdbi.create(ds);
@@ -47,13 +47,13 @@ public class TestMixinInterfaces {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         handle.execute("drop table something");
         handle.close();
     }
 
     @Test
-    public void testGetHandle() throws Exception {
+    public void testGetHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         Handle h = g.getHandle();
 
@@ -61,7 +61,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testWithHandle() throws Exception {
+    public void testWithHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         String name = g.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (8, 'Mike')");
@@ -73,7 +73,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testUseHandle() throws Exception {
+    public void testUseHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
         g.useHandle(handle -> handle.execute("insert into something(id, name) values (9, 'James')"));
 
@@ -84,7 +84,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testBeginAndCommitTransaction() throws Exception {
+    public void testBeginAndCommitTransaction() {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
 
         txl.insert(8, "Mike");
@@ -98,7 +98,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testInTransaction() throws Exception {
+    public void testInTransaction() {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
@@ -108,7 +108,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testInTransactionWithLevel() throws Exception {
+    public void testInTransactionWithLevel() {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
@@ -122,7 +122,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testTransactionIsolationActuallyHappens() throws Exception {
+    public void testTransactionIsolationActuallyHappens() {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         db.useExtension(TransactionStuff.class, tx2 -> {
             txl.insert(8, "Mike");
@@ -140,7 +140,7 @@ public class TestMixinInterfaces {
     }
 
     @Test
-    public void testJustJdbiTransactions() throws Exception {
+    public void testJustJdbiTransactions() {
         try (Handle h1 = db.open();
              Handle h2 = db.open()) {
             h1.execute("insert into something (id, name) values (8, 'Mike')");

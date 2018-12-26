@@ -26,14 +26,18 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.ObjectFieldArguments;
+import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
@@ -41,11 +45,12 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.argument.ObjectFieldArguments;
-import org.jdbi.v3.core.argument.ObjectMethodArguments;
+import org.jdbi.v3.core.qualifier.NVarchar;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
 
@@ -297,6 +302,32 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, String value) {
         return bind(name, toArgument(String.class, value));
+    }
+
+    /**
+     * Bind a {@code String} argument positionally, as {@code NVARCHAR} type.
+     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindNVarchar(int position, String value) {
+        return bind(position, toArgument(QualifiedType.of(String.class).with(NVarchar.class), value));
+    }
+
+    /**
+     * Bind a {@code String} argument by name, as {@code NVARCHAR} type.
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindNVarchar(String name, String value) {
+        return bind(name, toArgument(QualifiedType.of(String.class).with(NVarchar.class), value));
     }
 
     /**
@@ -1005,6 +1036,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
+     * Bind an argument dynamically by the qualified type passed in.
+     *
+     * @param position     position to bind the parameter at, starting at 0
+     * @param value        to bind
+     * @param argumentType type token for value argument
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindByType(int position, Object value, QualifiedType argumentType) {
+        return bind(position, toArgument(argumentType, value));
+    }
+
+    /**
      * Bind an argument dynamically by the type passed in.
      *
      * @param name         token name to bind the parameter to
@@ -1028,6 +1073,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindByType(String name, Object value, GenericType<?> argumentType) {
         return bindByType(name, value, argumentType.getType());
+    }
+
+    /**
+     * Bind an argument dynamically by the type passed in.
+     *
+     * @param name         token name to bind the parameter to
+     * @param value        to bind
+     * @param argumentType type for value argument
+     *
+     * @return the same Query instance
+     */
+    @Beta
+    public final This bindByType(String name, Object value, QualifiedType argumentType) {
+        return bind(name, toArgument(argumentType, value));
     }
 
     private Argument toArgument(Object value) {
@@ -1061,15 +1120,33 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         }
     }
 
+    private Argument toArgument(QualifiedType type, Object value) {
+        return getConfig(Arguments.class).findFor(type, value)
+                .orElseThrow(() -> factoryNotFound(type, value));
+    }
+
     private UnsupportedOperationException factoryNotFound(Type type, Object value) {
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
             if (params.length > 0) {
-                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params) +
-                        "'.  To bind a generic type, prefer using bindByType.");
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
+                    + "'. To bind a generic type, prefer using bindByType.");
             }
         }
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);
+    }
+
+    private UnsupportedOperationException factoryNotFound(QualifiedType qualifiedType, Object value) {
+        Type type = qualifiedType.getType();
+        if (type instanceof Class<?>) { // not a ParameterizedType
+            final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();
+            if (params.length > 0) {
+                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(params)
+                    + "' with qualifiers '" + qualifiedType.getQualifiers()
+                    + "'. To bind a generic type, prefer using bindByType.");
+            }
+        }
+        return new UnsupportedOperationException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType);
     }
 
     /**
@@ -1268,6 +1345,57 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
+     * For each value given, create a tuple by invoking each given method in order, and bind the tuple into
+     * a {@code VALUES (...)} format insert clause.
+     * @param key attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value
+     * @param methodNames list of methods that will be invoked on the values
+     * @return this
+     * @throws IllegalArgumentException if the list of values or properties is empty.
+     * @throws UnableToCreateStatementException if the method cannot be found
+     */
+    public final This bindMethodsList(String key, Iterable<?> values, List<String> methodNames) throws UnableToCreateStatementException {
+        final Iterator<?> valueIter = values.iterator();
+        if (!valueIter.hasNext()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        if (methodNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                getClass().getSimpleName() + ".bindMethodsList was called with no values.");
+        }
+
+        final StringBuilder names = new StringBuilder();
+        final StatementContext ctx = getContext();
+        for (int valueIndex = 0; valueIter.hasNext(); valueIndex++) {
+            if (valueIndex > 0) {
+                names.append(',');
+            }
+
+            final Object bean = valueIter.next();
+            final ObjectMethodArguments beanMethods = new ObjectMethodArguments(null, bean);
+
+            names.append("(");
+            for (int methodIndex = 0; methodIndex < methodNames.size(); methodIndex++) {
+                if (methodIndex > 0) {
+                    names.append(",");
+                }
+
+                final String methodName = methodNames.get(methodIndex);
+                final String name = key + valueIndex + "." + methodName;
+                names.append(":").append(name);
+                final Argument argument = beanMethods.find(methodName, ctx)
+                    .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + methodName + " argument for " + bean, ctx));
+                bind(name, argument);
+            }
+            names.append(")");
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
      * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
      * <p>
      * Examples:
@@ -1330,7 +1458,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".defineList was called with an empty list.");
         }
-        if (values.contains(null)) {
+        // Uses stream match, cause the Java 9 ImmutableList implementation throws an NPE if asked `contains(null)`
+        if (values.stream().anyMatch(Objects::isNull)) {
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".defineList was called with a list containing null values.");
         }
@@ -1360,13 +1489,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             } else {
                 stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
             }
+
+            // The statement builder might (or might not) clean up the statement when called. E.g. the
+            // caching statement builder relies on the statement *not* being closed.
+            addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
+            getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, getContext());
         }
-
-        // The statement builder might (or might not) clean up the statement when called. E.g. the
-        // caching statement builder relies on the statement *not* being closed.
-        addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
 
         getContext().setStatement(stmt);
 
@@ -1377,7 +1507,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         beforeExecution(stmt);
 
         try {
-            getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::execute, getContext());
+            SqlLoggerUtil.wrap(stmt::execute, getContext(), getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
             try {
                 stmt.close();

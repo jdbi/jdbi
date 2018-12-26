@@ -35,17 +35,19 @@ public class TestClosingHandle {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.openHandle();
     }
 
     @After
-    public void doTearDown() throws Exception {
-        if (h != null) h.close();
+    public void doTearDown() {
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test
-    public void testNotClosing() throws Exception {
+    public void testNotClosing() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -56,7 +58,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testClosing() throws Exception {
+    public void testClosing() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -71,7 +73,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testIterateKeepHandle() throws Exception {
+    public void testIterateKeepHandle() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -84,7 +86,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testIterateAllTheWay() throws Exception {
+    public void testIterateAllTheWay() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -98,7 +100,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testIteratorBehaviour() throws Exception {
+    public void testIteratorBehaviour() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -122,7 +124,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testIteratorClose() throws Exception {
+    public void testIteratorClose() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -144,7 +146,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testCloseWithOpenTransaction() throws Exception {
+    public void testCloseWithOpenTransaction() {
         h.begin();
 
         assertThatThrownBy(h::close).isInstanceOf(TransactionException.class);
@@ -152,7 +154,7 @@ public class TestClosingHandle {
     }
 
     @Test
-    public void testCloseWithOpenTransactionCheckDisabled() throws Exception {
+    public void testCloseWithOpenTransactionCheckDisabled() {
         h.getConfig(Handles.class).setForceEndTransactions(false);
 
         h.begin();

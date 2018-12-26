@@ -28,7 +28,7 @@ public class TestPlugins {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testCustomizeHandle() throws Exception {
+    public void testCustomizeHandle() {
         Handle h = mock(Handle.class);
 
         dbRule.getJdbi().installPlugin(new JdbiPlugin() {
@@ -42,7 +42,7 @@ public class TestPlugins {
     }
 
     @Test
-    public void testCustomizeConnection() throws Exception {
+    public void testCustomizeConnection() {
         Connection c = mock(Connection.class);
 
         dbRule.getJdbi().installPlugin(new JdbiPlugin() {

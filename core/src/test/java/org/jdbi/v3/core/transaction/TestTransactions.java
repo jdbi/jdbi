@@ -67,14 +67,14 @@ public class TestTransactions {
     }
 
     @Test
-    public void testCallback() throws Exception {
+    public void testCallback() {
         String woot = h.inTransaction(x -> "Woot!");
 
         assertThat(woot).isEqualTo("Woot!");
     }
 
     @Test
-    public void testRollbackOutsideTx() throws Exception {
+    public void testRollbackOutsideTx() {
         h.execute("insert into something (id, name) values (?, ?)", 7, "Tom");
         h.rollback();
     }
@@ -91,7 +91,7 @@ public class TestTransactions {
     }
 
     @Test
-    public void testExceptionAbortsTransaction() throws Exception {
+    public void testExceptionAbortsTransaction() {
         assertThatThrownBy(() ->
                 h.inTransaction(handle -> {
                     handle.execute("insert into something (id, name) values (?, ?)", 0, "Keith");
@@ -104,7 +104,7 @@ public class TestTransactions {
     }
 
     @Test
-    public void testRollbackDoesntCommit() throws Exception {
+    public void testRollbackDoesntCommit() {
         assertThat(begin).isEqualTo(0);
         h.useTransaction(th -> {
             assertThat(begin).isEqualTo(1);
@@ -116,7 +116,7 @@ public class TestTransactions {
     }
 
     @Test
-    public void testSavepoint() throws Exception {
+    public void testSavepoint() {
         h.begin();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "Tom");
@@ -133,7 +133,7 @@ public class TestTransactions {
     }
 
     @Test
-    public void testReleaseSavepoint() throws Exception {
+    public void testReleaseSavepoint() {
         h.begin();
         h.savepoint("first");
         h.execute("insert into something (id, name) values (?, ?)", 1, "Martin");
@@ -147,7 +147,7 @@ public class TestTransactions {
     }
 
     @Test
-    public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception {
+    public void testThrowingRuntimeExceptionPercolatesOriginal() {
         assertThatThrownBy(() -> h.inTransaction(handle -> {
             throw new IllegalArgumentException();
         })).isInstanceOf(IllegalArgumentException.class);

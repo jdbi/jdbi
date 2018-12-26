@@ -61,7 +61,7 @@ public class ResultsTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR)");
         for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
             handle.execute("INSERT INTO user(name) VALUES (?)", name);
@@ -223,10 +223,10 @@ public class ResultsTest {
         handle.registerRowMapper(BeanMapper.factory(ContactBean.class, "c"));
         handle.registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"));
         handle.registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class));
-        List<JoinRow> contactPhones = handle.select("select " +
-                "c.id cid, c.name cname, " +
-                "p.id pid, p.name pname, p.number pnumber " +
-                "from contacts c left join phones p on c.id = p.contact_id")
+        List<JoinRow> contactPhones = handle.select("select "
+                + "c.id cid, c.name cname, "
+                + "p.id pid, p.name pname, p.number pnumber "
+                + "from contacts c left join phones p on c.id = p.contact_id")
                 .mapTo(JoinRow.class)
                 .list();
         // end::beanMapperPrefix[]

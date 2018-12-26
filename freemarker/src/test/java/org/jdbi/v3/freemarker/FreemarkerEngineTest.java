@@ -13,11 +13,9 @@
  */
 package org.jdbi.v3.freemarker;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -31,6 +29,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class FreemarkerEngineTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -38,37 +38,53 @@ public class FreemarkerEngineTest {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
-    
+
     @Test
-    public void testFindBeanWithBind() throws Exception {
+    public void testFindBeanWithBind() {
         handle.execute("insert into something (id, name) values (6, 'Martin Freeman')");
 
         Something s = handle.attach(Wombat.class).findByBoundId(6L);
         assertThat(s.getName()).isEqualTo("Martin Freeman");
     }
-    
+
     @Test
-    public void testFindBeanWithDefine() throws Exception {
+    public void testFindBeanWithDefine() {
         handle.execute("insert into something (id, name) values (6, 'Peter Jackson')");
 
         Something s = handle.attach(Wombat.class).findByDefinedId(6L);
         assertThat(s.getName()).isEqualTo("Peter Jackson");
     }
-    
+
     @Test
-    public void testFindNamesWithDefinedIds() throws Exception {
+    public void testFindNamesWithDefinedIds() {
         handle.execute("insert into something (id, name) values (6, 'Jack')");
         handle.execute("insert into something (id, name) values (7, 'Wolf')");
 
         List<String> s = handle.attach(Wombat.class).findNamesByDefinedIds(Arrays.asList(6L, 7L));
-        assertThat(s.size()).isEqualTo(2);
-        assertThat(s.get(0)).isEqualTo("Jack");
-        assertThat(s.get(1)).isEqualTo("Wolf");
+        assertThat(s).containsExactly("Jack", "Wolf");
     }
-    
+
+    @Test
+    public void testFindNamesConditionalExecutionWithNullValue() {
+        handle.execute("insert into something (id, name) values (6, 'Jack')");
+        handle.execute("insert into something (id, name) values (7, 'Wolf')");
+
+        List<String> s = handle.attach(Wombat.class).findNamesByDefinedIdsOrAll(null);
+        assertThat(s).containsExactly("Jack", "Wolf");
+    }
+
+    @Test
+    public void testFindNamesWithConditionalExecutionWithNonNullValue() {
+        handle.execute("insert into something (id, name) values (6, 'Jack')");
+        handle.execute("insert into something (id, name) values (7, 'Wolf')");
+
+        List<String> s = handle.attach(Wombat.class).findNamesByDefinedIdsOrAll(Collections.singletonList(6L));
+        assertThat(s).containsExactly("Jack");
+    }
+
     @UseFreemarkerEngine
     @RegisterRowMapper(SomethingMapper.class)
     public interface Wombat {
@@ -78,9 +94,12 @@ public class FreemarkerEngineTest {
 
         @SqlQuery("select * from something where id = ${id}")
         Something findByDefinedId(@Define("id") Long id);
-        
+
         @SqlQuery("select name from something where id in (${ids?join(\",\")})")
         List<String> findNamesByDefinedIds(@Define("ids") List<Long> ids);
-        
+
+        @SqlQuery("select name from something <#if ids??> where id in (${ids?join(\",\")}) </#if>")
+        List<String> findNamesByDefinedIdsOrAll(@Define("ids") List<Long> ids);
+
     }
 }

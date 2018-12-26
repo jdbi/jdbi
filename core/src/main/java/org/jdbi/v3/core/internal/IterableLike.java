@@ -28,16 +28,16 @@ import java.util.NoSuchElementException;
  */
 public class IterableLike {
     private IterableLike() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**
      * @return whether {@code IterableLike} can iterate over the given object
      */
     public static boolean isIterable(Object maybeIterable) {
-        return  maybeIterable instanceof Iterator<?> ||
-                maybeIterable instanceof Iterable<?> ||
-                maybeIterable.getClass().isArray();
+        return maybeIterable instanceof Iterator<?>
+            || maybeIterable instanceof Iterable<?>
+            || maybeIterable.getClass().isArray();
     }
 
     /**
@@ -66,6 +66,16 @@ public class IterableLike {
             return new PrimitiveArrayIterator(iterable);
         }
         return Arrays.asList((Object[]) iterable).iterator();
+    }
+
+    /**
+     * Given an iterable object (which may be a iterator, iterable, primitive
+     * or reference array), return an iterable over its (possibly boxed) elements.
+     * @param iterable the iterable-like to create a real Iterable for
+     * @return the created Iterable
+     */
+    public static Iterable<Object> iterable(Object iterable) {
+        return () -> of(iterable);
     }
 
     /**

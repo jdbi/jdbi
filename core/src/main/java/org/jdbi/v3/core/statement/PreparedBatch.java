@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -142,9 +143,12 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             final PreparedStatement stmt;
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
+                @SuppressWarnings("PMD.CloseResource")
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
+
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
+                getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
@@ -164,7 +168,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution(stmt);
 
             try {
-                final int[] rs = getConfig(SqlStatements.class).getSqlLogger().wrap(stmt::executeBatch, getContext());
+                final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
 
                 afterExecution(stmt);
 
@@ -234,7 +238,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
         ExecutedBatch(PreparedStatement stmt, int[] updateCounts) {
             this.stmt = stmt;
-            this.updateCounts = updateCounts;
+            this.updateCounts = Arrays.copyOf(updateCounts, updateCounts.length);
         }
     }
 }

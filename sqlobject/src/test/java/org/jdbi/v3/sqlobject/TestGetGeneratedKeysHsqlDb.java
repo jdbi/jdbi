@@ -13,13 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -28,12 +24,14 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestGetGeneratedKeysHsqlDb {
 
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
                 .installPlugin(new SqlObjectPlugin());
         db.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
@@ -53,18 +51,18 @@ public class TestGetGeneratedKeysHsqlDb {
     }
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         db.useExtension(DAO.class, dao -> {
-            long brian_id = dao.insert("Brian");
-            long keith_id = dao.insert("Keith");
+            long brianId = dao.insert("Brian");
+            long keithId = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
-            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
+            assertThat(dao.findNameById(brianId)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keithId)).isEqualTo("Keith");
         });
     }
 
     @Test
-    public void testBatch() throws Exception {
+    public void testBatch() {
         db.useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
             assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");

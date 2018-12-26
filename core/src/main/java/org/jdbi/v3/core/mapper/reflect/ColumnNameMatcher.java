@@ -25,4 +25,21 @@ public interface ColumnNameMatcher {
      * @return whether the given names are logically equivalent
      */
     boolean columnNameMatches(String columnName, String javaName);
+
+    /**
+     * Return whether the column name starts with the given prefix, according to the matching strategy of this
+     * {@code ColumnNameMatcher}. This method is used by reflective mappers to short-circuit nested mapping when no
+     * column names begin with the nested prefix.
+     *
+     * By default, this method returns {@code columnName.startWith(prefix)}. Third party implementations should override
+     * this method to match prefixes by the same criteria as {@link #columnNameMatches(String, String)}.
+     *
+     * @param columnName the column name to test
+     * @param prefix the prefix to test for
+     * @return whether the column name begins with the prefix.
+     * @since 3.5.0
+     */
+    default boolean columnNameStartsWith(String columnName, String prefix) {
+        return columnName.startsWith(prefix);
+    }
 }

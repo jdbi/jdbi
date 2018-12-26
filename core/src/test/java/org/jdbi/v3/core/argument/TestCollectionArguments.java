@@ -13,22 +13,21 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.util.Collections;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestCollectionArguments {
     @Rule
     public PgDatabaseRule db = new PgDatabaseRule();
 
     @Test
-    public void testBindTypeErased() throws Exception {
-        try (final Handle h = db.openHandle()) {
+    public void testBindTypeErased() {
+        try (Handle h = db.openHandle()) {
             assertThatThrownBy(() ->
                 h.execute("SELECT * FROM something WHERE id = ANY(:ids)", Collections.singleton(1)))
                     .isInstanceOf(UnsupportedOperationException.class)

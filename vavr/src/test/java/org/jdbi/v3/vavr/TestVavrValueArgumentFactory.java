@@ -38,7 +38,7 @@ public class TestVavrValueArgumentFactory {
     private VavrValueArgumentFactory unit;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         unit = new VavrValueArgumentFactory() {
             @Override
             Optional<Argument> resolveNestedFromConfigured(ConfigRegistry config, Type nestedType, Object nestedValue) {
@@ -48,7 +48,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetNonValueArgument_shouldNotBeEmpty() {
+    public void testGetNonValueArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
                 Option.of(1), null);
 
@@ -56,7 +56,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetArgumentOfNone_shouldNotBeEmpty() {
+    public void testGetArgumentOfNoneShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
                 Option.none(), null);
 
@@ -64,7 +64,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetLazyArgument_shouldNotBeEmpty() {
+    public void testGetLazyArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Lazy<Integer>>() {}.getType(),
                 Lazy.of(() -> 1), null);
 
@@ -72,7 +72,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetLazyArgumentInferred_shouldNotBeEmpty() {
+    public void testGetLazyArgumentInferredShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Lazy<?>>() {}.getType(),
                 Lazy.of(() -> 1), null);
 
@@ -80,7 +80,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetBadLazyArgument_shouldThrow() {
+    public void testGetBadLazyArgumentShouldThrow() {
         Lazy<Object> badEvaluatingLazy = Lazy.of(() -> {
             throw new TestSpecificException();
         });
@@ -91,7 +91,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetFailedTryArgument_shouldNotBeEmpty() {
+    public void testGetFailedTryArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Try<Integer>>() {}.getType(),
                 Try.failure(new TestSpecificException()), null);
 
@@ -99,7 +99,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetSuccessTryArgument_shouldNotBeEmpty() {
+    public void testGetSuccessTryArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Try<Integer>>() {}.getType(),
                 Try.failure(new TestSpecificException()), null);
 
@@ -107,7 +107,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetLeftEitherArgument_shouldNotBeEmpty() {
+    public void testGetLeftEitherArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Either<String, Integer>>() {}.getType(),
                 Either.left("error"), null);
 
@@ -115,7 +115,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetRightEitherArgument_shouldNotBeEmpty() {
+    public void testGetRightEitherArgumentShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Either<String, Integer>>() {}.getType(),
                 Either.right(1), null);
 
@@ -123,7 +123,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetRightEitherArgumentInferred_shouldNotBeEmpty() {
+    public void testGetRightEitherArgumentInferredShouldNotBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Either<?, ?>>() {}.getType(),
                 Either.right(1), null);
 
@@ -131,7 +131,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetValidValidationArgument_shouldNotBeEmpty() {
+    public void testGetValidValidationArgumentShouldNotBeEmpty() {
         Optional<Argument> arg =
                 unit.build(new GenericType<Validation<String, Integer>>() {}.getType(),
                         Validation.valid(1), null);
@@ -140,7 +140,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetInvalidValidationArgument_shouldNotBeEmpty() {
+    public void testGetInvalidValidationArgumentShouldNotBeEmpty() {
         Optional<Argument> arg =
                 unit.build(new GenericType<Validation<String, Integer>>() {}.getType(),
                         Validation.invalid("error"), null);
@@ -149,7 +149,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetArgumentNotPartOfFactory_shouldBeEmpty() {
+    public void testGetArgumentNotPartOfFactoryShouldBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
                 1, null);
 
@@ -157,7 +157,7 @@ public class TestVavrValueArgumentFactory {
     }
 
     @Test
-    public void testGetArgumentNotPartOfFactory2_shouldBeEmpty() {
+    public void testGetArgumentNotPartOfFactory2ShouldBeEmpty() {
         Optional<Argument> arg = unit.build(new GenericType<Integer>() {}.getType(),
                 null, null);
 

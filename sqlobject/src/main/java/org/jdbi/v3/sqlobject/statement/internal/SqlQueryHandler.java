@@ -14,9 +14,9 @@
 package org.jdbi.v3.sqlobject.statement.internal;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -42,7 +42,7 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
 
         cfg.setReturner(() -> {
             StatementContext ctx = q.getContext();
-            Type elementType = magic.elementType(ctx);
+            QualifiedType elementType = magic.elementType(ctx);
 
             if (useRowReducer != null) {
                 return magic.reducedResult(q.reduceRows(rowReducerFor(useRowReducer)), ctx);

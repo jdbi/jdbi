@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
 import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import org.jdbi.v3.core.Handle;
@@ -27,6 +23,9 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestGuavaCollectors {
 
@@ -44,14 +43,14 @@ public class TestGuavaCollectors {
     }
 
     @Test
-    public void testImmutableList() throws Exception {
+    public void testImmutableList() {
         assertThat(h.attach(UserDao.class).list())
                 .containsExactly(new User(1, "Alice"),
                                  new User(2, "Bob"));
     }
 
     @Test
-    public void testOptional() throws Exception {
+    public void testOptional() {
         assertThat(h.attach(UserDao.class).getById(1))
                 .contains(new User(1, "Alice"));
     }
@@ -86,11 +85,15 @@ public class TestGuavaCollectors {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             User user = (User) o;
-            return id == user.id &&
-                    Objects.equals(name, user.name);
+            return id == user.id
+                && Objects.equals(name, user.name);
         }
 
         @Override
@@ -100,10 +103,10 @@ public class TestGuavaCollectors {
 
         @Override
         public String toString() {
-            return "User{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    '}';
+            return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
         }
     }
 }

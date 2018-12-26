@@ -48,17 +48,19 @@ public class TestQueries {
     private Handle h;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.openHandle();
     }
 
     @After
-    public void doTearDown() throws Exception {
-        if (h != null) h.close();
+    public void doTearDown() {
+        if (h != null) {
+            h.close();
+        }
     }
 
     @Test
-    public void testCreateQueryObject() throws Exception {
+    public void testCreateQueryObject() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -68,18 +70,18 @@ public class TestQueries {
     }
 
     @Test
-    public void testMappedQueryObject() throws Exception {
+    public void testMappedQueryObject() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
-        assertThat(r.get(0)).isEqualTo(new Something(1, "eric"));
+        assertThat(r).startsWith(new Something(1, "eric"));
     }
 
     @Test
-    public void testMappedQueryObjectWithNulls() throws Exception {
+    public void testMappedQueryObjectWithNulls() {
         h.execute("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
@@ -91,7 +93,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception {
+    public void testMappedQueryObjectWithNullForPrimitiveIntField() {
         h.execute("insert into something (id, name, intValue) values (1, 'eric', null)");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
@@ -103,18 +105,18 @@ public class TestQueries {
     }
 
     @Test
-    public void testMapper() throws Exception {
+    public void testMapper() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
         ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
-        String name = query.list().get(0);
-        assertThat(name).isEqualTo("eric");
+        List<String> r = query.list();
+        assertThat(r).startsWith("eric");
     }
 
     @Test
-    public void testConvenienceMethod() throws Exception {
+    public void testConvenienceMethod() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -124,7 +126,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testConvenienceMethodWithParam() throws Exception {
+    public void testConvenienceMethodWithParam() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -134,7 +136,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testPositionalArgWithNamedParam() throws Exception {
+    public void testPositionalArgWithNamedParam() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -143,12 +145,12 @@ public class TestQueries {
                         .bind(0, "eric")
                         .mapToBean(Something.class)
                         .list())
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'name'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'name'");
     }
 
     @Test
-    public void testMixedSetting() throws Exception {
+    public void testMixedSetting() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -158,18 +160,18 @@ public class TestQueries {
                         .bind("id", 1)
                         .mapToBean(Something.class)
                         .list())
-                .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches 'name'");
+                .isInstanceOf(UnableToCreateStatementException.class)
+                .hasMessageContaining("Missing named parameter 'name'");
     }
 
     @Test
-    public void testHelpfulErrorOnNothingSet() throws Exception {
+    public void testHelpfulErrorOnNothingSet() {
         assertThatThrownBy(() -> h.createQuery("select * from something where name = :name").mapToMap().list())
-            .isInstanceOf(UnableToExecuteStatementException.class);
+            .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
-    public void testFirstResult() throws Exception {
+    public void testFirstResult() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -182,7 +184,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testIteratedResult() throws Exception {
+    public void testIteratedResult() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -200,7 +202,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testIteratorBehavior() throws Exception {
+    public void testIteratorBehavior() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -218,7 +220,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testIteratorBehavior2() throws Exception {
+    public void testIteratorBehavior2() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
@@ -235,7 +237,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testIteratorBehavior3() throws Exception {
+    public void testIteratorBehavior3() {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'eric')");
 
@@ -246,7 +248,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testFetchSize() throws Exception {
+    public void testFetchSize() {
         h.createScript(findSqlOnClasspath("default-data")).execute();
 
         ResultIterable<Something> ri = h.createQuery("select id, name from something order by id")
@@ -263,26 +265,25 @@ public class TestQueries {
     }
 
     @Test
-    public void testFirstWithNoResult() throws Exception {
+    public void testFirstWithNoResult() {
         Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
         assertThat(s.isPresent()).isFalse();
     }
 
     @Test
-    public void testNullValueInColumn() throws Exception {
+    public void testNullValueInColumn() {
         h.execute("insert into something (id, name) values (?, ?)", 1, null);
         Optional<String> s = h.createQuery("select name from something where id=1").mapTo(String.class).findFirst();
         assertThat(s.isPresent()).isFalse();
     }
 
     @Test
-    public void testListWithMaxRows() throws Exception {
+    public void testListWithMaxRows() {
         h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
          .add(3, "Eric")
          .execute();
-
 
         assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)
@@ -296,7 +297,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testFold() throws Exception {
+    public void testFold() {
         h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
@@ -310,7 +311,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testCollectList() throws Exception {
+    public void testCollectList() {
         h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
@@ -323,9 +324,9 @@ public class TestQueries {
     }
 
     @Test
-    public void testUsefulArgumentOutputForDebug() throws Exception {
+    public void testUsefulArgumentOutputForDebug() {
         expectedException.expect(StatementException.class);
-        expectedException.expectMessage("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean property arguments \"java.lang.Object");
+        expectedException.expectMessage("arguments:{positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean property arguments \"java.lang.Object");
 
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("name", "brian")
@@ -336,7 +337,7 @@ public class TestQueries {
     }
 
     @Test
-    public void testStatementCustomizersPersistAfterMap() throws Exception {
+    public void testStatementCustomizersPersistAfterMap() {
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
@@ -349,14 +350,14 @@ public class TestQueries {
     }
 
     @Test
-    public void testQueriesWithNullResultSets() throws Exception {
+    public void testQueriesWithNullResultSets() {
         expectedException.expect(NoResultsException.class);
 
         h.select("insert into something (id, name) values (?, ?)", 1, "hello").mapToMap().list();
     }
 
     @Test
-    public void testMapMapperOrdering() throws Exception {
+    public void testMapMapperOrdering() {
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
 

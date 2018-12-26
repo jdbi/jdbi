@@ -17,6 +17,8 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 public class StatementContextAccess {
+    private StatementContextAccess() {}
+
     public static StatementContext createContext() {
         return new StatementContext();
     }

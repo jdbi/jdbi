@@ -23,8 +23,8 @@ import java.util.Map;
 /**
  * A column mapper which maps Postgres' hstore type to Java's {@link Map}.
  */
+@HStore
 public class HStoreColumnMapper implements ColumnMapper<Map<String, String>> {
-
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, String> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {

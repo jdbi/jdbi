@@ -13,18 +13,25 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Binds public methods with no parameters on a specified object.
@@ -33,10 +40,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
         .expiration(10, TimeUnit.MINUTES)
         .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class<?> type) ->
-            Stream.of(type.getMethods())
-                .filter(m -> m.getParameterCount() == 0)
-                .collect(toMap(Method::getName, Function.identity())))
+        .entryLoader(ObjectMethodArguments::load)
         .build();
 
     private final Map<String, Method> methods;
@@ -51,8 +55,21 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         this.methods = CLASS_METHODS.get(object.getClass());
     }
 
+    private static Map<String, Method> load(Class<?> type) {
+        if (Modifier.isPublic(type.getModifiers())) {
+            return Arrays.stream(type.getMethods())
+                .filter(m -> m.getParameterCount() == 0)
+                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge));
+        } else {
+            final HashMap<String, Method> methodMap = new HashMap<>();
+            Optional.ofNullable(type.getSuperclass()).ifPresent(superclass -> methodMap.putAll(load(superclass)));
+            Arrays.stream(type.getInterfaces()).forEach(interfaceClass -> methodMap.putAll(load(interfaceClass)));
+            return methodMap;
+        }
+    }
+
     @Override
-    Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         Method method = methods.get(name);
 
         if (method == null) {
@@ -60,18 +77,23 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         Type type = method.getGenericReturnType();
+        Set<Annotation> qualifiers = getQualifiers(method);
         Object value = invokeMethod(method, ctx);
 
-        return Optional.of(new TypedValue(type, value));
+        return Optional.of(new TypedValue(type, qualifiers, value));
     }
 
     @Override
-    NamedArgumentFinder getNestedArgumentFinder(Object obj) {
+    protected NamedArgumentFinder getNestedArgumentFinder(Object obj) {
         return new ObjectMethodArguments(null, obj);
     }
 
     @Override
     public String toString() {
-        return "{lazy object functions arguments \"" + object + "\"";
+        return "{lazy object functions arguments \"" + obj + "\"";
+    }
+
+    private static Method bridgeMethodMerge(Method a, Method b) {
+        return a.isBridge() ? b : a;
     }
 }

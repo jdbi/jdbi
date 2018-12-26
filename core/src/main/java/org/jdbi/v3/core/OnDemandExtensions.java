@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
+import org.jdbi.v3.core.internal.UtilityClassException;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
@@ -36,7 +38,7 @@ class OnDemandExtensions {
     }
 
     private OnDemandExtensions() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     static <E> E create(Jdbi db, Class<E> extensionType) {
@@ -70,15 +72,12 @@ class OnDemandExtensions {
     }
 
     private static Object invoke(Object target, Method method, Object[] args) {
-        try {
-            if (Proxy.isProxyClass(target.getClass())) {
-                return Proxy.getInvocationHandler(target).invoke(target, method, args);
-            }
-            return MethodHandles.lookup().unreflect(method).bindTo(target).invokeWithArguments(args);
-        } catch (RuntimeException | Error e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        if (Proxy.isProxyClass(target.getClass())) {
+            InvocationHandler handler = Proxy.getInvocationHandler(target);
+            return Unchecked.<Object[], Object>function((params) -> handler.invoke(target, method, params)).apply(args);
+        } else {
+            MethodHandle handle = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method).bindTo(target);
+            return Unchecked.<Object[], Object>function(handle::invokeWithArguments).apply(args);
         }
     }
 }

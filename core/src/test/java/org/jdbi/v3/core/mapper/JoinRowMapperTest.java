@@ -13,11 +13,10 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.util.Objects;
 import java.util.stream.IntStream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -25,8 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoinRowMapperTest {
     @Rule
@@ -37,18 +35,18 @@ public class JoinRowMapperTest {
     @Before
     public void setUp() {
         h = dbRule.getSharedHandle();
-        h.execute("CREATE TABLE user (" +
-                    "uid INTEGER NOT NULL," +
-                    "name VARCHAR NOT NULL" +
-                  ")");
-        h.execute("CREATE TABLE article (" +
-                    "aid INTEGER NOT NULL," +
-                    "title VARCHAR NOT NULL" +
-                  ")");
-        h.execute("CREATE TABLE author (" +
-                    "uid INTEGER NOT NULL," +
-                    "aid INTEGER NOT NULL" +
-                  ")");
+        h.execute("CREATE TABLE user ("
+            + "uid INTEGER NOT NULL,"
+            + "name VARCHAR NOT NULL"
+            + ")");
+        h.execute("CREATE TABLE article ("
+            + "aid INTEGER NOT NULL,"
+            + "title VARCHAR NOT NULL"
+            + ")");
+        h.execute("CREATE TABLE author ("
+            + "uid INTEGER NOT NULL,"
+            + "aid INTEGER NOT NULL"
+            + ")");
 
         IntStream.rangeClosed(1, 3).forEach(u ->
             h.execute("INSERT INTO user (uid, name) VALUES (?, ?)", u, "u" + u));
@@ -69,7 +67,7 @@ public class JoinRowMapperTest {
     }
 
     @Test
-    public void testCartesianProduct() throws Exception {
+    public void testCartesianProduct() {
         Multimap<User, Article> product = HashMultimap.create();
         h.createQuery("SELECT * FROM user, article")
             .map(JoinRowMapper.forTypes(User.class, Article.class))
@@ -84,7 +82,7 @@ public class JoinRowMapperTest {
     }
 
     @Test
-    public void testJoin() throws Exception {
+    public void testJoin() {
        // tag::multimap[]
         Multimap<User, Article> joined = HashMultimap.create();
         h.createQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
@@ -115,14 +113,19 @@ public class JoinRowMapperTest {
         private final int uid;
         private final String name;
 
-        public User(int uid, String name) { this.uid = uid; this.name = name; }
+        public User(int uid, String name) {
+            this.uid = uid;
+            this.name = name;
+        }
 
         @Override
-        public int hashCode() { return Objects.hash(uid, name); }
+        public int hashCode() {
+            return Objects.hash(uid, name);
+        }
 
         @Override
         public boolean equals(Object obj) {
-            if(obj instanceof User) {
+            if (obj instanceof User) {
                 User that = (User) obj;
                 return Objects.equals(uid, that.uid) && Objects.equals(name, that.name);
             }
@@ -134,14 +137,19 @@ public class JoinRowMapperTest {
         private final int aid;
         private final String title;
 
-        public Article(int aid, String title) { this.aid = aid; this.title = title; }
+        public Article(int aid, String title) {
+            this.aid = aid;
+            this.title = title;
+        }
 
         @Override
-        public int hashCode() { return Objects.hash(aid, title); }
+        public int hashCode() {
+            return Objects.hash(aid, title);
+        }
 
         @Override
         public boolean equals(Object obj) {
-            if(obj instanceof Article) {
+            if (obj instanceof Article) {
                 Article that = (Article) obj;
                 return Objects.equals(aid, that.aid) && Objects.equals(title, that.title);
             }

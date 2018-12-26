@@ -14,7 +14,10 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+import java.util.Calendar;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -28,12 +31,12 @@ public class TestRegisteredMappers {
     private Jdbi db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         db = dbRule.getJdbi();
     }
 
     @Test
-    public void testRegisterInferredOnJdbi() throws Exception {
+    public void testRegisterInferredOnJdbi() {
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (18, 'Sam')");
@@ -45,5 +48,17 @@ public class TestRegisteredMappers {
         });
 
         assertThat(sam.getName()).isEqualTo("Sam");
+    }
+
+    @Test
+    public void registerByGenericType() {
+        @SuppressWarnings("unchecked")
+        RowMapper<Iterable<Calendar>> mapper = mock(RowMapper.class);
+        GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
+
+        db.registerRowMapper(iterableOfCalendarType, mapper);
+
+        assertThat(db.getConfig(RowMappers.class).findFor(iterableOfCalendarType))
+            .contains(mapper);
     }
 }

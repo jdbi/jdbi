@@ -13,9 +13,9 @@ Jdbi with it.
 
 ## Prerequisites
 
-Jdbi 3 requires Java 8.
+Jdbi 3 requires Java 8 or better.
 
-We've done some light testing with Java 9, and would appreciate reports of any problems!
+We run CI tests against all currently supported versions, and recommend Java 11.
 
 ## Builds
 
@@ -25,16 +25,10 @@ Jdbi is built with Maven:
 $ mvn clean install
 ```
 
-The tests use real Postgres, H2, and Oracle databases.
+The tests use real Postgres and H2 databases.
 
-For Postgres and H2, you do not need to install anything--the tests will spin up
+You do not need to install anything--the tests will spin up
 temporary database servers as needed.
-
-By default, the build skips over `jdbi3-oracle12`. Oracle keeps their JDBC
-drivers in a password-protected Maven repository, so some additional setup is
-required before `jdbi3-oracle12` can build.
-[CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md)
-contains instructions to help set up your environment to build `jdbi3-oracle12`.
 
 ## Contributing
 
@@ -58,6 +52,7 @@ This project is licensed under the
 * **Henning Schmiedehausen (@hgschmie)**
 * **Matthew Hall (@qualidafial)**
 * **Artem Prigoda (@arteam)**
+* **Marnick L'Eau (@TheRealMarnes)**
 
 ## Special Thanks
 

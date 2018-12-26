@@ -14,23 +14,27 @@
 
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.URI;
+import java.util.Calendar;
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestColumnMappers {
     @Rule
@@ -126,15 +130,15 @@ public class TestColumnMappers {
     SomeBeanDao dao;
 
     @Before
-    public void createTable() throws Exception {
+    public void createTable() {
         h = dbRule.openHandle();
         h.createUpdate(
-            "create table someBean (" +
-            "  primitiveInt integer, wrapperLong bigint, " +
-            "  primitiveChar varchar(1), wrappedChar varchar(1), " +
-            "  string varchar(50), valueType varchar(50), " +
-            "  uri varchar(50) " +
-            ")").execute();
+            "create table someBean ("
+                + " primitiveInt integer, wrapperLong bigint, "
+                + " primitiveChar varchar(1), wrappedChar varchar(1), "
+                + " string varchar(50), valueType varchar(50), "
+                + " uri varchar(50) "
+                + ")").execute();
         dao = h.attach(SomeBeanDao.class);
     }
 
@@ -144,7 +148,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveInt() throws Exception {
+    public void testMapPrimitiveInt() {
         h.createUpdate("insert into someBean (primitiveInt) values (15)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -152,7 +156,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveIntFromNull() throws Exception {
+    public void testMapPrimitiveIntFromNull() {
         h.createUpdate("insert into someBean (primitiveInt) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -160,7 +164,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveChar() throws Exception {
+    public void testMapPrimitiveChar() {
         h.createUpdate("insert into someBean (primitiveChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -168,7 +172,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveCharFromEmpty() throws Exception {
+    public void testMapPrimitiveCharFromEmpty() {
         h.createUpdate("insert into someBean (primitiveChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -176,7 +180,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapPrimitiveCharFromNull() throws Exception {
+    public void testMapPrimitiveCharFromNull() {
         h.createUpdate("insert into someBean (primitiveChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -184,7 +188,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedChar() throws Exception {
+    public void testMapWrappedChar() {
         h.createUpdate("insert into someBean (wrappedChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -192,7 +196,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedCharFromEmpty() throws Exception {
+    public void testMapWrappedCharFromEmpty() {
         h.createUpdate("insert into someBean (wrappedChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -200,7 +204,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrappedCharFromNull() throws Exception {
+    public void testMapWrappedCharFromNull() {
         h.createUpdate("insert into someBean (wrappedChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -208,7 +212,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrapper() throws Exception {
+    public void testMapWrapper() {
         h.createUpdate("insert into someBean (wrapperLong) values (20)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -216,7 +220,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapWrapperFromNull() throws Exception {
+    public void testMapWrapperFromNull() {
         h.createUpdate("insert into someBean (wrapperLong) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -224,7 +228,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapString() throws Exception {
+    public void testMapString() {
         h.createUpdate("insert into someBean (string) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -232,7 +236,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapStringFromNull() throws Exception {
+    public void testMapStringFromNull() {
         h.createUpdate("insert into someBean (string) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -240,7 +244,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueType() throws Exception {
+    public void testMapValueType() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -248,7 +252,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueTypeFromNull() throws Exception {
+    public void testMapValueTypeFromNull() {
         h.createUpdate("insert into someBean (valueType) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
@@ -256,7 +260,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapValueTypeFromColumnMapperFactory() throws Exception {
+    public void testMapValueTypeFromColumnMapperFactory() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeansFactoryMapped();
@@ -264,7 +268,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapToValueTypeFromColumnMapper() throws Exception {
+    public void testMapToValueTypeFromColumnMapper() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypes();
@@ -272,7 +276,7 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapToValueTypeFromColumnMapperFactory() throws Exception {
+    public void testMapToValueTypeFromColumnMapperFactory() {
         h.createUpdate("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypesFactoryMapped();
@@ -288,10 +292,22 @@ public class TestColumnMappers {
     }
 
     @Test
-    public void testMapUriFromNull() throws Exception {
+    public void testMapUriFromNull() {
         h.createUpdate("insert into someBean (uri) values (null)").execute();
 
         List<SomeBean> list = dao.listBeans();
         assertThat(list).extracting(SomeBean::getUri).hasSize(1).containsNull();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRegisterByGenericType() throws Exception {
+        ColumnMapper<Iterable<Calendar>> mapper = mock(ColumnMapper.class);
+        GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
+
+        h.registerColumnMapper(iterableOfCalendarType, mapper);
+
+        assertThat(h.getConfig(ColumnMappers.class).findFor(iterableOfCalendarType))
+            .contains(mapper);
     }
 }

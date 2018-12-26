@@ -115,8 +115,8 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         // scope to least, that is: as an argument, then on the method, then on the class,
         // then default to Integer.MAX_VALUE
 
-        int batchChunkSizeParameterIndex;
-        if ((batchChunkSizeParameterIndex = indexOfBatchChunkSizeParameter(method)) >= 0) {
+        int batchChunkSizeParameterIndex = indexOfBatchChunkSizeParameter(method);
+        if (batchChunkSizeParameterIndex >= 0) {
             return new ParamBasedChunkSizeFunction(batchChunkSizeParameterIndex);
         } else if (method.isAnnotationPresent(BatchChunkSize.class)) {
             final int size = method.getAnnotation(BatchChunkSize.class).value();
@@ -177,10 +177,8 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
         if (batchArgs.hasNext()) {
             result = new ResultIterator<Object>() {
-                ResultIterator<?> batchResult;
-                boolean closed = false; {
-                    hasNext(); // Ensure our batchResult is prepared, so we can get its context
-                }
+                private ResultIterator<?> batchResult;
+                private boolean closed = false;
 
                 @Override
                 public boolean hasNext() {
@@ -231,6 +229,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                     batchResult.close();
                 }
             };
+            result.hasNext(); // Ensure our batchResult is prepared, so we can get its context
         } else {
             PreparedBatch dummy = handle.prepareBatch(sql);
             result = new ResultIterator<Object>() {
@@ -326,9 +325,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     }
 
     private static String invalidReturnTypeMessage(Method method) {
-        return method.getDeclaringClass() + "." + method.getName() +
-                " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: " +
-                method.getReturnType();
+        return method.getDeclaringClass() + "." + method.getName()
+                + " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: "
+                + method.getReturnType();
     }
 
     private interface ChunkSizeFunction {

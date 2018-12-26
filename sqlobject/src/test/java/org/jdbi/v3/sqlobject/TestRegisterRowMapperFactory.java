@@ -13,20 +13,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -35,12 +32,15 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+
 public class TestRegisterRowMapperFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testSimple() throws Exception {
+    public void testSimple() {
         FooDao fooDao = dbRule.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
@@ -62,25 +62,20 @@ public class TestRegisterRowMapperFactory {
         void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
-
     public static class MyFactory implements RowMapperFactory {
         @Override
         public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
             Class<?> erasedType = getErasedType(type);
-            try {
-                MapWith mapWith = erasedType.getAnnotation(MapWith.class);
-                return mapWith == null
-                        ? Optional.empty()
-                        : Optional.of(mapWith.value().newInstance());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            MapWith mapWith = erasedType.getAnnotation(MapWith.class);
+            return mapWith == null
+                ? Optional.empty()
+                : Optional.of(Unchecked.supplier(mapWith.value()::newInstance).get());
         }
     }
 
     @MapWith(FooMapper.class)
     public static class Foo {
-        private final int    id;
+        private final int id;
         private final String name;
 
         Foo(final int id, final String name) {

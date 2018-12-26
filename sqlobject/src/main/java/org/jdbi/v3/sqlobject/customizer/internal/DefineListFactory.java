@@ -36,9 +36,9 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory {
                                                               Type type) {
         final DefineList d = (DefineList) annotation;
         final String name = ParameterUtil.findParameterName(d.value(), param)
-                .orElseThrow(() -> new UnsupportedOperationException("A @DefineList parameter was not given a name, " +
-                        "and parameter name data is not present in the class file, for: " +
-                        param.getDeclaringExecutable() + "::" + param));
+                .orElseThrow(() -> new UnsupportedOperationException("A @DefineList parameter was not given a name, "
+                        + "and parameter name data is not present in the class file, for: "
+                        + param.getDeclaringExecutable() + "::" + param));
 
         return (stmt, arg) -> {
             List<?> argsList;
@@ -47,15 +47,15 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory {
             } else if (arg instanceof Object[]) {
                 argsList = Arrays.asList((Object[]) arg);
             } else if (arg == null) {
-                throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
-                        "@DefineList is only supported on List and array arguments");
+                throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. "
+                        + "@DefineList is only supported on List and array arguments");
             } else {
-                throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
-                        "parameter. @DefineList is only supported on List and array arguments");
+                throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList "
+                        + "parameter. @DefineList is only supported on List and array arguments");
             }
             if (argsList.isEmpty()) {
-                throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define " +
-                        "an empty attribute.");
+                throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define "
+                        + "an empty attribute.");
             }
             if (argsList.contains(null)) {
                 throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");

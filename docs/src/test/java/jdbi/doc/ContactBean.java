@@ -44,11 +44,15 @@ public class ContactBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ContactBean that = (ContactBean) o;
-        return id == that.id &&
-                Objects.equals(name, that.name);
+        return id == that.id
+                && Objects.equals(name, that.name);
     }
 
     @Override
@@ -58,9 +62,9 @@ public class ContactBean {
 
     @Override
     public String toString() {
-        return "ContactBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return "ContactBean{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + '}';
     }
 }

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Objects;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -34,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
-    private static final String SELECT_BY_NAME = "select * from something " +
-            "where :name is null or name = :name " +
-            "order by id";
+    private static final String SELECT_BY_NAME = "select * from something "
+        + "where :name is null or name = :name "
+        + "order by id";
 
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
@@ -54,7 +55,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptional() throws Exception {
+    public void testMapToOptional() {
         GenericType<Optional<String>> optionalString = new GenericType<Optional<String>>() {};
 
         assertThat(handle.select("select name from something where id = 0")
@@ -76,7 +77,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalInt() throws Exception {
+    public void testMapToOptionalInt() {
         assertThat(handle.select("select id from something where name = 'arthur'")
             .collectInto(OptionalInt.class))
             .isEmpty();
@@ -96,7 +97,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalLong() throws Exception {
+    public void testMapToOptionalLong() {
         assertThat(handle.select("select id from something where name = 'ford'")
             .collectInto(OptionalLong.class))
             .isEmpty();
@@ -116,7 +117,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalDouble() throws Exception {
+    public void testMapToOptionalDouble() {
         assertThat(handle.select("select id from something where name = 'slartibartfast'")
             .collectInto(OptionalDouble.class))
             .isEmpty();
@@ -136,7 +137,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalPresent() throws Exception {
+    public void testDynamicBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
@@ -146,7 +147,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalEmpty() throws Exception {
+    public void testDynamicBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
@@ -156,7 +157,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalOfCustomType() throws Exception {
+    public void testDynamicBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
@@ -165,7 +166,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
+    public void testDynamicBindOptionalOfUnregisteredCustomType() {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
@@ -174,7 +175,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalPresent() throws Exception {
+    public void testBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of("brian"))
                 .mapToBean(Something.class)
@@ -184,7 +185,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalEmpty() throws Exception {
+    public void testBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.empty())
                 .mapToBean(Something.class)
@@ -194,7 +195,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalOfCustomType() throws Exception {
+    public void testBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
@@ -205,7 +206,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalOfUnregisteredCustomType() throws Exception {
+    public void testBindOptionalOfUnregisteredCustomType() {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
@@ -214,8 +215,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalInt()
-    {
+    public void testBindOptionalInt() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalInt.empty())
                 .collectInto(OptionalInt.class))
@@ -228,8 +228,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalLong()
-    {
+    public void testBindOptionalLong() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalLong.empty())
                 .collectInto(OptionalLong.class))
@@ -242,8 +241,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testBindOptionalDouble()
-    {
+    public void testBindOptionalDouble() {
         assertThat(handle.createQuery("SELECT :value")
                 .bind("value", OptionalDouble.empty())
                 .collectInto(OptionalDouble.class))
@@ -260,6 +258,11 @@ public class TestOptional {
 
         Name(String value) {
             this.value = value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
 
         @Override

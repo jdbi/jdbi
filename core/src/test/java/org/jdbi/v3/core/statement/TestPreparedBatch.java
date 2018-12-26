@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class TestPreparedBatch {
     @Rule
@@ -46,7 +47,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBindBatch() throws Exception {
+    public void testBindBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -60,7 +61,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBigishBatch() throws Exception {
+    public void testBigishBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -70,13 +71,13 @@ public class TestPreparedBatch {
         }
         b.execute();
 
-        int row_count = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
+        int rowCount = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
 
-        assertThat(row_count).isEqualTo(count);
+        assertThat(rowCount).isEqualTo(count);
     }
 
     @Test
-    public void testBindProperties() throws Exception {
+    public void testBindProperties() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -91,7 +92,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testBindMaps() throws Exception {
+    public void testBindMaps() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -106,7 +107,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testMixedModeBatch() throws Exception {
+    public void testMixedModeBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -118,7 +119,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testPositionalBinding() throws Exception {
+    public void testPositionalBinding() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -128,7 +129,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testForgotFinalAdd() throws Exception {
+    public void testForgotFinalAdd() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -146,7 +147,7 @@ public class TestPreparedBatch {
     }
 
     @Test
-    public void testContextGetsBinding() throws Exception {
+    public void testContextGetsBinding() {
         try {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 0)
@@ -177,10 +178,8 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+        assertThat(r).extracting(Something::getId, Something::getName)
+                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -197,10 +196,8 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(Something::getId, Something::getName).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(Something::getId, Something::getName).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(Something::getId, Something::getName).containsSequence(3, "Keith");
+        assertThat(r).extracting(Something::getId, Something::getName)
+                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -218,10 +215,7 @@ public class TestPreparedBatch {
         b.execute();
 
         final List<PublicSomething> r = h.createQuery("select * from something order by id").mapTo(PublicSomething.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(0)).extracting(s -> s.id, s -> s.name).containsSequence(1, "Eric");
-        assertThat(r.get(1)).extracting(s -> s.id, s -> s.name).containsSequence(2, "Brian");
-        assertThat(r.get(2)).extracting(s -> s.id, s -> s.name).containsSequence(3, "Keith");
+        assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     public static class PublicSomething {

@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.collector;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -27,8 +27,10 @@ import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalInt;
 import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalLong;
 
 class OptionalPrimitiveCollectorFactory implements CollectorFactory {
-    private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTORS = new HashMap<>();
-    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new HashMap<>(); {
+    private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTORS = new IdentityHashMap<>();
+    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new IdentityHashMap<>();
+
+    static {
         COLLECTORS.put(OptionalInt.class, toOptionalInt());
         ELEMENT_TYPES.put(OptionalInt.class, Integer.class);
 
@@ -41,16 +43,16 @@ class OptionalPrimitiveCollectorFactory implements CollectorFactory {
 
     @Override
     public boolean accepts(Type containerType) {
-        return COLLECTORS.containsKey(containerType);
+        return containerType instanceof Class && COLLECTORS.containsKey(containerType);
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
-        return Optional.of(ELEMENT_TYPES.get(containerType));
+        return containerType instanceof Class ? Optional.of(ELEMENT_TYPES.get(containerType)) : Optional.empty();
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        return COLLECTORS.get(containerType);
+        return containerType instanceof Class ? COLLECTORS.get(containerType) : null;
     }
 }

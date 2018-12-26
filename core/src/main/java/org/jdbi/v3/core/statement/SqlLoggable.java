@@ -15,6 +15,11 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 
+// TODO move to internal package
+/**
+ * @deprecated this class is not for end-user use and should not be in the public API.
+ */
+@Deprecated
 @FunctionalInterface
 public interface SqlLoggable<T> {
     T invoke() throws SQLException;

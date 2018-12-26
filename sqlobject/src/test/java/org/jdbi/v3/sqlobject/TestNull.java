@@ -31,7 +31,7 @@ public class TestNull {
     private DAO dao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dao = dbRule.getSharedHandle().attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, null);

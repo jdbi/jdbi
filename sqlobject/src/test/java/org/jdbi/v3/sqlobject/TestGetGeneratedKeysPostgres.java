@@ -13,15 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -35,26 +32,28 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestGetGeneratedKeysPostgres {
     @Rule
     public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             dao.createSequence();
             dao.createTable();
 
-            long brian_id = dao.insert("Brian");
-            long keith_id = dao.insert("Keith");
+            long brianId = dao.insert("Brian");
+            long keithId = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
-            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
+            assertThat(dao.findNameById(brianId)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keithId)).isEqualTo("Keith");
         });
     }
 
     @Test
-    public void testBatch() throws Exception {
+    public void testBatch() {
         dbRule.getJdbi().useExtension(DAO.class, dao -> {
             dao.createSequence();
             dao.createTable();
@@ -67,7 +66,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testUseRowMapperUpdate() throws Exception {
+    public void testUseRowMapperUpdate() {
         dbRule.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -79,7 +78,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testUseRowMapperBatch() throws Exception {
+    public void testUseRowMapperBatch() {
         dbRule.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -91,7 +90,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testRegisterRowMapperUpdate() throws Exception {
+    public void testRegisterRowMapperUpdate() {
         dbRule.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -103,7 +102,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testRegisterRowMapperBatch() throws Exception {
+    public void testRegisterRowMapperBatch() {
         dbRule.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
 

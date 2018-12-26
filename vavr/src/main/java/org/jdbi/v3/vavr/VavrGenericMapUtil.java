@@ -17,8 +17,9 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 import io.vavr.collection.Multimap;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.generic.internal.TypeParameter;
-import org.jdbi.v3.core.generic.internal.TypeToken;
+import org.jdbi.v3.core.internal.UtilityClassException;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
+import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -46,7 +47,7 @@ class VavrGenericMapUtil {
     }
 
     private VavrGenericMapUtil() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     static Type resolveMapEntryType(Type mapType) {

@@ -42,7 +42,7 @@ public class TestVavrTupleRowMapperFactory {
     private VavrTupleRowMapperFactory unit;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         unit = new VavrTupleRowMapperFactory() {
             // mock the resolution of column mappers in jdbi
             @Override
@@ -63,58 +63,58 @@ public class TestVavrTupleRowMapperFactory {
     }
 
     @Test
-    public void testBuildRowMapperForUntypedTuple_shouldFail() throws SQLException {
+    public void testBuildRowMapperForUntypedTupleShouldFail() {
         assertThat(unit.build(Tuple.class, null)).isEmpty();
     }
 
     @Test
-    public void testBuildRowMapperForTuple0_shouldFail() throws SQLException {
+    public void testBuildRowMapperForTuple0ShouldFail() {
         assertThat(unit.build(Tuple0.class, null)).isEmpty();
     }
 
     @Test
-    public void testBuildRowMapperForTuple1_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple1ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple1<Integer>>() {}, Tuple.of(1));
     }
 
     @Test
-    public void testBuildRowMapperForTuple2_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple2ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple2<Integer, Integer>>() {},
                 Tuple.of(1, 2));
     }
 
     @Test
-    public void testBuildRowMapperForTuple3_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple3ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple3<Integer, Integer, Integer>>() {},
                 Tuple.of(1, 2, 3));
     }
 
     @Test
-    public void testBuildRowMapperForTuple4_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple4ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple4<?, ?, ?, ?>>() {},
                 Tuple.of(1, 2, 3, 4));
     }
 
     @Test
-    public void testBuildRowMapperForTuple5_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple5ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple5<?, ?, ?, ?, ?>>() {},
                 Tuple.of(1, 2, 3, 4, 5));
     }
 
     @Test
-    public void testBuildRowMapperForTuple6_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple6ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple6<?, ?, ?, ?, ?, ?>>() {},
                 Tuple.of(1, 2, 3, 4, 5, 6));
     }
 
     @Test
-    public void testBuildRowMapperForTuple7_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple7ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple7<?, ?, ?, ?, ?, ?, ?>>() {},
                 Tuple.of(1, 2, 3, 4, 5, 6, 7));
     }
 
     @Test
-    public void testBuildRowMapperForTuple8_shouldSucceed() throws SQLException {
+    public void testBuildRowMapperForTuple8ShouldSucceed() throws SQLException {
         testProjectionMapper(new GenericType<Tuple8<?, ?, ?, ?, ?, ?, ?, ?>>() {},
                 Tuple.of(1, 2, 3, 4, 5, 6, 7, 8));
     }

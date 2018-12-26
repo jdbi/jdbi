@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -72,7 +73,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @return this
      */
     public SqlArrayTypes register(Class<?> elementType, String sqlTypeName) {
-        return register(VendorSupportedArrayType.factory(elementType, sqlTypeName));
+        return register(SqlArrayTypeFactory.of(elementType, sqlTypeName, Function.identity()));
     }
 
     /**

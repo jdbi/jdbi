@@ -27,7 +27,7 @@ public class TestUri {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testUri() throws Exception {
+    public void testUri() {
         Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();

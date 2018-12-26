@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -26,6 +27,7 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,18 +56,34 @@ public class TestOnDemandMethodBehavior {
             runnable.run();
         }
 
+        default void blowUp() throws SQLException {
+            throw new SQLException("boom");
+        }
+
         void foo();
     }
 
+    public class UselessDaoExtension implements ExtensionFactory {
+        @Override
+        public boolean accepts(Class<?> extensionType) {
+            return UselessDao.class.equals(extensionType);
+        }
+
+        @Override
+        public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
+            return extensionType.cast((UselessDao) () -> {});
+        }
+    }
+
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(mockExtensionFactory.accepts(UselessDao.class)).thenReturn(true);
 
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Connection getConnection() throws SQLException {
+            public Connection getConnection() {
                 throw new UnsupportedOperationException();
             }
         };
@@ -76,21 +94,21 @@ public class TestOnDemandMethodBehavior {
     }
 
     @Test
-    public void testEqualsDoesntAttach() throws Exception {
+    public void testEqualsDoesntAttach() {
         assertThat(onDemand).isEqualTo(onDemand);
         assertThat(onDemand).isNotEqualTo(anotherOnDemand);
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testHashCodeDoesntAttach() throws Exception {
+    public void testHashCodeDoesntAttach() {
         assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
         assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
-    public void testToStringDoesntAttach() throws Exception {
+    public void testToStringDoesntAttach() {
         assertThat(onDemand.toString()).isNotNull();
         verify(mockExtensionFactory, never()).attach(any(), any());
     }
@@ -107,5 +125,12 @@ public class TestOnDemandMethodBehavior {
         verify(mockExtensionFactory).attach(eq(UselessDao.class), any());
         verify(mockDao).run(any());
         verify(mockDao).foo();
+    }
+
+    @Test
+    public void testExceptionThrown() {
+        db.registerExtension(new UselessDaoExtension());
+        UselessDao uselessDao = db.onDemand(UselessDao.class);
+        assertThatThrownBy(uselessDao::blowUp).isInstanceOf(SQLException.class);
     }
 }

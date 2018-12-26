@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
+
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Update;
@@ -39,7 +41,10 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
-        Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
+        QualifiedType returnType = QualifiedType.of(
+            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+            .with(getQualifiers(method));
+
         if (isGetGeneratedKeys) {
             ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
 
@@ -75,20 +80,19 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     private boolean isNumeric(Class<?> type) {
-        return Number.class.isAssignableFrom(type) ||
-                type.equals(int.class) ||
-                type.equals(long.class) ||
-                type.equals(void.class);
+        return Number.class.isAssignableFrom(type)
+            || type.equals(int.class)
+            || type.equals(long.class)
+            || type.equals(void.class);
     }
 
     private boolean isBoolean(Class<?> type) {
-        return type.equals(boolean.class) ||
-                type.equals(Boolean.class);
+        return type.equals(boolean.class) || type.equals(Boolean.class);
     }
 
-    private String invalidReturnTypeMessage(Method method, Type returnType) {
-        return method.getDeclaringClass().getSimpleName() + "." + method.getName() +
-                " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: " +
-                returnType;
+    private String invalidReturnTypeMessage(Method method, QualifiedType returnType) {
+        return method.getDeclaringClass().getSimpleName() + "." + method.getName()
+                + " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: "
+                + returnType;
     }
 }

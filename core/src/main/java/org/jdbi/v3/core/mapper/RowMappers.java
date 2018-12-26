@@ -70,6 +70,17 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @param mapper the row mapper
      * @return this
      */
+    public <T> RowMappers register(GenericType<T> type, RowMapper<T> mapper) {
+        return this.register(RowMapperFactory.of(type.getType(), mapper));
+    }
+
+    /**
+     * Register a row mapper for a given type.
+     *
+     * @param type the type to match with equals.
+     * @param mapper the row mapper
+     * @return this
+     */
     public RowMappers register(Type type, RowMapper<?> mapper) {
         return this.register(RowMapperFactory.of(type, mapper));
     }

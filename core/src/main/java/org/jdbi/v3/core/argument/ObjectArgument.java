@@ -46,10 +46,10 @@ public class ObjectArgument implements Argument {
         if (value == null) {
             statement.setNull(position, sqlType);
         } else {
-            if (sqlType != null) {
-                statement.setObject(position, value, sqlType);
-            } else {
+            if (sqlType == null) {
                 statement.setObject(position, value);
+            } else {
+                statement.setObject(position, value, sqlType);
             }
         }
     }

@@ -38,7 +38,7 @@ public class TestTooManyCursors {
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testFoo() throws Exception {
+    public void testFoo() {
         ConnectionFactory cf = dbRule.getConnectionFactory();
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
         Jdbi db = Jdbi.create(errorCf);
@@ -66,19 +66,18 @@ public class TestTooManyCursors {
         }
     }
 
-
     private static class ConnectionInvocationHandler implements InvocationHandler {
         private final Connection connection;
         private final int numSuccessfulStatements;
         private int numStatements = 0;
 
-        public static Connection newInstance(Connection connection, int numSuccessfulStatements) {
+        static Connection newInstance(Connection connection, int numSuccessfulStatements) {
             return (Connection) Proxy.newProxyInstance(connection.getClass().getClassLoader(),
                                                        new Class[]{Connection.class},
                                                        new ConnectionInvocationHandler(connection, numSuccessfulStatements));
         }
 
-        public ConnectionInvocationHandler(Connection connection, int numSuccessfulStatements) {
+        ConnectionInvocationHandler(Connection connection, int numSuccessfulStatements) {
             this.connection = connection;
             this.numSuccessfulStatements = numSuccessfulStatements;
         }
@@ -86,9 +85,9 @@ public class TestTooManyCursors {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             try {
-                if ("createStatement".equals(method.getName()) ||
-                    "prepareCall".equals(method.getName()) ||
-                    "prepareStatement".equals(method.getName())) {
+                if ("createStatement".equals(method.getName())
+                    || "prepareCall".equals(method.getName())
+                    || "prepareStatement".equals(method.getName())) {
                     if (++numStatements > numSuccessfulStatements) {
                         throw new SQLException("Fake 'maximum open cursors exceeded' error");
                     }
@@ -101,7 +100,7 @@ public class TestTooManyCursors {
             }
         }
 
-        public void registerCloseStatement() {
+        void registerCloseStatement() {
             numStatements--;
         }
     }
@@ -110,7 +109,7 @@ public class TestTooManyCursors {
         private final Statement stmt;
         private final ConnectionInvocationHandler connectionHandler;
 
-        public static Statement newInstance(Statement stmt, ConnectionInvocationHandler connectionHandler) {
+        static Statement newInstance(Statement stmt, ConnectionInvocationHandler connectionHandler) {
 
             Class<?> o = stmt.getClass();
             List<Class<?>> interfaces = new ArrayList<>();
@@ -120,11 +119,11 @@ public class TestTooManyCursors {
             }
 
             return (Statement) Proxy.newProxyInstance(stmt.getClass().getClassLoader(),
-                                                      interfaces.toArray(new Class[interfaces.size()]),
+                                                      interfaces.toArray(new Class[0]),
                                                       new StatementInvocationHandler(stmt, connectionHandler));
         }
 
-        public StatementInvocationHandler(Statement stmt, ConnectionInvocationHandler connectionHandler) {
+        StatementInvocationHandler(Statement stmt, ConnectionInvocationHandler connectionHandler) {
             this.stmt = stmt;
             this.connectionHandler = connectionHandler;
         }

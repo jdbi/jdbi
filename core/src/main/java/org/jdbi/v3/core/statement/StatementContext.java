@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
@@ -48,6 +49,8 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.Objects.requireNonNull;
 
@@ -66,12 +69,12 @@ public class StatementContext implements Closeable {
 
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
-    private String            rawSql;
-    private String            renderedSql;
-    private ParsedSql         parsedSql;
+    private String rawSql;
+    private String renderedSql;
+    private ParsedSql parsedSql;
     private PreparedStatement statement;
-    private Connection        connection;
-    private Binding           binding = new Binding();
+    private Connection connection;
+    private Binding binding = new Binding();
 
     private boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];
@@ -102,7 +105,6 @@ public class StatementContext implements Closeable {
     public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
         return config.get(configClass);
     }
-
 
     /**
      * @return the {@code ConfigRegistry} this context owns
@@ -148,6 +150,18 @@ public class StatementContext implements Closeable {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return getConfig(Arguments.class).findFor(type, value);
+    }
+
+    /**
+     * Obtain an argument for given value in this context
+     *
+     * @param type  the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    @Beta
+    public Optional<Argument> findArgumentFor(QualifiedType type, Object value) {
         return getConfig(Arguments.class).findFor(type, value);
     }
 
@@ -204,6 +218,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Obtain a mapper for the given qualified type in this context.
+     *
+     * @param type the target qualified type to map to
+     * @return a mapper for the given qualified type, or empty if no row or column mappers
+     * is registered for the given type.
+     */
+    @Beta
+    public Optional<RowMapper<?>> findMapperFor(QualifiedType type) {
+        return getConfig(Mappers.class).findFor(type);
+    }
+
+    /**
      * Obtain a column mapper for the given type in this context.
      *
      * @param <T> the type to map
@@ -232,6 +258,17 @@ public class StatementContext implements Closeable {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
+        return getConfig(ColumnMappers.class).findFor(type);
+    }
+
+    /**
+     * Obtain a column mapper for the given qualified type in this context.
+     *
+     * @param type the qualified target type to map to
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
+    @Beta
+    public Optional<ColumnMapper<?>> findColumnMapperFor(QualifiedType type) {
         return getConfig(ColumnMappers.class).findFor(type);
     }
 
@@ -439,26 +476,47 @@ public class StatementContext implements Closeable {
         this.concurrentUpdatable = concurrentUpdatable;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution began
+     */
+    @Nullable
     public Instant getExecutionMoment() {
         return executionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setExecutionMoment(Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so successfully
+     */
+    @Nullable
     public Instant getCompletionMoment() {
         return completionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setCompletionMoment(Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
+    /**
+     * @return the {@link Instant} at which query execution ended, if it did so with an exception
+     */
+    @Nullable
     public Instant getExceptionMoment() {
         return exceptionMoment;
     }
 
+    /**
+     * for jdbi-internal use only
+     */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
     }
@@ -485,6 +543,7 @@ public class StatementContext implements Closeable {
     }
 
     @Override
+    @SuppressWarnings("PMD.DoNotThrowExceptionInFinally")
     public void close() {
         SQLException exception = null;
         try {

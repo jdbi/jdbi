@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestMaxRows {
     private static final String QUERY = "select bar from foo";
-    private static final String CREATE_INSERT = "create table foo(bar int primary key);" +
-        "insert into foo(bar) values(1);" +
-        "insert into foo(bar) values(2);" +
-        "insert into foo(bar) values(3);";
+    private static final String CREATE_INSERT = "create table foo(bar int primary key);"
+        + "insert into foo(bar) values(1);"
+        + "insert into foo(bar) values(2);"
+        + "insert into foo(bar) values(3);";
     private static final int ROWS = 1;
 
     @Rule
@@ -42,7 +42,7 @@ public class TestMaxRows {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.openHandle();
     }
 

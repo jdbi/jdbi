@@ -17,13 +17,24 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Supplies {@link Connection} instances to a created {@link Handle}.
+ * Supplies {@link Connection} instances to a created {@link Handle} and allows
+ * custom close handling.
  */
 @FunctionalInterface
 public interface ConnectionFactory {
     /**
+     * Open a connection.
      * @return a Connection
      * @throws SQLException if anything goes wrong
      */
     Connection openConnection() throws SQLException;
+
+    /**
+     * Close a connection.
+     * @param conn the connection to close
+     * @throws SQLException if anything goes wrong
+     */
+    default void closeConnection(Connection conn) throws SQLException {
+        conn.close();
+    }
 }

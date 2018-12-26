@@ -18,12 +18,12 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>19</version>
+        <version>27</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.2.2-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
@@ -47,9 +47,12 @@
         <module>stringtemplate4</module>
         <module>commons-text</module>
         <module>freemarker</module>
+        <module>gson2</module>
         <module>guava</module>
+        <module>jackson2</module>
         <module>jodatime2</module>
         <module>jpa</module>
+        <module>json</module>
         <module>postgres</module>
         <module>spring4</module>
         <module>docs</module>
@@ -74,18 +77,22 @@
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.maven.version>3.2.5</basepom.maven.version>
 
-        <basepom.release.profiles>basepom.oss-release,oracle</basepom.release.profiles>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>3.4</dep.antlr.version>
-        <dep.dokka.version>0.9.16</dep.dokka.version>
+        <dep.checkstyle.version>8.10</dep.checkstyle.version>
+        <dep.dokka.version>0.9.17</dep.dokka.version>
+        <dep.jackson2.version>2.8.5</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
+        <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
+        <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
+        <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
+        <dep.pmd.version>6.0.1</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
-        <findbugs.version>3.0.1</findbugs.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>1.8</project.build.targetJdk>
     </properties>
@@ -121,6 +128,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jackson2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -128,6 +140,17 @@
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jpa</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-json</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-json</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
@@ -220,46 +243,51 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
                 <version>${dep.spring.version}</version>
-                <optional>true</optional>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${dep.spring.version}</version>
-                <optional>true</optional>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
                 <version>${dep.spring.version}</version>
-                <optional>true</optional>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${dep.spring.version}</version>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-jexl</artifactId>
-                <version>2.1.1</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${dep.jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${dep.jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-parameter-names</artifactId>
+                <version>${dep.jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.5</version>
             </dependency>
 
             <dependency>
@@ -306,19 +334,19 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>2.7.5</version>
+                <version>2.23.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.5.2</version>
+                <version>3.11.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
             </dependency>
 
             <dependency>
@@ -360,14 +388,14 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.3</version>
+                <version>1.6</version>
             </dependency>
 
-            <!-- commons-text 1.3 wants 3.5, but otj-pg-embedded 0.11.3 wants 3.7 -->
+            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.11.3 wants 3.5 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.7</version>
+                <version>3.8.1</version>
             </dependency>
 
             <dependency>
@@ -377,9 +405,45 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>findbugs-annotations</artifactId>
-                <version>${findbugs.version}</version>
+                <groupId>org.antlr</groupId>
+                <artifactId>stringtemplate</artifactId>
+                <version>4.0.2</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>antlr-runtime</artifactId>
+                        <groupId>org.antlr</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.persistence</groupId>
+                <artifactId>persistence-api</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.9.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.28</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${dep.plugin.spotbugs.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
@@ -387,7 +451,7 @@
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
-                <version>${findbugs.version}</version>
+                <version>3.0.2</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
@@ -432,15 +496,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <configLocation>/src/build/checkstyle.xml</configLocation>
-                        <suppressionsLocation>/src/build/checkstyle-suppress.xml</suppressionsLocation>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
                         <source>${project.build.targetJdk}</source>
@@ -464,29 +519,144 @@
                         <jdkVersion>8</jdkVersion>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <!-- Fixes missing plugin during CI builds -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr3-maven-plugin</artifactId>
+                    <version>${dep.antlr.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                    <version>${dep.kotlin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <version>1.5.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-publish-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-toolchains-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.ekryd.sortpom</groupId>
+                    <artifactId>sortpom-maven-plugin</artifactId>
+                    <version>${dep.plugin.sortpom.version}</version>
+                    <configuration>
+                        <createBackupFile>false</createBackupFile>
+                        <expandEmptyElements>false</expandEmptyElements>
+                        <keepBlankLines>true</keepBlankLines>
+                        <lineSeparator>\n</lineSeparator>
+                        <nrOfIndentSpace>4</nrOfIndentSpace>
+                        <sortDependencies>scope</sortDependencies>
+                        <sortProperties>true</sortProperties>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <configuration>
+                        <linkXRef>false</linkXRef>
+                        <analysisCache>true</analysisCache>
+                        <verbose>true</verbose>
+                        <rulesets>
+                            <ruleset>${maven.multiModuleProjectDirectory}/src/build/pmd.xml</ruleset>
+                        </rulesets>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                        <configLocation>${maven.multiModuleProjectDirectory}/src/build/checkstyle.xml</configLocation>
+                        <suppressionsLocation>${maven.multiModuleProjectDirectory}/src/build/checkstyle-suppress.xml</suppressionsLocation>
+                        <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <configuration combine.children="append">
+                        <includeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-include.xml</includeFilterFile>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/src/build/spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
-                <version>2.8.0</version>
                 <executions>
                     <execution>
-                        <phase>verify</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>sort</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <createBackupFile>false</createBackupFile>
-                    <lineSeparator>\n</lineSeparator>
-                    <nrOfIndentSpace>4</nrOfIndentSpace>
-                    <sortProperties>true</sortProperties>
-                    <keepBlankLines>true</keepBlankLines>
-                    <sortDependencies>scope</sortDependencies>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-jdbi</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- Ensure consistency -->
+                                <dependencyConvergence />
+                                <requireJavaVersion>
+                                    <!-- Java 8 min -->
+                                    <version>[1.8,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -503,7 +673,6 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-toolchains-plugin</artifactId>
-                            <version>1.1</version>
                             <configuration>
                                 <toolchains>
                                     <jdk>
@@ -520,7 +689,7 @@
         <profile>
             <id>jdk9</id>
             <activation>
-                <jdk>[1.9,</jdk>
+                <jdk>[1.9,)</jdk>
             </activation>
             <build>
                 <pluginManagement>
@@ -528,7 +697,6 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-toolchains-plugin</artifactId>
-                            <version>1.1</version>
                             <configuration>
                                 <toolchains>
                                     <jdk>
@@ -559,8 +727,8 @@
             </build>
             <properties>
                 <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
-                <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+                <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
                 <project.build.targetJdk>9</project.build.targetJdk>
             </properties>
         </profile>
@@ -586,26 +754,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>oracle</id>
-            <activation>
-                <file>
-                    <exists>.build-oracle</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>oracle12</module>
-            </modules>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jdbi</groupId>
-                        <artifactId>jdbi3-oracle12</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
     </profiles>
 </project>

@@ -18,10 +18,10 @@ import java.util.stream.Stream;
 
 public class JdbiStreams {
     private JdbiStreams() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     public static <T> Stream<T> toStream(Optional<T> optional) {
-        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
+        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 }

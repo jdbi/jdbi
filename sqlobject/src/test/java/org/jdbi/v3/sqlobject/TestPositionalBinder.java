@@ -13,14 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -29,6 +25,9 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestPositionalBinder {
 
@@ -39,7 +38,7 @@ public class TestPositionalBinder {
     private SomethingDao somethingDao;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         somethingDao = handle.attach(SomethingDao.class);
 
@@ -72,8 +71,8 @@ public class TestPositionalBinder {
     }
 
     @Test
-    public void testInsertWithDefaultParams(){
-        somethingDao.insertWithDefaultParams("Greg",21);
+    public void testInsertWithDefaultParams() {
+        somethingDao.insertWithDefaultParams("Greg", 21);
         List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 19).mapToMap().list();
         assertThat(rows).containsExactlyElementsOf(ImmutableList.of(
                 ImmutableMap.of("something_id", 19, "name", "Greg", "code", 21)));

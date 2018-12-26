@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Set;
 import java.util.UUID;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -27,6 +24,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestUuid {
 
     @ClassRule
@@ -35,7 +34,7 @@ public class TestUuid {
     public Handle h;
 
     @Before
-    public void setupDbi() throws Exception {
+    public void setupDbi() {
         h = db.getHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS foo");
@@ -44,7 +43,7 @@ public class TestUuid {
     }
 
     @Test
-    public void testUuid() throws Exception {
+    public void testUuid() {
         UUID u = UUID.randomUUID();
         h.createUpdate("INSERT INTO foo VALUES (:uuid)")
             .bind("uuid", u)
@@ -54,7 +53,7 @@ public class TestUuid {
     }
 
     @Test
-    public void testUuidObject() throws Exception {
+    public void testUuidObject() {
         final UuidObject uo = h.attach(UuidObject.class);
 
         assertThat(uo.getUuids()).isEmpty();
@@ -72,7 +71,7 @@ public class TestUuid {
     }
 
     @Test
-    public void testNull() throws Exception {
+    public void testNull() {
         final UuidObject uo = h.attach(UuidObject.class);
 
         uo.insert(null);
@@ -81,10 +80,10 @@ public class TestUuid {
     }
 
     @Test
-    public void testUuidArray() throws Exception {
+    public void testUuidArray() {
         final UuidObject uo = h.attach(UuidObject.class);
 
-        UUID[] ary = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+        UUID[] ary = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
 
         uo.insertArray(ary);
 

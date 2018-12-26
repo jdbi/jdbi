@@ -30,7 +30,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Before
     public void setUp() {
-        templateEngine = MessageFormatTemplateEngine.INSTANCE;
+        templateEngine = new MessageFormatTemplateEngine();
         attributes = new HashMap<>();
         ctx = mock(StatementContext.class);
         when(ctx.getAttributes()).thenReturn(attributes);
@@ -85,6 +85,14 @@ public class TestMessageFormatTemplateEngine {
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("expected 1 keys but got 0");
+    }
+
+    @Test
+    public void testNullValue() {
+        attributes.put("0", null);
+
+        assertThat(templateEngine.render("{0} bar", ctx))
+            .isEqualTo("null bar");
     }
 
     @Test
@@ -149,5 +157,14 @@ public class TestMessageFormatTemplateEngine {
 
         assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx))
             .isEqualTo("select * from foo where name = 'john' and stuff = '{0}'");
+    }
+
+    @Test
+    public void deprecationReason() {
+        attributes.put("0", 1_000_000);
+
+        assertThat(templateEngine.render("select * from foo where name = ''{0}''", ctx))
+            .describedAs("outputs decimal separators")
+            .isEqualTo("select * from foo where name = '1,000,000'");
     }
 }

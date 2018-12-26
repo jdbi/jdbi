@@ -40,8 +40,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
-import static org.jdbi.v3.core.collector.BuiltInCollectorFactory.toMap;
+import static org.jdbi.v3.core.collector.MapCollectors.toMap;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveMapEntryType;
@@ -74,7 +75,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
  */
 public class GuavaCollectors {
     private GuavaCollectors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
     /**
@@ -244,7 +245,7 @@ public class GuavaCollectors {
         private final TypeVariable<Class<Multimap>> multimapKey;
         private final TypeVariable<Class<Multimap>> multimapValue;
 
-        public Factory() {
+        Factory() {
             TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
             multimapKey = multimapParams[0];
             multimapValue = multimapParams[1];

@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import java.sql.Types;
-
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -26,22 +22,24 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 public class TestCallable {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
-
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         h = dbRule.getJdbi().open();
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
         h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.core.statement.TestCallable.testProcedure\"");
     }
 
     @Test
-    public void testStatement() throws Exception {
+    public void testStatement() {
         OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
                 .registerOutParameter(0, Types.DOUBLE)
                 .bind(1, 100.0d)
@@ -54,16 +52,12 @@ public class TestCallable {
         assertThat(ret.getInt(0).intValue()).isEqualTo(expected.intValue());
         assertThat(ret.getFloat(0).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
-        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
-            ret.getDate(1);
-        });
-        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
-            ret.getDate(2);
-        });
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate(1));
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate(2));
     }
 
     @Test
-    public void testStatementWithNamedParam() throws Exception {
+    public void testStatementWithNamedParam() {
         OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
                 .registerOutParameter("x", Types.DOUBLE)
                 .bind("y", 100.0d)
@@ -76,19 +70,15 @@ public class TestCallable {
         assertThat(ret.getInt("x").intValue()).isEqualTo(expected.intValue());
         assertThat(ret.getFloat("x")).isEqualTo(expected.floatValue());
 
-        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
-            ret.getDate("x");
-        });
-        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
-            ret.getDate("y");
-        });
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("x"));
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("y"));
     }
 
     @Test
     @Ignore // TODO(scs): how do we test out parameters with h2?
-    public void testWithNullReturn() throws Exception {
+    public void testWithNullReturn() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
-                .bind(0, (String)null)
+                .bind(0, (String) null)
                 .registerOutParameter(1, Types.VARCHAR)
                 .invoke();
 
@@ -98,9 +88,9 @@ public class TestCallable {
 
     @Test
     @Ignore // TODO(scs): how do we test out parameters with h2?
-    public void testWithNullReturnWithNamedParam() throws Exception {
+    public void testWithNullReturnWithNamedParam() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
-                .bind("x", (String)null)
+                .bind("x", (String) null)
                 .registerOutParameter("y", Types.VARCHAR)
                 .invoke();
 
@@ -108,8 +98,9 @@ public class TestCallable {
         assertThat(out).isNull();
     }
 
+    // used by the db in this test
+    @SuppressWarnings("unused")
     public static void testProcedure(String in, String[] out) {
-        out = new String[1];
-        out[0] = in;
+        // TODO do something
     }
 }

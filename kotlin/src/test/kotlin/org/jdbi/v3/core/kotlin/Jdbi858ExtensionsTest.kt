@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
@@ -22,6 +21,8 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.jvm.javaMethod
 
 class Jdbi858ExtensionsTest {
     interface FooDao {
@@ -121,6 +122,14 @@ class Jdbi858ExtensionsTest {
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
         }
+    }
+
+    @Test fun javaAnnotationsEqualToKotlinAnnotations() {
+        val kotlinAnnotation = FooDao::getOnlyName.findAnnotation<SqlQuery>()
+        val javaAnnotation = FooDao::getOnlyName.javaMethod?.getAnnotation(SqlQuery::class.java)
+        assertThat(kotlinAnnotation)
+            .isNotNull()
+            .isEqualTo(javaAnnotation)
     }
 
     companion object {

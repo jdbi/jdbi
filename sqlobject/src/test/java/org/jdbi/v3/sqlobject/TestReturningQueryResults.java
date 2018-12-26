@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,13 +35,12 @@ public class TestReturningQueryResults {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
-
     @Test
-    public void testSingleValue() throws Exception {
+    public void testSingleValue() {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
@@ -52,7 +50,7 @@ public class TestReturningQueryResults {
     }
 
     @Test
-    public void testIterator() throws Exception {
+    public void testIterator() {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
@@ -62,9 +60,8 @@ public class TestReturningQueryResults {
         });
     }
 
-
     @Test
-    public void testList() throws Exception {
+    public void testList() {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 

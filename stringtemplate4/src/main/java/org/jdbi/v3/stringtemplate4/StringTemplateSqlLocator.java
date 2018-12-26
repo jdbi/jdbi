@@ -13,21 +13,16 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
@@ -37,8 +32,6 @@ public class StringTemplateSqlLocator {
             .expiration(10, TimeUnit.MINUTES)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .build();
-
-    private static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
     private StringTemplateSqlLocator() {}
 
@@ -108,7 +101,12 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(Class<?> type) {
-        return findStringTemplateGroup(type.getClassLoader(), resourcePathFor(type));
+        String path = new ClasspathBuilder()
+            .appendFullyQualifiedClassName(type)
+            .setExtension("sql.stg")
+            .build();
+
+        return findStringTemplateGroup(type.getClassLoader(), path);
     }
 
     /**
@@ -135,35 +133,11 @@ public class StringTemplateSqlLocator {
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {
         try {
             URL resource = classLoader.getResource(path);
-            STGroupFile group = new STGroupFile(resource, "UTF-8", '<', '>');
+            STGroupFile group = new STGroupFile(resource, StandardCharsets.UTF_8.name(), '<', '>');
             group.load();
             return group;
         } catch (Exception e) {
             throw new RuntimeException("Unable to read StringTemplate group file at " + path + " on classpath", e);
         }
-    }
-
-    private static String toString(InputStream inputStream) throws IOException {
-        char[] buffer = new char[1024];
-        StringBuilder out = new StringBuilder();
-        Reader in = new InputStreamReader(inputStream, UTF_8);
-        for (int rsz; (rsz = in.read(buffer, 0, buffer.length)) >= 0;) {
-            out.append(buffer, 0, rsz);
-        }
-        return out.toString();
-    }
-
-    private static InputStream openStream(ClassLoader classLoader, String path) {
-        InputStream is = classLoader.getResourceAsStream(path);
-
-        if (is == null) {
-            throw new IllegalStateException("Unable to find StringTemplate group file at " + path + " on classpath");
-        }
-
-        return is;
-    }
-
-    private static String resourcePathFor(Class<?> clazz) {
-        return clazz.getName().replace('.', '/') + TEMPLATE_GROUP_EXTENSION;
     }
 }

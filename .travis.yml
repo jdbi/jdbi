@@ -29,6 +29,11 @@ matrix:
         - src/build/ci-test.sh
       jdk: oraclejdk9
     - env:
+        - TESTS=Y
+      script:
+        - src/build/ci-test.sh
+      jdk: openjdk11
+    - env:
         - DOCUMENTATION=Y
       script:
         - src/build/ci-doc.sh

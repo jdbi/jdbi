@@ -13,14 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -32,6 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestVariousOddities {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -40,7 +39,7 @@ public class TestVariousOddities {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void testAttach() throws Exception {
+    public void testAttach() {
         Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
         s.insert(new Something(14, "Tom"));
 
@@ -96,8 +95,8 @@ public class TestVariousOddities {
     public void testNullQueryReturn() {
         exception.expect(IllegalStateException.class);
         exception.expectMessage(
-                "Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
-                        "is annotated as if it should return a value, but the method is void.");
+                "Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing "
+                    + "is annotated as if it should return a value, but the method is void.");
 
         dbRule.getSharedHandle().attach(SpiffyBoom.class);
     }

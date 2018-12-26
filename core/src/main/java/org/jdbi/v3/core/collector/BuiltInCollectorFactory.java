@@ -13,37 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Provides Collectors for built in JDK container types.
@@ -72,58 +48,39 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * <li>java.util.concurrent.ConcurrentHashMap&lt;K, V&gt;</li>
  * <li>java.util.WeakHashMap&lt;K, V&gt;</li>
  * </ul>
+ *
+ * @deprecated will be replaced by plugin
  */
+@Deprecated
 public class BuiltInCollectorFactory implements CollectorFactory {
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors;
-
-    public BuiltInCollectorFactory() {
-        collectors = new HashMap<>();
-        collectors.put(Optional.class, toOptional());
-
-        collectors.put(Collection.class, toCollection(ArrayList::new));
-
-        collectors.put(List.class, toList());
-        collectors.put(ArrayList.class, toCollection(ArrayList::new));
-        collectors.put(LinkedList.class, toCollection(LinkedList::new));
-        collectors.put(CopyOnWriteArrayList.class, toCollection(CopyOnWriteArrayList::new));
-
-        collectors.put(Set.class, toSet());
-        collectors.put(HashSet.class, toCollection(HashSet::new));
-        collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
-        collectors.put(SortedSet.class, toCollection(TreeSet::new));
-        collectors.put(TreeSet.class, toCollection(TreeSet::new));
-
-        collectors.put(Map.class, toMap(LinkedHashMap::new));
-        collectors.put(HashMap.class, toMap(HashMap::new));
-        collectors.put(LinkedHashMap.class, toMap(LinkedHashMap::new));
-        collectors.put(SortedMap.class, toMap(TreeMap::new));
-        collectors.put(TreeMap.class, toMap(TreeMap::new));
-        collectors.put(ConcurrentMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(ConcurrentHashMap.class, toMap(ConcurrentHashMap::new));
-        collectors.put(WeakHashMap.class, toMap(WeakHashMap::new));
-    }
+    private static final List<CollectorFactory> FACTORIES = Arrays.asList(
+        new MapCollectorFactory(),
+        new OptionalCollectorFactory(),
+        new ListCollectorFactory(),
+        new SetCollectorFactory()
+    );
 
     @Override
     public boolean accepts(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.containsKey(erasedType) && containerType instanceof ParameterizedType;
+        return FACTORIES.stream().anyMatch(factory -> factory.accepts(containerType));
     }
 
     @Override
-    public java.util.Optional<Type> elementType(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-
-        if (Map.class.isAssignableFrom(erasedType)) {
-            return Optional.of(GenericTypes.resolveMapEntryType(containerType));
-        }
-
-        return findGenericParameter(containerType, erasedType);
+    public Optional<Type> elementType(Type containerType) {
+        return FACTORIES.stream()
+            .map(factory -> factory.elementType(containerType))
+            .filter(Optional::isPresent)
+            .findFirst()
+            .map(Optional::get);
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        Class<?> erasedType = getErasedType(containerType);
-        return collectors.get(erasedType);
+        return FACTORIES.stream()
+            .filter(factory -> factory.accepts(containerType))
+            .map(factory -> factory.build(containerType))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Unprovidable collector was requested. This is an internal jdbi bug; please report it to the jdbi developers."));
     }
 
     /**
@@ -150,7 +107,10 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      * @param <M>        the type of the resulting {@code Map}
      * @param mapFactory a {@code Supplier} which returns a new, empty {@code Map} of the appropriate type.
      * @return a {@code Collector} which collects map entry elements into a {@code Map}, in encounter order.
+     *
+     * @deprecated Use {@link MapCollectors#toMap(Supplier)} instead.
      */
+    @Deprecated
     public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {
         return Collector.of(
                 mapFactory,

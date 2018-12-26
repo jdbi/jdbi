@@ -33,7 +33,7 @@ public class TestBatchExceptionRewrite {
     }
 
     @Test
-    public void testSimpleBatch() throws Exception {
+    public void testSimpleBatch() {
         Batch b = dbRule.openHandle().createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (0, 'Keith')");
@@ -43,13 +43,13 @@ public class TestBatchExceptionRewrite {
     }
 
     @Test
-    public void testPreparedBatch() throws Exception {
+    public void testPreparedBatch() {
         PreparedBatch b = dbRule.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
                 .isThrownBy(b::execute)
-                .satisfies(e->assertSuppressions(e.getCause()));
+                .satisfies(e -> assertSuppressions(e.getCause()));
     }
 
     private void assertSuppressions(Throwable cause) {

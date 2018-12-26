@@ -17,10 +17,11 @@ import java.util.stream.Collector;
 
 import io.vavr.control.Option;
 import org.jdbi.v3.core.collector.OptionalCollectors;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class VavrCollectors {
     private VavrCollectors() {
-        throw new UnsupportedOperationException("utility class");
+        throw new UtilityClassException();
     }
 
   /**

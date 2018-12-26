@@ -31,14 +31,14 @@ public class TestUpdateGeneratedKeys {
 
     @Before
     public void setUp() throws Exception {
-        try (final Connection conn = dbRule.getConnectionFactory().openConnection();
-             final Statement create = conn.createStatement()) {
+        try (Connection conn = dbRule.getConnectionFactory().openConnection();
+             Statement create = conn.createStatement()) {
             create.execute("create table something_else (id integer not null generated always as identity, name varchar(50))");
         }
     }
 
     @Test
-    public void testInsert() throws Exception {
+    public void testInsert() {
         Handle h = dbRule.openHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
@@ -56,7 +56,7 @@ public class TestUpdateGeneratedKeys {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
@@ -74,7 +74,7 @@ public class TestUpdateGeneratedKeys {
     }
 
     @Test
-    public void testDelete() throws Exception {
+    public void testDelete() {
         Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");

@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.customizer.Define;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestConditionalStringTemplateLocator {
 
@@ -32,7 +31,7 @@ public class TestConditionalStringTemplateLocator {
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Handle handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'Martin')");
         handle.execute("insert into something (id, name) values (3, 'David')");

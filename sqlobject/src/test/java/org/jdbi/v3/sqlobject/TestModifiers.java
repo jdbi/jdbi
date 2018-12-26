@@ -40,13 +40,13 @@ public class TestModifiers {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test
-    public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
+    public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -57,7 +57,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
+    public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -68,7 +68,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testMaxSizeOnMethod() throws Exception {
+    public void testMaxSizeOnMethod() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -79,7 +79,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testMaxSizeOnParam() throws Exception {
+    public void testMaxSizeOnParam() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -90,7 +90,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
+    public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -101,7 +101,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception {
+    public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
@@ -112,7 +112,7 @@ public class TestModifiers {
     }
 
     @Test
-    public void testIsolationLevel() throws Exception {
+    public void testIsolationLevel() {
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
@@ -123,8 +123,8 @@ public class TestModifiers {
 
                 spiffy.rollback();
 
-                Something not_tom = iso.findById(1);
-                assertThat(not_tom).isNull();
+                Something notTom = iso.findById(1);
+                assertThat(notTom).isNull();
             });
         });
     }
@@ -140,7 +140,6 @@ public class TestModifiers {
         @SqlQuery("select id, name from something")
         @FetchSize(2)
         List<Something> findAll();
-
 
         @SqlQuery("select id, name from something")
         List<Something> findAllWithMaxRows(@MaxRows int fetchSize);

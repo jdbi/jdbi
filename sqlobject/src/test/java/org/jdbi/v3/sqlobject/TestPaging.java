@@ -13,13 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
+import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -33,6 +28,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestPaging {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
@@ -40,12 +38,12 @@ public class TestPaging {
     private Handle handle;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handle = dbRule.getSharedHandle();
     }
 
     @Test
-    public void pagingExample() throws Exception {
+    public void pagingExample() {
         Sql sql = handle.attach(Sql.class);
 
         int[] rs = sql.insert(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
@@ -55,15 +53,15 @@ public class TestPaging {
 
         assertThat(rs).hasSize(13).containsOnly(1);
 
-        List<Something> page_one = sql.loadPage(-1, 5);
-        assertThat(page_one).containsExactly(new Something(1, "Ami"),
+        List<Something> pageOne = sql.loadPage(-1, 5);
+        assertThat(pageOne).containsExactly(new Something(1, "Ami"),
                                              new Something(2, "Brian"),
                                              new Something(3, "Cora"),
                                              new Something(4, "David"),
                                              new Something(5, "Eric"));
 
-        List<Something> page_two = sql.loadPage(page_one.get(page_one.size() - 1).getId(), 5);
-        assertThat(page_two).containsExactly(new Something(6, "Fernando"),
+        List<Something> pageTwo = sql.loadPage(pageOne.get(pageOne.size() - 1).getId(), 5);
+        assertThat(pageTwo).containsExactly(new Something(6, "Fernando"),
                                              new Something(7, "Greta"),
                                              new Something(8, "Holly"),
                                              new Something(9, "Inigo"),
