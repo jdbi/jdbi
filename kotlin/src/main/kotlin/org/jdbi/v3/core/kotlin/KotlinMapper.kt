@@ -39,19 +39,9 @@ import kotlin.reflect.jvm.jvmErasure
 
 private val nullValueRowMapper = RowMapper<Any?> { rs, ctx -> null }
 
-class KotlinMapper<T: Any>(clazz: Class<T>, private val prefix: String = "") : RowMapper<T> {
+class KotlinMapper<T: Any>(clazz: KClass<T>, private val prefix: String = "") : RowMapper<T> {
 
     companion object {
-
-        /**
-         * Returns a mapper factory that maps to the given kotlin class
-         *
-         * @param type the mapped class
-         * @return a mapper factory that maps to the given kotlin class
-         */
-        fun factory(type: Class<*>): RowMapperFactory {
-            return RowMapperFactory.of(type, KotlinMapper(type))
-        }
 
         /**
          * Returns a mapper factory that maps to the given kotlin class
@@ -60,14 +50,14 @@ class KotlinMapper<T: Any>(clazz: Class<T>, private val prefix: String = "") : R
          * @param prefix the column name prefix for each mapped kotlin property
          * @return a mapper factory that maps to the given kotlin class
          */
-        fun factory(type: Class<*>, prefix: String): RowMapperFactory {
-            return RowMapperFactory.of(type, KotlinMapper(type, prefix))
+        fun factory(type: KClass<*>, prefix: String = ""): RowMapperFactory {
+            return RowMapperFactory.of(type.java, KotlinMapper(type, prefix))
         }
 
 
     }
 
-    private val kClass = clazz.kotlin
+    private val kClass = clazz
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
     private val memberProperties = kClass.memberProperties.mapNotNull { it as? KMutableProperty1<*, *>}.filter { property ->
@@ -177,7 +167,7 @@ class KotlinMapper<T: Any>(clazz: Class<T>, private val prefix: String = "") : R
             val nestedPrefix = prefix + nested.value
 
             nestedMappers
-                    .computeIfAbsent(parameter, { p -> KotlinMapper(p.type.jvmErasure.java, nestedPrefix) })
+                    .computeIfAbsent(parameter) { p -> KotlinMapper(p.type.jvmErasure, nestedPrefix) }
                     .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
         }
     }
@@ -216,7 +206,7 @@ class KotlinMapper<T: Any>(clazz: Class<T>, private val prefix: String = "") : R
             val nestedPrefix = prefix + nested.value
 
             nestedPropertyMappers
-                    .computeIfAbsent(property, { p -> KotlinMapper(p.returnType.jvmErasure.java, nestedPrefix) })
+                    .computeIfAbsent(property) { p -> KotlinMapper(p.returnType.jvmErasure, nestedPrefix) }
                     .specialize0(rs, ctx, columnNames, columnNameMatchers, unmatchedColumns)
         }
     }
