@@ -55,25 +55,25 @@ public @interface BindList {
      */
     enum EmptyHandling {
         /**
-         * output "" (without quotes, i.e. nothing)
-         * <p>
-         * select * from things where x in ()
+         * <p>Output "" (without quotes, i.e. nothing).</p>
+         *
+         * <code>select * from things where x in ()</code>
          */
         VOID,
         /**
-         * output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax
-         * <p>
-         * select * from things where x in (null)
+         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         *
+         * <code>select * from things where x in (null)</code>
          */
         NULL,
         /**
-         * throw IllegalArgumentException
+         * Throw IllegalArgumentException.
          */
         THROW,
         /**
-         * <p>define an empty list, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
+         * <p>Define an empty list, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
          *
-         * @apiNote this value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>
+         * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
          */
         EMPTY_LIST
     }
