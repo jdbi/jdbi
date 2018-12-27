@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
+import java.util.Collections;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -53,6 +54,9 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                     throw new IllegalArgumentException(arg == null
                     ? "argument is null; null was explicitly forbidden on this instance of BindList"
                             : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
+                case EMPTY_LIST:
+                    stmt.define(name, Collections.emptyList());
+                    return;
                 default:
                     throw new IllegalStateException(VALUE_NOT_HANDLED_MESSAGE);
                 }

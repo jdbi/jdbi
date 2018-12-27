@@ -69,6 +69,12 @@ public @interface BindList {
         /**
          * throw IllegalArgumentException
          */
-        THROW;
+        THROW,
+        /**
+         * <p>define an empty list, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
+         *
+         * @apiNote this value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>
+         */
+        EMPTY_LIST
     }
 }

@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.EMPTY_LIST;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
@@ -237,6 +237,6 @@ public class BindListTest {
     private interface ConditionalDao {
         // `in (null)` doesn't work on h2
         @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
-        List<String> get(@Nullable @BindList(value = "name", onEmpty = NULL) List<String> name);
+        List<String> get(@Nullable @BindList(value = "name", onEmpty = EMPTY_LIST) List<String> name);
     }
 }
