@@ -208,4 +208,35 @@ public class BindListTest {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindList Iterator<Integer> ids);
     }
+
+    //
+
+    @Test
+    public void testConditionalRendering() {
+        handle.createUpdate("insert into something(id, name) values(4, null)").execute();
+
+        List<String> allNames = handle.createQuery("select name from something")
+            .mapTo(String.class)
+            .list();
+        assertThat(allNames).hasSize(4);
+
+        List<String> nullNames = handle.createQuery("select name from something where name is null")
+            .mapTo(String.class)
+            .list();
+        assertThat(nullNames).hasSize(1);
+
+        ConditionalDao dao = handle.attach(ConditionalDao.class);
+        List<String> names = dao.get(null);
+
+        assertThat(names)
+            .describedAs("ST did not evaluate null as truthy, query did not select by `name is null`")
+            .hasSize(4);
+    }
+
+    @UseStringTemplateEngine
+    private interface ConditionalDao {
+        // `in (null)` doesn't work on h2
+        @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
+        List<String> get(@Nullable @BindList(value = "name", onEmpty = NULL) List<String> name);
+    }
 }
