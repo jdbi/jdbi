@@ -30,13 +30,13 @@
   <div id="site">
     <div id="header">
       <h1>
-	      <a href="/jdbi2">JDBI</a>
+	      <a href="/jdbi2/">JDBI</a>
         <span id="navigation">
           <a href="/jdbi2/archive.html">Docs</a> |
-          <a href="http://github.com/jdbi/jdbi/">Source</a> |
+          <a href="https://github.com/jdbi/jdbi/">Source</a> |
           <a href="/jdbi2/getting_jdbi/">Download</a> |
-          <a href="/jdbi2/apidocs">Javadoc</a> |
-          <a href="/jdbi2/faq">FAQ</a> |
+          <a href="/jdbi2/apidocs/">Javadoc</a> |
+          <a href="/jdbi2/faq/">FAQ</a> |
           <a href="/jdbi2/community.html">Community</a> 
         </span>
       </h1>
@@ -64,9 +64,9 @@
 
 <p>The second method, <code>findNamesBetween</code> will again infer that we are looking for a String, and pull the first string from each row of the result set. Because it returns a <code>java.util.List</code> it will eagerly map each row to a String and return the full result set.</p>
 
-<p>The third method, <code>findAllNames</code> does the same String extraction from each row, but because the method returns a <code>java.util.Iterator</code> it loads results lazily, only traversing the result set as <code>Iterator#next</code> or <code>Iterator#hasNext</code> is called. The iterator returned is actually a <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultIterator.html'>ResultIterator</a>. The underlying result set will be closed when the <code>ResultIterator#close</code> method is invoked, or when the end of the result set is reached.</p>
+<p>The third method, <code>findAllNames</code> does the same String extraction from each row, but because the method returns a <code>java.util.Iterator</code> it loads results lazily, only traversing the result set as <code>Iterator#next</code> or <code>Iterator#hasNext</code> is called. The iterator returned is actually a <a href='/jdbi2/apidocs/org/skife/jdbi/v2/ResultIterator.html'>ResultIterator</a>. The underlying result set will be closed when the <code>ResultIterator#close</code> method is invoked, or when the end of the result set is reached.</p>
 
-<p>As with String, mappings for singular primitive types are provided out of the box by JDBI. You can plug in support for additional singular (read: single-column) data types by registering <a href='/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultColumnMapper.html'>ResultColumnMapper</a> or <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultColumnMapperFactory.html'>ResultColumnMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method.</p>
+<p>As with String, mappings for singular primitive types are provided out of the box by JDBI. You can plug in support for additional singular (read: single-column) data types by registering <a href='/jdbi2/apidocs/org/skife/jdbi/v2/tweak/ResultColumnMapper.html'>ResultColumnMapper</a> or <a href='/jdbi2/apidocs/org/skife/jdbi/v2/ResultColumnMapperFactory.html'>ResultColumnMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method.</p>
 <div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>ValueType</span>
 <span class='o'>{</span>
   <span class='kd'>public</span> <span class='kd'>static</span> <span class='n'>ValueType</span> <span class='nf'>valueOf</span><span class='o'>(</span><span class='n'>String</span> <span class='n'>value</span><span class='o'>)</span>
@@ -123,7 +123,7 @@
 </div>
 <p>We can also register column mappers on the <code>DBI</code> or <code>Handle</code> instance the sql object is attached to. The choice of where to register a mapper depends on how widely you want it to be scoped. For example, registering a mapper on the <code>DBI</code> instance effectively makes it global, whereas registering it on a SQL object method limits the scope of the mapper to just that method.</p>
 
-<p>For more sophisticated mappings that span multiple columns, you can register <a href='/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a> or <a href='/maven_site/apidocs/org/skife/jdbi/v2/ResultSetMapperFactory.html'>ResultSetMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method. Take for example the following result set mapper and class it maps to:</p>
+<p>For more sophisticated mappings that span multiple columns, you can register <a href='/jdbi2/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a> or <a href='/jdbi2/apidocs/org/skife/jdbi/v2/ResultSetMapperFactory.html'>ResultSetMapperFactory</a> instances with either the DBI, the Handle, or on the sql object or individual method. Take for example the following result set mapper and class it maps to:</p>
 <div class='highlight'><pre><code class='java'><span /><span class='kd'>public</span> <span class='kd'>class</span> <span class='nc'>Something</span>
 <span class='o'>{</span>
   <span class='kd'>private</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>;</span>
@@ -216,13 +216,13 @@
 <p>Note that the bean mapper skip properties that were not selected in the SQL query, and thus are an effective tool to retrieve a limited view of your data.</p>
     <div id="pagination">
         
-            <a href="/jdbi2//sql_object_overview" class="back">❮❮ SQL Object API Overview </a>
+            <a href="/jdbi2/sql_object_overview/" class="back">❮❮ SQL Object API Overview </a>
         
         
-        <a href="/jdbi2/">Home</a> | <a href="/archive.html">Docs</a>
+        <a href="/jdbi2/">Home</a> | <a href="/jdbi2/archive.html">Docs</a>
         
         
-            <a href="/jdbi2//sql_object_api_dml" class="forward"> SQL Object Data Manipulation ❯❯</a>
+            <a href="/jdbi2/sql_object_api_dml/" class="forward"> SQL Object Data Manipulation ❯❯</a>
         
     </div>
 </div>
