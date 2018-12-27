@@ -22,6 +22,7 @@ import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.SqlObject
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
+import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
 import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -57,6 +58,10 @@ class KotlinSqlObjectPluginTest {
         @SqlQuery("select id, name from something where id=:id")
         fun findById(id: Int): Thing
 
+        @SqlQuery("select id as t_id, name as t_name from something where id=:id")
+        @RegisterKotlinMapper(Thing::class, "t_")
+        fun findByIdWithAlias(id: Int): Thing
+
         fun insertAndFind(something: Thing): Thing {
             insert(something)
             return findById(something.id)
@@ -82,6 +87,9 @@ class KotlinSqlObjectPluginTest {
 
         val foundThing = dao.findById(2)
         assertEquals(keith, foundThing)
+
+        val foundThingWithAlias = dao.findByIdWithAlias(2)
+        assertEquals(keith, foundThingWithAlias)
 
         val rs2 = dao.listWithNulls()
         assertEquals(2, rs2.size.toLong())
