@@ -17,38 +17,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListTest {
-    private Handle handle;
-
-    private List<Something> expectedSomethings;
-
     @Rule
-    public final H2DatabaseRule dbRule = new H2DatabaseRule();
+    public final H2DatabaseRule h2 = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    private Handle handle;
+    private List<Something> expectedSomethings;
 
     @Before
     public void before() {
-        final Jdbi db = dbRule.getJdbi();
-        db.installPlugin(new SqlObjectPlugin());
-        db.registerRowMapper(new SomethingMapper());
-        handle = db.open();
+        handle = h2.getJdbi()
+            .registerRowMapper(new SomethingMapper())
+            .open();
 
         handle.execute("insert into something(id, name) values(1, '1')");
         handle.execute("insert into something(id, name) values(2, '2')");
@@ -57,11 +55,6 @@ public class BindListTest {
         handle.execute("insert into something(id, name) values(3, '3')");
 
         expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
-    }
-
-    @After
-    public void after() {
-        handle.close();
     }
 
     //
