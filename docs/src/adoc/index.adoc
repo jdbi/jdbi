@@ -4673,6 +4673,10 @@ via `installPlugins()`.
 Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
 containing the fully qualified class name of your plugin.
 
+In general, Jdbi's separate artifacts each provide a single relevant plugin (e.g. `jdbi3-sqlite`),
+and such modules will be auto-loadable. Modules that provide no (e.g. `jdbi3-commons-text`)
+or multiple (e.g. `jdbi3-core`) plugins typically will not be.
+
 [TIP]
 The developers encourage you to install plugins explicitly.  Code with declared dependencies
 on the module it uses is more robust to refactoring and provides useful data
