@@ -3912,6 +3912,58 @@ An example from the test class:
 include::{exampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
 
+=== Lombok
+
+Lombok is a great tool for cutting the boilerplate out of POJO classes.
+
+[source,java,indent=0]
+----
+@Data
+public void DataClass {
+  private Long id;
+  private String name;
+  // autogenerates default constructor, getters, setters, equals, hashCode, and toString
+}
+
+@Value
+public void ValueClass {
+  private long id;
+  private String name;
+  // autogenerates all-args constructor, getters, equals, hashCode, and toString
+}
+----
+
+Lombok and Jdbi mostly play nice out of the box:
+
+- Use `BeanMapper` or `@RegisterBeanMapper` to map `@Data` classes.
+- Use `ConstructorMapper` or `@RegisterConstructorMapper` to map `@Value`
+  classes.
+- Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
+
+We say "mostly" because there's a wrinkle once you start annotating fields with
+Jdbi annotations like `@Nested`, `@ColumnMapper`, or type qualifying annotations
+such as `@HStore`.
+
+- BeanMapper looks for these annotations on getters, setters, or setter
+  parameters.
+- ConstructorMapper looks for them on constructor parameters.
+- Lombok doesn't move them there by default.
+
+As of Lombok version 1.18.4, Lombok can be configured to copy any annotations
+you specify to generated getter, setter, setter parameters, and constructor
+parameters.
+
+Create a file `lombok.config` in your project src tree (or edit the existing
+one), and add a line for each annotation type which should be copied, as
+in the following example:
+
+[source,java,indent=0]
+----
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.ColumnName
+lombok.copyableAnnotations += org.jdbi.v3.postgres.HStore
+----
+
 === Oracle 12
 
 This module adds support for Oracle `RETURNING` DML expressions.
