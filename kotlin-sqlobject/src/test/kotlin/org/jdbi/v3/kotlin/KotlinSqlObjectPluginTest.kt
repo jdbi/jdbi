@@ -59,7 +59,7 @@ class KotlinSqlObjectPluginTest {
         fun findById(id: Int): Thing
 
         @SqlQuery("select id as t_id, name as t_name from something where id=:id")
-        @RegisterKotlinMapper(Thing::class, "t_")
+        @RegisterKotlinMapper(Thing::class, "t")
         fun findByIdWithAlias(id: Int): Thing
 
         fun insertAndFind(something: Thing): Thing {

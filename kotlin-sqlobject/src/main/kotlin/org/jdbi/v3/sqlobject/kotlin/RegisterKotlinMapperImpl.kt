@@ -26,11 +26,7 @@ class RegisterKotlinMapperImpl : Configurer {
         val kotlinClass = registerKotlinMapper.value
         val prefix = registerKotlinMapper.prefix
         val mappers = registry.get(RowMappers::class.java)
-        if (prefix.isEmpty()) {
-            mappers.register(kotlinClass.java, KotlinMapper(kotlinClass.java))
-        } else {
-            mappers.register(kotlinClass.java, KotlinMapper(kotlinClass.java, prefix))
-        }
+        mappers.register(kotlinClass.java, KotlinMapper(kotlinClass.java, prefix))
     }
 
     override fun configureForMethod(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>, method: Method) {
