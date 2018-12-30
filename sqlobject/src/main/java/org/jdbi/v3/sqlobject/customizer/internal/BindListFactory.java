@@ -17,8 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-
-import java.util.Collections;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -50,8 +48,8 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                 case NULL:
                     stmt.define(name, "null");
                     return;
-                case EMPTY_LIST:
-                    stmt.define(name, Collections.emptyList());
+                case JAVA_NULL:
+                    stmt.define(name, null);
                     return;
                 case THROW:
                     String msg = arg == null
