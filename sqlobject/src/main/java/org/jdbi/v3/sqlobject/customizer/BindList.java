@@ -57,24 +57,24 @@ public @interface BindList {
         /**
          * <p>Output "" (without quotes, i.e. nothing).</p>
          *
-         * <code>select * from things where x in ()</code>
+         * {@code select * from things where x in ()}
          */
         VOID,
         /**
          * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
          *
-         * <code>select * from things where x in (null)</code>
+         * {@code select * from things where x in (null)}
          */
         NULL,
-        /**
-         * Throw IllegalArgumentException.
-         */
-        THROW,
         /**
          * <p>Define an empty list, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
          *
          * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
          */
-        EMPTY_LIST
+        EMPTY_LIST,
+        /**
+         * Throw IllegalArgumentException.
+         */
+        THROW
     }
 }

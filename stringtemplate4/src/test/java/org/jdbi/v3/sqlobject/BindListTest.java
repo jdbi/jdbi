@@ -233,10 +233,10 @@ public class BindListTest {
             .hasSize(4);
     }
 
-    @UseStringTemplateEngine
     private interface ConditionalDao {
         // `in (null)` doesn't work on h2
         @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
+        @UseStringTemplateEngine
         List<String> get(@Nullable @BindList(value = "name", onEmpty = EMPTY_LIST) List<String> name);
     }
 }

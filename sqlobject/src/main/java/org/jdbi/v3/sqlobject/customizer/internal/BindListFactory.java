@@ -50,13 +50,14 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                 case NULL:
                     stmt.define(name, "null");
                     return;
-                case THROW:
-                    throw new IllegalArgumentException(arg == null
-                    ? "argument is null; null was explicitly forbidden on this instance of BindList"
-                            : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
                 case EMPTY_LIST:
                     stmt.define(name, Collections.emptyList());
                     return;
+                case THROW:
+                    String msg = arg == null
+                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
+                        : "argument is empty; emptiness was explicitly forbidden on this instance of BindList";
+                    throw new IllegalArgumentException(msg);
                 default:
                     throw new IllegalStateException(VALUE_NOT_HANDLED_MESSAGE);
                 }
