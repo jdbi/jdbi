@@ -25,7 +25,10 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
 /**
- * convenient database to test with if you specifically do not want to deal with data type and relation constraints: sqlite does not give a f***
+ * Convenient database to test with if you specifically do not want to deal with data type and relation constraints: sqlite does not give a f***.
+ *
+ * Note that you will need to use the shared handle most of the time,
+ * since sqlite memory instances are discarded when their last connections is closed.
  */
 public class SqliteDatabaseRule extends ExternalResource implements DatabaseRule {
     // no unique name needed: https://www.sqlite.org/inmemorydb.html
