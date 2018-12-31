@@ -15,8 +15,10 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -212,8 +214,10 @@ public class BindListTest {
     //
 
     @Test
-    public void testConditionalRendering() {
+    public void ifNullOrEmptyWithNullValueOptionThenResultIsFalsy() {
         handle.createUpdate("insert into something(id, name) values(4, null)").execute();
+
+        // control groups
 
         List<String> allNames = handle.createQuery("select name from something")
             .mapTo(String.class)
@@ -225,18 +229,37 @@ public class BindListTest {
             .list();
         assertThat(nullNames).hasSize(1);
 
-        ConditionalDao dao = handle.attach(ConditionalDao.class);
-        List<String> names = dao.get(null);
+        // actual cases
 
+        ConditionalDao dao = handle.attach(ConditionalDao.class);
+
+        List<String> names = dao.getForNull(null);
         assertThat(names)
             .describedAs("ST did not evaluate null as truthy, query did not select by `name is null`")
             .hasSize(4);
+
+        names = dao.getForNull(Collections.emptyList());
+        assertThat(names)
+            .describedAs("ST did not evaluate empty list as truthy, query did not select by `name is null`")
+            .hasSize(4);
+    }
+
+    @Test
+    public void ifValueGivenWithNullValueOptionThenResultIsTruthy() {
+        ConditionalDao dao = handle.attach(ConditionalDao.class);
+
+        List<String> names = dao.getForValue(Collections.singletonList("2"));
+        assertThat(names).hasSize(1);
     }
 
     private interface ConditionalDao {
         // `in (null)` doesn't work on h2
         @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
         @UseStringTemplateEngine
-        List<String> get(@Nullable @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
+        List<String> getForNull(@Nullable @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
+
+        @SqlQuery("select name from something <if(name)> where name in (<name>) <endif>")
+        @UseStringTemplateEngine
+        List<String> getForValue(@Nonnull @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
     }
 }
