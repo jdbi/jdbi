@@ -41,28 +41,10 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
 
         return (stmt, arg) -> {
             if (arg == null || IterableLike.isEmpty(arg)) {
-                switch (bindList.onEmpty()) {
-                case VOID:
-                    stmt.define(name, "");
-                    return;
-                case NULL:
-                case NULL_STRING:
-                    stmt.define(name, "null");
-                    return;
-                case NULL_VALUE:
-                    stmt.define(name, null);
-                    return;
-                case THROW:
-                    String msg = arg == null
-                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
-                        : "argument is empty; emptiness was explicitly forbidden on this instance of BindList";
-                    throw new IllegalArgumentException(msg);
-                default:
-                    throw new IllegalStateException(VALUE_NOT_HANDLED_MESSAGE);
-                }
+                bindList.onEmpty().define(stmt, name);
+            } else {
+                stmt.bindList(name, IterableLike.toList(arg));
             }
-
-            stmt.bindList(name, IterableLike.toList(arg));
         };
     }
 }
