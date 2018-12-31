@@ -64,8 +64,17 @@ public @interface BindList {
          * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
          *
          * {@code select * from things where x in (null)}
+         *
+         * @deprecated vaguely named in light of new additions, use {@link EmptyHandling#NULL_STRING} instead
          */
+        @Deprecated
         NULL,
+        /**
+         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         *
+         * {@code select * from things where x in (null)}
+         */
+        NULL_STRING,
         /**
          * <p>Define a {@code null} value, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
          *
