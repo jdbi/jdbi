@@ -48,7 +48,7 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                 case NULL:
                     stmt.define(name, "null");
                     return;
-                case JAVA_NULL:
+                case NULL_VALUE:
                     stmt.define(name, null);
                     return;
                 case THROW:

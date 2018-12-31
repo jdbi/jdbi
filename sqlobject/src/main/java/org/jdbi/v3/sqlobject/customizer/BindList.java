@@ -71,7 +71,7 @@ public @interface BindList {
          *
          * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
          */
-        JAVA_NULL,
+        NULL_VALUE,
         /**
          * Throw IllegalArgumentException.
          */

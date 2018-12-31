@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.JAVA_NULL;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL_VALUE;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
@@ -237,6 +237,6 @@ public class BindListTest {
         // `in (null)` doesn't work on h2
         @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
         @UseStringTemplateEngine
-        List<String> get(@Nullable @BindList(value = "name", onEmpty = JAVA_NULL) List<String> name);
+        List<String> get(@Nullable @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
     }
 }
