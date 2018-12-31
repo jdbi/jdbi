@@ -597,6 +597,44 @@ LocalDate releaseDate = handle.createQuery(
     .findOnly();
 ----
 
+==== LIKE clauses
+
+Due to a built-in safety mechanism, `LIKE` clauses and argument binding
+don't work together intuitively and must be written a particular way. The following
+is what users would intuitively try to do:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%:search%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+Firstly, this query would try to select `where name like '%:search%'`
+_literally_, without binding any arguments. This is because proper `SqlParser`
+implementations do not bind arguments _inside string literals_.
+
+Secondly, Jdbi has your back. This query will throw an exception,
+because we don't allow unused bindings by default. Of course, if you use
+the parameter somewhere else in the query and the `SqlParser` binds it,
+then this check won't save you.
+
+The solution is to use SQL string concatenation:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%' || :search || '%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+[NOTE]
+Check the string concatenation syntax of your database before doing this.
+
 === Templating
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
