@@ -99,7 +99,7 @@ public class TestHashPrefixSqlParser {
     @Test
     public void testParentheses() {
         parser = new HashPrefixSqlParser();
-        ParsedSql parsed = parser.parse("select :#(var)cast", ctx);
+        ParsedSql parsed = parser.parse("select :#[var]cast", ctx);
         assertThat(parsed.getSql()).isEqualTo("select :?cast");
         assertThat(parsed.getParameters().getParameterNames()).containsExactly("var");
     }
