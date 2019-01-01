@@ -13,22 +13,22 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.Token;
+import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
+
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.COMMENT;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.DOUBLE_QUOTED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.EOF;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.ESCAPED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.NAMED_ENCLOSED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.NAMED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
-
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
-import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 
 /**
  * SQL parser which recognizes named parameter tokens of the form
@@ -62,6 +62,9 @@ public class HashPrefixSqlParser implements SqlParser {
                 case QUOTED_TEXT:
                 case DOUBLE_QUOTED_TEXT:
                     parsedSql.append(t.getText());
+                    break;
+                case NAMED_ENCLOSED_PARAM:
+                    parsedSql.appendNamedParameter(t.getText().substring(2, t.getText().length() - 1));
                     break;
                 case NAMED_PARAM:
                     parsedSql.appendNamedParameter(t.getText().substring(1));

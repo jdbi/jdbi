@@ -25,6 +25,7 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.DOUBLE_QUOTED_
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.ESCAPED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_ENCLOSED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
@@ -64,6 +65,9 @@ public class ColonPrefixSqlParser implements SqlParser {
                 case QUOTED_TEXT:
                 case DOUBLE_QUOTED_TEXT:
                     parsedSql.append(t.getText());
+                    break;
+                case NAMED_ENCLOSED_PARAM:
+                    parsedSql.appendNamedParameter(t.getText().substring(2, t.getText().length() - 1));
                     break;
                 case NAMED_PARAM:
                     parsedSql.appendNamedParameter(t.getText().substring(1));
