@@ -29,7 +29,7 @@ import java.util.Collections;
 
 import static io.r2dbc.spi.IsolationLevel.SERIALIZABLE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class HandleTest {
 
@@ -68,7 +68,7 @@ final class HandleTest {
 
     @Test
     void constructorNoConnection() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(null))
             .withMessage("connection must not be null");
     }
 
@@ -99,7 +99,7 @@ final class HandleTest {
 
     @Test
     void createQueryNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createQuery(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).createQuery(null))
             .withMessage("sql must not be null");
     }
 
@@ -116,7 +116,7 @@ final class HandleTest {
 
     @Test
     void createSavepointNoName() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createSavepoint(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).createSavepoint(null))
             .withMessage("name must not be null");
     }
 
@@ -135,7 +135,7 @@ final class HandleTest {
 
     @Test
     void createUpdateNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).createUpdate(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).createUpdate(null))
             .withMessage("sql must not be null");
     }
 
@@ -163,7 +163,7 @@ final class HandleTest {
 
     @Test
     void executeNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).execute(null, new Object()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).execute(null, new Object()))
             .withMessage("sql must not be null");
     }
 
@@ -215,19 +215,19 @@ final class HandleTest {
 
     @Test
     void inTransactionIsolationLevelNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(SERIALIZABLE, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(SERIALIZABLE, null))
             .withMessage("f must not be null");
     }
 
     @Test
     void inTransactionIsolationLevelNoIsolationLevel() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null, handle -> Mono.empty()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null, handle -> Mono.empty()))
             .withMessage("isolationLevel must not be null");
     }
 
     @Test
     void inTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null))
             .withMessage("f must not be null");
     }
 
@@ -244,7 +244,7 @@ final class HandleTest {
 
     @Test
     void releaseSavepointNoName() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).releaseSavepoint(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).releaseSavepoint(null))
             .withMessage("name must not be null");
     }
 
@@ -272,7 +272,7 @@ final class HandleTest {
 
     @Test
     void rollbackTransactionToSavepointNoName() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).rollbackTransactionToSavepoint(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).rollbackTransactionToSavepoint(null))
             .withMessage("name must not be null");
     }
 
@@ -294,7 +294,7 @@ final class HandleTest {
 
     @Test
     void selectNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).select(null, new Object()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).select(null, new Object()))
             .withMessage("sql must not be null");
     }
 
@@ -311,7 +311,7 @@ final class HandleTest {
 
     @Test
     void setTransactionIsolationLevelNoIsolationLevel() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionIsolationLevel(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).setTransactionIsolationLevel(null))
             .withMessage("isolationLevel must not be null");
     }
 
@@ -361,19 +361,19 @@ final class HandleTest {
 
     @Test
     void useTransactionIsolationLevelNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(SERIALIZABLE, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(SERIALIZABLE, null))
             .withMessage("f must not be null");
     }
 
     @Test
     void useTransactionIsolationLevelNoIsolationLevel() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null, handle -> Mono.empty()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null, handle -> Mono.empty()))
             .withMessage("isolationLevel must not be null");
     }
 
     @Test
     void useTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null))
             .withMessage("f must not be null");
     }
 

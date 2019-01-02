@@ -16,6 +16,7 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
 import org.reactivestreams.Publisher;
@@ -32,7 +33,7 @@ public final class Query implements ResultBearing {
     private final Statement<?> statement;
 
     Query(Statement<?> statement) {
-        this.statement = Objects.requireNonNull(statement, "statement must not be null");
+        this.statement = Assert.requireNonNull(statement, "statement must not be null");
     }
 
     /**
@@ -51,11 +52,11 @@ public final class Query implements ResultBearing {
      * @param identifier the identifier to bind to
      * @param value      the value to bind
      * @return this {@link Statement}
-     * @throws NullPointerException if {@code identifier} or {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
     public Query bind(Object identifier, Object value) {
-        Objects.requireNonNull(identifier, "identifier must not be null");
-        Objects.requireNonNull(value, "value must not be null");
+        Assert.requireNonNull(identifier, "identifier must not be null");
+        Assert.requireNonNull(value, "value must not be null");
 
         this.statement.bind(identifier, value);
         return this;
@@ -67,18 +68,18 @@ public final class Query implements ResultBearing {
      * @param identifier the identifier to bind to
      * @param type       the type of null value
      * @return this {@link Statement}
-     * @throws NullPointerException if {@code identifier} or {@code type} is {@code null}
+     * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
     public Query bindNull(Object identifier, Class<?> type) {
-        Objects.requireNonNull(identifier, "identifier must not be null");
-        Objects.requireNonNull(type, "type must not be null");
+        Assert.requireNonNull(identifier, "identifier must not be null");
+        Assert.requireNonNull(type, "type must not be null");
 
         this.statement.bindNull(identifier, type);
         return this;
     }
 
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return Flux
             .from(this.statement.execute())
@@ -93,7 +94,7 @@ public final class Query implements ResultBearing {
     }
 
     Query bind(int identifier, Object value) {
-        Objects.requireNonNull(value, "value must not be null");
+        Assert.requireNonNull(value, "value must not be null");
 
         this.statement.bind(identifier, value);
         return this;

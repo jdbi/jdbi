@@ -16,11 +16,11 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 public final class MockResultBearing implements ResultBearing {
@@ -28,7 +28,7 @@ public final class MockResultBearing implements ResultBearing {
     private final Result result;
 
     private MockResultBearing(Result result) {
-        this.result = Objects.requireNonNull(result);
+        this.result = Assert.requireNonNull(result, "result must not be null");
     }
 
     public static Builder builder() {
@@ -37,7 +37,7 @@ public final class MockResultBearing implements ResultBearing {
 
     @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f);
+        Assert.requireNonNull(f, "f must not be null");
 
         return Flux.from(f.apply(this.result));
     }
@@ -61,7 +61,7 @@ public final class MockResultBearing implements ResultBearing {
         }
 
         public Builder result(Result result) {
-            this.result = Objects.requireNonNull(result);
+            this.result = Assert.requireNonNull(result, "result must not be null");
             return this;
         }
 

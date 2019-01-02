@@ -25,7 +25,7 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class QueryTest {
 
@@ -61,19 +61,19 @@ final class QueryTest {
 
     @Test
     void bindIndexNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind(100, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind(100, null))
             .withMessage("value must not be null");
     }
 
     @Test
     void bindNoIdentifier() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind(null, new Object()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind(null, new Object()))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bind("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind("test-identifier", null))
             .withMessage("value must not be null");
     }
 
@@ -89,19 +89,19 @@ final class QueryTest {
 
     @Test
     void bindNullNoIdentifier() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull(null, Object.class))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull(null, Object.class))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNullNoType() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull("test-identifier", null))
             .withMessage("type must not be null");
     }
 
     @Test
     void constructorNoStatement() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(null))
             .withMessage("statement must not be null");
     }
 
@@ -125,7 +125,7 @@ final class QueryTest {
 
     @Test
     void mapResultNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
             .withMessage("f must not be null");
     }
 
