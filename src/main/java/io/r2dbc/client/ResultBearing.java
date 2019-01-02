@@ -16,6 +16,7 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -37,7 +38,7 @@ public interface ResultBearing {
      * @param f   a {@link Function} used to transform each {@link Result} into a {@code Publisher} of values
      * @param <T> the type of results
      * @return the values resulting from the {@link Result} transformation
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      * @see #mapRow(Function)
      * @see #mapRow(BiFunction)
      */
@@ -49,10 +50,10 @@ public interface ResultBearing {
      * @param f   a {@link BiFunction} used to transform each {@link Row} and {@link RowMetadata} pair into an object
      * @param <T> the type of results
      * @return the values resulting from the {@link Row} and {@link RowMetadata} transformation
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      */
     default <T> Flux<T> mapRow(BiFunction<Row, RowMetadata, ? extends T> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return mapResult(result -> result.map(f));
     }
@@ -63,10 +64,10 @@ public interface ResultBearing {
      * @param f   a {@link Function} used to transform each {@link Row} into an object
      * @param <T> the type of the results
      * @return the values resulting from the {@link Row} transformation
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      */
     default <T> Flux<T> mapRow(Function<Row, ? extends T> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return mapRow((row, rowMetadata) -> f.apply(row));
     }

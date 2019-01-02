@@ -43,7 +43,7 @@ public final class ReactiveUtils {
      * @see Mono#onErrorResume(Function)
      */
     public static <T> Function<Throwable, Mono<T>> appendError(Supplier<Publisher<?>> s) {
-        Objects.requireNonNull(s, "s must not be null");
+        Assert.requireNonNull(s, "s must not be null");
 
         return t ->
             Flux.from(s.get())
@@ -58,7 +58,7 @@ public final class ReactiveUtils {
      * @return {@link Mono#empty()} of the appropriate type
      */
     public static <T> Mono<T> typeSafe(Supplier<Publisher<Void>> s) {
-        Objects.requireNonNull(s, "s must not be null");
+        Assert.requireNonNull(s, "s must not be null");
 
         return Flux.from(s.get())
             .then(Mono.empty());

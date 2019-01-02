@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class BatchTest {
 
@@ -39,13 +39,13 @@ final class BatchTest {
 
     @Test
     void addNoSql() {
-        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).add(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Batch(MockBatch.empty()).add(null))
             .withMessage("sql must not be null");
     }
 
     @Test
     void constructorNoBatch() {
-        assertThatNullPointerException().isThrownBy(() -> new Batch(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Batch(null))
             .withMessage("batch must not be null");
     }
 
@@ -69,7 +69,7 @@ final class BatchTest {
 
     @Test
     void mapResultNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new Batch(MockBatch.empty()).mapResult(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Batch(MockBatch.empty()).mapResult(null))
             .withMessage("f must not be null");
     }
 

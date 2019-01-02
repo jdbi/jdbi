@@ -16,6 +16,7 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.client.util.Assert;
 import io.r2dbc.client.util.ReactiveUtils;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
@@ -37,10 +38,10 @@ public final class R2dbc {
      * Create a new instance of {@link R2dbc}.
      *
      * @param connectionFactory a {@link ConnectionFactory} used to create {@link Connection}s when required
-     * @throws NullPointerException if {@code connectionFactory} is {@code null}
+     * @throws IllegalArgumentException if {@code connectionFactory} is {@code null}
      */
     public R2dbc(ConnectionFactory connectionFactory) {
-        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory must not be null");
     }
 
     /**
@@ -49,12 +50,12 @@ public final class R2dbc {
      * @param f   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
      * @param <T> the type of results
      * @return a {@link Flux} of results
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return withHandle(handle -> handle.inTransaction(f));
     }
@@ -83,10 +84,10 @@ public final class R2dbc {
      *
      * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      */
     public Mono<Void> useHandle(Function<Handle, ? extends Publisher<?>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return withHandle(f)
             .then();
@@ -97,12 +98,12 @@ public final class R2dbc {
      *
      * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return useHandle(handle -> handle.useTransaction(f));
     }
@@ -113,10 +114,10 @@ public final class R2dbc {
      * @param f   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
      * @param <T> the type of results
      * @return a {@link Flux} of results
-     * @throws NullPointerException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code f} is {@code null}
      */
     public <T> Flux<T> withHandle(Function<Handle, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return open()
             .flatMapMany(handle -> Flux.from(

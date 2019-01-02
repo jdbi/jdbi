@@ -29,7 +29,7 @@ import reactor.util.function.Tuples;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class ResultBearingTest {
 
@@ -71,7 +71,7 @@ final class ResultBearingTest {
             .result(MockResult.empty())
             .build();
 
-        assertThatNullPointerException().isThrownBy(() -> resultBearing.mapRow((BiFunction<Row, RowMetadata, ?>) null))
+        assertThatIllegalArgumentException().isThrownBy(() -> resultBearing.mapRow((BiFunction<Row, RowMetadata, ?>) null))
             .withMessage("f must not be null");
     }
 
@@ -106,7 +106,7 @@ final class ResultBearingTest {
             .result(MockResult.empty())
             .build();
 
-        assertThatNullPointerException().isThrownBy(() -> resultBearing.mapRow((Function<Row, ?>) null))
+        assertThatIllegalArgumentException().isThrownBy(() -> resultBearing.mapRow((Function<Row, ?>) null))
             .withMessage("f must not be null");
     }
 

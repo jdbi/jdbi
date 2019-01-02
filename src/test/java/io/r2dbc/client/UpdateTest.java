@@ -24,7 +24,7 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class UpdateTest {
 
@@ -60,19 +60,19 @@ final class UpdateTest {
 
     @Test
     void bindIndexNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind(100, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind(100, null))
             .withMessage("value must not be null");
     }
 
     @Test
     void bindNoIdentifier() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind(null, new Object()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind(null, new Object()))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNoValue() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bind("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind("test-identifier", null))
             .withMessage("value must not be null");
     }
 
@@ -88,19 +88,19 @@ final class UpdateTest {
 
     @Test
     void bindNullNoIdentifier() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull(null, Object.class))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull(null, Object.class))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNullNoType() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull("test-identifier", null))
             .withMessage("type must not be null");
     }
 
     @Test
     void constructorNoStatement() {
-        assertThatNullPointerException().isThrownBy(() -> new Update(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(null))
             .withMessage("statement must not be null");
     }
 

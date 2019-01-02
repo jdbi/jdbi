@@ -23,13 +23,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 final class R2dbcTest {
 
     @Test
     void constructorNoConnectionFactory() {
-        assertThatNullPointerException().isThrownBy(() -> new R2dbc(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(null))
             .withMessage("connectionFactory must not be null");
     }
 
@@ -76,7 +76,7 @@ final class R2dbcTest {
 
     @Test
     void inTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).inTransaction(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).inTransaction(null))
             .withMessage("f must not be null");
     }
 
@@ -133,7 +133,7 @@ final class R2dbcTest {
 
     @Test
     void useHandleNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useHandle(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useHandle(null))
             .withMessage("f must not be null");
     }
 
@@ -179,7 +179,7 @@ final class R2dbcTest {
 
     @Test
     void useTransactionNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useTransaction(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useTransaction(null))
             .withMessage("f must not be null");
     }
 
@@ -222,7 +222,7 @@ final class R2dbcTest {
 
     @Test
     void withHandleNoF() {
-        assertThatNullPointerException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).withHandle(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).withHandle(null))
             .withMessage("f must not be null");
     }
 

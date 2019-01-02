@@ -16,6 +16,7 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -31,7 +32,7 @@ public final class Batch implements ResultBearing {
     private final io.r2dbc.spi.Batch<?> batch;
 
     Batch(io.r2dbc.spi.Batch<?> batch) {
-        this.batch = Objects.requireNonNull(batch, "batch must not be null");
+        this.batch = Assert.requireNonNull(batch, "batch must not be null");
     }
 
     /**
@@ -39,17 +40,17 @@ public final class Batch implements ResultBearing {
      *
      * @param sql the statement to add
      * @return this {@link Batch}
-     * @throws NullPointerException if {@code sql} is {@code null}
+     * @throws IllegalArgumentException if {@code sql} is {@code null}
      */
     public Batch add(String sql) {
-        Objects.requireNonNull(sql, "sql must not be null");
+        Assert.requireNonNull(sql, "sql must not be null");
 
         this.batch.add(sql);
         return this;
     }
 
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Objects.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(f, "f must not be null");
 
         return Flux.from(this.batch.execute())
             .flatMap(f::apply);
