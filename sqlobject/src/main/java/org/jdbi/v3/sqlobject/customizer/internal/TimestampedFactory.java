@@ -17,16 +17,20 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 
+import java.time.ZoneId;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;
+import org.jdbi.v3.sqlobject.customizer.TimestampedConfig;
 
 public class TimestampedFactory implements SqlStatementCustomizerFactory {
-
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         final String parameterName = ((Timestamped) annotation).value();
 
-        return stmt -> stmt.bind(parameterName, OffsetDateTime.now());
+        return stmt -> {
+            ZoneId zone = stmt.getConfig(TimestampedConfig.class).getTimezone();
+            stmt.bind(parameterName, OffsetDateTime.now(zone));
+        };
     }
 }

@@ -16,14 +16,17 @@ package org.jdbi.v3.sqlobject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;
+import org.jdbi.v3.sqlobject.customizer.TimestampedConfig;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -38,87 +41,81 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for the {@link Timestamped} annotation
  */
 public class TestTimestamped {
-    public PersonDAO personDAO;
+    private static final ZoneOffset OFFSET = ZoneOffset.ofHours(2);
 
     @Rule
     public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
+
+    private PersonDAO personDAO;
+    private OffsetDateTime timestamp;
+    private Timestamp sqlTimestamp;
+    private OffsetDateTime testStart;
 
     @Before
     public void before() {
         personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
+        dbRule.getJdbi().getConfig(TimestampedConfig.class).setTimezone(OFFSET);
+        testStart = OffsetDateTime.now();
     }
 
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
-        // This is one way we can get the binding information of the executed query
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
+        Person input = new Person("John", "Phiri");
+        input.setId(1);
 
-        Person p = new Person("John", "Phiri");
-        p.setId(1);
-        personDAO.insert(p);
+        recordNextTimestamp("now");
+        personDAO.insert(input);
+        assertThat(timestamp.getOffset()).isEqualTo(OFFSET);
+        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now());
 
-        // Clear the timing colletor
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        Person result = personDAO.get(1);
 
-        Person found = personDAO.get(1);
-
-        assertThat(found.getCreated()).isNotNull();
-        assertThat(found.getModified()).isNotNull();
+        assertThat(result.getCreated())
+            .isEqualTo(result.getModified())
+            .isEqualTo(sqlTimestamp);
     }
 
     @Test
     public void shouldAllowCustomTimestampParameter() {
-        LocalDateTime timeBefore = LocalDateTime.now().minusMinutes(1);
+        Person input = new Person("John", "Phiri");
+        input.setId(1);
 
-        Person p = new Person("John", "Phiri");
-        p.setId(1);
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("createdAt", ctx)).isPresent());
+        recordNextTimestamp("createdAt");
+        personDAO.insertWithCustomTimestampFields(input);
+        assertThat(timestamp.getOffset()).isEqualTo(OFFSET);
+        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now());
 
-        personDAO.insertWithCustomTimestampFields(p);
+        Person result = personDAO.get(1);
 
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
-
-        Person fetched = personDAO.get(1);
-
-        assertThat(p.getFirstName()).isEqualTo(fetched.getFirstName());
-        assertThat(p.getLastName()).isEqualTo(fetched.getLastName());
-        assertThat(fetched.getCreated()).isNotNull();
-        assertThat(fetched.getModified()).isNotNull();
-
-        assertThat(fetched.getCreated()).isEqualTo(fetched.getModified());
-
-        assertThat(timeBefore).isBefore(fetched.getCreated().toLocalDateTime());
+        assertThat(result.getFirstName()).isEqualTo(input.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(input.getLastName());
+        assertThat(result.getCreated())
+            .isEqualTo(result.getModified())
+            .isEqualTo(sqlTimestamp);
     }
 
     @Test
     public void shouldUpdateModifiedTimestamp() {
-        Person p = new Person("John", "Phiri");
+        Person input = new Person("John", "Phiri");
+        input.setId(3);
 
-        p.setId(3);
+        recordNextTimestamp("now");
+        personDAO.insert(input);
+        Timestamp insert = sqlTimestamp;
 
-        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
-                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
+        Person fetched = personDAO.get(3);
+        fetched.setLastName("Banda");
 
-        personDAO.insert(p);
+        recordNextTimestamp("now");
+        personDAO.updatePerson(fetched);
+        Timestamp update = sqlTimestamp;
 
-        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        Person result = personDAO.get(3);
 
-        Person personAfterCreate = personDAO.get(3);
-
-        personAfterCreate.setLastName("Banda");
-
-        personDAO.updatePerson(personAfterCreate);
-
-        Person personAfterUpdate = personDAO.get(3);
-
-        assertThat(personAfterUpdate.getLastName()).isEqualToIgnoringCase("Banda");
-
-        assertThat(personAfterUpdate.getCreated()).isEqualTo(personAfterCreate.getCreated());
-
-        assertThat(personAfterUpdate.getModified()).isAfter(personAfterCreate.getModified());
+        assertThat(result.getLastName()).isEqualToIgnoringCase("Banda");
+        assertThat(result.getCreated()).isEqualTo(insert);
+        assertThat(result.getModified()).isEqualTo(update);
     }
 
     @RegisterRowMapper(PersonRowMapper.class)
@@ -143,8 +140,33 @@ public class TestTimestamped {
         Person get(@Bind("id") int id);
     }
 
-    public static final class PersonRowMapper implements RowMapper<Person> {
+    private void recordNextTimestamp(String name) {
+        final Jdbi jdbi = dbRule.getJdbi();
 
+        jdbi.setSqlLogger(new SqlLogger() {
+            @Override
+            public void logBeforeExecution(StatementContext ctx) {
+                String toString = ctx.getBinding()
+                    .findForName(name, ctx)
+                    .orElseThrow(AssertionError::new)
+                    .toString();
+                timestamp = OffsetDateTime.parse(toString);
+                sqlTimestamp = Timestamp.from(timestamp.toInstant());
+            }
+
+            @Override
+            public void logAfterExecution(StatementContext context) {
+                jdbi.setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
+            }
+
+            @Override
+            public void logException(StatementContext context, SQLException ex) {
+                jdbi.setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
+            }
+        });
+    }
+
+    public static final class PersonRowMapper implements RowMapper<Person> {
         @Override
         public Person map(ResultSet resultSet, StatementContext statementContext) throws SQLException {
             Person person = new Person(resultSet.getString("firstName"), resultSet.getString("lastName"));
