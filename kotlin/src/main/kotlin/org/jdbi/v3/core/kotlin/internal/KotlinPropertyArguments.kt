@@ -19,6 +19,7 @@ import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder
 import org.jdbi.v3.core.argument.internal.TypedValue
 import org.jdbi.v3.core.kotlin.getQualifiers
 import org.jdbi.v3.core.statement.StatementContext
+import org.jdbi.v3.core.qualifier.QualifiedType
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -37,16 +38,15 @@ class KotlinPropertyArguments(obj: Any,
     override fun getValue(name: String, ctx: StatementContext): Optional<TypedValue> {
         val property: KProperty1<*, *> = properties[name] ?: return Optional.empty()
         val mutableProperty = property as? KMutableProperty1
-        val type = property.returnType.javaType
-        val qualifiers = getQualifiers(
-            kClass.primaryConstructor?.parameters?.find { it.name == name },
-            property,
-            property.getter,
-            mutableProperty?.setter,
-            mutableProperty?.setter?.parameters?.getOrNull(0)
-        )
+        val type = QualifiedType.of(property.returnType.javaType)
+            .with(getQualifiers(
+                kClass.primaryConstructor?.parameters?.find { it.name == name },
+                property,
+                property.getter,
+                mutableProperty?.setter,
+                mutableProperty?.setter?.parameters?.getOrNull(0)))
         val value = property.getter.call(obj)
-        return Optional.of(TypedValue(type, qualifiers, value))
+        return Optional.of(TypedValue(type, value))
     }
 
     override fun getNestedArgumentFinder(obj: Any): NamedArgumentFinder {

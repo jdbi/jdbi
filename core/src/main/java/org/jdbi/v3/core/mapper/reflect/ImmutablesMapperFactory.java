@@ -33,7 +33,7 @@ public class ImmutablesMapperFactory<T> implements RowMapperFactory {
     private final Class<? extends T> impl;
     private final Function<Type, PojoProperties<T>> properties;
 
-    public ImmutablesMapperFactory(Class<T> defn, Class<? extends T> impl, Function<Type, PojoProperties<T>> properties) {
+    private ImmutablesMapperFactory(Class<T> defn, Class<? extends T> impl, Function<Type, PojoProperties<T>> properties) {
         this.defn = defn;
         this.impl = impl;
         this.properties = properties;

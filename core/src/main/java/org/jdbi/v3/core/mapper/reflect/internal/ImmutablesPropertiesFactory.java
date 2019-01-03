@@ -94,7 +94,7 @@ public class ImmutablesPropertiesFactory {
             return properties;
         }
 
-        protected abstract ImmutablesPojoProperty<T> createProperty(String name, Method m);
+        abstract ImmutablesPojoProperty<T> createProperty(String name, Method m);
     }
 
     static class ImmutablePojoProperties<T, B> extends BasePojoProperties<T, B> {

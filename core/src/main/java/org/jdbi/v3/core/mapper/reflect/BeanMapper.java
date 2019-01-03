@@ -48,7 +48,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  * The mapped class must have a default constructor.
  */
 public class BeanMapper<T> implements RowMapper<T> {
-    protected static final String DEFAULT_PREFIX = "";
+    static final String DEFAULT_PREFIX = "";
 
     private static final String NO_MATCHING_COLUMNS =
         "Mapping bean type %s didn't find any matching columns in result set";
@@ -102,17 +102,17 @@ public class BeanMapper<T> implements RowMapper<T> {
 
     protected final Class<T> type;
     protected final String prefix;
-    private final PojoProperties<T> beanInfo;
+    private final PojoProperties<T> properties;
     private final Map<PojoProperty<T>, BeanMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    protected BeanMapper(Class<T> type, String prefix) {
+    BeanMapper(Class<T> type, String prefix) {
         this(type, (PojoProperties<T>) BeanPropertiesFactory.propertiesFor(type), prefix);
     }
 
     BeanMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
         this.type = type;
-        this.beanInfo = properties;
+        this.properties = properties;
         this.prefix = prefix.toLowerCase();
     }
 
@@ -148,7 +148,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PojoProperty<T>> propList = new ArrayList<>();
 
-        for (PojoProperty<T> property : beanInfo.getProperties().values()) {
+        for (PojoProperty<T> property : properties.getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
 
             if (anno == null) {
@@ -183,7 +183,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         }
 
         return Optional.of((r, c) -> {
-            final PojoBuilder<T> pojo = beanInfo.create();
+            final PojoBuilder<T> pojo = properties.create();
 
             for (int i = 0; i < mappers.size(); i++) {
                 RowMapper<?> mapper = mappers.get(i);
@@ -198,13 +198,13 @@ public class BeanMapper<T> implements RowMapper<T> {
         });
     }
 
-    protected ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
+    ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
         return (r, n, c) -> r.getObject(n);
     }
 
     @Beta
     public PojoProperties<T> getBeanInfo() {
-        return beanInfo;
+        return properties;
     }
 
     private String getName(PojoProperty<T> property) {

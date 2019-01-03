@@ -13,22 +13,21 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
@@ -76,11 +75,11 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
             return Optional.empty();
         }
 
-        Type type = method.getGenericReturnType();
-        Set<Annotation> qualifiers = getQualifiers(method);
+        QualifiedType type = QualifiedType.of(method.getGenericReturnType())
+                                .with(getQualifiers(method));
         Object value = invokeMethod(method, ctx);
 
-        return Optional.of(new TypedValue(type, qualifiers, value));
+        return Optional.of(new TypedValue(type, value));
     }
 
     @Override

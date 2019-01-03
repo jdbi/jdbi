@@ -13,19 +13,11 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Set;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 public class TypedValue {
     final QualifiedType type;
     final Object value;
-
-    public TypedValue(Type type, Set<Annotation> qualifiers, Object value) {
-        this.type = QualifiedType.of(type).with(qualifiers);
-        this.value = value;
-    }
 
     public TypedValue(QualifiedType qualifiedType, Object value) {
         this.type = qualifiedType;
