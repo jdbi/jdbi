@@ -29,7 +29,6 @@ import java.util.function.Supplier;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
-
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
@@ -116,7 +115,7 @@ public class ImmutablesPropertiesFactory {
                 final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
                 return new ImmutablesPojoProperty<T>(
                         name,
-                        QualifiedType.of(propertyType, Qualifiers.getQualifiers(m)),
+                        QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
                         m,
                         alwaysSet(),
                         MethodHandles.lookup().unreflect(m),
@@ -172,7 +171,7 @@ public class ImmutablesPropertiesFactory {
             try {
                 return new ImmutablesPojoProperty<T>(
                         name,
-                        QualifiedType.of(propertyType, Qualifiers.getQualifiers(m)),
+                        QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
                         m,
                         isSetMethod(impl, name),
                         MethodHandles.lookup().unreflect(m),
