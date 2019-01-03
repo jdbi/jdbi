@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -25,8 +24,6 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 public final class BindListFactory implements SqlStatementCustomizerFactory {
-    private static final String VALUE_NOT_HANDLED_MESSAGE = "EmptyHandling type on BindList not handled. Please report this to the jdbi developers.";
-
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
@@ -42,23 +39,10 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
 
         return (stmt, arg) -> {
             if (arg == null || IterableLike.isEmpty(arg)) {
-                switch (bindList.onEmpty()) {
-                case VOID:
-                    stmt.define(name, "");
-                    return;
-                case NULL:
-                    stmt.define(name, "null");
-                    return;
-                case THROW:
-                    throw new IllegalArgumentException(arg == null
-                    ? "argument is null; null was explicitly forbidden on this instance of BindList"
-                            : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
-                default:
-                    throw new IllegalStateException(VALUE_NOT_HANDLED_MESSAGE);
-                }
+                bindList.onEmpty().define(stmt, name);
+            } else {
+                stmt.bindList(name, IterableLike.toList(arg));
             }
-
-            stmt.bindList(name, IterableLike.toList(arg));
         };
     }
 }

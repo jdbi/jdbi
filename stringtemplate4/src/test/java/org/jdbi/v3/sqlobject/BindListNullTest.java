@@ -32,7 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL_STRING;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListNullTest {
@@ -83,7 +83,7 @@ public class BindListNullTest {
 
     public interface SomethingByIterableHandleNull {
         @SqlQuery("select id, name from something where name in (<names>)")
-        List<Something> get(@BindList(onEmpty = NULL) Iterable<Object> names);
+        List<Something> get(@BindList(onEmpty = NULL_STRING) Iterable<Object> names);
     }
 
     //
