@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestCustomArrayType {
 
     private void init(Jdbi db) {
-        db.registerArrayType(new UserIdArrayType());
+        db.registerArrayType(UserId.class, "int", UserId::getId);
         db.registerColumnMapper(new UserIdColumnMapper());
     }
 
@@ -93,19 +93,6 @@ public class TestCustomArrayType {
         @Override
         public int hashCode() {
             return id;
-        }
-    }
-
-    static class UserIdArrayType implements SqlArrayType<UserId> {
-
-        @Override
-        public String getTypeName() {
-            return "int";
-        }
-
-        @Override
-        public Object convertArrayElement(UserId element) {
-            return element.getId();
         }
     }
 

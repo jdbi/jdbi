@@ -25,7 +25,11 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
+
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toList;
 
 /**
  * A {@link java.lang.reflect.Type} qualified by a set of qualifier objects. Two qualified types are equal to each other
@@ -44,46 +48,7 @@ public final class QualifiedType {
      * @return the unqualified QualifiedType
      */
     public static QualifiedType of(Type type) {
-        return new QualifiedType(
-            type,
-            Collections.emptySet());
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifier.
-     *
-     * @param type the type
-     * @param qualifier the single qualifier
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(Type type, Annotation qualifier) {
-        return new QualifiedType(
-            type,
-            Collections.singleton(qualifier));
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifiers.
-     *
-     * @param type the type
-     * @param qualifiers the qualifiers
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(Type type, Annotation... qualifiers) {
-        return of(type, Arrays.asList(qualifiers));
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifiers.
-     *
-     * @param type the type
-     * @param qualifiers the qualifiers
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(Type type, Collection<? extends Annotation> qualifiers) {
-        return new QualifiedType(
-            type,
-            Collections.unmodifiableSet(new HashSet<>(qualifiers)));
+        return new QualifiedType(type, emptySet());
     }
 
     /**
@@ -94,45 +59,43 @@ public final class QualifiedType {
      * @return the unqualified QualifiedType
      */
     public static QualifiedType of(GenericType<?> type) {
-        return QualifiedType.of(type.getType());
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifier.
-     *
-     * @param type the type
-     * @param qualifier the single qualifier
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(GenericType<?> type, Annotation qualifier) {
-        return QualifiedType.of(type.getType(), qualifier);
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifiers.
-     *
-     * @param type the type
-     * @param qualifiers the qualifiers
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(GenericType<?> type, Annotation... qualifiers) {
-        return QualifiedType.of(type.getType(), qualifiers);
-    }
-
-    /**
-     * Creates a QualifiedType for {@code type} with the given qualifiers.
-     *
-     * @param type the type
-     * @param qualifiers the qualifiers
-     * @return the QualifiedType
-     */
-    public static QualifiedType of(GenericType<?> type, Collection<? extends Annotation> qualifiers) {
-        return QualifiedType.of(type.getType(), qualifiers);
+        return of(type.getType());
     }
 
     private QualifiedType(Type type, Set<Annotation> qualifiers) {
         this.type = type;
         this.qualifiers = qualifiers;
+    }
+
+    /**
+     * Returns a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     *
+     * @param qualifiers the qualifiers for the new qualified type.
+     * @return the QualifiedType
+     */
+    public QualifiedType with(Annotation... qualifiers) {
+        return with(Arrays.asList(qualifiers));
+    }
+
+    /**
+     * Returns a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     *
+     * @param qualifiers the qualifiers for the new qualified type.
+     * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
+     * @return the QualifiedType
+     */
+    @SafeVarargs
+    public final QualifiedType with(Class<? extends Annotation>... qualifiers) {
+        return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
+    }
+
+    /**
+     * @return a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     *
+     * @param qualifiers the qualifiers for the new qualified type.
+     */
+    public QualifiedType with(Collection<? extends Annotation> qualifiers) {
+        return new QualifiedType(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
     }
 
     /**

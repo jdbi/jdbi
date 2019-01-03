@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
-
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -150,10 +149,11 @@ public class BeanPropertiesFactory {
                     .orElse(null);
 
                 return QualifiedType.of(
-                        Optional.ofNullable(descriptor.getReadMethod())
+                    Optional.ofNullable(descriptor.getReadMethod())
                         .map(Method::getGenericReturnType)
-                        .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]),
-                    getQualifiers(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
+                        .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]))
+                    .with(
+                        getQualifiers(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
 
             @Override

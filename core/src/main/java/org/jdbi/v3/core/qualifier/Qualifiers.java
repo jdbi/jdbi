@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
@@ -30,13 +29,6 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public class Qualifiers {
     private Qualifiers() {}
-
-    /**
-     * @return an {@link NVarchar} qualifying annotation instance.
-     */
-    public static NVarchar nVarchar() {
-        return AnnotationFactory.create(NVarchar.class);
-    }
 
     /**
      * Returns the set of qualifying annotations on the given elements.

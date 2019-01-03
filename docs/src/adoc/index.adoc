@@ -597,6 +597,44 @@ LocalDate releaseDate = handle.createQuery(
     .findOnly();
 ----
 
+==== LIKE clauses
+
+Due to a built-in safety mechanism, `LIKE` clauses and argument binding
+don't work together intuitively and must be written a particular way. The following
+is what users would intuitively try to do:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%:search%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+Firstly, this query would try to select `where name like '%:search%'`
+_literally_, without binding any arguments. This is because proper `SqlParser`
+implementations do not bind arguments _inside string literals_.
+
+Secondly, Jdbi has your back. This query will throw an exception,
+because we don't allow unused bindings by default. Of course, if you use
+the parameter somewhere else in the query and the `SqlParser` binds it,
+then this check won't save you.
+
+The solution is to use SQL string concatenation:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%' || :search || '%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+[NOTE]
+Check the string concatenation syntax of your database before doing this.
+
 === Templating
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
@@ -3928,6 +3966,58 @@ An example from the test class:
 include::{exampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
 
+=== Lombok
+
+Lombok is a great tool for cutting the boilerplate out of POJO classes.
+
+[source,java,indent=0]
+----
+@Data
+public void DataClass {
+  private Long id;
+  private String name;
+  // autogenerates default constructor, getters, setters, equals, hashCode, and toString
+}
+
+@Value
+public void ValueClass {
+  private long id;
+  private String name;
+  // autogenerates all-args constructor, getters, equals, hashCode, and toString
+}
+----
+
+Lombok and Jdbi mostly play nice out of the box:
+
+- Use `BeanMapper` or `@RegisterBeanMapper` to map `@Data` classes.
+- Use `ConstructorMapper` or `@RegisterConstructorMapper` to map `@Value`
+  classes.
+- Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
+
+We say "mostly" because there's a wrinkle once you start annotating fields with
+Jdbi annotations like `@Nested`, `@ColumnMapper`, or type qualifying annotations
+such as `@HStore`.
+
+- BeanMapper looks for these annotations on getters, setters, or setter
+  parameters.
+- ConstructorMapper looks for them on constructor parameters.
+- Lombok doesn't move them there by default.
+
+As of Lombok version 1.18.4, Lombok can be configured to copy any annotations
+you specify to generated getter, setter, setter parameters, and constructor
+parameters.
+
+Create a file `lombok.config` in your project src tree (or edit the existing
+one), and add a line for each annotation type which should be copied, as
+in the following example:
+
+[source,java,indent=0]
+----
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.ColumnName
+lombok.copyableAnnotations += org.jdbi.v3.postgres.HStore
+----
+
 === Oracle 12
 
 This module adds support for Oracle `RETURNING` DML expressions.
@@ -4689,6 +4779,10 @@ via `installPlugins()`.
 Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
 containing the fully qualified class name of your plugin.
 
+In general, Jdbi's separate artifacts each provide a single relevant plugin (e.g. `jdbi3-sqlite`),
+and such modules will be auto-loadable. Modules that provide no (e.g. `jdbi3-commons-text`)
+or multiple (e.g. `jdbi3-core`) plugins typically will not be.
+
 [TIP]
 The developers encourage you to install plugins explicitly.  Code with declared dependencies
 on the module it uses is more robust to refactoring and provides useful data
@@ -5249,13 +5343,13 @@ SqlParser parser = (sql, ctx) -> {
 jdbi.setParser(parser);
 ----
 
-=== TimingCollector
+=== SqlLogger
 
-The *TimingCollector* interface is called after executing each statement
-and given the statement context and duration of execution in nanoseconds.
-
-This interface isn't completely thought out yet; the developers welcome
-feedback on how to improve timing collection.
+The link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] interface
+is called before and after executing each statement,
+and given the current `StatementContext`, to log any relevant information desired:
+mainly the query in various compilation stages,
+attributes and bindings, and important timestamps.
 
 === ResultProducer
 

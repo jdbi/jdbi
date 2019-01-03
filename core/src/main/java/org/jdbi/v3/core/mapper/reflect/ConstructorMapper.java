@@ -220,9 +220,8 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
                 if (columnIndex.isPresent()) {
                     int colIndex = columnIndex.getAsInt();
-                    final QualifiedType type = QualifiedType.of(
-                        parameter.getParameterizedType(),
-                        getQualifiers(parameter));
+                    final QualifiedType type = QualifiedType.of(parameter.getParameterizedType())
+                        .with(getQualifiers(parameter));
                     mappers[i] = ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(

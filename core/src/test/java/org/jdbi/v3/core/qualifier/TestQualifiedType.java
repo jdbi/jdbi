@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.Qualifiers.nVarchar;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
@@ -26,9 +25,9 @@ import org.junit.Test;
 public class TestQualifiedType {
     @Test
     public void testQualifiedType() {
-        assertThat(QualifiedType.of(String.class, nVarchar()))
-            .isEqualTo(QualifiedType.of(String.class, nVarchar()))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, nVarchar()))
+        assertThat(QualifiedType.of(String.class).with(NVarchar.class))
+            .isEqualTo(QualifiedType.of(String.class).with(NVarchar.class))
+            .hasSameHashCodeAs(QualifiedType.of(String.class).with(NVarchar.class))
             .hasToString("@org.jdbi.v3.core.qualifier.NVarchar() java.lang.String");
 
         assertThat(QualifiedType.of(int.class))
@@ -41,15 +40,15 @@ public class TestQualifiedType {
             .hasSameHashCodeAs(QualifiedType.of(new GenericType<List<String>>() {}))
             .hasToString("java.util.List<java.lang.String>");
 
-        assertThat(QualifiedType.of(String.class, foo(1), bar("1")))
-            .isEqualTo(QualifiedType.of(String.class, foo(1), bar("1")))
-            .isEqualTo(QualifiedType.of(String.class, bar("1"), foo(1)))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, foo(1), bar("1")))
-            .hasSameHashCodeAs(QualifiedType.of(String.class, bar("1"), foo(1)))
-            .isNotEqualTo(QualifiedType.of(int.class, bar("1"), foo(1)))
-            .isNotEqualTo(QualifiedType.of(String.class, bar("2"), foo(1)))
-            .isNotEqualTo(QualifiedType.of(String.class, bar("1"), foo(2)))
-            .isNotEqualTo(QualifiedType.of(String.class, foo(1)))
-            .isNotEqualTo(QualifiedType.of(String.class, bar("1")));
+        assertThat(QualifiedType.of(String.class).with(foo(1), bar("1")))
+            .isEqualTo(QualifiedType.of(String.class).with(foo(1), bar("1")))
+            .isEqualTo(QualifiedType.of(String.class).with(bar("1"), foo(1)))
+            .hasSameHashCodeAs(QualifiedType.of(String.class).with(foo(1), bar("1")))
+            .hasSameHashCodeAs(QualifiedType.of(String.class).with(bar("1"), foo(1)))
+            .isNotEqualTo(QualifiedType.of(int.class).with(bar("1"), foo(1)))
+            .isNotEqualTo(QualifiedType.of(String.class).with(bar("2"), foo(1)))
+            .isNotEqualTo(QualifiedType.of(String.class).with(bar("1"), foo(2)))
+            .isNotEqualTo(QualifiedType.of(String.class).with(foo(1)))
+            .isNotEqualTo(QualifiedType.of(String.class).with(bar("1")));
     }
 }
