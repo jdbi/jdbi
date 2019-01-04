@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -131,7 +130,7 @@ public class GenericMapMapperFactory implements RowMapperFactory {
 
                 boolean added = names.add(renamedKey);
                 if (!added) {
-                    throw new RuntimeException(MessageFormat.format("map key \"{0}\" (from column \"{1}\") appears twice in this resultset!", renamedKey, key));
+                    throw new RuntimeException(String.format("map key \"%s\" (from column \"%s\") appears twice in this resultset!", renamedKey, key));
                 }
             }
 
