@@ -685,7 +685,10 @@ handle.createQuery("select * from emotion where emoticon = <sticker>;")
 ----
 
 Bindings and definitions are usually separate.  You can define all bindings that don't already
-have template definitions using the `stmt.defineBinds()` or `@DefineBinds` customizers.
+have template definitions using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+
+By default, to prevent SQL injection, this will bind a boolean indicating only whether the name was bound or not.
+If you need the full string value, see the `DefineNamedBindingsMode` enum.
 
 Also see the section about <<TemplateEngine>>.
 

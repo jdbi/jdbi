@@ -16,6 +16,7 @@
       - Configurable.registerArrayType(Class, String, Function) convenience method
     - Sqlite support in JdbiRule (jdbi3-testing)
     - TimestampedConfig now controls the ZoneId used to generate an OffsetDateTime
+    - StatementCustomizer now has a hook for before SQL statement templating
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all

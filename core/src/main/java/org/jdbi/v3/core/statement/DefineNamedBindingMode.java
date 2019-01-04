@@ -26,7 +26,7 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public enum DefineNamedBindingMode {
     /**
-     * Bind a boolean {@true} for present values, {@false} for null values.
+     * Bind a boolean {@code true} for present values, {@code false} for null values.
      * Default behavior.
      */
     BOOLEAN {
@@ -44,8 +44,7 @@ public enum DefineNamedBindingMode {
         Optional<Object> apply(Argument arg) {
             return Optional.ofNullable(Objects.toString(arg));
         }
-    },
-    ;
+    };
 
     abstract Optional<Object> apply(Argument arg);
 }

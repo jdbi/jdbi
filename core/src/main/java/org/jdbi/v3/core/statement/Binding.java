@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
@@ -95,6 +96,7 @@ public class Binding {
     /**
      * @return the set of known binding names
      */
+    @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // false positive
     public Collection<String> getNames() {
         if (names == null) {
             names = new HashSet<>(named.keySet());

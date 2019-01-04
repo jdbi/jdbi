@@ -127,6 +127,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             throw new IllegalStateException("No batch parts to execute");
         }
 
+        beforeTemplating();
+
         String renderedSql = getConfig(SqlStatements.class)
                 .getTemplateEngine()
                 .render(getSql(), getContext());
@@ -153,7 +155,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
-            beforeBinding(stmt);
+            beforeBinding();
 
             try {
                 for (Binding binding : bindings) {
@@ -165,12 +167,12 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
             }
 
-            beforeExecution(stmt);
+            beforeExecution();
 
             try {
                 final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
 
-                afterExecution(stmt);
+                afterExecution();
 
                 getContext().setBinding(new Binding());
 
