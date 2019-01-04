@@ -47,7 +47,6 @@ import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.statement.internal.DefineBindsTemplateEngine;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -1473,13 +1472,23 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Define all bound arguments that don't already have a definition.
+     * Define all bound arguments that don't already have a definition with a boolean indicating
+     * their presence.
      * @return this
      */
     @Beta
-    public This defineBinds() {
+    public This defineNamedBindings() {
+        return defineNamedBindings(DefineNamedBindingMode.BOOLEAN);
+    }
+
+    /**
+     * Define all bound arguments that don't already have a definition with the given defining mode.
+     * @return this
+     */
+    @Beta
+    public This defineNamedBindings(DefineNamedBindingMode mode) {
         return configure(SqlStatements.class, s ->
-            s.setTemplateEngine(new DefineBindsTemplateEngine(s.getTemplateEngine())));
+            s.setTemplateEngine(new DefineNamedBindingsTemplateEngine(mode, s.getTemplateEngine())));
     }
 
     PreparedStatement internalExecute() {

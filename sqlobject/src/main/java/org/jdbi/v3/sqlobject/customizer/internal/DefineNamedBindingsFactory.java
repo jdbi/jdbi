@@ -16,11 +16,11 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.statement.SqlStatement;
+import org.jdbi.v3.sqlobject.customizer.DefineNamedBindings;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 
-public class DefineBindsFactory implements SqlStatementCustomizerFactory {
+public class DefineNamedBindingsFactory implements SqlStatementCustomizerFactory {
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         return createForType(annotation, sqlObjectType);
@@ -28,6 +28,6 @@ public class DefineBindsFactory implements SqlStatementCustomizerFactory {
 
     @Override
     public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-        return SqlStatement::defineBinds;
+        return s -> s.defineNamedBindings(((DefineNamedBindings) annotation).mode());
     }
 }

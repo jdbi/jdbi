@@ -11,19 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.statement.internal;
+package org.jdbi.v3.core.statement;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jdbi.v3.core.argument.NullArgument;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.TemplateEngine;
-
-public class DefineBindsTemplateEngine implements TemplateEngine {
+class DefineNamedBindingsTemplateEngine implements TemplateEngine {
+    private final DefineNamedBindingMode mode;
     private final TemplateEngine delegate;
 
-    public DefineBindsTemplateEngine(TemplateEngine delegate) {
+    public DefineNamedBindingsTemplateEngine(DefineNamedBindingMode mode, TemplateEngine delegate) {
+        this.mode = mode;
         this.delegate = delegate;
     }
 
@@ -33,7 +31,7 @@ public class DefineBindsTemplateEngine implements TemplateEngine {
         binds.removeAll(ctx.getAttributes().keySet());
         for (String boundButNotDefined : binds) {
             ctx.getBinding().findForName(boundButNotDefined, ctx)
-                .map(a -> a instanceof NullArgument ? null : a)
+                .flatMap(mode::apply)
                 .ifPresent(a -> ctx.define(boundButNotDefined, a));
         }
         return delegate.render(template, ctx);

@@ -1,3 +1,4 @@
+package org.jdbi.v3.core.statement;
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestDefineBinds {
+public class TestDefineNamedBindingsST {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testDefineBinds() {
+    public void testDefineBoolean() {
+        db.getSharedHandle().setTemplateEngine(new StringTemplateEngine());
         assertThat(
-            db.getSharedHandle().createQuery("<a><b>lect tru<b> from values(:a, :b)")
-                .define("a", "s")
-                .defineBinds()
+            db.getSharedHandle().createQuery("select <a> from values(:a<if(b)>, :b shouldn't be defined<endif>)")
+                .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
                 .findOnly())
@@ -40,8 +41,8 @@ public class TestDefineBinds {
             return "x";
         }
 
-        public String getB() {
-            return "e";
+        public Integer getB() {
+            return null;
         }
     }
 }

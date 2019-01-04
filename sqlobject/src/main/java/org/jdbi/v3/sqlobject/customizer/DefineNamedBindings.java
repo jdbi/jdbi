@@ -18,14 +18,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.statement.DefineNamedBindingMode;
 import org.jdbi.v3.meta.Beta;
-import org.jdbi.v3.sqlobject.customizer.internal.DefineBindsFactory;
+import org.jdbi.v3.sqlobject.customizer.internal.DefineNamedBindingsFactory;
 
 /**
  * Defines all bound arguments that don't already have a definition.
+ * @see org.jdbi.v3.core.statement.SqlStatement#defineNamedBindings()
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@SqlStatementCustomizingAnnotation(DefineBindsFactory.class)
+@SqlStatementCustomizingAnnotation(DefineNamedBindingsFactory.class)
 @Beta
-public @interface DefineBinds {}
+public @interface DefineNamedBindings {
+    DefineNamedBindingMode mode() default DefineNamedBindingMode.BOOLEAN;
+}
