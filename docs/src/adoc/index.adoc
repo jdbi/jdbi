@@ -290,6 +290,11 @@ Jdbi's configuration system enables you to easily set up different Arguments and
 [NOTE]
 _Binding_ is a term specifically related to _Arguments_ only. _Attributes_ are involved in _rendering_ a query _template_ using a _TemplateEngine_ to perform String-wise manipulations on a query before it is interpreted as SQL.
 
+[NOTE]
+The use of bound parameters is limited by JDBC support.  Notably, parameters usually cannot be used to change the structure of a query
+(for example the table or column name, `SELECT` or `INSERT`, etc.)
+nor may they be interpolated into string literals.  See <<TemplateEngine>> for more information.
+
 ==== Positional Arguments
 
 When a SQL statement uses `?` tokens, Jdbi can bind a values to parameters
@@ -596,44 +601,6 @@ LocalDate releaseDate = handle.createQuery(
     .mapTo(LocalDate.class)
     .findOnly();
 ----
-
-==== LIKE clauses
-
-Due to a built-in safety mechanism, `LIKE` clauses and argument binding
-don't work together intuitively and must be written a particular way. The following
-is what users would intuitively try to do:
-
-[source,java]
-----
-handle.createQuery("select name from things
-where name like '%:search%'")
-    .bind("search", "foo")
-    .mapTo(String.class)
-    .list()
-----
-
-Firstly, this query would try to select `where name like '%:search%'`
-_literally_, without binding any arguments. This is because proper `SqlParser`
-implementations do not bind arguments _inside string literals_.
-
-Secondly, Jdbi has your back. This query will throw an exception,
-because we don't allow unused bindings by default. Of course, if you use
-the parameter somewhere else in the query and the `SqlParser` binds it,
-then this check won't save you.
-
-The solution is to use SQL string concatenation:
-
-[source,java]
-----
-handle.createQuery("select name from things
-where name like '%' || :search || '%'")
-    .bind("search", "foo")
-    .mapTo(String.class)
-    .list()
-----
-
-[NOTE]
-Check the string concatenation syntax of your database before doing this.
 
 === Templating
 
@@ -4533,6 +4500,48 @@ Bear in mind:
   `TupleMappers` must be configured properly i.e. all non row-mapped
   tuple indices must be provided with a column configuration!
 
+== Cookbook
+
+This section includes examples of various things you might like to do with `Jdbi`.
+
+=== LIKE clauses with Parameters
+
+Since JDBC (and therefore `Jdbi`) does not allow binding parameters into the middle of string literals,
+you cannot interpolate bindings into `LIKE` clauses (`LIKE '%:param%'`).
+
+Incorrect usage:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%:search%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+This query would try to select `where name like '%:search%'` _literally_, without binding any arguments.
+This is because JDBC drivers will not bind arguments _inside string literals_.
+
+It never gets that far, though -- this query will throw an exception,
+because we don't allow unused argument bindings by default.
+
+The solution is to use SQL string concatenation:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%' || :search || '%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+Now, `search` can be properly bound as a parameter to the statement, and it all works as desired.
+
+[NOTE]
+Check the string concatenation syntax of your database before doing this.
+
 == Advanced Topics
 
 === Compiling with Parameter Names
@@ -5336,6 +5345,10 @@ handle.createUpdate("insert into characters (id, name) values (#id, #name)")
 [NOTE]
 The default parsers do not readily recognize non-Latin characters as identifiers;
 they must be surrounded by double quotes.
+
+[NOTE]
+The default parsers try to ignore parameter-like constructions inside of string literals,
+since JDBC drivers wouldn't let you bind parameters there anyway.
 
 For you fearless adventurers who have read the
 link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
