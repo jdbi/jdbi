@@ -28,6 +28,9 @@ public enum DefineNamedBindingMode {
     /**
      * Bind a boolean {@code true} for present values, {@code false} for null values.
      * Default behavior.
+     *
+     * Note that due to implementation limitations, null arguments must be instances of
+     * {@link org.jdbi.v3.core.argument.NullArgument} to be recognized.
      */
     BOOLEAN {
         @Override
