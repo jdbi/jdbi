@@ -18,10 +18,10 @@ import java.util.Map;
 
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.mapper.reflect.ImmutablesMapperFactory;
+import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.customizer.BindProperties;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
@@ -34,14 +34,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestImmutablesHStore {
 
     @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new PostgresPlugin()).withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule()
+        .withPlugin(new PostgresPlugin())
+        .withPlugin(new SqlObjectPlugin())
+        .withPlugin(ImmutablesPlugin.forImmutable(Mappy.class));
 
     private Handle h;
 
     @Before
     public void setup() {
         h = dbRule.openHandle();
-        h.registerRowMapper(ImmutablesMapperFactory.mapImmutable(Mappy.class, ImmutableMappy.class, Mappy::builder));
         h.execute("create extension if not exists \"hstore\"");
         h.execute("create table mappy (numbers hstore not null)");
     }
@@ -87,7 +89,7 @@ public class TestImmutablesHStore {
 
     public interface MappyDao {
         @SqlUpdate("insert into mappy (numbers) values (:numbers)")
-        int insert(@BindProperties Mappy mappy);
+        int insert(@BindPojo Mappy mappy);
 
         @SqlQuery("select numbers from mappy")
         List<Mappy> select();

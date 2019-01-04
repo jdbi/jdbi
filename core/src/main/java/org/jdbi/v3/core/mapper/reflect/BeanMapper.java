@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
@@ -32,8 +33,6 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoBuilder;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
-
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -46,7 +45,10 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  * properties.
  *
  * The mapped class must have a default constructor.
+ *
+ * @deprecated this class should not be public API, use {@link org.jdbi.v3.core.statement.SqlStatement#bindBean(Object)} instead.
  */
+@Deprecated
 public class BeanMapper<T> implements RowMapper<T> {
     static final String DEFAULT_PREFIX = "";
 
@@ -100,6 +102,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         return new BeanMapper<>(type, prefix);
     }
 
+    protected boolean strictColumnMapping; // this should be default (only?) behavior but that's a breaking change
     protected final Class<T> type;
     protected final String prefix;
     private final PojoProperties<T> properties;
@@ -110,7 +113,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         this(type, (PojoProperties<T>) BeanPropertiesFactory.propertiesFor(type), prefix);
     }
 
-    BeanMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
+    protected BeanMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
         this.type = type;
         this.properties = properties;
         this.prefix = prefix.toLowerCase();
@@ -198,13 +201,12 @@ public class BeanMapper<T> implements RowMapper<T> {
         });
     }
 
-    ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
+    private ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
+        if (strictColumnMapping) {
+            throw new NoSuchMapperException(String.format(
+                    "Couldn't find mapper for property '%s' of type '%s' from %s", property.getName(), property.getQualifiedType(), type));
+        }
         return (r, n, c) -> r.getObject(n);
-    }
-
-    @Beta
-    public PojoProperties<T> getBeanInfo() {
-        return properties;
     }
 
     private String getName(PojoProperty<T> property) {

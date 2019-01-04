@@ -18,15 +18,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.customizer.internal.BindPropertiesFactory;
+import org.jdbi.v3.sqlobject.customizer.internal.BindPojoFactory;
 
 /**
  * Binds the properties of an object to a SQL statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindPropertiesFactory.class)
-public @interface BindProperties {
+@SqlStatementCustomizingAnnotation(BindPojoFactory.class)
+public @interface BindPojo {
     /**
      * Prefix to apply to each property. If specified, properties will be bound as
      * {@code prefix.propertyName}.

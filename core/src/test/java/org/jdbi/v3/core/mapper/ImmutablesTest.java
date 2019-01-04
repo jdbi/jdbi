@@ -19,8 +19,9 @@ import java.util.OptionalInt;
 
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.mapper.reflect.ImmutablesMapperFactory;
+import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,19 +31,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImmutablesTest {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule()
+        .withPlugin(ImmutablesPlugin.forImmutable(SubValue.class))
+        .withPlugin(ImmutablesPlugin.forImmutable(FooBarBaz.class))
+        .withPlugin(ImmutablesPlugin.forModifiable(FooBarBaz.class));
 
+    private Jdbi jdbi;
     private Handle h;
 
     @Before
     public void setup() {
+        jdbi = dbRule.getJdbi();
         h = dbRule.getSharedHandle();
         h.execute("create table immutables (t int, x varchar)");
-
-        h.registerRowMapper(ImmutablesMapperFactory.mapImmutable(SubValue.class, ImmutableSubValue.class, ImmutableSubValue::builder));
     }
 
     // tag::example[]
+    // First, install the plugin: ;
+
     @Value.Immutable
     public interface Train {
         String name();
@@ -52,12 +58,12 @@ public class ImmutablesTest {
 
     @Test
     public void simpleTest() {
+        jdbi.installPlugin(ImmutablesPlugin.forImmutable(Train.class));
         h.execute("create table train (name varchar, carriages int, observation_car boolean)");
-        h.registerRowMapper(ImmutablesMapperFactory.mapImmutable(Train.class, ImmutableTrain.class, ImmutableTrain::builder));
 
         assertThat(
             h.createUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
-                .bindProperties(ImmutableTrain.builder().name("Zephyr").carriages(8).observationCar(true).build())
+                .bindPojo(ImmutableTrain.builder().name("Zephyr").carriages(8).observationCar(true).build())
                 .execute())
             .isEqualTo(1);
 
@@ -74,7 +80,7 @@ public class ImmutablesTest {
     public void parameterizedTest() {
         assertThat(
             h.createUpdate("insert into immutables(t, x) values (:t, :x)")
-                .bindProperties(ImmutableSubValue.<String, Integer>builder().t(42).x("foo").build())
+                .bindPojo(ImmutableSubValue.<String, Integer>builder().t(42).x("foo").build())
                 .execute())
             .isEqualTo(1);
 
@@ -106,12 +112,10 @@ public class ImmutablesTest {
 
     @Test
     public void testModifiable() {
-        h.registerRowMapper(ImmutablesMapperFactory.mapImmutable(FooBarBaz.class, ImmutableFooBarBaz.class, ImmutableFooBarBaz::builder));
-        h.registerRowMapper(ImmutablesMapperFactory.mapModifiable(FooBarBaz.class, ModifiableFooBarBaz.class, ModifiableFooBarBaz::create));
         h.execute("create table fbb (id serial, foo varchar, bar int, baz real)");
 
         assertThat(h.createUpdate("insert into fbb (id, foo, bar, baz) values (:id, :foo, :bar, :baz)")
-                .bindProperties(ModifiableFooBarBaz.create().setFoo("foo").setBar(42).setBaz(1.0))
+                .bindPojo(ModifiableFooBarBaz.create().setFoo("foo").setBar(42).setBaz(1.0))
                 .execute())
             .isEqualTo(1);
 

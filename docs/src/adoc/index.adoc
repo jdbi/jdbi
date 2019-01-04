@@ -3800,7 +3800,11 @@ to `Jdbi` properties binding and row mapping.
 [WARNING]
 Immutables support is still experimental and does not yet support custom naming schemes.
 
-Just tell us about your types, and we do the rest:
+Just tell us about your types by installing the plugin (possibly multiple times):
+
+`jdbi.installPlugin(ImmutablesPlugin.forImmutable(MyValueType.class))`
+
+and we do the rest:
 
 [source,java,indent=0]
 ----

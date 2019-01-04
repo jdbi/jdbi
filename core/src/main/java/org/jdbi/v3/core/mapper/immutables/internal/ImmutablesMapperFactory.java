@@ -11,40 +11,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper.reflect;
+package org.jdbi.v3.core.mapper.immutables.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.mapper.reflect.internal.ImmutablesPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
-import org.jdbi.v3.meta.Beta;
 
-@Beta
+/**
+ * Row mapper that inspects an {@code immutables}-style Immutable or Modifiable value class for properties
+ * and binds them in the style of {@link org.jdbi.v3.core.mapper.reflect.BeanMapper}.
+ * @param <T> the mapped value type
+ */
 public class ImmutablesMapperFactory<T> implements RowMapperFactory {
 
     private final Class<T> defn;
     private final Class<? extends T> impl;
-    private final Function<Type, PojoProperties<T>> properties;
+    private final Function<Type, ? extends PojoProperties<T>> properties;
 
-    private ImmutablesMapperFactory(Class<T> defn, Class<? extends T> impl, Function<Type, PojoProperties<T>> properties) {
+    public ImmutablesMapperFactory(Class<T> defn, Class<? extends T> impl, Function<Type, ? extends PojoProperties<T>> properties) {
         this.defn = defn;
         this.impl = impl;
         this.properties = properties;
-    }
-
-    public static <T, I extends T, B> RowMapperFactory mapImmutable(Class<T> defn, Class<I> immutable, Supplier<B> builder) {
-        return new ImmutablesMapperFactory<>(defn, immutable, ImmutablesPropertiesFactory.immutable(defn, builder));
-    }
-
-    public static <T, M extends T> RowMapperFactory mapModifiable(Class<T> defn, Class<M> modifiable, Supplier<M> constructor) {
-        return new ImmutablesMapperFactory<>(defn, modifiable, ImmutablesPropertiesFactory.modifiable(defn, constructor));
     }
 
     @SuppressWarnings("unchecked")
@@ -52,7 +45,7 @@ public class ImmutablesMapperFactory<T> implements RowMapperFactory {
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (defn.equals(erasedType) || impl.equals(erasedType)) {
-            return Optional.of(PropertiesMapper.of((Class<T>) erasedType, properties.apply(type)));
+            return Optional.of(new PojoMapper<>((Class<T>) erasedType, properties.apply(type), ""));
         }
         return Optional.empty();
     }

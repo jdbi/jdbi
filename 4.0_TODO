@@ -6,3 +6,4 @@
 * Require @HStore annotation for HSTORE mapping / binding (remove legacy support for unqualified
   maps in Postgres plugin)
 * Throwables throwOnlyException only exists because of the above <X extends Exception> issue, so clean that up too
+* BeanMapper should throw if it can't find a nested type rather than default to `rs.getObject` (strictColumnMapping)

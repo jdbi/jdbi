@@ -18,9 +18,9 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.ImmutableTrain;
 import org.jdbi.v3.core.mapper.ImmutablesTest.Train;
-import org.jdbi.v3.core.mapper.reflect.ImmutablesMapperFactory;
+import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.customizer.BindProperties;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
@@ -31,7 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindProperties {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule()
+        .withPlugin(new SqlObjectPlugin())
+        .withPlugin(ImmutablesPlugin.forImmutable(Train.class));
 
     private Handle h;
 
@@ -40,7 +42,6 @@ public class TestBindProperties {
     @Before
     public void setUp() {
         h = dbRule.getSharedHandle();
-        h.registerRowMapper(ImmutablesMapperFactory.mapImmutable(Train.class, ImmutableTrain.class, ImmutableTrain::builder));
         h.execute("create table train (name varchar, carriages int, observation_car boolean)");
 
         dao = h.attach(Dao.class);
@@ -63,7 +64,7 @@ public class TestBindProperties {
 
     public interface Dao {
         @SqlUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
-        int insert(@BindProperties Train train);
+        int insert(@BindPojo Train train);
 
         @SqlQuery("select * from train")
         List<Train> getTrains();

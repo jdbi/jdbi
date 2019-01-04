@@ -24,7 +24,10 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 /**
  * Inspect a {@link java.beans} style object and bind parameters
  * based on each of its discovered properties.
+ *
+ * @deprecated this should never have been public API
  */
+@Deprecated
 public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder {
     private final PojoProperties<?> properties;
 
@@ -35,6 +38,15 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     public BeanPropertyArguments(String prefix, Object bean) {
         super(prefix, bean);
         properties = BeanPropertiesFactory.propertiesFor(obj.getClass());
+    }
+
+    /**
+     * @param prefix an optional prefix (we insert a '.' as a separator)
+     * @param bean the bean to inspect and bind
+     */
+    protected BeanPropertyArguments(String prefix, Object bean, PojoProperties<?> properties) {
+        super(prefix, bean);
+        this.properties = properties;
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 
 public class RegisterBeanMapperImpl implements Configurer {
     @Override
+    @SuppressWarnings("deprecation")
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
         Class<?> beanClass = registerBeanMapper.value();

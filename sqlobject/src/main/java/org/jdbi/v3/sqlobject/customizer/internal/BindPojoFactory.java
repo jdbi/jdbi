@@ -18,11 +18,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
-import org.jdbi.v3.sqlobject.customizer.BindProperties;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
-public class BindPropertiesFactory implements SqlStatementCustomizerFactory {
+public class BindPojoFactory implements SqlStatementCustomizerFactory {
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
@@ -30,13 +30,13 @@ public class BindPropertiesFactory implements SqlStatementCustomizerFactory {
                                                               Parameter param,
                                                               int index,
                                                               Type type) {
-        BindProperties bind = (BindProperties) annotation;
+        BindPojo bind = (BindPojo) annotation;
         return (stmt, bean) -> {
             String prefix = bind.value();
             if (prefix.isEmpty()) {
-                stmt.bindProperties(bean);
+                stmt.bindPojo(bean);
             } else {
-                stmt.bindProperties(prefix, bean);
+                stmt.bindPojo(prefix, bean);
             }
         };
     }

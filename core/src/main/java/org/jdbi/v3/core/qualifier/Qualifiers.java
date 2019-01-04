@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.qualifier;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
@@ -20,8 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.jdbi.v3.meta.Beta;
-
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.

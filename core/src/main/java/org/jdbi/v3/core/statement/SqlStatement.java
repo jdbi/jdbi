@@ -166,6 +166,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return modified statement
      */
+    @SuppressWarnings("deprecation")
     public This bindBean(Object bean) {
         return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean));
     }
@@ -180,6 +181,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return modified statement
      */
+    @SuppressWarnings("deprecation")
     public This bindBean(String prefix, Object bean) {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
     }
@@ -192,8 +194,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     @Beta
-    public This bindProperties(Object pojo) {
-        return bindNamedArgumentFinder(new PojoPropertyArguments(null, pojo, getContext()));
+    public This bindPojo(Object pojo) {
+        return bindPojo(null, pojo);
     }
 
     /**
@@ -207,7 +209,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     @Beta
-    public This bindProperties(String prefix, Object pojo) {
+    public This bindPojo(String prefix, Object pojo) {
         return bindNamedArgumentFinder(new PojoPropertyArguments(prefix, pojo, getContext()));
     }
 

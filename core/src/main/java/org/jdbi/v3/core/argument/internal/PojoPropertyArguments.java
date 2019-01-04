@@ -13,57 +13,26 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
-import java.util.Map;
-import java.util.Optional;
-
+import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactories;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
- * Inspect a object and bind parameters via {@link BeanMapper}'s properties.
+ * This class only exists to use the protected BeanPropertyArguments constructor.
+ * When we can remove that class from public API, this class will easily merge into it.
  */
-public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
-    private final Map<String, ? extends PojoProperty<?>> properties;
+@SuppressWarnings("deprecation")
+public class PojoPropertyArguments extends BeanPropertyArguments {
     private final StatementContext ctx;
 
-    /**
-     * @param prefix an optional prefix (we insert a '.' as a separator)
-     * @param bean the bean to inspect and bind
-     * @param ctx the statement context
-     */
     public PojoPropertyArguments(String prefix, Object bean, StatementContext ctx) {
-        super(prefix, bean);
+        super(prefix, bean, ctx.getConfig(PojoPropertiesFactories.class).propertiesOf(bean.getClass()));
         this.ctx = ctx;
-        final RowMapper<? extends Object> mapper = ctx.findRowMapperFor(bean.getClass())
-                .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find registered property mapper for " + bean.getClass()));
-        if (!(mapper instanceof BeanMapper<?>)) {
-            throw new UnableToCreateStatementException("Registered mapper for " + bean.getClass() + " is not a property based mapper");
-        }
-        properties = ((BeanMapper<?>) mapper).getBeanInfo().getProperties();
-    }
-
-    @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx2) {
-        @SuppressWarnings("unchecked")
-        PojoProperty<Object> property = (PojoProperty<Object>) properties.get(name);
-        if (property == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(new TypedValue(property.getQualifiedType(), property.get(obj)));
     }
 
     @Override
     protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
         return new PojoPropertyArguments(null, o, ctx);
-    }
-
-    @Override
-    public String toString() {
-        return "{lazy bean property arguments \"" + obj + "\"}";
     }
 }

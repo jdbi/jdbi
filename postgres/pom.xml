@@ -60,6 +60,7 @@
             <artifactId>value</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
