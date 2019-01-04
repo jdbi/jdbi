@@ -17,8 +17,6 @@ import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Function;
-
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
@@ -41,9 +39,9 @@ import org.jdbi.v3.core.generic.GenericTypes;
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        Class<?> erasedType = GenericTypes.getErasedType(type);
+        Class<?> rawClass = GenericTypes.getErasedType(type);
 
-        if (!(erasedType.isArray() || Collection.class.isAssignableFrom(erasedType))) {
+        if (!rawClass.isArray() && !Collection.class.isAssignableFrom(rawClass)) {
             return Optional.empty();
         }
 
@@ -51,17 +49,14 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
             return Optional.of(new NullArgument(Types.ARRAY));
         }
 
-        Function<Type, Optional<SqlArrayType<?>>> lookup =
-                eT -> config.get(SqlArrayTypes.class).findFor(eT);
-
-        if (erasedType.isArray()) {
-            Class<?> elementType = erasedType.getComponentType();
-            return lookup.apply(elementType)
-                    .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
-        }
-
-        return GenericTypes.findGenericParameter(type, Collection.class)
-                .flatMap(lookup)
+        if (rawClass.isArray()) {
+            return config.get(SqlArrayTypes.class)
+                .findFor(rawClass.getComponentType())
                 .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
+        } else {
+            return GenericTypes.findGenericParameter(type, Collection.class)
+                .flatMap(config.get(SqlArrayTypes.class)::findFor)
+                .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
+        }
     }
 }

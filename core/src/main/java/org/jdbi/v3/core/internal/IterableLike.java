@@ -20,6 +20,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Implements Iterator methods for unidentified arrays and Iterable things that do not
@@ -66,6 +70,16 @@ public class IterableLike {
             return new PrimitiveArrayIterator(iterable);
         }
         return Arrays.asList((Object[]) iterable).iterator();
+    }
+
+    /**
+     * Given an iterable object (which may be a iterator, iterable, primitive
+     * or reference array), return a {@link Stream} over its (possibly boxed) elements.
+     *
+     * @return an iterator of the given array's elements
+     */
+    public static Stream<Object> stream(Object iterable) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(of(iterable), Spliterator.ORDERED), false);
     }
 
     /**
