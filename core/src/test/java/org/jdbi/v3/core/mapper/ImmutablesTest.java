@@ -34,7 +34,8 @@ public class ImmutablesTest {
     public H2DatabaseRule dbRule = new H2DatabaseRule()
         .withPlugin(ImmutablesPlugin.forImmutable(SubValue.class))
         .withPlugin(ImmutablesPlugin.forImmutable(FooBarBaz.class))
-        .withPlugin(ImmutablesPlugin.forModifiable(FooBarBaz.class));
+        .withPlugin(ImmutablesPlugin.forModifiable(FooBarBaz.class))
+        .withPlugin(ImmutablesPlugin.forImmutable(Getter.class));
 
     private Jdbi jdbi;
     private Handle h;
@@ -133,5 +134,32 @@ public class ImmutablesTest {
             .extracting("id", "foo", "bar", "baz")
         // FIXME: https://github.com/joel-costigliola/assertj-core/pull/1360
             .containsExactly(1, "foo", 42, 1.0);
+    }
+
+    @Value.Immutable
+    @Value.Style(overshadowImplementation=true)
+    public interface Getter {
+        int getFoo();
+        String getBar();
+
+        // Also test that we can also use overshadowed builders
+        public static Builder builder() {
+            return new Builder();
+        }
+        public static class Builder extends ImmutableGetter.Builder {}
+    }
+
+    @Test
+    public void testGetterStyle() {
+        final Getter expected = Getter.builder().foo(42).bar("bar").build();;
+        h.execute("create table getter(foo int, bar varchar)");
+        assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
+                .bindPojo(expected)
+                .execute())
+            .isEqualTo(1);
+        assertThat(h.createQuery("select * from getter")
+                .mapTo(Getter.class)
+                .findOnly())
+            .isEqualTo(expected);
     }
 }
