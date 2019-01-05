@@ -40,6 +40,8 @@ import org.jdbi.v3.sqlobject.customizer.internal.TimestampedFactory;
  *  }
  * </code>
  * </pre>
+ *
+ * @see TimestampedConfig
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

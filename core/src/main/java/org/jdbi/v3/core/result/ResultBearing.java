@@ -100,8 +100,8 @@ public interface ResultBearing {
      */
     @Beta
     @SuppressWarnings("unchecked")
-    default <T> ResultIterable<T> mapTo(Class<T> type, Annotation... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+    default <T> ResultIterable<T> mapTo(Class<T> type, Class<? extends Annotation>... qualifiers) {
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type).with(qualifiers));
     }
 
     /**
@@ -134,8 +134,8 @@ public interface ResultBearing {
      */
     @Beta
     @SuppressWarnings("unchecked")
-    default <T> ResultIterable<T> mapTo(GenericType<T> type, Annotation... qualifiers) {
-        return (ResultIterable<T>) mapTo(QualifiedType.of(type, qualifiers));
+    default <T> ResultIterable<T> mapTo(GenericType<T> type, Class<? extends Annotation>... qualifiers) {
+        return (ResultIterable<T>) mapTo(QualifiedType.of(type).with(qualifiers));
     }
 
     /**

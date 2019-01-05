@@ -25,7 +25,6 @@ import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
@@ -38,8 +37,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TestCustomQualifier {
-    private static final Reversed REVERSED = AnnotationFactory.create(Reversed.class);
-    private static final UpperCase UPPER_CASE = AnnotationFactory.create(UpperCase.class);
 
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();
@@ -50,7 +47,7 @@ public class TestCustomQualifier {
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class, REVERSED))
+                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
                     .execute();
 
                 assertThat(
@@ -67,7 +64,7 @@ public class TestCustomQualifier {
             .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class, REVERSED))
+                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
                     .execute();
 
                 assertThat(
@@ -87,7 +84,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("cba");
             });
@@ -102,7 +99,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("cba");
             });
@@ -112,14 +109,14 @@ public class TestCustomQualifier {
     public void registerColumnMapperByQualifiedType() {
         dbRule.getJdbi()
             .registerColumnMapper(
-                QualifiedType.of(String.class, REVERSED),
+                QualifiedType.of(String.class).with(Reversed.class),
                 (r, c, ctx) -> reverse(r.getString(c)))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'abcdef')");
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("fedcba");
             });
@@ -129,14 +126,14 @@ public class TestCustomQualifier {
     public void configColumnMappersRegisterByQualifiedType() {
         dbRule.getJdbi()
             .configure(ColumnMappers.class, config -> config.register(
-                QualifiedType.of(String.class, REVERSED),
+                QualifiedType.of(String.class).with(Reversed.class),
                 (r, c, ctx) -> reverse(r.getString(c))))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'abcdef')");
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("fedcba");
             });
@@ -151,7 +148,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("zyx");
             });
@@ -166,7 +163,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, REVERSED)
+                        .mapTo(String.class, Reversed.class)
                         .findOnly())
                     .isEqualTo("zyx");
             });
@@ -382,7 +379,7 @@ public class TestCustomQualifier {
             .registerArgument(new UpperCaseArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class, REVERSED, UPPER_CASE))
+                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
                     .execute();
 
                 assertThat(handle.select("SELECT name FROM something")
@@ -403,7 +400,7 @@ public class TestCustomQualifier {
                 handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
                 assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class, REVERSED, UPPER_CASE)
+                    .mapTo(String.class, Reversed.class, UpperCase.class)
                     .findOnly())
                     .isEqualTo("CBA");
             });

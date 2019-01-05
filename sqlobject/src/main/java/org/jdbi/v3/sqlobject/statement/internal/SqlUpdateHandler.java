@@ -42,8 +42,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
         QualifiedType returnType = QualifiedType.of(
-            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType),
-            getQualifiers(method));
+            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+            .with(getQualifiers(method));
 
         if (isGetGeneratedKeys) {
             ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);

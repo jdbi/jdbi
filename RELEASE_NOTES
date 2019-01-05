@@ -11,6 +11,11 @@
     - ParsedSql can be created with ParsedSql.of(String, ParsedParameters) factory
     - ParsedParameters can be created with ParsedSql.positional(int) and
       ParsedSql.named(List<String>) factories.
+    - SQL array registration improvements:
+      - SqlArrayType.of(String, Function) / SqlArrayTypeFactory.of(Class, String, Function) factory methods
+      - Configurable.registerArrayType(Class, String, Function) convenience method
+    - Sqlite support in JdbiRule (jdbi3-testing)
+    - TimestampedConfig now controls the ZoneId used to generate an OffsetDateTime
   - New beta API
     - Type qualifiers for binding and mapping. Use annotations to distinguish between different SQL
       data types that map to the same Java type. e.g. VARCHAR, NVARCHAR, and Postgres MACADDR all
@@ -25,6 +30,8 @@
       https://github.com/jdbi/jdbi3-oracle12. This means that jdbi3-oracle12 versions will no
       longer stay in sync with the rest of Jdbi. Accordingly, we have removed jdbi3-oracle12
       from the BOM.
+  - API changes
+    - SQLitePlugin now has the ServiceLoader manifest it deserves for automagical installation.
 
 3.5.2
   - Bug Fixes

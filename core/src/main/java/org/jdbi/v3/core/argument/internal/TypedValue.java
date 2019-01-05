@@ -23,7 +23,7 @@ public class TypedValue {
     final Object value;
 
     public TypedValue(Type type, Set<Annotation> qualifiers, Object value) {
-        this.type = QualifiedType.of(type, qualifiers);
+        this.type = QualifiedType.of(type).with(qualifiers);
         this.value = value;
     }
 }

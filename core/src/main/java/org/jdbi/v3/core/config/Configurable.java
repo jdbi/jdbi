@@ -15,6 +15,8 @@ package org.jdbi.v3.core.config;
 
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -180,6 +182,19 @@ public interface Configurable<This> {
      */
     default This registerArrayType(Class<?> elementType, String sqlTypeName) {
         return configure(SqlArrayTypes.class, c -> c.register(elementType, sqlTypeName));
+    }
+
+    /**
+     * Convenience method for registering an array type as {@link SqlArrayTypeFactory#of(Class, String, Function)}.
+     *
+     * @param elementType element raw type
+     * @param sqlTypeName SQL type name
+     * @param conversion the function to convert to database representation
+     * @param <T> element type
+     * @return this
+     */
+    default <T> This registerArrayType(Class<T> elementType, String sqlTypeName, Function<T, ?> conversion) {
+        return registerArrayType(SqlArrayTypeFactory.of(elementType, sqlTypeName, conversion));
     }
 
     /**

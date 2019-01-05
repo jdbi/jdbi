@@ -85,6 +85,6 @@ public class BindListNullPostgresTest {
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingByIterableHandleNull {
         @SqlQuery("select id, name from something where name in (${names})")
-        List<Something> get(@BindList(value = "names", onEmpty = BindList.EmptyHandling.NULL) Iterable<Object> ids);
+        List<Something> get(@BindList(value = "names", onEmpty = BindList.EmptyHandling.NULL_STRING) Iterable<Object> ids);
     }
 }
