@@ -135,7 +135,7 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
     class Factory implements Function<Type, Optional<PojoProperties<?>>> {
         @Override
         public Optional<PojoProperties<?>> apply(Type t) {
-            if (t == spec || t == impl) {
+            if (spec.equals(t) || impl.equals(t)) {
                 return Optional.of(properties.apply(t));
             }
             return Optional.empty();

@@ -20,9 +20,14 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -76,10 +81,25 @@ public class ImmutablesPropertiesFactory {
             this.builder = builder;
             for (Method m : defn.getMethods()) {
                 if (isProperty(m)) {
-                    final String name = m.getName();
+                    final String name = propertyName(m);
                     properties.put(name, createProperty(name, m));
                 }
             }
+        }
+
+        private static String propertyName(Method m) {
+            final String[] prefixes = new String[] { "get", "is" };
+            final String name = m.getName();
+            for (String prefix : prefixes) {
+                if (name.startsWith(prefix)) {
+                    return chopPrefix(name, prefix.length());
+                }
+            }
+            return name;
+        }
+
+        private static String chopPrefix(final String name, int off) {
+            return name.substring(off, off + 1).toLowerCase() + name.substring(off + 1);
         }
 
         private boolean isProperty(Method m) {
@@ -127,18 +147,24 @@ public class ImmutablesPropertiesFactory {
 
         private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Type type)
         throws IllegalAccessException, NoSuchMethodException {
-            final NoSuchMethodException failure;
-            try {
-                return MethodHandles.lookup().unreflect(builderClass.getMethod(name, GenericTypes.getErasedType(type)));
-            } catch (NoSuchMethodException e) {
-                failure = e;
+            final List<NoSuchMethodException> failures = new ArrayList<>();
+            final String setName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            final Set<String> names = new HashSet<>(Arrays.asList(setName, name));
+            for (String tryName : names) {
+                try {
+                    return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));
+                } catch (NoSuchMethodException e) {
+                    failures.add(e);
+                }
             }
             for (Method m : builderClass.getMethods()) {
-                if (m.getName().equals(name) && m.getParameterCount() == 1) {
+                if (names.contains(m.getName()) && m.getParameterCount() == 1) {
                     return MethodHandles.lookup().unreflect(m);
                 }
             }
-            throw failure;
+            final IllegalArgumentException iae = new IllegalArgumentException("Failed to find builder setter for property " + name + " of " + type);
+            failures.forEach(iae::addSuppressed);
+            throw iae;
         }
 
         @Override

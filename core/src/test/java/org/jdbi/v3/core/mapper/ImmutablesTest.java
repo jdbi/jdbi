@@ -137,22 +137,22 @@ public class ImmutablesTest {
     }
 
     @Value.Immutable
-    @Value.Style(overshadowImplementation=true)
+    @Value.Style(overshadowImplementation = true, get = {"is*", "get*"}, init = "set*")
     public interface Getter {
         int getFoo();
-        String getBar();
+        boolean isBar();
 
         // Also test that we can also use overshadowed builders
-        public static Builder builder() {
+        static Builder builder() {
             return new Builder();
         }
-        public static class Builder extends ImmutableGetter.Builder {}
+        static class Builder extends ImmutableGetter.Builder {}
     }
 
     @Test
     public void testGetterStyle() {
-        final Getter expected = Getter.builder().foo(42).bar("bar").build();;
-        h.execute("create table getter(foo int, bar varchar)");
+        final Getter expected = Getter.builder().setFoo(42).setBar(true).build();
+        h.execute("create table getter(foo int, bar boolean)");
         assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
                 .bindPojo(expected)
                 .execute())
