@@ -13,26 +13,51 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
-import org.jdbi.v3.core.argument.BeanPropertyArguments;
+import java.util.Optional;
+
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactories;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * This class only exists to use the protected BeanPropertyArguments constructor.
- * When we can remove that class from public API, this class will easily merge into it.
+ * This class hosts the logic from BeanPropertyArguments.
+ * When we can remove that class from public API, this class will easily replace it.
  */
-@SuppressWarnings("deprecation")
-public class PojoPropertyArguments extends BeanPropertyArguments {
+public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
+    private final PojoProperties<?> properties;
     private final StatementContext ctx;
 
-    public PojoPropertyArguments(String prefix, Object bean, StatementContext ctx) {
-        super(prefix, bean, ctx.getConfig(PojoPropertiesFactories.class).propertiesOf(bean.getClass()));
+    public PojoPropertyArguments(String prefix, Object obj, StatementContext ctx) {
+        this(prefix, obj, ctx.getConfig(PojoPropertiesFactories.class).propertiesOf(obj.getClass()), ctx);
+    }
+
+    protected PojoPropertyArguments(String prefix, Object obj, PojoProperties<?> properties, StatementContext ctx) {
+        super(prefix, obj);
+        this.properties = properties;
         this.ctx = ctx;
+    }
+
+    @Override
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx2) {
+        @SuppressWarnings("unchecked")
+        PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
+
+        if (property == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new TypedValue(property.getQualifiedType(), property.get(obj)));
     }
 
     @Override
     protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
         return new PojoPropertyArguments(null, o, ctx);
+    }
+
+    @Override
+    public String toString() {
+        return "{lazy bean property arguments \"" + obj + "\"}";
     }
 }
