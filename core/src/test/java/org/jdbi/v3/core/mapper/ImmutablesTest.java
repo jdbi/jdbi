@@ -59,20 +59,22 @@ public class ImmutablesTest {
     @Test
     public void simpleTest() {
         jdbi.installPlugin(ImmutablesPlugin.forImmutable(Train.class));
-        h.execute("create table train (name varchar, carriages int, observation_car boolean)");
+        try (Handle handle = jdbi.open()) {
+            handle.execute("create table train (name varchar, carriages int, observation_car boolean)");
 
-        assertThat(
-            h.createUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
-                .bindPojo(ImmutableTrain.builder().name("Zephyr").carriages(8).observationCar(true).build())
-                .execute())
-            .isEqualTo(1);
+            assertThat(
+                handle.createUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
+                    .bindPojo(ImmutableTrain.builder().name("Zephyr").carriages(8).observationCar(true).build())
+                    .execute())
+                .isEqualTo(1);
 
-        assertThat(
-            h.createQuery("select * from train")
-                .mapTo(Train.class)
-                .findOnly())
-            .extracting("name", "carriages", "observationCar")
-            .containsExactly("Zephyr", 8, true);
+            assertThat(
+                handle.createQuery("select * from train")
+                    .mapTo(Train.class)
+                    .findOnly())
+                .extracting("name", "carriages", "observationCar")
+                .containsExactly("Zephyr", 8, true);
+        }
     }
     // end::example[]
 
