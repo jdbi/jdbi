@@ -75,7 +75,8 @@ public final class QualifiedType {
      * @param qualifiers the qualifiers for the new qualified type.
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
      */
-    public QualifiedType with(Class<? extends Annotation>... qualifiers) {
+    @SafeVarargs
+    public final QualifiedType with(Class<? extends Annotation>... qualifiers) {
         return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
     }
 
