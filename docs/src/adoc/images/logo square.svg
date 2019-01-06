@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="svg"
+     version="1.1"
+     width="160"
+     height="160"
+     style="display: block;">
+    <g id="svgg">
+        <!-- dots -->
+        <path id="path0"
+              d="M  20  45
+                 L  20  55
+                 L  30  55
+                 L  30  45
+                 L  20  45
+
+                 M 140  45
+                 L 140  55
+                 L 150  55
+                 L 150  45
+                 L 140  45"
+              stroke="none"
+              fill="#c00"
+              fill-rule="evenodd">
+        </path>
+
+        <!-- letters -->
+        <path id="path1"
+              d="M  10 125
+                 L  10 135
+                 L  30 135
+                 L  30  75
+                 L  20  75
+                 L  20 125
+                 L  10 125
+
+                 M  70  45
+                 L  70  75
+                 L  40  75
+                 L  40 115
+                 L  80 115
+                 L  80  93.571
+                 L  70  90.714
+                 L  70 105
+                 L  50 105
+                 L  50  85
+                 L  80  85
+                 L  80  45
+                 L  70  45
+
+                 M  90  45
+                 L  90  96.428
+                 L 100 100.285
+                 L 100  85
+                 L 120  85
+                 L 120 105
+                 L  90 105
+                 L  90 115
+                 L 130 115
+                 L 130  75
+                 L 100  75
+                 L 100  45
+                 L  90  45
+
+                 M 140  95
+                 L 140 115
+                 L 150 115
+                 L 150  75
+                 L 140  75
+                 L 140  95"
+              stroke="none"
+              fill="#005"
+              fill-rule="evenodd">
+        </path>
+    </g>
+</svg>
