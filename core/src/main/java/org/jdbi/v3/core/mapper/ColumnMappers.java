@@ -185,7 +185,8 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
 
         Optional<ColumnMapper<T>> mapper = factories.stream()
                 .flatMap(factory -> toStream(factory.build(type, registry)))
-                .findFirst();
+                .findFirst()
+                .map(m -> (ColumnMapper<T>) m);
 
         mapper.ifPresent(m -> cache.put(type, m));
 

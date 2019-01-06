@@ -23,27 +23,16 @@ import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 @FunctionalInterface
 interface QualifiedColumnMapperFactory {
-    <T> Optional<ColumnMapper<T>> build(QualifiedType<T> type, ConfigRegistry config);
+    Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config);
 
     static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {
         Set<Annotation> qualifiers = getQualifiers(factory.getClass());
-
-        return new QualifiedColumnMapperFactory() {
-            @Override
-            public <T> Optional<ColumnMapper<T>> build(QualifiedType<T> type, ConfigRegistry config) {
-                return type.getQualifiers().equals(qualifiers)
-                    ? factory.build(type.getType(), config).map(m -> (ColumnMapper<T>) m)
-                    : Optional.empty();
-            }
-        };
+        return (type, config) -> type.getQualifiers().equals(qualifiers)
+            ? factory.build(type.getType(), config)
+            : Optional.empty();
     }
 
     static <T> QualifiedColumnMapperFactory of(QualifiedType<T> type, ColumnMapper<T> mapper) {
-        return new QualifiedColumnMapperFactory() {
-            @Override
-            public <X> Optional<ColumnMapper<X>> build(QualifiedType<X> t, ConfigRegistry config) {
-                return t.equals(type) ? Optional.of((ColumnMapper<X>) mapper) : Optional.empty();
-            }
-        };
+        return (t, config) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
     }
 }
