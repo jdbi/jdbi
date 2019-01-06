@@ -19,6 +19,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
 
 /**
+ * Deserializes JSON to Java objects, and serializes Java objects to JSON.
+ *
  * Implement this interface and {@link JsonConfig#setJsonMapper(JsonMapper)} it
  * to be able to convert objects to/from JSON between your application and database.
  *

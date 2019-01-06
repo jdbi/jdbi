@@ -15,6 +15,7 @@ package org.jdbi.v3.json;
 
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StubJsonMapperTest {
     @Rule
-    public final JdbiRule h2 = JdbiRule.h2().withPlugins();
+    public final JdbiRule h2 = JdbiRule.h2().withPlugin(new SqlObjectPlugin()).withPlugin(new JsonPlugin());
 
     @Test
     public void defaultFactoriesAreWorkingForSqlObject() {

@@ -3782,29 +3782,70 @@ jdbi.installPlugin(new H2DatabasePlugin());
 
 === JSON
 
-This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` text in your database.
-Currently tested with Postgres `json` types.
+The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
 
-[WARNING]
-This feature requires a backing implementation (see below),
-similar to how SLF4J is only an API and needs a runtime backend.
+The actual JSON (de)serialization code is not included. For that, you must install a backing plugin (see below).
+
+[TIP]
+Backing plugins will install the `JsonPlugin` for you.
+You do *not* need to install it yourself or include the `jdbi3-json` dependency directly.
+
+The feature has been tested with Postgres `json` columns
+and `varchar` columns in H2 and Sqlite.
+
+==== Jackson 2
+
+This plugin provides JSON backing through Jackson 2.
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-jackson2</artifactId>
+</dependency>
+----
+
+[source,java]
+----
+jdbi.installPlugin(new Jackson2Plugin());
+// optional
+jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+----
+
+==== Gson 2
+
+This plugin provides JSON backing through Gson 2.
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-gson2</artifactId>
+</dependency>
+----
+
+[source,java]
+----
+jdbi.installPlugin(new Gson2Plugin());
+// optional
+jdbi.getConfig(Gson2Config.class).setGson(myGson);
+----
 
 ==== Operation
 
-Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` instances —
-will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^] link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_
-as `@Json String`. This `json text` will then be passed into the binding process anew.
-
-An ArgumentFactory qualified for `@Json String` will be called first, if any are registered, to give
-databases a chance to offer their specific `json` support.
-Otherwise, regular `String` factories will be called to bind the jsonified object as plaintext.
+Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` —
+will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^]
+link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_ as `@Json String`.
+A correspondingly qualified `ArgumentFactory` will then be called to store the JSON data,
+allowing special JSON handling for your database to be implemented.
+If none are found, a factory for plain `String` will be used instead, to handle the JSON as plaintext.
 
 Mapping works just the same way, but in reverse: an output type qualified as `@Json T` will be fetched from a
 `@Json String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
 
 [TIP]
-Our PostgresPlugin provides such qualified factories that will
-bind the `@Json String` to `json`-typed columns.
+Our PostgresPlugin provides qualified factories that will
+bind/map the `@Json String` to/from `json` or `jsonb`-typed columns.
 
 ==== Usage
 
@@ -3832,7 +3873,7 @@ interface MyJsonDao {
     List<MyJson> select();
 }
 
-// also works on bean or property-mapped properties:
+// also works on bean or property-mapped objects:
 class MyBean {
     private final MyJson property;
     @Json
@@ -3855,29 +3896,6 @@ MyJson result = h.createQuery("select json from myjsons")
     .findOnly();
 
 ----
-
-==== Jackson 2
-
-This plugin provides `json` backing through Jackson 2.
-
-[source,java]
-----
-jdbi.installPlugin(new Jackson2Plugin());
-// optional
-jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
-----
-
-==== Gson 2
-
-This plugin provides `json` backing through Gson 2.
-
-[source,java]
-----
-jdbi.installPlugin(new Gson2Plugin());
-// optional
-jdbi.getConfig(Gson2Config.class).setGson(myGson);
-----
-
 
 === JodaTime
 
