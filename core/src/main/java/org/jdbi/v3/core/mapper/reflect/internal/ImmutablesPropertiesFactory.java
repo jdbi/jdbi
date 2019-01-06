@@ -62,8 +62,8 @@ public class ImmutablesPropertiesFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, M extends T> Function<Type, PojoProperties<T>> modifiable(Class<T> defn, Supplier<M> constructor) {
-        return t -> (PojoProperties<T>) MODIFIABLE_PROPERTIES.computeIfAbsent(t, x -> new ModifiablePojoProperties<>(t, defn, constructor));
+    public static <T, M extends T> Function<Type, PojoProperties<T>> modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
+        return t -> (PojoProperties<T>) MODIFIABLE_PROPERTIES.computeIfAbsent(t, x -> new ModifiablePojoProperties<>(t, defn, impl, constructor));
     }
 
     static MethodHandle alwaysSet() {
@@ -72,12 +72,14 @@ public class ImmutablesPropertiesFactory {
 
     abstract static class BasePojoProperties<T, B> extends PojoProperties<T> {
         protected final Map<String, ImmutablesPojoProperty<T>> properties = new HashMap<>();
-        protected final Class<?> defn;
+        protected final Class<T> defn;
+        protected final Class<?> impl;
         protected final Supplier<?> builder;
 
-        BasePojoProperties(Type type, Class<?> defn, Supplier<B> builder) {
+        BasePojoProperties(Type type, Class<T> defn, Class<?> impl, Supplier<B> builder) {
             super(type);
             this.defn = defn;
+            this.impl = impl;
             this.builder = builder;
             for (Method m : defn.getMethods()) {
                 if (isProperty(m)) {
@@ -120,8 +122,8 @@ public class ImmutablesPropertiesFactory {
     static class ImmutablePojoProperties<T, B> extends BasePojoProperties<T, B> {
         private MethodHandle builderBuild;
 
-        ImmutablePojoProperties(Type type, Class<?> defn, Supplier<B> builder) {
-            super(type, defn, builder);
+        ImmutablePojoProperties(Type type, Class<T> defn, Supplier<B> builder) {
+            super(type, defn, null, builder);
             try {
                 builderBuild = MethodHandles.lookup().unreflect(builder.get().getClass().getMethod("build"));
             } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -176,30 +178,28 @@ public class ImmutablesPropertiesFactory {
                     Unchecked.biFunction(properties.get(property).setter::invoke).apply(b, value);
                 }
 
-                @SuppressWarnings("unchecked")
                 @Override
                 public T build() {
-                    return (T) Unchecked.function(builderBuild::invoke).apply(b);
+                    return defn.cast(Unchecked.function(builderBuild::invoke).apply(b));
                 }
             };
         }
     }
 
     static class ModifiablePojoProperties<T, M extends T> extends BasePojoProperties<T, M> {
-        ModifiablePojoProperties(Type type, Class<?> defn, Supplier<M> constructor) {
-            super(type, defn, constructor);
+        ModifiablePojoProperties(Type type, Class<T> defn, Class<M> impl, Supplier<M> constructor) {
+            super(type, defn, impl, constructor);
         }
 
         @Override
         protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
-            final Class<M> impl = implClass();
             final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
             try {
                 return new ImmutablesPojoProperty<T>(
                         name,
                         QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
                         m,
-                        isSetMethod(impl, name),
+                        isSetMethod(name),
                         MethodHandles.lookup().unreflect(m),
                         MethodHandles.lookup().findVirtual(impl, setterName(name), MethodType.methodType(impl, GenericTypes.getErasedType(propertyType))));
             } catch (IllegalAccessException | NoSuchMethodException e) {
@@ -207,12 +207,7 @@ public class ImmutablesPropertiesFactory {
             }
         }
 
-        @SuppressWarnings("unchecked")
-        private Class<M> implClass() {
-            return (Class<M>) builder.get().getClass();
-        }
-
-        private MethodHandle isSetMethod(Class<M> impl, String name) {
+        private MethodHandle isSetMethod(String name) {
             try {
                 return MethodHandles.lookup().findVirtual(impl, name + "IsSet", MethodType.methodType(boolean.class));
             } catch (NoSuchMethodException e) {

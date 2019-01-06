@@ -96,7 +96,7 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
      * @return a plugin that configures type mapping for the given class
      */
     public static <S, M extends S> ImmutablesPlugin<S> forModifiable(Class<S> spec, Class<M> impl, Supplier<?> constructor) {
-        return new ImmutablesPlugin<S>(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, () -> impl.cast(constructor.get())));
+        return new ImmutablesPlugin<S>(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
     }
 
     private static Optional<Supplier<?>> nullaryMethodOf(Class<?> impl, String methodName) {
