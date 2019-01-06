@@ -145,7 +145,7 @@ public class ImmutablesTest {
         static Builder builder() {
             return new Builder();
         }
-        static class Builder extends ImmutableGetter.Builder {}
+        class Builder extends ImmutableGetter.Builder {}
     }
 
     @Test

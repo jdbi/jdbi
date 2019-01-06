@@ -88,7 +88,7 @@ public class ImmutablesPropertiesFactory {
         }
 
         private static String propertyName(Method m) {
-            final String[] prefixes = new String[] { "get", "is" };
+            final String[] prefixes = new String[] {"get", "is"};
             final String name = m.getName();
             for (String prefix : prefixes) {
                 if (name.startsWith(prefix)) {
