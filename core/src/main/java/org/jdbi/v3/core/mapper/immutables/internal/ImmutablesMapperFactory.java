@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper.immutables.internal;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -40,12 +41,11 @@ public class ImmutablesMapperFactory<T> implements RowMapperFactory {
         this.properties = properties;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (defn.equals(erasedType) || impl.equals(erasedType)) {
-            return Optional.of(new PojoMapper<>((Class<T>) erasedType, properties.apply(type), ""));
+            return Optional.of(new PojoMapper<>(defn, properties.apply(type), ""));
         }
         return Optional.empty();
     }
