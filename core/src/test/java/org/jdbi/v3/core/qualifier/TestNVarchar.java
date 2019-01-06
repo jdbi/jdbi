@@ -34,7 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TestNVarchar {
-    private static final QualifiedType NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
+    private static final QualifiedType<?> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();

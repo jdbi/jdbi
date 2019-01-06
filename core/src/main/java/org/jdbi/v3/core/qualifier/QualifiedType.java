@@ -35,7 +35,7 @@ import org.jdbi.v3.meta.Beta;
  * if their {@link #getType()} and {@link #getQualifiers()} properties are equal.
  */
 @Beta
-public final class QualifiedType {
+public final class QualifiedType<T> {
     private final Type type;
     private final Set<Annotation> qualifiers;
 
@@ -43,15 +43,15 @@ public final class QualifiedType {
      * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
      * as using {@code type} raw.
      */
-    public static QualifiedType of(Type type) {
-        return new QualifiedType(type, emptySet());
+    public static QualifiedType<?> of(Type type) {
+        return new QualifiedType<>(type, emptySet());
     }
 
     /**
      * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
      * as using {@code type} raw.
      */
-    public static QualifiedType of(GenericType<?> type) {
+    public static QualifiedType<?> of(GenericType<?> type) {
         return of(type.getType());
     }
 
@@ -65,7 +65,7 @@ public final class QualifiedType {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType with(Annotation... qualifiers) {
+    public QualifiedType<?> with(Annotation... qualifiers) {
         return with(Arrays.asList(qualifiers));
     }
 
@@ -76,7 +76,7 @@ public final class QualifiedType {
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
      */
     @SafeVarargs
-    public final QualifiedType with(Class<? extends Annotation>... qualifiers) {
+    public final QualifiedType<?> with(Class<? extends Annotation>... qualifiers) {
         return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
     }
 
@@ -85,8 +85,8 @@ public final class QualifiedType {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType with(Collection<? extends Annotation> qualifiers) {
-        return new QualifiedType(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
+    public QualifiedType<?> with(Collection<? extends Annotation> qualifiers) {
+        return new QualifiedType<>(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
     }
 
     /**
@@ -111,8 +111,8 @@ public final class QualifiedType {
      * @param mapper a mapping function to apply to the type
      * @return an optional qualified type with the mapped type and the same qualifiers
      */
-    public Optional<QualifiedType> mapType(Function<Type, Optional<Type>> mapper) {
-        return mapper.apply(type).map(mappedType -> new QualifiedType(mappedType, qualifiers));
+    public Optional<QualifiedType<?>> mapType(Function<Type, Optional<Type>> mapper) {
+        return mapper.apply(type).map(mappedType -> new QualifiedType<>(mappedType, qualifiers));
     }
 
     @Override
@@ -123,7 +123,7 @@ public final class QualifiedType {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        QualifiedType that = (QualifiedType) o;
+        QualifiedType<?> that = (QualifiedType<?>) o;
         return Objects.equals(type, that.type)
             && Objects.equals(qualifiers, that.qualifiers);
     }

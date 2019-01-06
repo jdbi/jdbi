@@ -126,7 +126,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     @Beta
-    default ResultIterable<?> mapTo(QualifiedType type) {
+    default ResultIterable<?> mapTo(QualifiedType<?> type) {
         return scanResultSet((supplier, ctx) -> {
             RowMapper<?> mapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));

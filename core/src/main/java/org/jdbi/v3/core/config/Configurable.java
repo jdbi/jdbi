@@ -267,7 +267,7 @@ public interface Configurable<This> {
      * @return this
      */
     @Beta
-    default This registerColumnMapper(QualifiedType type, ColumnMapper<?> mapper) {
+    default This registerColumnMapper(QualifiedType<?> type, ColumnMapper<?> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
 
