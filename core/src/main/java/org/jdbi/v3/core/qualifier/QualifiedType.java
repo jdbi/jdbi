@@ -40,19 +40,28 @@ public final class QualifiedType<T> {
     private final Set<Annotation> qualifiers;
 
     /**
-     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
-     * as using {@code type} raw.
+     * Creates a {@code QualifiedType<T>} for a {@code Class<T>} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
+     */
+    public static <T> QualifiedType<T> of(Class<T> clazz) {
+        return new QualifiedType<>(clazz, emptySet());
+    }
+
+    /**
+     * Creates a wildcard {@code QualifiedType<?>} for a {@link Type} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
      */
     public static QualifiedType<?> of(Type type) {
         return new QualifiedType<>(type, emptySet());
     }
 
     /**
-     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
-     * as using {@code type} raw.
+     * Creates a {@code QualifiedType<T>} for a {@code GenericType<T>} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
      */
-    public static QualifiedType<?> of(GenericType<?> type) {
-        return of(type.getType());
+    @SuppressWarnings("unchecked")
+    public static <T> QualifiedType<T> of(GenericType<T> type) {
+        return (QualifiedType<T>) of(type.getType());
     }
 
     private QualifiedType(Type type, Set<Annotation> qualifiers) {
@@ -65,7 +74,7 @@ public final class QualifiedType<T> {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType<?> with(Annotation... qualifiers) {
+    public QualifiedType<T> with(Annotation... qualifiers) {
         return with(Arrays.asList(qualifiers));
     }
 
@@ -76,7 +85,7 @@ public final class QualifiedType<T> {
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
      */
     @SafeVarargs
-    public final QualifiedType<?> with(Class<? extends Annotation>... qualifiers) {
+    public final QualifiedType<T> with(Class<? extends Annotation>... qualifiers) {
         return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
     }
 
@@ -85,7 +94,7 @@ public final class QualifiedType<T> {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType<?> with(Collection<? extends Annotation> qualifiers) {
+    public QualifiedType<T> with(Collection<? extends Annotation> qualifiers) {
         return new QualifiedType<>(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
     }
 
