@@ -3799,12 +3799,13 @@ to `Jdbi` properties binding and row mapping.
 
 [WARNING]
 Immutables support is still experimental and does not yet support custom naming schemes.
+We do support the configurable `get`, `is`, and `set` prefixes.
 
 Just tell us about your types by installing the plugin (possibly multiple times):
 
 `jdbi.installPlugin(ImmutablesPlugin.forImmutable(MyValueType.class))`
 
-and we do the rest:
+The plugin will both register appropriate `RowMapper`s as well as configure the new `bindPojo` (or `@BindPojo`) binders:
 
 [source,java,indent=0]
 ----

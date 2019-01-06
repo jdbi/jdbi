@@ -48,7 +48,6 @@ public class ImmutablesTest {
     }
 
     // tag::example[]
-    // First, install the plugin: ;
 
     @Value.Immutable
     public interface Train {

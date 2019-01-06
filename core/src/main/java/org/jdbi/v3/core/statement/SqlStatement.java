@@ -199,9 +199,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Binds named parameters from JavaBean properties on the bean argument, with the given prefix.
-     *
-     * Example: the prefix {@code foo} applied to a bean property {@code bar} will be bound as {@code foo.bar}.
+     * Binds named parameters from object properties on the bean argument, with the given prefix.
      *
      * @param prefix a prefix to apply to all property names.
      * @param pojo source of named parameter values to use as arguments
