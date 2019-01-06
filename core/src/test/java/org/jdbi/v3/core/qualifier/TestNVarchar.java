@@ -76,13 +76,13 @@ public class TestNVarchar {
 
             assertThat(
                 handle.select("SELECT name FROM nvarchars ORDER BY id")
-                    .mapTo(String.class, NVarchar.class)
+                    .mapTo(QualifiedType.of(String.class).with(NVarchar.class))
                     .list())
                 .containsExactly("foo", "bar", "baz", "qux");
 
             assertThat(
                 handle.select("SELECT name FROM nvarchars ORDER BY id")
-                    .mapTo(new GenericType<String>() {}, NVarchar.class)
+                    .mapTo(QualifiedType.of(new GenericType<String>() {}).with(NVarchar.class))
                     .list())
                 .containsExactly("foo", "bar", "baz", "qux");
 
