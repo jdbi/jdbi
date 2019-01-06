@@ -228,10 +228,10 @@ abstract class ResultReturner {
         }
     }
 
-    static class SingleValueReturner extends ResultReturner {
-        private final QualifiedType<?> returnType;
+    static class SingleValueReturner<T> extends ResultReturner {
+        private final QualifiedType<T> returnType;
 
-        SingleValueReturner(QualifiedType<?> returnType) {
+        SingleValueReturner(QualifiedType<T> returnType) {
             this.returnType = returnType;
         }
 
@@ -246,15 +246,15 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<T> elementType(StatementContext ctx) {
             return returnType;
         }
     }
 
-    static class CollectedResultReturner extends ResultReturner {
-        private final QualifiedType<?> returnType;
+    static class CollectedResultReturner<T> extends ResultReturner {
+        private final QualifiedType<T> returnType;
 
-        CollectedResultReturner(QualifiedType<?> returnType) {
+        CollectedResultReturner(QualifiedType<T> returnType) {
             this.returnType = returnType;
         }
 

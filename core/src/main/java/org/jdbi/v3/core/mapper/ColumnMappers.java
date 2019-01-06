@@ -162,7 +162,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findFor(Type type) {
-        return findFor(QualifiedType.of(type));
+        return findFor(QualifiedType.of(type)).map(m -> (ColumnMapper<?>) m);
     }
 
     /**
@@ -176,13 +176,14 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        ColumnMapper<?> cached = cache.get(type);
+        @SuppressWarnings("unchecked")
+        ColumnMapper<T> cached = (ColumnMapper<T>) cache.get(type);
 
         if (cached != null) {
             return Optional.of(cached);
         }
 
-        Optional<ColumnMapper<?>> mapper = factories.stream()
+        Optional<ColumnMapper<T>> mapper = factories.stream()
                 .flatMap(factory -> toStream(factory.build(type, registry)))
                 .findFirst();
 

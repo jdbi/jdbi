@@ -89,7 +89,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      * is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type) {
-        return findFor(QualifiedType.of(type));
+        return findFor(QualifiedType.of(type)).map(rowMapper -> (RowMapper<?>) rowMapper);
     }
 
     /**
@@ -106,7 +106,7 @@ public class Mappers implements JdbiConfig<Mappers> {
     @Beta
     public <T> Optional<RowMapper<T>> findFor(QualifiedType<T> type) {
         if (type.getQualifiers().isEmpty()) {
-            Optional<RowMapper<?>> result = rowMappers.findFor(type.getType());
+            Optional<RowMapper<T>> result = rowMappers.findFor(type.getType()).map(m -> (RowMapper<T>) m);
             if (result.isPresent()) {
                 return result;
             }

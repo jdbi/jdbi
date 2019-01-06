@@ -80,9 +80,8 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(Class<T> type) {
-        return (ResultIterable<T>) mapTo((Type) type);
+        return mapTo(QualifiedType.of(type));
     }
 
     /**
@@ -96,9 +95,8 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    @SuppressWarnings("unchecked")
     default <T> ResultIterable<T> mapTo(GenericType<T> type) {
-        return (ResultIterable<T>) mapTo(type.getType());
+        return mapTo(QualifiedType.of(type));
     }
 
     /**
@@ -128,7 +126,7 @@ public interface ResultBearing {
     @Beta
     default <T> ResultIterable<T> mapTo(QualifiedType<T> type) {
         return scanResultSet((supplier, ctx) -> {
-            RowMapper<?> mapper = ctx.findMapperFor(type)
+            RowMapper<T> mapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
             return ResultIterable.of(supplier, mapper, ctx);
         });

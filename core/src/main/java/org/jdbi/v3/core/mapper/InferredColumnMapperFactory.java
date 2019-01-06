@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 import java.util.Optional;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A generic QualifiedColumnMapperFactory that reflectively inspects a
@@ -44,7 +43,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
     @Override
     public <T> Optional<ColumnMapper<T>> build(QualifiedType<T> type, ConfigRegistry config) {
         return maps.equals(type)
-                ? Optional.of(mapper)
+                ? Optional.of(mapper).map(m -> (ColumnMapper) m)
                 : Optional.empty();
     }
 }

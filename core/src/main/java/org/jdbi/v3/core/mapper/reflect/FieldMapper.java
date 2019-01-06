@@ -149,7 +149,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                             QualifiedType<?> type = QualifiedType.of(field.getGenericType())
                                 .with(getQualifiers(field));
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
-                                .orElse((r, n, c) -> r.getObject(n));
+                                .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
                             mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                             fields.add(field);
 
