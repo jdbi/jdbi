@@ -34,7 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TestNVarchar {
-    private static final QualifiedType<?> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
+    private static final QualifiedType<String> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule();
@@ -87,7 +87,7 @@ public class TestNVarchar {
                 .containsExactly("foo", "bar", "baz", "qux");
 
             List rawList = handle.select("SELECT name FROM nvarchars ORDER BY id")
-                .mapTo(NVARCHAR_STRING)
+                .mapTo((QualifiedType<?>) NVARCHAR_STRING)
                 .list();
             assertThat(rawList)
                 .containsExactly("foo", "bar", "baz", "qux");

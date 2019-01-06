@@ -225,7 +225,7 @@ public class StatementContext implements Closeable {
      * is registered for the given type.
      */
     @Beta
-    public Optional<RowMapper<?>> findMapperFor(QualifiedType<?> type) {
+    public <T> Optional<RowMapper<T>> findMapperFor(QualifiedType<T> type) {
         return getConfig(Mappers.class).findFor(type);
     }
 
@@ -268,7 +268,7 @@ public class StatementContext implements Closeable {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     @Beta
-    public Optional<ColumnMapper<?>> findColumnMapperFor(QualifiedType<?> type) {
+    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(QualifiedType<T> type) {
         return getConfig(ColumnMappers.class).findFor(type);
     }
 

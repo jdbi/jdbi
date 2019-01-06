@@ -42,7 +42,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
+    public <T> Optional<ColumnMapper<T>> build(QualifiedType<T> type, ConfigRegistry config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

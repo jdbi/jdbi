@@ -24,7 +24,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 
 @FunctionalInterface
 interface QualifiedColumnMapperFactory {
-    Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config);
+    <T> Optional<ColumnMapper<T>> build(QualifiedType<T> type, ConfigRegistry config);
 
     static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {
         Set<Annotation> qualifiers = getQualifiers(factory.getClass());
@@ -33,7 +33,7 @@ interface QualifiedColumnMapperFactory {
             : Optional.empty();
     }
 
-    static QualifiedColumnMapperFactory of(QualifiedType<?> type, ColumnMapper<?> mapper) {
+    static <T> QualifiedColumnMapperFactory of(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return (t, c) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
     }
 }
