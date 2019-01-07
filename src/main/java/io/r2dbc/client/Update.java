@@ -21,8 +21,6 @@ import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
 import reactor.core.publisher.Flux;
 
-import java.util.Objects;
-
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running updates such as {@code INSERT} and {@code DELETE}.
  */

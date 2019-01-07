@@ -46,6 +46,11 @@ final class MssqlExample implements Example<String> {
     private final R2dbc r2dbc = new R2dbc(new MssqlConnectionFactory(this.configuration));
 
     @Override
+    public String getIdentifier(int index) {
+        return String.format("P%d", index);
+    }
+
+    @Override
     public JdbcOperations getJdbcOperations() {
         JdbcOperations jdbcOperations = SERVER.getJdbcOperations();
 
@@ -54,11 +59,6 @@ final class MssqlExample implements Example<String> {
         }
 
         return jdbcOperations;
-    }
-
-    @Override
-    public String getIdentifier(int index) {
-        return String.format("P%d", index);
     }
 
     @Override
