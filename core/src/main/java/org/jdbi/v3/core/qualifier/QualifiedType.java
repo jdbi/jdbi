@@ -35,24 +35,33 @@ import org.jdbi.v3.meta.Beta;
  * if their {@link #getType()} and {@link #getQualifiers()} properties are equal.
  */
 @Beta
-public final class QualifiedType {
+public final class QualifiedType<T> {
     private final Type type;
     private final Set<Annotation> qualifiers;
 
     /**
-     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
-     * as using {@code type} raw.
+     * Creates a {@code QualifiedType<T>} for a {@code Class<T>} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
      */
-    public static QualifiedType of(Type type) {
-        return new QualifiedType(type, emptySet());
+    public static <T> QualifiedType<T> of(Class<T> clazz) {
+        return new QualifiedType<>(clazz, emptySet());
     }
 
     /**
-     * Creates a QualifiedType for {@code type} with no qualifiers. In practice, the returned object is treated the same
-     * as using {@code type} raw.
+     * Creates a wildcard {@code QualifiedType<?>} for a {@link Type} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
      */
-    public static QualifiedType of(GenericType<?> type) {
-        return of(type.getType());
+    public static QualifiedType<?> of(Type type) {
+        return new QualifiedType<>(type, emptySet());
+    }
+
+    /**
+     * Creates a {@code QualifiedType<T>} for a {@code GenericType<T>} with no extra qualifiers.
+     * This alone isn't useful; you should call {@link #with} as well.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> QualifiedType<T> of(GenericType<T> type) {
+        return (QualifiedType<T>) of(type.getType());
     }
 
     private QualifiedType(Type type, Set<Annotation> qualifiers) {
@@ -65,7 +74,7 @@ public final class QualifiedType {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType with(Annotation... qualifiers) {
+    public QualifiedType<T> with(Annotation... qualifiers) {
         return with(Arrays.asList(qualifiers));
     }
 
@@ -75,7 +84,8 @@ public final class QualifiedType {
      * @param qualifiers the qualifiers for the new qualified type.
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
      */
-    public QualifiedType with(Class<? extends Annotation>... qualifiers) {
+    @SafeVarargs
+    public final QualifiedType<T> with(Class<? extends Annotation>... qualifiers) {
         return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
     }
 
@@ -84,8 +94,8 @@ public final class QualifiedType {
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType with(Collection<? extends Annotation> qualifiers) {
-        return new QualifiedType(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
+    public QualifiedType<T> with(Collection<? extends Annotation> qualifiers) {
+        return new QualifiedType<>(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
     }
 
     /**
@@ -104,14 +114,14 @@ public final class QualifiedType {
 
     /**
      * Apply the provided mapping function to the type, and if non-empty is returned,
-     * return an {@code Optional<QualifiedType>} with the returned type, and the same
+     * return an {@code Optional<QualifiedType<?>>} with the returned type, and the same
      * qualifiers as this instance.
      *
      * @param mapper a mapping function to apply to the type
      * @return an optional qualified type with the mapped type and the same qualifiers
      */
-    public Optional<QualifiedType> mapType(Function<Type, Optional<Type>> mapper) {
-        return mapper.apply(type).map(mappedType -> new QualifiedType(mappedType, qualifiers));
+    public Optional<QualifiedType<?>> mapType(Function<Type, Optional<Type>> mapper) {
+        return mapper.apply(type).map(mappedType -> new QualifiedType<>(mappedType, qualifiers));
     }
 
     @Override
@@ -122,7 +132,7 @@ public final class QualifiedType {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        QualifiedType that = (QualifiedType) o;
+        QualifiedType<?> that = (QualifiedType<?>) o;
         return Objects.equals(type, that.type)
             && Objects.equals(qualifiers, that.qualifiers);
     }

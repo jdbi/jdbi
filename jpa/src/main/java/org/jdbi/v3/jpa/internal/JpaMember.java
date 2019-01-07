@@ -34,7 +34,7 @@ public class JpaMember {
 
     private final Class<?> clazz;
     private final String columnName;
-    private final QualifiedType qualifiedType;
+    private final QualifiedType<?> qualifiedType;
     private final Getter accessor;
     private final Setter mutator;
 
@@ -68,7 +68,7 @@ public class JpaMember {
         return columnName;
     }
 
-    public QualifiedType getQualifiedType() {
+    public QualifiedType<?> getQualifiedType() {
         return qualifiedType;
     }
 

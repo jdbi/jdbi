@@ -33,10 +33,10 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                                                               int index,
                                                               Type type) {
         return (stmt, arg) -> {
-            final QualifiedType mapTo;
+            final QualifiedType<?> mapTo;
 
             if (arg instanceof QualifiedType) {
-                mapTo = (QualifiedType) arg;
+                mapTo = (QualifiedType<?>) arg;
             } else if (arg instanceof GenericType) {
                 mapTo = QualifiedType.of(((GenericType<?>) arg).getType());
             } else if (arg instanceof Type) {

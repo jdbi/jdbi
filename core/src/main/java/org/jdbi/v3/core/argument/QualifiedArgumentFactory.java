@@ -26,7 +26,7 @@ import org.jdbi.v3.meta.Beta;
 @FunctionalInterface
 @Beta
 interface QualifiedArgumentFactory {
-    Optional<Argument> build(QualifiedType type, Object value, ConfigRegistry config);
+    Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config);
 
     static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
         Set<Annotation> qualifiers = getQualifiers(factory.getClass());

@@ -103,7 +103,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     @Beta
-    public Optional<Argument> findFor(QualifiedType type, Object value) {
+    public Optional<Argument> findFor(QualifiedType<?> type, Object value) {
         return factories.stream()
             .flatMap(factory -> toStream(factory.build(type, value, registry)))
             .findFirst();
