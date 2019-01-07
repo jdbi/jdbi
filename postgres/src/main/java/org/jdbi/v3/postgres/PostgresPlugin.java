@@ -114,7 +114,8 @@ public class PostgresPlugin implements JdbiPlugin {
         jdbi.registerArgument(new HStoreArgumentFactory()::build);
         jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
 
-        if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) { // optional integration
+        // optional integration
+        if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) {
             jdbi.registerArgument(new JsonArgumentFactory());
         }
     }

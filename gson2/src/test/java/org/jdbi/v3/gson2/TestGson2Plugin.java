@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.gson2;
 
-import org.jdbi.v3.json.TestJsonPlugin;
+import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 
-public class TestGson2Plugin extends TestJsonPlugin {
+public class TestGson2Plugin extends AbstractJsonMapperTest {
     @Rule
     public JdbiRule db = PostgresDbRule.rule();
 

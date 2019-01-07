@@ -3747,39 +3747,121 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
-=== Jackson 2
+=== JSON
 
-This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` in your database.
-Currently tested with Postgres `json` types.
+The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
+
+The actual JSON (de)serialization code is not included. For that, you must install a backing plugin (see below).
+
+[TIP]
+Backing plugins will install the `JsonPlugin` for you.
+You do *not* need to install it yourself or include the `jdbi3-json` dependency directly.
+
+The feature has been tested with Postgres `json` columns
+and `varchar` columns in H2 and Sqlite.
+
+==== Jackson 2
+
+This plugin provides JSON backing through Jackson 2.
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-jackson2</artifactId>
+</dependency>
+----
 
 [source,java]
 ----
-// First, install the plugin and create a json column
 jdbi.installPlugin(new Jackson2Plugin());
-// You may need database support
-jdbi.installPlugin(new PostgresPlugin());
-jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper); // optional
+// optional
+jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+----
 
-handle.execute("create table jsons (id serial not null, value json not null)");
+==== Gson 2
 
-class Whozit {} // any Jackson serializable type
+This plugin provides JSON backing through Gson 2.
 
-// Then, you can use @Json qualifying type:
-interface JsonDao {
-    @SqlUpdate("insert into jsons (json) values(:value)")
-    int insert(@Json Whozit value); // on parameters
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-gson2</artifactId>
+</dependency>
+----
 
-    @SqlQuery("select value from jsons")
-    @Json // on result types
-    List<Whozit> select();
-}
+[source,java]
+----
+jdbi.installPlugin(new Gson2Plugin());
+// optional
+jdbi.getConfig(Gson2Config.class).setGson(myGson);
+----
 
-// It also works on bean or property-mapped properties:
-class MyBean {
-    private final Whozit property;
+==== Operation
+
+Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` —
+will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^]
+link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_ as `@Json String`.
+A correspondingly qualified `ArgumentFactory` will then be called to store the JSON data,
+allowing special JSON handling for your database to be implemented.
+If none are found, a factory for plain `String` will be used instead, to handle the JSON as plaintext.
+
+Mapping works just the same way, but in reverse: an output type qualified as `@Json T` will be fetched from a
+`@Json String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
+
+[TIP]
+Our PostgresPlugin provides qualified factories that will
+bind/map the `@Json String` to/from `json` or `jsonb`-typed columns.
+
+==== Usage
+
+[source,java]
+----
+handle.execute("create table myjsons (id serial not null, value json not null)");
+----
+
+SqlObject:
+
+[source,java]
+----
+// any json-serializable type
+class MyJson {}
+
+// use @Json qualifier:
+interface MyJsonDao {
+    @SqlUpdate("insert into myjsons (json) values(:value)")
+    // on parameters
+    int insert(@Json MyJson value);
+
+    @SqlQuery("select value from myjsons")
+    // on result types
     @Json
-    public Whozit getProperty() { return ...; }
+    List<MyJson> select();
 }
+
+// also works on bean or property-mapped objects:
+class MyBean {
+    private final MyJson property;
+    @Json
+    public MyJson getProperty() { return ...; }
+}
+----
+
+Fluent API:
+
+[source,java]
+----
+QualifiedType<MyJson> qualifier = QualifiedType.of(MyJson.class).with(Json.class);
+
+h.createUpdate("insert into myjsons(json) values(:json)")
+    .bindByType("json", new MyJson(), qualifier)
+    .execute();
+
+MyJson result = h.createQuery("select json from myjsons")
+    .mapTo(MyJson.class, Json.class)
+    .findOnly();
+
 ----
 
 === JodaTime
