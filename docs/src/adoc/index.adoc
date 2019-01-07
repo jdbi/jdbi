@@ -3848,20 +3848,19 @@ class MyBean {
 }
 ----
 
-Fluent API:
+With the Fluent API, you provide a `QualifiedType<T>` any place you'd normally provide a `Class<T>` or `GenericType<T>`:
 
 [source,java]
 ----
-QualifiedType<MyJson> qualifier = QualifiedType.of(MyJson.class).with(Json.class);
+QualifiedType<MyJson> qualifiedType = QualifiedType.of(MyJson.class).with(Json.class);
 
 h.createUpdate("insert into myjsons(json) values(:json)")
-    .bindByType("json", new MyJson(), qualifier)
+    .bindByType("json", new MyJson(), qualifiedType)
     .execute();
 
 MyJson result = h.createQuery("select json from myjsons")
-    .mapTo(MyJson.class, Json.class)
+    .mapTo(qualifiedType)
     .findOnly();
-
 ----
 
 === Immutables

@@ -100,7 +100,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
-                        @SuppressWarnings("unchecked")
+                        @SuppressWarnings({ "unchecked", "rawtypes" })
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
                             .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
