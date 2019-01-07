@@ -148,6 +148,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                         .ifPresent(index -> {
                             QualifiedType<?> type = QualifiedType.of(field.getGenericType())
                                 .with(getQualifiers(field));
+                            @SuppressWarnings("unchecked")
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
                             mappers.add(new SingleColumnMapper<>(mapper, index + 1));

@@ -188,6 +188,7 @@ public class BeanMapper<T> implements RowMapper<T> {
 
                         QualifiedType<?> type = QualifiedType.of(propertyType(descriptor))
                             .with(getQualifiers(getter, setter, setterParam));
+                        @SuppressWarnings("unchecked")
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                             .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
 
