@@ -19,7 +19,7 @@ public class TypedValue {
     final QualifiedType<?> type;
     final Object value;
 
-    public TypedValue(QualifiedType qualifiedType, Object value) {
+    public TypedValue(QualifiedType<?> qualifiedType, Object value) {
         this.type = qualifiedType;
         this.value = value;
     }

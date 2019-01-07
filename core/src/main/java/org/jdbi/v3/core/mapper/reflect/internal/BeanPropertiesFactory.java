@@ -143,7 +143,7 @@ public class BeanPropertiesFactory {
             }
 
             @Override
-            public QualifiedType getQualifiedType() {
+            public QualifiedType<?> getQualifiedType() {
                 Parameter setterParam = Optional.ofNullable(descriptor.getWriteMethod())
                     .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
                     .orElse(null);

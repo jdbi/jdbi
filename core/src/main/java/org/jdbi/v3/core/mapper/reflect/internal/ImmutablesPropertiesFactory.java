@@ -242,13 +242,13 @@ public class ImmutablesPropertiesFactory {
 
     static class ImmutablesPojoProperty<T> implements PojoProperty<T> {
         private final String name;
-        private final QualifiedType type;
+        private final QualifiedType<?> type;
         private final Method defn;
         private final MethodHandle isSet;
         private final MethodHandle getter;
         final MethodHandle setter;
 
-        ImmutablesPojoProperty(String name, QualifiedType type, Method defn, MethodHandle isSet, MethodHandle getter, MethodHandle setter) {
+        ImmutablesPojoProperty(String name, QualifiedType<?> type, Method defn, MethodHandle isSet, MethodHandle getter, MethodHandle setter) {
             this.name = name;
             this.type = type;
             this.defn = defn;
@@ -263,7 +263,7 @@ public class ImmutablesPropertiesFactory {
         }
 
         @Override
-        public QualifiedType getQualifiedType() {
+        public QualifiedType<?> getQualifiedType() {
             return type;
         }
 

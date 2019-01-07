@@ -75,7 +75,7 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
             return Optional.empty();
         }
 
-        QualifiedType type = QualifiedType.of(method.getGenericReturnType())
+        QualifiedType<?> type = QualifiedType.of(method.getGenericReturnType())
                                 .with(getQualifiers(method));
         Object value = invokeMethod(method, ctx);
 
