@@ -114,7 +114,7 @@ public final class QualifiedType<T> {
 
     /**
      * Apply the provided mapping function to the type, and if non-empty is returned,
-     * return an {@code Optional<QualifiedType>} with the returned type, and the same
+     * return an {@code Optional<QualifiedType<?>>} with the returned type, and the same
      * qualifiers as this instance.
      *
      * @param mapper a mapping function to apply to the type
