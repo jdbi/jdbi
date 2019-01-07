@@ -15,6 +15,8 @@ package org.jdbi.v3.core.statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,13 +28,12 @@ public class TestDefineNamedBindings {
     @Test
     public void testDefineStrings() {
         assertThat(
-            db.getSharedHandle().createQuery("<a><b>lect tru<b> from values(:a, :b)")
-                .define("a", "s")
-                .defineNamedBindings(DefineNamedBindingMode.TO_STRING)
+            db.getSharedHandle().createQuery("select <a> from values(:a) union all select <b> from values(:b)")
+                .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
-                .findOnly())
-        .isTrue();
+                .list())
+        .isEqualTo(Arrays.asList(true, false));
     }
 
     public static class DefinedBean {
@@ -41,7 +42,7 @@ public class TestDefineNamedBindings {
         }
 
         public String getB() {
-            return "e";
+            return null;
         }
     }
 }

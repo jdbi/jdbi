@@ -24,9 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.CheckForNull;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
@@ -39,9 +36,6 @@ public class Binding {
     private final Map<Integer, Argument> positionals = new HashMap<>();
     private final Map<String, Argument> named = new HashMap<>();
     private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
-
-    @CheckForNull
-    private Set<String> names; // lazily computed
 
     /**
      * Bind a positional parameter at the given index (0-based).
@@ -59,9 +53,6 @@ public class Binding {
      */
     public void addNamed(String name, Argument argument) {
         this.named.put(name, argument);
-        if (names != null) {
-            names.add(name);
-        }
     }
 
     /**
@@ -70,9 +61,6 @@ public class Binding {
      */
     public void addNamedArgumentFinder(NamedArgumentFinder args) {
         namedArgumentFinder.add(args);
-        if (names != null) {
-            names.addAll(args.getNames());
-        }
     }
 
     /**
@@ -96,12 +84,9 @@ public class Binding {
     /**
      * @return the set of known binding names
      */
-    @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // false positive
     public Collection<String> getNames() {
-        if (names == null) {
-            names = new HashSet<>(named.keySet());
-            namedArgumentFinder.forEach(args -> names.addAll(args.getNames()));
-        }
+        final Set<String> names = new HashSet<>(named.keySet());
+        namedArgumentFinder.forEach(args -> names.addAll(args.getNames()));
         return Collections.unmodifiableSet(names);
     }
 
@@ -139,7 +124,6 @@ public class Binding {
         positionals.clear();
         named.clear();
         namedArgumentFinder.clear();
-        names = null;
     }
 
     /**

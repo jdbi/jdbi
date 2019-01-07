@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.sqlobject.customizer.DefineNamedBindings;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 
@@ -28,6 +27,6 @@ public class DefineNamedBindingsFactory implements SqlStatementCustomizerFactory
 
     @Override
     public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-        return s -> s.defineNamedBindings(((DefineNamedBindings) annotation).mode());
+        return s -> s.defineNamedBindings();
     }
 }

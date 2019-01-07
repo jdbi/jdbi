@@ -15,43 +15,17 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
-
-import org.jdbi.v3.core.argument.Argument;
-
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
+import org.jdbi.v3.core.argument.NullArgument;
 
 class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
-    private final DefineNamedBindingMode mode;
-
-    DefineNamedBindingsStatementCustomizer(DefineNamedBindingMode mode) {
-        this.mode = mode;
-    }
-
     @Override
     public void beforeTemplating(PreparedStatement stmt, StatementContext ctx) throws SQLException {
         final Set<String> alreadyDefined = ctx.getAttributes().keySet();
         final Binding binding = ctx.getBinding();
         binding.getNames().stream()
             .filter(name -> !alreadyDefined.contains(name))
-            .flatMap(name -> namedArg(name, binding.findForName(name, ctx)))
-            .forEach(na -> mode.apply(na.arg)
-                .ifPresent(a -> ctx.define(na.name, a)));
-    }
-
-    private Stream<NamedArg> namedArg(String name, Optional<Argument> arg) {
-        return toStream(arg.map(a -> new NamedArg(name, a)));
-    }
-
-    static class NamedArg {
-        final String name;
-        final Argument arg;
-
-        NamedArg(String name, Argument arg) {
-            this.name = name;
-            this.arg = arg;
-        }
+            .forEach(name -> binding.findForName(name, ctx).ifPresent(
+                    a -> ctx.define(name, a instanceof NullArgument ? false : true)));
     }
 }

@@ -1472,22 +1472,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Define all bound arguments that don't already have a definition with a boolean indicating
-     * their presence.
+     * Define all bound arguments that don't already have a definition with a boolean indicating their presence.
+     * Useful to easily template optional properties of pojos or beans like {@code <if(property)>property = :property<endif>}.
      * @return this
      */
     @Beta
     public This defineNamedBindings() {
-        return defineNamedBindings(DefineNamedBindingMode.BOOLEAN);
-    }
-
-    /**
-     * Define all bound arguments that don't already have a definition with the given defining mode.
-     * @return this
-     */
-    @Beta
-    public This defineNamedBindings(DefineNamedBindingMode mode) {
-        return addCustomizer(new DefineNamedBindingsStatementCustomizer(mode));
+        return addCustomizer(new DefineNamedBindingsStatementCustomizer());
     }
 
     PreparedStatement internalExecute() {
