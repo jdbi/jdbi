@@ -22,8 +22,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
-import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
-
 /**
  * Configuration class for SQL array binding and mapping.
  */

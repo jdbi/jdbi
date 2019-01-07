@@ -49,7 +49,7 @@ public abstract class PojoProperties<T> {
 
     public interface PojoProperty<T> {
         String getName();
-        QualifiedType getQualifiedType();
+        QualifiedType<?> getQualifiedType();
         <A extends Annotation> Optional<A> getAnnotation(Class<A> anno);
         Object get(T pojo);
     }
