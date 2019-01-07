@@ -29,5 +29,4 @@ import org.jdbi.v3.sqlobject.customizer.internal.DefineNamedBindingsFactory;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @SqlStatementCustomizingAnnotation(DefineNamedBindingsFactory.class)
 @Beta
-public @interface DefineNamedBindings {
-}
+public @interface DefineNamedBindings {}
