@@ -56,7 +56,7 @@ public abstract class AbstractJsonMapperTest {
                 .execute();
 
             JsonBean out = h.createQuery("select subject from subjects")
-                .mapTo(JsonBean.class, Json.class)
+                .mapTo(QualifiedType.of(JsonBean.class).with(Json.class))
                 .findOnly();
 
             assertThat(out).isEqualTo(in);

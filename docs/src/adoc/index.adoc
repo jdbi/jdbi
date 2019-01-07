@@ -3852,7 +3852,7 @@ Fluent API:
 
 [source,java]
 ----
-QualifiedType qualifier = QualifiedType.of(MyJson.class).with(Json.class);
+QualifiedType<MyJson> qualifier = QualifiedType.of(MyJson.class).with(Json.class);
 
 h.createUpdate("insert into myjsons(json) values(:json)")
     .bindByType("json", new MyJson(), qualifier)

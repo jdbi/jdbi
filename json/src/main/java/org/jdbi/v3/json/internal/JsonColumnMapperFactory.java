@@ -43,7 +43,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
         return Optional.of((rs, i, ctx) -> {
             // look for specialized json support first, revert to simple String mapping if absent
             ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class).with(Json.class)).map(JsonColumnMapperFactory::cast),
+                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class).with(Json.class)),
                 () -> ctx.findColumnMapperFor(String.class))
                     .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE, ctx));
 
@@ -51,11 +51,5 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
 
             return json == null ? null : ctx.getConfig(JsonConfig.class).getJsonMapper().fromJson(type, json, ctx);
         });
-    }
-
-    // TODO improve generic type support on qualtype and Type methods to remove this
-    @SuppressWarnings("unchecked")
-    private static ColumnMapper<String> cast(ColumnMapper<?> mapper) {
-        return (ColumnMapper<String>) mapper;
     }
 }
