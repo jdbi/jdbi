@@ -57,7 +57,7 @@ public class JpaMapper<C> implements RowMapper<C> {
             String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
-                QualifiedType memberType = member.getQualifiedType();
+                QualifiedType<?> memberType = member.getQualifiedType();
                 ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
                         .orElseThrow(() -> new NoSuchMapperException("No column mapper for " + memberType));
 

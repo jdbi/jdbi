@@ -19,7 +19,7 @@ import java.util.Set;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 public class TypedValue {
-    final QualifiedType type;
+    final QualifiedType<?> type;
     final Object value;
 
     public TypedValue(Type type, Set<Annotation> qualifiers, Object value) {

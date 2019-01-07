@@ -42,7 +42,7 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
 
         cfg.setReturner(() -> {
             StatementContext ctx = q.getContext();
-            QualifiedType elementType = magic.elementType(ctx);
+            QualifiedType<?> elementType = magic.elementType(ctx);
 
             if (useRowReducer != null) {
                 return magic.reducedResult(q.reduceRows(rowReducerFor(useRowReducer)), ctx);

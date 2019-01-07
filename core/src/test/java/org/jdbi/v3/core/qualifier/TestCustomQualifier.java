@@ -84,7 +84,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("cba");
             });
@@ -99,7 +99,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("cba");
             });
@@ -116,7 +116,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("fedcba");
             });
@@ -133,7 +133,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("fedcba");
             });
@@ -148,7 +148,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("zyx");
             });
@@ -163,7 +163,7 @@ public class TestCustomQualifier {
 
                 assertThat(
                     handle.select("SELECT name FROM something")
-                        .mapTo(String.class, Reversed.class)
+                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
                         .findOnly())
                     .isEqualTo("zyx");
             });
@@ -400,7 +400,7 @@ public class TestCustomQualifier {
                 handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
                 assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class, Reversed.class, UpperCase.class)
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
                     .findOnly())
                     .isEqualTo("CBA");
             });
