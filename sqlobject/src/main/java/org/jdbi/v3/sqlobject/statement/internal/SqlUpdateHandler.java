@@ -41,7 +41,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
-        QualifiedType returnType = QualifiedType.of(
+        QualifiedType<?> returnType = QualifiedType.of(
             GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
             .with(getQualifiers(method));
 
@@ -90,7 +90,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
         return type.equals(boolean.class) || type.equals(Boolean.class);
     }
 
-    private String invalidReturnTypeMessage(Method method, QualifiedType returnType) {
+    private String invalidReturnTypeMessage(Method method, QualifiedType<?> returnType) {
         return method.getDeclaringClass().getSimpleName() + "." + method.getName()
                 + " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: "
                 + returnType;

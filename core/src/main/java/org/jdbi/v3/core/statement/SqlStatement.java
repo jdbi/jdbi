@@ -1073,7 +1073,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return the same Query instance
      */
     @Beta
-    public final This bindByType(int position, Object value, QualifiedType argumentType) {
+    public final This bindByType(int position, Object value, QualifiedType<?> argumentType) {
         return bind(position, toArgument(argumentType, value));
     }
 
@@ -1113,7 +1113,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return the same Query instance
      */
     @Beta
-    public final This bindByType(String name, Object value, QualifiedType argumentType) {
+    public final This bindByType(String name, Object value, QualifiedType<?> argumentType) {
         return bind(name, toArgument(argumentType, value));
     }
 
@@ -1148,7 +1148,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         }
     }
 
-    private Argument toArgument(QualifiedType type, Object value) {
+    private Argument toArgument(QualifiedType<?> type, Object value) {
         return getConfig(Arguments.class).findFor(type, value)
                 .orElseThrow(() -> factoryNotFound(type, value));
     }
@@ -1164,7 +1164,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type);
     }
 
-    private UnsupportedOperationException factoryNotFound(QualifiedType qualifiedType, Object value) {
+    private UnsupportedOperationException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
         Type type = qualifiedType.getType();
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] params = ((Class<?>) type).getTypeParameters();

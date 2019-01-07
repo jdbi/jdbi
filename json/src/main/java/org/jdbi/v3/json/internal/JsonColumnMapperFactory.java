@@ -15,31 +15,41 @@ package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
 
+/**
+ * converts a {@code (@Json) String} fetched by another mapper into a value object
+ */
 @Json
-class JsonColumnMapperFactory implements ColumnMapperFactory {
+public class JsonColumnMapperFactory implements ColumnMapperFactory {
+    private static final String JSON_NOT_RETRIEVABLE = String.format(
+        "No column mapper found for '@%s String', or 'String'",
+        Json.class.getSimpleName()
+    );
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        return Optional.of((r, i, c) -> {
-            final ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> c.findColumnMapperFor(QualifiedType.of(Json.class)).map(JsonColumnMapperFactory::bludgeon),
-                () -> c.findColumnMapperFor(String.class))
-                    .orElseThrow(() -> new IllegalStateException("No column mapper found for '@Json String' or 'String', this really shouldn't happen..."));
-            final String jsonValue = jsonStringMapper.map(r, i, c);
-            return jsonValue == null ? null : c.getConfig(JsonConfig.class).getJsonMapper().fromJson(type, jsonValue, c);
-        });
-    }
+        if (String.class.equals(type)) {
+            return Optional.empty();
+        }
 
-    @SuppressWarnings("unchecked")
-    private static ColumnMapper<String> bludgeon(ColumnMapper<?> mapper) {
-        return (ColumnMapper<String>) mapper;
+        return Optional.of((rs, i, ctx) -> {
+            // look for specialized json support first, revert to simple String mapping if absent
+            ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
+                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class).with(Json.class)),
+                () -> ctx.findColumnMapperFor(String.class))
+                    .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE, ctx));
+
+            String json = jsonStringMapper.map(rs, i, ctx);
+
+            return json == null ? null : ctx.getConfig(JsonConfig.class).getJsonMapper().fromJson(type, json, ctx);
+        });
     }
 }

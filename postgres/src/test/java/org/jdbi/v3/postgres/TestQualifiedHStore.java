@@ -68,7 +68,7 @@ public class TestQualifiedHStore {
     @Test
     public void testReadsViaFluentAPI() {
         List<Map<String, String>> caps = handle.createQuery("select caps from campaigns order by id")
-                .mapTo(STRING_MAP, HStore.class)
+                .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
                 .list();
         assertThat(caps).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
@@ -81,7 +81,7 @@ public class TestQualifiedHStore {
         handle.execute("insert into campaigns(id, caps) values (?,?)", 4, ImmutableMap.of());
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
-                .mapTo(STRING_MAP, HStore.class)
+                .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
                 .findOnly();
         assertThat(newCaps).isEmpty();
     }
@@ -91,7 +91,7 @@ public class TestQualifiedHStore {
         handle.execute("insert into campaigns(id, caps) values (?,?)", 4, null);
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
-                .mapTo(STRING_MAP, HStore.class)
+                .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
                 .findOnly();
         assertThat(newCaps).isNull();
     }
@@ -102,7 +102,7 @@ public class TestQualifiedHStore {
         expectedException.expectMessage("No mapper registered for type @org.jdbi.v3.postgres.HStore() java.util.Map<java.lang.String, java.lang.Object>");
 
         handle.createQuery("select caps from campaigns order by id")
-                .mapTo(new GenericType<Map<String, Object>>() {}, HStore.class)
+                .mapTo(QualifiedType.of(new GenericType<Map<String, Object>>() {}).with(HStore.class))
                 .list();
     }
 
@@ -114,7 +114,7 @@ public class TestQualifiedHStore {
             .execute();
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 3)
-                .mapTo(STRING_MAP, HStore.class)
+                .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
                 .findOnly();
         assertThat(newCaps).isEqualTo(caps);
     }

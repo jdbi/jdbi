@@ -32,7 +32,7 @@ import org.jdbi.v3.meta.Beta;
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<QualifiedType, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<QualifiedType<?>, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
     public ColumnMappers() {
@@ -108,7 +108,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return this
      */
     @Beta
-    public ColumnMappers register(QualifiedType type, ColumnMapper<?> mapper) {
+    public <T> ColumnMappers register(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return this.register(QualifiedColumnMapperFactory.of(type, mapper));
     }
 
@@ -163,7 +163,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findFor(Type type) {
-        return findFor(QualifiedType.of(type));
+        return findFor(QualifiedType.of(type)).map(m -> (ColumnMapper<?>) m);
     }
 
     /**
@@ -173,19 +173,21 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     @Beta
-    public Optional<ColumnMapper<?>> findFor(QualifiedType type) {
+    public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        ColumnMapper<?> cached = cache.get(type);
+        @SuppressWarnings("unchecked")
+        ColumnMapper<T> cached = (ColumnMapper<T>) cache.get(type);
 
         if (cached != null) {
             return Optional.of(cached);
         }
 
-        Optional<ColumnMapper<?>> mapper = factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
-                .findFirst();
+        Optional<ColumnMapper<T>> mapper = factories.stream()
+                .flatMap(factory -> toStream(factory.build(type, registry)))
+                .findFirst()
+                .map(m -> (ColumnMapper<T>) m);
 
         mapper.ifPresent(m -> cache.put(type, m));
 

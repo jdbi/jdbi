@@ -14,15 +14,26 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.ResultSet;
+import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.qualifier.NVarchar;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StatementContextTest {
+    @Test
+    public void qualifiedTypeShouldBePersistent() {
+        StatementContext context = StatementContextAccess.createContext();
+
+        // it's about the return type being String and not ?
+        @SuppressWarnings("unused")
+        Optional<ColumnMapper<String>> mapper = context.findColumnMapperFor(QualifiedType.of(String.class).with(NVarchar.class));
+    }
 
     @Test
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() {

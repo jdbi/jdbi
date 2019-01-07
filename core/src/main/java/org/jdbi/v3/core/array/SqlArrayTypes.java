@@ -18,26 +18,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+
+import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 /**
  * Configuration class for SQL array binding and mapping.
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
-    private SqlArrayArgumentStrategy argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
+    private SqlArrayArgumentStrategy argumentStrategy;
     private ConfigRegistry registry;
 
     public SqlArrayTypes() {
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
     }
 
     private SqlArrayTypes(SqlArrayTypes that) {
@@ -112,6 +108,11 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
         return factories.stream()
                 .flatMap(factory -> JdbiOptionals.stream(factory.build(elementType, registry)))
                 .findFirst();
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     @Override

@@ -16,7 +16,7 @@ package org.jdbi.v3.core.argument.internal;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 public class TypedValue {
-    final QualifiedType type;
+    final QualifiedType<?> type;
     final Object value;
 
     public TypedValue(QualifiedType qualifiedType, Object value) {

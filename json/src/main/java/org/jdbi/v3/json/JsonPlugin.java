@@ -11,13 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.json.internal;
+package org.jdbi.v3.json;
 
-import java.lang.reflect.Type;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.json.internal.JsonArgumentFactory;
+import org.jdbi.v3.json.internal.JsonColumnMapperFactory;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
-public interface JsonMapper {
-    String toJson(Type type, Object value, StatementContext ctx);
-    Object fromJson(Type type, String json, StatementContext ctx);
+public class JsonPlugin implements JdbiPlugin {
+    @Override
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(new JsonArgumentFactory());
+        jdbi.registerColumnMapper(new JsonColumnMapperFactory());
+    }
 }

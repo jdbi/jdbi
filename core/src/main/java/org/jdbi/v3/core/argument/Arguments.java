@@ -46,12 +46,12 @@ public class Arguments implements JdbiConfig<Arguments> {
 
         register(new PrimitivesArgumentFactory());
         register(new BoxedArgumentFactory());
-        register(new EssentialsArgumentFactory());
         register(new SqlArgumentFactory());
         register(new InternetArgumentFactory());
         register(new SqlTimeArgumentFactory());
         register(new JavaTimeArgumentFactory());
         register(new SqlArrayArgumentFactory());
+        register(new EssentialsArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
         register(new NVarcharArgumentFactory());
         register(new EnumArgumentFactory());
@@ -102,7 +102,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     @Beta
-    public Optional<Argument> findFor(QualifiedType type, Object value) {
+    public Optional<Argument> findFor(QualifiedType<?> type, Object value) {
         return factories.stream()
             .flatMap(factory -> JdbiOptionals.stream(factory.build(type, value, registry)))
             .findFirst();

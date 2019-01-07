@@ -38,7 +38,7 @@ public class BindFactory implements SqlStatementCustomizerFactory {
         Bind b = (Bind) annotation;
         String nameFromAnnotation = b == null ? Bind.NO_VALUE : b.value();
         Optional<String> name = ParameterUtil.findParameterName(nameFromAnnotation, param);
-        QualifiedType qualifiedType = QualifiedType.of(type).with(getQualifiers(param));
+        QualifiedType<?> qualifiedType = QualifiedType.of(type).with(getQualifiers(param));
 
         return (stmt, arg) -> {
             stmt.bindByType(index, arg, qualifiedType);

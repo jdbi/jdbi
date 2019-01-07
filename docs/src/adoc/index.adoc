@@ -290,6 +290,11 @@ Jdbi's configuration system enables you to easily set up different Arguments and
 [NOTE]
 _Binding_ is a term specifically related to _Arguments_ only. _Attributes_ are involved in _rendering_ a query _template_ using a _TemplateEngine_ to perform String-wise manipulations on a query before it is interpreted as SQL.
 
+[NOTE]
+The use of bound parameters is limited by JDBC support.  Notably, parameters usually cannot be used to change the structure of a query
+(for example the table or column name, `SELECT` or `INSERT`, etc.)
+nor may they be interpolated into string literals.  See <<TemplateEngine>> for more information.
+
 ==== Positional Arguments
 
 When a SQL statement uses `?` tokens, Jdbi can bind a values to parameters
@@ -596,44 +601,6 @@ LocalDate releaseDate = handle.createQuery(
     .mapTo(LocalDate.class)
     .findOnly();
 ----
-
-==== LIKE clauses
-
-Due to a built-in safety mechanism, `LIKE` clauses and argument binding
-don't work together intuitively and must be written a particular way. The following
-is what users would intuitively try to do:
-
-[source,java]
-----
-handle.createQuery("select name from things
-where name like '%:search%'")
-    .bind("search", "foo")
-    .mapTo(String.class)
-    .list()
-----
-
-Firstly, this query would try to select `where name like '%:search%'`
-_literally_, without binding any arguments. This is because proper `SqlParser`
-implementations do not bind arguments _inside string literals_.
-
-Secondly, Jdbi has your back. This query will throw an exception,
-because we don't allow unused bindings by default. Of course, if you use
-the parameter somewhere else in the query and the `SqlParser` binds it,
-then this check won't save you.
-
-The solution is to use SQL string concatenation:
-
-[source,java]
-----
-handle.createQuery("select name from things
-where name like '%' || :search || '%'")
-    .bind("search", "foo")
-    .mapTo(String.class)
-    .list()
-----
-
-[NOTE]
-Check the string concatenation syntax of your database before doing this.
 
 === Templating
 
@@ -3398,6 +3365,30 @@ public interface Foo {
 }
 ----
 
+==== @Timestamped
+
+You can annotate any statement with `@Timestamped` to bind an `OffsetDateTime`,
+of which the value is the current time, under the binding `now`:
+
+[source,java]
+----
+public interface Bar {
+    @SqlUpdate("insert into times(val) values(:now)")
+    @Timestamped
+    int insert();
+}
+----
+
+You can customize the binding name:
+
+[source,java]
+----
+@Timestamped("timestamp")
+----
+
+link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] gives you control over
+the timezone used for this.
+
 === Consumer Methods
 
 As a special case, you may provide a `Consumer<T>` argument in addition to other bound parameters.
@@ -3756,39 +3747,121 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
-=== Jackson 2
+=== JSON
 
-This plugin adds a `@Json` qualified type that stores an arbitrary Java object as `json` in your database.
-Currently tested with Postgres `json` types.
+The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
+
+The actual JSON (de)serialization code is not included. For that, you must install a backing plugin (see below).
+
+[TIP]
+Backing plugins will install the `JsonPlugin` for you.
+You do *not* need to install it yourself or include the `jdbi3-json` dependency directly.
+
+The feature has been tested with Postgres `json` columns
+and `varchar` columns in H2 and Sqlite.
+
+==== Jackson 2
+
+This plugin provides JSON backing through Jackson 2.
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-jackson2</artifactId>
+</dependency>
+----
 
 [source,java]
 ----
-// First, install the plugin and create a json column
 jdbi.installPlugin(new Jackson2Plugin());
-// You may need database support
-jdbi.installPlugin(new PostgresPlugin());
-jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper); // optional
+// optional
+jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+----
 
-handle.execute("create table jsons (id serial not null, value json not null)");
+==== Gson 2
 
-class Whozit {} // any Jackson serializable type
+This plugin provides JSON backing through Gson 2.
 
-// Then, you can use @Json qualifying type:
-interface JsonDao {
-    @SqlUpdate("insert into jsons (json) values(:value)")
-    int insert(@Json Whozit value); // on parameters
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-gson2</artifactId>
+</dependency>
+----
 
-    @SqlQuery("select value from jsons")
-    @Json // on result types
-    List<Whozit> select();
-}
+[source,java]
+----
+jdbi.installPlugin(new Gson2Plugin());
+// optional
+jdbi.getConfig(Gson2Config.class).setGson(myGson);
+----
 
-// It also works on bean or property-mapped properties:
-class MyBean {
-    private final Whozit property;
+==== Operation
+
+Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` —
+will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^]
+link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_ as `@Json String`.
+A correspondingly qualified `ArgumentFactory` will then be called to store the JSON data,
+allowing special JSON handling for your database to be implemented.
+If none are found, a factory for plain `String` will be used instead, to handle the JSON as plaintext.
+
+Mapping works just the same way, but in reverse: an output type qualified as `@Json T` will be fetched from a
+`@Json String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
+
+[TIP]
+Our PostgresPlugin provides qualified factories that will
+bind/map the `@Json String` to/from `json` or `jsonb`-typed columns.
+
+==== Usage
+
+[source,java]
+----
+handle.execute("create table myjsons (id serial not null, value json not null)");
+----
+
+SqlObject:
+
+[source,java]
+----
+// any json-serializable type
+class MyJson {}
+
+// use @Json qualifier:
+interface MyJsonDao {
+    @SqlUpdate("insert into myjsons (json) values(:value)")
+    // on parameters
+    int insert(@Json MyJson value);
+
+    @SqlQuery("select value from myjsons")
+    // on result types
     @Json
-    public Whozit getProperty() { return ...; }
+    List<MyJson> select();
 }
+
+// also works on bean or property-mapped objects:
+class MyBean {
+    private final MyJson property;
+    @Json
+    public MyJson getProperty() { return ...; }
+}
+----
+
+Fluent API:
+
+[source,java]
+----
+QualifiedType<MyJson> qualifier = QualifiedType.of(MyJson.class).with(Json.class);
+
+h.createUpdate("insert into myjsons(json) values(:json)")
+    .bindByType("json", new MyJson(), qualifier)
+    .execute();
+
+MyJson result = h.createQuery("select json from myjsons")
+    .mapTo(MyJson.class, Json.class)
+    .findOnly();
+
 ----
 
 === Immutables
@@ -4529,6 +4602,48 @@ Bear in mind:
   If you want to mix row-mapped types and single-column mappings the
   `TupleMappers` must be configured properly i.e. all non row-mapped
   tuple indices must be provided with a column configuration!
+
+== Cookbook
+
+This section includes examples of various things you might like to do with `Jdbi`.
+
+=== LIKE clauses with Parameters
+
+Since JDBC (and therefore `Jdbi`) does not allow binding parameters into the middle of string literals,
+you cannot interpolate bindings into `LIKE` clauses (`LIKE '%:param%'`).
+
+Incorrect usage:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%:search%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+This query would try to select `where name like '%:search%'` _literally_, without binding any arguments.
+This is because JDBC drivers will not bind arguments _inside string literals_.
+
+It never gets that far, though -- this query will throw an exception,
+because we don't allow unused argument bindings by default.
+
+The solution is to use SQL string concatenation:
+
+[source,java]
+----
+handle.createQuery("select name from things
+where name like '%' || :search || '%'")
+    .bind("search", "foo")
+    .mapTo(String.class)
+    .list()
+----
+
+Now, `search` can be properly bound as a parameter to the statement, and it all works as desired.
+
+[NOTE]
+Check the string concatenation syntax of your database before doing this.
 
 == Advanced Topics
 
@@ -5333,6 +5448,10 @@ handle.createUpdate("insert into characters (id, name) values (#id, #name)")
 [NOTE]
 The default parsers do not readily recognize non-Latin characters as identifiers;
 they must be surrounded by double quotes.
+
+[NOTE]
+The default parsers try to ignore parameter-like constructions inside of string literals,
+since JDBC drivers wouldn't let you bind parameters there anyway.
 
 For you fearless adventurers who have read the
 link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],

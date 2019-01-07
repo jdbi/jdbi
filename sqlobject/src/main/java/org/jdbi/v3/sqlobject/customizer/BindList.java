@@ -18,6 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import java.util.function.BiConsumer;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
 
 /**
@@ -55,20 +57,47 @@ public @interface BindList {
      */
     enum EmptyHandling {
         /**
-         * output "" (without quotes, i.e. nothing)
-         * <p>
-         * select * from things where x in ()
+         * <p>Output "" (without quotes, i.e. nothing).</p>
+         *
+         * {@code select * from things where x in ()}
          */
-        VOID,
+        VOID((stmt, name) -> stmt.define(name, "")),
         /**
-         * output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax
-         * <p>
-         * select * from things where x in (null)
+         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         *
+         * {@code select * from things where x in (null)}
+         *
+         * @deprecated vaguely named in light of new additions, use {@link EmptyHandling#NULL_STRING} instead
          */
-        NULL,
+        @Deprecated
+        NULL((stmt, name) -> stmt.define(name, "null")),
         /**
-         * throw IllegalArgumentException
+         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         *
+         * {@code select * from things where x in (null)}
          */
-        THROW;
+        NULL_STRING((stmt, name) -> stmt.define(name, "null")),
+        /**
+         * <p>Define a {@code null} value, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
+         *
+         * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
+         */
+        NULL_VALUE((stmt, name) -> stmt.define(name, null)),
+        /**
+         * Throw IllegalArgumentException.
+         */
+        THROW((stmt, name) -> {
+            throw new IllegalArgumentException("argument is null or empty; this was explicitly forbidden on this instance of BindList");
+        });
+
+        private final BiConsumer<SqlStatement, String> rendering;
+
+        EmptyHandling(BiConsumer<SqlStatement, String> rendering) {
+            this.rendering = rendering;
+        }
+
+        public void define(SqlStatement stmt, String name) {
+            rendering.accept(stmt, name);
+        }
     }
 }

@@ -14,12 +14,20 @@
 package org.jdbi.v3.core.internal;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
  * Implements Iterator methods for unidentified arrays and Iterable things that do not
@@ -68,6 +76,35 @@ public class IterableLike {
             return new PrimitiveArrayIterator(iterable);
         }
         return Arrays.asList((Object[]) iterable).iterator();
+    }
+
+    /** Given an iterable-like object, try to determine its static (i.e, without looking at contents) element type. */
+    public static Optional<Type> elementTypeOf(Object iterable) {
+        return elementTypeOf(iterable.getClass());
+    }
+
+    /** Given an iterable-like type, try to determine its static (i.e, without looking at contents) element type. */
+    public static Optional<Type> elementTypeOf(Type type) {
+        final Class<?> rawClass = GenericTypes.getErasedType(type);
+        if (rawClass.isArray()) {
+            return Optional.of(rawClass.getComponentType());
+        } else if (Iterable.class.isAssignableFrom(rawClass)) {
+            return GenericTypes.findGenericParameter(type, Iterable.class);
+        } else if (Iterator.class.isAssignableFrom(rawClass)) {
+            return GenericTypes.findGenericParameter(type, Iterator.class);
+        } else { // not an iterable-like
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Given an iterable object (which may be a iterator, iterable, primitive
+     * or reference array), return a {@link Stream} over its (possibly boxed) elements.
+     *
+     * @return a stream of the given array's elements
+     */
+    public static Stream<Object> stream(Object iterable) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(of(iterable), Spliterator.ORDERED), false);
     }
 
     /**

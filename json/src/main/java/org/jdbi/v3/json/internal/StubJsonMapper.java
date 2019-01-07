@@ -11,26 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.gson2;
+package org.jdbi.v3.json.internal;
 
-import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.json.internal.JsonMapper;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.json.JsonConfig;
+import org.jdbi.v3.json.JsonMapper;
 
-class GsonJsonImpl implements JsonMapper {
+public class StubJsonMapper implements JsonMapper {
+    private static final String NO_IMPL_INSTALLED = String.format(
+        "you need to install (see %s) a %s impl, like jdbi3-jackson2 or jdbi3-gson2",
+        JsonConfig.class.getSimpleName(),
+        JsonMapper.class.getSimpleName()
+    );
+
     @Override
     public String toJson(Type type, Object value, StatementContext ctx) {
-        return ctx.getConfig(Gson2Config.class).getGson().toJson(value);
+        throw new UnableToCreateStatementException(NO_IMPL_INSTALLED);
     }
 
     @Override
     public Object fromJson(Type type, String json, StatementContext ctx) {
-        try {
-            return ctx.getConfig(Gson2Config.class).getGson().fromJson(json, type);
-        } catch (JsonParseException e) {
-            throw new UnableToProduceResultException(e, ctx);
-        }
+        throw new UnableToProduceResultException(NO_IMPL_INSTALLED, ctx);
     }
 }
