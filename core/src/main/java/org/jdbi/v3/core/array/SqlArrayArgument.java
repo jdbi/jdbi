@@ -13,37 +13,24 @@
  */
 package org.jdbi.v3.core.array;
 
-import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import org.jdbi.v3.core.statement.StatementContext;
+import java.util.stream.Stream;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.statement.StatementContext;
 
 class SqlArrayArgument<T> implements Argument {
-
     private final String typeName;
     private final Object[] array;
 
-    @SuppressWarnings("unchecked")
     SqlArrayArgument(SqlArrayType<T> arrayType, Object newArray) {
         this.typeName = arrayType.getTypeName();
 
-        List<Object> elements = new ArrayList<>(
-                newArray.getClass().isArray() ? Array.getLength(newArray) : 10);
-        IterableLike.of(newArray).forEachRemaining(
-                e -> elements.add(arrayType.convertArrayElement((T) e)));
-        array = elements.toArray();
-    }
-
-    SqlArrayArgument(SqlArrayType<T> arrayType, Collection<T> list) {
-        this.typeName = arrayType.getTypeName();
-        this.array = list.stream().map(arrayType::convertArrayElement).toArray();
+        @SuppressWarnings("unchecked")
+        Stream<T> stream = (Stream<T>) IterableLike.stream(newArray);
+        array = stream.map(arrayType::convertArrayElement).toArray();
     }
 
     @Override

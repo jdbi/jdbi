@@ -17,13 +17,11 @@ import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Function;
-
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.IterableLike;
 
 /**
  * Bind a Java array or {@link Collection} to a SQL array using the
@@ -41,27 +39,16 @@ import org.jdbi.v3.core.generic.GenericTypes;
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        Class<?> erasedType = GenericTypes.getErasedType(type);
+        return IterableLike.elementTypeOf(type)
+            .flatMap(config.get(SqlArrayTypes.class)::findFor)
+            .map(arrayType -> arrayArgument(value, arrayType));
+    }
 
-        if (!(erasedType.isArray() || Collection.class.isAssignableFrom(erasedType))) {
-            return Optional.empty();
-        }
-
+    private Argument arrayArgument(Object value, SqlArrayType<?> arrayType) {
         if (value == null) {
-            return Optional.of(new NullArgument(Types.ARRAY));
+            return new NullArgument(Types.ARRAY);
+        } else {
+            return new SqlArrayArgument<>(arrayType, value);
         }
-
-        Function<Type, Optional<SqlArrayType<?>>> lookup =
-                eT -> config.get(SqlArrayTypes.class).findFor(eT);
-
-        if (erasedType.isArray()) {
-            Class<?> elementType = erasedType.getComponentType();
-            return lookup.apply(elementType)
-                    .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
-        }
-
-        return GenericTypes.findGenericParameter(type, Collection.class)
-                .flatMap(lookup)
-                .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
     }
 }

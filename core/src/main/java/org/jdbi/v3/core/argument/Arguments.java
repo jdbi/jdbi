@@ -47,12 +47,12 @@ public class Arguments implements JdbiConfig<Arguments> {
 
         register(new PrimitivesArgumentFactory());
         register(new BoxedArgumentFactory());
-        register(new EssentialsArgumentFactory());
         register(new SqlArgumentFactory());
         register(new InternetArgumentFactory());
         register(new SqlTimeArgumentFactory());
         register(new JavaTimeArgumentFactory());
         register(new SqlArrayArgumentFactory());
+        register(new EssentialsArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
         register(new NVarcharArgumentFactory());
         register(new EnumArgumentFactory());
