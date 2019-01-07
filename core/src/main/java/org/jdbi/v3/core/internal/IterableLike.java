@@ -76,7 +76,7 @@ public class IterableLike {
      * Given an iterable object (which may be a iterator, iterable, primitive
      * or reference array), return a {@link Stream} over its (possibly boxed) elements.
      *
-     * @return an iterator of the given array's elements
+     * @return a stream of the given array's elements
      */
     public static Stream<Object> stream(Object iterable) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(of(iterable), Spliterator.ORDERED), false);
