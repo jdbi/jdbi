@@ -11,41 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper.immutables.internal;
+package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-import java.util.function.Function;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 
 /**
  * Row mapper that inspects an {@code immutables}-style Immutable or Modifiable value class for properties
  * and binds them in the style of {@link org.jdbi.v3.core.mapper.reflect.BeanMapper}.
  */
-public class ImmutablesMapperFactory<T> implements RowMapperFactory {
-
-    private final Class<T> defn;
-    private final Class<? extends T> impl;
-    private final Function<Type, ? extends PojoProperties<T>> properties;
-
-    public ImmutablesMapperFactory(Class<T> defn, Class<? extends T> impl, Function<Type, ? extends PojoProperties<T>> properties) {
-        this.defn = defn;
-        this.impl = impl;
-        this.properties = properties;
-    }
-
+public class PojoMapperFactory implements RowMapperFactory {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> erasedType = GenericTypes.getErasedType(type);
-        if (defn.equals(erasedType) || impl.equals(erasedType)) {
-            return Optional.of(new PojoMapper<>(defn, properties.apply(type), ""));
-        }
-        return Optional.empty();
+        return config.get(PojoTypes.class).propertiesOf(type)
+                .map(p -> new PojoMapper(GenericTypes.getErasedType(type), p, ""));
     }
 }

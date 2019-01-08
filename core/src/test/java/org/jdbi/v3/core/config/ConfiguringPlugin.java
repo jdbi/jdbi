@@ -11,22 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rule;
+package org.jdbi.v3.core.config;
 
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.config.ConfiguringPlugin;
-import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.junit.rules.TestRule;
 
-public interface DatabaseRule<Self> extends TestRule {
-    Jdbi getJdbi();
+public class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
+    private Class<C> configClass;
+    private Consumer<C> configurer;
 
-    Self withPlugin(JdbiPlugin plugin);
+    private ConfiguringPlugin(Class<C> configClass, Consumer<C> configurer) {
+        this.configClass = configClass;
+        this.configurer = configurer;
+    }
 
-    default <C extends JdbiConfig<C>> Self withConfig(Class<C> configClass, Consumer<C> configurer) {
-        return withPlugin(ConfiguringPlugin.of(configClass, configurer));
+    public static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, Consumer<C> configurer) {
+        return new ConfiguringPlugin<C>(configClass, configurer);
+    }
+
+    @Override
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.configure(configClass, configurer);
     }
 }

@@ -33,6 +33,7 @@ import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher;
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoBuilder;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
@@ -146,7 +147,11 @@ public class PojoMapper<T> implements RowMapper<T> {
     @SuppressWarnings({ "rawtypes", "unchecked" }) // Type loses <T>
     protected PojoMapper<?> createNestedMapper(StatementContext ctx, PojoProperty<T> property, String nestedPrefix) {
         final Type propertyType = property.getQualifiedType().getType();
-        return new PojoMapper(GenericTypes.getErasedType(propertyType), ctx.getConfig(PojoPropertiesFactories.class).propertiesOf(type), nestedPrefix);
+        return new PojoMapper(
+                GenericTypes.getErasedType(propertyType),
+                ctx.getConfig(PojoTypes.class).propertiesOf(type)
+                    .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for nested type " + propertyType, ctx)),
+                nestedPrefix);
     }
 
     private ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {

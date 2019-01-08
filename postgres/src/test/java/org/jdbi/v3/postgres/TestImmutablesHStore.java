@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
@@ -37,7 +37,7 @@ public class TestImmutablesHStore {
     public PgDatabaseRule dbRule = new PgDatabaseRule()
         .withPlugin(new PostgresPlugin())
         .withPlugin(new SqlObjectPlugin())
-        .withPlugin(ImmutablesPlugin.forImmutable(Mappy.class));
+        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Mappy.class));
 
     private Handle h;
 

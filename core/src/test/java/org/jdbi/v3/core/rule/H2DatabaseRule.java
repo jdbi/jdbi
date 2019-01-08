@@ -27,7 +27,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
-public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
+public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2DatabaseRule> {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
     private Jdbi db;
@@ -64,6 +64,7 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule {
         return this;
     }
 
+    @Override
     public H2DatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;

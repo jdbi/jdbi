@@ -15,7 +15,6 @@ package org.jdbi.v3.core.rule;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.JdbiPreparer;
@@ -27,7 +26,7 @@ import org.junit.runners.model.Statement;
 import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
 import com.opentable.db.postgres.junit.PreparedDbRule;
 
-public class PgDatabaseRule extends ExternalResource implements DatabaseRule {
+public class PgDatabaseRule extends ExternalResource implements DatabaseRule<PgDatabaseRule> {
     private Jdbi db;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
     private JdbiPreparer preparer;
@@ -62,6 +61,7 @@ public class PgDatabaseRule extends ExternalResource implements DatabaseRule {
         return getJdbi().open();
     }
 
+    @Override
     public PgDatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;

@@ -20,30 +20,27 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.core.mapper.immutables.internal.ImmutablesMapperFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.ImmutablesPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactories;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Install support for an Immutables generated {@code Immutable} or {@code Modifiable} value type.
- * Note that unlike most plugins, this plugin is expected to be installed multiple times, once for each value type you wish to handle.
+ * Configures support for an Immutables generated {@code Immutable} or {@code Modifiable} value type.
  */
 @Beta
-public class ImmutablesPlugin<S> implements JdbiPlugin {
-    private final Class<S> spec;
-    private final Class<? extends S> impl;
-    private final Function<Type, ? extends PojoProperties<S>> properties;
+public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
+    private ConfigRegistry registry;
 
-    private ImmutablesPlugin(Class<S> spec, Class<? extends S> impl, Function<Type, ? extends PojoProperties<S>> properties) {
-        this.spec = spec;
-        this.impl = impl;
-        this.properties = properties;
+    public JdbiImmutables() {}
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     /**
@@ -52,9 +49,9 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
      * @param <S> the specification class
      * @return a plugin that configures type mapping for the given class
      */
-    public static <S> ImmutablesPlugin<S> forImmutable(Class<S> spec) {
+    public <S> JdbiImmutables registerImmutable(Class<S> spec) {
         final Class<? extends S> impl = classByPrefix("Immutable", spec);
-        return forImmutable(spec, impl, JdbiOptionals.findFirstPresent(
+        return registerImmutable(spec, impl, JdbiOptionals.findFirstPresent(
                 () -> nullaryMethodOf(spec, "builder"),
                 () -> nullaryMethodOf(impl, "builder"))
                     .orElseThrow(() -> new IllegalArgumentException("Neither " + spec + " nor " + impl + " have a 'builder' method")));
@@ -69,8 +66,8 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
      * @param <I> the implementation class
      * @return a plugin that configures type mapping for the given class
      */
-    public static <S, I extends S> ImmutablesPlugin<S> forImmutable(Class<S> spec, Class<I> impl, Supplier<?> builder) {
-        return new ImmutablesPlugin<S>(spec, impl, ImmutablesPropertiesFactory.immutable(spec, builder));
+    public <S, I extends S> JdbiImmutables registerImmutable(Class<S> spec, Class<I> impl, Supplier<?> builder) {
+        return register(spec, impl, ImmutablesPropertiesFactory.immutable(spec, builder));
     }
 
     /**
@@ -79,9 +76,9 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
      * @param <S> the specification class
      * @return a plugin that configures type mapping for the given class
      */
-    public static <S> ImmutablesPlugin<S> forModifiable(Class<S> spec) {
+    public <S> JdbiImmutables registerModifiable(Class<S> spec) {
         final Class<? extends S> impl = classByPrefix("Modifiable", spec);
-        return forModifiable(spec, impl,
+        return registerModifiable(spec, impl,
                 nullaryMethodOf(impl, "create")
                     .orElseGet(() -> constructorOf(impl)));
     }
@@ -95,8 +92,13 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
      * @param <M> the modifiable class
      * @return a plugin that configures type mapping for the given class
      */
-    public static <S, M extends S> ImmutablesPlugin<S> forModifiable(Class<S> spec, Class<M> impl, Supplier<?> constructor) {
-        return new ImmutablesPlugin<S>(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
+    public <S, M extends S> JdbiImmutables registerModifiable(Class<S> spec, Class<M> impl, Supplier<?> constructor) {
+        return register(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
+    }
+
+    private JdbiImmutables register(Class<?> spec, Class<?> impl, Function<Type, ? extends PojoProperties<?>> factory) {
+        registry.get(PojoTypes.class).register(spec, factory).register(impl, factory);
+        return this;
     }
 
     private static Optional<Supplier<?>> nullaryMethodOf(Class<?> impl, String methodName) {
@@ -127,18 +129,7 @@ public class ImmutablesPlugin<S> implements JdbiPlugin {
     }
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(PojoPropertiesFactories.class).register(new Factory());
-        jdbi.registerRowMapper(new ImmutablesMapperFactory<S>(spec, impl, properties));
-    }
-
-    class Factory implements Function<Type, Optional<PojoProperties<?>>> {
-        @Override
-        public Optional<PojoProperties<?>> apply(Type t) {
-            if (spec.equals(t) || impl.equals(t)) {
-                return Optional.of(properties.apply(t));
-            }
-            return Optional.empty();
-        }
+    public JdbiImmutables createCopy() {
+        return new JdbiImmutables();
     }
 }

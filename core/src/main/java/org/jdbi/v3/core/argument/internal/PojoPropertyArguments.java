@@ -18,8 +18,9 @@ import java.util.Optional;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactories;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * This class hosts the logic from BeanPropertyArguments.
@@ -30,7 +31,11 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     private final StatementContext ctx;
 
     public PojoPropertyArguments(String prefix, Object obj, StatementContext ctx) {
-        this(prefix, obj, ctx.getConfig(PojoPropertiesFactories.class).propertiesOf(obj.getClass()), ctx);
+        this(prefix,
+                obj,
+                ctx.getConfig(PojoTypes.class).propertiesOf(obj.getClass())
+                    .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass(), ctx)),
+                ctx);
     }
 
     protected PojoPropertyArguments(String prefix, Object obj, PojoProperties<?> properties, StatementContext ctx) {
@@ -43,12 +48,8 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     protected Optional<TypedValue> getValue(String name, StatementContext ctx2) {
         @SuppressWarnings("unchecked")
         PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
-
-        if (property == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(new TypedValue(property.getQualifiedType(), property.get(obj)));
+        return Optional.ofNullable(property)
+                .map(p -> new TypedValue(p.getQualifiedType(), p.get(obj)));
     }
 
     @Override

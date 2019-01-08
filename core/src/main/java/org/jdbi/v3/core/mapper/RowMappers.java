@@ -23,6 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
 
 /**
@@ -35,6 +36,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
     public RowMappers() {
         register(MapEntryMapper.factory());
+        register(new PojoMapperFactory());
     }
 
     private RowMappers(RowMappers that) {

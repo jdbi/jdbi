@@ -30,7 +30,7 @@ import org.junit.rules.ExternalResource;
  * Note that you will need to use the shared handle most of the time,
  * since sqlite memory instances are discarded when their last connections is closed.
  */
-public class SqliteDatabaseRule extends ExternalResource implements DatabaseRule {
+public class SqliteDatabaseRule extends ExternalResource implements DatabaseRule<SqliteDatabaseRule> {
     // no unique name needed: https://www.sqlite.org/inmemorydb.html
     private final String uri = "jdbc:sqlite::memory:";
     private Connection con;
@@ -64,6 +64,7 @@ public class SqliteDatabaseRule extends ExternalResource implements DatabaseRule
         return this;
     }
 
+    @Override
     public SqliteDatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;

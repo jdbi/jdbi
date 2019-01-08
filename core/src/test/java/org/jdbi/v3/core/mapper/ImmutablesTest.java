@@ -21,7 +21,7 @@ import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,10 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ImmutablesTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule()
-        .withPlugin(ImmutablesPlugin.forImmutable(SubValue.class))
-        .withPlugin(ImmutablesPlugin.forImmutable(FooBarBaz.class))
-        .withPlugin(ImmutablesPlugin.forModifiable(FooBarBaz.class))
-        .withPlugin(ImmutablesPlugin.forImmutable(Getter.class));
+        .withConfig(JdbiImmutables.class, c -> c
+            .registerImmutable(SubValue.class)
+            .registerImmutable(FooBarBaz.class)
+            .registerModifiable(FooBarBaz.class)
+            .registerImmutable(Getter.class));
 
     private Jdbi jdbi;
     private Handle h;
@@ -58,7 +59,7 @@ public class ImmutablesTest {
 
     @Test
     public void simpleTest() {
-        jdbi.installPlugin(ImmutablesPlugin.forImmutable(Train.class));
+        jdbi.getConfig(JdbiImmutables.class).registerImmutable(Train.class);
         try (Handle handle = jdbi.open()) {
             handle.execute("create table train (name varchar, carriages int, observation_car boolean)");
 

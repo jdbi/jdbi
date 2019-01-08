@@ -18,7 +18,7 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.ImmutableTrain;
 import org.jdbi.v3.core.mapper.ImmutablesTest.Train;
-import org.jdbi.v3.core.mapper.immutables.ImmutablesPlugin;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -33,7 +33,7 @@ public class TestBindProperties {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule()
         .withPlugin(new SqlObjectPlugin())
-        .withPlugin(ImmutablesPlugin.forImmutable(Train.class));
+        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Train.class));
 
     private Handle h;
 
