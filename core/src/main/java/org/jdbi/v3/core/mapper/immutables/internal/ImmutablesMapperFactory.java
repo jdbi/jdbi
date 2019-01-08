@@ -27,7 +27,6 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 /**
  * Row mapper that inspects an {@code immutables}-style Immutable or Modifiable value class for properties
  * and binds them in the style of {@link org.jdbi.v3.core.mapper.reflect.BeanMapper}.
- * @param <T> the mapped value type
  */
 public class ImmutablesMapperFactory<T> implements RowMapperFactory {
 

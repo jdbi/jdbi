@@ -32,8 +32,10 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 
 /**
- * A {@link java.lang.reflect.Type} qualified by a set of qualifier objects. Two qualified types are equal to each other
+ * A {@link java.lang.reflect.Type} qualified by a set of qualifier annotations. Two qualified types are equal to each other
  * if their {@link #getType()} and {@link #getQualifiers()} properties are equal.
+ *
+ * @param <T> the type that is qualified
  */
 @Beta
 public final class QualifiedType<T> {
@@ -41,24 +43,30 @@ public final class QualifiedType<T> {
     private final Set<Annotation> qualifiers;
 
     /**
-     * Creates a {@code QualifiedType<T>} for a {@code Class<T>} with no extra qualifiers.
-     * This alone isn't useful; you should call {@link #with} as well.
+     * Creates a {@code QualifiedType<T>} for a {@code Class<T>} with no qualifiers.
+     * @param clazz the unqualified type
+     * @return the unqualified QualifiedType
+     * @see #with(Annotation...) to then qualify your type
      */
     public static <T> QualifiedType<T> of(Class<T> clazz) {
         return new QualifiedType<>(clazz, emptySet());
     }
 
     /**
-     * Creates a wildcard {@code QualifiedType<?>} for a {@link Type} with no extra qualifiers.
-     * This alone isn't useful; you should call {@link #with} as well.
+     * Creates a wildcard {@code QualifiedType<?>} for a {@link Type} with no qualifiers.
+     * @param type the unqualified type
+     * @return the unqualified QualifiedType
+     * @see #with(Annotation...) to then qualify your type
      */
     public static QualifiedType<?> of(Type type) {
         return new QualifiedType<>(type, emptySet());
     }
 
     /**
-     * Creates a {@code QualifiedType<T>} for a {@code GenericType<T>} with no extra qualifiers.
-     * This alone isn't useful; you should call {@link #with} as well.
+     * Creates a {@code QualifiedType<T>} for a {@code GenericType<T>} with no qualifiers.
+     * @param type the unqualified type
+     * @return the unqualified QualifiedType
+     * @see #with(Annotation...) to then qualify your type
      */
     @SuppressWarnings("unchecked")
     public static <T> QualifiedType<T> of(GenericType<T> type) {
