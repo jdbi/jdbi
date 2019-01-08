@@ -28,7 +28,7 @@ public class TestDefineNamedBindingsST {
     public void testDefineBoolean() {
         db.getSharedHandle().setTemplateEngine(new StringTemplateEngine());
         assertThat(
-            db.getSharedHandle().createQuery("select <a> from values(:a<if(b)>, :b shouldn't be defined<endif>)")
+            db.getSharedHandle().createQuery("select <a> from values(:a) <if(b)>where false=:b<endif>")
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
