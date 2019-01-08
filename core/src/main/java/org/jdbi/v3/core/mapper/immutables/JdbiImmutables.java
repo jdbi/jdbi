@@ -30,7 +30,7 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Configures support for an Immutables generated {@code Immutable} or {@code Modifiable} value type.
+ * Configures support for an <a href="https://immutables.github.io">Immutables</a> generated {@code Immutable} or {@code Modifiable} value type.
  */
 @Beta
 public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
@@ -96,7 +96,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
         return register(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
     }
 
-    private JdbiImmutables register(Class<?> spec, Class<?> impl, Function<Type, ? extends PojoProperties<?>> factory) {
+    private JdbiImmutables register(Class<?> spec, Class<?> impl, Function<Type, PojoProperties<?>> factory) {
         registry.get(PojoTypes.class).register(spec, factory).register(impl, factory);
         return this;
     }

@@ -57,12 +57,12 @@ public class ImmutablesPropertiesFactory {
     private ImmutablesPropertiesFactory() {}
 
     @SuppressWarnings("unchecked")
-    public static <T, B> Function<Type, PojoProperties<T>> immutable(Class<T> defn, Supplier<B> builder) {
+    public static <T, B> Function<Type, PojoProperties<?>> immutable(Class<T> defn, Supplier<B> builder) {
         return t -> (PojoProperties<T>) IMMUTABLE_PROPERTIES.computeIfAbsent(t, x -> new ImmutablePojoProperties<>(t, defn, builder));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, M extends T> Function<Type, PojoProperties<T>> modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
+    public static <T, M extends T> Function<Type, PojoProperties<?>> modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
         return t -> (PojoProperties<T>) MODIFIABLE_PROPERTIES.computeIfAbsent(t, x -> new ModifiablePojoProperties<>(t, defn, impl, constructor));
     }
 

@@ -33,7 +33,7 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     public PojoPropertyArguments(String prefix, Object obj, StatementContext ctx) {
         this(prefix,
                 obj,
-                ctx.getConfig(PojoTypes.class).propertiesOf(obj.getClass())
+                ctx.getConfig(PojoTypes.class).findFor(obj.getClass())
                     .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass(), ctx)),
                 ctx);
     }

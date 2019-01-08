@@ -28,7 +28,7 @@ public class PojoMapperFactory implements RowMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-        return config.get(PojoTypes.class).propertiesOf(type)
+        return config.get(PojoTypes.class).findFor(type)
                 .map(p -> new PojoMapper(GenericTypes.getErasedType(type), p, ""));
     }
 }

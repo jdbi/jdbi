@@ -49,7 +49,7 @@ public class PojoMapper<T> implements RowMapper<T> {
     private static final String UNMATCHED_COLUMNS_STRICT =
         "Mapping bean type %s could not match properties for columns: %s";
 
-    protected boolean strictColumnMapping = true; // this should be default (only?) behavior but that's a breaking change
+    protected boolean strictColumnTypeMapping = true; // this should be default (only?) behavior but that's a breaking change
     protected final Class<T> type;
     protected final String prefix;
     private final PojoProperties<T> properties;
@@ -149,13 +149,13 @@ public class PojoMapper<T> implements RowMapper<T> {
         final Type propertyType = property.getQualifiedType().getType();
         return new PojoMapper(
                 GenericTypes.getErasedType(propertyType),
-                ctx.getConfig(PojoTypes.class).propertiesOf(type)
+                ctx.getConfig(PojoTypes.class).findFor(type)
                     .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for nested type " + propertyType, ctx)),
                 nestedPrefix);
     }
 
     private ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
-        if (strictColumnMapping) {
+        if (strictColumnTypeMapping) {
             throw new NoSuchMapperException(String.format(
                     "Couldn't find mapper for property '%s' of type '%s' from %s", property.getName(), property.getQualifiedType(), type));
         }

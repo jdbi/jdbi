@@ -39,11 +39,11 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class BeanPropertiesFactory {
-    private static final Map<Type, ? extends PojoProperties<?>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
+    private static final Map<Type, PojoProperties<?>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
             .builder()
             .expiration(10, TimeUnit.MINUTES)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .entryLoader((Type type) -> {
+            .<Type, PojoProperties<?>>entryLoader((Type type) -> {
                 return new BeanPojoProperties<>(type);
             })
             .build();

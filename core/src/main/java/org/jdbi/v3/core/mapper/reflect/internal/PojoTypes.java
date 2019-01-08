@@ -23,7 +23,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, Function<Type, ? extends PojoProperties<?>>> factories = new HashMap<>();
+    private final Map<Class<?>, Function<Type, PojoProperties<?>>> factories = new HashMap<>();
 
     public PojoTypes() {}
 
@@ -31,12 +31,12 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
         factories.putAll(other.factories);
     }
 
-    public PojoTypes register(Class<?> key, Function<Type, ? extends PojoProperties<?>> factory) {
+    public PojoTypes register(Class<?> key, Function<Type, PojoProperties<?>> factory) {
         factories.put(key, factory);
         return this;
     }
 
-    public Optional<PojoProperties<?>> propertiesOf(Type type) {
+    public Optional<PojoProperties<?>> findFor(Type type) {
         return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
                 .map(ppf -> ppf.apply(type));
     }

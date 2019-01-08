@@ -49,6 +49,7 @@ import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
@@ -188,10 +189,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     /**
      * Binds named parameters from object properties on the argument.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
      *
      * @param pojo source of named parameter values to use as arguments
      *
      * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
      */
     @Beta
     public This bindPojo(Object pojo) {
@@ -200,11 +204,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     /**
      * Binds named parameters from object properties on the bean argument, with the given prefix.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
      *
      * @param prefix a prefix to apply to all property names.
      * @param pojo source of named parameter values to use as arguments
      *
      * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
      */
     @Beta
     public This bindPojo(String prefix, Object pojo) {
