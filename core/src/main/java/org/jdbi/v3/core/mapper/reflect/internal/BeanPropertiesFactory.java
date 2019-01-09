@@ -69,6 +69,12 @@ public class BeanPropertiesFactory {
         return CLASS_PROPERTY_DESCRIPTORS.get(t);
     }
 
+    private static boolean shouldSeeProperty(PropertyDescriptor pd) {
+        // 'class' isn't really a property
+        final Method read = pd.getReadMethod();
+        return read == null || read.getDeclaringClass() != Object.class;
+    }
+
     static class BeanPojoProperties<T> extends PojoProperties<T> {
         private final BeanInfo info;
         private final Map<String, BeanPojoProperty<T>> properties;
@@ -82,8 +88,10 @@ public class BeanPropertiesFactory {
             }
             final Map<String, BeanPojoProperty<T>> props = new LinkedHashMap<>();
             for (PropertyDescriptor property : info.getPropertyDescriptors()) {
-                final BeanPojoProperty<T> bp = new BeanPojoProperty<>(property);
-                props.put(bp.getName(), bp);
+                if (shouldSeeProperty(property)) {
+                    final BeanPojoProperty<T> bp = new BeanPojoProperty<>(property);
+                    props.put(bp.getName(), bp);
+                }
             }
             properties = Collections.unmodifiableMap(props);
         }
