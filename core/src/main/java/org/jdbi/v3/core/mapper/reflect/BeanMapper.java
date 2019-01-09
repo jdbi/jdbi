@@ -30,10 +30,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * properties.
  *
  * The mapped class must have a default constructor.
- *
- * @deprecated this class should not be public API, use {@link org.jdbi.v3.core.result.ResultBearing#mapToBean(Class)} instead.
  */
-@Deprecated
 public class BeanMapper<T> extends PojoMapper<T> {
     static final String DEFAULT_PREFIX = "";
     /**
