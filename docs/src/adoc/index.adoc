@@ -685,8 +685,25 @@ handle.createQuery("select * from emotion where emoticon = <sticker>;")
 ----
 
 Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers, which will
-define a boolean indicating whether the value is present and not a `NullArgument` (bind of a `null`).
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java]
+----
+class MyBean {
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
 
 Also see the section about <<TemplateEngine>>.
 
