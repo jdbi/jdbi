@@ -5,8 +5,6 @@ This project is an exploration of what a Java API for relational database access
 [pr]: https://projectreactor.io
 [rs]: http://www.reactive-streams.org
 
-**THIS IS ONLY AN EXPERIEMENT AND NOT SUPPORTED SOFTWARE**
-
 ## Examples
 A quick example of configuration and execution would look like:
 
