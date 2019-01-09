@@ -1471,23 +1471,37 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return define(key, value);
     }
 
+    /**
+     * Define all bound arguments that don't already have a definition with a boolean indicating their presence.
+     * Useful to easily template optional properties of pojos or beans like {@code <if(property)>property = :property<endif>}.
+     * @return this
+     */
+    @Beta
+    public This defineNamedBindings() {
+        return addCustomizer(new DefineNamedBindingsStatementCustomizer());
+    }
+
     PreparedStatement internalExecute() {
+        final StatementContext ctx = getContext();
+
+        beforeTemplating();
+
         String renderedSql = getConfig(SqlStatements.class)
                 .getTemplateEngine()
-                .render(sql, getContext());
-        getContext().setRenderedSql(renderedSql);
+                .render(sql, ctx);
+        ctx.setRenderedSql(renderedSql);
 
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
-                .parse(renderedSql, getContext());
+                .parse(renderedSql, ctx);
         String sql = parsedSql.getSql();
-        getContext().setParsedSql(parsedSql);
+        ctx.setParsedSql(parsedSql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, ctx);
             } else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, ctx);
             }
 
             // The statement builder might (or might not) clean up the statement when called. E.g. the
@@ -1495,19 +1509,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
             getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
-            throw new UnableToCreateStatementException(e, getContext());
+            throw new UnableToCreateStatementException(e, ctx);
         }
 
-        getContext().setStatement(stmt);
+        ctx.setStatement(stmt);
 
-        beforeBinding(stmt);
+        beforeBinding();
 
-        ArgumentBinder.bind(parsedSql.getParameters(), getBinding(), stmt, getContext());
+        ArgumentBinder.bind(parsedSql.getParameters(), getBinding(), stmt, ctx);
 
-        beforeExecution(stmt);
+        beforeExecution();
 
         try {
-            SqlLoggerUtil.wrap(stmt::execute, getContext(), getConfig(SqlStatements.class).getSqlLogger());
+            SqlLoggerUtil.wrap(stmt::execute, ctx, getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
             try {
                 stmt.close();
@@ -1515,10 +1529,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 e.addSuppressed(e1);
             }
 
-            throw new UnableToExecuteStatementException(e, getContext());
+            throw new UnableToExecuteStatementException(e, ctx);
         }
 
-        afterExecution(stmt);
+        afterExecution();
 
         return stmt;
     }
@@ -1536,5 +1550,21 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     RowMapper<?> mapperForType(Type type) {
         return getConfig(Mappers.class).findFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
+    }
+
+    void beforeTemplating() {
+        callCustomizers(c -> c.beforeTemplating(stmt, getContext()));
+    }
+
+    void beforeBinding() {
+        callCustomizers(c -> c.beforeBinding(stmt, getContext()));
+    }
+
+    void beforeExecution() {
+        callCustomizers(c -> c.beforeExecution(stmt, getContext()));
+    }
+
+    void afterExecution() {
+        callCustomizers(c -> c.afterExecution(stmt, getContext()));
     }
 }

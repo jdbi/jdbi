@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +51,7 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
             try {
                 BeanInfo info = Introspector.getBeanInfo(type);
                 return Stream.of(info.getPropertyDescriptors())
+                    .filter(BeanPropertyArguments::shouldSeeProperty)
                     .collect(toMap(PropertyDescriptor::getName, Function.identity()));
             } catch (IntrospectionException e) {
                 throw new UnableToCreateStatementException(
@@ -58,6 +60,12 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
             }
         })
         .build();
+
+    private static boolean shouldSeeProperty(PropertyDescriptor pd) {
+        // 'class' isn't really a property
+        final Method read = pd.getReadMethod();
+        return read == null || read.getDeclaringClass() != Object.class;
+    }
 
     private final Map<String, PropertyDescriptor> propertyDescriptors;
 
@@ -102,6 +110,11 @@ public class BeanPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         }
 
         return getter;
+    }
+
+    @Override
+    public Collection<String> getNames() {
+        return propertyDescriptors.keySet();
     }
 
     @Override
