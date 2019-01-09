@@ -24,6 +24,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  * an {@link Argument} that binds the value to a prepared statement.
  *
  * Make sure to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an {@link org.jdbi.v3.core.statement.SqlLogger}.
+ *
+ * Note that {@code null} is handled specially in a few cases, and a few {@code Jdbi} features assume you'll return an instance of {@link NullArgument} when you intend to bind null.
  */
 @FunctionalInterface
 public interface ArgumentFactory {

@@ -21,6 +21,14 @@ import java.sql.SQLException;
  */
 public interface StatementCustomizer {
     /**
+     * Invoked prior to using the TemplateEngine to render sql from definitions.
+     * @param stmt the statement we are about to render
+     * @param ctx the context associated with the statement
+     * @throws SQLException go ahead and percolate it for Jdbi to handle
+     */
+    default void beforeTemplating(PreparedStatement stmt, StatementContext ctx) throws SQLException {}
+
+    /**
      * Invoked prior to applying bound parameters to the {@link PreparedStatement}.
      *
      * @param stmt Prepared statement being customized

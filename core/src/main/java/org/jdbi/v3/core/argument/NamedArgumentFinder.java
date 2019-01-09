@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
@@ -23,4 +26,12 @@ import org.jdbi.v3.core.statement.StatementContext;
 @FunctionalInterface
 public interface NamedArgumentFinder {
     Optional<Argument> find(String name, StatementContext ctx);
+
+    /**
+     * @return the names this named argument finder can find, if known, otherwise an empty collection
+     */
+    @Beta
+    default Collection<String> getNames() {
+        return Collections.emptySet();
+    }
 }

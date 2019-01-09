@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -50,6 +51,11 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
         PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
         return Optional.ofNullable(property)
                 .map(p -> new TypedValue(p.getQualifiedType(), p.get(obj)));
+    }
+
+    @Override
+    public Collection<String> getNames() {
+        return properties.getProperties().keySet();
     }
 
     @Override

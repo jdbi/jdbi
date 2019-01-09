@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,11 @@ public class MapArguments implements NamedArgumentFinder {
             return ctx.findArgumentFor(argumentClass, argument);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Collection<String> getNames() {
+        return args.keySet();
     }
 
     @Override

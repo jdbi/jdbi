@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.statement;
 
 import java.io.Closeable;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 import org.jdbi.v3.core.Handle;
@@ -74,30 +73,10 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         customizers.forEach(this::addCustomizer);
     }
 
-    final void beforeBinding(final PreparedStatement stmt) {
+    final void callCustomizers(StatementCustomizerInvocation invocation) {
         for (StatementCustomizer customizer : getCustomizers()) {
             try {
-                customizer.beforeBinding(stmt, ctx);
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
-            }
-        }
-    }
-
-    final void beforeExecution(final PreparedStatement stmt) {
-        for (StatementCustomizer customizer : getCustomizers()) {
-            try {
-                customizer.beforeExecution(stmt, ctx);
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
-            }
-        }
-    }
-
-    final void afterExecution(final PreparedStatement stmt) {
-        for (StatementCustomizer customizer : getCustomizers()) {
-            try {
-                customizer.afterExecution(stmt, ctx);
+                invocation.call(customizer);
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
@@ -112,5 +91,9 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     public void close() {
         getContext().close();
     }
-}
 
+    @FunctionalInterface
+    interface StatementCustomizerInvocation {
+        void call(StatementCustomizer t) throws SQLException;
+    }
+}
