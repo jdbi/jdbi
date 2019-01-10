@@ -10,6 +10,7 @@
 :source-highlighter: coderay
 :source-language: asciidoc
 :imagesdir: images
+:docinfo:
 
 :jdbidocs: ./apidocs/org/jdbi/v3
 :jdkdocs: https://docs.oracle.com/javase/8/docs/api
