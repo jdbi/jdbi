@@ -28,6 +28,7 @@
     <properties>
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
         <jmh.version>1.21</jmh.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 
