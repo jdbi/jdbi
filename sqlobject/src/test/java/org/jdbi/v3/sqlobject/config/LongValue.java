@@ -14,46 +14,14 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor(staticName = "of")
 public class LongValue implements Serializable {
     private static final long serialVersionUID = 0L;
 
-    public static final LongValue of(long value) {
-        return new LongValue(value);
-    }
-
     final long value;
-
-    private LongValue(long value) {
-        this.value = value;
-    }
-
-    public long getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        LongValue longValue = (LongValue) o;
-        return value == longValue.value;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
-        return "LongValue{"
-                + "value=" + value
-                + '}';
-    }
 }

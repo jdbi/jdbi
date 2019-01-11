@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.statement.MapTo;
@@ -64,25 +66,15 @@ public class TestPolymorphicReturn {
         Sheep getBad(@MapTo String baaaaa);
     }
 
+    @Getter
+    @Setter
     public static class Sheep {
         private String name;
-
-        public String getName() {
-            return name;
-        }
-        public void setName(String name) {
-            this.name = name;
-        }
     }
 
+    @Getter
+    @Setter
     public static class FlyingSheep extends Sheep {
         private int numWings;
-
-        public int getNumWings() {
-            return numWings;
-        }
-        public void setNumWings(int numWings) {
-            this.numWings = numWings;
-        }
     }
 }

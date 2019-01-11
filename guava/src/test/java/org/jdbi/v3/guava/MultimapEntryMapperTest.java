@@ -13,10 +13,9 @@
  */
 package org.jdbi.v3.guava;
 
-import java.util.Objects;
-
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
+import lombok.Data;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
@@ -116,75 +115,15 @@ public class MultimapEntryMapperTest {
         assertThat(map).isEqualTo(expected);
     }
 
+    @Data
     public static class User {
         private final int id;
         private final String name;
-
-        public User(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            User user = (User) o;
-            return id == user.id
-                && Objects.equals(name, user.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-
-        @Override
-        public String toString() {
-            return "User{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
-        }
     }
 
+    @Data
     public static class Phone {
         private final int id;
         private final String phone;
-
-        public Phone(int id, String phone) {
-            this.id = id;
-            this.phone = phone;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Phone phone1 = (Phone) o;
-            return id == phone1.id
-                && Objects.equals(phone, phone1.phone);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, phone);
-        }
-
-        @Override
-        public String toString() {
-            return "Phone{"
-                + "id=" + id
-                + ", phone='" + phone + '\''
-                + '}';
-        }
     }
 }

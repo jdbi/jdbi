@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.util.Optional;
 
+import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
@@ -108,13 +109,9 @@ public class TestOptionalArgumentH2 {
         }
     }
 
+    @AllArgsConstructor
     private class IdValue {
         private long id;
         private String value;
-
-        IdValue(long id, String value) {
-            this.id = id;
-            this.value = value;
-        }
     }
 }

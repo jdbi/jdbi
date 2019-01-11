@@ -18,6 +18,8 @@ import java.net.URI;
 import java.util.Calendar;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.generic.GenericType;
@@ -41,6 +43,8 @@ public class TestColumnMappers {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
+    @Getter
+    @Setter
     public static class SomeBean {
         int primitiveInt;
         Long wrapperLong;
@@ -49,62 +53,6 @@ public class TestColumnMappers {
         URI uri;
         char primitiveChar;
         Character wrappedChar;
-
-        public int getPrimitiveInt() {
-            return primitiveInt;
-        }
-
-        public void setPrimitiveInt(int primitiveInt) {
-            this.primitiveInt = primitiveInt;
-        }
-
-        public char getPrimitiveChar() {
-            return primitiveChar;
-        }
-
-        public void setPrimitiveChar(char primitiveChar) {
-            this.primitiveChar = primitiveChar;
-        }
-
-        public Character getWrappedChar() {
-            return wrappedChar;
-        }
-
-        public void setWrappedChar(Character wrappedChar) {
-            this.wrappedChar = wrappedChar;
-        }
-
-        public Long getWrapperLong() {
-            return wrapperLong;
-        }
-
-        public void setWrapperLong(Long wrapperLong) {
-            this.wrapperLong = wrapperLong;
-        }
-
-        public String getString() {
-            return string;
-        }
-
-        public void setString(String string) {
-            this.string = string;
-        }
-
-        public URI getUri() {
-            return uri;
-        }
-
-        public void setUri(URI uri) {
-            this.uri = uri;
-        }
-
-        public ValueType getValueType() {
-            return valueType;
-        }
-
-        public void setValueType(ValueType valueType) {
-            this.valueType = valueType;
-        }
     }
 
     public interface SomeBeanDao {

@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
@@ -33,12 +34,9 @@ public class TestFieldMapper {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
+    @Getter
     public static class TestObject {
-        ValueType valueType;
-
-        public ValueType getValueType() {
-            return valueType;
-        }
+        private ValueType valueType;
     }
 
     @RegisterColumnMapper(ValueTypeMapper.class)
@@ -52,8 +50,8 @@ public class TestFieldMapper {
         List<TestObject> listBeansPrefix();
     }
 
-    Handle h;
-    TestDao dao;
+    private Handle h;
+    private TestDao dao;
 
     @Before
     public void createTable() {

@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.locator;
 
 import java.util.List;
 
+import lombok.NoArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -54,10 +55,9 @@ public class TestSqlLocator {
             .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
     }
 
+    @NoArgsConstructor
     public static class TestConfig implements JdbiConfig<TestConfig> {
         String sql;
-
-        public TestConfig() {}
 
         private TestConfig(TestConfig that) {
             this.sql = that.sql;

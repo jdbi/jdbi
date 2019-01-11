@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Data;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
@@ -36,7 +37,7 @@ public class TestCustomArrayType {
 
     /**
      * Test binding and mapping a custom array type; binding requires registration
-     * of a {@link SqlArrayType} implementation, and mapping requires registration
+     * of a {@link org.jdbi.v3.core.array.SqlArrayType} implementation, and mapping requires registration
      * of a regular {@link ColumnMapper} for the element
      * type
      */
@@ -67,37 +68,12 @@ public class TestCustomArrayType {
         }
     }
 
+    @Data
     static class UserId {
         private final int id;
-
-        UserId(int id) {
-            this.id = id;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            UserId userId = (UserId) o;
-            return id == userId.id;
-        }
-
-        @Override
-        public int hashCode() {
-            return id;
-        }
     }
 
     static class UserIdColumnMapper implements ColumnMapper<UserId> {
-
         @Override
         public UserId map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
             return new UserId(rs.getInt(col));

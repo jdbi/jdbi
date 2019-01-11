@@ -13,19 +13,15 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.util.Objects;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
+@Data
+@NoArgsConstructor
 public class Comment {
-    static Comment newComment(long id, String content) {
-        return new Comment(id, content);
-    }
-
     private long id;
     private String content;
-
-    public Comment() {}
 
     @JdbiConstructor
     public Comment(long id, String content) {
@@ -33,45 +29,7 @@ public class Comment {
         setContent(content);
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Comment comment = (Comment) o;
-        return id == comment.id
-                && Objects.equals(content, comment.content);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, content);
-    }
-
-    @Override
-    public String toString() {
-        return "Comment{"
-                + "id=" + id
-                + ", content='" + content + '\''
-                + '}';
+    static Comment newComment(long id, String content) {
+        return new Comment(id, content);
     }
 }

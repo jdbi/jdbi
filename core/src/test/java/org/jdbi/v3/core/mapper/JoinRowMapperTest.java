@@ -13,11 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.util.Objects;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -110,52 +111,17 @@ public class JoinRowMapperTest {
         return new Article(aid, "a" + aid);
     }
 
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
     public static class User {
         private final int uid;
         private final String name;
-
-        public User(int uid, String name) {
-            this.uid = uid;
-            this.name = name;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(uid, name);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof User) {
-                User that = (User) obj;
-                return Objects.equals(uid, that.uid) && Objects.equals(name, that.name);
-            }
-            return false;
-        }
     }
 
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
     public static class Article {
         private final int aid;
         private final String title;
-
-        public Article(int aid, String title) {
-            this.aid = aid;
-            this.title = title;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(aid, title);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Article) {
-                Article that = (Article) obj;
-                return Objects.equals(aid, that.aid) && Objects.equals(title, that.title);
-            }
-            return false;
-        }
     }
-
 }

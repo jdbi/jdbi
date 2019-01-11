@@ -13,87 +13,24 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.Objects;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 public class Something {
     private int id;
     private String name;
     private Integer integerValue;
     private int intValue;
 
-    public Something() {}
-
     public Something(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getIntegerValue() {
-        return integerValue;
-    }
-
-    public void setIntegerValue(Integer integerValue) {
-        this.integerValue = integerValue;
-    }
-
-    public int getIntValue() {
-        return intValue;
-    }
-
-    public void setIntValue(int intValue) {
-        this.intValue = intValue;
-    }
-
     // Issue #61: @BindBean fails if there is a writable but not readable property, so let's have one...
     public void setWithoutGetter(String bogus) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Something)) {
-            return false;
-        }
-
-        Something that = (Something) o;
-
-        return this.id == that.id
-                && this.intValue == that.intValue
-                && Objects.equals(this.integerValue, that.integerValue)
-                && Objects.equals(this.name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, integerValue, intValue);
-    }
-
-    @Override
-    public String toString() {
-        return "Something{"
-            + "id=" + id
-            + ", name='" + name + '\''
-            + ", integerValue=" + integerValue
-            + ", intValue=" + intValue
-            + '}';
     }
 }

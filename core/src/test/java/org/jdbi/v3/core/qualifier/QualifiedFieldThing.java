@@ -13,60 +13,15 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class QualifiedFieldThing {
     public int id;
-
     @Reversed
     public String name;
-
-    public QualifiedFieldThing() {}
-
-    public QualifiedFieldThing(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        QualifiedFieldThing that = (QualifiedFieldThing) o;
-        return id == that.id
-            && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
-
-    @Override
-    public String toString() {
-        return "QualifiedFieldThing{"
-            + "id=" + id
-            + ", name='" + name + '\''
-            + '}';
-    }
 }

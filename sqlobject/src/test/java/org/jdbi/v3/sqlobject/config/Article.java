@@ -16,11 +16,25 @@ package org.jdbi.v3.sqlobject.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
+@Data
+@NoArgsConstructor
 public class Article {
+    private long id;
+    private String title;
+    private String content;
+    private List<Comment> comments = new ArrayList<>();
+
+    @JdbiConstructor
+    public Article(long id, String title, String content) {
+        setId(id);
+        setTitle(title);
+        setContent(content);
+    }
 
     public static Article newArticle(long id, String title) {
         return newArticle(id, title, null);
@@ -32,81 +46,5 @@ public class Article {
         article.getComments().addAll(Arrays.asList(comments));
 
         return article;
-    }
-
-    private long id;
-    private String title;
-    private String content;
-    private List<Comment> comments = new ArrayList<>();
-
-    public Article() {}
-
-    @JdbiConstructor
-    public Article(long id, String title, String content) {
-        setId(id);
-        setTitle(title);
-        setContent(content);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Article article = (Article) o;
-        return id == article.id
-                && Objects.equals(title, article.title)
-                && Objects.equals(content, article.content)
-                && Objects.equals(comments, article.comments);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, content, comments);
-    }
-
-    @Override
-    public String toString() {
-        return "Article{"
-                + "id=" + id
-                + ", title='" + title + '\''
-                + ", content='" + content + '\''
-                + ", comments=" + comments
-                + '}';
     }
 }

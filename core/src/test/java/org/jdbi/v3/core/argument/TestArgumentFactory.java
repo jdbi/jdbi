@@ -17,6 +17,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -99,23 +101,14 @@ public class TestArgumentFactory {
         }
     }
 
+    @RequiredArgsConstructor
+    @ToString
     public static class Name {
         private final String first;
         private final String last;
 
-        public Name(String first, String last) {
-            this.first = first;
-            this.last = last;
-        }
-
         public String getFullName() {
             return first + " " + last;
         }
-
-        @Override
-        public String toString() {
-            return "<Name first=" + first + " last=" + last + " >";
-        }
     }
-
 }

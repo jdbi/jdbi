@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -75,22 +77,11 @@ public class TestRegisterRowMapperFactory {
     }
 
     @MapWith(FooMapper.class)
+    @RequiredArgsConstructor
+    @Getter
     public static class Foo {
         private final int id;
         private final String name;
-
-        Foo(final int id, final String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
 
         public static class FooMapper implements RowMapper<Foo> {
             @Override

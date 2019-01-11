@@ -15,9 +15,11 @@ package org.jdbi.v3.guava;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Objects;
 
 import com.google.common.base.Optional;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;
@@ -43,7 +45,7 @@ public class TestGuavaOptional {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    Handle handle;
+    private Handle handle;
 
     @Before
     public void createTestData() {
@@ -129,26 +131,11 @@ public class TestGuavaOptional {
                 .list();
     }
 
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
+    @ToString
     class Name {
         final String value;
-
-        Name(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Name)) {
-                return false;
-            }
-            Name that = (Name) obj;
-            return this.value.equals(that.value);
-        }
     }
 
     class NameArgumentFactory implements ArgumentFactory {

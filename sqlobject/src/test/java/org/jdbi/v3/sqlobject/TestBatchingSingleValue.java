@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -68,32 +70,11 @@ public class TestBatchingSingleValue {
         List<BatchingRow> select();
     }
 
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
+    @ToString
     public static class BatchingRow {
         final int id;
         final int[] values;
-
-        public BatchingRow(int id, int[] values) {
-            this.id = id;
-            this.values = values;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof BatchingRow) {
-                BatchingRow other = (BatchingRow) obj;
-                return id == other.id && Arrays.equals(values, other.values);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return id ^ Arrays.hashCode(values);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s %s", id, Arrays.toString(values));
-        }
     }
 }

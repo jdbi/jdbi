@@ -15,6 +15,8 @@ package org.jdbi.v3.core.mapper;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
@@ -27,6 +29,8 @@ public class TestEnums {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
+    @Getter
+    @Setter
     public static class SomethingElse {
         public enum Name {
             eric, brian
@@ -34,22 +38,6 @@ public class TestEnums {
 
         private int id;
         private Name name;
-
-        public Name getName() {
-            return name;
-        }
-
-        public void setName(Name name) {
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
     }
 
     @Test

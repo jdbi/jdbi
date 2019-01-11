@@ -15,12 +15,13 @@ package org.jdbi.v3.core;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -253,26 +254,10 @@ public class TestOptional {
                 .hasValue(123.45);
     }
 
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
     class Name {
         final String value;
-
-        Name(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Name)) {
-                return false;
-            }
-            Name that = (Name) obj;
-            return this.value.equals(that.value);
-        }
     }
 
     class NameArgumentFactory implements ArgumentFactory {

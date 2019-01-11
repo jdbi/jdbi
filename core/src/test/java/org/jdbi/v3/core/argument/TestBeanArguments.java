@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -58,16 +61,9 @@ public class TestBeanArguments {
         verify(stmt).setNull(3, Types.NUMERIC);
     }
 
+    @Value
     public static class Foo {
         private final BigDecimal foo;
-
-        Foo(BigDecimal foo) {
-            this.foo = foo;
-        }
-
-        public BigDecimal getFoo() {
-            return foo;
-        }
     }
 
     @Test
@@ -116,12 +112,10 @@ public class TestBeanArguments {
     }
 
     public static class NonPublicGetter {
-        @SuppressWarnings("unused")
         protected String getBar() {
             return "baz";
         }
 
-        @SuppressWarnings("unused")
         public void setBar(String bar) {}
     }
 
@@ -176,29 +170,16 @@ public class TestBeanArguments {
         verify(stmt).setLong(3, 69);
     }
 
+    @RequiredArgsConstructor
+    @Getter
     public static class FooProperty {
         private final Object foo;
-
-        FooProperty(Object foo) {
-            this.foo = foo;
-        }
-
-        @SuppressWarnings("unused")
-        public Object getFoo() {
-            return foo;
-        }
     }
 
+    @RequiredArgsConstructor
+    @Getter
     public static class IdProperty {
         private final long id;
-
-        IdProperty(long id) {
-            this.id = id;
-        }
-
-        public long getId() {
-            return id;
-        }
     }
 
     @Test

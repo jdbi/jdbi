@@ -46,8 +46,8 @@ public class TestRegisterColumnMapperFactory {
         assertThat(dao.listStringValues()).containsExactly(StringValue.of("foo"), StringValue.of("bar"));
         assertThat(dao.listLongValues()).containsExactly(LongValue.of(1L), LongValue.of(2L));
         assertThat(dao.list()).containsExactly(
-                new ValueTypeEntity(StringValue.of("foo"), LongValue.of(1L)),
-                new ValueTypeEntity(StringValue.of("bar"), LongValue.of(2L)));
+                ValueTypeEntity.of(StringValue.of("foo"), LongValue.of(1L)),
+                ValueTypeEntity.of(StringValue.of("bar"), LongValue.of(2L)));
     }
 
     public interface TestDao {

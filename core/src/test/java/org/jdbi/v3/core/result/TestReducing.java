@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -119,6 +121,8 @@ public class TestReducing {
             .containsEntry(2, new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
     }
 
+    @EqualsAndHashCode
+    @ToString
     static class SomethingWithLocations {
         final Something something;
         final List<String> locations = new ArrayList<>();
@@ -130,25 +134,6 @@ public class TestReducing {
         SomethingWithLocations at(String where) {
             locations.add(where);
             return this;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (!(other instanceof SomethingWithLocations)) {
-                return false;
-            }
-            SomethingWithLocations o = (SomethingWithLocations) other;
-            return o.something.equals(something) && o.locations.equals(locations);
-        }
-
-        @Override
-        public int hashCode() {
-            return something.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Something %s with locations %s", something, locations);
         }
     }
 }

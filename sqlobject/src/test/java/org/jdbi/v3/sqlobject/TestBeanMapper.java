@@ -18,9 +18,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
@@ -43,16 +47,10 @@ public class TestBeanMapper {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
+    @Getter
+    @Setter
     public static class TestBean {
         private ValueType valueType;
-
-        public ValueType getValueType() {
-            return valueType;
-        }
-
-        public void setValueType(ValueType valueType) {
-            this.valueType = valueType;
-        }
     }
 
     @RegisterColumnMapper(ValueTypeMapper.class)
@@ -92,129 +90,26 @@ public class TestBeanMapper {
         assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Document {
         private int id;
         private String name;
         private String contents;
-
-        public Document() {}
-
-        public Document(int id, String name, String contents) {
-            this.id = id;
-            this.name = name;
-            this.contents = contents;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getContents() {
-            return contents;
-        }
-
-        public void setContents(String contents) {
-            this.contents = contents;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Document)) {
-                return false;
-            }
-            Document that = (Document) obj;
-            return this.id == that.id
-                && Objects.equals(this.name, that.name)
-                && Objects.equals(this.contents, that.contents);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name, contents);
-        }
-
-        @Override
-        public String toString() {
-            return "Document{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", contents='" + contents + '\''
-                + '}';
-        }
     }
 
+    @Data
+    @NoArgsConstructor
     public static class Folder {
         private int id;
         private String name;
         private List<Document> documents = new ArrayList<>();
 
-        public Folder() {}
-
         public Folder(int id, String name, Document... documents) {
             this.id = id;
             this.name = name;
             this.documents = Arrays.asList(documents);
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public List<Document> getDocuments() {
-            return documents;
-        }
-
-        public void setDocuments(List<Document> documents) {
-            this.documents = documents;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Folder)) {
-                return false;
-            }
-            Folder that = (Folder) obj;
-            return this.id == that.id
-                && Objects.equals(this.name, that.name)
-                && Objects.equals(this.documents, that.documents);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name, documents);
-        }
-
-        @Override
-        public String toString() {
-            return "Folder{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", documents=" + documents
-                + '}';
         }
     }
 

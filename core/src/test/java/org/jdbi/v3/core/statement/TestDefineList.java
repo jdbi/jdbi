@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -66,26 +67,11 @@ public class TestDefineList {
                         tuple(2, null, null, "baz2"));
     }
 
+    @Getter
     public static class Thing {
         public int id;
         public String foo;
         public String bar;
         public String baz;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getFoo() {
-            return foo;
-        }
-
-        public String getBar() {
-            return bar;
-        }
-
-        public String getBaz() {
-            return baz;
-        }
     }
 }

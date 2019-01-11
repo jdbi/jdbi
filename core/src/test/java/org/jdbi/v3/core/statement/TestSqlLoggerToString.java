@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -145,16 +147,10 @@ public class TestSqlLoggerToString {
         assertThat(positional).isEqualTo("this is a Foo");
     }
 
+    @RequiredArgsConstructor
+    @Getter
     public static class StringBean {
         private final String x;
-
-        private StringBean(String x) {
-            this.x = x;
-        }
-
-        public String getX() {
-            return x;
-        }
     }
 
     private static class Foo {}

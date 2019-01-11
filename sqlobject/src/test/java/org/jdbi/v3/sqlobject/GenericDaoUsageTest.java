@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -53,14 +55,10 @@ public class GenericDaoUsageTest {
         void setId(PK id);
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserModel implements Model<Integer> {
         private int id;
-
-        public UserModel() {}
-
-        public UserModel(int id) {
-            this.id = id;
-        }
 
         @Override
         public Integer getId() {
@@ -90,6 +88,4 @@ public class GenericDaoUsageTest {
         @GetGeneratedKeys
         Integer insert(@BindBean UserModel user);
     }
-
 }
-

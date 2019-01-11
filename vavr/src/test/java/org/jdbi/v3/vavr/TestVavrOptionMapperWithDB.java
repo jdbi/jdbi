@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.vavr;
 
-import java.util.Objects;
-
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -94,36 +95,11 @@ public class TestVavrOptionMapperWithDB {
         assertThat(result).isEqualTo(new SomethingWithOption(2, Option.none()));
     }
 
+    @AllArgsConstructor
+    @Getter
+    @EqualsAndHashCode
     public static class SomethingWithOption {
         private int id;
         private Option<String> name;
-
-        public SomethingWithOption(int id, Option<String> name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public Option<String> getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            SomethingWithOption that = (SomethingWithOption) o;
-            return id == that.id
-                    && Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
     }
-
 }

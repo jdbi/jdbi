@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
@@ -82,26 +83,11 @@ public class TestBindList {
         });
     }
 
+    @Getter
     public static class Thing {
         public int id;
         public String foo;
         public String bar;
         public String baz;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getFoo() {
-            return foo;
-        }
-
-        public String getBar() {
-            return bar;
-        }
-
-        public String getBaz() {
-            return baz;
-        }
     }
 }

@@ -14,45 +14,27 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+import javax.annotation.Nullable;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+@EqualsAndHashCode
 public class StringValue implements Serializable {
     private static final long serialVersionUID = 0L;
 
-    public static StringValue of(String value) {
-        return value == null ? null : new StringValue(value);
-    }
-    final String value;
+    private final String value;
 
     private StringValue(String value) {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        StringValue that = (StringValue) o;
-        return Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
-        return "StringValue{"
-                + "value='" + value + '\''
-                + '}';
+    @Nullable
+    public static StringValue of(String value) {
+        return value == null ? null : new StringValue(value);
     }
 }

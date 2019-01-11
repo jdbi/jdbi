@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -44,12 +45,9 @@ public class MapOptionalTest {
                 tuple(OptionalInt.empty(), Optional.empty()));
     }
 
+    @RequiredArgsConstructor
     public static class OptionalBean {
         public final OptionalInt intValue;
         public final Optional<String> name;
-        public OptionalBean(OptionalInt intValue, Optional<String> name) {
-            this.intValue = intValue;
-            this.name = name;
-        }
     }
 }

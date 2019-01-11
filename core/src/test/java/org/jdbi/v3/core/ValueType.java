@@ -14,42 +14,13 @@
 
 package org.jdbi.v3.core;
 
-public class ValueType {
-    public static ValueType valueOf(String value) {
-        return value == null ? null : new ValueType(value);
-    }
+import lombok.Value;
 
+@Value
+public class ValueType {
     private final String value;
 
-    private ValueType(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ValueType that = (ValueType) o;
-
-        return this.value.equals(that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return value;
+    public static ValueType valueOf(String value) {
+        return value == null ? null : new ValueType(value);
     }
 }

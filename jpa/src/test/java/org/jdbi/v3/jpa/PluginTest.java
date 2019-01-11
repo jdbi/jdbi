@@ -14,10 +14,12 @@
 package org.jdbi.v3.jpa;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.persistence.Entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -29,57 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PluginTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
-
-    @Entity
-    static class Thing {
-        private int id;
-        private String name;
-
-        Thing() {}
-
-        Thing(int id, String name) {
-            setId(id);
-            setName(name);
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof Thing) {
-                Thing thing = (Thing) o;
-                return id == thing.id && Objects.equals(name, thing.name);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name);
-        }
-    }
-
-    public interface ThingDao {
-        @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        void insert(@BindJpa Thing thing);
-
-        @SqlQuery("select id, name from something")
-        List<Thing> list();
-    }
 
     @Test
     public void testPluginInstallsJpaMapper() {
@@ -93,5 +44,22 @@ public class PluginTest {
         List<Thing> rs = dao.list();
 
         assertThat(rs).containsOnlyOnce(brian, keith);
+    }
+
+    public interface ThingDao {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindJpa Thing thing);
+
+        @SqlQuery("select id, name from something")
+        List<Thing> list();
+    }
+
+    @Entity
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Thing {
+        private int id;
+        private String name;
     }
 }

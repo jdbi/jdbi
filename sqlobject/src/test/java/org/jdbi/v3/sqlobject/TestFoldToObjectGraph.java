@@ -17,10 +17,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -106,126 +108,25 @@ public class TestFoldToObjectGraph {
         }
     }
 
+    @Data
     public static class Team {
         private final String name;
         private final String mascot;
         private final Set<Person> people = new LinkedHashSet<>();
-
-        public Team(String name, String mascot) {
-            this.name = name;
-            this.mascot = mascot;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getMascot() {
-            return mascot;
-        }
-
-        public Set<Person> getPeople() {
-            return this.people;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            Team that = (Team) o;
-
-            return Objects.equals(this.mascot, that.mascot)
-                    && Objects.equals(this.name, that.name)
-                    && Objects.equals(this.people, that.people);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, mascot, people);
-        }
     }
 
+    @Data
     public static class Person {
         private final String name;
         private final String role;
-
-        public Person(String name, String role) {
-            this.name = name;
-            this.role = role;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            Person person = (Person) o;
-
-            return name.equals(person.name) && role.equals(person.role);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name.hashCode();
-            result = 31 * result + role.hashCode();
-            return result;
-        }
     }
 
+    @Getter
+    @Setter
     public static class TeamPersonJoinRow {
         private String teamName;
         private String mascot;
         private String personName;
         private String role;
-
-        public String getTeamName() {
-            return teamName;
-        }
-
-        public String getMascot() {
-            return mascot;
-        }
-
-        public String getPersonName() {
-            return personName;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        public void setTeamName(String teamName) {
-            this.teamName = teamName;
-        }
-
-        public void setMascot(String mascot) {
-            this.mascot = mascot;
-        }
-
-        public void setPersonName(String personName) {
-            this.personName = personName;
-        }
-
-        public void setRole(String role) {
-            this.role = role;
-        }
     }
 }

@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -73,44 +75,18 @@ public class TestBindBeanList {
                         tuple(3, "foo3", null, null));
     }
 
+    @AllArgsConstructor
+    @Getter
     public static class ThingKey {
         public String foo;
         public String bar;
-
-        public ThingKey(String foo, String bar) {
-            this.foo = foo;
-            this.bar = bar;
-        }
-
-        public String getFoo() {
-            return foo;
-        }
-
-        public String getBar() {
-            return bar;
-        }
     }
 
+    @Getter
     public static class Thing {
         public int id;
         public String foo;
         public String bar;
         public String baz;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getFoo() {
-            return foo;
-        }
-
-        public String getBar() {
-            return bar;
-        }
-
-        public String getBaz() {
-            return baz;
-        }
     }
 }

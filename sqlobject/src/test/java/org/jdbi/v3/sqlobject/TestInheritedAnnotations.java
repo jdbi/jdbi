@@ -14,9 +14,9 @@
 package org.jdbi.v3.sqlobject;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Data;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -87,6 +87,7 @@ public class TestInheritedAnnotations {
     @RegisterConstructorMapper(Character.class)
     public interface CharacterDao extends CrudDao<Character, Integer> {}
 
+    @Data
     public static class Character {
         public final int id;
         public final String name;
@@ -103,52 +104,6 @@ public class TestInheritedAnnotations {
             this.name = name;
             this.created = created;
             this.modified = modified;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Instant getCreated() {
-            return created;
-        }
-
-        public Instant getModified() {
-            return modified;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Character character = (Character) o;
-            return id == character.id
-                && Objects.equals(name, character.name)
-                && Objects.equals(created, character.created)
-                && Objects.equals(modified, character.modified);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, name, created, modified);
-        }
-
-        @Override
-        public String toString() {
-            return "Character{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", created=" + created
-                + ", modified=" + modified
-                + '}';
         }
     }
 }

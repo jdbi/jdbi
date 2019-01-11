@@ -17,6 +17,9 @@ import io.vavr.Tuple1;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vavr.Tuple4;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.generic.GenericType;
@@ -182,38 +185,11 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThat(result._4).isEqualTo(102);
     }
 
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    @ToString
     private static class SomethingValues {
         private int integerValue;
         private int intValue;
-
-        SomethingValues(int integerValue, int intValue) {
-            this.integerValue = integerValue;
-            this.intValue = intValue;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            SomethingValues that = (SomethingValues) o;
-
-            if (integerValue != that.integerValue) {
-                return false;
-            }
-            return intValue == that.intValue;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = integerValue;
-            result = 31 * result + intValue;
-            return result;
-        }
     }
-
 }

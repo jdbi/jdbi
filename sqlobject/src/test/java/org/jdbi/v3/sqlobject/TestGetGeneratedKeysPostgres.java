@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -172,13 +173,9 @@ public class TestGetGeneratedKeysPostgres {
         }
     }
 
+    @RequiredArgsConstructor
     public static class IdCreateTime {
-        final long id;
-        final OffsetDateTime createdOn;
-
-        public IdCreateTime(long id, OffsetDateTime createdOn) {
-            this.id = id;
-            this.createdOn = createdOn;
-        }
+        private final long id;
+        private final OffsetDateTime createdOn;
     }
 }

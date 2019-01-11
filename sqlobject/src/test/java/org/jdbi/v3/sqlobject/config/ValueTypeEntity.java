@@ -13,44 +13,16 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.util.Objects;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
+@Data
+@RequiredArgsConstructor
 public class ValueTypeEntity {
-    public static final ValueTypeEntity of(StringValue stringValue, LongValue longValue) {
-        return new ValueTypeEntity(stringValue, longValue);
-    }
-
     private final StringValue stringValue;
     private final LongValue longValue;
 
-    public ValueTypeEntity(StringValue stringValue, LongValue longValue) {
-        this.stringValue = stringValue;
-        this.longValue = longValue;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ValueTypeEntity that = (ValueTypeEntity) o;
-        return Objects.equals(stringValue, that.stringValue)
-                && Objects.equals(longValue, that.longValue);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(stringValue, longValue);
-    }
-
-    @Override
-    public String toString() {
-        return "ValueTypeEntity{"
-                + "stringValue=" + stringValue
-                + ", longValue=" + longValue
-                + '}';
+    public static ValueTypeEntity of(StringValue stringValue, LongValue longValue) {
+        return new ValueTypeEntity(stringValue, longValue);
     }
 }

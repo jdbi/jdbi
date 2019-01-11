@@ -13,16 +13,12 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import java.util.Objects;
+import lombok.Data;
 
+@Data
 public class QualifiedMethodThing {
     private final int id;
     private final String name;
-
-    public QualifiedMethodThing(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public int id() {
         return id;
@@ -31,31 +27,5 @@ public class QualifiedMethodThing {
     @Reversed
     public String name() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        QualifiedMethodThing that = (QualifiedMethodThing) o;
-        return id == that.id
-            && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
-
-    @Override
-    public String toString() {
-        return "QualifiedMethodThing{"
-            + "id=" + id
-            + ", name='" + name + '\''
-            + '}';
     }
 }
