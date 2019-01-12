@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.postgres;
 
-import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;

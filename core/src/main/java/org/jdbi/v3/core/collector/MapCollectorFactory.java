@@ -26,6 +26,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collector;
+
 import org.jdbi.v3.core.generic.GenericTypes;
 
 import static org.jdbi.v3.core.collector.MapCollectors.toMap;

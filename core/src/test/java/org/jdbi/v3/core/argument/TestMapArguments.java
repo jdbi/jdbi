@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.mockito.Mockito.verify;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
@@ -28,6 +26,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import static org.mockito.Mockito.verify;
 
 public class TestMapArguments {
     @Rule

@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Set;
+
 import org.jdbi.v3.core.argument.NullArgument;
 
 class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {

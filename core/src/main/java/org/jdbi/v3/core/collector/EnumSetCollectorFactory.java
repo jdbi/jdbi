@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core.collector;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
+
+import org.jdbi.v3.core.generic.GenericTypes;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

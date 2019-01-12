@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;

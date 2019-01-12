@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.util.Objects;
+
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.Handle;
@@ -23,8 +25,6 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

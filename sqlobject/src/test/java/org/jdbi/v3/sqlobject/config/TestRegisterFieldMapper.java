@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.config;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**

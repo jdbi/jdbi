@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.Type;
+import java.sql.SQLException;
+import java.util.Optional;
+
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
 import io.vavr.Tuple1;
@@ -30,10 +34,6 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Type;
-import java.sql.SQLException;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -13,17 +13,13 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.mockito.Mockito.verify;
-
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.util.Optional;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Rule;
@@ -31,6 +27,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.mockito.Mockito.verify;
 
 public class TestArgumentsRegistry {
     @Rule

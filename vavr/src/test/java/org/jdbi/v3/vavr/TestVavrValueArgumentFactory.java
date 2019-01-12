@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
 import io.vavr.Lazy;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Either;
@@ -24,9 +27,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Type;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.util.List;
+
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;

@@ -1,8 +1,5 @@
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-
 import java.sql.Types;
 
 import org.jdbi.v3.core.Handle;
@@ -11,6 +8,9 @@ import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
 public class CallTest {
     @Rule

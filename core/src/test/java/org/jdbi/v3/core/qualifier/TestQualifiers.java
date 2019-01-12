@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
-import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
-
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Foo;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
 public class TestQualifiers {
     @Test

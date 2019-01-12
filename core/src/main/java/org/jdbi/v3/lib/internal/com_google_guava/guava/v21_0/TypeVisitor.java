@@ -14,7 +14,6 @@
 
 package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -22,6 +21,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")

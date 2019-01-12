@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;

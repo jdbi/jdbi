@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+
+import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 

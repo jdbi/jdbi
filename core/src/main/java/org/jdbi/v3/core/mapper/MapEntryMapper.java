@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -27,6 +24,9 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 
 /**
  * Maps rows to {@link Map.Entry Map.Entry&lt;K, V&gt;}, provided there are mappers registered for types K and V. This mapper is registered out of the box.

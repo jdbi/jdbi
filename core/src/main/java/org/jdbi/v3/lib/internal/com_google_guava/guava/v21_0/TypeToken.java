@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static java.util.Collections.singletonMap;
+
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkState;
 

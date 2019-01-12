@@ -29,6 +29,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static java.util.stream.Collectors.toMap;
+
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**

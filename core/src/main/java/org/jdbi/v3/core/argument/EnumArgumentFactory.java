@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 

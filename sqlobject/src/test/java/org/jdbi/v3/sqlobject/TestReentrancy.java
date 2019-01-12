@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.List;
 import java.util.UUID;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;

@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.statement.StatementContext;

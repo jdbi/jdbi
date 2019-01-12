@@ -16,6 +16,7 @@ package org.jdbi.v3.core.collector;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class MapCollectors {

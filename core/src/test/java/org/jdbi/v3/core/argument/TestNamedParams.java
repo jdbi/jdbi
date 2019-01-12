@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

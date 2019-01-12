@@ -13,6 +13,11 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Optional;
+import java.util.stream.Collector;
+
 import io.vavr.Lazy;
 import io.vavr.Tuple;
 import io.vavr.collection.Array;
@@ -42,11 +47,6 @@ import io.vavr.collection.TreeSet;
 import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.collector.CollectorFactory;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Optional;
-import java.util.stream.Collector;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

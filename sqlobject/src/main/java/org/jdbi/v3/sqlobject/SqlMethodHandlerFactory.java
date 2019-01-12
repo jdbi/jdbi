@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.util.stream.Collectors.toList;

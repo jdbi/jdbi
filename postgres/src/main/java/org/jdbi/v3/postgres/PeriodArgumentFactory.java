@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.sql.Types;
+import java.time.Period;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
-
-import java.sql.Types;
-import java.time.Period;
 
 /**
  * Postgres version of argument factory for {@link Period}.

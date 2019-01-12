@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.argument.internal.StatementBinder;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.Handle;

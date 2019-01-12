@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
-import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 

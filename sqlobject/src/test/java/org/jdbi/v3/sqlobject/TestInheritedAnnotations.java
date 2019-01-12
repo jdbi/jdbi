@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -29,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInheritedAnnotations {

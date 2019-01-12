@@ -15,11 +15,10 @@ package org.jdbi.v3.testing;
 
 import javax.sql.DataSource;
 
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
 import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
 import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 class EmbeddedPostgresJdbiRule extends JdbiRule {
     private final SingleInstancePostgresRule embeddedPg;

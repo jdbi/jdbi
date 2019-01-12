@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.Reverser.reverse;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
@@ -35,6 +33,9 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 
 public class TestCustomQualifier {
 

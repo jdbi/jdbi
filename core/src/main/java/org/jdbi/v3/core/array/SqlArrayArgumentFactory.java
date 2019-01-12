@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collection;
 import java.util.Optional;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;

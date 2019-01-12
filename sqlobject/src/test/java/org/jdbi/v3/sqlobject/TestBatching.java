@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -32,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static java.util.Collections.emptySet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

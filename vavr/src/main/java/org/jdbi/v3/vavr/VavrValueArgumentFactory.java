@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
 import io.vavr.Lazy;
 import io.vavr.Value;
 import io.vavr.control.Either;
@@ -23,9 +26,6 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import java.lang.reflect.Type;
-import java.util.Optional;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 

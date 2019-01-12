@@ -17,6 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import org.jdbi.v3.commonstext.internal.UseStringSubstitutorTemplateEngineImpl;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 

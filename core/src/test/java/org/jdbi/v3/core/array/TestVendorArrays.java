@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.array;
 
 import java.util.UUID;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;

@@ -14,6 +14,7 @@
 package org.jdbi.v3.testing;
 
 import javax.sql.DataSource;
+
 import org.sqlite.SQLiteDataSource;
 
 class EmbeddedSqliteJdbiRule extends JdbiRule {

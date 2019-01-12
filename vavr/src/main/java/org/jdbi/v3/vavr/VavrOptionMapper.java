@@ -13,17 +13,17 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
+
 import io.vavr.control.Option;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.statement.StatementContext;
-
-import java.lang.reflect.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 

@@ -14,7 +14,6 @@
 package org.jdbi.v3.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 

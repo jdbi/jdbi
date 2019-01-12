@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +20,8 @@ import java.util.Set;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
+
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 @FunctionalInterface
 @Beta

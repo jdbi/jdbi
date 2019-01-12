@@ -13,17 +13,17 @@
  */
 package org.jdbi.v3.sqlobject.customizer.internal;
 
-import org.jdbi.v3.core.internal.IterableLike;
-import org.jdbi.v3.sqlobject.customizer.BindMethodsList;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+
+import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.sqlobject.customizer.BindMethodsList;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 public final class BindMethodsListFactory implements SqlStatementCustomizerFactory {
     @Override

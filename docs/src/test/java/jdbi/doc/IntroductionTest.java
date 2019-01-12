@@ -13,8 +13,6 @@
  */
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +24,8 @@ import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IntroductionTest {
 

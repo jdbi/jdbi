@@ -53,6 +53,22 @@ Most of our SQL Object tests rely on SQL method parameter names. However by defa
 parameter names into `.class` files. Thus, in order for unit tests to pass, the compiler must be configured to output
 parameter names.
 
+## Configure import ordering
+
+We enforce this order of imports:
+
+```
+java.*
+javax.*
+*
+static java.*
+static javax.*
+static *
+```
+
+A blank line is required between each group. The imports in a group must be ordered
+alphabetically. Wildcard imports (e.g. `import org.apache.*;`) are not allowed.
+
 ### IntelliJ
 
 * File &rarr; Settings

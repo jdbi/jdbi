@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.guava;
 
-import com.google.common.base.Optional;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
+
+import com.google.common.base.Optional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;

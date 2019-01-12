@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.ImmutableMap;
 import java.beans.ConstructorProperties;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;

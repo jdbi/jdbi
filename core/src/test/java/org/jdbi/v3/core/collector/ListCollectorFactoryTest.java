@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
 

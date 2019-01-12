@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
-import org.jdbi.v3.core.generic.GenericType;
-import org.junit.Test;
-
 import java.lang.reflect.Type;
 import java.util.EnumSet;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+
+import org.jdbi.v3.core.generic.GenericType;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

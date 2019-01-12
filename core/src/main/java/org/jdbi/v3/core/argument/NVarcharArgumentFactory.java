@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.sql.Types;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.NVarchar;
 

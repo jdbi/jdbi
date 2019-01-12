@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.time.Instant;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 class SqlLoggerUtil {

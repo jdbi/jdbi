@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
-import static org.jdbi.v3.core.result.ResultProducers.returningUpdateCount;
-
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
+
+import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
+import static org.jdbi.v3.core.result.ResultProducers.returningUpdateCount;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements

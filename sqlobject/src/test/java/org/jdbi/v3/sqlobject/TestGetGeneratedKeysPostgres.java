@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;

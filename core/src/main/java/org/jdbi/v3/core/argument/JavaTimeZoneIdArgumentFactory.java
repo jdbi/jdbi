@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
-
 import java.sql.Types;
 import java.time.ZoneId;
+
+import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 public class JavaTimeZoneIdArgumentFactory extends AbstractArgumentFactory<ZoneId> {
     public JavaTimeZoneIdArgumentFactory() {

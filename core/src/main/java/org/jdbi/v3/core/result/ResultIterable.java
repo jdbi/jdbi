@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.result;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -29,6 +27,8 @@ import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static java.util.Spliterators.spliteratorUnknownSize;
 
 /**
  * An {@link Iterable} of values, usually mapped from a {@link java.sql.ResultSet}. Generally, ResultIterables may only
