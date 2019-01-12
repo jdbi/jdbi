@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
@@ -23,12 +20,16 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble

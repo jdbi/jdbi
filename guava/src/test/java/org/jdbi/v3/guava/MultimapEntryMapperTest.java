@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.guava;
 
+import java.util.Objects;
+
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.Objects;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;

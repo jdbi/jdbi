@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlObjectFactory {
     private SqlObjectFactory factory = new SqlObjectFactory();

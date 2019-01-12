@@ -13,12 +13,13 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestParsedParameters {
 

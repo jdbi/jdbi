@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.internal;
 
 import java.lang.reflect.Parameter;
 import java.util.Optional;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class ParameterUtil {

@@ -18,8 +18,10 @@ package org.jdbi.v3.core.internal.exceptions;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class Sneaky {

@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.sql.Connection;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestPlugins {
     @Rule

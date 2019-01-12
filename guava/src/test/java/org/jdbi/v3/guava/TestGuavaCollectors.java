@@ -13,6 +13,13 @@
  */
 package org.jdbi.v3.guava;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
@@ -29,12 +36,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

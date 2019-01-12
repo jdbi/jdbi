@@ -13,6 +13,14 @@
  */
 package org.jdbi.v3.guava;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
@@ -32,14 +40,6 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.OptionalCollectors;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 import static org.jdbi.v3.core.collector.MapCollectors.toMap;

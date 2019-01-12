@@ -15,6 +15,7 @@ package org.jdbi.v3.core.locator;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementException;

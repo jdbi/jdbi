@@ -13,8 +13,9 @@
  */
 package org.jdbi.v3.gson2;
 
-import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
+
+import com.google.gson.JsonParseException;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.json.JsonMapper;

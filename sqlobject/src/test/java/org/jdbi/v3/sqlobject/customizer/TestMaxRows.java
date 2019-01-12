@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.customizer;
 
 import java.util.List;
 import java.util.Map;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.MapMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

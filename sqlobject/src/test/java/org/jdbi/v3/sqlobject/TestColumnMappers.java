@@ -17,6 +17,7 @@ package org.jdbi.v3.sqlobject;
 import java.net.URI;
 import java.util.Calendar;
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.generic.GenericType;

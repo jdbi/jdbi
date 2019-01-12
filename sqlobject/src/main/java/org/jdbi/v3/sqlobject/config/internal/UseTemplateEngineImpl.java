@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
 import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.statement.SqlStatements;

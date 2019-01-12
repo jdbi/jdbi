@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import java.util.Objects;
 import java.util.stream.IntStream;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

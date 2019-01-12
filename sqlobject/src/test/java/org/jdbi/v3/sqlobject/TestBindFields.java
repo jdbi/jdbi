@@ -14,8 +14,6 @@
 
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindFields;
@@ -24,6 +22,8 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindFields {
     @Rule

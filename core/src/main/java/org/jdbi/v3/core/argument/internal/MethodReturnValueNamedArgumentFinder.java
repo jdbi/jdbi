@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * Base {@link NamedArgumentFinder} implementation that can be used for bindings that use the return value

@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.customizer.OutParameterList;

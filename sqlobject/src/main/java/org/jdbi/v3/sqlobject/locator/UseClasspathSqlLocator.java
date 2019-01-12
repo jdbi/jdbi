@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.sqlobject.locator;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.internal.UseClasspathSqlLocatorImpl;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Configures SQL Object to locate SQL using the {@link ClasspathSqlLocator#findSqlOnClasspath(Class, String)} method.

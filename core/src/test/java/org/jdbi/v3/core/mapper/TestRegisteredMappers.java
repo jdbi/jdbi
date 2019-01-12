@@ -13,17 +13,18 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.util.Calendar;
-import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestRegisteredMappers {
     @Rule

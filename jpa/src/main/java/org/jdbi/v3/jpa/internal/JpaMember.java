@@ -20,13 +20,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import javax.persistence.Column;
+
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.jpa.EntityMemberAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
+
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class JpaMember {

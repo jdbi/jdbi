@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;

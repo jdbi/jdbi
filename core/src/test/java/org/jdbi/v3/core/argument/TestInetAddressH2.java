@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.InetAddress;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,6 +21,8 @@ import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInetAddressH2 {
     @Rule

@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.util.Date;
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiPreparer;
 import org.jdbi.v3.core.Something;

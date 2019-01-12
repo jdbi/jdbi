@@ -15,6 +15,7 @@ package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;

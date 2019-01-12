@@ -13,6 +13,11 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.sql.SQLException;
+import java.util.Optional;
+
 import io.vavr.CheckedFunction1;
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
@@ -33,11 +38,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.sql.SQLException;
-import java.util.Optional;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveType;

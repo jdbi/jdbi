@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A column mapper which maps Postgres' hstore type to Java's {@link Map}.

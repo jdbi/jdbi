@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlite3;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;

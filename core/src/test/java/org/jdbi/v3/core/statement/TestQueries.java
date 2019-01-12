@@ -13,12 +13,13 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.Maps;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import com.google.common.collect.Maps;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -33,6 +34,7 @@ import org.junit.rules.ExpectedException;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;

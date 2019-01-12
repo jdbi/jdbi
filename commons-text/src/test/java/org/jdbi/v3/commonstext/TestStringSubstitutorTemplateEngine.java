@@ -15,6 +15,7 @@ package org.jdbi.v3.commonstext;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.junit.Before;

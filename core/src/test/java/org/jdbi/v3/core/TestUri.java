@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.URI;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUri {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");

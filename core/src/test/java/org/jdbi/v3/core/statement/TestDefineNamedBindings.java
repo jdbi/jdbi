@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDefineNamedBindings {
     @Rule

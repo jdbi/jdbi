@@ -15,6 +15,7 @@ package org.jdbi.v3.json;
 
 import java.util.List;
 import java.util.Objects;
+
 import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.qualifier.QualifiedType;

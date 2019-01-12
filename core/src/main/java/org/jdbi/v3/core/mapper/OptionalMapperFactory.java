@@ -23,6 +23,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

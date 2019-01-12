@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.core.extension;
 
-import static java.util.Objects.requireNonNull;
-
 import java.lang.reflect.Method;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Holder for a {@link Class} and a {@link Method} that together

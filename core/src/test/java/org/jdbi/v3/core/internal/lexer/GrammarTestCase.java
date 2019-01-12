@@ -13,10 +13,10 @@
  */
 package org.jdbi.v3.core.internal.lexer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class GrammarTestCase {
     public void expect(String s, int... tokens) {

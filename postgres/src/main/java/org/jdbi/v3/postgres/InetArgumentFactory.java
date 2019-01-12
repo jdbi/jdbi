@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.net.InetAddress;
+import java.sql.Types;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import java.net.InetAddress;
-import java.sql.Types;
 
 /**
  * Postgres version of argument factory for {@code InetAddress}.

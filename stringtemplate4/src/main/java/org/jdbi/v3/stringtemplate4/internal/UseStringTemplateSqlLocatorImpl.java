@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.stringtemplate4.internal;
 
-import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -27,6 +25,8 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+
+import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
 public class UseStringTemplateSqlLocatorImpl implements Configurer {
     @Override

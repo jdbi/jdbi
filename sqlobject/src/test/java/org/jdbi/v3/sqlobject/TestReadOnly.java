@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;

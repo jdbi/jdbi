@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
 
+import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGuavaMappers {
     @Rule

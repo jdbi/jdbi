@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;

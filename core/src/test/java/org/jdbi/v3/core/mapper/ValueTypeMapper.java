@@ -14,8 +14,6 @@
 
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +22,8 @@ import java.util.Optional;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 public class ValueTypeMapper implements ColumnMapper<ValueType> {
     public ValueTypeMapper() {}

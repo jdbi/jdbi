@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 class ArgumentBinder {

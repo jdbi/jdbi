@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 import java.util.Set;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 

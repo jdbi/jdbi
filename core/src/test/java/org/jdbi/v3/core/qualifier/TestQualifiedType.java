@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
-import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
-
 import java.util.List;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
+import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
 public class TestQualifiedType {
     @Test

@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 import io.vavr.collection.Multimap;
@@ -20,9 +23,6 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeParameter;
 import org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.TypeToken;
-
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 
 /**
  * a helper similar to {@link org.jdbi.v3.core.generic.GenericTypes} but for Vavr Maps

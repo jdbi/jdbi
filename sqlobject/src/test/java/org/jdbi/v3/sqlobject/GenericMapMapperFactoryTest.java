@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.CaseStrategy;

@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.jpa;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 
@@ -23,6 +21,8 @@ import javax.persistence.Entity;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Create {@link JpaMapper}s for {@link Entity} annotated classes.

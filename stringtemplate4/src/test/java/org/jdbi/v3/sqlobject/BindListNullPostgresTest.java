@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator.SomethingMapper;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;

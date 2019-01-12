@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.Collections;
+import java.util.Set;
+
 import com.google.common.collect.ImmutableSet;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
@@ -25,9 +28,6 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

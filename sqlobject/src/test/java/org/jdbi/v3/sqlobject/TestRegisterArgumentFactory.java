@@ -13,16 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -30,6 +28,8 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisterArgumentFactory {
     @Rule

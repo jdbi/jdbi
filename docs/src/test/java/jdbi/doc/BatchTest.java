@@ -2,6 +2,7 @@ package jdbi.doc;
 
 import java.util.Arrays;
 import java.util.Collection;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.Batch;

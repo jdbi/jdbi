@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -29,9 +32,6 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Objects;
-import java.util.Optional;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;

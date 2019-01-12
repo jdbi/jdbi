@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 import static java.lang.String.format;

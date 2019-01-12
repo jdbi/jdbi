@@ -15,6 +15,8 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
 
+import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -24,8 +26,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import javax.annotation.Nullable;
 
 public class ConstructorMapperTest {
 

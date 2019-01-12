@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 

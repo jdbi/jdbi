@@ -14,6 +14,7 @@
 package org.jdbi.v3.commonstext;
 
 import java.util.function.Consumer;
+
 import org.apache.commons.text.StringSubstitutor;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;

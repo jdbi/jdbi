@@ -14,10 +14,12 @@
 
 package org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+
 import javax.annotation.Nullable;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
 

@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.ResultSet;
 import java.util.Optional;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;

@@ -13,15 +13,16 @@
  */
 package org.jdbi.v3.jpa;
 
+import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.Entity;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
-
-import javax.persistence.Entity;
-import java.util.List;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

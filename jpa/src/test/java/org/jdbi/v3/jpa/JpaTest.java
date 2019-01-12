@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.jpa;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
+
 import org.assertj.core.api.AbstractListAssert;
 import org.jdbi.v3.core.qualifier.Reversed;
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
@@ -34,6 +34,8 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
