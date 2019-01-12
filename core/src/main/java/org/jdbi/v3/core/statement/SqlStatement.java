@@ -61,6 +61,7 @@ import static java.util.stream.Collectors.joining;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
+@SuppressWarnings({"deprecation", "PMD.ExcessiveClassLength"})
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private final Handle handle;
     private final String sql;
@@ -1361,19 +1362,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             Object bean = values.get(valueIndex);
             BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean);
 
-            names.append("(");
+            names.append('(');
             for (int propertyIndex = 0; propertyIndex < propertyNames.size(); propertyIndex++) {
                 if (propertyIndex > 0) {
-                    names.append(",");
+                    names.append(',');
                 }
                 String propertyName = propertyNames.get(propertyIndex);
-                String name = "__" + key + "_" + valueIndex + "_" + propertyName;
+                String name = "__" + key + '_' + valueIndex + '_' + propertyName;
                 names.append(':').append(name);
                 Argument argument = beanProperties.find(propertyName, ctx)
                         .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, ctx));
                 bind(name, argument);
             }
-            names.append(")");
+            names.append(')');
         }
 
         return define(key, names.toString());
@@ -1411,20 +1412,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             final Object bean = valueIter.next();
             final ObjectMethodArguments beanMethods = new ObjectMethodArguments(null, bean);
 
-            names.append("(");
+            names.append('(');
             for (int methodIndex = 0; methodIndex < methodNames.size(); methodIndex++) {
                 if (methodIndex > 0) {
-                    names.append(",");
+                    names.append(',');
                 }
 
                 final String methodName = methodNames.get(methodIndex);
-                final String name = key + valueIndex + "." + methodName;
-                names.append(":").append(name);
+                final String name = key + valueIndex + '.' + methodName;
+                names.append(':').append(name);
                 final Argument argument = beanMethods.find(methodName, ctx)
                     .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + methodName + " argument for " + bean, ctx));
                 bind(name, argument);
             }
-            names.append(")");
+            names.append(')');
         }
 
         return define(key, names.toString());

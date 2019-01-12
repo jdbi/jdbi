@@ -110,7 +110,7 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     /**
      * Verifies that a dataSource has been set
      */
-    @SuppressWarnings("unused")
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (dataSource == null) {
             throw new IllegalStateException("'dataSource' property must be set");

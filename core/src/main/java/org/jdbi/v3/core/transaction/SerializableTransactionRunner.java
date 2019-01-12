@@ -121,7 +121,8 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
 
         private int maxRetries = DEFAULT_MAX_RETRIES;
         private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
-        private Consumer<List<Exception>> onFailure = NOP, onSuccess = NOP;
+        private Consumer<List<Exception>> onFailure = NOP;
+        private Consumer<List<Exception>> onSuccess = NOP;
 
         /**
          * @param maxRetries number of retry attempts before aborting
