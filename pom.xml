@@ -83,7 +83,7 @@
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>3.4</dep.antlr.version>
-        <dep.checkstyle.version>8.10</dep.checkstyle.version>
+        <dep.checkstyle.version>8.16</dep.checkstyle.version>
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.9.8</dep.jackson2.version>

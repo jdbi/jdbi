@@ -52,6 +52,15 @@
         <module name="HideUtilityClassConstructor"/>
         <module name="IllegalImport"/>
         <module name="IllegalInstantiation"/>
+        <module name="ImportOrder">
+            <property name="groups" value="java,javax"/>
+            <property name="ordered" value="true"/>
+            <property name="option" value="bottom"/>
+            <property name="separated" value="true"/>
+            <property name="separatedStaticGroups" value="true"/>
+            <property name="staticGroups" value="java,javax"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
         <!--<module name="InnerAssignment"/>-->
         <module name="InnerTypeLast"/>
         <module name="InterfaceIsType"/>
