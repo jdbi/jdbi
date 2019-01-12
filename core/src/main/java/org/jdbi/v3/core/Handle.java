@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,6 +35,10 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * This represents a connection to the database system. It is a wrapper around
