@@ -53,6 +53,21 @@ Most of our SQL Object tests rely on SQL method parameter names. However by defa
 parameter names into `.class` files. Thus, in order for unit tests to pass, the compiler must be configured to output
 parameter names.
 
+## Configure import ordering
+
+Configure import grouping for:
+
+```
+import java.*;
+import javax.*;
+import *;
+import static java.*;
+import static javax.*;
+import static *;
+```
+
+One line between each group.  Sort each group alphabetically.
+
 ### IntelliJ
 
 * File &rarr; Settings
