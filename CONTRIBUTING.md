@@ -55,18 +55,19 @@ parameter names.
 
 ## Configure import ordering
 
-Configure import grouping for:
+We enforce this order of imports:
 
 ```
-import java.*;
-import javax.*;
-import *;
-import static java.*;
-import static javax.*;
-import static *;
+java.*
+javax.*
+*
+static java.*
+static javax.*
+static *
 ```
 
-One line between each group.  Sort each group alphabetically.
+A blank line is required between each group. The imports in a group must be ordered
+alphabetically. Wildcard imports (e.g. `import org.apache.*;`) are not allowed.
 
 ### IntelliJ
 
