@@ -39,6 +39,7 @@
         <exclude name="AvoidFinalLocalVariable"/>
         <exclude name="BooleanGetMethodName"/>
         <exclude name="CallSuperInConstructor"/>
+        <exclude name="ClassNamingConventions"/>
         <exclude name="CommentDefaultAccessModifier"/>
         <exclude name="DefaultPackage"/>
         <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
@@ -46,6 +47,7 @@
         <exclude name="GenericsNaming"/>
         <exclude name="LocalVariableCouldBeFinal"/>
         <exclude name="LongVariable"/>
+        <exclude name="LinguisticNaming"/>
         <exclude name="MethodArgumentCouldBeFinal"/>
         <exclude name="OnlyOneReturn"/>
         <exclude name="PrematureDeclaration"/>

@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -303,7 +306,7 @@ public class Jdbi implements Configurable<Jdbi> {
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
-            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
+            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
             return h;
         } catch (SQLException e) {
             throw new ConnectionException(e);

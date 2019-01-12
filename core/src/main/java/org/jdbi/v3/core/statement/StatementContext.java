@@ -82,7 +82,9 @@ public class StatementContext implements Closeable {
     private String[] generatedKeysColumnNames = new String[0];
     private boolean concurrentUpdatable = false;
 
-    private Instant executionMoment, completionMoment, exceptionMoment;
+    private Instant executionMoment;
+    private Instant completionMoment;
+    private Instant exceptionMoment;
 
     StatementContext() {
         this(new ConfigRegistry());
