@@ -60,35 +60,3 @@ parameter names.
 * Additional command-line parameters: `-parameters`
 * Click Apply, then OK.
 * Build &rarr; Rebuild Project
-
-## Maven
-
-### Building individual modules
-
-Maven multi-module projects with cross-module dependencies such as plugin configurations with relative file paths are nowadays still a pain to get right.
-When building jdbi from the parent module, everything will normally work fine, as that's how it is built on our CI.
-When trying to e.g. `mvn clean package` any individual module, you may encounter an error such as this:
-
-> java -Dmaven.multiModuleProjectDirectory=D:/Projects/Java/jdbi/core
-> -Dfoo=bar maven.jar clean package  
-> ...  
-> ...  
-> [INFO] BUILD FAILURE  
-> [INFO] ------------------------------------------------------------------------  
-> [INFO] Total time: 16.767 s  
-> [INFO] Finished at: 2018-12-07T20:55:19+01:00  
-> [INFO] ------------------------------------------------------------------------  
-> [ERROR] Failed to execute goal org.apache.maven.plugins:maven-pmd-plugin:3.9.0:pmd (pmd) on project jdbi3-core:
-> Execution pmd of goal org.apache.maven.plugins:maven-pmd-plugin:3.9.0:pmd failed:
-> org.apache.maven.reporting.MavenReportException:
-> **Could not find resource 'D:/Projects/Java/jdbi/core/src/build/pmd.xml'**. -> [Help 1]
-
-This typically happens when your IDE incorrectly sets the `maven.multiModuleProjectDirectory` property for maven, as in the example above.
-This property _should_ point to the _project root_, where the global files for PMD, CheckStyle, and others are housed.
-In the example, you can see it actually points to the root of _the module that was built_ — `core` in this case — which causes a global file to not be found.
-
-#### Intellij
-
-* File &rarr; Settings
-* Build Tools &rarr; Maven &rarr; Runner
-* VM Options: <code>-Dmaven.multiModuleProjectDirectory=D:/Projects/Java<b>/jdbi</b></code>
