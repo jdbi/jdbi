@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.testing.JdbiRule;
-import org.junit.rules.ExternalResource;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -69,7 +68,6 @@ public class QualifiersBenchmark {
         jdbi = db.getJdbi();
         jdbi.registerRowMapper(BeanMapper.factory(UnqualifiedBean.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean.class));
-        ExternalResource.class.toString();
     }
 
     @TearDown
