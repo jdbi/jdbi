@@ -13,12 +13,9 @@
  */
 package org.jdbi.v3.core.qualifier;
 
-import org.junit.rules.ExternalResource;
+import org.junit.Ignore;
 
 // We end up needing junit in compile scope since we borrow JdbiRule, so fool the dependency analyzer.
+@Ignore
 public class BogusReference {
-    @Override
-    public String toString() {
-        return ExternalResource.class.toString();
-    }
 }
