@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
+import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -34,6 +34,6 @@ public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
 
     @Override
     protected Argument build(Map value, ConfigRegistry config) {
-        return new LoggableSetObjectArgument<>(value);
+        return new ObjectArgument(value, null);
     }
 }

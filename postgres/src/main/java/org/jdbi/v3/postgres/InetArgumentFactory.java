@@ -18,7 +18,7 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
+import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -31,6 +31,6 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
 
     @Override
     protected Argument build(InetAddress value, ConfigRegistry config) {
-        return new LoggableSetObjectArgument<>(value.getHostAddress(), Types.OTHER);
+        return new ObjectArgument(value.getHostAddress(), Types.OTHER);
     }
 }
