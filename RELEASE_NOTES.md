@@ -4,6 +4,8 @@
   - Enums config class to change the default policy for binding and mapping Enum values.
   - @UseEnumStrategy SqlObject configurer for setting the default enum strategy.
   - @EnumByName and @EnumByOrdinal qualifying annotations to override said default policy.
+- Improvements
+  - Improve Error handling with transactions
 
 #3.6.0
 - New Features
