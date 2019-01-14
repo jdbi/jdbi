@@ -21,7 +21,8 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class LoggableBinderArgument<T> extends AbstractLoggableArgument<T> {
+public class LoggableBinderArgument<T> implements Argument {
+    private final T value;
     private final StatementBinder<T> binder;
 
     public static Argument bindAsString(Object obj) {
@@ -29,7 +30,7 @@ public class LoggableBinderArgument<T> extends AbstractLoggableArgument<T> {
     }
 
     public LoggableBinderArgument(T value, StatementBinder<T> binder) {
-        super(value);
+        this.value = value;
         this.binder = binder;
     }
 

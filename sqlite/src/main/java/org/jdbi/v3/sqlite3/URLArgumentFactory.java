@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlite3;
 
 import java.net.URL;
 import java.sql.Types;
+
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
