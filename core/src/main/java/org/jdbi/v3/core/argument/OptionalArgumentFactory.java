@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;

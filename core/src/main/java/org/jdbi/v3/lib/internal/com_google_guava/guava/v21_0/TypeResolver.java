@@ -27,10 +27,12 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
+
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkArgument;
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkNotNull;
 import static org.jdbi.v3.lib.internal.com_google_guava.guava.v21_0.Preconditions.checkState;

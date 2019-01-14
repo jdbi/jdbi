@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument.internal.strategies;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.statement.StatementContext;
 

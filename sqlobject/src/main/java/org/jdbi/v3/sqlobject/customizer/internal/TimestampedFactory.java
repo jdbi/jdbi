@@ -16,8 +16,8 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
-
 import java.time.ZoneId;
+
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;

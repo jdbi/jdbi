@@ -15,6 +15,7 @@ package org.jdbi.v3.commonstext.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
 import org.jdbi.v3.commonstext.StringSubstitutorTemplateEngine;
 import org.jdbi.v3.commonstext.UseStringSubstitutorTemplateEngine;
 import org.jdbi.v3.core.config.ConfigRegistry;

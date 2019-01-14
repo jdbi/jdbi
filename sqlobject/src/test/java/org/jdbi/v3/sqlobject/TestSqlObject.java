@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -37,6 +38,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import static java.util.Collections.emptyList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;

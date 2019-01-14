@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
 import java.util.stream.Collectors;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;

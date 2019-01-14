@@ -15,6 +15,7 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.PreparedStatement;
 import java.util.Arrays;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.junit.Before;
 import org.junit.Rule;

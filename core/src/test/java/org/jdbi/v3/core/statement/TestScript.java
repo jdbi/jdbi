@@ -13,21 +13,20 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspath;
-
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspath;
 
 public class TestScript {
     @Rule

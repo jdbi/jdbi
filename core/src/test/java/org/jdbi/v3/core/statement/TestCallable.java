@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
+
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;

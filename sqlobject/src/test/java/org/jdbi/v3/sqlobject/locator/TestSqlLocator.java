@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.locator;
 
 import java.util.List;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.JdbiConfig;

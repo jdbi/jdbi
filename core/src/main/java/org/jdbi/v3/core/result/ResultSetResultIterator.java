@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core.result;
 
-import static java.util.Objects.requireNonNull;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+
+import static java.util.Objects.requireNonNull;
 
 class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSet results;

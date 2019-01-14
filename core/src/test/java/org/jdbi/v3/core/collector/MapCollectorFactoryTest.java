@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
 

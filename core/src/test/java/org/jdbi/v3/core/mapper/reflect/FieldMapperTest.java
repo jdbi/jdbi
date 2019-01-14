@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
+import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
@@ -37,8 +40,6 @@ import org.mockito.junit.MockitoRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
-
-import javax.annotation.Nullable;
 
 public class FieldMapperTest {
 

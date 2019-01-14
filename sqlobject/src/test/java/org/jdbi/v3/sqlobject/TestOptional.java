@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;

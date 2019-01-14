@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**

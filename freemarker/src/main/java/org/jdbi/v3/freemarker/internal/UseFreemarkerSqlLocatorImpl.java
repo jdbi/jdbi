@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.freemarker.internal;
 
-import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplate;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplate;
 
 public class UseFreemarkerSqlLocatorImpl implements Configurer {
     @Override

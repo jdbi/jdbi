@@ -13,10 +13,10 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;

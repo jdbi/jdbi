@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
-import static java.util.stream.Stream.concat;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -43,6 +41,8 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
+
+import static java.util.stream.Stream.concat;
 
 /**
  * Base handler for annotations' implementation classes.

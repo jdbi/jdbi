@@ -15,6 +15,7 @@ package org.jdbi.v3.freemarker.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.freemarker.FreemarkerEngine;

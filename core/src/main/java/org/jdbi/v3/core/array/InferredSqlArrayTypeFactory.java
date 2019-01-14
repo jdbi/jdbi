@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.array;
 
-import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
 /**
  * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType SqlArrayType<T>} and maps

@@ -13,8 +13,6 @@
  */
 package jdbi.doc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -24,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
+import jdbi.doc.ResultsTest.User;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
@@ -42,7 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import jdbi.doc.ResultsTest.User;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TransactionTest {
 

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.vavr;
 
+import java.util.List;
+
 import io.vavr.Lazy;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
@@ -24,8 +26,6 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

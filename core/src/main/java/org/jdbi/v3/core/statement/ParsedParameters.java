@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Collections.unmodifiableList;
 
 /**
  * The parsed parameters from an SQL statement.

@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.util.Objects;
+
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 public class Comment {

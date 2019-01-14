@@ -15,6 +15,7 @@ package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.ColumnMapper;

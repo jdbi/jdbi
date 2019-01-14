@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
+
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

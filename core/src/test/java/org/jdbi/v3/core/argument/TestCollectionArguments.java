@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.util.Collections;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.Rule;

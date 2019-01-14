@@ -15,9 +15,11 @@ package org.jdbi.v3.core.generic;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import org.junit.Test;
 
 import static java.util.Optional.empty;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypesTest {

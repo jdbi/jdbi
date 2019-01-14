@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -36,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * This represents a connection to the database system. It is a wrapper around
@@ -296,7 +299,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle commit() {
         final long start = System.nanoTime();
         transactions.commit(this);
-        LOG.trace("Handle [{}] commit transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
+        LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
         return this;
     }
 
@@ -308,7 +311,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollback() {
         final long start = System.nanoTime();
         transactions.rollback(this);
-        LOG.trace("Handle [{}] rollback transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
+        LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
         return this;
     }
 
@@ -322,8 +325,12 @@ public class Handle implements Closeable, Configurable<Handle> {
     public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
         transactions.rollbackToSavepoint(this, savepointName);
-        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, (System.nanoTime() - start) / 1000000L);
+        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, msSince(start));
         return this;
+    }
+
+    private static long msSince(final long start) {
+        return MILLISECONDS.convert(System.nanoTime() - start, NANOSECONDS);
     }
 
     /**

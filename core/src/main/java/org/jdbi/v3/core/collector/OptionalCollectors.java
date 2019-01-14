@@ -20,6 +20,7 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**

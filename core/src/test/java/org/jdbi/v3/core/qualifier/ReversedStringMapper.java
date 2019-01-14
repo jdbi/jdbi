@@ -15,6 +15,7 @@ package org.jdbi.v3.core.qualifier;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 

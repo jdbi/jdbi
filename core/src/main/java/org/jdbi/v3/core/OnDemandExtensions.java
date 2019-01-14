@@ -18,6 +18,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
 import org.jdbi.v3.core.internal.JdbiThreadLocals;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;

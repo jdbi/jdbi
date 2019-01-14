@@ -13,12 +13,13 @@
  */
 package org.jdbi.v3.spring4;
 
-import org.jdbi.v3.core.ConnectionFactory;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.jdbi.v3.core.ConnectionFactory;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 public class SpringConnectionFactory implements ConnectionFactory {
 

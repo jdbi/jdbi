@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 

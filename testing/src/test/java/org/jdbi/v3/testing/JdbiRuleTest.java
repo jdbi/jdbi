@@ -13,15 +13,16 @@
  */
 package org.jdbi.v3.testing;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
+
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdbiRuleTest {
     @Test

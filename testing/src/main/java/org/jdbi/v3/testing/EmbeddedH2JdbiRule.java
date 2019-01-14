@@ -14,7 +14,9 @@
 package org.jdbi.v3.testing;
 
 import java.util.UUID;
+
 import javax.sql.DataSource;
+
 import org.h2.jdbcx.JdbcConnectionPool;
 
 class EmbeddedH2JdbiRule extends JdbiRule {

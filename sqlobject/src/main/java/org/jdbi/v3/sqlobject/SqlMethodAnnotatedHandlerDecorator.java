@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -22,6 +20,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Applies decorations to method handlers, according to any {@link SqlMethodDecoratingAnnotation decorating annotations}

@@ -13,15 +13,13 @@
  */
 package org.jdbi.v3.freemarker;
 
-import org.jdbi.v3.core.statement.TemplateEngine;
-
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-
 import java.io.IOException;
 import java.io.StringWriter;
 
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TemplateEngine;
 
 /**
  * Rewrites a Freemarker template, using the attributes on the {@link StatementContext} as template parameters.

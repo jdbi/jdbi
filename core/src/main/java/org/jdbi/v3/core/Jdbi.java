@@ -41,6 +41,9 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * Main entry point; configurable wrapper around a JDBC {@link DataSource}.
  * Use it to obtain Handle instances and provide configuration
@@ -303,7 +306,7 @@ public class Jdbi implements Configurable<Jdbi> {
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
-            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
+            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
             return h;
         } catch (SQLException e) {
             throw new ConnectionException(e);

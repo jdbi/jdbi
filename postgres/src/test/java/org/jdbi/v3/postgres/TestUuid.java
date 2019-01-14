@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import java.util.Set;
 import java.util.UUID;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;

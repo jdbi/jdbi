@@ -14,6 +14,7 @@
 package org.jdbi.v3.stringtemplate4;
 
 import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;

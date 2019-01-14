@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.Connection;
+
 import org.jdbi.v3.core.Handle;
 import org.junit.Rule;
 import org.junit.Test;

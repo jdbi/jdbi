@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.Types;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.OutParameters;

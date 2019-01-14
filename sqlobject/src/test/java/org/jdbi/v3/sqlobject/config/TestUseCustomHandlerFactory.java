@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
+import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -30,10 +34,6 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

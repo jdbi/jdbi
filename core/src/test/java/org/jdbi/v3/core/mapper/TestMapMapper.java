@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper;
 
 import java.util.Map;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Before;

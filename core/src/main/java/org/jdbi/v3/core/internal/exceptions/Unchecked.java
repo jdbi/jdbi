@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class Unchecked {

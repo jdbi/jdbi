@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
@@ -28,6 +26,8 @@ import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
+
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;

@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.lang.reflect.Type;
+import java.time.Duration;
+import java.util.Optional;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.postgresql.util.PGInterval;
-
-import java.lang.reflect.Type;
-import java.time.Duration;
-import java.util.Optional;
 
 /**
  * A column mapper which maps Postgres's {@link PGInterval} type to Java's {@link Duration}.

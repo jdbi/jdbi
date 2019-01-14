@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.customizer.internal;
 
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -26,6 +24,8 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
+
+import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class BindFactory implements SqlStatementCustomizerFactory {
     @Override

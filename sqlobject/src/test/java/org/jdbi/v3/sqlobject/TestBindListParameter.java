@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -24,8 +25,6 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
