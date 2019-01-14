@@ -17,8 +17,7 @@
 package io.r2dbc.client;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
-import io.r2dbc.postgresql.PostgresqlConnectionFactory;
+import io.r2dbc.spi.ConnectionFactories;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -31,20 +30,28 @@ import reactor.util.annotation.Nullable;
 
 import java.io.IOException;
 
+import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.POSTGRESQL_DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
+
 final class PostgresqlExample implements Example<String> {
 
     @RegisterExtension
     static final PostgresqlServerExtension SERVER = new PostgresqlServerExtension();
 
-    private final PostgresqlConnectionConfiguration configuration = PostgresqlConnectionConfiguration.builder()
-        .database(SERVER.getDatabase())
-        .host(SERVER.getHost())
-        .port(SERVER.getPort())
-        .password(SERVER.getPassword())
-        .username(SERVER.getUsername())
-        .build();
-
-    private final R2dbc r2dbc = new R2dbc(new PostgresqlConnectionFactory(this.configuration));
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
+        .option(DRIVER, POSTGRESQL_DRIVER)
+        .option(DATABASE, SERVER.getDatabase())
+        .option(HOST, SERVER.getHost())
+        .option(PORT, SERVER.getPort())
+        .option(PASSWORD, SERVER.getPassword())
+        .option(USER, SERVER.getUsername())
+        .build()));
 
     @Override
     public String getIdentifier(int index) {
