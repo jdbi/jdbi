@@ -77,8 +77,11 @@ public class QualifiersBenchmark {
         return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(QualifiedBean.class).findOnly());
     }
 
+    @SuppressWarnings("PMD.DataClass")
     public static class BaseBean {
-        private String a, b, c;
+        private String a;
+        private String b;
+        private String c;
 
         public String getA() {
             return a;
