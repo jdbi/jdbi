@@ -532,6 +532,7 @@
                     <version>${dep.dokka.version}</version>
                     <configuration>
                         <jdkVersion>8</jdkVersion>
+                        <skip>${maven.javadoc.skip}</skip>
                     </configuration>
                 </plugin>
                 <plugin>
