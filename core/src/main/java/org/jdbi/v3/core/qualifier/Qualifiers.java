@@ -16,9 +16,12 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.toSet;
@@ -28,6 +31,10 @@ import static java.util.stream.Collectors.toSet;
  */
 @Beta
 public class Qualifiers {
+    private static final ExpiringMap<Object, Set<Annotation>> ANNOS = ExpiringMap.builder()
+            .expiration(10, TimeUnit.MINUTES)
+            .build();
+
     private Qualifiers() {}
 
     /**
@@ -36,11 +43,12 @@ public class Qualifiers {
      * @return the set of qualifying annotations on the given elements.
      */
     public static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
-        return Arrays.stream(elements)
-            .filter(Objects::nonNull)
-            .map(AnnotatedElement::getAnnotations)
-            .flatMap(Arrays::stream)
-            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-            .collect(toSet());
+        return ANNOS.computeIfAbsent(elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)), x ->
+            Arrays.stream(elements)
+                .filter(Objects::nonNull)
+                .map(AnnotatedElement::getAnnotations)
+                .flatMap(Arrays::stream)
+                .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
+                .collect(toSet()));
     }
 }

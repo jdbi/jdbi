@@ -134,7 +134,7 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
+    public void before() throws Throwable {
         if (migration != null) {
             final Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
@@ -152,7 +152,7 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void after() {
         if (migration != null && migration.cleanAfter) {
             final Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());
