@@ -15,7 +15,6 @@ package org.jdbi.v3.core.argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -50,7 +49,7 @@ public class ObjectArgument implements Argument {
      * @return the Argument
      */
     public static Argument of(Object value) {
-        return of(value, Types.OTHER);
+        return of(value, null);
     }
 
     /**

@@ -33,6 +33,6 @@ public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum> {
 
     @Override
     protected Argument build(Enum value, ConfigRegistry config) {
-        return ObjectArgument.of(value);
+        return ObjectArgument.of(value, Types.OTHER);
     }
 }
