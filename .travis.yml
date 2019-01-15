@@ -10,11 +10,8 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
-before_install:
-  - src/build/ci-pre-install.sh
-
 install:
-  - src/build/ci-install.sh
+  - src/build/ci-pre-install.sh
 
 matrix:
   include:
