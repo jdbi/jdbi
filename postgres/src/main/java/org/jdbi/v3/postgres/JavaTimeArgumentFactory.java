@@ -19,6 +19,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -31,22 +34,20 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * Note that no {@link java.time.Instant} override is needed.
  */
 public class JavaTimeArgumentFactory implements ArgumentFactory {
+    private static final Map<Class<?>, Integer> TYPES;
+
+    static {
+        final Map<Class<?>, Integer> types = new HashMap<>();
+        types.put(LocalDate.class, Types.DATE);
+        types.put(LocalTime.class, Types.TIME);
+        types.put(LocalDateTime.class, Types.TIMESTAMP);
+        types.put(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE);
+        TYPES = Collections.unmodifiableMap(types);
+    }
 
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (type == LocalDate.class) {
-            return Optional.of(new ObjectArgument(value, Types.DATE));
-        }
-        if (type == LocalTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIME));
-        }
-        if (type == LocalDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP));
-        }
-        if (type == OffsetDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP_WITH_TIMEZONE));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(TYPES.get(type))
+                .map(sqlType -> ObjectArgument.of(value, sqlType));
     }
-
 }

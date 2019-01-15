@@ -34,6 +34,6 @@ public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
     @Override
     public Argument build(Period period, ConfigRegistry config) {
         PGInterval interval = new PGInterval(period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
-        return new ObjectArgument(interval, Types.OTHER);
+        return ObjectArgument.of(interval, Types.OTHER);
     }
 }

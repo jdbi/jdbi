@@ -73,6 +73,6 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
         if (isNegative) {
             interval.scale(-1);
         }
-        return new ObjectArgument(interval, Types.OTHER);
+        return ObjectArgument.of(interval, Types.OTHER);
     }
 }

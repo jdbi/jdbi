@@ -34,6 +34,6 @@ public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
 
     @Override
     protected Argument build(Map value, ConfigRegistry config) {
-        return new ObjectArgument(value, null);
+        return ObjectArgument.of(value);
     }
 }

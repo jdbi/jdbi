@@ -31,6 +31,6 @@ public class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
 
     @Override
     protected Argument build(UUID value, ConfigRegistry config) {
-        return new ObjectArgument(value, null);
+        return ObjectArgument.of(value);
     }
 }

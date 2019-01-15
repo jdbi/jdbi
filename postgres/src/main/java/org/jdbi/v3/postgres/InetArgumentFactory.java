@@ -31,6 +31,6 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
 
     @Override
     protected Argument build(InetAddress value, ConfigRegistry config) {
-        return new ObjectArgument(value.getHostAddress(), Types.OTHER);
+        return ObjectArgument.of(value.getHostAddress(), Types.OTHER);
     }
 }

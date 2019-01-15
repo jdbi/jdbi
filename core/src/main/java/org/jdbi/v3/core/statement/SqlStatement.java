@@ -1220,7 +1220,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return self
      */
     public final This bindBySqlType(String name, Object value, int sqlType) {
-        return bind(name, new ObjectArgument(value, sqlType));
+        return bind(name, ObjectArgument.of(value, sqlType));
     }
 
     /**
@@ -1234,7 +1234,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return self
      */
     public final This bindBySqlType(int position, Object value, int sqlType) {
-        return bind(position, new ObjectArgument(value, sqlType));
+        return bind(position, ObjectArgument.of(value, sqlType));
     }
 
     /**
