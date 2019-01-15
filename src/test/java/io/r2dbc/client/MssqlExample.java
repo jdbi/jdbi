@@ -17,8 +17,7 @@
 package io.r2dbc.client;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.r2dbc.mssql.MssqlConnectionConfiguration;
-import io.r2dbc.mssql.MssqlConnectionFactory;
+import io.r2dbc.spi.ConnectionFactories;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -31,19 +30,27 @@ import reactor.util.annotation.Nullable;
 
 import java.io.IOException;
 
+import static io.r2dbc.mssql.MssqlConnectionFactoryProvider.MSSQL_DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
+
 final class MssqlExample implements Example<String> {
 
     @RegisterExtension
     static final MssqlServerExtension SERVER = new MssqlServerExtension();
 
-    private final MssqlConnectionConfiguration configuration = MssqlConnectionConfiguration.builder()
-        .host(SERVER.getHost())
-        .port(SERVER.getPort())
-        .password(SERVER.getPassword())
-        .username(SERVER.getUsername())
-        .build();
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
+        .option(DRIVER, MSSQL_DRIVER)
+        .option(HOST, SERVER.getHost())
+        .option(PORT, SERVER.getPort())
+        .option(PASSWORD, SERVER.getPassword())
+        .option(USER, SERVER.getUsername())
+        .build()));
 
-    private final R2dbc r2dbc = new R2dbc(new MssqlConnectionFactory(this.configuration));
 
     @Override
     public String getIdentifier(int index) {
