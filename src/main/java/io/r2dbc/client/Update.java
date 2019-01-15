@@ -26,9 +26,9 @@ import reactor.core.publisher.Flux;
  */
 public final class Update {
 
-    private final Statement<?> statement;
+    private final Statement statement;
 
-    Update(Statement<?> statement) {
+    Update(Statement statement) {
         this.statement = Assert.requireNonNull(statement, "statement must not be null");
     }
 
