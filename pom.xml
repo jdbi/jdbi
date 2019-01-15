@@ -617,6 +617,7 @@
                         <configLocation>policy/checkstyle.xml</configLocation>
                         <suppressionsLocation>policy/checkstyle-suppress.xml</suppressionsLocation>
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
+                        <skip>${basepom.check.skip-extended}</skip>
                     </configuration>
                 </plugin>
                 <plugin>
