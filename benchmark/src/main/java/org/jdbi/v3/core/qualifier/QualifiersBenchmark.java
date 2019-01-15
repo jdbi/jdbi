@@ -34,8 +34,8 @@ import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.AverageTime)
-@Measurement(time=5)
-@Warmup(time=2)
+@Measurement(time = 5)
+@Warmup(time = 2)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Fork(1)
 public class QualifiersBenchmark {
