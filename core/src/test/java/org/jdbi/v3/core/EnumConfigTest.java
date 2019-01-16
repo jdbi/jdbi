@@ -14,7 +14,6 @@
 package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,11 +23,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EnumConfigTest {
     @Rule
-    public DatabaseRule db = new SqliteDatabaseRule();
+    public SqliteDatabaseRule db = new SqliteDatabaseRule();
 
     @Test
     public void byNameIsDefault() {
-        assertThat(db.getJdbi().getConfig(EnumConfig.class).isEnumHandledByName()).isTrue();
+        assertThat(db.getJdbi().getConfig(EnumConfig.class).getDefaultQualifier()).isEqualTo(EnumByName.class);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class EnumConfigTest {
     @Test
     public void ordinalsAreBoundCorrectly() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
@@ -85,7 +84,7 @@ public class EnumConfigTest {
     @Test
     public void ordinalsAreMappedCorrectly() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             Foobar name = h.createQuery("select :ordinal")
                 .bind("ordinal", Foobar.FOO.ordinal())
@@ -109,7 +108,7 @@ public class EnumConfigTest {
     @Test
     public void badOrdinalThrows() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             assertThatThrownBy(h.createQuery("select 2").mapTo(Foobar.class)::findOnly)
                 .isInstanceOf(UnableToProduceResultException.class)

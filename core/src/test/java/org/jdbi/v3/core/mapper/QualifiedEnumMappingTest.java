@@ -17,21 +17,20 @@ import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.EnumByOrdinal;
 import org.jdbi.v3.core.EnumConfig;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EnumByXTest {
+public class QualifiedEnumMappingTest {
     @Rule
-    public DatabaseRule db = new SqliteDatabaseRule();
+    public SqliteDatabaseRule db = new SqliteDatabaseRule();
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             Object byName = h.createQuery("select :name")
                 .bind("name", Foobar.FOO.name())
@@ -59,7 +58,7 @@ public class EnumByXTest {
     @Test
     public void enumCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             ByName byName = h.createQuery("select :name")
                 .bind("name", ByName.ALPHABETIC.name())
@@ -87,7 +86,7 @@ public class EnumByXTest {
     @Test
     public void methodCallOverridesClassForName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             Object byName = h.createQuery("select :name")
                 .bind("name", ByOrdinal.NUMERIC.name())

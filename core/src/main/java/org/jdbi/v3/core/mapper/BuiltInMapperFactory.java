@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.EnumStrategy;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
@@ -28,9 +29,9 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
 // TODO remove this entire class
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = Arrays.asList(
-        new EnumUnqualifiedMapperFactory(),
-        new EnumByNameMapperFactory2(),
-        new EnumByOrdinalMapperFactory2(),
+        EnumStrategy.ByName.INSTANCE,
+        EnumStrategy.ByOrdinal.INSTANCE,
+        EnumStrategy.Unqualified.INSTANCE,
         new OptionalMapperFactory(),
         new PrimitiveMapperFactory(),
         new BoxedMapperFactory(),

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.EnumStrategy;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.statement.SqlStatement;
 
@@ -42,9 +43,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new InternetArgumentFactory(),
         new SqlTimeArgumentFactory(),
         new JavaTimeArgumentFactory(),
-        new EnumUnqualifiedArgumentFactory(),
-        new EnumByNameArgumentFactory(),
-        new EnumByOrdinalArgumentFactory(),
+        EnumStrategy.ByName.INSTANCE,
+        EnumStrategy.ByOrdinal.INSTANCE,
+        EnumStrategy.Unqualified.INSTANCE,
         new OptionalArgumentFactory(),
         new UntypedNullArgumentFactory()
     );

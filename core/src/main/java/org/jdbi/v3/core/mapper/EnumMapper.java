@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import org.jdbi.v3.core.internal.EnumStrategy;
+
 /**
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
@@ -30,7 +32,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @return an enum mapper that matches on {@link Enum#name()}
      */
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
-        return new EnumByNameMapper<>(type);
+        return EnumStrategy.ByName.INSTANCE.columnMapper(type);
     }
 
     /**
@@ -39,7 +41,6 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @return an enum mapper that matches on {@link Enum#ordinal()}
      */
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
-        return new EnumByOrdinalMapper<>(type);
+        return EnumStrategy.ByOrdinal.INSTANCE.columnMapper(type);
     }
-
 }

@@ -1,0 +1,44 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.v3.core.mapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
+import org.jdbi.v3.core.statement.StatementContext;
+
+class EnumByOrdinalMapper<E extends Enum<E>> implements ColumnMapper<E> {
+    private final E[] constants;
+    private final Class<E> type;
+
+    EnumByOrdinalMapper(Class<E> type) {
+        this.constants = type.getEnumConstants();
+        this.type = type;
+    }
+
+    @Override
+    public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
+        Integer ordinal = ctx.findColumnMapperFor(Integer.class)
+            .orElseThrow(() -> new UnableToProduceResultException("an Integer column mapper is required to map Enums from ordinals", ctx))
+            .map(rs, columnNumber, ctx);
+
+        try {
+            return ordinal == null ? null : constants[ordinal];
+        } catch (ArrayIndexOutOfBoundsException oob) {
+            throw new UnableToProduceResultException(String.format(
+                "no %s value could be matched to the ordinal %s", type.getSimpleName(), ordinal
+            ), oob, ctx);
+        }
+    }
+}

@@ -14,55 +14,36 @@
 package org.jdbi.v3.core;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * Configuration for behavior related to {@link Enum}s.
  */
 public class EnumConfig implements JdbiConfig<EnumConfig> {
-    private static final Set<Class<? extends Annotation>> ALLOWED_HANDLINGS = new HashSet<>(Arrays.asList(EnumByName.class, EnumByOrdinal.class));
-    private Class<? extends Annotation> handling;
+    private Class<? extends Annotation> defaultQualifier;
 
     public EnumConfig() {
-        handling = EnumByName.class;
+        defaultQualifier = EnumByName.class;
     }
 
     private EnumConfig(EnumConfig other) {
-        handling = other.handling;
+        defaultQualifier = other.defaultQualifier;
     }
 
-    /**
-     * Applies to both binding and mapping.
-     *
-     * @return true if enums are handled by name, false if enums are handled by ordinal
-     */
-    @Deprecated
-    public boolean isEnumHandledByName() {
-        return handling == EnumByName.class;
+    public Class<? extends Annotation> getDefaultQualifier() {
+        return defaultQualifier;
     }
 
-    /**
-     * Applies to both binding and mapping.
-     *
-     * @param byName true if enums should be handled by name, false if enums should be handled by ordinal
-     */
-    @Deprecated
-    public void setEnumHandledByName(boolean byName) {
-        handling = byName ? EnumByName.class : EnumByOrdinal.class;
+    public EnumConfig defaultByName() {
+        return setDefaultQualifier(EnumByName.class);
     }
 
-    public Class<? extends Annotation> getEnumHandling() {
-        return handling;
+    public EnumConfig defaultByOrdinal() {
+        return setDefaultQualifier(EnumByOrdinal.class);
     }
 
-    public EnumConfig setEnumHandling(Class<? extends Annotation> handling) {
-        if (!ALLOWED_HANDLINGS.contains(handling)) {
-            throw new IllegalArgumentException(handling + " is not an accepted enum handling annotation");
-        }
-        this.handling = handling;
+    public EnumConfig setDefaultQualifier(Class<? extends Annotation> defaultQualifier) {
+        this.defaultQualifier = defaultQualifier;
         return this;
     }
 

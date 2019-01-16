@@ -17,21 +17,20 @@ import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.EnumByOrdinal;
 import org.jdbi.v3.core.EnumConfig;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EnumByXTest {
+public class QualifiedEnumArgumentTest {
     @Rule
-    public DatabaseRule db = new SqliteDatabaseRule();
+    public SqliteDatabaseRule db = new SqliteDatabaseRule();
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -65,7 +64,7 @@ public class EnumByXTest {
     @Test
     public void enumCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -99,7 +98,7 @@ public class EnumByXTest {
     @Test
     public void methodCallOverridesClassForName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(EnumConfig.class).setEnumHandledByName(false);
+            h.getConfig(EnumConfig.class).defaultByOrdinal();
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 

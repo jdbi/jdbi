@@ -23,6 +23,7 @@ import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.EnumStrategy;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
@@ -45,9 +46,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         register(new BoxedMapperFactory());
         register(new PrimitiveMapperFactory());
         register(new OptionalMapperFactory());
-        register(new EnumUnqualifiedMapperFactory());
-        register(new EnumByNameMapperFactory2());
-        register(new EnumByOrdinalMapperFactory2());
+        register(EnumStrategy.ByName.INSTANCE);
+        register(EnumStrategy.ByOrdinal.INSTANCE);
+        register(EnumStrategy.Unqualified.INSTANCE);
         register(new NVarcharMapper());
     }
 

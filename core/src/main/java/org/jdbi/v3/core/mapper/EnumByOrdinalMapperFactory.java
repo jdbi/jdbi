@@ -15,9 +15,9 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.EnumStrategy;
 
 /**
  * Produces enum column mappers, which map enums from numeric columns according to {@link Enum#ordinal()}.
@@ -27,13 +27,8 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 @Deprecated
 // TODO jdbi4: delete
 public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
-
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byOrdinal((Class<? extends Enum>) clazz))
-                : Optional.empty();
+        return EnumStrategy.enumType(type).map(EnumStrategy.ByOrdinal.INSTANCE::columnMapper);
     }
 }

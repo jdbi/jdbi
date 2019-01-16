@@ -17,8 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import org.jdbi.v3.core.internal.EnumStrategy;
 
 /**
  * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
@@ -30,10 +29,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 public class EnumByNameMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
-
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        return EnumStrategy.enumType(type).map(EnumStrategy.ByName.INSTANCE::columnMapper);
     }
 }
