@@ -15,20 +15,17 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.Enums;
 
-class EnumArgumentFactory implements ArgumentFactory {
+/**
+ * catches any non-qualified enums, qualifies them, and passes them back to the chain
+ */
+class EnumUnqualifiedArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
-        // Enums must be bound as VARCHAR
-        // TODO use the same configuration as EnumMapperFactory for consistency
-        if (rawValue instanceof Enum) {
-            Enum<?> enumValue = (Enum<?>) rawValue;
-            return Optional.of(LoggableBinderArgument.bindAsString(enumValue.name()));
-        } else {
-            return Optional.empty();
-        }
+    public Optional<Argument> build(Type type, Object rawValue, ConfigRegistry config) {
+        return Enums.isEnum(type)
+            ? config.get(Arguments.class).findFor(Enums.qualifyByNameOrOrdinal(type, config), rawValue)
+            : Optional.empty();
     }
 }

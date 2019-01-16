@@ -15,17 +15,21 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
+import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
- * Column mapper factory which knows how to map {@link Enum} instances.
+ * Produces enum column mappers, which case-insensitively map enums from textual columns according to their {@link Enum#name()}.
  */
-class EnumMapperFactory implements ColumnMapperFactory {
-    private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();
-
+@EnumByName
+class EnumByNameMapperFactory2 implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        return BY_NAME.build(type, config);
+        Class<?> erasedType = GenericTypes.getErasedType(type);
+
+        return erasedType.isEnum()
+            ? Optional.of(new EnumByNameMapper<>(erasedType.asSubclass(Enum.class)))
+            : Optional.empty();
     }
 }

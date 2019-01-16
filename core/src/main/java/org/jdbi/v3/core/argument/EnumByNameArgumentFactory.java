@@ -11,29 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.Optional;
-
+import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.Enums;
 
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-
-/**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
- *
- * @deprecated there is no reason for this to be API
- */
-@Deprecated
-// TODO jdbi4: delete
-public class EnumByNameMapperFactory implements ColumnMapperFactory {
+@EnumByName
+class EnumByNameArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
+    public Optional<Argument> build(Type type, Object rawValue, ConfigRegistry config) {
+        if (!Enums.isEnum(type)) {
+            return Optional.empty();
+        }
 
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        if (rawValue == null) {
+            return Optional.of(new NullArgument(Types.VARCHAR));
+        }
+
+        Enum<?> enumValue = (Enum<?>) rawValue;
+        return config.get(Arguments.class).findFor(String.class, enumValue.name());
     }
 }

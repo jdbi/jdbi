@@ -28,7 +28,9 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
 // TODO remove this entire class
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = Arrays.asList(
-        new EnumMapperFactory(),
+        new EnumUnqualifiedMapperFactory(),
+        new EnumByNameMapperFactory2(),
+        new EnumByOrdinalMapperFactory2(),
         new OptionalMapperFactory(),
         new PrimitiveMapperFactory(),
         new BoxedMapperFactory(),

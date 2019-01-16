@@ -15,25 +15,21 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-
+import org.jdbi.v3.core.EnumByOrdinal;
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
- *
- * @deprecated there is no reason for this to be API
+ * Produces enum column mappers, which map enums from numeric columns according to their {@link Enum#ordinal()}.
  */
-@Deprecated
-// TODO jdbi4: delete
-public class EnumByNameMapperFactory implements ColumnMapperFactory {
+@EnumByOrdinal
+class EnumByOrdinalMapperFactory2 implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
+        Class<?> erasedType = GenericTypes.getErasedType(type);
 
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        return erasedType.isEnum()
+            ? Optional.of(new EnumByOrdinalMapper<>(erasedType.asSubclass(Enum.class)))
+            : Optional.empty();
     }
 }

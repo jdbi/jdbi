@@ -17,23 +17,16 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import org.jdbi.v3.core.internal.Enums;
 
 /**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
- *
- * @deprecated there is no reason for this to be API
+ * catches any non-qualified enums, qualifies them, and passes them back to the chain
  */
-@Deprecated
-// TODO jdbi4: delete
-public class EnumByNameMapperFactory implements ColumnMapperFactory {
+class EnumUnqualifiedMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> clazz = getErasedType(type);
-
-        return clazz.isEnum()
-                ? Optional.of(EnumMapper.byName(clazz.asSubclass(Enum.class)))
-                : Optional.empty();
+        return Enums.isEnum(type)
+            ? config.get(ColumnMappers.class).findFor(Enums.qualifyByNameOrOrdinal(type, config))
+            : Optional.empty();
     }
 }

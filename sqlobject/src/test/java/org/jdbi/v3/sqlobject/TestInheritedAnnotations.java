@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,11 +38,11 @@ public class TestInheritedAnnotations {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private MockClock mockClock = new MockClock();
+    private AdvancableClock advancableClock = new AdvancableClock(ZonedDateTime.now());
 
     @Before
     public void setUp() {
-        dbRule.getJdbi().getConfig(BindTime.Config.class).clock = mockClock;
+        dbRule.getJdbi().getConfig(BindTime.Config.class).clock = advancableClock;
 
         Handle handle = dbRule.getSharedHandle();
         handle.execute("CREATE TABLE characters (id INT, name VARCHAR, created TIMESTAMP, modified TIMESTAMP)");
@@ -49,7 +50,7 @@ public class TestInheritedAnnotations {
 
     @Test
     public void testCrud() {
-        Instant inserted = mockClock.instant();
+        Instant inserted = advancableClock.instant();
 
         CharacterDao dao = dbRule.getJdbi().onDemand(CharacterDao.class);
 
@@ -57,7 +58,8 @@ public class TestInheritedAnnotations {
 
         assertThat(dao.findById(1)).contains(new Character(1, "Moiraine Sedai", inserted, inserted));
 
-        Instant modified = mockClock.advance(10, SECONDS);
+        advancableClock.advance(10, SECONDS);
+        Instant modified = advancableClock.instant();
         assertThat(inserted).isBefore(modified);
 
         dao.update(new Character(1, "Mistress Alys"));
