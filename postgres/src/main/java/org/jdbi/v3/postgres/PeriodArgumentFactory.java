@@ -18,7 +18,7 @@ import java.time.Period;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableSetObjectArgument;
+import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
 
@@ -34,6 +34,6 @@ public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
     @Override
     public Argument build(Period period, ConfigRegistry config) {
         PGInterval interval = new PGInterval(period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
-        return new LoggableSetObjectArgument<>(interval, Types.OTHER);
+        return ObjectArgument.of(interval, Types.OTHER);
     }
 }

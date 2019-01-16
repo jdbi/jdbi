@@ -27,11 +27,13 @@ public class ObjectArgument implements Argument {
     private final Integer sqlType;
 
     /**
-     * Bind a vendor-supported object with the given SQL type
+     * Bind a vendor-supported object with the given SQL type.
      * @param value the value to call @link {@link PreparedStatement#setObject(int, Object)} with
      * @param sqlType the type to bind
      * @see java.sql.Types
+     * @deprecated use {@link #of(Object, Integer)} factory method for more consistent {@code null} handling
      */
+    @Deprecated
     public ObjectArgument(Object value, Integer sqlType) {
         this.sqlType = sqlType;
         this.value = value;
@@ -41,9 +43,32 @@ public class ObjectArgument implements Argument {
         }
     }
 
+    /**
+     * Bind a vendor-supported object with the given SQL type.
+     * @param value the value to call @link {@link PreparedStatement#setObject(int, Object)} with
+     * @return the Argument
+     */
+    public static Argument of(Object value) {
+        return of(value, null);
+    }
+
+    /**
+     * Bind a vendor-supported object with the given SQL type.
+     * @param value the value to call @link {@link PreparedStatement#setObject(int, Object, int)} with
+     * @param sqlType the type to bind
+     * @return the Argument
+     * @see java.sql.Types
+     */
+    public static Argument of(Object value, Integer sqlType) {
+        if (value == null) {
+            return new NullArgument(sqlType);
+        }
+        return new ObjectArgument(value, sqlType);
+    }
+
     @Override
     public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        if (value == null) {
+        if (value == null) { // remove this clause when constructor is no longer public
             statement.setNull(position, sqlType);
         } else {
             if (sqlType == null) {

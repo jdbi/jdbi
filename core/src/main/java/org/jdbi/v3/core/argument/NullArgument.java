@@ -22,7 +22,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * A typed SQL null argument.
  */
 public class NullArgument implements Argument {
-    private final int sqlType;
+    private final Integer sqlType;
 
     /**
      * @param sqlType the SQL type of the Null
@@ -32,9 +32,21 @@ public class NullArgument implements Argument {
         this.sqlType = sqlType;
     }
 
+    /**
+     * @param sqlType the SQL type of the Null
+     * @see java.sql.Types
+     */
+    public NullArgument(Integer sqlType) {
+        this.sqlType = sqlType;
+    }
+
     @Override
     public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        statement.setNull(position, sqlType);
+        if (sqlType == null) {
+            ctx.getConfig(Arguments.class).getUntypedNullArgument().apply(position, statement, ctx);
+        } else {
+            statement.setNull(position, sqlType);
+        }
     }
 
     @Override

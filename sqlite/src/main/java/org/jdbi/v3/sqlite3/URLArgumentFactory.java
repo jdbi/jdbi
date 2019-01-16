@@ -20,7 +20,7 @@ import java.sql.Types;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableToStringOrNPEArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -36,6 +36,6 @@ class URLArgumentFactory extends AbstractArgumentFactory<URL> {
 
     @Override
     protected Argument build(URL url, ConfigRegistry config) {
-        return new LoggableToStringOrNPEArgument<>(url);
+        return LoggableBinderArgument.bindAsString(url);
     }
 }
