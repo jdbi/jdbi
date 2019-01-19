@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -57,7 +58,7 @@ public class TestTimestamped {
         personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
         dbRule.getJdbi().getConfig(TimestampedConfig.class).setTimezone(OFFSET);
-        testStart = OffsetDateTime.now();
+        testStart = OffsetDateTime.now().minus(1, ChronoUnit.MILLIS);
     }
 
     @Test
@@ -68,7 +69,7 @@ public class TestTimestamped {
         recordNextTimestamp("now");
         personDAO.insert(input);
         assertThat(timestamp.getOffset()).isEqualTo(OFFSET);
-        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now());
+        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now().plus(1, ChronoUnit.MILLIS));
 
         Person result = personDAO.get(1);
 
@@ -85,7 +86,7 @@ public class TestTimestamped {
         recordNextTimestamp("createdAt");
         personDAO.insertWithCustomTimestampFields(input);
         assertThat(timestamp.getOffset()).isEqualTo(OFFSET);
-        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now());
+        assertThat(timestamp).isBetween(testStart, OffsetDateTime.now().plus(1, ChronoUnit.MILLIS));
 
         Person result = personDAO.get(1);
 
