@@ -53,11 +53,11 @@ It also creates a release tag, pointing to the release commit.
 - Click Refresh until the repository status changes to "closed"
   - If this fails, find out what rule was not satisfied, and start over! Yay!
 - Click Release to submit the release to Maven Central. 
-  - Type in something to the description like "Jdbi release v<version>"
+  - Type in something to the description like "Jdbi release v\<version\>"
 - Click Refresh until the repository status changes again, which will make
   it disappear from the search.
 
-## Push release release branch and tag
+## Push release release branch and tag to Github
 
 ```bash
 $ git push -u origin jdbi-<version>-release
@@ -66,7 +66,7 @@ $ git push --tags
 
 ## Update release notes
 
-Double check and make sure all the most important changes are noted in the release notes.
+Double check that release notes contain all the most important changes for the release.
 
 ## Publish the docs
 
