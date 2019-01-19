@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class TestInheritedAnnotations {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private MockClock mockClock = new MockClock();
+    private MockClock mockClock = new MockClock(ZonedDateTime.now());
 
     @Before
     public void setUp() {
@@ -57,7 +58,8 @@ public class TestInheritedAnnotations {
 
         assertThat(dao.findById(1)).contains(new Character(1, "Moiraine Sedai", inserted, inserted));
 
-        Instant modified = mockClock.advance(10, SECONDS);
+        mockClock.advance(10, SECONDS);
+        Instant modified = mockClock.instant();
         assertThat(inserted).isBefore(modified);
 
         dao.update(new Character(1, "Mistress Alys"));
