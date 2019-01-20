@@ -217,7 +217,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or oversights, but can also just be convenient. Defaults to false: unused bindings are not allowed.
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it.
+     * Unused bindings tend to be bugs or oversights, but are not always.
+     * Defaults to false: unused bindings are not allowed.
      *
      * @see org.jdbi.v3.core.argument.Argument
      * @param allowUnusedBindings the new setting
