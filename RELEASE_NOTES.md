@@ -1,3 +1,7 @@
+#3.7.0
+- New Features
+  - @AllowUnusedBindings SqlObject customizer, like SqlStatements.setUnusedBindingsAllowed
+
 #3.6.0
 - New Features
   - ConnectionFactory now also may customize connection closing
