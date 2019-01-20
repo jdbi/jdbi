@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -193,7 +194,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     public PreparedBatch add() {
         final Binding currentBinding = getBinding();
         if (currentBinding.isEmpty()) {
-            throw new IllegalStateException("Attempt to add() a empty batch, you probably didn't mean to do this "
+            throw new IllegalStateException("Attempt to add() an empty batch, you probably didn't mean to do this "
                     + "- call add() *after* setting batch parameters");
         }
         bindings.add(currentBinding);
