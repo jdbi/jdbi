@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.enums.ByName;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -42,7 +43,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new InternetArgumentFactory(),
         new SqlTimeArgumentFactory(),
         new JavaTimeArgumentFactory(),
-        new EnumArgumentFactory(),
+        ByName.singleton(),
         new OptionalArgumentFactory(),
         new UntypedNullArgumentFactory()
     );

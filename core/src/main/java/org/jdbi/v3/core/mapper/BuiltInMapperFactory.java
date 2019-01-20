@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.enums.ByName;
 
 /**
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
@@ -28,7 +29,7 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
 // TODO remove this entire class
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = Arrays.asList(
-        new EnumMapperFactory(),
+        ByName.singleton(),
         new OptionalMapperFactory(),
         new PrimitiveMapperFactory(),
         new BoxedMapperFactory(),

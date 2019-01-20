@@ -22,7 +22,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.enums.ByName;
+import org.jdbi.v3.core.internal.enums.ByOrdinal;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.enums.Unqualified;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
@@ -54,7 +57,9 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new EssentialsArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
         register(new NVarcharArgumentFactory());
-        register(new EnumArgumentFactory());
+        register(ByName.singleton());
+        register(ByOrdinal.singleton());
+        register(Unqualified.singleton());
         register(new OptionalArgumentFactory());
     }
 
