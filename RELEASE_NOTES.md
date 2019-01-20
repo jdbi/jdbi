@@ -1,6 +1,8 @@
 #3.7.0
 - New Features
   - @AllowUnusedBindings SqlObject customizer, like SqlStatements.setUnusedBindingsAllowed
+  - Enums config class to change the default policy for binding and mapping Enum values.
+  - @EnumByName and @EnumByOrdinal annotations to override said default policy.
 
 #3.6.0
 - New Features

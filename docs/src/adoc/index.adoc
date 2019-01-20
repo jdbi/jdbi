@@ -326,7 +326,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * Primitives: `boolean`, `byte`, `short`, `int`, `long`, `char`, `float`, and
   `double`
 * java.lang: `Boolean`, `Byte`, `Short`, `Integer`, `Long`, `Character`,
-  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name)
+  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name by default)
 * java.math: `BigDecimal`
 * java.net: `Inet4Address`, `Inet6Address`, `URL`, and `URI`
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
@@ -1011,7 +1011,7 @@ Out of the box, column mappers are registered for the following types:
 * Primitives: `boolean`, `byte`, `short`, `int`, `long`, `char`, `float`, and
   `double`
 * java.lang: `Boolean`, `Byte`, `Short`, `Integer`, `Long`, `Character`,
-  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name)
+  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name by default)
 * java.math: `BigDecimal`
 * `byte[]` arrays (e.g. for BLOB or VARBINARY columns)
 * java.net: `InetAddress`, `URL`, and `URI`
@@ -1022,6 +1022,12 @@ Out of the box, column mappers are registered for the following types:
 * `java.util.Collection` and Java arrays (for array columns). Some
   additional setup may be required depending on the type of array element--see
   <<SQL Arrays>>.
+
+[NOTE]
+The binding and mapping method for enum values
+can be controlled via the link:{jdbidocs}/core/Enums.html[Enums^] config,
+as well as the link:{jdbidocs}/core/EnumByName.html[EnumByName^] and
+link:{jdbidocs}/core/EnumByOrdinal.html[EnumByOrdinal^] annotations.
 
 ===== ColumnMapperFactory
 
