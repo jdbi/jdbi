@@ -20,8 +20,8 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.JdbiRule;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
 
@@ -29,13 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresTypes {
 
-    @ClassRule
-    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
+    @Rule
+    public JdbiRule postgresDbRule = PostgresDbRule.rule();
 
-    private static Handle handle;
+    private Handle handle;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void before() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
             h.execute("drop table if exists postgres_custom_types");
