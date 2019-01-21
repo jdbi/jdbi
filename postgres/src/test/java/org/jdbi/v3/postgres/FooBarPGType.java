@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 import org.postgresql.util.PGobject;
@@ -66,7 +65,7 @@ public class FooBarPGType extends PGobject {
     }
 
     @Override
-    public void setValue(String value) throws SQLException {
+    public void setValue(String value) {
         PGtokenizer t = new PGtokenizer(PGtokenizer.removePara(value), ',');
 
         id = Integer.valueOf(t.getToken(0));
@@ -76,33 +75,21 @@ public class FooBarPGType extends PGobject {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 43 * hash + Objects.hashCode(this.id);
-        return hash;
+        return Objects.hash(id, foo, bar);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object x) {
+        if (this == x) {
             return true;
         }
-        if (obj == null) {
+        if (!(x instanceof FooBarPGType)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final FooBarPGType other = (FooBarPGType) obj;
-        if (!Objects.equals(this.foo, other.foo)) {
-            return false;
-        }
-        if (!Objects.equals(this.bar, other.bar)) {
-            return false;
-        }
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
+        FooBarPGType other = (FooBarPGType) x;
+        return Objects.equals(id, other.id)
+            && Objects.equals(foo, other.foo)
+            && Objects.equals(bar, other.bar);
     }
 
 }
