@@ -58,7 +58,6 @@ public class PostgresTypes {
      * Add handler for PostgreSQL custom type
      *
      * @param connection connection on which to add PostgreSQL custom types
-     * @throws java.sql.SQLException
      */
     private static void addTypeToConnection(PGConnection connection, String type, Class<? extends PGobject> clazz) {
         try {
