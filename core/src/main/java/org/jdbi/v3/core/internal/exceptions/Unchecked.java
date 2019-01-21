@@ -16,6 +16,7 @@
 package org.jdbi.v3.core.internal.exceptions;
 
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -61,6 +62,16 @@ public class Unchecked {
         return (x, y) -> {
             try {
                 return checkedBiFunction.apply(x, y);
+            } catch (Throwable t) {
+                throw Sneaky.throwAnyway(t);
+            }
+        };
+    }
+
+    public static <X, Y> BiConsumer<X, Y> biConsumer(CheckedBiConsumer<X, Y> checkedBiConsumer) {
+        return (x, y) -> {
+            try {
+                checkedBiConsumer.accept(x, y);
             } catch (Throwable t) {
                 throw Sneaky.throwAnyway(t);
             }

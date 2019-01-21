@@ -13,21 +13,16 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Handler for PostgreSQL custom types.
  */
 public class PostgresTypes {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresTypes.class);
-
     private static final ConcurrentHashMap<Class, String> TYPES = new ConcurrentHashMap<>();
 
     private PostgresTypes() {}
@@ -51,20 +46,6 @@ public class PostgresTypes {
      * @param connection connection on which to add all registered PostgreSQL custom types
      */
     public static void addTypesToConnection(PGConnection connection) {
-        TYPES.forEach((clazz, type) -> addTypeToConnection(connection, type, clazz));
+        TYPES.forEach((clazz, type) -> Unchecked.<String, Class>biConsumer(connection::addDataType).accept(type, clazz));
     }
-
-    /**
-     * Add handler for PostgreSQL custom type
-     *
-     * @param connection connection on which to add PostgreSQL custom types
-     */
-    private static void addTypeToConnection(PGConnection connection, String type, Class<? extends PGobject> clazz) {
-        try {
-            connection.addDataType(type, clazz);
-        } catch (SQLException ex) {
-            LOG.error("Error while adding handler for PostgreSQL's custom type", ex);
-        }
-    }
-
 }
