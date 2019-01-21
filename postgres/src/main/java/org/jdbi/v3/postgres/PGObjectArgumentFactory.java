@@ -13,13 +13,10 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.PGConnection;
@@ -36,17 +33,12 @@ public class PGObjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
 
     @Override
     protected Argument build(PGobject value, ConfigRegistry config) {
-        return new LoggableBinderArgument<>(value, new StatementBinder<PGobject>() {
-            @Override
-            public void bind(PreparedStatement statement, int index, PGobject value) throws SQLException {
-                @SuppressWarnings("unchecked")
-                PGConnection pgConnection = (PGConnection) statement.getConnection();
-                String type = PostgresTypes.getTypeName(value.getClass());
+        return new LoggableBinderArgument<>(value, (p, i, v) -> {
+            PGConnection pgConnection = (PGConnection) p.getConnection();
+            String type = PostgresTypes.getTypeName(v.getClass());
 
-                pgConnection.addDataType(type, value.getClass());
-
-                statement.setObject(index, value);
-            }
+            pgConnection.addDataType(type, v.getClass());
+            p.setObject(i, v);
         });
     }
 

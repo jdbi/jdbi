@@ -14,13 +14,10 @@
 package org.jdbi.v3.postgres;
 
 import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.PGConnection;
@@ -37,19 +34,15 @@ public class PGObjectArrayArgumentFactory extends AbstractArgumentFactory<PGobje
 
     @Override
     protected Argument build(PGobject[] value, ConfigRegistry config) {
-        return new LoggableBinderArgument<>(value, new StatementBinder<PGobject[]>() {
-            @Override
-            public void bind(PreparedStatement statement, int index, PGobject[] value) throws SQLException {
-                @SuppressWarnings("unchecked")
-                PGConnection pgConnection = (PGConnection) statement.getConnection();
-                String type = PostgresTypes.getTypeName(value.getClass().getComponentType());
-                Class clazz = (Class<? extends PGobject>) value.getClass().getComponentType();
+        return new LoggableBinderArgument<>(value, (p, i, v) -> {
+            PGConnection pgConnection = (PGConnection) p.getConnection();
+            @SuppressWarnings("unchecked")
+            Class<? extends PGobject> componentType = (Class<? extends PGobject>) v.getClass().getComponentType();
+            String type = PostgresTypes.getTypeName(componentType);
 
-                pgConnection.addDataType(type, clazz);
-
-                Array array = statement.getConnection().createArrayOf(type, value);
-                statement.setArray(index, array);
-            }
+            pgConnection.addDataType(type, componentType);
+            Array array = p.getConnection().createArrayOf(type, v);
+            p.setArray(i, array);
         });
     }
 
