@@ -15,7 +15,6 @@ package org.jdbi.v3.postgres;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.postgresql.util.PGobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class TestPostgresTypes {
 
@@ -106,10 +106,9 @@ public class TestPostgresTypes {
                 .list();
 
         List<FooBarPGType> fooBars = (List<FooBarPGType>) (List<?>) result;
-        assertThat(fooBars).isEqualTo(ImmutableList.of(
-                new FooBarPGType(1, "foo1", "bar1"),
-                new FooBarPGType(2, "foo2", "bar2")
-        ));
+
+        assertTrue(result.contains(new FooBarPGType(1, "foo1", "bar1")));
+        assertTrue(result.contains(new FooBarPGType(2, "foo2", "bar2")));
     }
 
     @Test
@@ -129,7 +128,7 @@ public class TestPostgresTypes {
     }
 
     @Test
-    public void testWriteListViaFluentAPI() {
+    public void testWriteArrayViaFluentAPI() {
         FooBarPGType fooBar5 = new FooBarPGType(5, "foo5", "bar5");
         FooBarPGType fooBar6 = new FooBarPGType(6, "foo6", "bar6");
 
@@ -166,10 +165,8 @@ public class TestPostgresTypes {
 
         List<FooBarPGType> result = (List<FooBarPGType>) (List<?>) typeDAO.getAllFooBars();
 
-        assertThat(result).isEqualTo(ImmutableList.of(
-                new FooBarPGType(1, "foo1", "bar1"),
-                new FooBarPGType(2, "foo2", "bar2")
-        ));
+        assertTrue(result.contains(new FooBarPGType(1, "foo1", "bar1")));
+        assertTrue(result.contains(new FooBarPGType(2, "foo2", "bar2")));
     }
 
     @Test
@@ -184,7 +181,7 @@ public class TestPostgresTypes {
     }
 
     @Test
-    public void testWriteListViaObjectAPI() {
+    public void testWriteArrayViaObjectAPI() {
         PostgresCustomTypeDAO typeDAO = handle.attach(PostgresCustomTypeDAO.class);
         FooBarPGType fooBar7 = new FooBarPGType(7, "foo7", "bar7");
         FooBarPGType fooBar8 = new FooBarPGType(8, "foo8", "bar8");
