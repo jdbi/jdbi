@@ -23,9 +23,9 @@ import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.enums.ByName;
 import org.jdbi.v3.core.internal.enums.ByOrdinal;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.enums.Unqualified;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
@@ -190,9 +190,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         }
 
         Optional<ColumnMapper<T>> mapper = factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
-                .findFirst()
-                .map(m -> (ColumnMapper<T>) m);
+            .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
+            .findFirst()
+            .map(m -> (ColumnMapper<T>) m);
 
         mapper.ifPresent(m -> cache.put(type, m));
 
