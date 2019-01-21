@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.EnumByOrdinal;
+import org.jdbi.v3.core.Enums;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -27,14 +29,31 @@ public class SqlobjectEnumQualifierTest {
     public JdbiRule db = JdbiRule.sqlite().withPlugin(new SqlObjectPlugin());
 
     @Test
-    public void annotationOverridesDefaultInBindingAndMapping() {
+    public void byOrdinalOverridesDefaultInBindingAndMapping() {
         db.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(ordinal int)").execute();
 
-            FooDao dao = h.attach(FooDao.class);
+            FooByOrdinalDao dao = h.attach(FooByOrdinalDao.class);
 
             dao.insert(Foo.BAR);
             assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).findOnly()).isEqualTo(0);
+
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        });
+    }
+
+    @Test
+    public void byNameOverridesDefaultInBindingAndMapping() {
+        db.getJdbi().useHandle(h -> {
+            h.getConfig(Enums.class).defaultByOrdinal();
+
+            h.createUpdate("create table enums(name varchar)").execute();
+
+            FooByNameDao dao = h.attach(FooByNameDao.class);
+
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).findOnly()).isEqualTo("BAR");
 
             Foo value = dao.select();
             assertThat(value).isEqualTo(Foo.BAR);
@@ -45,12 +64,21 @@ public class SqlobjectEnumQualifierTest {
         BAR
     }
 
-    private interface FooDao {
+    private interface FooByOrdinalDao {
         @SqlUpdate("insert into enums(ordinal) values(:value)")
         void insert(@EnumByOrdinal Foo value);
 
         @SqlQuery("select ordinal from enums")
         @EnumByOrdinal
+        Foo select();
+    }
+
+    private interface FooByNameDao {
+        @SqlUpdate("insert into enums(name) values(:value)")
+        void insert(@EnumByName Foo value);
+
+        @SqlQuery("select name from enums")
+        @EnumByName
         Foo select();
     }
 }
