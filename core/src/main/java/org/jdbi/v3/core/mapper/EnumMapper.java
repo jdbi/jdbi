@@ -33,17 +33,23 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#name()}
+     * @see QualifiedEnumMapperFactory#byName(Class)
+     * @deprecated superseded by new implementation
      */
+    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
-        return new QualifiedEnumMapperFactory.EnumByNameColumnMapper<>(type);
+        return QualifiedEnumMapperFactory.byName(type);
     }
 
     /**
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#ordinal()}
+     * @see QualifiedEnumMapperFactory#byOrdinal(Class)
+     * @deprecated superseded by new implementation
      */
+    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
-        return new QualifiedEnumMapperFactory.EnumByOrdinalColumnMapper<>(type);
+        return QualifiedEnumMapperFactory.byOrdinal(type);
     }
 }

@@ -44,8 +44,15 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
             : new EnumByOrdinalColumnMapper<>(enumClass));
     }
 
-    // TODO privatize
-    public static class EnumByNameColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
+    public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> enumClass) {
+        return new EnumByNameColumnMapper<>(enumClass);
+    }
+
+    public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> enumClass) {
+        return new EnumByOrdinalColumnMapper<>(enumClass);
+    }
+
+    private static class EnumByNameColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
         private final Class<T> enumClass;
 
         public EnumByNameColumnMapper(Class<T> enumClass) {
@@ -76,8 +83,7 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
         }
     }
 
-    // TODO privatize
-    public static class EnumByOrdinalColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
+    private static class EnumByOrdinalColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
         private final Class<T> enumClass;
 
         public EnumByOrdinalColumnMapper(Class<T> enumClass) {

@@ -37,7 +37,7 @@ public class EnumByNameMapperFactory implements ColumnMapperFactory {
         Class<?> clazz = getErasedType(type);
 
         return clazz.isEnum()
-                ? Optional.of(new QualifiedEnumMapperFactory.EnumByNameColumnMapper<>(clazz.asSubclass(Enum.class)))
+                ? Optional.of(QualifiedEnumMapperFactory.byName(clazz.asSubclass(Enum.class)))
                 : Optional.empty();
     }
 }

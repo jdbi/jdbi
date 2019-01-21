@@ -32,12 +32,12 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 @Deprecated
 // TODO jdbi4: delete
 public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("rawtypes")
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isEnum()
-                ? Optional.of(new QualifiedEnumMapperFactory.EnumByOrdinalColumnMapper<>(clazz.asSubclass(Enum.class)))
+                ? Optional.of(QualifiedEnumMapperFactory.byOrdinal(clazz.asSubclass(Enum.class)))
                 : Optional.empty();
     }
 }
