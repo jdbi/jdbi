@@ -19,7 +19,10 @@ import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
  *
- * @deprecated there is no reason for this to be API
+ * @deprecated this class has been superseded by a new implementation
+ * @see org.jdbi.v3.core.Enums
+ * @see org.jdbi.v3.core.EnumByName
+ * @see org.jdbi.v3.core.EnumByOrdinal
  */
 @Deprecated
 // TODO jdbi4: delete
