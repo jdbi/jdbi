@@ -164,8 +164,10 @@ public class TestPostgresTypes {
 
         List<PGobject> result = typeDAO.getAllFooBars();
 
-        assertThat(result).contains(new FooBarPGType(1, "foo1", "bar1"));
-        assertThat(result).contains(new FooBarPGType(2, "foo2", "bar2"));
+        assertThat(result).containsExactlyInAnyOrder(
+            new FooBarPGType(1, "foo1", "bar1"),
+            new FooBarPGType(2, "foo2", "bar2")
+        );
     }
 
     @Test
