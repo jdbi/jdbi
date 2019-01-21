@@ -19,8 +19,9 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.internal.StatementBinder;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.postgresql.util.PGobject;
 
 /**
@@ -34,16 +35,14 @@ public class PGObjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
 
     @Override
     protected Argument build(PGobject value, ConfigRegistry config) {
-        return new Argument() {
-
+        return new LoggableBinderArgument<>(value, new StatementBinder<PGobject>() {
             @Override
-            public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            public void bind(PreparedStatement statement, int index, PGobject value) throws SQLException {
                 ((org.postgresql.PGConnection) statement.getConnection()).addDataType(PostgresTypes.getTypeName(value.getClass()), value.getClass());
 
-                statement.setObject(position, value);
+                statement.setObject(index, value);
             }
-        };
-
+        });
     }
 
 }
