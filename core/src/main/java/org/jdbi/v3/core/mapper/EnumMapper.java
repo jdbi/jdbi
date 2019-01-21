@@ -13,17 +13,16 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
 
 /**
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
+ *
+ * @deprecated there is no reason for this to be API
  */
+@Deprecated
+// TODO jdbi4: delete
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
 
@@ -33,7 +32,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @return an enum mapper that matches on {@link Enum#name()}
      */
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
-        return new ByName<>(type);
+        return new QualifiedEnumMapperFactory.EnumByNameColumnMapper<>(type);
     }
 
     /**
@@ -42,50 +41,6 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @return an enum mapper that matches on {@link Enum#ordinal()}
      */
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
-        return new ByOrdinal<>(type);
-    }
-
-    private static class ByName<E extends Enum<E>> extends EnumMapper<E> {
-        private final Class<E> type;
-        private final ConcurrentMap<String, E> insensitiveLookup = new ConcurrentHashMap<>();
-
-        private ByName(Class<E> type) {
-            this.type = type;
-        }
-
-        @Override
-        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            String name = r.getString(columnNumber);
-            return name == null ? null : insensitiveLookup.computeIfAbsent(name, this::resolve);
-        }
-
-        private E resolve(String name) {
-            final IllegalArgumentException failure;
-            try {
-                return Enum.valueOf(type, name);
-            } catch (IllegalArgumentException e) {
-                failure = e;
-            }
-            for (E e : type.getEnumConstants()) {
-                if (e.name().equalsIgnoreCase(name)) {
-                    return e;
-                }
-            }
-            throw failure;
-        }
-    }
-
-    private static class ByOrdinal<E extends Enum<E>> extends EnumMapper<E> {
-        private final E[] constants;
-
-        private ByOrdinal(Class<E> type) {
-            this.constants = type.getEnumConstants();
-        }
-
-        @Override
-        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            int ordinal = r.getInt(columnNumber);
-            return r.wasNull() ? null : constants[ordinal];
-        }
+        return new QualifiedEnumMapperFactory.EnumByOrdinalColumnMapper<>(type);
     }
 }

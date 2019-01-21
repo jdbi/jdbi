@@ -17,19 +17,24 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ *
+ * @deprecated there is no reason for this to be API
  */
+@Deprecated
+// TODO jdbi4: delete
 public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isEnum()
-                ? Optional.of(EnumMapper.byOrdinal((Class<? extends Enum>) clazz))
+                ? Optional.of(new QualifiedEnumMapperFactory.EnumByOrdinalColumnMapper<>(clazz.asSubclass(Enum.class)))
                 : Optional.empty();
     }
 }

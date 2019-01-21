@@ -25,7 +25,7 @@ import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 @FunctionalInterface
 @Beta
-interface QualifiedArgumentFactory {
+public interface QualifiedArgumentFactory {
     Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config);
 
     static QualifiedArgumentFactory adapt(ArgumentFactory factory) {

@@ -27,7 +27,7 @@ public class EnumsConfigTest {
 
     @Test
     public void byNameIsDefault() {
-        assertThat(db.getJdbi().getConfig(Enums.class).getDefaultQualifier()).isEqualTo(EnumByName.class);
+        assertThat(db.getJdbi().getConfig(Enums.class).getDefaultHandling()).isEqualTo(EnumByName.class);
     }
 
     @Test

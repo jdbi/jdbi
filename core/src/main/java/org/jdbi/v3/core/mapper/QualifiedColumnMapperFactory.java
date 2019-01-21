@@ -19,11 +19,13 @@ import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Beta;
 
 import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 @FunctionalInterface
-interface QualifiedColumnMapperFactory {
+@Beta
+public interface QualifiedColumnMapperFactory {
     Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config);
 
     static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {

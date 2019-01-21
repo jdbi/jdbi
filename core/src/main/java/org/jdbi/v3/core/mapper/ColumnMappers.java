@@ -24,6 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
@@ -45,7 +46,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         register(new BoxedMapperFactory());
         register(new PrimitiveMapperFactory());
         register(new OptionalMapperFactory());
-        register(new EnumMapperFactory());
+        register(new QualifiedEnumMapperFactory());
         register(new NVarcharMapper());
     }
 
