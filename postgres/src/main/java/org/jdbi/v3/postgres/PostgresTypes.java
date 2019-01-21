@@ -14,17 +14,19 @@
 package org.jdbi.v3.postgres;
 
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handler for PostgreSQL custom types.
  */
 public class PostgresTypes {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PostgresTypes.class);
 
     private static final ConcurrentHashMap<Class, String> TYPES = new ConcurrentHashMap<>();
 
@@ -48,11 +50,21 @@ public class PostgresTypes {
      *
      * @param connection connection on which to add all registered PostgreSQL custom types
      */
-    public static void addTypesToConnection(PGConnection connection) throws SQLException {
-        Iterator it = TYPES.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            connection.addDataType((String) pair.getValue(), (Class) pair.getKey());
+    public static void addTypesToConnection(PGConnection connection) {
+        TYPES.forEach((clazz, type) -> addTypeToConnection(connection, type, clazz));
+    }
+
+    /**
+     * Add handler for PostgreSQL custom type
+     *
+     * @param connection connection on which to add PostgreSQL custom types
+     * @throws java.sql.SQLException
+     */
+    private static void addTypeToConnection(PGConnection connection, String type, Class<? extends PGobject> clazz) {
+        try {
+            connection.addDataType(type, clazz);
+        } catch (SQLException ex) {
+            LOG.error("Error while adding handler for PostgreSQL's custom type", ex);
         }
     }
 
