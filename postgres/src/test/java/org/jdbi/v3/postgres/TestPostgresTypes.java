@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.postgresql.util.PGobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class TestPostgresTypes {
 
@@ -105,10 +104,10 @@ public class TestPostgresTypes {
                 .map(new PGObjectColumnMapper())
                 .list();
 
-        List<FooBarPGType> fooBars = (List<FooBarPGType>) (List<?>) result;
-
-        assertTrue(result.contains(new FooBarPGType(1, "foo1", "bar1")));
-        assertTrue(result.contains(new FooBarPGType(2, "foo2", "bar2")));
+        assertThat(result).containsExactlyInAnyOrder(
+            new FooBarPGType(1, "foo1", "bar1"),
+            new FooBarPGType(2, "foo2", "bar2")
+        );
     }
 
     @Test
@@ -163,10 +162,10 @@ public class TestPostgresTypes {
     public void testReadListViaObjectAPI() {
         PostgresCustomTypeDAO typeDAO = handle.attach(PostgresCustomTypeDAO.class);
 
-        List<FooBarPGType> result = (List<FooBarPGType>) (List<?>) typeDAO.getAllFooBars();
+        List<PGobject> result = typeDAO.getAllFooBars();
 
-        assertTrue(result.contains(new FooBarPGType(1, "foo1", "bar1")));
-        assertTrue(result.contains(new FooBarPGType(2, "foo2", "bar2")));
+        assertThat(result).contains(new FooBarPGType(1, "foo1", "bar1"));
+        assertThat(result).contains(new FooBarPGType(2, "foo2", "bar2"));
     }
 
     @Test
