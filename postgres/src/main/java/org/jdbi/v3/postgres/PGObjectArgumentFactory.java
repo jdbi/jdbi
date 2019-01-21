@@ -22,6 +22,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.internal.StatementBinder;
 import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
 
 /**
@@ -38,7 +39,11 @@ public class PGObjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
         return new LoggableBinderArgument<>(value, new StatementBinder<PGobject>() {
             @Override
             public void bind(PreparedStatement statement, int index, PGobject value) throws SQLException {
-                ((org.postgresql.PGConnection) statement.getConnection()).addDataType(PostgresTypes.getTypeName(value.getClass()), value.getClass());
+                @SuppressWarnings("unchecked")
+                PGConnection pgConnection = (PGConnection) statement.getConnection();
+                String type = PostgresTypes.getTypeName(value.getClass());
+
+                pgConnection.addDataType(type, value.getClass());
 
                 statement.setObject(index, value);
             }
