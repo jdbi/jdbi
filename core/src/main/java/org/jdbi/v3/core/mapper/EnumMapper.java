@@ -20,7 +20,10 @@ import org.jdbi.v3.core.internal.enums.ByOrdinal;
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
  *
- * @deprecated there is no reason for this to be API
+ * @deprecated this class has been superseded by a new implementation
+ * @see org.jdbi.v3.core.Enums
+ * @see org.jdbi.v3.core.EnumByName
+ * @see org.jdbi.v3.core.EnumByOrdinal
  */
 @Deprecated
 // TODO jdbi4: delete
@@ -31,7 +34,10 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#name()}
+     * @deprecated superseded by new implementation
+     * @see ByName#singleton()
      */
+    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
         return ByName.singleton().getMapper(type);
     }
@@ -40,7 +46,10 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#ordinal()}
+     * @deprecated superseded by new implementation
+     * @see ByOrdinal#singleton()
      */
+    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
         return ByOrdinal.singleton().getMapper(type);
     }
