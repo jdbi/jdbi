@@ -208,7 +208,7 @@ Jdbi jdbi = Jdbi.create(ds);
 `Jdbi` instances are thread-safe and do not own any database resources.
 
 Typically applications create a single, shared `Jdbi` instance, and set up
-any common configuration there.
+any common configuration there.  See <<Configuration>> for more details.
 
 In a more limited scope (such as an HTTP request, or event callback),
 you would then request a `Handle` object from your `Jdbi` instance.
@@ -224,6 +224,7 @@ access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
 A `Handle` inherits configuration from the `Jdbi` at the time it is created.
+See <<Configuration>> for more details.
 
 [CAUTION]
 Because `Handle` holds an open connection, care must be taken to ensure
@@ -2421,6 +2422,36 @@ for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
 The *StatementContext* itself is not intended to be extended and generally extensions
 should not need to mutate the context.  Please read the JavaDoc for more information
 on advanced usage.
+
+== Configuration
+
+`Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
+you need to change default behavior, or add in extensions to handle additional
+database types.  Each piece of core or extension that wishes to participate in
+configuration defines a configuration class, for example the `SqlStatements`
+class stores Handle related configuration.  Then, on any `Configurable` context
+(like a `Jdbi` or `Handle`) you can change configuration in a type safe way:
+
+[source,java]
+----
+jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
+
+// Or, if you have a bunch of work to do:
+jdbi.configure(RowMappers.class, rm -> {
+    rm.register(new TypeARowMapperFactory();
+    rm.register(new TypeBRowMapperFactory();
+});
+----
+
+Generally, you should finalize all configuration changes before interacting with
+the database.
+
+When a new context is created, it inherits a copy of the parent context
+configuration at the time of creation.  So a `Handle` initializes its
+configuration from the creating `Jdbi`, but changes never propagate back up.
+
+See <<JdbiConfig>> for the gory implementation details.
 
 == SQL Objects
 
