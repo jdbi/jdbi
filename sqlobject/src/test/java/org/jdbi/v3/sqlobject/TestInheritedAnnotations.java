@@ -58,8 +58,7 @@ public class TestInheritedAnnotations {
 
         assertThat(dao.findById(1)).contains(new Character(1, "Moiraine Sedai", inserted, inserted));
 
-        mockClock.advance(10, SECONDS);
-        Instant modified = mockClock.instant();
+        Instant modified = mockClock.advance(10, SECONDS);
         assertThat(inserted).isBefore(modified);
 
         dao.update(new Character(1, "Mistress Alys"));

@@ -41,7 +41,8 @@ public class MockClock extends Clock {
         return now.toInstant();
     }
 
-    public void advance(long amountToAdd, TemporalUnit unit) {
+    public Instant advance(long amountToAdd, TemporalUnit unit) {
         now = now.plus(amountToAdd, unit);
+        return instant();
     }
 }
