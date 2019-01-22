@@ -50,7 +50,6 @@ public interface EnumStrategy extends ArgumentFactory, ColumnMapperFactory {
         return Optional.of(type)
             .map(GenericTypes::getErasedType)
             .filter(Class::isEnum)
-            // would like to do Enum.class::asSubclass but that doesn't work
             .map(t -> (Class<E>) t);
     }
 }

@@ -34,10 +34,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#name()}
-     * @deprecated superseded by new implementation
-     * @see ByName#singleton()
      */
-    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
         return ByName.singleton().getMapper(type);
     }
@@ -46,10 +43,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#ordinal()}
-     * @deprecated superseded by new implementation
-     * @see ByOrdinal#singleton()
      */
-    @Deprecated
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
         return ByOrdinal.singleton().getMapper(type);
     }

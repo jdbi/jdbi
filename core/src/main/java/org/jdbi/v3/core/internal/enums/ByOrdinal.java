@@ -24,9 +24,9 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 @EnumByOrdinal
 public class ByOrdinal implements EnumStrategy {
-    private static final EnumStrategy INSTANCE = new ByOrdinal();
+    private static final ByOrdinal INSTANCE = new ByOrdinal();
 
-    public static EnumStrategy singleton() {
+    public static ByOrdinal singleton() {
         return INSTANCE;
     }
 

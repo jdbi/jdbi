@@ -28,9 +28,9 @@ import org.jdbi.v3.core.statement.StatementContext;
 
 @EnumByName
 public class ByName implements EnumStrategy {
-    private static final EnumStrategy INSTANCE = new ByName();
+    private static final ByName INSTANCE = new ByName();
 
-    public static EnumStrategy singleton() {
+    public static ByName singleton() {
         return INSTANCE;
     }
 
