@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,65 +27,75 @@ import org.jdbi.v3.core.qualifier.Qualifiers;
  * Configuration for behavior related to {@link Enum}s.
  */
 public class Enums implements JdbiConfig<Enums> {
-    private EnumHandling handling;
+    private EnumStrategy strategy;
 
     public Enums() {
-        handling = EnumHandling.BY_NAME;
+        strategy = EnumStrategy.BY_NAME;
     }
 
     private Enums(Enums other) {
-        handling = other.handling;
+        strategy = other.strategy;
     }
 
-    public EnumHandling getDefaultHandling() {
-        return handling;
+    public EnumStrategy getDefaultStrategy() {
+        return strategy;
     }
 
     public Enums defaultByName() {
-        this.handling = EnumHandling.BY_NAME;
+        this.strategy = EnumStrategy.BY_NAME;
         return this;
     }
 
     public Enums defaultByOrdinal() {
-        this.handling = EnumHandling.BY_ORDINAL;
+        this.strategy = EnumStrategy.BY_ORDINAL;
         return this;
     }
 
-    public <E extends Enum<E>> EnumHandling findStrategy(QualifiedType<E> givenType, Class<E> clazz) {
-        EnumHandling strategy = deriveStrategy(givenType);
-
-        if (strategy == null) {
-            strategy = deriveStrategy(qualifyFromSourceOrDefault(clazz));
-        }
-
-        return strategy;
+    /**
+     * Determines which strategy is to be used for a given {@link QualifiedType}, falling back to
+     * reading strategy annotations on the source class and/or using the configured default.
+     *
+     * @param givenType qualified type to derive a strategy from
+     * @param clazz the source class to read annotations from as a fallback
+     * @param <E> the {@link Enum} type
+     * @return the strategy by which this enum should be handled
+     */
+    public <E extends Enum<E>> EnumStrategy findStrategy(QualifiedType<E> givenType, Class<E> clazz) {
+        return deriveStrategy(givenType)
+            .orElseGet(() -> deriveStrategy(qualifyFromSource(clazz))
+                .orElse(strategy));
     }
 
-    private <E extends Enum<E>> EnumHandling deriveStrategy(QualifiedType<E> type) {
-        boolean hasByName = type.getQualifiers().stream().anyMatch(EnumByName.class::isInstance);
-        boolean hasByOrdinal = type.getQualifiers().stream().anyMatch(EnumByOrdinal.class::isInstance);
+    private <E extends Enum<E>> Optional<EnumStrategy> deriveStrategy(QualifiedType<E> type) {
+        boolean hasByName = type.hasQualifier(EnumByName.class);
+        boolean hasByOrdinal = type.hasQualifier(EnumByOrdinal.class);
 
         if (hasByName && hasByOrdinal) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(String.format(
+                "%s is both %s and %s",
+                type,
+                EnumByName.class.getSimpleName(),
+                EnumByOrdinal.class.getSimpleName()
+            ));
         }
 
         if (hasByName) {
-            return EnumHandling.BY_NAME;
+            return Optional.of(EnumStrategy.BY_NAME);
         } else if (hasByOrdinal) {
-            return EnumHandling.BY_ORDINAL;
+            return Optional.of(EnumStrategy.BY_ORDINAL);
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
-    private <E extends Enum<E>> QualifiedType<E> qualifyFromSourceOrDefault(Class<E> type) {
-        Set<Class<? extends Annotation>> qualifiers = Qualifiers.getQualifiers(type)
+    private <E extends Enum<E>> QualifiedType<E> qualifyFromSource(Class<E> type) {
+        Set<? extends Annotation> onClass = Qualifiers.getQualifiers(type)
             .stream()
             .map(Annotation::annotationType)
+            .map(AnnotationFactory::create)
             .collect(Collectors.toSet());
-        return qualifiers.isEmpty()
-            ? QualifiedType.of(type).with(handling == EnumHandling.BY_NAME ? EnumByName.class : EnumByOrdinal.class)
-            : QualifiedType.of(type).with(qualifiers.stream().map(AnnotationFactory::create).collect(Collectors.toSet()));
+
+        return QualifiedType.of(type).with(onClass);
     }
 
     @Override
@@ -92,7 +103,7 @@ public class Enums implements JdbiConfig<Enums> {
         return new Enums(this);
     }
 
-    public enum EnumHandling {
+    public enum EnumStrategy {
         BY_NAME, BY_ORDINAL
     }
 }

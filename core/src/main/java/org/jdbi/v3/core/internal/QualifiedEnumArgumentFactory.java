@@ -35,7 +35,7 @@ public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = Enums.EnumHandling.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
+        boolean byName = Enums.EnumStrategy.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
 
         if (value == null) {
             return Optional.of(new NullArgument(byName ? Types.VARCHAR : Types.INTEGER));

@@ -37,7 +37,7 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
     }
 
     private static <E extends Enum<E>> Optional<ColumnMapper<?>> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = Enums.EnumHandling.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
+        boolean byName = Enums.EnumStrategy.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
 
         return Optional.of(byName
             ? new EnumByNameColumnMapper<>(enumClass)

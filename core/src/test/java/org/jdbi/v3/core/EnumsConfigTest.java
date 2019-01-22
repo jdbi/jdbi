@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.annotation.RetentionPolicy;
+
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Rule;
@@ -27,8 +30,8 @@ public class EnumsConfigTest {
 
     @Test
     public void byNameIsDefault() {
-        assertThat(db.getJdbi().getConfig(Enums.class).getDefaultHandling())
-            .isEqualTo(Enums.EnumHandling.BY_NAME);
+        assertThat(db.getJdbi().getConfig(Enums.class).getDefaultStrategy())
+            .isEqualTo(Enums.EnumStrategy.BY_NAME);
     }
 
     @Test
@@ -141,5 +144,25 @@ public class EnumsConfigTest {
     // bar is unused to make sure we don't have any coincidental correctness
     private enum Foobar {
         BAR, FOO
+    }
+
+    @Test
+    public void testConflictingQualifiers() {
+        QualifiedType<RetentionPolicy> type = QualifiedType.of(RetentionPolicy.class).with(EnumByName.class, EnumByOrdinal.class);
+
+        assertThatThrownBy(() -> db.getJdbi().getConfig(Enums.class).findStrategy(type, RetentionPolicy.class))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testConflictingSourceAnnotations() {
+        assertThatThrownBy(() -> db.getJdbi().getConfig(Enums.class).findStrategy(QualifiedType.of(BiPolar.class), BiPolar.class))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @EnumByName
+    @EnumByOrdinal
+    public enum BiPolar {
+        BEAR
     }
 }
