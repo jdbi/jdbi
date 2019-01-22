@@ -608,78 +608,6 @@ LocalDate releaseDate = handle.createQuery(
     .findOnly();
 ----
 
-=== Templating
-
-Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
-
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
-
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
-
-[CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
-
-[source,java]
-----
-handle.createQuery("select * from <TABLE> where name = :n;")
-
-    // -> "select * from Person where name = :n;"
-    .define("TABLE", "Person")
-
-    // -> "select * from Person where name = 'MyName';"
-    .bind("n", "MyName");
-----
-
-[TIP]
-Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
-
-[CAUTION]
-TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
-
-If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
-
-[source,java]
-----
-String paramName = "arg";
-
-handle.createQuery("select * from Foo where bar = :<attr>")
-    .define("attr", paramName)
-    ...
-    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
-----
-
-[source,java]
-----
-handle.createQuery("select * from emotion where emoticon = <sticker>;")
-    .define("sticker", ":-)") // -> "... where emoticon = :-);"
-    .mapToMap()
-    // exception: no binding/argument named "-)" present
-    .list();
-----
-
-Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
-For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
-craft conditional updates and query clauses.
-
-For example,
-[source,java]
-----
-class MyBean {
-    String getA();
-    String getB();
-    Instant getModified();
-}
-
-handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
-    .bindBean(mybean)
-    .defineNamedBindings()
-    .execute();
-----
-
-Also see the section about <<TemplateEngine>>.
-
 === Mappers
 
 Jdbi makes use of mappers to convert result data into Java objects. There are
@@ -1635,6 +1563,78 @@ fails, an exception is thrown.
 
 Jdbi can be enhanced to support arbitrary container types. See
 <<JdbiCollectors>> for more information.
+
+=== Templating
+
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
+
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
+
+[source,java]
+----
+handle.createQuery("select * from <TABLE> where name = :n;")
+
+    // -> "select * from Person where name = :n;"
+    .define("TABLE", "Person")
+
+    // -> "select * from Person where name = 'MyName';"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java]
+----
+String paramName = "arg";
+
+handle.createQuery("select * from Foo where bar = :<attr>")
+    .define("attr", paramName)
+    ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java]
+----
+handle.createQuery("select * from emotion where emoticon = <sticker>;")
+    .define("sticker", ":-)") // -> "... where emoticon = :-);"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Bindings and definitions are usually separate.  You can link them in a limited manner
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java]
+----
+class MyBean {
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
+
+Also see the section about <<TemplateEngine>>.
 
 === SQL Arrays
 
