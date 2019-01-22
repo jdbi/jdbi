@@ -3132,10 +3132,10 @@ public interface DocumentDao {
     class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> { // <4>
         @Override
         public void accumulate(Map<Integer, Folder> map, RowView rowView) {
-            Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <2>
+            Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <5>
                                            id -> rowView.getRow(Folder.class));
 
-            if (rowView.getColumn("d_id", Integer.class) != null) { // <3>
+            if (rowView.getColumn("d_id", Integer.class) != null) { // <6>
                 f.getDocuments().add(rowView.getRow(Document.class));
             }
         }
