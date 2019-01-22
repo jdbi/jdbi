@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jdbi.v3.core.EnumByName;
+import org.jdbi.v3.core.EnumByOrdinal;
 import org.jdbi.v3.core.Enums;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -57,9 +59,20 @@ public class Unqualified implements ArgumentFactory, ColumnMapperFactory {
                 .stream()
                 .map(Annotation::annotationType)
                 .collect(Collectors.toSet());
+
         if (qualifiers.isEmpty()) {
-            qualifiers.add(config.get(Enums.class).getDefaultQualifier());
+            return QualifiedType.of(type).with(config.get(Enums.class).getDefaultQualifier());
         }
+
+        if (qualifiers.contains(EnumByName.class) && qualifiers.contains(EnumByOrdinal.class)) {
+            throw new IllegalArgumentException(String.format(
+                "%s is both %s and %s",
+                type,
+                EnumByName.class.getSimpleName(),
+                EnumByOrdinal.class.getSimpleName()
+            ));
+        }
+
         return QualifiedType.of(type).with(qualifiers.stream().map(AnnotationFactory::create).collect(Collectors.toSet()));
     }
 }
