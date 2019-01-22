@@ -46,13 +46,16 @@ public class ByName implements EnumStrategy {
 
     @Override
     public <E extends Enum<E>> ColumnMapper<E> getMapper(Class<E> enumClass) {
-        final ConcurrentMap<String, Enum<?>> cache = new ConcurrentHashMap<>();
+        ConcurrentMap<String, E> valuesByName = new ConcurrentHashMap<>();
+
         return (rs, col, ctx) -> {
             String name = ctx.findColumnMapperFor(String.class)
                     .orElseThrow(() -> new UnableToProduceResultException("a String column mapper is required to map Enums from names", ctx))
                     .map(rs, col, ctx);
 
-            return name == null ? null : enumClass.cast(cache.computeIfAbsent(name.toLowerCase(), lowercased -> matchByName(enumClass, name, ctx)));
+            return name == null
+                ? null
+                : valuesByName.computeIfAbsent(name.toLowerCase(), lowercased -> matchByName(enumClass, name, ctx));
         };
     }
 
