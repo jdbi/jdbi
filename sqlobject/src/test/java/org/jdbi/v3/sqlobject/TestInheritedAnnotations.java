@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +37,7 @@ public class TestInheritedAnnotations {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private MockClock mockClock = new MockClock(ZonedDateTime.now());
+    private MockClock mockClock = MockClock.now();
 
     @Before
     public void setUp() {

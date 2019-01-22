@@ -58,7 +58,7 @@ public class TestTimestamped {
     private OffsetDateTime insertedTimestamp;
     private Timestamp insertedSqlTimestamp;
 
-    private final MockClock clock = new MockClock(UTC_MOMENT.toZonedDateTime());
+    private final MockClock clock = MockClock.at(UTC_MOMENT.toZonedDateTime());
 
     @Before
     public void before() {

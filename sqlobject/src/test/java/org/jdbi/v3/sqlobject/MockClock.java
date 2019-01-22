@@ -22,7 +22,7 @@ import java.time.temporal.TemporalUnit;
 public class MockClock extends Clock {
     private ZonedDateTime now;
 
-    public MockClock(ZonedDateTime now) {
+    private MockClock(ZonedDateTime now) {
         this.now = now;
     }
 
@@ -44,5 +44,13 @@ public class MockClock extends Clock {
     public Instant advance(long amountToAdd, TemporalUnit unit) {
         now = now.plus(amountToAdd, unit);
         return instant();
+    }
+
+    public static MockClock now() {
+        return at(ZonedDateTime.now());
+    }
+
+    public static MockClock at(ZonedDateTime now) {
+        return new MockClock(now);
     }
 }
