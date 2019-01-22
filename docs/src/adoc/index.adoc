@@ -2410,19 +2410,6 @@ ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
 ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
 ----
 
-=== StatementContext
-
-The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
-is a carrier for various state related to the creation and execution of statements
-that is not appropriate to hold on the *Query* or other particular statement class
-itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
-and accumulated bindings.  It is exposed to implementations of most user extension points,
-for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
-
-The *StatementContext* itself is not intended to be extended and generally extensions
-should not need to mutate the context.  Please read the JavaDoc for more information
-on advanced usage.
-
 == Configuration
 
 `Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
@@ -4974,6 +4961,19 @@ TODO:
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
 ////
+
+=== StatementContext
+
+The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
+is a carrier for various state related to the creation and execution of statements
+that is not appropriate to hold on the *Query* or other particular statement class
+itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
+and accumulated bindings.  It is exposed to implementations of most user extension points,
+for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+
+The *StatementContext* itself is not intended to be extended and generally extensions
+should not need to mutate the context.  Please read the JavaDoc for more information
+on advanced usage.
 
 === User-Defined Annotations
 
