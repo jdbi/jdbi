@@ -4642,8 +4642,7 @@ Incorrect usage:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%:search%'")
+handle.createQuery("select name from things where name like '%:search%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -4659,8 +4658,7 @@ The solution is to use SQL string concatenation:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%' || :search || '%'")
+handle.createQuery("select name from things where name like '%' || :search || '%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
