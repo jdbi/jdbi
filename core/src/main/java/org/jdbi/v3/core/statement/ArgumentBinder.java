@@ -57,7 +57,11 @@ class ArgumentBinder {
         // best effort: compare empty to non-empty because we can't list the individual binding names (unless we expose a method to do so)
         boolean argumentsProvidedButNoneDeclared = paramNames.isEmpty() && !binding.isEmpty();
         if (argumentsProvidedButNoneDeclared && !context.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
-            throw new UnableToCreateStatementException(String.format("Superfluous named parameters provided while the query declares none: '%s'.", binding), context);
+            throw new UnableToCreateStatementException(String.format(
+                "Superfluous named parameters provided while the query "
+                + "declares none: '%s'. This check may be disabled by calling "
+                + "getConfig(SqlStatements.class).setUnusedBindingAllowed(true) "
+                + "or using @AllowUnusedBindings in SQL object.", binding), context);
         }
 
         for (int i = 0; i < paramNames.size(); i++) {
