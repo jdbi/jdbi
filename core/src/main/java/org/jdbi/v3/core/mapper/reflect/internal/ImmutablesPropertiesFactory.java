@@ -137,7 +137,7 @@ public class ImmutablesPropertiesFactory {
                 final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
                 return new ImmutablesPojoProperty<T>(
                         name,
-                        QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
+                        QualifiedType.of(propertyType).withAnnotations(Qualifiers.getQualifiers(m)),
                         m,
                         alwaysSet(),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),
@@ -197,7 +197,7 @@ public class ImmutablesPropertiesFactory {
             try {
                 return new ImmutablesPojoProperty<T>(
                         name,
-                        QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
+                        QualifiedType.of(propertyType).withAnnotations(Qualifiers.getQualifiers(m)),
                         m,
                         isSetMethod(name),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),

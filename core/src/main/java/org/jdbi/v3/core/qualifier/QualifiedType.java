@@ -16,20 +16,19 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * A {@link java.lang.reflect.Type} qualified by a set of qualifier annotations. Two qualified types are equal to each other
@@ -73,23 +72,23 @@ public final class QualifiedType<T> {
         return (QualifiedType<T>) of(type.getType());
     }
 
-    private QualifiedType(Type type, Set<Annotation> qualifiers) {
+    private QualifiedType(Type type, Set<? extends Annotation> qualifiers) {
         this.type = type;
-        this.qualifiers = qualifiers;
+        this.qualifiers = unmodifiableSet(qualifiers);
     }
 
     /**
-     * Returns a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     * Returns a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
      * @param qualifiers the qualifiers for the new qualified type.
      * @return the QualifiedType
      */
     public QualifiedType<T> with(Annotation... qualifiers) {
-        return with(Arrays.asList(qualifiers));
+        return new QualifiedType<>(type, Arrays.stream(qualifiers).collect(toSet()));
     }
 
     /**
-     * Returns a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     * Returns a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
      * @param qualifiers the qualifiers for the new qualified type.
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
@@ -97,16 +96,31 @@ public final class QualifiedType<T> {
      */
     @SafeVarargs
     public final QualifiedType<T> with(Class<? extends Annotation>... qualifiers) {
-        return with(Arrays.stream(qualifiers).map(AnnotationFactory::create).collect(toList()));
+        Set<? extends Annotation> annotations = Arrays.stream(qualifiers)
+            .map(AnnotationFactory::create)
+            .collect(toSet());
+        return new QualifiedType<>(type, annotations);
     }
 
     /**
-     * @return a QualifiedType that has the same type as this instance, but with the given qualifiers.
+     * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
      * @param qualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType<T> with(Collection<? extends Annotation> qualifiers) {
-        return new QualifiedType<>(type, Collections.unmodifiableSet(new HashSet<>(qualifiers)));
+    public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> qualifiers) {
+        return new QualifiedType<>(type, StreamSupport.stream(qualifiers.spliterator(), false).collect(toSet()));
+    }
+
+    /**
+     * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
+     *
+     * @param qualifiers the qualifiers for the new qualified type.
+     */
+    public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> qualifiers) {
+        Set<? extends Annotation> annotations = StreamSupport.stream(qualifiers.spliterator(), false)
+            .map(AnnotationFactory::create)
+            .collect(toSet());
+        return new QualifiedType<>(type, annotations);
     }
 
     /**

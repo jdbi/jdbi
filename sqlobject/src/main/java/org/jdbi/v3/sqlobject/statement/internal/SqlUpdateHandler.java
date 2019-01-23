@@ -43,7 +43,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         QualifiedType<?> returnType = QualifiedType.of(
             GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-            .with(getQualifiers(method));
+            .withAnnotations(getQualifiers(method));
 
         if (isGetGeneratedKeys) {
             ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);

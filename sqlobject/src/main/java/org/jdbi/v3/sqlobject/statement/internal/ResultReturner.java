@@ -59,7 +59,7 @@ abstract class ResultReturner {
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).with(getQualifiers(method));
+        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(getQualifiers(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             return findConsumer(method)
@@ -298,7 +298,7 @@ abstract class ResultReturner {
                     .orElseThrow(() -> new IllegalStateException(
                         "Cannot reflect Consumer<T> element type T in method consumer parameter "
                             + parameterType)))
-                .with(getQualifiers(method.getParameters()[consumerIndex]));
+                .withAnnotations(getQualifiers(method.getParameters()[consumerIndex]));
         }
 
         @Override

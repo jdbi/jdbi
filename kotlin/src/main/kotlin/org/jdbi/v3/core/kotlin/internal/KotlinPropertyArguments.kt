@@ -39,7 +39,7 @@ class KotlinPropertyArguments(obj: Any,
         val property: KProperty1<*, *> = properties[name] ?: return Optional.empty()
         val mutableProperty = property as? KMutableProperty1
         val type = QualifiedType.of(property.returnType.javaType)
-            .with(getQualifiers(
+            .withAnnotations(getQualifiers(
                 kClass.primaryConstructor?.parameters?.find { it.name == name },
                 property,
                 property.getter,

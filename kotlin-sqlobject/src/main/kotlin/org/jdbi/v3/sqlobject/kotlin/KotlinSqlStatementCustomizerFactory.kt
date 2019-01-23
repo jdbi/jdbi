@@ -32,7 +32,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                                     paramIdx: Int,
                                     type: Type): SqlStatementParameterCustomizer {
 
-        val qualifiedType = QualifiedType.of(type).with(getQualifiers(parameter))
+        val qualifiedType = QualifiedType.of(type).withAnnotations(getQualifiers(parameter))
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {

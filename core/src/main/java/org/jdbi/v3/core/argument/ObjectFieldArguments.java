@@ -66,7 +66,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
         try {
             QualifiedType<?> type = QualifiedType.of(field.getGenericType())
-                                    .with(getQualifiers(field));
+                                    .withAnnotations(getQualifiers(field));
             Object value = field.get(obj);
 
             return Optional.of(new TypedValue(type, value));

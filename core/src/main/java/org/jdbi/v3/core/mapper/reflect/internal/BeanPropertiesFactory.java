@@ -160,7 +160,7 @@ public class BeanPropertiesFactory {
                     Optional.ofNullable(descriptor.getReadMethod())
                         .map(Method::getGenericReturnType)
                         .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]))
-                    .with(
+                    .withAnnotations(
                         getQualifiers(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
 
