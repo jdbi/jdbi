@@ -603,6 +603,7 @@
                         <rulesets>
                             <ruleset>policy/pmd.xml</ruleset>
                         </rulesets>
+                        <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
                     </configuration>
                 </plugin>
                 <plugin>
