@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Optional;
 import java.util.function.Function;
@@ -30,10 +31,16 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
     @Override
     public Optional<Argument> build(QualifiedType<?> givenType, Object value, ConfigRegistry config) {
-        return Optional.of(givenType.getType())
+        return ifEnum(givenType.getType())
+            .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Enum) value, (Class<Enum>) clazz, config));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Enum<E>> Optional<Class<?>> ifEnum(Type type) {
+        return Optional.of(type)
             .map(GenericTypes::getErasedType)
             .filter(Class::isEnum)
-            .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Enum) value, (Class<Enum>) clazz, config));
+            .map(c -> (Class<E>) c);
     }
 
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, Class<E> enumClass, ConfigRegistry config) {

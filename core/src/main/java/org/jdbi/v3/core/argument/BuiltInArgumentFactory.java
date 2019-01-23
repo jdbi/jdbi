@@ -55,13 +55,11 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             .findFirst();
     }
 
-    // TODO untyped null bug
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
-            return rawValue instanceof Enum
-                ? QualifiedEnumArgumentFactory.byName().build(expectedType, rawValue, config)
-                : Optional.empty();
+            return QualifiedEnumArgumentFactory.ifEnum(expectedType)
+                .flatMap(enumClass -> QualifiedEnumArgumentFactory.byName().build(enumClass, rawValue, config));
         }
     }
 }
