@@ -208,7 +208,7 @@ Jdbi jdbi = Jdbi.create(ds);
 `Jdbi` instances are thread-safe and do not own any database resources.
 
 Typically applications create a single, shared `Jdbi` instance, and set up
-any common configuration there.
+any common configuration there.  See <<Configuration>> for more details.
 
 In a more limited scope (such as an HTTP request, or event callback),
 you would then request a `Handle` object from your `Jdbi` instance.
@@ -224,6 +224,7 @@ access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
 A `Handle` inherits configuration from the `Jdbi` at the time it is created.
+See <<Configuration>> for more details.
 
 [CAUTION]
 Because `Handle` holds an open connection, care must be taken to ensure
@@ -607,78 +608,6 @@ LocalDate releaseDate = handle.createQuery(
     .mapTo(LocalDate.class)
     .findOnly();
 ----
-
-=== Templating
-
-Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
-
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
-
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
-
-[CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
-
-[source,java]
-----
-handle.createQuery("select * from <TABLE> where name = :n;")
-
-    // -> "select * from Person where name = :n;"
-    .define("TABLE", "Person")
-
-    // -> "select * from Person where name = 'MyName';"
-    .bind("n", "MyName");
-----
-
-[TIP]
-Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
-
-[CAUTION]
-TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
-
-If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
-
-[source,java]
-----
-String paramName = "arg";
-
-handle.createQuery("select * from Foo where bar = :<attr>")
-    .define("attr", paramName)
-    ...
-    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
-----
-
-[source,java]
-----
-handle.createQuery("select * from emotion where emoticon = <sticker>;")
-    .define("sticker", ":-)") // -> "... where emoticon = :-);"
-    .mapToMap()
-    // exception: no binding/argument named "-)" present
-    .list();
-----
-
-Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
-For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
-craft conditional updates and query clauses.
-
-For example,
-[source,java]
-----
-class MyBean {
-    String getA();
-    String getB();
-    Instant getModified();
-}
-
-handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
-    .bindBean(mybean)
-    .defineNamedBindings()
-    .execute();
-----
-
-Also see the section about <<TemplateEngine>>.
 
 === Mappers
 
@@ -1636,6 +1565,78 @@ fails, an exception is thrown.
 Jdbi can be enhanced to support arbitrary container types. See
 <<JdbiCollectors>> for more information.
 
+=== Templating
+
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
+
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
+
+[source,java]
+----
+handle.createQuery("select * from <TABLE> where name = :n;")
+
+    // -> "select * from Person where name = :n;"
+    .define("TABLE", "Person")
+
+    // -> "select * from Person where name = 'MyName';"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java]
+----
+String paramName = "arg";
+
+handle.createQuery("select * from Foo where bar = :<attr>")
+    .define("attr", paramName)
+    ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java]
+----
+handle.createQuery("select * from emotion where emoticon = <sticker>;")
+    .define("sticker", ":-)") // -> "... where emoticon = :-);"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Bindings and definitions are usually separate.  You can link them in a limited manner
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java]
+----
+class MyBean {
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
+
+Also see the section about <<TemplateEngine>>.
+
 === SQL Arrays
 
 Jdbi can bind/map Java arrays to/from SQL arrays:
@@ -2409,18 +2410,36 @@ ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
 ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
 ----
 
-=== StatementContext
+== Configuration
 
-The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
-is a carrier for various state related to the creation and execution of statements
-that is not appropriate to hold on the *Query* or other particular statement class
-itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
-and accumulated bindings.  It is exposed to implementations of most user extension points,
-for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+`Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
+you need to change default behavior, or add in extensions to handle additional
+database types.  Each piece of core or extension that wishes to participate in
+configuration defines a configuration class, for example the `SqlStatements`
+class stores SqlStatement related configuration.  Then, on any `Configurable` context
+(like a `Jdbi` or `Handle`) you can change configuration in a type safe way:
 
-The *StatementContext* itself is not intended to be extended and generally extensions
-should not need to mutate the context.  Please read the JavaDoc for more information
-on advanced usage.
+[source,java]
+----
+jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
+jdbi.getConfig(Handles.class).setForceEndTransactions(true);
+
+// Or, if you have a bunch of work to do:
+jdbi.configure(RowMappers.class, rm -> {
+    rm.register(new TypeARowMapperFactory();
+    rm.register(new TypeBRowMapperFactory();
+});
+----
+
+Generally, you should finalize all configuration changes before interacting with
+the database.
+
+When a new context is created, it inherits a copy of the parent context
+configuration at the time of creation.  So a `Handle` initializes its
+configuration from the creating `Jdbi`, but changes never propagate back up.
+
+See <<JdbiConfig>> for more advanced implementation details.
 
 == SQL Objects
 
@@ -4642,8 +4661,7 @@ Incorrect usage:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%:search%'")
+handle.createQuery("select name from things where name like '%:search%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -4659,8 +4677,7 @@ The solution is to use SQL string concatenation:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%' || :search || '%'")
+handle.createQuery("select name from things where name like '%' || :search || '%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -4945,6 +4962,19 @@ TODO:
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
 ////
+
+=== StatementContext
+
+The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
+is a carrier for various state related to the creation and execution of statements
+that is not appropriate to hold on the *Query* or other particular statement class
+itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
+and accumulated bindings.  It is exposed to implementations of most user extension points,
+for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+
+The *StatementContext* itself is not intended to be extended and generally extensions
+should not need to mutate the context.  Please read the JavaDoc for more information
+on advanced usage.
 
 === User-Defined Annotations
 
