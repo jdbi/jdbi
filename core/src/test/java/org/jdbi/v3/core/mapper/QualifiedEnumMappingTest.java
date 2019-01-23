@@ -16,8 +16,10 @@ package org.jdbi.v3.core.mapper;
 import org.jdbi.v3.core.EnumByName;
 import org.jdbi.v3.core.EnumByOrdinal;
 import org.jdbi.v3.core.Enums;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,88 +29,83 @@ public class QualifiedEnumMappingTest {
     @Rule
     public SqliteDatabaseRule db = new SqliteDatabaseRule();
 
+    private Handle h;
+
+    @Before
+    public void before() {
+        h = db.getSharedHandle();
+    }
+
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).defaultByOrdinal();
 
-            Object byName = h.createQuery("select :name")
-                .bind("name", Foobar.FOO.name())
-                .mapTo(QualifiedType.of(Foobar.class).with(EnumByName.class))
-                .findOnly();
+        Object byName = h.createQuery("select :name")
+            .bind("name", Foobar.FOO.name())
+            .mapTo(QualifiedType.of(Foobar.class).with(EnumByName.class))
+            .findOnly();
 
-            assertThat(byName)
-                .isEqualTo(Foobar.FOO);
-        });
+        assertThat(byName)
+            .isEqualTo(Foobar.FOO);
     }
 
     @Test
     public void methodCallCanBeAnnotatedAsByOrdinal() {
-        db.getJdbi().useHandle(h -> {
-            Object byOrdinal = h.createQuery("select :ordinal")
-                .bind("ordinal", Foobar.FOO.ordinal())
-                .mapTo(QualifiedType.of(Foobar.class).with(EnumByOrdinal.class))
-                .findOnly();
+        Object byOrdinal = h.createQuery("select :ordinal")
+            .bind("ordinal", Foobar.FOO.ordinal())
+            .mapTo(QualifiedType.of(Foobar.class).with(EnumByOrdinal.class))
+            .findOnly();
 
-            assertThat(byOrdinal)
-                .isEqualTo(Foobar.FOO);
-        });
+        assertThat(byOrdinal)
+            .isEqualTo(Foobar.FOO);
     }
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).defaultByOrdinal();
 
-            ByName byName = h.createQuery("select :name")
-                .bind("name", ByName.ALPHABETIC.name())
-                .mapTo(ByName.class)
-                .findOnly();
+        ByName byName = h.createQuery("select :name")
+            .bind("name", ByName.ALPHABETIC.name())
+            .mapTo(ByName.class)
+            .findOnly();
 
-            assertThat(byName)
-                .isEqualTo(ByName.ALPHABETIC);
-        });
+        assertThat(byName)
+            .isEqualTo(ByName.ALPHABETIC);
     }
 
     @Test
     public void enumCanBeAnnotatedAsByOrdinal() {
-        db.getJdbi().useHandle(h -> {
-            ByOrdinal byOrdinal = h.createQuery("select :ordinal")
-                .bind("ordinal", ByOrdinal.NUMERIC.ordinal())
-                .mapTo(ByOrdinal.class)
-                .findOnly();
+        ByOrdinal byOrdinal = h.createQuery("select :ordinal")
+            .bind("ordinal", ByOrdinal.NUMERIC.ordinal())
+            .mapTo(ByOrdinal.class)
+            .findOnly();
 
-            assertThat(byOrdinal)
-                .isEqualTo(ByOrdinal.NUMERIC);
-        });
+        assertThat(byOrdinal)
+            .isEqualTo(ByOrdinal.NUMERIC);
     }
 
     @Test
     public void methodCallOverridesClassForName() {
-        db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).defaultByOrdinal();
 
-            Object byName = h.createQuery("select :name")
-                .bind("name", ByOrdinal.NUMERIC.name())
-                .mapTo(QualifiedType.of(ByOrdinal.class).with(EnumByName.class))
-                .findOnly();
+        Object byName = h.createQuery("select :name")
+            .bind("name", ByOrdinal.NUMERIC.name())
+            .mapTo(QualifiedType.of(ByOrdinal.class).with(EnumByName.class))
+            .findOnly();
 
-            assertThat(byName)
-                .isEqualTo(ByOrdinal.NUMERIC);
-        });
+        assertThat(byName)
+            .isEqualTo(ByOrdinal.NUMERIC);
     }
 
     @Test
     public void methodCallOverridesClassForOrdinal() {
-        db.getJdbi().useHandle(h -> {
-            Object byOrdinal = h.createQuery("select :ordinal")
-                .bind("ordinal", ByName.ALPHABETIC.ordinal())
-                .mapTo(QualifiedType.of(ByName.class).with(EnumByOrdinal.class))
-                .findOnly();
+        Object byOrdinal = h.createQuery("select :ordinal")
+            .bind("ordinal", ByName.ALPHABETIC.ordinal())
+            .mapTo(QualifiedType.of(ByName.class).with(EnumByOrdinal.class))
+            .findOnly();
 
-            assertThat(byOrdinal)
-                .isEqualTo(ByName.ALPHABETIC);
-        });
+        assertThat(byOrdinal)
+            .isEqualTo(ByName.ALPHABETIC);
     }
 
     // bar is unused to make sure we don't have any coincidental correctness

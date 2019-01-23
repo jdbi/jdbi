@@ -28,6 +28,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * @see org.jdbi.v3.core.Enums
  * @see org.jdbi.v3.core.EnumByName
  * @see org.jdbi.v3.core.EnumByOrdinal
+ * @see QualifiedEnumMapperFactory#byOrdinal(Class)
  */
 @Deprecated
 // TODO jdbi4: delete

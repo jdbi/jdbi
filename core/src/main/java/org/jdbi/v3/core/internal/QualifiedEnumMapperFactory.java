@@ -16,7 +16,9 @@ package org.jdbi.v3.core.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.Enums;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -28,6 +30,8 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory {
+    private static final Map<Class<? extends Enum<?>>, ColumnMapper<? extends Enum<?>>> NAME_MAPPER_CACHE = new ConcurrentHashMap<>();
+
     @Override
     public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
         return Optional.of(givenType.getType())
@@ -40,33 +44,34 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
         boolean byName = Enums.EnumStrategy.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
 
         return Optional.of(byName
-            ? new EnumByNameColumnMapper<>(enumClass)
-            : new EnumByOrdinalColumnMapper<>(enumClass));
+            ? byName(enumClass)
+            : byOrdinal(enumClass));
     }
 
+    @SuppressWarnings("unchecked")
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> enumClass) {
-        return new EnumByNameColumnMapper<>(enumClass);
+        return (ColumnMapper<E>) NAME_MAPPER_CACHE.computeIfAbsent(enumClass, e -> new EnumByNameColumnMapper<>(enumClass));
     }
 
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> enumClass) {
         return new EnumByOrdinalColumnMapper<>(enumClass);
     }
 
-    private static class EnumByNameColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
-        private final Class<T> enumClass;
+    private static class EnumByNameColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
+        private final Map<String, E> NAME_CACHE = new ConcurrentHashMap<>();
+        private final Class<E> enumClass;
 
-        private EnumByNameColumnMapper(Class<T> enumClass) {
+        private EnumByNameColumnMapper(Class<E> enumClass) {
             this.enumClass = enumClass;
         }
 
         @Override
-        public T map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
+        public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
             String name = ctx.findColumnMapperFor(String.class)
                 .orElseThrow(() -> new UnableToProduceResultException("a String column mapper is required to map Enums from names", ctx))
                 .map(rs, columnNumber, ctx);
 
-            return name == null ? null : getValueByName(enumClass, name, ctx);
-
+            return name == null ? null : NAME_CACHE.computeIfAbsent(name.toLowerCase(), lowercased -> getValueByName(enumClass, name, ctx));
         }
 
         private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
@@ -83,15 +88,15 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
         }
     }
 
-    private static class EnumByOrdinalColumnMapper<T extends Enum<T>> implements ColumnMapper<T> {
-        private final Class<T> enumClass;
+    private static class EnumByOrdinalColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
+        private final Class<E> enumClass;
 
-        private EnumByOrdinalColumnMapper(Class<T> enumClass) {
+        private EnumByOrdinalColumnMapper(Class<E> enumClass) {
             this.enumClass = enumClass;
         }
 
         @Override
-        public T map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
+        public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
             Integer ordinal = ctx.findColumnMapperFor(Integer.class)
                 .orElseThrow(() -> new UnableToProduceResultException("an Integer column mapper is required to map Enums from ordinals", ctx))
                 .map(rs, columnNumber, ctx);

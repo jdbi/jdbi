@@ -23,6 +23,7 @@ import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
  * @see org.jdbi.v3.core.Enums
  * @see org.jdbi.v3.core.EnumByName
  * @see org.jdbi.v3.core.EnumByOrdinal
+ * @see QualifiedEnumMapperFactory
  */
 @Deprecated
 // TODO jdbi4: delete
