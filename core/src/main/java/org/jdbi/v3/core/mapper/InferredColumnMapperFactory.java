@@ -37,7 +37,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
         this.maps = QualifiedType.of(
             findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")))
-            .with(getQualifiers(mapper.getClass()));
+            .withAnnotations(getQualifiers(mapper.getClass()));
         this.mapper = mapper;
     }
 

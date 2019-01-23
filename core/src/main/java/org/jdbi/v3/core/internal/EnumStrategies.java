@@ -48,7 +48,7 @@ public class EnumStrategies implements JdbiConfig<EnumStrategies> {
         Class<?> erasedType = getErasedType(type.getType());
         return JdbiOptionals.findFirstPresent(
             () -> doFindStrategy(type),
-            () -> doFindStrategy(QualifiedType.of(erasedType).with(getQualifiers(erasedType)))
+            () -> doFindStrategy(QualifiedType.of(erasedType).withAnnotations(getQualifiers(erasedType)))
         ).orElseGet(() -> registry.get(Enums.class).getDefaultStrategy());
     }
 
