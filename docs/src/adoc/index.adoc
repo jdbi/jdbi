@@ -2416,13 +2416,14 @@ ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
 you need to change default behavior, or add in extensions to handle additional
 database types.  Each piece of core or extension that wishes to participate in
 configuration defines a configuration class, for example the `SqlStatements`
-class stores Handle related configuration.  Then, on any `Configurable` context
+class stores SqlStatement related configuration.  Then, on any `Configurable` context
 (like a `Jdbi` or `Handle`) you can change configuration in a type safe way:
 
 [source,java]
 ----
 jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
 jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
+jdbi.getConfig(Handles.class).setForceEndTransactions(true);
 
 // Or, if you have a bunch of work to do:
 jdbi.configure(RowMappers.class, rm -> {
@@ -2438,7 +2439,7 @@ When a new context is created, it inherits a copy of the parent context
 configuration at the time of creation.  So a `Handle` initializes its
 configuration from the creating `Jdbi`, but changes never propagate back up.
 
-See <<JdbiConfig>> for the gory implementation details.
+See <<JdbiConfig>> for more advanced implementation details.
 
 == SQL Objects
 
