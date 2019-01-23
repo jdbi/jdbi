@@ -15,9 +15,11 @@ package org.jdbi.v3.core.internal;
 
 import java.sql.Types;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.Enums;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
@@ -37,14 +39,25 @@ public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, Class<E> enumClass, ConfigRegistry config) {
         boolean byName = Enums.EnumStrategy.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
 
-        if (value == null) {
-            return Optional.of(new NullArgument(byName ? Types.VARCHAR : Types.INTEGER));
-        }
+        return (byName ? byName() : byOrdinal()).build(enumClass, value, config);
+    }
 
-        if (byName) {
-            return config.get(Arguments.class).findFor(String.class, value.name());
-        } else {
-            return config.get(Arguments.class).findFor(Integer.class, value.ordinal());
-        }
+    public static <E extends Enum<E>> ArgumentFactory byName() {
+        return factory(Types.VARCHAR, String.class, E::name);
+    }
+
+    private static <E extends Enum<E>> ArgumentFactory byOrdinal() {
+        return factory(Types.INTEGER, Integer.class, E::ordinal);
+    }
+
+    private static <A, E extends Enum<E>> ArgumentFactory factory(int nullType, Class<A> argType, Function<E, A> transform) {
+        return (type, value, config) -> {
+            if (value == null) {
+                return Optional.of(new NullArgument(nullType));
+            }
+            @SuppressWarnings("unchecked")
+            E enumValue = (E) value;
+            return config.get(Arguments.class).findFor(argType, transform.apply(enumValue));
+        };
     }
 }

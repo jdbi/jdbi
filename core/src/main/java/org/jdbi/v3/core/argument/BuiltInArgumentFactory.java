@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.QualifiedEnumArgumentFactory;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -43,7 +43,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new InternetArgumentFactory(),
         new SqlTimeArgumentFactory(),
         new JavaTimeArgumentFactory(),
-        new EnumByNameArgumentFactory(),
+        new LegacyEnumByNameArgumentFactory(),
         new OptionalArgumentFactory(),
         new UntypedNullArgumentFactory()
     );
@@ -55,15 +55,13 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             .findFirst();
     }
 
-    private static class EnumByNameArgumentFactory implements ArgumentFactory {
+    // TODO untyped null bug
+    private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
-            if (rawValue instanceof Enum) {
-                Enum<?> enumValue = (Enum<?>) rawValue;
-                return Optional.of(LoggableBinderArgument.bindAsString(enumValue.name()));
-            } else {
-                return Optional.empty();
-            }
+            return rawValue instanceof Enum
+                ? QualifiedEnumArgumentFactory.byName().build(expectedType, rawValue, config)
+                : Optional.empty();
         }
     }
 }
