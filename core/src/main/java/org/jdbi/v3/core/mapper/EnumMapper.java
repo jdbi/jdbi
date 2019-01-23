@@ -17,7 +17,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -25,6 +28,10 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @param <E> the enum type mapped
  */
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
+    private static final ExpiringMap<Class<? extends Enum<?>>, ColumnMapper<?>> NAME_CACHE = ExpiringMap.builder()
+                .expiration(10, TimeUnit.MINUTES)
+                .expirationPolicy(ExpirationPolicy.ACCESSED)
+                .build();
     EnumMapper() {}
 
     /**
@@ -32,8 +39,9 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#name()}
      */
+    @SuppressWarnings("unchecked")
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
-        return new ByName<>(type);
+        return (ColumnMapper<E>) NAME_CACHE.computeIfAbsent(type, e -> new ByName<>(type));
     }
 
     /**
