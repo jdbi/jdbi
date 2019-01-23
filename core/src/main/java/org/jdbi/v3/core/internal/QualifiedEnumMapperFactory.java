@@ -30,7 +30,7 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory {
-    private static final Map<Class<? extends Enum<?>>, ColumnMapper<? extends Enum<?>>> NAME_MAPPER_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<? extends Enum<?>>, ColumnMapper<? extends Enum<?>>> BY_NAME_MAPPER_CACHE = new ConcurrentHashMap<>();
 
     @Override
     public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
@@ -50,7 +50,7 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
 
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> enumClass) {
-        return (ColumnMapper<E>) NAME_MAPPER_CACHE.computeIfAbsent(enumClass, e -> new EnumByNameColumnMapper<>(enumClass));
+        return (ColumnMapper<E>) BY_NAME_MAPPER_CACHE.computeIfAbsent(enumClass, e -> new EnumByNameColumnMapper<>(enumClass));
     }
 
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> enumClass) {
@@ -58,7 +58,7 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
     }
 
     private static class EnumByNameColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
-        private final Map<String, E> NAME_CACHE = new ConcurrentHashMap<>();
+        private final Map<String, E> nameValueCache = new ConcurrentHashMap<>();
         private final Class<E> enumClass;
 
         private EnumByNameColumnMapper(Class<E> enumClass) {
@@ -71,7 +71,7 @@ public class QualifiedEnumMapperFactory implements QualifiedColumnMapperFactory 
                 .orElseThrow(() -> new UnableToProduceResultException("a String column mapper is required to map Enums from names", ctx))
                 .map(rs, columnNumber, ctx);
 
-            return name == null ? null : NAME_CACHE.computeIfAbsent(name.toLowerCase(), lowercased -> getValueByName(enumClass, name, ctx));
+            return name == null ? null : nameValueCache.computeIfAbsent(name.toLowerCase(), lowercased -> getValueByName(enumClass, name, ctx));
         }
 
         private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
