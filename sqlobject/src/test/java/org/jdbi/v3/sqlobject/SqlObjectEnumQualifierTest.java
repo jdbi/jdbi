@@ -17,6 +17,7 @@ import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
+import org.jdbi.v3.sqlobject.config.UseEnumStrategy;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -32,7 +33,7 @@ public class SqlObjectEnumQualifierTest {
     @Test
     public void byOrdinalOverridesDefaultInBindingAndMapping() {
         db.getJdbi().useHandle(h -> {
-            h.createUpdate("create table enums(ordinal int)").execute();
+            h.execute("create table enums(ordinal int)");
 
             FooByOrdinalDao dao = h.attach(FooByOrdinalDao.class);
 
@@ -49,9 +50,43 @@ public class SqlObjectEnumQualifierTest {
         db.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
-            h.createUpdate("create table enums(name varchar)").execute();
+            h.execute("create table enums(name varchar)");
 
             FooByNameDao dao = h.attach(FooByNameDao.class);
+
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).findOnly()).isEqualTo("BAR");
+
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        });
+    }
+
+    @Test
+    public void useEnumStrategyOrdinalAnnotation() {
+        db.getJdbi().useHandle(h -> {
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_NAME); // dao annotations will override
+
+            h.execute("create table enums(ordinal int)");
+
+            UseEnumStrategyOrdinalDao dao = h.attach(UseEnumStrategyOrdinalDao.class);
+
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).findOnly()).isEqualTo(0);
+
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        });
+    }
+
+    @Test
+    public void useEnumStrategyNameAnnotation() {
+        db.getJdbi().useHandle(h -> {
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL); // dao annotations will override
+
+            h.execute("create table enums(name varchar)");
+
+            UseEnumStrategyNameDao dao = h.attach(UseEnumStrategyNameDao.class);
 
             dao.insert(Foo.BAR);
             assertThat(h.createQuery("select name from enums").mapTo(String.class).findOnly()).isEqualTo("BAR");
@@ -82,4 +117,23 @@ public class SqlObjectEnumQualifierTest {
         @EnumByName
         Foo select();
     }
+
+    @UseEnumStrategy(EnumStrategy.BY_ORDINAL)
+    private interface UseEnumStrategyOrdinalDao {
+        @SqlUpdate("insert into enums(ordinal) values(:value)")
+        void insert(Foo value);
+
+        @SqlQuery("select ordinal from enums")
+        Foo select();
+    }
+
+    @UseEnumStrategy(EnumStrategy.BY_NAME)
+    private interface UseEnumStrategyNameDao {
+        @SqlUpdate("insert into enums(name) values(:value)")
+        void insert(Foo value);
+
+        @SqlQuery("select name from enums")
+        Foo select();
+    }
+
 }
