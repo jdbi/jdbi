@@ -27,6 +27,8 @@
 
     <properties>
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
+        <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+        <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
         <jmh.version>1.21</jmh.version>
         <maven.deploy.skip>true</maven.deploy.skip>
         <uberjar.name>benchmarks</uberjar.name>
@@ -81,6 +83,19 @@
                     <ignoredUnusedDeclaredDependencies>
                         <ignoredUnusedDeclaredDependency>junit:junit</ignoredUnusedDeclaredDependency>
                     </ignoredUnusedDeclaredDependencies>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.children="append">
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${jmh.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
