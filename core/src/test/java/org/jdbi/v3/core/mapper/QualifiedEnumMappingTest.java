@@ -13,10 +13,11 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import org.jdbi.v3.core.EnumByName;
-import org.jdbi.v3.core.EnumByOrdinal;
-import org.jdbi.v3.core.Enums;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Before;
@@ -38,7 +39,7 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
         Object byName = h.createQuery("select :name")
             .bind("name", Foobar.FOO.name())
@@ -62,7 +63,7 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
         ByName byName = h.createQuery("select :name")
             .bind("name", ByName.ALPHABETIC.name())
@@ -86,7 +87,7 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void methodCallOverridesClassForName() {
-        h.getConfig(Enums.class).defaultByOrdinal();
+        h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
         Object byName = h.createQuery("select :name")
             .bind("name", ByOrdinal.NUMERIC.name())

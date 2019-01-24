@@ -11,24 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.internal;
+package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.Enums;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.argument.NullArgument;
-import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.EnumStrategies;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
-public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
+class EnumArgumentFactory implements QualifiedArgumentFactory {
     @Override
     public Optional<Argument> build(QualifiedType<?> givenType, Object value, ConfigRegistry config) {
         return ifEnum(givenType.getType())
@@ -36,7 +32,7 @@ public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends Enum<E>> Optional<Class<?>> ifEnum(Type type) {
+    static <E extends Enum<E>> Optional<Class<?>> ifEnum(Type type) {
         return Optional.of(type)
             .map(GenericTypes::getErasedType)
             .filter(Class::isEnum)
@@ -44,12 +40,12 @@ public class QualifiedEnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = Enums.EnumStrategy.BY_NAME == config.get(Enums.class).findStrategy(givenType, enumClass);
+        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(givenType);
 
         return (byName ? byName() : byOrdinal()).build(enumClass, value, config);
     }
 
-    public static <E extends Enum<E>> ArgumentFactory byName() {
+    static <E extends Enum<E>> ArgumentFactory byName() {
         return factory(Types.VARCHAR, String.class, E::name);
     }
 

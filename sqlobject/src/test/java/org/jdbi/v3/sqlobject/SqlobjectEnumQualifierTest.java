@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.EnumByName;
-import org.jdbi.v3.core.EnumByOrdinal;
-import org.jdbi.v3.core.Enums;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -46,7 +47,7 @@ public class SqlobjectEnumQualifierTest {
     @Test
     public void byNameOverridesDefaultInBindingAndMapping() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(name varchar)").execute();
 

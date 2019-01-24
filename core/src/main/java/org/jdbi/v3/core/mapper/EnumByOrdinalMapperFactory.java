@@ -17,18 +17,21 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.QualifiedEnumMapperFactory;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.enums.Enums;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
  *
- * @deprecated this class has been superseded by a new implementation
- * @see org.jdbi.v3.core.Enums
- * @see org.jdbi.v3.core.EnumByName
- * @see org.jdbi.v3.core.EnumByOrdinal
- * @see QualifiedEnumMapperFactory#byOrdinal(Class)
+ * @see Enums#setEnumStrategy(EnumStrategy)
+ * @see EnumByName
+ * @see EnumByOrdinal
+ * @see EnumMapper#byOrdinal(Class)
+ * @deprecated Use {@link Enums#setEnumStrategy(EnumStrategy) getConfig(Enums.class).setEnumStrategy(BY_ORDINAL)} instead.
  */
 @Deprecated
 // TODO jdbi4: delete
@@ -38,7 +41,7 @@ public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isEnum()
-                ? Optional.of(QualifiedEnumMapperFactory.byOrdinal(clazz.asSubclass(Enum.class)))
+                ? Optional.of(EnumMapper.byOrdinal(clazz.asSubclass(Enum.class)))
                 : Optional.empty();
     }
 }

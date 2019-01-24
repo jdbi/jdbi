@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
-import org.jdbi.v3.core.internal.QualifiedEnumArgumentFactory;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -58,8 +57,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
-            return QualifiedEnumArgumentFactory.ifEnum(expectedType)
-                .flatMap(enumClass -> QualifiedEnumArgumentFactory.byName().build(enumClass, rawValue, config));
+            return EnumArgumentFactory.ifEnum(expectedType)
+                .flatMap(enumClass -> EnumArgumentFactory.byName().build(enumClass, rawValue, config));
         }
     }
 }

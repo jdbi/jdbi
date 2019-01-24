@@ -23,7 +23,6 @@ import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
-import org.jdbi.v3.core.internal.QualifiedEnumArgumentFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
@@ -55,7 +54,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new EssentialsArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
         register(new NVarcharArgumentFactory());
-        register(new QualifiedEnumArgumentFactory());
+        register(new EnumArgumentFactory());
         register(new OptionalArgumentFactory());
     }
 

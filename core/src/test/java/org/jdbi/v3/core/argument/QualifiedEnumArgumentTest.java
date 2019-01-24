@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.argument;
 
-import org.jdbi.v3.core.EnumByName;
-import org.jdbi.v3.core.EnumByOrdinal;
-import org.jdbi.v3.core.Enums;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.junit.Rule;
@@ -30,7 +31,7 @@ public class QualifiedEnumArgumentTest {
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -64,7 +65,7 @@ public class QualifiedEnumArgumentTest {
     @Test
     public void enumCanBeAnnotatedAsByName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -98,7 +99,7 @@ public class QualifiedEnumArgumentTest {
     @Test
     public void methodCallOverridesClassForName() {
         db.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).defaultByOrdinal();
+            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
