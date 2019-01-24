@@ -15,23 +15,33 @@ package org.jdbi.v3.core.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.Enums;
+import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Column mapper for Java {@code enum} types.
  * @param <E> the enum type mapped
+ *
+ * @see Enums
+ * @see EnumByName
+ * @see EnumByOrdinal
+ * @see EnumMapperFactory
  */
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
-    private static final ExpiringMap<Class<? extends Enum<?>>, ColumnMapper<?>> NAME_CACHE = ExpiringMap.builder()
-                .expiration(10, TimeUnit.MINUTES)
-                .expirationPolicy(ExpirationPolicy.ACCESSED)
-                .build();
+    private static final Map<Class<? extends Enum<?>>, ColumnMapper<? extends Enum<?>>> BY_NAME_MAPPER_CACHE =
+        ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build();
+
     EnumMapper() {}
 
     /**
@@ -41,7 +51,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      */
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
-        return (ColumnMapper<E>) NAME_CACHE.computeIfAbsent(type, e -> new ByName<>(type));
+        return (ColumnMapper<E>) BY_NAME_MAPPER_CACHE.computeIfAbsent(type, t -> new EnumByNameColumnMapper<>(type));
     }
 
     /**
@@ -50,50 +60,59 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
      * @return an enum mapper that matches on {@link Enum#ordinal()}
      */
     public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
-        return new ByOrdinal<>(type);
+        return new EnumByOrdinalColumnMapper<>(type);
     }
 
-    private static class ByName<E extends Enum<E>> extends EnumMapper<E> {
-        private final Class<E> type;
-        private final ConcurrentMap<String, E> insensitiveLookup = new ConcurrentHashMap<>();
+    static class EnumByNameColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
+        private final Map<String, E> nameValueCache = new ConcurrentHashMap<>();
+        private final Class<E> enumClass;
 
-        private ByName(Class<E> type) {
-            this.type = type;
+        private EnumByNameColumnMapper(Class<E> enumClass) {
+            this.enumClass = enumClass;
         }
 
         @Override
-        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            String name = r.getString(columnNumber);
-            return name == null ? null : insensitiveLookup.computeIfAbsent(name, this::resolve);
+        public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
+            String name = rs.getString(columnNumber);
+
+            return name == null || name.isEmpty() // some vendors treat null and empty varchar as the same
+                ? null
+                : nameValueCache.computeIfAbsent(name, n -> getValueByName(enumClass, name, ctx));
         }
 
-        private E resolve(String name) {
-            final IllegalArgumentException failure;
+        private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
+            return JdbiOptionals.findFirstPresent(
+                    () -> Arrays.stream(enumClass.getEnumConstants()).filter(e -> e.name().equals(name)).findFirst(),
+                    () -> Arrays.stream(enumClass.getEnumConstants()).filter(e -> e.name().equalsIgnoreCase(name)).findFirst()
+                )
+                .orElseThrow(() -> new UnableToProduceResultException(
+                    String.format("no %s value could be matched to the name %s", enumClass.getSimpleName(), name),
+                    ctx));
+        }
+    }
+
+    static class EnumByOrdinalColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
+        private final Class<E> enumClass;
+
+        private EnumByOrdinalColumnMapper(Class<E> enumClass) {
+            this.enumClass = enumClass;
+        }
+
+        @Override
+        public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
+            int ordinal = rs.getInt(columnNumber);
+
+            return rs.wasNull() ? null : getValueByOrdinal(enumClass, ordinal, ctx);
+        }
+
+        private static <E extends Enum<E>> E getValueByOrdinal(Class<E> enumClass, int ordinal, StatementContext ctx) {
             try {
-                return Enum.valueOf(type, name);
-            } catch (IllegalArgumentException e) {
-                failure = e;
+                return enumClass.getEnumConstants()[ordinal];
+            } catch (ArrayIndexOutOfBoundsException oob) {
+                throw new UnableToProduceResultException(String.format(
+                    "no %s value could be matched to the ordinal %s", enumClass.getSimpleName(), ordinal
+                ), oob, ctx);
             }
-            for (E e : type.getEnumConstants()) {
-                if (e.name().equalsIgnoreCase(name)) {
-                    return e;
-                }
-            }
-            throw failure;
-        }
-    }
-
-    private static class ByOrdinal<E extends Enum<E>> extends EnumMapper<E> {
-        private final E[] constants;
-
-        private ByOrdinal(Class<E> type) {
-            this.constants = type.getEnumConstants();
-        }
-
-        @Override
-        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            int ordinal = r.getInt(columnNumber);
-            return r.wasNull() ? null : constants[ordinal];
         }
     }
 }

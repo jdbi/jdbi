@@ -17,12 +17,24 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.enums.Enums;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ *
+ * @see Enums#setEnumStrategy(EnumStrategy)
+ * @see EnumByName
+ * @see EnumByOrdinal
+ * @see EnumMapper#byName(Class)
+ * @deprecated Use {@link Enums#setEnumStrategy(EnumStrategy) getConfig(Enums.class).setEnumStrategy(BY_NAME)} instead.
  */
+@Deprecated
+// TODO jdbi4: delete
 public class EnumByNameMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {

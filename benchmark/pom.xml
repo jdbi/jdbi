@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.6.1-SNAPSHOT</version>
+        <version>3.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-benchmark</artifactId>
@@ -27,6 +27,8 @@
 
     <properties>
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
+        <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+        <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
         <jmh.version>1.21</jmh.version>
         <maven.deploy.skip>true</maven.deploy.skip>
         <uberjar.name>benchmarks</uberjar.name>

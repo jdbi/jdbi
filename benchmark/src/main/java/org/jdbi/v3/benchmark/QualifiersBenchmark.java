@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.qualifier;
+package org.jdbi.v3.benchmark;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.qualifier.NVarchar;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
