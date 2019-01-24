@@ -25,6 +25,7 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.Enums;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -80,16 +81,13 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
         }
 
         private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
-            try {
-                return Enum.valueOf(enumClass, name);
-            } catch (IllegalArgumentException ignored) {
-                return Arrays.stream(enumClass.getEnumConstants())
-                    .filter(e -> e.name().equalsIgnoreCase(name))
-                    .findFirst()
-                    .orElseThrow(() -> new UnableToProduceResultException(String.format(
-                        "no %s value could be matched to the name %s", enumClass.getSimpleName(), name
-                    ), ctx));
-            }
+            return JdbiOptionals.findFirstPresent(
+                    () -> Arrays.stream(enumClass.getEnumConstants()).filter(e -> e.name().equals(name)).findFirst(),
+                    () -> Arrays.stream(enumClass.getEnumConstants()).filter(e -> e.name().equalsIgnoreCase(name)).findFirst()
+                )
+                .orElseThrow(() -> new UnableToProduceResultException(
+                    String.format("no %s value could be matched to the name %s", enumClass.getSimpleName(), name),
+                    ctx));
         }
     }
 

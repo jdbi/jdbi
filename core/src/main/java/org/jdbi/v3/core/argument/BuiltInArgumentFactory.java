@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -55,10 +57,10 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     }
 
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
+        private final EnumArgumentFactory delegate = new EnumArgumentFactory();
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
-            return EnumArgumentFactory.ifEnum(expectedType)
-                .flatMap(enumClass -> EnumArgumentFactory.byName().build(enumClass, rawValue, config));
+            return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);
         }
     }
 }

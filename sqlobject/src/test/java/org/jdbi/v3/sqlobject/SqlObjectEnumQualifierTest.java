@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SqlobjectEnumQualifierTest {
+public class SqlObjectEnumQualifierTest {
     @Rule
     public JdbiRule db = JdbiRule.sqlite().withPlugin(new SqlObjectPlugin());
 
