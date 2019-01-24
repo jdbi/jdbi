@@ -33,7 +33,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     @SuppressWarnings("unchecked")
-    static <E extends Enum<E>> Optional<Class<?>> ifEnum(Type type) {
+    static <E extends Enum<E>> Optional<Class<E>> ifEnum(Type type) {
         return Optional.of(type)
             .map(GenericTypes::getErasedType)
             .filter(Class::isEnum)
