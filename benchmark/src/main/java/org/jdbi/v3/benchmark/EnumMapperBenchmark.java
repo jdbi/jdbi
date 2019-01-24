@@ -18,6 +18,9 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.enums.EnumByName;
+import org.jdbi.v3.core.enums.EnumByOrdinal;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -54,13 +57,16 @@ public class EnumMapperBenchmark {
         jdbi.useHandle(handle -> {
             handle.execute("create table exact_name (name varchar)");
             handle.execute("create table random_case (name varchar)");
+            handle.execute("create table ordinals (ordinal int)");
 
             Tribble[] values = Tribble.values();
             for (int i = 0; i < 1000; i++) {
-                Tribble tribble = values[random.nextInt(values.length)];
+                int ordinal = random.nextInt(values.length + 1) - 1;
+                Tribble tribble = ordinal < 0 ? null : values[ordinal];
 
-                handle.execute("insert into exact_name (name) values (?)", tribble.name());
-                handle.execute("insert into random_case (name) values (?)", randomizeCase(tribble.name()));
+                handle.execute("insert into exact_name (name) values (?)", tribble == null ? null : tribble.name());
+                handle.execute("insert into random_case (name) values (?)", tribble == null ? null : randomizeCase(tribble.name()));
+                handle.execute("insert into ordinals (ordinal) values (?)", ordinal < 0 ? null : ordinal);
             }
         });
     }
@@ -71,13 +77,27 @@ public class EnumMapperBenchmark {
     }
 
     @Benchmark
-    public List<Tribble> mapExactCase() {
-        return jdbi.withHandle(h -> h.select("select name from exact_name").mapTo(Tribble.class).list());
+    public List<Tribble> mapByExactName() {
+        return jdbi.withHandle(h ->
+            h.select("select name from exact_name")
+                .mapTo(QualifiedType.of(Tribble.class).with(EnumByName.class))
+                .list());
     }
 
     @Benchmark
-    public List<Tribble> mapRandomCase() {
-        return jdbi.withHandle(h -> h.select("select name from random_case").mapTo(Tribble.class).list());
+    public List<Tribble> mapByRandomCaseName() {
+        return jdbi.withHandle(h ->
+            h.select("select name from random_case")
+                .mapTo(QualifiedType.of(Tribble.class).with(EnumByName.class))
+                .list());
+    }
+
+    @Benchmark
+    public List<Tribble> mapByOrdinal() {
+        return jdbi.withHandle(h ->
+            h.select("select ordinal from ordinals")
+                .mapTo(QualifiedType.of(Tribble.class).with(EnumByOrdinal.class))
+                .list());
     }
 
     public enum Tribble {

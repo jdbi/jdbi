@@ -73,11 +73,11 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
 
         @Override
         public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
-            String name = ctx.findColumnMapperFor(String.class)
-                .orElseThrow(() -> new UnableToProduceResultException("a String column mapper is required to map Enums from names", ctx))
-                .map(rs, columnNumber, ctx);
+            String name = rs.getString(columnNumber);
 
-            return name == null ? null : nameValueCache.computeIfAbsent(name, n -> getValueByName(enumClass, name, ctx));
+            return name == null || name.isEmpty() // some vendors treat null and empty varchar as the same
+                ? null
+                : nameValueCache.computeIfAbsent(name, n -> getValueByName(enumClass, name, ctx));
         }
 
         private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
@@ -100,11 +100,9 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
 
         @Override
         public E map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
-            Integer ordinal = ctx.findColumnMapperFor(Integer.class)
-                .orElseThrow(() -> new UnableToProduceResultException("an Integer column mapper is required to map Enums from ordinals", ctx))
-                .map(rs, columnNumber, ctx);
+            int ordinal = rs.getInt(columnNumber);
 
-            return ordinal == null ? null : getValueByOrdinal(enumClass, ordinal, ctx);
+            return rs.wasNull() ? null : getValueByOrdinal(enumClass, ordinal, ctx);
         }
 
         private static <E extends Enum<E>> E getValueByOrdinal(Class<E> enumClass, int ordinal, StatementContext ctx) {
