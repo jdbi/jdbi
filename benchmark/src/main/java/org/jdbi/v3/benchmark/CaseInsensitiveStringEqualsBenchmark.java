@@ -51,15 +51,20 @@ public class CaseInsensitiveStringEqualsBenchmark {
     }
 
     private Random random;
-    private String a;
-    private String b;
+    private String original;
+    private String copy;
+    private String randomizedCase;
+    private String other;
+
     private Collator collator;
 
     @Setup
     public void setup() {
         random = new Random();
-        a = randomAlphabetic(10);
-        b = random.nextInt(10) == 0 ? randomizeCase(a) : randomAlphabetic(10); // 10% probability of matching
+        original = randomAlphabetic(10);
+        copy = new String(original);
+        randomizedCase = randomizeCase(original);
+        other = randomAlphabetic(10);
 
         collator = Collator.getInstance(Locale.ROOT);
         collator.setStrength(Collator.SECONDARY);
@@ -67,22 +72,57 @@ public class CaseInsensitiveStringEqualsBenchmark {
 
     @Benchmark
     public boolean stringEquals() {
-        return a.equals(b);
+        return original.equals(copy);
     }
 
     @Benchmark
-    public boolean toLowerCaseEquals() {
-        return a.toLowerCase().equalsIgnoreCase(b);
+    public boolean stringNotEquals() {
+        return original.equals(other);
     }
 
     @Benchmark
-    public boolean equalsIgnoreCase() {
-        return a.equalsIgnoreCase(b);
+    public boolean toLowerCaseEqualsCopy() {
+        return original.toLowerCase().equalsIgnoreCase(copy);
     }
 
     @Benchmark
-    public boolean collatorEquals() {
-        return collator.equals(a, b);
+    public boolean toLowerCaseEqualsRandomCase() {
+        return original.toLowerCase().equalsIgnoreCase(copy);
+    }
+
+    @Benchmark
+    public boolean toLowerCaseEqualsOther() {
+        return original.toLowerCase().equalsIgnoreCase(other);
+    }
+
+    @Benchmark
+    public boolean equalsIgnoreCaseCopy() {
+        return original.equalsIgnoreCase(copy);
+    }
+
+    @Benchmark
+    public boolean equalsIgnoreCaseRandomCase() {
+        return original.equalsIgnoreCase(randomizedCase);
+    }
+
+    @Benchmark
+    public boolean equalsIgnoreCaseOther() {
+        return original.equalsIgnoreCase(other);
+    }
+
+    @Benchmark
+    public boolean collatorEqualsCopy() {
+        return collator.equals(original, copy);
+    }
+
+    @Benchmark
+    public boolean collatorEqualsRandomCase() {
+        return collator.equals(original, randomizedCase);
+    }
+
+    @Benchmark
+    public boolean collatorEqualsOther() {
+        return collator.equals(original, other);
     }
 
     private String randomAlphabetic(int length) {

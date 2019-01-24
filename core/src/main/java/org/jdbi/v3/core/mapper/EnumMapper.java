@@ -77,7 +77,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
                 .orElseThrow(() -> new UnableToProduceResultException("a String column mapper is required to map Enums from names", ctx))
                 .map(rs, columnNumber, ctx);
 
-            return name == null ? null : nameValueCache.computeIfAbsent(name.toLowerCase(), lowercased -> getValueByName(enumClass, name, ctx));
+            return name == null ? null : nameValueCache.computeIfAbsent(name, n -> getValueByName(enumClass, name, ctx));
         }
 
         private static <E extends Enum<E>> E getValueByName(Class<E> enumClass, String name, StatementContext ctx) {
