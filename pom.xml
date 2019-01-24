@@ -571,6 +571,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-toolchains-plugin</artifactId>
                     <version>1.1</version>
+                    <configuration>
+                        <toolchains>
+                            <jdk>
+                                <version>1.8</version>
+                                <vendor>oracle</vendor>
+                            </jdk>
+                        </toolchains>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>com.github.ekryd.sortpom</groupId>
@@ -704,73 +712,14 @@
 
     <profiles>
         <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>[1.8,1.9)</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-toolchains-plugin</artifactId>
-                            <configuration>
-                                <toolchains>
-                                    <jdk>
-                                        <version>1.8</version>
-                                        <vendor>oracle</vendor>
-                                    </jdk>
-                                </toolchains>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
             <id>jdk9</id>
             <activation>
                 <jdk>[1.9,)</jdk>
             </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-toolchains-plugin</artifactId>
-                            <configuration>
-                                <toolchains>
-                                    <jdk>
-                                        <version>1.9</version>
-                                        <vendor>oracle</vendor>
-                                    </jdk>
-                                </toolchains>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-dependency-plugin</artifactId>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>org.ow2.asm</groupId>
-                                    <artifactId>asm</artifactId>
-                                    <version>6.1</version>
-                                </dependency>
-                            </dependencies>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>2.21.0</version>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
             <properties>
                 <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
                 <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
-                <project.build.targetJdk>9</project.build.targetJdk>
             </properties>
         </profile>
         <profile>
