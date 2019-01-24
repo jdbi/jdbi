@@ -19,6 +19,6 @@
         <Package name="~org\.jdbi\.v3\.core\.internal\.lexer\.*" />
     </Match>
     <Match>
-        <Package name="~\.*\.generated\.*" />
+        <Package name="~.*\.generated" />
     </Match>
 </FindBugsFilter>
