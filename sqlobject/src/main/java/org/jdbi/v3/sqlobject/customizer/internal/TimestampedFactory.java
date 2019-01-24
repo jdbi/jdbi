@@ -15,22 +15,35 @@ package org.jdbi.v3.sqlobject.customizer.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.function.Function;
 
+import org.jdbi.v3.meta.Beta;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;
 import org.jdbi.v3.sqlobject.customizer.TimestampedConfig;
 
 public class TimestampedFactory implements SqlStatementCustomizerFactory {
+    private static Function<ZoneId, Clock> timeSource = Clock::system;
+
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         final String parameterName = ((Timestamped) annotation).value();
 
         return stmt -> {
             ZoneId zone = stmt.getConfig(TimestampedConfig.class).getTimezone();
-            stmt.bind(parameterName, OffsetDateTime.now(zone));
+            stmt.bind(parameterName, OffsetDateTime.now(timeSource.apply(zone)));
         };
+    }
+
+    /**
+     * for testing purposes only
+     */
+    @Beta
+    static void setTimeSource(Function<ZoneId, Clock> timeSource) {
+        TimestampedFactory.timeSource = timeSource;
     }
 }
