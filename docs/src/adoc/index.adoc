@@ -2447,6 +2447,79 @@ configuration from the creating `Jdbi`, but changes never propagate back up.
 
 See <<JdbiConfig>> for more advanced implementation details.
 
+=== Qualified Types
+
+Sometimes the same Java object can correspond to multiple data types in a database. For example,
+a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all with different handling requirements.
+
+link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType] allows you to add such context to a Java type:
+
+[source,java]
+----
+QualifiedType.of(String.class).with(Json.class);
+----
+
+This `QualifiedType` still represents the `String` _type_, but _qualified_ with the `@Json` annotation.
+It can be used in a way similar to <<GenericType>>, to make components
+handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
+and to have the values handled by different implementations altogether:
+
+[source,java]
+----
+@Json
+public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
+    @Override
+    protected Argument build(String value, ConfigRegistry config) {
+        // do something specifically for json data
+    }
+}
+----
+
+Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
+Other factories _not_ qualified as such will *not* receive this value:
+
+[source,java]
+----
+QualifiedType<String> json = QualifiedType.of(String.class).with(Json.class);
+query.bindByType("jsonValue", "{\"foo\":1}", json);
+----
+
+[TIP]
+Jdbi chooses factories to handle values by *exactly matching* their _qualifiers_. It's up to the
+factory implementations to discriminate on the _type_ of the value afterwards.
+
+[NOTE]
+Qualifiers are implemented as `Annotations`. This allows factories to independently inspect values for qualifiers at the source,
+such as on their `Class`, to alter their own behavior or to _requalify_ a value
+and have it re-evaluated by Jdbi's lookup chain.
+
+[WARNING]
+Qualifiers being annotations does *not* mean they inherently activate
+their function when placed in source classes. Each feature decides its own
+rules regarding their use.
+
+[CAUTION]
+Arguments can only be qualified for binding via `bindByType` calls, not regular
+`bind` or `update.execute(Object...)`. Also, arrays cannot be qualified.
+
+These features currently make use of qualified types:
+
+- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
+respectively, instead of the usual `varchar`.
+- `jdbi3-postgres` offers <<PostgreSQL-hstore,HStore>>.
+- <<jdbi3-json,JSON>>
+- `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
+and setter parameters.
+- `ConstructorMapper` and `@RegisterConstructorMapper` respect qualifiers on constructor parameters.
+- `@BindMethods` and `bindMethods()` respect qualifiers on methods.
+- `@BindFields`, `@RegisterFieldMapper`, `FieldMapper` and `bindFields()` respect qualifiers on fields.
+- `SqlObject` respects qualifiers on methods (applies them to the return type) and parameters.
+* on parameters of type `Consumer<T>`, qualifiers are applied to the `T`.
+- `@MapTo`
+- `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
+- `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
+
+
 == SQL Objects
 
 SQL Objects are a declarative-style alternative to the fluent-style Core API.
@@ -3799,6 +3872,7 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
+[[jdbi3-json]]
 === JSON
 
 The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
@@ -4205,7 +4279,8 @@ escape operators to e.g. `??` or `\:`.
 [reftext="PostgreSQL-hstore"]
 ==== hstore
 
-The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper:
+The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper
+and vice versa argument factory:
 
 [source,java]
 ----
@@ -4213,6 +4288,18 @@ Map<String, String> accountAttributes = handle
     .select("select attributes from account where id = ?", userId)
     .mapTo(new GenericType<Map<String, String>>() {})
     .findOnly();
+----
+
+With `@HStore` qualified type:
+
+[source,java]
+----
+QualifiedType<> HSTORE_MAP = QualifiedType.of(new GenericType<Map<String, String>>() {})
+    .with(HStore.class);
+
+Map<String, String> caps = handle.createUpdate("update account set attributes = :hstore")
+    .bindByType("hstore", mapOfStrings, HSTORE_MAP)
+    .execute();
 ----
 
 By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
