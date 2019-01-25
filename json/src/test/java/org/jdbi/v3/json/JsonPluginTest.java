@@ -13,10 +13,9 @@
  */
 package org.jdbi.v3.json;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class JsonPluginTest {
     @Rule
-    public DatabaseRule db = new H2DatabaseRule().withPlugin(new JsonPlugin());
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new JsonPlugin());
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
@@ -49,8 +48,8 @@ public class JsonPluginTest {
         Object instance = new Foo();
         String json = "foo";
 
-        when(jsonMapper.toJson(eq(Foo.class), eq(instance), any(StatementContext.class))).thenReturn(json);
-        when(jsonMapper.fromJson(eq(Foo.class), eq(json), any(StatementContext.class))).thenReturn(instance);
+        when(jsonMapper.toJson(eq(Foo.class), eq(instance), any(ConfigRegistry.class))).thenReturn(json);
+        when(jsonMapper.fromJson(eq(Foo.class), eq(json), any(ConfigRegistry.class))).thenReturn(instance);
 
         Object result = db.getJdbi().withHandle(h -> {
             h.createUpdate("insert into foo(bar) values(:foo)")
@@ -66,8 +65,8 @@ public class JsonPluginTest {
         });
 
         assertThat(result).isSameAs(instance);
-        verify(jsonMapper).fromJson(eq(Foo.class), eq(json), any(StatementContext.class));
-        verify(jsonMapper).toJson(eq(Foo.class), eq(instance), any(StatementContext.class));
+        verify(jsonMapper).fromJson(eq(Foo.class), eq(json), any(ConfigRegistry.class));
+        verify(jsonMapper).toJson(eq(Foo.class), eq(instance), any(ConfigRegistry.class));
     }
 
     public static class Foo {
