@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.text.MessageFormat;
 
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.customizer.MaxRows;
@@ -34,16 +33,16 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
         final int maxRows = ((MaxRows) annotation).value();
 
         if (maxRows == DEFAULT_MAX_ROWS) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                "no value given for @{0} on {1}:{2}",
+            throw new IllegalArgumentException(String.format(
+                "no value given for @%s on %s:%s",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName())
            );
         }
         if (maxRows <= 0) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                "@{0} value given on {1}:{2} is {3}, which is negative or 0. This makes no sense.",
+            throw new IllegalArgumentException(String.format(
+                "@%s value given on %s:%s is %s, which is negative or 0. This makes no sense.",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName(),
@@ -66,8 +65,8 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                                                               Type type) {
         int value = ((MaxRows) annotation).value();
         if (value != DEFAULT_MAX_ROWS) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                "You''ve specified a value for @{0} on {1}:{2}({3}) — this value won''t do anything, the parameter value will be used instead. Remove the value to prevent confusion.",
+            throw new IllegalArgumentException(String.format(
+                "You've specified a value for @%s on %s:%s(%s) — this value won't do anything, the parameter value will be used instead. Remove the value to prevent confusion.",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName(),
@@ -78,8 +77,8 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
         return (stmt, arg) -> {
             int maxRows = (int) arg;
             if (maxRows <= 0) {
-                throw new IllegalArgumentException(MessageFormat.format(
-                    "@{0} value given on {1}:{2}({3}) is {4}, which is negative or 0. This makes no sense.",
+                throw new IllegalArgumentException(String.format(
+                    "@%s value given on %s:%s(%s) is %s, which is negative or 0. This makes no sense.",
                     MaxRows.class.getSimpleName(),
                     sqlObjectType.getName(),
                     method.getName(),
