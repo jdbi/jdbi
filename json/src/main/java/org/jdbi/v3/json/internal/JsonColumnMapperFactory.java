@@ -20,10 +20,12 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
+import org.jdbi.v3.json.JsonMapper;
 
 /**
  * converts a {@code (@Json) String} fetched by another mapper into a value object
@@ -40,17 +42,17 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
         if (String.class.equals(type)) {
             return Optional.empty();
         }
+        ColumnMappers cm = config.get(ColumnMappers.class);
+        // look for specialized json support first, revert to simple String mapping if absent
+        ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
+                () -> cm.findFor(QualifiedType.of(String.class).with(Json.class)),
+                () -> cm.findFor(String.class))
+                .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE));
 
+        final JsonMapper mapper = config.get(JsonConfig.class).getJsonMapper();
         return Optional.of((rs, i, ctx) -> {
-            // look for specialized json support first, revert to simple String mapping if absent
-            ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> ctx.findColumnMapperFor(QualifiedType.of(String.class).with(Json.class)),
-                () -> ctx.findColumnMapperFor(String.class))
-                    .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE, ctx));
-
             String json = jsonStringMapper.map(rs, i, ctx);
-
-            return json == null ? null : ctx.getConfig(JsonConfig.class).getJsonMapper().fromJson(type, json, ctx);
+            return json == null ? null : mapper.fromJson(type, json, config);
         });
     }
 }

@@ -15,23 +15,17 @@ package org.jdbi.v3.gson2;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonParseException;
-import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.json.JsonMapper;
 
 class GsonJsonMapper implements JsonMapper {
     @Override
-    public String toJson(Type type, Object value, StatementContext ctx) {
-        return ctx.getConfig(Gson2Config.class).getGson().toJson(value);
+    public String toJson(Type type, Object value, ConfigRegistry config) {
+        return config.get(Gson2Config.class).getGson().toJson(value);
     }
 
     @Override
-    public Object fromJson(Type type, String json, StatementContext ctx) {
-        try {
-            return ctx.getConfig(Gson2Config.class).getGson().fromJson(json, type);
-        } catch (JsonParseException e) {
-            throw new UnableToProduceResultException(e, ctx);
-        }
+    public Object fromJson(Type type, String json, ConfigRegistry config) {
+        return config.get(Gson2Config.class).getGson().fromJson(json, type);
     }
 }

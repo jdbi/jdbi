@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -40,17 +41,12 @@ public class JsonArgumentFactory implements ArgumentFactory {
         if (String.class.equals(type)) {
             return Optional.empty();
         }
-
-        return Optional.of((pos, stmt, ctx) -> {
-            String json = value == null ? null : ctx.getConfig(JsonConfig.class).getJsonMapper().toJson(type, value, ctx);
-
-            // look for specialized json support first, revert to simple String binding if absent
-            Argument stringBinder = JdbiOptionals.findFirstPresent(
-                () -> ctx.findArgumentFor(QualifiedType.of(String.class).with(Json.class), json),
-                () -> ctx.findArgumentFor(String.class, json))
-                    .orElseThrow(() -> new UnableToCreateStatementException(JSON_NOT_STORABLE));
-
-            stringBinder.apply(pos, stmt, ctx);
-        });
+        String json = value == null ? null : config.get(JsonConfig.class).getJsonMapper().toJson(type, value, config);
+        Arguments a = config.get(Arguments.class);
+        // look for specialized json support first, revert to simple String binding if absent
+        return Optional.of(JdbiOptionals.findFirstPresent(
+                () -> a.findFor(QualifiedType.of(String.class).with(Json.class), json),
+                () -> a.findFor(String.class, json))
+                .orElseThrow(() -> new UnableToCreateStatementException(JSON_NOT_STORABLE)));
     }
 }
