@@ -23,7 +23,7 @@ r2dbc.inTransaction(handle ->
 
     .thenMany(r2dbc.inTransaction(handle ->
         handle.select("SELECT value FROM test")
-            .execute(result -> result.map((row, rowMetadata) -> row.get("value", Integer.class)))))
+            .mapResult(result -> result.map((row, rowMetadata) -> row.get("value", Integer.class)))))
 
     .subscribe(System.out::println);
 ```
