@@ -15,31 +15,32 @@ package org.jdbi.v3.sqlobject.locator.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
-import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 public class UseClasspathSqlLocatorImpl implements Configurer {
-    private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method, config) -> {
-        return SqlAnnotations.getAnnotationValue(method,
-                name -> ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, defaultName(name, method))).orElseGet(method::getName);
-    };
-
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlObjects.class).setSqlLocator(SQL_LOCATOR);
-    }
-
-    private static String defaultName(String name, Method method) {
-        return name.isEmpty() ? method.getName() : name;
+        registry.get(SqlObjects.class).setSqlLocator(UseClasspathSqlLocatorImpl::locate);
     }
 
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
+    }
+
+    private static String locate(Class<?> sqlObjectType, Method method, @SuppressWarnings("unused") ConfigRegistry config) {
+        Function<String, String> valueOrMethodNameToSql = key -> {
+            String filename = key.isEmpty() ? method.getName() : key;
+            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, filename);
+        };
+
+        return SqlAnnotations.getAnnotationValue(method, valueOrMethodNameToSql)
+            .orElseThrow(() -> new IllegalStateException(String.format("method %s has no query annotations", method)));
     }
 }
