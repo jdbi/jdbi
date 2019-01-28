@@ -35,36 +35,62 @@ public class SqlAnnotations {
     }
 
     /**
-     * Returns the <code>value()</code> of the <code>@SqlBatch</code>, <code>@SqlCall</code>, <code>@SqlQuery</code>, or
-     * <code>@SqlUpdate</code> annotation on the given method if declared and non-empty; empty otherwise.
+     * Returns the <code>value()</code> of the <code>@SqlBatch</code>, <code>@SqlCall</code>, <code>@SqlQuery</code>,
+     * <code>@SqlUpdate</code>, <code>@SqlScripts</code>, or <code>@SqlScript</code> annotation on the given method if declared and non-empty; empty otherwise.
      *
      * @param method the method
      * @return the annotation <code>value()</code>
      */
-    public static Optional<String> getAnnotationValue(Method method, Function<String, String> resolveSql) {
-        Predicate<String> nonEmpty = s -> !s.isEmpty();
+    public static Optional<String> getAnnotationValue(Method method) {
+        return getAnnotationValue(method, Function.identity());
+    }
+
+    /**
+     * Returns the <code>value()</code> of the <code>@SqlBatch</code>, <code>@SqlCall</code>, <code>@SqlQuery</code>,
+     * <code>@SqlUpdate</code>, <code>@SqlScripts</code>, or <code>@SqlScript</code> annotation on the given method if declared and non-empty; empty otherwise.
+     *
+     * Note: <code>@SqlScripts</code> values are mapped individually and concatenated with {@code " ; "}, hence the transformation parameter.
+     *
+     * @param method the method
+     * @param transformation the String transformation (e.g. SQL lookup) to apply to the found value(s)
+     * @return the annotation <code>value()</code>
+     */
+    public static Optional<String> getAnnotationValue(Method method, Function<String, String> transformation) {
+        Predicate<String> isNotBlank = str -> !str.trim().isEmpty();
 
         return JdbiOptionals.findFirstPresent(
-                () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class)).map(SqlBatch::value).map(resolveSql).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).map(resolveSql).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).map(resolveSql).filter(nonEmpty),
-                () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).map(resolveSql).filter(nonEmpty),
-                () -> findScripts(method, resolveSql));
-    }
+            () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class))
+                .map(SqlBatch::value)
+                .filter(isNotBlank)
+                .map(transformation),
 
-    private static Optional<String> findScripts(Method method, Function<String, String> resolveSql) {
-        final SqlScripts scripts = method.getAnnotation(SqlScripts.class);
-        if (scripts != null) {
-            return Optional.of(Arrays.stream(scripts.value()).map(s -> scriptValue(s, method)).map(resolveSql).collect(Collectors.joining(" ; ")));
-        }
-        final SqlScript script = method.getAnnotation(SqlScript.class);
-        if (script != null) {
-            return Optional.of(resolveSql.apply(scriptValue(script, method)));
-        }
-        return Optional.empty();
-    }
+            () -> Optional.ofNullable(method.getAnnotation(SqlCall.class))
+                .map(SqlCall::value)
+                .filter(isNotBlank)
+                .map(transformation),
 
-    private static String scriptValue(SqlScript script, Method method) {
-        return script.value().isEmpty() ? method.getName() : script.value();
+            () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class))
+                .map(SqlQuery::value)
+                .filter(isNotBlank)
+                .map(transformation),
+
+            () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class))
+                .map(SqlUpdate::value)
+                .filter(isNotBlank)
+                .map(transformation),
+
+            () -> Optional.ofNullable(method.getAnnotation(SqlScripts.class))
+                .map(SqlScripts::value)
+                .map(scripts -> Arrays.stream(scripts)
+                    .map(SqlScript::value)
+                    .filter(isNotBlank)
+                    .map(transformation)
+                    .collect(Collectors.joining(" ; "))),
+
+            () -> Optional.ofNullable(method.getAnnotation(SqlScript.class))
+                .map(SqlScript::value)
+                .filter(isNotBlank)
+                .map(transformation)
+        );
     }
 }
