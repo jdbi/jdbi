@@ -46,7 +46,7 @@
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
         <reactor.version>Californium-SR3</reactor.version>
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
-        <testcontainers.version>1.10.1</testcontainers.version>
+        <testcontainers.version>1.10.6</testcontainers.version>
     </properties>
 
     <dependencyManagement>
