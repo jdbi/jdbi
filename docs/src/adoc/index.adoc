@@ -1623,13 +1623,14 @@ handle.createQuery("select * from emotion where emoticon = <sticker>;")
 Bindings and definitions are usually separate.  You can link them in a limited manner
 using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
 For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
+binding is present and not `null`.  You can use this to
 craft conditional updates and query clauses.
 
 For example,
 [source,java]
 ----
 class MyBean {
+    long id();
     String getA();
     String getB();
     Instant getModified();
