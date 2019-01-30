@@ -34,7 +34,7 @@ public class UseFreemarkerSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         SqlLocator locator = (type, method, config) -> {
-            String templateName = SqlAnnotations.getAnnotationValue(method, sql -> sql).orElseGet(method::getName);
+            String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             findTemplate(sqlObjectType, templateName);
             return templateName;
         };
