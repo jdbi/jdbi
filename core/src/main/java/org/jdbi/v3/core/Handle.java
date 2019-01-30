@@ -16,6 +16,8 @@ package org.jdbi.v3.core;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
@@ -122,47 +124,55 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     @Override
     public void close() {
+        final List<Throwable> suppressed = new ArrayList<>();
         if (closed) {
             return;
         }
 
-        boolean wasInTransaction = isInTransaction()
-            && forceEndTransactions
-            && config.get().get(Handles.class).isForceEndTransactions();
+        boolean wasInTransaction = false;
+        if (forceEndTransactions && config.get().get(Handles.class).isForceEndTransactions()) {
+            try {
+                wasInTransaction = isInTransaction();
+            } catch (Exception e) {
+                suppressed.add(e);
+            }
+        }
 
         extensionMethod.remove();
         config.remove();
 
         if (wasInTransaction) {
-            rollback();
+            try {
+                rollback();
+            } catch (Exception e) {
+                suppressed.add(e);
+            }
         }
 
-        Exception suppressed = null;
         try {
             statementBuilder.close(getConnection());
         } catch (Exception e) {
-            suppressed = e;
+            suppressed.add(e);
         }
 
         try {
             closer.close(connection);
 
+            if (!suppressed.isEmpty()) {
+                final Throwable original = suppressed.remove(0);
+                suppressed.forEach(original::addSuppressed);
+                throw new CloseException("Failed to clear transaction status on close", original);
+            }
             if (wasInTransaction) {
-                TransactionException txe = new TransactionException("Improper transaction handling detected: A Handle with an open "
+                throw new TransactionException("Improper transaction handling detected: A Handle with an open "
                     + "transaction was closed. Transactions must be explicitly committed or rolled back "
                     + "before closing the Handle. "
                     + "Jdbi has rolled back this transaction automatically. "
                     + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
-                if (suppressed != null) {
-                    txe.addSuppressed(suppressed);
-                }
-                throw txe;
             }
         } catch (SQLException e) {
             CloseException ce = new CloseException("Unable to close Connection", e);
-            if (suppressed != null) {
-                ce.addSuppressed(suppressed);
-            }
+            suppressed.forEach(ce::addSuppressed);
             throw ce;
         } finally {
             LOG.trace("Handle [{}] released", this);

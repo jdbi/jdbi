@@ -19,6 +19,8 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -152,5 +154,20 @@ public class TestTransactions {
         assertThatThrownBy(() -> h.inTransaction(handle -> {
             throw new IllegalArgumentException();
         })).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testTemplateEngineThrowsError() {
+        assertThatThrownBy(() -> h.setTemplateEngine(new BoomEngine()).inTransaction(h2 -> h2.execute("select 1")))
+            .isOfAnyClassIn(Error.class)
+            .hasMessage("boom");
+        assertThat(h.isInTransaction()).isFalse();
+    }
+
+    static class BoomEngine implements TemplateEngine {
+        @Override
+        public String render(String template, StatementContext ctx) {
+            throw new Error("boom");
+        }
     }
 }
