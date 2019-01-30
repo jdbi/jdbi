@@ -17,6 +17,7 @@ package org.jdbi.v3.core.internal.exceptions;
 
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -25,6 +26,16 @@ import org.jdbi.v3.core.internal.UtilityClassException;
 public class Unchecked {
     private Unchecked() {
         throw new UtilityClassException();
+    }
+
+    public static <T> Consumer<T> consumer(CheckedConsumer<T> checkedConsumer) {
+        return (x) -> {
+            try {
+                checkedConsumer.accept(x);
+            } catch (Throwable t) {
+                throw Sneaky.throwAnyway(t);
+            }
+        };
     }
 
     public static <T> SneakyCallable<T> callable(CheckedCallable<T> checkedCallable) {

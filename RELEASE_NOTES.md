@@ -6,6 +6,8 @@
   - @EnumByName and @EnumByOrdinal qualifying annotations to override said default policy.
 - Improvements
   - Improve Error handling with transactions
+- Minor source incompatibility
+  - JdbiPlugin methods now `throws SQLException`
 
 #3.6.0
 - New Features
