@@ -38,15 +38,9 @@ public class TestPostgresTypes {
     public void before() {
         handle = postgresDbRule.getHandle();
         handle.useTransaction(h -> {
-            h.execute("drop table if exists postgres_custom_types");
             h.execute("create table postgres_custom_types(id integer not null, foo text, bar text, created_on timestamp)");
 
             // create custom type
-            h.execute("drop function if exists get_foo_bars()");
-            h.execute("drop function if exists get_foo_bar(integer)");
-            h.execute("drop function if exists insert_foo_bar(foo_bar_type)");
-            h.execute("drop type if exists foo_bar_type");
-
             h.execute("CREATE TYPE foo_bar_type AS (id integer, foo text, bar text);");
 
             //create functions using custom types
