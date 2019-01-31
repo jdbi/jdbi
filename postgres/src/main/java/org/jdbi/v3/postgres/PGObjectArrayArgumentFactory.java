@@ -34,15 +34,15 @@ public class PGObjectArrayArgumentFactory extends AbstractArgumentFactory<PGobje
 
     @Override
     protected Argument build(PGobject[] value, ConfigRegistry config) {
-        return new LoggableBinderArgument<>(value, (p, i, v) -> {
-            PGConnection pgConnection = (PGConnection) p.getConnection();
+        return new LoggableBinderArgument<>(value, (statement, index, val) -> {
+            PGConnection pgConnection = (PGConnection) statement.getConnection();
             @SuppressWarnings("unchecked")
-            Class<? extends PGobject> componentType = (Class<? extends PGobject>) v.getClass().getComponentType();
+            Class<? extends PGobject> componentType = (Class<? extends PGobject>) val.getClass().getComponentType();
             String type = PostgresTypes.getTypeName(componentType);
 
             pgConnection.addDataType(type, componentType);
-            Array array = p.getConnection().createArrayOf(type, v);
-            p.setArray(i, array);
+            Array array = statement.getConnection().createArrayOf(type, val);
+            statement.setArray(index, array);
         });
     }
 

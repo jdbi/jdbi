@@ -33,12 +33,12 @@ public class PGObjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
 
     @Override
     protected Argument build(PGobject value, ConfigRegistry config) {
-        return new LoggableBinderArgument<>(value, (p, i, v) -> {
-            PGConnection pgConnection = (PGConnection) p.getConnection();
-            String type = PostgresTypes.getTypeName(v.getClass());
+        return new LoggableBinderArgument<>(value, (statement, index, val) -> {
+            PGConnection pgConnection = (PGConnection) statement.getConnection();
+            String type = PostgresTypes.getTypeName(val.getClass());
 
-            pgConnection.addDataType(type, v.getClass());
-            p.setObject(i, v);
+            pgConnection.addDataType(type, val.getClass());
+            statement.setObject(index, val);
         });
     }
 
