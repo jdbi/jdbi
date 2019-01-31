@@ -38,7 +38,7 @@ final class ResultBearingTest {
         MockRowMetadata rowMetadata = MockRowMetadata.builder()
             .columnMetadata(MockColumnMetadata.builder()
                 .name("test-name")
-                .type(100)
+                .nativeTypeMetadata(100)
                 .build())
             .build();
 
