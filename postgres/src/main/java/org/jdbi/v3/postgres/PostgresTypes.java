@@ -23,7 +23,7 @@ import org.postgresql.util.PGobject;
  * Handler for PostgreSQL custom types.
  */
 public class PostgresTypes {
-    private static final ConcurrentHashMap<Class, String> TYPES = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<? extends PGobject>, String> TYPES = new ConcurrentHashMap<>();
 
     private PostgresTypes() {}
 
@@ -36,7 +36,7 @@ public class PostgresTypes {
         TYPES.put(clazz, typeName);
     }
 
-    public static String getTypeName(Class clazz) {
+    public static String getTypeName(Class<? extends PGobject> clazz) {
         return TYPES.get(clazz);
     }
 
