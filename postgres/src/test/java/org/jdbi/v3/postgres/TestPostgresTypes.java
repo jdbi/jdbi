@@ -22,6 +22,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.JdbiRule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -100,6 +101,11 @@ public class TestPostgresTypes {
             handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(1, 'foo1', 'bar1', current_timestamp)");
             handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(2, 'foo2', 'bar2', current_timestamp)");
         });
+    }
+
+    @After
+    public void after() {
+        handle.close();
     }
 
     @Test

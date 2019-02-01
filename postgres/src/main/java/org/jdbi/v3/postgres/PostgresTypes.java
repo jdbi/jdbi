@@ -50,6 +50,11 @@ public class PostgresTypes {
         TYPES.forEach((clazz, type) -> Unchecked.<String, Class>biConsumer(connection::addDataType).accept(type, clazz));
     }
 
+    /**
+     * Register array element type for each registered PostgreSQL custom type
+     *
+     * @param jdbi {@link Jdbi} on which to register array element type
+     */
     public static void registerArrayTypes(Jdbi jdbi) {
         TYPES.forEach(jdbi::registerArrayType);
     }
