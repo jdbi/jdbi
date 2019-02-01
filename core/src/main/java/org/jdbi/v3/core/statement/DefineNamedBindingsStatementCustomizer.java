@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -41,10 +42,50 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
         private boolean setCalled;
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) {
-            setCalled = method.getName().startsWith("set");
-            boolean argNull = args.length > 1 && args[1] == null;
-            setNull = "setNull".equals(method.getName()) || argNull;
+        public Object invoke(Object proxy, Method method, Object[] args) throws SQLException {
+            if (method.getName().equals("unwrap")
+                && args.length == 1
+                && method.getParameterTypes()[0].equals(Class.class)) {
+                throw new SQLException("The current implementation of DefineNamedBindings is incompatible with "
+                    + "arguments that rely on java.sql.Wrapper.unwrap(Class<?>)");
+            }
+
+            if (method.getName().startsWith("set")) {
+                setCalled = true;
+                boolean argNull = args.length > 1 && args[1] == null;
+                setNull = argNull || "setNull".equals(method.getName());
+            }
+
+            return defaultValue(method.getReturnType());
+        }
+
+        private Object defaultValue(Class<?> type) {
+            if (type.isPrimitive()) {
+                if (boolean.class.equals(type)) {
+                    return false;
+                }
+                if (char.class.equals(type)) {
+                    return '\u0000';
+                }
+                if (byte.class.equals(type)) {
+                    return (byte) 0;
+                }
+                if (short.class.equals(type)) {
+                    return (short) 0;
+                }
+                if (int.class.equals(type)) {
+                    return 0;
+                }
+                if (long.class.equals(type)) {
+                    return 0L;
+                }
+                if (float.class.equals(type)) {
+                    return 0f;
+                }
+                if (double.class.equals(type)) {
+                    return 0d;
+                }
+            }
             return null;
         }
 
