@@ -38,6 +38,17 @@ public class Unchecked {
         };
     }
 
+    @SuppressWarnings("PMD.DoNotUseThreads")
+    public static Runnable runnable(CheckedRunnable checkedRunnable) {
+        return () -> {
+            try {
+                checkedRunnable.run();
+            } catch (Throwable t) {
+                throw Sneaky.throwAnyway(t);
+            }
+        };
+    }
+
     public static <T> SneakyCallable<T> callable(CheckedCallable<T> checkedCallable) {
         return () -> {
             try {
@@ -81,5 +92,9 @@ public class Unchecked {
     public interface SneakyCallable<T> extends Callable<T> {
         @Override
         T call(); // no 'throws Exception'
+    }
+
+    public interface CheckedRunnable {
+        void run() throws Exception;
     }
 }

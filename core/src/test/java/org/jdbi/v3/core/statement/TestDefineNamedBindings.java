@@ -13,13 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.util.Arrays;
+import java.sql.SQLException;
 
+import org.h2.jdbc.JdbcPreparedStatement;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class TestDefineNamedBindings {
     @Rule
@@ -33,7 +35,7 @@ public class TestDefineNamedBindings {
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
                 .list())
-        .isEqualTo(Arrays.asList(true, false));
+        .containsExactly(true, false);
     }
 
     public static class DefinedBean {
@@ -45,4 +47,20 @@ public class TestDefineNamedBindings {
             return null;
         }
     }
+
+    @Test
+    public void testIncompatibleWithUnwrap() {
+        Throwable thrown = catchThrowable(() ->
+            db.getSharedHandle().createQuery("select <a> from values (:a)")
+                .defineNamedBindings()
+                .bind("a", (p, s, c) -> s.unwrap(JdbcPreparedStatement.class).setString(p, "x"))
+                .mapTo(boolean.class)
+                .findFirst());
+        assertThat(thrown)
+            .isNotNull()
+            .hasCauseInstanceOf(SQLException.class);
+        assertThat(thrown.getCause())
+            .hasMessageContaining("DefineNamedBindings is incompatible with arguments that rely on java.sql.Wrapper.unwrap");
+    }
+
 }
