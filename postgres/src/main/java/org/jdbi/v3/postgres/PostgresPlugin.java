@@ -14,12 +14,17 @@
 package org.jdbi.v3.postgres;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.postgresql.PGConnection;
 
@@ -128,7 +133,11 @@ public class PostgresPlugin implements JdbiPlugin {
 
     @Override
     public Connection customizeConnection(Connection conn) {
-        PostgresTypes.addTypesToConnection((PGConnection) conn);
+        try {
+            PostgresTypes.addTypesToConnection(conn.unwrap(PGConnection.class));
+        } catch (SQLException ex) {
+            throw Sneaky.throwAnyway(ex);
+        }
 
         return conn;
     }
