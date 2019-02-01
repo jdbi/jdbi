@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.sql.Connection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.postgresql.PGConnection;
 
 /**
  * Postgres plugin. Adds support for binding and mapping the following data types:
@@ -92,7 +94,6 @@ public class PostgresPlugin implements JdbiPlugin {
         jdbi.registerArgument(new MacAddrArgumentFactory());
         jdbi.registerArgument(new UUIDArgumentFactory());
         jdbi.registerArgument(new PGObjectArgumentFactory());
-        jdbi.registerArgument(new PGObjectArrayArgumentFactory());
 
         jdbi.registerArrayType(int.class, "integer");
         jdbi.registerArrayType(Integer.class, "integer");
@@ -121,5 +122,14 @@ public class PostgresPlugin implements JdbiPlugin {
         if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) {
             jdbi.registerArgument(new JsonArgumentFactory());
         }
+
+        PostgresTypes.registerArrayTypes(jdbi);
+    }
+
+    @Override
+    public Connection customizeConnection(Connection conn) {
+        PostgresTypes.addTypesToConnection((PGConnection) conn);
+
+        return conn;
     }
 }

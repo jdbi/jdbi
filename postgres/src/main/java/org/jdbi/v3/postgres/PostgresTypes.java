@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
@@ -48,4 +49,9 @@ public class PostgresTypes {
     public static void addTypesToConnection(PGConnection connection) {
         TYPES.forEach((clazz, type) -> Unchecked.<String, Class>biConsumer(connection::addDataType).accept(type, clazz));
     }
+
+    public static void registerArrayTypes(Jdbi jdbi) {
+        TYPES.forEach(jdbi::registerArrayType);
+    }
+
 }

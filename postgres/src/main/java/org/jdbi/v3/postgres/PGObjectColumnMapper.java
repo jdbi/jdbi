@@ -18,7 +18,6 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
 
 /**
@@ -28,8 +27,6 @@ public class PGObjectColumnMapper implements ColumnMapper<PGobject> {
 
     @Override
     public PGobject map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
-        PostgresTypes.addTypesToConnection((PGConnection) ctx.getConnection());
-
         return (PGobject) rs.getObject(columnNumber);
     }
 

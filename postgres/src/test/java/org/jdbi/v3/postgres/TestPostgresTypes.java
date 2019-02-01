@@ -16,12 +16,15 @@ package org.jdbi.v3.postgres;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
 
@@ -29,18 +32,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresTypes {
 
-    @Rule
-    public JdbiRule postgresDbRule = PostgresDbRule.rule();
+    @ClassRule
+    public static JdbiRule postgresDBRule = JdbiRule.embeddedPostgres();
 
+    private static Jdbi jdbi;
     private Handle handle;
+
+    @BeforeClass
+    public static void beforeClass() {
+        PostgresTypes.registerCustomType("foo_bar_type", FooBarPGType.class);
+
+        jdbi = postgresDBRule.getJdbi();
+
+        jdbi.installPlugin(new SqlObjectPlugin());
+        jdbi.installPlugin(new PostgresPlugin());
+    }
 
     @Before
     public void before() {
-        handle = postgresDbRule.getHandle();
+        handle = jdbi.open();
         handle.useTransaction(h -> {
+            h.execute("drop table if exists postgres_custom_types");
             h.execute("create table postgres_custom_types(id integer not null, foo text, bar text, created_on timestamp)");
 
             // create custom type
+            h.execute("drop function if exists get_foo_bars()");
+            h.execute("drop function if exists get_foo_bar(integer)");
+            h.execute("drop function if exists insert_foo_bar(foo_bar_type)");
+            h.execute("drop function if exists insert_foo_bars(foo_bar_type[])");
+            h.execute("drop type if exists foo_bar_type");
+
             h.execute("CREATE TYPE foo_bar_type AS (id integer, foo text, bar text);");
 
             //create functions using custom types
@@ -78,8 +99,6 @@ public class TestPostgresTypes {
 
             handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(1, 'foo1', 'bar1', current_timestamp)");
             handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(2, 'foo2', 'bar2', current_timestamp)");
-
-            PostgresTypes.registerCustomType("foo_bar_type", FooBarPGType.class);
         });
     }
 
@@ -150,7 +169,7 @@ public class TestPostgresTypes {
         FooBarPGType result = (FooBarPGType) typeDAO.find(2);
 
         assertThat(result).isEqualTo(new FooBarPGType(2, "foo2", "bar2"));
-    }
+}
 
     @Test
     public void testReadListViaObjectAPI() {
