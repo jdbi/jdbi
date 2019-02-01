@@ -19,6 +19,9 @@ package io.r2dbc.client;
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.h2.H2ConnectionConfiguration;
 import io.r2dbc.h2.H2ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.test.Example;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -31,6 +34,11 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import reactor.util.annotation.Nullable;
 
+import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
+import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 final class H2Example {
@@ -38,13 +46,12 @@ final class H2Example {
     @RegisterExtension
     static final H2ServerExtension SERVER = new H2ServerExtension();
 
-    private final H2ConnectionConfiguration configuration = H2ConnectionConfiguration.builder()
-        .password(SERVER.getPassword())
-        .url(SERVER.getUrl())
-        .username(SERVER.getUsername())
-        .build();
-
-    private final H2ConnectionFactory connectionFactory = new H2ConnectionFactory(this.configuration);
+    private final ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
+        .option(DRIVER, H2_DRIVER)
+        .option(PASSWORD, SERVER.getPassword())
+        .option(URL, SERVER.getUrl())
+        .option(USER, SERVER.getUsername())
+        .build());
 
     private static final class H2ServerExtension implements BeforeAllCallback, AfterAllCallback {
 
@@ -100,7 +107,7 @@ final class H2Example {
     final class JdbcStyle implements io.r2dbc.spi.test.Example<Integer> {
 
         @Override
-        public H2ConnectionFactory getConnectionFactory() {
+        public ConnectionFactory getConnectionFactory() {
             return H2Example.this.connectionFactory;
         }
 
@@ -130,7 +137,7 @@ final class H2Example {
     final class PostgresqlStyle implements Example<String> {
 
         @Override
-        public H2ConnectionFactory getConnectionFactory() {
+        public ConnectionFactory getConnectionFactory() {
             return H2Example.this.connectionFactory;
         }
 
