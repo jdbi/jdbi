@@ -40,6 +40,7 @@ import org.postgresql.util.PGInterval;
 import org.postgresql.util.PGmoney;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresTypes {
 
@@ -183,7 +184,7 @@ public class TestPostgresTypes {
         FooBarPGType result = typeDAO.find(2);
 
         assertThat(result).isEqualTo(new FooBarPGType(2, "foo2", "bar2"));
-}
+    }
 
     @Test
     public void testReadListViaObjectAPI() {
@@ -214,7 +215,7 @@ public class TestPostgresTypes {
         FooBarPGType fooBar7 = new FooBarPGType(7, "foo7", "bar7");
         FooBarPGType fooBar8 = new FooBarPGType(8, "foo8", "bar8");
 
-        typeDAO.insertFooBars(new FooBarPGType[]{fooBar7, fooBar8});
+        typeDAO.insertFooBarsArray(new FooBarPGType[]{fooBar7, fooBar8});
 
         FooBarPGType result7 = typeDAO.find(fooBar7.getId());
         FooBarPGType result8 = typeDAO.find(fooBar8.getId());
@@ -418,7 +419,7 @@ public class TestPostgresTypes {
         void insertFooBar(@Bind("fooBar") FooBarPGType foo);
 
         @SqlCall("select insert_foo_bars(:fooBars)")
-        void insertFooBars(@Bind("fooBars") FooBarPGType[] foos);
+        void insertFooBarsArray(@Bind("fooBars") FooBarPGType[] foos);
 
         @SqlCall("select insert_foo_bars(:fooBars)")
         void insertFooBars(@Bind("fooBars") List<FooBarPGType> foos);
