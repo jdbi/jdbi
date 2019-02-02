@@ -40,7 +40,6 @@ import org.postgresql.util.PGInterval;
 import org.postgresql.util.PGmoney;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresTypes {
 
