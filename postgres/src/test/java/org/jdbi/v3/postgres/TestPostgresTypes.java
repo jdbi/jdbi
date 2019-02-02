@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
@@ -36,7 +38,6 @@ import org.postgresql.geometric.PGpoint;
 import org.postgresql.geometric.PGpolygon;
 import org.postgresql.util.PGInterval;
 import org.postgresql.util.PGmoney;
-import org.postgresql.util.PGobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -126,8 +127,8 @@ public class TestPostgresTypes {
 
     @Test
     public void testReadListViaFluentAPI() {
-        List<PGobject> result = handle.createQuery("SELECT get_foo_bars()")
-                .mapTo(PGobject.class)
+        List<FooBarPGType> result = handle.createQuery("SELECT get_foo_bars()")
+                .mapTo(FooBarPGType.class)
                 .list();
 
         assertThat(result).containsExactlyInAnyOrder(
@@ -220,6 +221,42 @@ public class TestPostgresTypes {
 
         assertThat(fooBar7).isEqualTo(result7);
         assertThat(fooBar8).isEqualTo(result8);
+    }
+
+    @Test
+    public void testBindListAsArrayViaFluentAPI() {
+        List<FooBarPGType> foos = new ArrayList<>();
+        foos.add(new FooBarPGType(9, "foo9", "bar9"));
+        foos.add(new FooBarPGType(10, "foo10", "bar10"));
+
+        handle.createCall("SELECT insert_foo_bars(:fooBar)")
+                .bindByType("fooBar", foos, new GenericType<List<FooBarPGType>>() {})
+                .invoke();
+
+        assertThat(handle.createQuery("SELECT get_foo_bars()")
+                .mapTo(FooBarPGType.class)
+                .list())
+                .containsExactlyInAnyOrder(new FooBarPGType(1, "foo1", "bar1"),
+                                           new FooBarPGType(2, "foo2", "bar2"),
+                                           new FooBarPGType(9, "foo9", "bar9"),
+                                           new FooBarPGType(10, "foo10", "bar10"));
+    }
+
+    @Test
+    public void testBindListAsArrayViaObjectAPI() {
+        PostgresCustomTypeDAO typeDAO = handle.attach(PostgresCustomTypeDAO.class);
+
+        List<FooBarPGType> foos = new ArrayList<>();
+        foos.add(new FooBarPGType(11, "foo11", "bar11"));
+        foos.add(new FooBarPGType(12, "foo12", "bar12"));
+
+        typeDAO.insertFooBars(foos);
+
+        assertThat(typeDAO.getAllFooBars())
+                .containsExactlyInAnyOrder(new FooBarPGType(1, "foo1", "bar1"),
+                                           new FooBarPGType(2, "foo2", "bar2"),
+                                           new FooBarPGType(11, "foo11", "bar11"),
+                                           new FooBarPGType(12, "foo12", "bar12"));
     }
 
     @Test
@@ -382,5 +419,8 @@ public class TestPostgresTypes {
 
         @SqlCall("select insert_foo_bars(:fooBars)")
         void insertFooBars(@Bind("fooBars") FooBarPGType[] foos);
+
+        @SqlCall("select insert_foo_bars(:fooBars)")
+        void insertFooBars(@Bind("fooBars") List<FooBarPGType> foos);
     }
 }
