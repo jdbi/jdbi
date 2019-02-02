@@ -26,6 +26,7 @@ import org.postgresql.util.PGobject;
  * Column mapper for {@link PGobject}.
  */
 class PGobjectColumnMapperFactory implements ColumnMapperFactory {
+
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
