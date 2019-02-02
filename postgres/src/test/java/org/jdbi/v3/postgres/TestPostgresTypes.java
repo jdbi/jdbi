@@ -27,6 +27,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.postgresql.geometric.PGbox;
+import org.postgresql.geometric.PGcircle;
+import org.postgresql.geometric.PGline;
+import org.postgresql.geometric.PGlseg;
+import org.postgresql.geometric.PGpath;
+import org.postgresql.geometric.PGpoint;
+import org.postgresql.geometric.PGpolygon;
+import org.postgresql.util.PGInterval;
+import org.postgresql.util.PGmoney;
 import org.postgresql.util.PGobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,12 +50,10 @@ public class TestPostgresTypes {
 
     @BeforeClass
     public static void beforeClass() {
-        PostgresTypes.registerCustomType("foo_bar_type", FooBarPGType.class);
-
-        jdbi = postgresDBRule.getJdbi();
-
-        jdbi.installPlugin(new SqlObjectPlugin());
-        jdbi.installPlugin(new PostgresPlugin());
+        jdbi = postgresDBRule.getJdbi()
+            .installPlugin(new SqlObjectPlugin())
+            .installPlugin(new PostgresPlugin())
+            .configure(PostgresTypes.class, pt -> pt.registerCustomType(FooBarPGType.class, "foo_bar_type"));
     }
 
     @Before
@@ -110,8 +117,8 @@ public class TestPostgresTypes {
 
     @Test
     public void testReadViaFluentAPI() {
-        FooBarPGType result = (FooBarPGType) handle.createQuery("SELECT get_foo_bar(1)")
-                .map(new PGObjectColumnMapper())
+        FooBarPGType result = handle.createQuery("SELECT get_foo_bar(1)")
+                .mapTo(FooBarPGType.class)
                 .findOnly();
 
         assertThat(result).isEqualTo(new FooBarPGType(1, "foo1", "bar1"));
@@ -120,7 +127,7 @@ public class TestPostgresTypes {
     @Test
     public void testReadListViaFluentAPI() {
         List<PGobject> result = handle.createQuery("SELECT get_foo_bars()")
-                .map(new PGObjectColumnMapper())
+                .mapTo(PGobject.class)
                 .list();
 
         assertThat(result).containsExactlyInAnyOrder(
@@ -137,9 +144,9 @@ public class TestPostgresTypes {
                 .bind("fooBar", fooBar3)
                 .invoke();
 
-        FooBarPGType result = (FooBarPGType) handle.createQuery("SELECT get_foo_bar(:id)")
+        FooBarPGType result = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar3.getId())
-                .map(new PGObjectColumnMapper())
+                .mapTo(FooBarPGType.class)
                 .findOnly();
 
         assertThat(fooBar3).isEqualTo(result);
@@ -154,14 +161,14 @@ public class TestPostgresTypes {
                 .bind("fooBar", new FooBarPGType[]{fooBar5, fooBar6})
                 .invoke();
 
-        FooBarPGType result5 = (FooBarPGType) handle.createQuery("SELECT get_foo_bar(:id)")
+        FooBarPGType result5 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar5.getId())
-                .map(new PGObjectColumnMapper())
+                .mapTo(FooBarPGType.class)
                 .findOnly();
 
-        FooBarPGType result6 = (FooBarPGType) handle.createQuery("SELECT get_foo_bar(:id)")
+        FooBarPGType result6 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar6.getId())
-                .map(new PGObjectColumnMapper())
+                .mapTo(FooBarPGType.class)
                 .findOnly();
 
         assertThat(fooBar5).isEqualTo(result5);
@@ -172,7 +179,7 @@ public class TestPostgresTypes {
     public void testReadViaObjectAPI() {
         PostgresCustomTypeDAO typeDAO = handle.attach(PostgresCustomTypeDAO.class);
 
-        FooBarPGType result = (FooBarPGType) typeDAO.find(2);
+        FooBarPGType result = typeDAO.find(2);
 
         assertThat(result).isEqualTo(new FooBarPGType(2, "foo2", "bar2"));
 }
@@ -181,7 +188,7 @@ public class TestPostgresTypes {
     public void testReadListViaObjectAPI() {
         PostgresCustomTypeDAO typeDAO = handle.attach(PostgresCustomTypeDAO.class);
 
-        List<PGobject> result = typeDAO.getAllFooBars();
+        List<FooBarPGType> result = typeDAO.getAllFooBars();
 
         assertThat(result).containsExactlyInAnyOrder(
             new FooBarPGType(1, "foo1", "bar1"),
@@ -195,7 +202,7 @@ public class TestPostgresTypes {
         FooBarPGType fooBar4 = new FooBarPGType(4, "foo4", "bar4");
 
         typeDAO.insertFooBar(fooBar4);
-        FooBarPGType result = (FooBarPGType) typeDAO.find(fooBar4.getId());
+        FooBarPGType result = typeDAO.find(fooBar4.getId());
 
         assertThat(fooBar4).isEqualTo(result);
     }
@@ -208,20 +215,167 @@ public class TestPostgresTypes {
 
         typeDAO.insertFooBars(new FooBarPGType[]{fooBar7, fooBar8});
 
-        FooBarPGType result7 = (FooBarPGType) typeDAO.find(fooBar7.getId());
-        FooBarPGType result8 = (FooBarPGType) typeDAO.find(fooBar8.getId());
+        FooBarPGType result7 = typeDAO.find(fooBar7.getId());
+        FooBarPGType result8 = typeDAO.find(fooBar8.getId());
 
         assertThat(fooBar7).isEqualTo(result7);
         assertThat(fooBar8).isEqualTo(result8);
     }
 
+    @Test
+    public void testReadWriteBox() {
+        assertThat(handle.select("select :box")
+            .bind("box", new PGbox(1, 2, 3, 4))
+            .mapTo(PGbox.class)
+            .findOnly())
+            .isEqualTo(new PGbox(1, 2, 3, 4));
+
+        assertThat(handle.select("select :boxes")
+            .bind("boxes", new PGbox[] {new PGbox(1, 2, 3, 4), new PGbox(5, 6, 7, 8)})
+            .mapTo(PGbox[].class)
+            .findOnly())
+            .containsExactly(new PGbox(1, 2, 3, 4), new PGbox(5, 6, 7, 8));
+    }
+
+    @Test
+    public void testReadWriteCircle() {
+        assertThat(handle.select("select :circle")
+            .bind("circle", new PGcircle(1, 2, 3))
+            .mapTo(PGcircle.class)
+            .findOnly())
+            .isEqualTo(new PGcircle(1, 2, 3));
+
+        assertThat(handle.select("select :circles")
+            .bind("circles", new PGcircle[] {new PGcircle(1, 2, 3), new PGcircle(4, 5, 6)})
+            .mapTo(PGcircle[].class)
+            .findOnly())
+            .containsExactly(new PGcircle(1, 2, 3), new PGcircle(4, 5, 6));
+    }
+
+    @Test
+    public void testReadWriteInterval() {
+        assertThat(handle.select("select :interval")
+            .bind("interval", new PGInterval(1, 2, 3, 4, 5, 6))
+            .mapTo(PGInterval.class)
+            .findOnly())
+            .isEqualTo(new PGInterval(1, 2, 3, 4, 5, 6));
+
+        assertThat(handle.select("select :intervals")
+            .bind("intervals", new PGInterval[] {new PGInterval(1, 2, 3, 4, 5, 6), new PGInterval(7, 8, 9, 10, 11, 12)})
+            .mapTo(PGInterval[].class)
+            .findOnly())
+            .containsExactly(new PGInterval(1, 2, 3, 4, 5, 6), new PGInterval(7, 8, 9, 10, 11, 12));
+    }
+
+    @Test
+    public void testReadWriteLine() {
+        assertThat(handle.select("select :line")
+            .bind("line", new PGline(1, 2, 3, 4))
+            .mapTo(PGline.class)
+            .findOnly())
+            .isEqualTo(new PGline(1, 2, 3, 4));
+
+        assertThat(handle.select("select :lines")
+            .bind("lines", new PGline[] {new PGline(1, 2, 3, 4), new PGline(5, 6, 7, 8)})
+            .mapTo(PGline[].class)
+            .findOnly())
+            .containsExactly(new PGline(1, 2, 3, 4), new PGline(5, 6, 7, 8));
+    }
+
+    @Test
+    public void testReadWriteLseg() {
+        assertThat(handle.select("select :lseg")
+            .bind("lseg", new PGlseg(1, 2, 3, 4))
+            .mapTo(PGlseg.class)
+            .findOnly())
+            .isEqualTo(new PGlseg(1, 2, 3, 4));
+
+        assertThat(handle.select("select :lsegs")
+            .bind("lsegs", new PGlseg[] {new PGlseg(1, 2, 3, 4), new PGlseg(5, 6, 7, 8)})
+            .mapTo(PGlseg[].class)
+            .findOnly())
+            .containsExactly(new PGlseg(1, 2, 3, 4), new PGlseg(5, 6, 7, 8));
+    }
+
+    @Test
+    public void testReadWriteMoney() {
+        assertThat(handle.select("select :money")
+            .bind("money", new PGmoney(1))
+            .mapTo(PGmoney.class)
+            .findOnly())
+            .isEqualTo(new PGmoney(1));
+
+        assertThat(handle.select("select :moneys")
+            .bind("moneys", new PGmoney[] {new PGmoney(1), new PGmoney(2)})
+            .mapTo(PGmoney[].class)
+            .findOnly())
+            .containsExactly(new PGmoney(1), new PGmoney(2));
+    }
+
+    @Test
+    public void testReadWritePath() {
+        assertThat(handle.select("select :path")
+            .bind("path", new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true))
+            .mapTo(PGpath.class)
+            .findOnly())
+            .isEqualTo(new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true));
+
+        assertThat(handle.select("select :paths")
+            .bind("paths", new PGpath[] {
+                new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true),
+                new PGpath(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)}, false)
+            })
+            .mapTo(PGpath[].class)
+            .findOnly())
+            .containsExactly(
+                new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true),
+                new PGpath(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)}, false)
+            );
+    }
+
+    @Test
+    public void testReadWritePoint() {
+        assertThat(handle.select("select :point")
+            .bind("point", new PGpoint(1, 2))
+            .mapTo(PGpoint.class)
+            .findOnly())
+            .isEqualTo(new PGpoint(1, 2));
+
+        assertThat(handle.select("select :points")
+            .bind("points", new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)})
+            .mapTo(PGpoint[].class)
+            .findOnly())
+            .containsExactly(new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6));
+    }
+
+    @Test
+    public void testReadWritePolygon() {
+        assertThat(handle.select("select :polygon")
+            .bind("polygon", new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}))
+            .mapTo(PGpolygon.class)
+            .findOnly())
+            .isEqualTo(new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}));
+
+        assertThat(handle.select("select :polygons")
+            .bind("polygons", new PGpolygon[] {
+                new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}),
+                new PGpolygon(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)})
+            })
+            .mapTo(PGpolygon[].class)
+            .findOnly())
+            .containsExactly(
+                new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}),
+                new PGpolygon(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)})
+            );
+    }
+
     public interface PostgresCustomTypeDAO {
 
         @SqlQuery("select get_foo_bars()")
-        List<PGobject> getAllFooBars();
+        List<FooBarPGType> getAllFooBars();
 
         @SqlQuery("select get_foo_bar(:id)")
-        PGobject find(@Bind("id") int id);
+        FooBarPGType find(@Bind("id") int id);
 
         @SqlCall("select insert_foo_bar(:fooBar)")
         void insertFooBar(@Bind("fooBar") FooBarPGType foo);

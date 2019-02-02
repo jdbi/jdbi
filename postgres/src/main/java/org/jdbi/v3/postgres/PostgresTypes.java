@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
@@ -23,22 +26,34 @@ import org.postgresql.util.PGobject;
 /**
  * Handler for PostgreSQL custom types.
  */
-public class PostgresTypes {
-    private static final ConcurrentHashMap<Class<? extends PGobject>, String> TYPES = new ConcurrentHashMap<>();
+public class PostgresTypes implements JdbiConfig<PostgresTypes> {
+    private final Map<Class<? extends PGobject>, String> types = new ConcurrentHashMap<>();
+    private ConfigRegistry registry;
 
-    private PostgresTypes() {}
+    @SuppressWarnings("unused")
+    public PostgresTypes() {}
 
-    /**
-     * @param typeName the PostgreSQL type to register
-     * @param clazz the class implementing the Java representation of the type;
-     * this class must implement {@link PGobject}.
-     */
-    public static void registerCustomType(String typeName, Class<? extends PGobject> clazz) {
-        TYPES.put(clazz, typeName);
+    private PostgresTypes(PostgresTypes that) {
+        this.types.putAll(that.types);
     }
 
-    public static String getTypeName(Class<? extends PGobject> clazz) {
-        return TYPES.get(clazz);
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
+
+    /**
+     * Register a Postgres custom type.
+     * @param clazz the class implementing the Java representation of the custom type;
+     * must extend {@link PGobject}.
+     * @param typeName the Postgres custom type name
+     */
+    public PostgresTypes registerCustomType(Class<? extends PGobject> clazz, String typeName) {
+        registry.get(SqlArrayTypes.class).register(clazz, typeName);
+
+        types.put(clazz, typeName);
+
+        return this;
     }
 
     /**
@@ -46,17 +61,12 @@ public class PostgresTypes {
      *
      * @param connection connection on which to add all registered PostgreSQL custom types
      */
-    public static void addTypesToConnection(PGConnection connection) {
-        TYPES.forEach((clazz, type) -> Unchecked.<String, Class>biConsumer(connection::addDataType).accept(type, clazz));
+    void addTypesToConnection(PGConnection connection) {
+        types.forEach((clazz, type) -> Unchecked.<String, Class>biConsumer(connection::addDataType).accept(type, clazz));
     }
 
-    /**
-     * Register array element type for each registered PostgreSQL custom type
-     *
-     * @param jdbi {@link Jdbi} on which to register array element type
-     */
-    public static void registerArrayTypes(Jdbi jdbi) {
-        TYPES.forEach(jdbi::registerArrayType);
+    @Override
+    public PostgresTypes createCopy() {
+        return new PostgresTypes(this);
     }
-
 }

@@ -13,26 +13,26 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.Types;
+import java.lang.reflect.Type;
+import java.util.Optional;
 
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.postgresql.util.PGobject;
 
 /**
- * Argument factory for {@link PGobject}.
+ * Column mapper for {@link PGobject}.
  */
-public class PGObjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
-
-    public PGObjectArgumentFactory() {
-        super(Types.OTHER);
-    }
-
+class PGobjectColumnMapperFactory implements ColumnMapperFactory {
     @Override
-    protected Argument build(PGobject value, ConfigRegistry config) {
-        return ObjectArgument.of(value, Types.OTHER);
-    }
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        Class<?> erasedType = GenericTypes.getErasedType(type);
+        if (PGobject.class.isAssignableFrom(erasedType)) {
+            return Optional.of((rs, col, ctx) -> rs.getObject(col, erasedType));
+        }
 
+        return Optional.empty();
+    }
 }

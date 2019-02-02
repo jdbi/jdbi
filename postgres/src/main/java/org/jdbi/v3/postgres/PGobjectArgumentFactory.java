@@ -13,21 +13,26 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Types;
 
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ObjectArgument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGobject;
 
 /**
- * Column mapper for {@link PGobject}.
+ * Argument factory for {@link PGobject}.
  */
-public class PGObjectColumnMapper implements ColumnMapper<PGobject> {
+class PGobjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
+
+    PGobjectArgumentFactory() {
+        super(Types.OTHER);
+    }
 
     @Override
-    public PGobject map(ResultSet rs, int columnNumber, StatementContext ctx) throws SQLException {
-        return (PGobject) rs.getObject(columnNumber);
+    protected Argument build(PGobject value, ConfigRegistry config) {
+        return ObjectArgument.of(value, Types.OTHER);
     }
 
 }

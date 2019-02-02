@@ -16,7 +16,6 @@ package org.jdbi.v3.core.array;
 import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -58,7 +57,11 @@ class ArrayColumnMapper implements ColumnMapper<Object> {
                 if (componentType.equals(ary.getClass().getComponentType())) {
                     return ary;
                 }
-            } catch (SQLFeatureNotSupportedException ignore) {}
+            } catch (SQLException ignore) {
+                // Typically we would only try to catch SQLFeatureNotSupportedException
+                // However Postgres drivers throw SQLException for a money[] column
+                // See https://github.com/pgjdbc/pgjdbc/issues/1405
+            }
         }
 
         UNSUPPORTED_TYPES.add(array.getBaseType());
