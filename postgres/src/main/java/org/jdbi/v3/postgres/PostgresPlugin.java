@@ -16,10 +16,22 @@ package org.jdbi.v3.postgres;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.postgresql.PGConnection;
+import org.postgresql.geometric.PGbox;
+import org.postgresql.geometric.PGcircle;
+import org.postgresql.geometric.PGline;
+import org.postgresql.geometric.PGlseg;
+import org.postgresql.geometric.PGpath;
+import org.postgresql.geometric.PGpoint;
+import org.postgresql.geometric.PGpolygon;
+import org.postgresql.util.PGInterval;
+import org.postgresql.util.PGmoney;
 
 /**
  * Postgres plugin. Adds support for binding and mapping the following data types:
@@ -91,6 +103,7 @@ public class PostgresPlugin implements JdbiPlugin {
         jdbi.registerArgument(new HStoreArgumentFactory());
         jdbi.registerArgument(new MacAddrArgumentFactory());
         jdbi.registerArgument(new UUIDArgumentFactory());
+        jdbi.registerArgument(new PGobjectArgumentFactory());
 
         jdbi.registerArrayType(int.class, "integer");
         jdbi.registerArrayType(Integer.class, "integer");
@@ -103,12 +116,24 @@ public class PostgresPlugin implements JdbiPlugin {
         jdbi.registerArrayType(double.class, "double precision");
         jdbi.registerArrayType(Double.class, "double precision");
 
+        // built-in PGobject types
+        jdbi.registerArrayType(PGbox.class, "box");
+        jdbi.registerArrayType(PGcircle.class, "circle");
+        jdbi.registerArrayType(PGInterval.class, "interval");
+        jdbi.registerArrayType(PGline.class, "line");
+        jdbi.registerArrayType(PGlseg.class, "lseg");
+        jdbi.registerArrayType(PGmoney.class, "money");
+        jdbi.registerArrayType(PGpath.class, "path");
+        jdbi.registerArrayType(PGpoint.class, "point");
+        jdbi.registerArrayType(PGpolygon.class, "polygon");
+
         jdbi.registerColumnMapper(new JavaTimeMapperFactory());
 
         jdbi.registerColumnMapper(new HStoreColumnMapper());
         jdbi.registerColumnMapper(new MacAddrColumnMapper());
         jdbi.registerColumnMapper(new DurationColumnMapperFactory());
         jdbi.registerColumnMapper(new PeriodColumnMapperFactory());
+        jdbi.registerColumnMapper(new PGobjectColumnMapperFactory());
 
         // legacy unqualified HSTORE
         jdbi.registerArgument(new HStoreArgumentFactory()::build);
@@ -118,5 +143,11 @@ public class PostgresPlugin implements JdbiPlugin {
         if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) {
             jdbi.registerArgument(new JsonArgumentFactory());
         }
+    }
+
+    @Override
+    public Handle customizeHandle(Handle handle) {
+        PGConnection pgConnection = Unchecked.supplier(() -> handle.getConnection().unwrap(PGConnection.class)).get();
+        return handle.configure(PostgresTypes.class, pt -> pt.addTypesToConnection(pgConnection));
     }
 }
