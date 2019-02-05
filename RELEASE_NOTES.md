@@ -6,6 +6,8 @@
   - @EnumByName and @EnumByOrdinal qualifying annotations to override said default policy.
   - Support for Postgres custom types, both user defined and driver types like `PGInterval` or `PGcircle`
   - RowView: add getColumn(QualifiedType) overloads
+  - SetObjectArgumentFactory and GetObjectColumnMapperFactory to easily make use of direct type support
+    provided by your database driver (e.g. many databases now directly support `java.time` objects).
 - Bugfixes
   - Improve vavr handling of typed null
 - Improvements
