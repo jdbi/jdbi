@@ -135,6 +135,14 @@ public final class QualifiedType<T> {
         return mapper.apply(type).map(mappedType -> new QualifiedType<>(mappedType, qualifiers));
     }
 
+    /**
+     * @param qualifier qualifier to check for
+     * @return true if this instance contains the given qualifier
+     */
+    public boolean hasQualifier(Class<? extends Annotation> qualifier) {
+        return qualifiers.stream().anyMatch(qualifier::isInstance);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

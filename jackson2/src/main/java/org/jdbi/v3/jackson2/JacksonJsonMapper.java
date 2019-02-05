@@ -19,36 +19,35 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.json.JsonMapper;
 
 class JacksonJsonMapper implements JsonMapper {
     @Override
-    public String toJson(Type type, Object value, StatementContext ctx) {
+    public String toJson(Type type, Object value, ConfigRegistry config) {
         try {
-            return getMapper(ctx).writeValueAsString(value);
+            return getMapper(config).writeValueAsString(value);
         } catch (JsonProcessingException e) {
-            throw new UnableToCreateStatementException(e, ctx);
+            throw new UnableToProduceResultException(e);
         }
     }
 
     @Override
-    public Object fromJson(Type type, String json, StatementContext ctx) {
+    public Object fromJson(Type type, String json, ConfigRegistry config) {
         try {
-            return getMapper(ctx).readValue(json, new TypeReference<Object>() {
+            return getMapper(config).readValue(json, new TypeReference<Object>() {
                 @Override
                 public Type getType() {
                     return type;
                 }
             });
         } catch (IOException e) {
-            throw new UnableToProduceResultException(e, ctx);
+            throw new UnableToProduceResultException(e);
         }
     }
 
-    private ObjectMapper getMapper(StatementContext ctx) {
-        return ctx.getConfig(Jackson2Config.class).getMapper();
+    private ObjectMapper getMapper(ConfigRegistry config) {
+        return config.get(Jackson2Config.class).getMapper();
     }
 }

@@ -13,19 +13,28 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.EnumStrategies;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 
-/**
- * Column mapper factory which knows how to map {@link Enum} instances.
- */
-class EnumMapperFactory implements ColumnMapperFactory {
-    private static final EnumByNameMapperFactory BY_NAME = new EnumByNameMapperFactory();
-
+class EnumMapperFactory implements QualifiedColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        return BY_NAME.build(type, config);
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
+        return Optional.of(givenType.getType())
+            .map(GenericTypes::getErasedType)
+            .filter(Class::isEnum)
+            .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Class<Enum>) clazz, config));
+    }
+
+    private static <E extends Enum<E>> Optional<ColumnMapper<?>> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigRegistry config) {
+        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(givenType);
+
+        return Optional.of(byName
+            ? EnumMapper.byName(enumClass)
+            : EnumMapper.byOrdinal(enumClass));
     }
 }

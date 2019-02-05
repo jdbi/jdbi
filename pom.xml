@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.6.0-SNAPSHOT</version>
+    <version>3.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
@@ -315,13 +315,13 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.2</version>
+                <version>42.2.4</version>
             </dependency>
 
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.11.3</version>
+                <version>0.13.1</version>
             </dependency>
 
             <dependency>
@@ -401,7 +401,7 @@
                 <version>1.6</version>
             </dependency>
 
-            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.11.3 wants 3.5 -->
+            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.13.0 wants 3.7 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -571,6 +571,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-toolchains-plugin</artifactId>
                     <version>1.1</version>
+                    <configuration>
+                        <toolchains>
+                            <jdk>
+                                <version>1.8</version>
+                                <vendor>oracle</vendor>
+                            </jdk>
+                        </toolchains>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>com.github.ekryd.sortpom</groupId>
@@ -603,6 +611,7 @@
                         <rulesets>
                             <ruleset>policy/pmd.xml</ruleset>
                         </rulesets>
+                        <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -703,73 +712,14 @@
 
     <profiles>
         <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>[1.8,1.9)</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-toolchains-plugin</artifactId>
-                            <configuration>
-                                <toolchains>
-                                    <jdk>
-                                        <version>1.8</version>
-                                        <vendor>oracle</vendor>
-                                    </jdk>
-                                </toolchains>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
             <id>jdk9</id>
             <activation>
                 <jdk>[1.9,)</jdk>
             </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-toolchains-plugin</artifactId>
-                            <configuration>
-                                <toolchains>
-                                    <jdk>
-                                        <version>1.9</version>
-                                        <vendor>oracle</vendor>
-                                    </jdk>
-                                </toolchains>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-dependency-plugin</artifactId>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>org.ow2.asm</groupId>
-                                    <artifactId>asm</artifactId>
-                                    <version>6.1</version>
-                                </dependency>
-                            </dependencies>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>2.21.0</version>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
             <properties>
                 <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
                 <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
-                <project.build.targetJdk>9</project.build.targetJdk>
             </properties>
         </profile>
         <profile>

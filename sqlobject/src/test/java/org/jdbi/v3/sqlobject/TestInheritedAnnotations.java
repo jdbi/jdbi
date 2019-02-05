@@ -37,7 +37,7 @@ public class TestInheritedAnnotations {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private MockClock mockClock = new MockClock();
+    private MockClock mockClock = MockClock.now();
 
     @Before
     public void setUp() {

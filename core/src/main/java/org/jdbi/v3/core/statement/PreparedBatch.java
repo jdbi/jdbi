@@ -193,7 +193,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     public PreparedBatch add() {
         final Binding currentBinding = getBinding();
         if (currentBinding.isEmpty()) {
-            throw new IllegalStateException("Attempt to add() a empty batch, you probably didn't mean to do this "
+            throw new IllegalStateException("Attempt to add() an empty batch, you probably didn't mean to do this "
                     + "- call add() *after* setting batch parameters");
         }
         bindings.add(currentBinding);

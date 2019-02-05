@@ -15,7 +15,7 @@ package org.jdbi.v3.json;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -28,6 +28,6 @@ import org.jdbi.v3.meta.Beta;
  */
 @Beta
 public interface JsonMapper {
-    String toJson(Type type, Object value, StatementContext ctx);
-    Object fromJson(Type type, String json, StatementContext ctx);
+    String toJson(Type type, Object value, ConfigRegistry config);
+    Object fromJson(Type type, String json, ConfigRegistry config);
 }

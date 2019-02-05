@@ -208,7 +208,7 @@ Jdbi jdbi = Jdbi.create(ds);
 `Jdbi` instances are thread-safe and do not own any database resources.
 
 Typically applications create a single, shared `Jdbi` instance, and set up
-any common configuration there.
+any common configuration there.  See <<Configuration>> for more details.
 
 In a more limited scope (such as an HTTP request, or event callback),
 you would then request a `Handle` object from your `Jdbi` instance.
@@ -224,6 +224,7 @@ access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
 A `Handle` inherits configuration from the `Jdbi` at the time it is created.
+See <<Configuration>> for more details.
 
 [CAUTION]
 Because `Handle` holds an open connection, care must be taken to ensure
@@ -326,7 +327,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * Primitives: `boolean`, `byte`, `short`, `int`, `long`, `char`, `float`, and
   `double`
 * java.lang: `Boolean`, `Byte`, `Short`, `Integer`, `Long`, `Character`,
-  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name)
+  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name by default)
 * java.math: `BigDecimal`
 * java.net: `Inet4Address`, `Inet6Address`, `URL`, and `URI`
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
@@ -607,78 +608,6 @@ LocalDate releaseDate = handle.createQuery(
     .mapTo(LocalDate.class)
     .findOnly();
 ----
-
-=== Templating
-
-Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
-
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
-
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
-
-[CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
-
-[source,java]
-----
-handle.createQuery("select * from <TABLE> where name = :n;")
-
-    // -> "select * from Person where name = :n;"
-    .define("TABLE", "Person")
-
-    // -> "select * from Person where name = 'MyName';"
-    .bind("n", "MyName");
-----
-
-[TIP]
-Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
-
-[CAUTION]
-TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
-
-If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
-
-[source,java]
-----
-String paramName = "arg";
-
-handle.createQuery("select * from Foo where bar = :<attr>")
-    .define("attr", paramName)
-    ...
-    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
-----
-
-[source,java]
-----
-handle.createQuery("select * from emotion where emoticon = <sticker>;")
-    .define("sticker", ":-)") // -> "... where emoticon = :-);"
-    .mapToMap()
-    // exception: no binding/argument named "-)" present
-    .list();
-----
-
-Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
-For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null` (a `NullArgument`, specifically).  You can use this to
-craft conditional updates and query clauses.
-
-For example,
-[source,java]
-----
-class MyBean {
-    String getA();
-    String getB();
-    Instant getModified();
-}
-
-handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
-    .bindBean(mybean)
-    .defineNamedBindings()
-    .execute();
-----
-
-Also see the section about <<TemplateEngine>>.
 
 === Mappers
 
@@ -1011,7 +940,7 @@ Out of the box, column mappers are registered for the following types:
 * Primitives: `boolean`, `byte`, `short`, `int`, `long`, `char`, `float`, and
   `double`
 * java.lang: `Boolean`, `Byte`, `Short`, `Integer`, `Long`, `Character`,
-  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name)
+  `Float`, `Double`, `String`, and `Enum` (stored as the enum value's name by default)
 * java.math: `BigDecimal`
 * `byte[]` arrays (e.g. for BLOB or VARBINARY columns)
 * java.net: `InetAddress`, `URL`, and `URI`
@@ -1022,6 +951,12 @@ Out of the box, column mappers are registered for the following types:
 * `java.util.Collection` and Java arrays (for array columns). Some
   additional setup may be required depending on the type of array element--see
   <<SQL Arrays>>.
+
+[NOTE]
+The binding and mapping method for enum values
+can be controlled via the link:{jdbidocs}/core/Enums.html[Enums^] config,
+as well as the link:{jdbidocs}/core/EnumByName.html[EnumByName^] and
+link:{jdbidocs}/core/EnumByOrdinal.html[EnumByOrdinal^] annotations.
 
 ===== ColumnMapperFactory
 
@@ -1635,6 +1570,79 @@ fails, an exception is thrown.
 
 Jdbi can be enhanced to support arbitrary container types. See
 <<JdbiCollectors>> for more information.
+
+=== Templating
+
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
+
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
+
+[source,java]
+----
+handle.createQuery("select * from <TABLE> where name = :n;")
+
+    // -> "select * from Person where name = :n;"
+    .define("TABLE", "Person")
+
+    // -> "select * from Person where name = 'MyName';"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java]
+----
+String paramName = "arg";
+
+handle.createQuery("select * from Foo where bar = :<attr>")
+    .define("attr", paramName)
+    ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java]
+----
+handle.createQuery("select * from emotion where emoticon = <sticker>;")
+    .define("sticker", ":-)") // -> "... where emoticon = :-);"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Bindings and definitions are usually separate.  You can link them in a limited manner
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null`.  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java]
+----
+class MyBean {
+    long id();
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
+
+Also see the section about <<TemplateEngine>>.
 
 === SQL Arrays
 
@@ -2409,18 +2417,109 @@ ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
 ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
 ----
 
-=== StatementContext
+== Configuration
 
-The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
-is a carrier for various state related to the creation and execution of statements
-that is not appropriate to hold on the *Query* or other particular statement class
-itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
-and accumulated bindings.  It is exposed to implementations of most user extension points,
-for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+`Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
+you need to change default behavior, or add in extensions to handle additional
+database types.  Each piece of core or extension that wishes to participate in
+configuration defines a configuration class, for example the `SqlStatements`
+class stores SqlStatement related configuration.  Then, on any `Configurable` context
+(like a `Jdbi` or `Handle`) you can change configuration in a type safe way:
 
-The *StatementContext* itself is not intended to be extended and generally extensions
-should not need to mutate the context.  Please read the JavaDoc for more information
-on advanced usage.
+[source,java]
+----
+jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
+jdbi.getConfig(Handles.class).setForceEndTransactions(true);
+
+// Or, if you have a bunch of work to do:
+jdbi.configure(RowMappers.class, rm -> {
+    rm.register(new TypeARowMapperFactory();
+    rm.register(new TypeBRowMapperFactory();
+});
+----
+
+Generally, you should finalize all configuration changes before interacting with
+the database.
+
+When a new context is created, it inherits a copy of the parent context
+configuration at the time of creation.  So a `Handle` initializes its
+configuration from the creating `Jdbi`, but changes never propagate back up.
+
+See <<JdbiConfig>> for more advanced implementation details.
+
+=== Qualified Types
+
+Sometimes the same Java object can correspond to multiple data types in a database. For example,
+a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all with different handling requirements.
+
+link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType] allows you to add such context to a Java type:
+
+[source,java]
+----
+QualifiedType.of(String.class).with(Json.class);
+----
+
+This `QualifiedType` still represents the `String` _type_, but _qualified_ with the `@Json` annotation.
+It can be used in a way similar to <<GenericType>>, to make components
+handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
+and to have the values handled by different implementations altogether:
+
+[source,java]
+----
+@Json
+public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
+    @Override
+    protected Argument build(String value, ConfigRegistry config) {
+        // do something specifically for json data
+    }
+}
+----
+
+Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
+Other factories _not_ qualified as such will *not* receive this value:
+
+[source,java]
+----
+QualifiedType<String> json = QualifiedType.of(String.class).with(Json.class);
+query.bindByType("jsonValue", "{\"foo\":1}", json);
+----
+
+[TIP]
+Jdbi chooses factories to handle values by *exactly matching* their _qualifiers_. It's up to the
+factory implementations to discriminate on the _type_ of the value afterwards.
+
+[NOTE]
+Qualifiers are implemented as `Annotations`. This allows factories to independently inspect values for qualifiers at the source,
+such as on their `Class`, to alter their own behavior or to _requalify_ a value
+and have it re-evaluated by Jdbi's lookup chain.
+
+[WARNING]
+Qualifiers being annotations does *not* mean they inherently activate
+their function when placed in source classes. Each feature decides its own
+rules regarding their use.
+
+[CAUTION]
+Arguments can only be qualified for binding via `bindByType` calls, not regular
+`bind` or `update.execute(Object...)`. Also, arrays cannot be qualified.
+
+These features currently make use of qualified types:
+
+- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
+respectively, instead of the usual `varchar`.
+- `jdbi3-postgres` offers <<PostgreSQL-hstore,HStore>>.
+- <<jdbi3-json,JSON>>
+- `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
+and setter parameters.
+- `ConstructorMapper` and `@RegisterConstructorMapper` respect qualifiers on constructor parameters.
+- `@BindMethods` and `bindMethods()` respect qualifiers on methods.
+- `@BindFields`, `@RegisterFieldMapper`, `FieldMapper` and `bindFields()` respect qualifiers on fields.
+- `SqlObject` respects qualifiers on methods (applies them to the return type) and parameters.
+* on parameters of type `Consumer<T>`, qualifiers are applied to the `T`.
+- `@MapTo`
+- `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
+- `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
+
 
 == SQL Objects
 
@@ -3132,10 +3231,10 @@ public interface DocumentDao {
     class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> { // <4>
         @Override
         public void accumulate(Map<Integer, Folder> map, RowView rowView) {
-            Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <2>
+            Folder f = map.computeIfAbsent(rowView.getColumn("f_id", Integer.class), // <5>
                                            id -> rowView.getRow(Folder.class));
 
-            if (rowView.getColumn("d_id", Integer.class) != null) { // <3>
+            if (rowView.getColumn("d_id", Integer.class) != null) { // <6>
                 f.getDocuments().add(rowView.getRow(Document.class));
             }
         }
@@ -3774,6 +3873,7 @@ instance:
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
 
+[[jdbi3-json]]
 === JSON
 
 The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
@@ -4180,7 +4280,8 @@ escape operators to e.g. `??` or `\:`.
 [reftext="PostgreSQL-hstore"]
 ==== hstore
 
-The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper:
+The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper
+and vice versa argument factory:
 
 [source,java]
 ----
@@ -4188,6 +4289,18 @@ Map<String, String> accountAttributes = handle
     .select("select attributes from account where id = ?", userId)
     .mapTo(new GenericType<Map<String, String>>() {})
     .findOnly();
+----
+
+With `@HStore` qualified type:
+
+[source,java]
+----
+QualifiedType<> HSTORE_MAP = QualifiedType.of(new GenericType<Map<String, String>>() {})
+    .with(HStore.class);
+
+Map<String, String> caps = handle.createUpdate("update account set attributes = :hstore")
+    .bindByType("hstore", mapOfStrings, HSTORE_MAP)
+    .execute();
 ----
 
 By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
@@ -4642,8 +4755,7 @@ Incorrect usage:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%:search%'")
+handle.createQuery("select name from things where name like '%:search%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -4659,8 +4771,7 @@ The solution is to use SQL string concatenation:
 
 [source,java]
 ----
-handle.createQuery("select name from things
-where name like '%' || :search || '%'")
+handle.createQuery("select name from things where name like '%' || :search || '%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -4945,6 +5056,19 @@ TODO:
 * Use GenericTypes utility class to help with generics.
 * Last-registered factory which supporting a given container type wins.
 ////
+
+=== StatementContext
+
+The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext] class
+is a carrier for various state related to the creation and execution of statements
+that is not appropriate to hold on the *Query* or other particular statement class
+itself.  Among other things, it holds open *JDBC* resources, processed SQL statements,
+and accumulated bindings.  It is exposed to implementations of most user extension points,
+for example *RowMapper, *ColumnMapper*s, or *CollectorFactory*.
+
+The *StatementContext* itself is not intended to be extended and generally extensions
+should not need to mutate the context.  Please read the JavaDoc for more information
+on advanced usage.
 
 === User-Defined Annotations
 

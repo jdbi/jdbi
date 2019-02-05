@@ -16,27 +16,41 @@ package org.jdbi.v3.sqlobject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalUnit;
 
-class MockClock extends Clock {
-    private Instant now = Instant.now();
+public class MockClock extends Clock {
+    private ZonedDateTime now;
+
+    private MockClock(ZonedDateTime now) {
+        this.now = now;
+    }
 
     @Override
     public ZoneId getZone() {
-        return ZoneId.systemDefault();
+        return now.getZone();
     }
 
     @Override
     public Clock withZone(ZoneId zone) {
-        throw new UnsupportedOperationException();
+        return new MockClock(now.withZoneSameInstant(zone));
     }
 
     @Override
     public Instant instant() {
-        return now;
+        return now.toInstant();
     }
 
     public Instant advance(long amountToAdd, TemporalUnit unit) {
-        return now = now.plus(amountToAdd, unit);
+        now = now.plus(amountToAdd, unit);
+        return instant();
+    }
+
+    public static MockClock now() {
+        return at(ZonedDateTime.now());
+    }
+
+    public static MockClock at(ZonedDateTime now) {
+        return new MockClock(now);
     }
 }

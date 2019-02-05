@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
@@ -42,7 +44,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         new InternetArgumentFactory(),
         new SqlTimeArgumentFactory(),
         new JavaTimeArgumentFactory(),
-        new EnumArgumentFactory(),
+        new LegacyEnumByNameArgumentFactory(),
         new OptionalArgumentFactory(),
         new UntypedNullArgumentFactory()
     );
@@ -52,5 +54,13 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         return FACTORIES.stream()
             .flatMap(factory -> JdbiOptionals.stream(factory.build(expectedType, value, config)))
             .findFirst();
+    }
+
+    private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
+        private final EnumArgumentFactory delegate = new EnumArgumentFactory();
+        @Override
+        public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
+            return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);
+        }
     }
 }

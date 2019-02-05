@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -26,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestUseClasspathSqlLocator {
     @Rule
@@ -71,4 +73,30 @@ public class TestUseClasspathSqlLocator {
     @RegisterRowMapper(SomethingMapper.class)
     @UseClasspathSqlLocator
     public interface SubCromulence extends Cromulence {}
+
+    @Test
+    public void emptyFileYieldsEmptyString() {
+        assertThatThrownBy(handle.attach(Blanks.class)::methodWithEmptyFile)
+            .describedAs("empty string used as query")
+            .isInstanceOf(NoResultsException.class)
+            .hasMessageContaining("Statement returned no results")
+            .hasMessageContaining("sql=''");
+    }
+
+    @Test
+    public void missingFileThrows() {
+        assertThatThrownBy(handle.attach(Blanks.class)::methodWithoutFile)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Cannot find classpath resource")
+            .hasMessageContaining("methodWithoutFile.sql");
+    }
+
+    @UseClasspathSqlLocator
+    public interface Blanks {
+        @SqlQuery("empty")
+        String methodWithEmptyFile();
+
+        @SqlQuery
+        String methodWithoutFile();
+    }
 }

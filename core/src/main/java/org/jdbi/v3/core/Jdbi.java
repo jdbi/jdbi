@@ -31,6 +31,7 @@ import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -224,7 +225,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return this
      */
     public Jdbi installPlugin(JdbiPlugin plugin) {
-        plugin.customizeJdbi(this);
+        Unchecked.consumer(plugin::customizeJdbi).accept(this);
         plugins.add(plugin);
         return this;
     }

@@ -16,9 +16,9 @@
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.5/spotbugs/etc/findbugsfilter.xsd">
     <Match>
-        <Package name="~org\.jdbi\.v3\.core\.internal\.lexer\.*" />
+        <Package name="org.jdbi.v3.core.internal.lexer" />
     </Match>
     <Match>
-        <Package name="~\.*\.generated\.*" />
+        <Package name="~.*\.generated" />
     </Match>
 </FindBugsFilter>
