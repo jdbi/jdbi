@@ -14,7 +14,11 @@
 package org.jdbi.v3.postgres;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -25,6 +29,7 @@ import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -336,6 +341,8 @@ public class TestPostgresTypes {
 
     @Test
     public void testReadWriteMoney() {
+        Set<String> moneyTypeOnlySupportsUS = new HashSet<>(Arrays.asList("", Locale.US.getCountry()));
+        Assume.assumeTrue(moneyTypeOnlySupportsUS.contains(Locale.getDefault().getCountry()));
         assertThat(handle.select("select :money")
             .bind("money", new PGmoney(1))
             .mapTo(PGmoney.class)
