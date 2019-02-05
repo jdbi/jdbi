@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -36,6 +38,18 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     }
 
     private static class SetNullHandler implements InvocationHandler {
+        private static final Map<Class<?>, Object> DEFAULT_VALUES = new IdentityHashMap<>();
+        static {
+            DEFAULT_VALUES.put(boolean.class, false);
+            DEFAULT_VALUES.put(char.class, '\u0000');
+            DEFAULT_VALUES.put(byte.class, (byte) 0);
+            DEFAULT_VALUES.put(short.class, (short) 0);
+            DEFAULT_VALUES.put(int.class, 0);
+            DEFAULT_VALUES.put(long.class, 0f);
+            DEFAULT_VALUES.put(float.class, 0L);
+            DEFAULT_VALUES.put(double.class, 0d);
+        }
+
         private final PreparedStatement fakeStmt = (PreparedStatement)
                 Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {PreparedStatement.class}, this);
         private boolean setNull;
@@ -56,37 +70,7 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
                 setNull = argNull || "setNull".equals(method.getName());
             }
 
-            return defaultValue(method.getReturnType());
-        }
-
-        private Object defaultValue(Class<?> type) {
-            if (type.isPrimitive()) {
-                if (boolean.class.equals(type)) {
-                    return false;
-                }
-                if (char.class.equals(type)) {
-                    return '\u0000';
-                }
-                if (byte.class.equals(type)) {
-                    return (byte) 0;
-                }
-                if (short.class.equals(type)) {
-                    return (short) 0;
-                }
-                if (int.class.equals(type)) {
-                    return 0;
-                }
-                if (long.class.equals(type)) {
-                    return 0L;
-                }
-                if (float.class.equals(type)) {
-                    return 0f;
-                }
-                if (double.class.equals(type)) {
-                    return 0d;
-                }
-            }
-            return null;
+            return DEFAULT_VALUES.get(method.getReturnType());
         }
 
         void define(String name, Argument arg, StatementContext ctx) {
