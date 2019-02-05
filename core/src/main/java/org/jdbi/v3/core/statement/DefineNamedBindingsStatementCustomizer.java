@@ -13,17 +13,21 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
+
+import static java.util.function.Function.identity;
 
 class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     @Override
@@ -38,22 +42,25 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     }
 
     private static class SetNullHandler implements InvocationHandler {
-        private static final Map<Class<?>, Object> DEFAULT_VALUES = new IdentityHashMap<>();
-        static {
-            DEFAULT_VALUES.put(boolean.class, false);
-            DEFAULT_VALUES.put(char.class, '\u0000');
-            DEFAULT_VALUES.put(byte.class, (byte) 0);
-            DEFAULT_VALUES.put(short.class, (short) 0);
-            DEFAULT_VALUES.put(int.class, 0);
-            DEFAULT_VALUES.put(long.class, 0f);
-            DEFAULT_VALUES.put(float.class, 0L);
-            DEFAULT_VALUES.put(double.class, 0d);
-        }
+        private static final Map<Class<?>, Object> DEFAULT_VALUES = Stream.of(
+            boolean.class,
+            char.class,
+            byte.class,
+            short.class,
+            int.class,
+            long.class,
+            float.class,
+            double.class
+        ).collect(Collectors.toMap(identity(), SetNullHandler::defaultValue));
 
         private final PreparedStatement fakeStmt = (PreparedStatement)
                 Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {PreparedStatement.class}, this);
         private boolean setNull;
         private boolean setCalled;
+
+        private static Object defaultValue(Class<?> clazz) {
+            return Array.get(Array.newInstance(clazz, 1), 0);
+        }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws SQLException {
