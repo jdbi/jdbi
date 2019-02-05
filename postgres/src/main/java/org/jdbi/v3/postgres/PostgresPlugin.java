@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.postgresql.PGConnection;
 import org.postgresql.geometric.PGbox;
@@ -148,11 +147,7 @@ public class PostgresPlugin implements JdbiPlugin {
 
     @Override
     public Handle customizeHandle(Handle handle) {
-        try {
-            PGConnection pgConnection = handle.getConnection().unwrap(PGConnection.class);
-            return handle.configure(PostgresTypes.class, pt -> pt.addTypesToConnection(pgConnection));
-        } catch (SQLException ex) {
-            throw Sneaky.throwAnyway(ex);
-        }
+        PGConnection pgConnection = Unchecked.supplier(() -> handle.getConnection().unwrap(PGConnection.class)).get();
+        return handle.configure(PostgresTypes.class, pt -> pt.addTypesToConnection(pgConnection));
     }
 }
