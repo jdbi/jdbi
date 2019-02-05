@@ -13,15 +13,21 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
+
+import static java.util.function.Function.identity;
 
 class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     @Override
@@ -36,10 +42,25 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     }
 
     private static class SetNullHandler implements InvocationHandler {
+        private static final Map<Class<?>, Object> DEFAULT_VALUES = Stream.of(
+            boolean.class,
+            char.class,
+            byte.class,
+            short.class,
+            int.class,
+            long.class,
+            float.class,
+            double.class
+        ).collect(Collectors.toMap(identity(), SetNullHandler::defaultValue));
+
         private final PreparedStatement fakeStmt = (PreparedStatement)
                 Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {PreparedStatement.class}, this);
         private boolean setNull;
         private boolean setCalled;
+
+        private static Object defaultValue(Class<?> clazz) {
+            return Array.get(Array.newInstance(clazz, 1), 0);
+        }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws SQLException {
@@ -56,37 +77,7 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
                 setNull = argNull || "setNull".equals(method.getName());
             }
 
-            return defaultValue(method.getReturnType());
-        }
-
-        private Object defaultValue(Class<?> type) {
-            if (type.isPrimitive()) {
-                if (boolean.class.equals(type)) {
-                    return false;
-                }
-                if (char.class.equals(type)) {
-                    return '\u0000';
-                }
-                if (byte.class.equals(type)) {
-                    return (byte) 0;
-                }
-                if (short.class.equals(type)) {
-                    return (short) 0;
-                }
-                if (int.class.equals(type)) {
-                    return 0;
-                }
-                if (long.class.equals(type)) {
-                    return 0L;
-                }
-                if (float.class.equals(type)) {
-                    return 0f;
-                }
-                if (double.class.equals(type)) {
-                    return 0d;
-                }
-            }
-            return null;
+            return DEFAULT_VALUES.get(method.getReturnType());
         }
 
         void define(String name, Argument arg, StatementContext ctx) {
