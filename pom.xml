@@ -315,13 +315,13 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.2</version>
+                <version>42.2.4</version>
             </dependency>
 
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.11.3</version>
+                <version>0.13.1</version>
             </dependency>
 
             <dependency>
@@ -401,7 +401,7 @@
                 <version>1.6</version>
             </dependency>
 
-            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.11.3 wants 3.5 -->
+            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.13.0 wants 3.7 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
