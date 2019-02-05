@@ -210,6 +210,9 @@ Jdbi jdbi = Jdbi.create(ds);
 Typically applications create a single, shared `Jdbi` instance, and set up
 any common configuration there.  See <<Configuration>> for more details.
 
+`Jdbi` itself does not provide connection pooling or other <<High Availability>>
+features, but it can be combined with other software that does.
+
 In a more limited scope (such as an HTTP request, or event callback),
 you would then request a `Handle` object from your `Jdbi` instance.
 
@@ -4783,6 +4786,31 @@ Now, `search` can be properly bound as a parameter to the statement, and it all 
 Check the string concatenation syntax of your database before doing this.
 
 == Advanced Topics
+
+=== High Availability
+
+Jdbi can be combined with connection pools and high-availability features in your database driver.
+We've used link:https://brettwooldridge.github.io/HikariCP/[HikariCP^] in combination
+with the link:https://jdbc.postgresql.org/documentation/head/connect.html[PgJDBC connection load balancing^]
+features with good success.
+
+[source,java]
+----
+PGSimpleDataSource ds = new PGSimpleDataSource();
+ds.setServerName("host1,host2,host3");
+ds.setLoadBalanceHosts(true);
+HikariConfig hc = new HikariConfig();
+hc.setDataSource(ds);
+hc.setMaximumPoolSize(6);
+Jdbi jdbi = Jdbi.create(new HikariDataSource(hc)).installPlugin(new PostgresPlugin());
+----
+
+Each Jdbi may be backed by a pool of any number of hosts, but the connections should all be alike.
+Exactly which parameters must stay the same and which may vary depends on your database and driver.
+
+If you want to have two separate pools, for example a read-only set that connects to read replicas
+and a smaller pool of writers that go only to a single host, you currently should have separate
+`Jdbi` instances each pointed at a separate `DataSource`.
 
 === Compiling with Parameter Names
 
