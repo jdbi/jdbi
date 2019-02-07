@@ -33,6 +33,7 @@ public class TestDefineNamedBindings {
             db.getSharedHandle().createQuery("select <a> from values(:a) union all select <b> from values(:b)")
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
+                .bind("checkConn", (p, s, c) -> assertThat(s.getConnection()).isEqualTo(c.getConnection()))
                 .mapTo(boolean.class)
                 .list())
         .containsExactly(true, false);
@@ -62,5 +63,4 @@ public class TestDefineNamedBindings {
         assertThat(thrown.getCause())
             .hasMessageContaining("DefineNamedBindings is incompatible with arguments that rely on java.sql.Wrapper.unwrap");
     }
-
 }

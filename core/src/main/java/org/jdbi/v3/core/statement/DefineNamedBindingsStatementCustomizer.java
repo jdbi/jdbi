@@ -34,11 +34,11 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     public void beforeTemplating(PreparedStatement stmt, StatementContext ctx) {
         final Set<String> alreadyDefined = ctx.getAttributes().keySet();
         final Binding binding = ctx.getBinding();
-        final SetNullHandler handler = new SetNullHandler();
+        final SetNullHandler handler = new SetNullHandler(ctx);
         binding.getNames().stream()
             .filter(name -> !alreadyDefined.contains(name))
             .forEach(name -> binding.findForName(name, ctx).ifPresent(
-                    a -> handler.define(name, a, ctx)));
+                    a -> handler.define(name, a)));
     }
 
     private static class SetNullHandler implements InvocationHandler {
@@ -53,10 +53,15 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
             double.class
         ).collect(Collectors.toMap(identity(), SetNullHandler::defaultValue));
 
+        private final StatementContext ctx;
         private final PreparedStatement fakeStmt = (PreparedStatement)
                 Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {PreparedStatement.class}, this);
         private boolean setNull;
         private boolean setCalled;
+
+        SetNullHandler(StatementContext ctx) {
+            this.ctx = ctx;
+        }
 
         private static Object defaultValue(Class<?> clazz) {
             return Array.get(Array.newInstance(clazz, 1), 0);
@@ -71,6 +76,10 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
                     + "arguments that rely on java.sql.Wrapper.unwrap(Class<?>)");
             }
 
+            if (method.getName().equals("getConnection")) {
+                return ctx.getConnection();
+            }
+
             if (method.getName().startsWith("set")) {
                 setCalled = true;
                 boolean argNull = args.length > 1 && args[1] == null;
@@ -80,7 +89,7 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
             return DEFAULT_VALUES.get(method.getReturnType());
         }
 
-        void define(String name, Argument arg, StatementContext ctx) {
+        void define(String name, Argument arg) {
             setNull = false;
             setCalled = false;
             Unchecked.runnable(() -> arg.apply(1, fakeStmt, ctx)).run();
