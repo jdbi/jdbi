@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
@@ -27,7 +26,10 @@ class JacksonJsonMapper implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, ConfigRegistry config) {
         try {
-            return getMapper(config).writeValueAsString(value);
+            ObjectMapper mapper = getMapper(config);
+            return mapper
+                    .writerFor(mapper.constructType(type))
+                    .writeValueAsString(value);
         } catch (JsonProcessingException e) {
             throw new UnableToProduceResultException(e);
         }
@@ -36,12 +38,8 @@ class JacksonJsonMapper implements JsonMapper {
     @Override
     public Object fromJson(Type type, String json, ConfigRegistry config) {
         try {
-            return getMapper(config).readValue(json, new TypeReference<Object>() {
-                @Override
-                public Type getType() {
-                    return type;
-                }
-            });
+            ObjectMapper mapper = getMapper(config);
+            return mapper.readValue(json, mapper.constructType(type));
         } catch (IOException e) {
             throw new UnableToProduceResultException(e);
         }
