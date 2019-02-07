@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestEnums {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     public static class SomethingElse {
         public enum Name {

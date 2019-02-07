@@ -38,7 +38,7 @@ public class TestGuavaOptional {
         + "order by id";
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

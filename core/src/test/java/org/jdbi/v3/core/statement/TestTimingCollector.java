@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     private Handle h;
 

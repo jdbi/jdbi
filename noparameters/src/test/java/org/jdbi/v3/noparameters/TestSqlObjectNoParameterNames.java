@@ -36,7 +36,7 @@ import static org.junit.Assume.assumeFalse;
 
 public class TestSqlObjectNoParameterNames {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     Handle h;
 

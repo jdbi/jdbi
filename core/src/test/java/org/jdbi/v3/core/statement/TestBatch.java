@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBatch {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Test
     public void testBasics() {

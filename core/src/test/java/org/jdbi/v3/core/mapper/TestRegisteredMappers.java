@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 
 public class TestRegisteredMappers {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
     private Jdbi db;
 
     @Before

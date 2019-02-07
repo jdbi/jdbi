@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindMap {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

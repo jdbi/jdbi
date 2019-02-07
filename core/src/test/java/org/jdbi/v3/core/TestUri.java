@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUri {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Test
     public void testUri() {

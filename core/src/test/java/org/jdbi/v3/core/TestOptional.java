@@ -40,7 +40,7 @@ public class TestOptional {
         + "order by id";
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

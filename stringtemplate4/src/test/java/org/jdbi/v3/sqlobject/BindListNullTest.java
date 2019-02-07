@@ -40,7 +40,7 @@ public class BindListNullTest {
     private Handle handle;
 
     @Rule
-    public final H2DatabaseRule dbRule = new H2DatabaseRule();
+    public final H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Before
     public void before() {

@@ -37,7 +37,7 @@ import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMM
 
 public class TestModifiers {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before

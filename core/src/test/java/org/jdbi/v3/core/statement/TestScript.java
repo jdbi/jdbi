@@ -30,7 +30,7 @@ import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspat
 
 public class TestScript {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Test
     public void testScriptStuff() {

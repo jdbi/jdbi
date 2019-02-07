@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrTupleRowMapperFactoryWithDB {
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     @Before
     public void addData() {

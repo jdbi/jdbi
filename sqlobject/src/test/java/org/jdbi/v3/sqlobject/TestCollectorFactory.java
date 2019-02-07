@@ -35,7 +35,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 public class TestCollectorFactory {
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     @Test
     public void testExists() {

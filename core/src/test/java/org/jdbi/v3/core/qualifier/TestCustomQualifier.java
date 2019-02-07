@@ -40,7 +40,7 @@ import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 public class TestCustomQualifier {
 
     @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+    public DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Test
     public void registerArgumentFactory() {

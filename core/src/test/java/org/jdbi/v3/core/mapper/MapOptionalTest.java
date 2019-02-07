@@ -27,7 +27,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 public class MapOptionalTest {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withSomething();
 
     @Test
     public void testMapOptional() {

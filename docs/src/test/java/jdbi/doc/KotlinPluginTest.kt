@@ -31,6 +31,7 @@ import kotlin.test.assertEquals
 class KotlinPluginTest {
     @Rule @JvmField
     val db = H2DatabaseRule()
+        .withSomething()
         .withPlugin(SqlObjectPlugin())
         .withPlugin(KotlinPlugin())
         .withPlugin(KotlinSqlObjectPlugin())
