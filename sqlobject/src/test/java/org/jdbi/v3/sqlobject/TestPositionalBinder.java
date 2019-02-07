@@ -43,7 +43,6 @@ public class TestPositionalBinder {
         handle = dbRule.getSharedHandle();
         somethingDao = handle.attach(SomethingDao.class);
 
-        handle.execute("drop table something");
         handle.execute("create table something (something_id int primary key, name varchar(100), code int)");
         handle.execute("insert into something(something_id, name, code) values (1, 'Brian', 12)");
         handle.execute("insert into something(something_id, name, code) values (2, 'Keith', 27)");
