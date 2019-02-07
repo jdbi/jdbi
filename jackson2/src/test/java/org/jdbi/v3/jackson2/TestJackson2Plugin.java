@@ -62,7 +62,7 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
         void table();
 
         @SqlUpdate("insert into json(contained) values(:json)")
-        void insert(@Bind @Json Container<Contained> json);
+        void insert(@Bind("json") @Json Container<Contained> json);
 
         @SqlQuery("select * from json limit 1")
         @Json
