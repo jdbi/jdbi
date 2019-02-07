@@ -19,12 +19,12 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.locator.ClasspathSqlLocator;
+import org.jdbi.v3.sqlobject.locator.SqlObjectClasspathSqlLocator;
 
 public class UseClasspathSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlObjects.class).setSqlLocator(new ClasspathSqlLocator());
+        registry.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator());
     }
 
     @Override

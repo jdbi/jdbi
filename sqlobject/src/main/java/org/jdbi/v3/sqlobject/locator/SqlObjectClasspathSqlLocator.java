@@ -22,7 +22,7 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 /**
  * @see org.jdbi.v3.core.locator.ClasspathSqlLocator
  */
-public class ClasspathSqlLocator implements SqlLocator {
+public class SqlObjectClasspathSqlLocator implements SqlLocator {
     @Override
     public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
         Function<String, String> valueOrMethodNameToSql = key -> {
