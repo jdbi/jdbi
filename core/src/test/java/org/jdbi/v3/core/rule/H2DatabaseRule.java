@@ -34,6 +34,10 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2D
     private Handle sharedHandle;
     private boolean installPlugins = false;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
+    /**
+     * @deprecated data setup is not this class' concern
+     */
+    @Deprecated
     private boolean withSomething = false;
 
     @Override
@@ -69,10 +73,7 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2D
 
     /**
      * create the legacy {@code something} table
-     *
-     * @deprecated data setup is not this class' concern
      */
-    @Deprecated
     public H2DatabaseRule withSomething() {
         withSomething = true;
         return this;
