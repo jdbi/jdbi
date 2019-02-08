@@ -21,7 +21,7 @@ import org.jdbi.v3.json.JsonMapper;
 class GsonJsonMapper implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, ConfigRegistry config) {
-        return config.get(Gson2Config.class).getGson().toJson(value);
+        return config.get(Gson2Config.class).getGson().toJson(value, type);
     }
 
     @Override
