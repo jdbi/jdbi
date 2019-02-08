@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 
 /**
@@ -27,7 +28,7 @@ public class SqlObjectClasspathSqlLocator implements SqlLocator {
     public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
         Function<String, String> valueOrMethodNameToSql = key -> {
             String filename = key.isEmpty() ? method.getName() : key;
-            return org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, filename);
+            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, filename);
         };
 
         return SqlAnnotations.getAnnotationValue(method, valueOrMethodNameToSql)
