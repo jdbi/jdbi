@@ -1,0 +1,14 @@
+R2DBC Client Changelog
+=============================
+
+1.0.0.M7
+------------------
+* Update changelong for M7 #37
+* ConnectionFactory Discovery #31, #32, #33
+* Nullability enforcement returns accurate exception #29
+
+1.0.0.M6
+------------------
+* MSSQL Examples #24
+* H2 Examples #18
+* Extract Examples #19
