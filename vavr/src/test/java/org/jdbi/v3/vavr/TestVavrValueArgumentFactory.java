@@ -14,6 +14,7 @@
 package org.jdbi.v3.vavr;
 
 import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.Optional;
 
 import io.vavr.Lazy;
@@ -22,6 +23,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
@@ -133,7 +135,8 @@ public class TestVavrValueArgumentFactory {
     public void testGetArgumentForNull() {
         Optional<Argument> arg = unit.build(OPTION_INTEGER, null, configRegistry);
 
-        assertThat(arg).isNotEmpty();
+        assertThat(((NullArgument) arg.get()).getSqlType())
+            .isEqualTo(Types.INTEGER);
     }
 
     @Test

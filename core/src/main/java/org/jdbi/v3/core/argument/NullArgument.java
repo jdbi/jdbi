@@ -49,6 +49,14 @@ public class NullArgument implements Argument {
         }
     }
 
+    /**
+     * @return the SQL type of the null
+     * @see java.sql.Types
+     */
+    public Integer getSqlType() {
+        return sqlType;
+    }
+
     @Override
     public String toString() {
         return "NULL";
