@@ -22,20 +22,12 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 public class TestVavrValueArgumentFactory {
     private static final Type TRY_INTEGER = new GenericType<Try<Integer>>() {}.getType();
@@ -46,23 +38,9 @@ public class TestVavrValueArgumentFactory {
     private static final Type EITHER_WILDCARD = new GenericType<Either<?, ?>>() {}.getType();
     private static final Type VALIDATION_STRING_INT = new GenericType<Validation<String, Integer>>() {}.getType();
 
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
-
-    @Mock
-    private ConfigRegistry configRegistry;
-    @Mock
-    private Arguments arguments;
+    private ConfigRegistry configRegistry = new ConfigRegistry();
 
     private VavrValueArgumentFactory unit = new VavrValueArgumentFactory();
-
-    @Before
-    public void setUp() {
-        when(configRegistry.get(Arguments.class)).thenReturn(arguments);
-        when(arguments.findFor(any(Type.class), any())).thenReturn(Optional.of((p, i, v) -> {
-            throw new UnsupportedOperationException("not a real Argument");
-        }));
-    }
 
     @Test
     public void testGetNonValueArgumentShouldNotBeEmpty() {
