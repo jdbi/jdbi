@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
@@ -95,18 +96,23 @@ public class PojoMapper<T> implements RowMapper<T> {
 
         for (PojoProperty<T> property : properties.getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
+            boolean unmappable = property.getAnnotation(Unmappable.class)
+                    .map(Unmappable::value)
+                    .orElse(false);
 
             if (anno == null) {
                 String paramName = prefix + getName(property);
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
-                        @SuppressWarnings({ "unchecked", "rawtypes" })
-                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
-                            .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
+                        if (!unmappable) {
+                            @SuppressWarnings({ "unchecked", "rawtypes" })
+                            ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
+                                .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
-                        mappers.add(new SingleColumnMapper<>(mapper, index + 1));
-                        propList.add(property);
+                            mappers.add(new SingleColumnMapper<>(mapper, index + 1));
+                            propList.add(property);
+                        }
 
                         unmatchedColumns.remove(columnNames.get(index));
                     });

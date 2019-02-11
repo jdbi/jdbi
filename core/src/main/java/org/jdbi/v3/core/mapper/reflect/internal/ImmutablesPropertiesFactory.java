@@ -164,9 +164,12 @@ public class ImmutablesPropertiesFactory {
                     return MethodHandles.lookup().unreflect(m);
                 }
             }
-            final IllegalArgumentException iae = new IllegalArgumentException("Failed to find builder setter for property " + name + " of " + type);
+            final IllegalArgumentException iae = new IllegalArgumentException("Failed to find builder setter for property " + name + " on " + builderClass);
             failures.forEach(iae::addSuppressed);
-            throw iae;
+            return MethodHandles.dropArguments(
+                    MethodHandles.throwException(Object.class, IllegalArgumentException.class),
+                    1, Arrays.asList(Object.class, Object.class))
+                .bindTo(iae);
         }
 
         @Override
