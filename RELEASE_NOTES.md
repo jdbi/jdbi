@@ -6,6 +6,8 @@
   - @EnumByName and @EnumByOrdinal qualifying annotations to override said default policy.
   - Support for Postgres custom types, both user defined and driver types like `PGInterval` or `PGcircle`
   - RowView: add getColumn(QualifiedType) overloads
+- Bugfixes
+  - Improve vavr handling of typed null
 - Improvements
   - Improve Error handling with transactions
 - Minor source incompatibility
