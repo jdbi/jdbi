@@ -17,64 +17,77 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import io.vavr.Lazy;
-import io.vavr.NotImplementedError;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class TestVavrValueArgumentFactory {
+    private static final Type TRY_INTEGER = new GenericType<Try<Integer>>() {}.getType();
+    private static final Type OPTION_INTEGER = new GenericType<Option<Integer>>() {}.getType();
+    private static final Type LAZY_INTEGER = new GenericType<Lazy<Integer>>() {}.getType();
+    private static final Type LAZY_WILDCARD = new GenericType<Lazy<?>>() {}.getType();
+    private static final Type EITHER_STRING_INTEGER = new GenericType<Either<String, Integer>>() {}.getType();
+    private static final Type EITHER_WILDCARD = new GenericType<Either<?, ?>>() {}.getType();
+    private static final Type VALIDATION_STRING_INT = new GenericType<Validation<String, Integer>>() {}.getType();
 
-    private static final Argument MOCK_ARGUMENT = ((position, statement, ctx) -> new NotImplementedError());
+    @Rule
+    public MockitoRule mockito = MockitoJUnit.rule();
 
-    private VavrValueArgumentFactory unit;
+    @Mock
+    private ConfigRegistry configRegistry;
+    @Mock
+    private Arguments arguments;
+
+    private VavrValueArgumentFactory unit = new VavrValueArgumentFactory();
 
     @Before
     public void setUp() {
-        unit = new VavrValueArgumentFactory() {
-            @Override
-            Optional<Argument> resolveNestedFromConfigured(ConfigRegistry config, Type nestedType, Object nestedValue) {
-                return Optional.of(MOCK_ARGUMENT);
-            }
-        };
+        when(configRegistry.get(Arguments.class)).thenReturn(arguments);
+        when(arguments.findFor(any(Type.class), any())).thenReturn(Optional.of((p, i, v) -> {
+            throw new UnsupportedOperationException("not a real Argument");
+        }));
     }
 
     @Test
     public void testGetNonValueArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
-                Option.of(1), null);
+        Optional<Argument> arg = unit.build(OPTION_INTEGER, Option.of(1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetArgumentOfNoneShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
-                Option.none(), null);
+        Optional<Argument> arg = unit.build(OPTION_INTEGER, Option.none(), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetLazyArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Lazy<Integer>>() {}.getType(),
-                Lazy.of(() -> 1), null);
+        Optional<Argument> arg = unit.build(LAZY_INTEGER, Lazy.of(() -> 1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetLazyArgumentInferredShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Lazy<?>>() {}.getType(),
-                Lazy.of(() -> 1), null);
+        Optional<Argument> arg = unit.build(LAZY_WILDCARD, Lazy.of(() -> 1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
@@ -85,85 +98,72 @@ public class TestVavrValueArgumentFactory {
             throw new TestSpecificException();
         });
 
-        assertThatThrownBy(() -> unit.build(new GenericType<Lazy<Integer>>() {}.getType(),
-                badEvaluatingLazy, null))
+        assertThatThrownBy(() -> unit.build(LAZY_INTEGER, badEvaluatingLazy, configRegistry))
                 .isInstanceOf(TestSpecificException.class);
     }
 
     @Test
     public void testGetFailedTryArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Try<Integer>>() {}.getType(),
-                Try.failure(new TestSpecificException()), null);
+        Optional<Argument> arg = unit.build(TRY_INTEGER, Try.failure(new TestSpecificException()), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetSuccessTryArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Try<Integer>>() {}.getType(),
-                Try.failure(new TestSpecificException()), null);
+        Optional<Argument> arg = unit.build(TRY_INTEGER, Try.failure(new TestSpecificException()), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetLeftEitherArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Either<String, Integer>>() {}.getType(),
-                Either.left("error"), null);
+        Optional<Argument> arg = unit.build(EITHER_STRING_INTEGER, Either.left("error"), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetRightEitherArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Either<String, Integer>>() {}.getType(),
-                Either.right(1), null);
+        Optional<Argument> arg = unit.build(EITHER_STRING_INTEGER, Either.right(1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetRightEitherArgumentInferredShouldNotBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Either<?, ?>>() {}.getType(),
-                Either.right(1), null);
+        Optional<Argument> arg = unit.build(EITHER_WILDCARD, Either.right(1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetValidValidationArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg =
-                unit.build(new GenericType<Validation<String, Integer>>() {}.getType(),
-                        Validation.valid(1), null);
+        Optional<Argument> arg = unit.build(VALIDATION_STRING_INT, Validation.valid(1), configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetInvalidValidationArgumentShouldNotBeEmpty() {
-        Optional<Argument> arg =
-                unit.build(new GenericType<Validation<String, Integer>>() {}.getType(),
-                        Validation.invalid("error"), null);
+        Optional<Argument> arg = unit.build(VALIDATION_STRING_INT, Validation.invalid("error"), configRegistry);
+
+        assertThat(arg).isNotEmpty();
+    }
+
+    @Test
+    public void testGetArgumentForNull() {
+        Optional<Argument> arg = unit.build(OPTION_INTEGER, null, configRegistry);
 
         assertThat(arg).isNotEmpty();
     }
 
     @Test
     public void testGetArgumentNotPartOfFactoryShouldBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Option<Integer>>() {}.getType(),
-                1, null);
-
-        assertThat(arg).isEmpty();
-    }
-
-    @Test
-    public void testGetArgumentNotPartOfFactory2ShouldBeEmpty() {
-        Optional<Argument> arg = unit.build(new GenericType<Integer>() {}.getType(),
-                null, null);
+        Optional<Argument> arg = unit.build(new GenericType<Integer>() {}.getType(), null, configRegistry);
 
         assertThat(arg).isEmpty();
     }
 
     private static class TestSpecificException extends RuntimeException {}
-
 }

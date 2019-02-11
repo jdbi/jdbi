@@ -14,7 +14,10 @@
 package org.jdbi.v3.vavr;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import io.vavr.Lazy;
 import io.vavr.Value;
@@ -26,6 +29,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
@@ -35,27 +39,26 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
  * if there is no such value (Try-Failed, Either-Left...) a "null" value will be applied as argument value
  */
 class VavrValueArgumentFactory implements ArgumentFactory {
+    private static final Set<Class<?>> VALUE_CLASSES = new HashSet<>(Arrays.asList(Option.class, Lazy.class, Try.class, Either.class, Validation.class));
 
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (value instanceof Option || value instanceof Lazy || value instanceof Try || value instanceof Either || value instanceof Validation) {
+        Class<?> rawType = GenericTypes.getErasedType(type);
+
+        if (VALUE_CLASSES.stream().anyMatch(vc -> vc.isAssignableFrom(rawType))) {
             return buildValueArgument(type, config, (Value) value);
         }
 
         return Optional.empty();
     }
 
-    private Optional<Argument> buildValueArgument(Type type, ConfigRegistry config, Value<?> value) {
+    private static Optional<Argument> buildValueArgument(Type type, ConfigRegistry config, Value<?> value) {
         Type nestedType = findGenericParameter(type, Value.class).orElseGet(() -> extractTypeOfValue(value));
-        Object nestedValue = value.getOrNull();
-        return resolveNestedFromConfigured(config, nestedType, nestedValue);
-    }
-
-    Optional<Argument> resolveNestedFromConfigured(ConfigRegistry config, Type nestedType, Object nestedValue) {
+        Object nestedValue = value == null ? null : value.getOrNull();
         return config.get(Arguments.class).findFor(nestedType, nestedValue);
     }
 
-    private Type extractTypeOfValue(Value<?> value) {
+    private static Type extractTypeOfValue(Value<?> value) {
         Value<Class<?>> classOfValue = value.map(Object::getClass);
         return classOfValue.getOrElse(Object.class);
     }
