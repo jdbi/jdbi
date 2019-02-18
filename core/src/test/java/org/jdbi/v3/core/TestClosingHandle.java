@@ -81,7 +81,7 @@ public class TestClosingHandle {
             .mapToMap()
             .iterator();
 
-        assertThat(it).hasSize(2);
+        assertThat(it).toIterable().hasSize(2);
         assertThat(h.isClosed()).isFalse();
     }
 
@@ -95,7 +95,7 @@ public class TestClosingHandle {
             .mapToMap()
             .iterator();
 
-        assertThat(it).hasSize(2);
+        assertThat(it).toIterable().hasSize(2);
         assertThat(h.isClosed()).isTrue();
     }
 

@@ -56,7 +56,7 @@ public class TestReturningQueryResults {
 
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Iterator<Something> itty = spiffy.findByIdRange(2, 10);
-            assertThat(itty).containsOnlyOnce(new Something(7, "Tim"), new Something(3, "Diego"));
+            assertThat(itty).toIterable().containsOnlyOnce(new Something(7, "Tim"), new Something(3, "Diego"));
         });
     }
 

@@ -132,8 +132,7 @@ public class ImmutablesTest {
                 .mapTo(ImmutableFooBarBaz.class)
                 .findOnly())
             .extracting("id", "foo", "bar", "baz")
-        // FIXME: https://github.com/joel-costigliola/assertj-core/pull/1360
-            .containsExactly(1, "foo", 42, 1.0);
+            .containsExactly(1, Optional.of("foo"), OptionalInt.of(42), OptionalDouble.of(1.0));
     }
 
     @Value.Immutable

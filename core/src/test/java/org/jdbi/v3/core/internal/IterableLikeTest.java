@@ -30,14 +30,14 @@ public class IterableLikeTest {
     public void testIntArray() {
         final Iterator<Object> it = IterableLike.of(new int[]{1, 2, 3});
 
-        assertThat(it).containsExactly(1, 2, 3);
+        assertThat(it).toIterable().contains(1, 2, 3);
     }
 
     @Test
     public void testEmptyArray() {
         final Iterator<Object> it = IterableLike.of(new int[]{});
 
-        assertThat(it).isEmpty();
+        assertThat(it).isExhausted();
     }
 
     @Test

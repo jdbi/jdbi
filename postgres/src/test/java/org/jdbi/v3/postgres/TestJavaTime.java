@@ -20,7 +20,10 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
+import org.apache.commons.lang3.SystemUtils;
+import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
@@ -28,6 +31,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 public class TestJavaTime {
 
@@ -45,6 +49,15 @@ public class TestJavaTime {
         });
     }
 
+    private TemporalUnitOffset getAllowableOffset() {
+        // PostgreSQL seems to not have as much precision on Windows as it does on Linux.
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return within(0, ChronoUnit.MICROS);
+        } else {
+            return within(0, ChronoUnit.NANOS);
+        }
+    }
+
     @Test
     public void localDate() {
         LocalDate d = LocalDate.now();
@@ -56,21 +69,21 @@ public class TestJavaTime {
     public void localDateTime() {
         LocalDateTime d = LocalDateTime.now();
         h.execute("insert into stuff(ts) values (?)", d);
-        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isEqualTo(d);
+        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isCloseTo(d, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTime() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC);
         h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isEqualTo(dt);
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isCloseTo(dt, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(dt.isEqual(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly())).isTrue();
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isCloseTo(dt, getAllowableOffset());
     }
 
     @Test
