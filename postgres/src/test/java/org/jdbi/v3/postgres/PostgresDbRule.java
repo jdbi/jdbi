@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.function.Consumer;
+
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.JdbiRule;
 
@@ -20,6 +23,14 @@ public class PostgresDbRule {
     private PostgresDbRule() {}
 
     public static JdbiRule rule() {
-        return JdbiRule.embeddedPostgres().withPlugin(new SqlObjectPlugin()).withPlugin(new PostgresPlugin());
+        return withPlugins(JdbiRule.embeddedPostgres());
+    }
+
+    public static JdbiRule rule(Consumer<EmbeddedPostgres.Builder> customizer) {
+        return withPlugins(JdbiRule.embeddedPostgres(customizer));
+    }
+
+    private static JdbiRule withPlugins(JdbiRule rule) {
+        return rule.withPlugin(new SqlObjectPlugin()).withPlugin(new PostgresPlugin());
     }
 }

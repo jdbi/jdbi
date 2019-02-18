@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -27,7 +28,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatementsTimeout {
     @Rule
-    public JdbiRule dbRule = PostgresDbRule.rule();
+    public JdbiRule dbRule = PostgresDbRule.rule(builder -> {
+        // We need to force the locale for the 'testTimeout' test
+        final String locale;
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            locale = "English_United States";
+        } else {
+            locale = "en_US";
+        }
+
+        builder.setLocaleConfig("locale", locale);
+    });
 
     private Handle h;
 
