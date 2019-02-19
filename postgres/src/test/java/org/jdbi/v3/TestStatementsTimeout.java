@@ -48,6 +48,6 @@ public class TestStatementsTimeout {
         assertThatThrownBy(h.createQuery("select pg_sleep(3)").mapTo(String.class)::findOnly)
             .isInstanceOf(UnableToExecuteStatementException.class)
             .hasCauseInstanceOf(PSQLException.class)
-            .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException)ex.getCause()).getSQLState()));
+            .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException) ex.getCause()).getSQLState()));
     }
 }
