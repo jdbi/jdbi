@@ -22,6 +22,8 @@ matrix:
       jdk: oraclejdk8
     - env:
         - TESTS=Y
+# make sure we don't accidentally introduce locale-sensitive tests
+        - LC_ALL=fr_FR.UTF-8
       script:
         - src/build/ci-test.sh
       jdk: oraclejdk9
