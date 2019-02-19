@@ -33,7 +33,7 @@ class KotlinQualifierTest {
 
     @Rule
     @JvmField
-    val dbRule: H2DatabaseRule = H2DatabaseRule().withPlugin(KotlinPlugin())
+    val dbRule: H2DatabaseRule = H2DatabaseRule().withSomething().withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 

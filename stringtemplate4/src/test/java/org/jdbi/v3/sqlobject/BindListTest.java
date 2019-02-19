@@ -41,7 +41,7 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListTest {
     @Rule
-    public final H2DatabaseRule h2 = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public final H2DatabaseRule h2 = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private List<Something> expectedSomethings;

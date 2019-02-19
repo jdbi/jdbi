@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginTest {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     @Entity
     static class Thing {

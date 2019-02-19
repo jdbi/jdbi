@@ -47,7 +47,7 @@ public class FieldMapperTest {
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Mock
     ResultSet resultSet;

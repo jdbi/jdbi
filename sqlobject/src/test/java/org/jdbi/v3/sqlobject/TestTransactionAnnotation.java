@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class TestTransactionAnnotation {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 

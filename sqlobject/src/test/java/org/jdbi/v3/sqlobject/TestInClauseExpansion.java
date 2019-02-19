@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInClauseExpansion {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins(); // Guava
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins(); // Guava
     private Handle handle;
 
     @Before

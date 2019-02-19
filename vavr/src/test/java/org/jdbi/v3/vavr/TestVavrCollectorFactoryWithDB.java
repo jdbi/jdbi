@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrCollectorFactoryWithDB {
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     private Seq<Integer> expected = List.range(0, 10);
     private Map<Integer, String> expectedMap = expected.toMap(i -> new Tuple2<>(i, i + "asString"));

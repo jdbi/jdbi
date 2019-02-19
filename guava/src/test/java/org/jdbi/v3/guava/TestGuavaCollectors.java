@@ -50,7 +50,7 @@ import static org.assertj.guava.api.Assertions.entry;
 
 public class TestGuavaCollectors {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     private Collection<Integer> expected;
 

@@ -47,7 +47,7 @@ public class JpaTest {
     private static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     interface Thing {
         int getId();

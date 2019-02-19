@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class TestDocumentation {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFiveMinuteFluentApi() {

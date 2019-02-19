@@ -38,7 +38,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 public class TestRegisterRowMapperFactory {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testSimple() {

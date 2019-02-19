@@ -25,7 +25,7 @@ import kotlin.test.assertEquals
 
 class KotlinPluginTest {
     @Rule @JvmField
-    val db = H2DatabaseRule().withPlugins()
+    val db = H2DatabaseRule().withSomething().withPlugins()
 
     data class Thing(val id: Int, val name: String,
                      val nullable: String?,

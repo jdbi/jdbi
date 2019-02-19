@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class TestQualifiers {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();

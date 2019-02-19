@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class TestPreparedBatch {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     private Handle h;
 

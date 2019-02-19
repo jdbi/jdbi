@@ -39,7 +39,7 @@ public class TestVavrValueArgumentFactoryWithDB {
     private static final Something BRIANSOMETHING = new Something(2, "brian");
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
 
     @Before
     public void createTestData() {

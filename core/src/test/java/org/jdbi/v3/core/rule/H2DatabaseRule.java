@@ -34,6 +34,11 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2D
     private Handle sharedHandle;
     private boolean installPlugins = false;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
+    /**
+     * @deprecated data setup is not this class' concern
+     */
+    @Deprecated
+    private boolean withSomething = false;
 
     @Override
     protected void before() throws Throwable {
@@ -44,9 +49,11 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2D
         plugins.forEach(db::installPlugin);
         sharedHandle = db.open();
         con = sharedHandle.getConnection();
-        try (Statement s = con.createStatement()) {
-            // TODO legacy...
-            s.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
+
+        if (withSomething) {
+            try (Statement s = con.createStatement()) {
+                s.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
+            }
         }
     }
 
@@ -61,6 +68,14 @@ public class H2DatabaseRule extends ExternalResource implements DatabaseRule<H2D
 
     public H2DatabaseRule withPlugins() {
         installPlugins = true;
+        return this;
+    }
+
+    /**
+     * create the legacy {@code something} table
+     */
+    public H2DatabaseRule withSomething() {
+        withSomething = true;
         return this;
     }
 
