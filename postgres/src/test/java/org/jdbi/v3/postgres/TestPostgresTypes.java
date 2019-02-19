@@ -52,7 +52,7 @@ public class TestPostgresTypes {
         if (SystemUtils.IS_OS_WINDOWS) {
             locale = "English_United States";
         } else {
-            locale = "en_US";
+            locale = "en_US.UTF-8";
         }
 
         builder.setLocaleConfig("locale", locale);
