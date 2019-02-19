@@ -36,7 +36,8 @@ public class ImmutablesTest {
             .registerImmutable(SubValue.class)
             .registerImmutable(FooBarBaz.class)
             .registerModifiable(FooBarBaz.class)
-            .registerImmutable(Getter.class));
+            .registerImmutable(Getter.class)
+            .registerImmutable(ByteArray.class));
 
     private Jdbi jdbi;
     private Handle h;
@@ -160,5 +161,24 @@ public class ImmutablesTest {
                 .mapTo(Getter.class)
                 .findOnly())
             .isEqualTo(expected);
+    }
+
+    @Value.Immutable
+    public interface ByteArray {
+        byte[] value();
+    }
+
+    @Test
+    public void testByteArray() {
+        final byte[] value = new byte[] {(byte) 42, (byte) 24};
+        h.execute("create table bytearr(value bytea)");
+        h.createUpdate("insert into bytearr(value) values(:value)")
+            .bindPojo(ImmutableByteArray.builder().value(value).build())
+            .execute();
+        assertThat(h.createQuery("select * from bytearr")
+                .mapTo(ByteArray.class)
+                .findOnly()
+                .value())
+            .containsExactly(value);
     }
 }
