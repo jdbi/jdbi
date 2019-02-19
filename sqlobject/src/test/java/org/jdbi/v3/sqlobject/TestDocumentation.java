@@ -136,7 +136,7 @@ public class TestDocumentation {
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
             ResultIterable<String> names = h.createQuery("select name from something order by id").mapTo(String.class);
-            assertThat(names.iterator()).containsExactly("Brian", "Keith");
+            assertThat(names.iterator()).toIterable().containsExactly("Brian", "Keith");
         }
     }
 
@@ -180,7 +180,7 @@ public class TestDocumentation {
             assertThat(sq.findNamesBetween(1, 4)).containsExactly("Robert", "Patrick");
 
             Iterator<String> names = sq.findAllNames();
-            assertThat(names).containsExactly("Brian", "Robert", "Patrick", "Maniax");
+            assertThat(names).toIterable().containsExactly("Brian", "Robert", "Patrick", "Maniax");
         }
     }
 

@@ -159,8 +159,10 @@ public class TestQualifiers {
         assertThat(dao.resultIterableNames())
             .containsExactly("oof", "rab", "zab");
         assertThat(dao.resultIteratorNames())
+            .toIterable()
             .containsExactly("oof", "rab", "zab");
         assertThat(dao.iteratorNames())
+            .toIterable()
             .containsExactly("oof", "rab", "zab");
         assertThat(dao.streamNames())
             .containsExactly("oof", "rab", "zab");
