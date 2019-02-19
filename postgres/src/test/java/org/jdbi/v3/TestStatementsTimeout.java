@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -22,24 +21,15 @@ import org.jdbi.v3.testing.JdbiRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.postgresql.util.PSQLException;
+import org.postgresql.util.PSQLState;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatementsTimeout {
     @Rule
-    public JdbiRule dbRule = PostgresDbRule.rule(builder -> {
-        // We need to force the locale for the 'testTimeout' test
-        final String locale;
-
-        if (SystemUtils.IS_OS_WINDOWS) {
-            locale = "English_United States";
-        } else {
-            locale = "en_US";
-        }
-
-        builder.setLocaleConfig("locale", locale);
-    });
+    public JdbiRule dbRule = PostgresDbRule.rule();
 
     private Handle h;
 
@@ -57,6 +47,7 @@ public class TestStatementsTimeout {
 
         assertThatThrownBy(h.createQuery("select pg_sleep(3)").mapTo(String.class)::findOnly)
             .isInstanceOf(UnableToExecuteStatementException.class)
-            .hasMessageContaining("canceling statement due to user request");
+            .hasCauseInstanceOf(PSQLException.class)
+            .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException)ex.getCause()).getSQLState()));
     }
 }
