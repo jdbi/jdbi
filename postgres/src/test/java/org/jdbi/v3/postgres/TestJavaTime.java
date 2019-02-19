@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.JdbiRule;
@@ -51,11 +50,7 @@ public class TestJavaTime {
 
     private TemporalUnitOffset getAllowableOffset() {
         // PostgreSQL seems to not have as much precision on Windows as it does on Linux.
-        if (SystemUtils.IS_OS_WINDOWS) {
-            return within(0, ChronoUnit.MICROS);
-        } else {
-            return within(0, ChronoUnit.NANOS);
-        }
+        return within(0, ChronoUnit.MICROS);
     }
 
     @Test
