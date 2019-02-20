@@ -13,8 +13,11 @@
  */
 package org.jdbi.v3.testing;
 
+import java.util.function.Consumer;
+
 import javax.sql.DataSource;
 
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
 import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
 import org.junit.runner.Description;
@@ -25,6 +28,10 @@ class EmbeddedPostgresJdbiRule extends JdbiRule {
 
     EmbeddedPostgresJdbiRule() {
         embeddedPg = EmbeddedPostgresRules.singleInstance();
+    }
+
+    EmbeddedPostgresJdbiRule(Consumer<EmbeddedPostgres.Builder> customizer) {
+        embeddedPg = EmbeddedPostgresRules.singleInstance().customize(customizer);
     }
 
     @Override

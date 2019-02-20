@@ -14,12 +14,9 @@
 package org.jdbi.v3.postgres;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
@@ -29,7 +26,6 @@ import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.JdbiRule;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -49,7 +45,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestPostgresTypes {
 
     @ClassRule
-    public static JdbiRule postgresDBRule = JdbiRule.embeddedPostgres();
+    public static JdbiRule postgresDBRule = PostgresDbRule.rule(builder -> {
+        // We need to force the locale for the 'testReadWriteMoney' test
+        final String locale;
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            locale = "English_United States";
+        } else {
+            locale = "en_US.UTF-8";
+        }
+
+        builder.setLocaleConfig("locale", locale);
+    });
 
     private static Jdbi jdbi;
     private Handle handle;
@@ -341,8 +348,6 @@ public class TestPostgresTypes {
 
     @Test
     public void testReadWriteMoney() {
-        Set<String> moneyTypeOnlySupportsUS = new HashSet<>(Arrays.asList("", Locale.US.getCountry()));
-        Assume.assumeTrue(moneyTypeOnlySupportsUS.contains(Locale.getDefault().getCountry()));
         assertThat(handle.select("select :money")
             .bind("money", new PGmoney(1))
             .mapTo(PGmoney.class)

@@ -16,9 +16,11 @@ package org.jdbi.v3.testing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -60,6 +62,16 @@ public abstract class JdbiRule extends ExternalResource {
      */
     public static JdbiRule embeddedPostgres() {
         return new EmbeddedPostgresJdbiRule();
+    }
+
+    /**
+     * Create a JdbiRule with an embedded PostgreSQL instance.
+     * Your project must depend on the {@code otj-pg-embedded} artifact.
+     *
+     * @param customizer {@link Consumer} to customize the created PostgreSQL instance.
+     */
+    public static JdbiRule embeddedPostgres(Consumer<EmbeddedPostgres.Builder> customizer) {
+        return new EmbeddedPostgresJdbiRule(customizer);
     }
 
     /**
