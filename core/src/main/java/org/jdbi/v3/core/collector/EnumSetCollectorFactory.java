@@ -39,10 +39,15 @@ class EnumSetCollectorFactory implements CollectorFactory {
         return findGenericParameter(containerType, EnumSet.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
-        Class<? extends Enum> componentType = (Class<? extends Enum>) findGenericParameter(containerType, EnumSet.class)
+        return build0(containerType);
+    }
+
+    // exists to give ecj a more static type to check against
+    @SuppressWarnings("unchecked")
+    private <E extends Enum<E>> Collector<E, ?, ?> build0(Type containerType) {
+        Class<E> componentType = (Class<E>) findGenericParameter(containerType, EnumSet.class)
             .map(GenericTypes::getErasedType)
             .orElseThrow(() -> new IllegalStateException("Cannot determine EnumSet element type"));
 
