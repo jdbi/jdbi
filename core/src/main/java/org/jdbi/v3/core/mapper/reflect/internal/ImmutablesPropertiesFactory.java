@@ -140,8 +140,8 @@ public class ImmutablesPropertiesFactory {
                         QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
                         m,
                         alwaysSet(),
-                        MethodHandles.lookup().unreflect(m),
-                        findBuilderSetter(builderClass, name, propertyType));
+                        MethodHandles.lookup().unreflect(m).asFixedArity(),
+                        findBuilderSetter(builderClass, name, propertyType).asFixedArity());
             } catch (IllegalAccessException | NoSuchMethodException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
@@ -200,8 +200,8 @@ public class ImmutablesPropertiesFactory {
                         QualifiedType.of(propertyType).with(Qualifiers.getQualifiers(m)),
                         m,
                         isSetMethod(name),
-                        MethodHandles.lookup().unreflect(m),
-                        MethodHandles.lookup().findVirtual(impl, setterName(name), MethodType.methodType(impl, GenericTypes.getErasedType(propertyType))));
+                        MethodHandles.lookup().unreflect(m).asFixedArity(),
+                        MethodHandles.lookup().findVirtual(impl, setterName(name), MethodType.methodType(impl, GenericTypes.getErasedType(propertyType))).asFixedArity());
             } catch (IllegalAccessException | NoSuchMethodException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
