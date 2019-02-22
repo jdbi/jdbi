@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.RowReducer;
 import org.jdbi.v3.core.statement.SqlStatement;
@@ -126,7 +127,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     Type getParameterType(Parameter parameter) {
-        return parameter.getParameterizedType();
+        return GenericTypes.resolveType(parameter.getParameterizedType(), sqlObjectType);
     }
 
     private static ParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {

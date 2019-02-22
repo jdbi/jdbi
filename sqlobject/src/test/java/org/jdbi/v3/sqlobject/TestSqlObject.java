@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
@@ -26,6 +28,8 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.customizer.MaxRows;
+import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
@@ -307,4 +311,27 @@ public class TestSqlObject {
             return 42;
         }
     }
+
+    @Test
+    public void genericSuperclassExtendedByExplicitTypedSubclass() {
+        ExtendGenericDaoWithExplicitParameter dao = handle.attach(ExtendGenericDaoWithExplicitParameter.class);
+
+        Something alice = new Something(1, "Alice");
+        Something bob = new Something(2, "Bob");
+        dao.batchInsert(Arrays.asList(alice, bob));
+
+        assertThat(dao.list()).containsExactly(alice, bob);
+    }
+
+    @UseClasspathSqlLocator
+    public interface GenericDao<T> {
+        @SqlBatch
+        void batchInsert(@BindBean Collection<T> entities);
+
+        @SqlQuery
+        List<T> list();
+    }
+
+    @RegisterBeanMapper(Something.class)
+    public interface ExtendGenericDaoWithExplicitParameter extends GenericDao<Something> {}
 }
