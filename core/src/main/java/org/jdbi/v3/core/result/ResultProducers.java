@@ -44,10 +44,9 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      */
     public static ResultProducer<Integer> returningUpdateCount() {
         return (statementSupplier, ctx) -> {
-            try {
+            // suppress exception if ctx.close method raises
+            try (StatementContext context = ctx) {
                 return statementSupplier.get().getUpdateCount();
-            } finally {
-                ctx.close();
             }
         };
     }
