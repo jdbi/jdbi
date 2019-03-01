@@ -128,4 +128,21 @@ public class TestH2SqlArrays {
             .isInstanceOf(LinkedHashSet.class)
             .containsExactly(testUuids);
     }
+
+    @Test
+    public void testEnumArrays() {
+        Handle h = dbRule.openHandle();
+
+        GenericType<List<TestEnum>> testEnumList = new GenericType<List<TestEnum>>() {};
+
+        assertThat(h.select("select ?")
+            .bindByType(0, Arrays.asList(TestEnum.values()), testEnumList)
+            .mapTo(testEnumList).findOnly())
+            .containsExactly(TestEnum.values());
+    }
+
+    public enum TestEnum {
+        FOO, BAR, BAZ
+    }
+
 }

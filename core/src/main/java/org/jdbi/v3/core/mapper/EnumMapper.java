@@ -36,8 +36,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @see Enums
  * @see EnumByName
  * @see EnumByOrdinal
- * @see EnumMapperFactory
  */
+// TODO jdbi4: move to enums package
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     private static final Map<Class<? extends Enum<?>>, ColumnMapper<? extends Enum<?>>> BY_NAME_MAPPER_CACHE =
         ExpiringMap.builder().expiration(10, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.ACCESSED).build();

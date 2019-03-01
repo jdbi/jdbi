@@ -11,30 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.enums.internal;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.core.array.SqlArrayType;
+import org.jdbi.v3.core.array.SqlArrayTypeFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.EnumStrategies;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
-class EnumMapperFactory implements QualifiedColumnMapperFactory {
+// TODO Make this a QualifiedSqlArrayTypeFactory after we add qualified SQL array support
+public class EnumSqlArrayTypeFactory implements SqlArrayTypeFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
-        return Optional.of(givenType.getType())
+    @SuppressWarnings("unchecked")
+    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
+        return Optional.of(elementType)
             .map(GenericTypes::getErasedType)
             .filter(Class::isEnum)
-            .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Class<Enum>) clazz, config));
+            .map(clazz -> makeSqlArrayType((Class<Enum>) clazz, config));
     }
 
-    private static <E extends Enum<E>> Optional<ColumnMapper<?>> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(givenType);
+    private <E extends Enum<E>> SqlArrayType<E> makeSqlArrayType(Class<E> enumClass, ConfigRegistry config) {
+        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(QualifiedType.of(enumClass));
 
-        return Optional.of(byName
-            ? EnumMapper.byName(enumClass)
-            : EnumMapper.byOrdinal(enumClass));
+        return byName
+            ? SqlArrayType.of("varchar", Enum::name)
+            : SqlArrayType.of("integer", Enum::ordinal);
     }
 }

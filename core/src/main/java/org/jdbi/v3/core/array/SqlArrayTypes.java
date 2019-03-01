@@ -21,6 +21,7 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.enums.internal.EnumSqlArrayTypeFactory;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
@@ -33,6 +34,8 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
     public SqlArrayTypes() {
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
+
+        register(new EnumSqlArrayTypeFactory());
     }
 
     private SqlArrayTypes(SqlArrayTypes that) {

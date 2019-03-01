@@ -355,7 +355,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.12.0</version>
+                <version>3.12.1</version>
             </dependency>
 
             <dependency>
