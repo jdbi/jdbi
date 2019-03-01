@@ -61,6 +61,8 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
+    private final ThreadLocal<Handle> threadHandle = new ThreadLocal<>();
+
     private Jdbi(ConnectionFactory connectionFactory) {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
         this.connectionFactory = connectionFactory;
@@ -327,8 +329,15 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
+        if (threadHandle.get() != null) {
+            return callback.withHandle(threadHandle.get());
+        }
+
         try (Handle h = this.open()) {
+            threadHandle.set(h);
             return callback.withHandle(h);
+        } finally {
+            threadHandle.remove();
         }
     }
 
@@ -444,6 +453,10 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X {
+        if (threadHandle.get() != null) {
+            return callback.withExtension(threadHandle.get().attach(extensionType));
+        }
+
         try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config)) {
             E extension = getConfig(Extensions.class)
                     .findFor(extensionType, handle)
