@@ -17,9 +17,9 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A generic QualifiedColumnMapperFactory that reflectively inspects a
@@ -37,7 +37,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
         this.maps = QualifiedType.of(
             findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")))
-            .withAnnotations(getQualifiers(mapper.getClass()));
+            .withAnnotations(new Qualifiers().findFor(mapper.getClass()));
         this.mapper = mapper;
     }
 

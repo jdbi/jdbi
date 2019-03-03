@@ -22,9 +22,9 @@ import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class EnumStrategies implements JdbiConfig<EnumStrategies> {
     private ConfigRegistry registry;
@@ -48,7 +48,7 @@ public class EnumStrategies implements JdbiConfig<EnumStrategies> {
         Class<?> erasedType = getErasedType(type.getType());
         return JdbiOptionals.findFirstPresent(
             () -> doFindStrategy(type),
-            () -> doFindStrategy(QualifiedType.of(erasedType).withAnnotations(getQualifiers(erasedType)))
+            () -> doFindStrategy(QualifiedType.of(erasedType).withAnnotations(registry.get(Qualifiers.class).findFor(erasedType)))
         ).orElseGet(() -> registry.get(Enums.class).getDefaultStrategy());
     }
 

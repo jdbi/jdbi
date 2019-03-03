@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.kotlin.internal.KotlinPropertyArguments
 import org.jdbi.v3.core.qualifier.QualifiedType
-import org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers
+import org.jdbi.v3.core.qualifier.Qualifiers
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory
 import java.lang.reflect.Method
@@ -31,8 +31,6 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                                     parameter: Parameter,
                                     paramIdx: Int,
                                     type: Type): SqlStatementParameterCustomizer {
-
-        val qualifiedType = QualifiedType.of(type).withAnnotations(getQualifiers(parameter))
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
@@ -46,6 +44,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                 "${parameter.declaringExecutable} :: $parameter")
 
         return SqlStatementParameterCustomizer { stmt, arg ->
+            val qualifiedType = QualifiedType.of(type).withAnnotations(stmt.getConfig(Qualifiers::class.java).findFor(parameter));
             val maybeArgument = stmt.getContext().findArgumentFor(qualifiedType, arg)
             if (maybeArgument.isPresent) {
                 val argument = maybeArgument.get()

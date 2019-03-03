@@ -19,6 +19,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Update;
@@ -26,8 +27,6 @@ import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
-
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;
@@ -43,7 +42,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
         QualifiedType<?> returnType = QualifiedType.of(
             GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-            .withAnnotations(getQualifiers(method));
+            .withAnnotations(new Qualifiers().findFor(method));
 
         if (isGetGeneratedKeys) {
             ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);

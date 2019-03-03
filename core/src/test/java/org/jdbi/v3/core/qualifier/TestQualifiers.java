@@ -24,26 +24,28 @@ import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 public class TestQualifiers {
     @Test
     public void getQualifiers() throws Exception {
+        Qualifiers qualifiers = new Qualifiers();
+
         assertThat(foo(1))
             .isEqualTo(foo(1))
             .isNotEqualTo(foo(2));
 
-        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredField("qualifiedField")))
+        assertThat(qualifiers.findFor(getClass().getDeclaredField("qualifiedField")))
             .containsExactly(foo(1));
 
-        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredMethod("qualifiedMethod")))
+        assertThat(qualifiers.findFor(getClass().getDeclaredMethod("qualifiedMethod")))
             .containsExactly(foo(2));
 
-        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredMethod("qualifiedParameter", String.class).getParameters()[0]))
+        assertThat(qualifiers.findFor(getClass().getDeclaredMethod("qualifiedParameter", String.class).getParameters()[0]))
             .containsExactly(foo(3));
 
-        assertThat(Qualifiers.getQualifiers(QualifiedClass.class))
+        assertThat(qualifiers.findFor(QualifiedClass.class))
             .containsExactly(foo(4));
 
-        assertThat(Qualifiers.getQualifiers(QualifiedClass.class.getDeclaredConstructor(String.class).getParameters()[0]))
+        assertThat(qualifiers.findFor(QualifiedClass.class.getDeclaredConstructor(String.class).getParameters()[0]))
             .containsExactly(foo(5));
 
-        assertThat(Qualifiers.getQualifiers(getClass().getDeclaredField("twoQualifiers")))
+        assertThat(qualifiers.findFor(getClass().getDeclaredField("twoQualifiers")))
             .containsExactlyInAnyOrder(foo(6), bar("six"));
     }
 

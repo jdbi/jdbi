@@ -15,11 +15,11 @@ package org.jdbi.v3.stringtemplate4;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -29,10 +29,7 @@ import org.stringtemplate.v4.STGroupFile;
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
  */
 public class StringTemplateSqlLocator {
-    private static final Map<String, ThreadLocal<STGroup>> CACHE = ExpiringMap.builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .build();
+    private static final Map<ClassLoader, Map<String, ThreadLocal<STGroup>>> CACHE = Collections.synchronizedMap(new WeakHashMap<>());
 
     private StringTemplateSqlLocator() {}
 
@@ -128,7 +125,8 @@ public class StringTemplateSqlLocator {
      * @return the loaded StringTemplateGroup.
      */
     public static STGroup findStringTemplateGroup(ClassLoader classLoader, String path) {
-        return CACHE.computeIfAbsent(path, p -> ThreadLocal.withInitial(() -> readStringTemplateGroup(classLoader, path))).get();
+        return CACHE.computeIfAbsent(classLoader, x -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(path, p -> ThreadLocal.withInitial(() -> readStringTemplateGroup(classLoader, path))).get();
     }
 
     private static STGroup readStringTemplateGroup(ClassLoader classLoader, String path) {

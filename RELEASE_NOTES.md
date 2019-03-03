@@ -16,6 +16,7 @@
   - Improve Error handling with transactions
   - Clean up our dependencies, remove vestiges of `shade` plugin
   - antlr4
+  - Rework caching to not use extra threads (#1453)
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 
