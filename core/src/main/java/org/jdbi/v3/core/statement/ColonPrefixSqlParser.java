@@ -17,13 +17,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
+import org.jdbi.v3.core.statement.internal.ErrorListener;
 
+import static org.antlr.v4.runtime.Recognizer.EOF;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.COMMENT;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.ESCAPED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.LITERAL;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
@@ -56,7 +57,8 @@ public class ColonPrefixSqlParser implements SqlParser {
 
     private ParsedSql internalParse(String sql) throws IllegalArgumentException {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
-        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
+        ColonStatementLexer lexer = new ColonStatementLexer(CharStreams.fromString(sql));
+        lexer.addErrorListener(new ErrorListener());
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
             switch (t.getType()) {

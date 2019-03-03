@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.internal.lexer;
 
-import org.antlr.runtime.Lexer;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

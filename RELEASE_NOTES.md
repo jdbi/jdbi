@@ -13,6 +13,7 @@
 - Improvements
   - Improve Error handling with transactions
   - Clean up our dependencies, remove vestiges of `shade` plugin
+  - antlr4
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 
