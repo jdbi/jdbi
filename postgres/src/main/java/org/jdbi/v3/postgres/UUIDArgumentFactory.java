@@ -14,23 +14,16 @@
 package org.jdbi.v3.postgres;
 
 import java.sql.Types;
+import java.util.Collections;
 import java.util.UUID;
 
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.argument.SetObjectArgumentFactory;
 
 /**
  * Bind UUID arguments as an Object.
  */
-public class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
+public class UUIDArgumentFactory extends SetObjectArgumentFactory {
     public UUIDArgumentFactory() {
-        super(Types.OTHER);
-    }
-
-    @Override
-    protected Argument build(UUID value, ConfigRegistry config) {
-        return ObjectArgument.of(value);
+        super(Collections.singletonMap(UUID.class, Types.OTHER));
     }
 }

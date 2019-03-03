@@ -13,30 +13,19 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.GetObjectColumnMapperFactory;
 
 /**
  * Provide mappers corresponding to java time types.
  * @see JavaTimeArgumentFactory for the list of types
  */
-public class JavaTimeMapperFactory implements ColumnMapperFactory {
-    @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        if (type == LocalDate.class
-                || type == LocalTime.class
-                || type == LocalDateTime.class
-                || type == OffsetDateTime.class) {
-            return Optional.of((r, i, c) -> r.getObject(i, (Class<?>) type));
-        }
-        return Optional.empty();
+public class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
+    public JavaTimeMapperFactory() {
+        super(LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
     }
 }
