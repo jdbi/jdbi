@@ -12,6 +12,7 @@
   - Improve vavr handling of typed null
 - Improvements
   - Improve Error handling with transactions
+  - Clean up our dependencies, remove vestiges of `shade` plugin
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 
