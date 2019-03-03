@@ -13,41 +13,31 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.argument.SetObjectArgumentFactory;
 
 /**
  * Maps {@link LocalDate}, {@link LocalTime}, {@link LocalDateTime}, {@link OffsetDateTime}.
  * Note that no {@link java.time.Instant} override is needed.
  */
-public class JavaTimeArgumentFactory implements ArgumentFactory {
-    private static final Map<Class<?>, Integer> TYPES;
-
-    static {
+public class JavaTimeArgumentFactory extends SetObjectArgumentFactory {
+    private static Map<Class<?>, Integer> types() {
         final Map<Class<?>, Integer> types = new HashMap<>();
         types.put(LocalDate.class, Types.DATE);
         types.put(LocalTime.class, Types.TIME);
         types.put(LocalDateTime.class, Types.TIMESTAMP);
         types.put(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE);
-        TYPES = Collections.unmodifiableMap(types);
+        return types;
     }
 
-    @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        return Optional.ofNullable(TYPES.get(type))
-                .map(sqlType -> ObjectArgument.of(value, sqlType));
+    public JavaTimeArgumentFactory() {
+        super(types());
     }
 }

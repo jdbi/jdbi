@@ -28,7 +28,7 @@ import org.jdbi.v3.meta.Beta;
 public class SetObjectArgumentFactory implements ArgumentFactory {
     private final Map<Class<?>, Integer> supportedTypes;
 
-    private SetObjectArgumentFactory(Map<Class<?>, Integer> types) {
+    protected SetObjectArgumentFactory(Map<Class<?>, Integer> types) {
         supportedTypes = types;
     }
 

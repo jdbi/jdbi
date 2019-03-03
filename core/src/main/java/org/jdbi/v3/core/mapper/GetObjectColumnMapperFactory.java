@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -32,16 +33,20 @@ import org.jdbi.v3.meta.Beta;
 public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     private final Set<Class<?>> supportedTypes;
 
-    private GetObjectColumnMapperFactory(Set<Class<?>> types) {
-        supportedTypes = types;
+    protected GetObjectColumnMapperFactory(Class<?>... types) {
+        this(Arrays.asList(types));
     }
 
-    public static ColumnMapperFactory forClsses(Class<?>... types) {
-        return new GetObjectColumnMapperFactory(new HashSet<>(Arrays.asList(types)));
+    protected GetObjectColumnMapperFactory(Collection<Class<?>> types) {
+        supportedTypes = new HashSet<Class<?>>(types);
     }
 
-    public static ColumnMapperFactory forClsses(Set<Class<?>> types) {
-        return new GetObjectColumnMapperFactory(new HashSet<>(types));
+    public static ColumnMapperFactory forClasses(Class<?>... types) {
+        return new GetObjectColumnMapperFactory(Arrays.asList(types));
+    }
+
+    public static ColumnMapperFactory forClasses(Set<Class<?>> types) {
+        return new GetObjectColumnMapperFactory(types);
     }
 
     @Override
@@ -50,7 +55,7 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
             .filter(Class.class::isInstance)
             .map(Class.class::cast)
             .filter(supportedTypes::contains)
-            .map(GetObjectColumnMapper::new);
+            .map(GetObjectColumnMapper<Object>::new);
     }
 
     private static class GetObjectColumnMapper<T> implements ColumnMapper<T> {
