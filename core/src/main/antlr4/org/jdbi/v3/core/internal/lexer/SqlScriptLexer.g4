@@ -1,25 +1,14 @@
 lexer grammar SqlScriptLexer;
 
-@header {
-    package org.jdbi.v3.core.internal.lexer;
-}
-
-@lexer::members {
-  @Override
-  public void reportError(RecognitionException e) {
-    throw new IllegalArgumentException(e);
-  }
-}
-
 COMMENT
-    : '--' ~(NEWLINE)* |
-      '//' ~(NEWLINE)* |
-      '#'  ~(NEWLINE)*
+    : '--' ~('\n'|'\r')* |
+      '//' ~('\n'|'\r')* |
+      '#'  ~('\n'|'\r')*
      { skip(); }
     ;
 
 MULTI_LINE_COMMENT
-    : '/*' .* '*/' { skip(); }
+    : '/*' .*? '*/' { skip(); }
     ;
 
 NEWLINES

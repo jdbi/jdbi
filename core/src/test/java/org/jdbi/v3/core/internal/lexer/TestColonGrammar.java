@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.internal.lexer;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Lexer;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Lexer;
 import org.junit.Test;
 
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
@@ -90,6 +90,6 @@ public class TestColonGrammar extends GrammarTestCase {
 
     @Override
     protected Lexer createLexer(String s) {
-        return new ColonStatementLexer(new ANTLRStringStream(s));
+        return new ColonStatementLexer(CharStreams.fromString(s));
     }
 }

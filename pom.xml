@@ -83,7 +83,7 @@
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
-        <dep.antlr.version>3.4</dep.antlr.version>
+        <dep.antlr.version>4.7.2</dep.antlr.version>
         <dep.checkstyle.version>8.16</dep.checkstyle.version>
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
@@ -239,7 +239,7 @@
 
             <dependency>
                 <groupId>org.antlr</groupId>
-                <artifactId>antlr-runtime</artifactId>
+                <artifactId>antlr4-runtime</artifactId>
                 <version>${dep.antlr.version}</version>
             </dependency>
 
@@ -421,14 +421,8 @@
 
             <dependency>
                 <groupId>org.antlr</groupId>
-                <artifactId>stringtemplate</artifactId>
-                <version>4.0.2</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>antlr-runtime</artifactId>
-                        <groupId>org.antlr</groupId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>ST4</artifactId>
+                <version>4.1</version>
             </dependency>
 
             <dependency>
@@ -549,7 +543,7 @@
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
-                    <artifactId>antlr3-maven-plugin</artifactId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${dep.antlr.version}</version>
                 </plugin>
                 <plugin>

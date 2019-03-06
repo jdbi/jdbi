@@ -13,14 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
+import org.jdbi.v3.core.statement.internal.ErrorListener;
 
+import static org.antlr.v4.runtime.Recognizer.EOF;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.COMMENT;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.DEFINE;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.EOF;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.ESCAPED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.LITERAL;
 import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
@@ -35,7 +36,8 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
     @Override
     public String render(String template, StatementContext ctx) {
         StringBuilder b = new StringBuilder();
-        DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(template));
+        DefineStatementLexer lexer = new DefineStatementLexer(CharStreams.fromString(template));
+        lexer.addErrorListener(new ErrorListener());
         try {
             Token t = lexer.nextToken();
             while (t.getType() != EOF) {

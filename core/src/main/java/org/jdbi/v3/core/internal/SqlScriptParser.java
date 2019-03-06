@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.internal;
 
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.SqlScriptLexer;
+import org.jdbi.v3.core.statement.internal.ErrorListener;
 
 /**
  * An SQL script parser.
@@ -34,6 +35,7 @@ public class SqlScriptParser {
     public String parse(CharStream charStream) {
         StringBuilder sb = new StringBuilder();
         SqlScriptLexer lexer = new SqlScriptLexer(charStream);
+        lexer.addErrorListener(new ErrorListener());
         boolean endOfFile = false;
         while (!endOfFile) {
             Token t = lexer.nextToken();

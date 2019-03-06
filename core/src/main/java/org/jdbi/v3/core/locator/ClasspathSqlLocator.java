@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
-import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.internal.SqlScriptParser;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 
@@ -115,7 +115,7 @@ public final class ClasspathSqlLocator {
     private static String readResource(ClassLoader classLoader, String path) {
         try (InputStream is = openStream(classLoader, path)) {
             // strips away comments
-            return SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(is));
+            return SQL_SCRIPT_PARSER.parse(CharStreams.fromStream(is));
         } catch (IOException e) {
             throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
         }

@@ -17,13 +17,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
+import org.jdbi.v3.core.statement.internal.ErrorListener;
 
+import static org.antlr.v4.runtime.Recognizer.EOF;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.COMMENT;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.EOF;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.ESCAPED_TEXT;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.LITERAL;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.NAMED_PARAM;
@@ -53,7 +54,8 @@ public class HashPrefixSqlParser implements SqlParser {
 
     private ParsedSql internalParse(final String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
-        HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
+        HashStatementLexer lexer = new HashStatementLexer(CharStreams.fromString(sql));
+        lexer.addErrorListener(new ErrorListener());
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
             switch (t.getType()) {

@@ -16,7 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.internal.SqlScriptParser;
 
@@ -67,7 +67,7 @@ public class Script extends SqlStatement<Script> {
         String lastStatement = new SqlScriptParser((t, sb) -> {
             addStatement(sb.toString(), statements);
             sb.setLength(0);
-        }).parse(new ANTLRStringStream(script));
+        }).parse(CharStreams.fromString(script));
         addStatement(lastStatement, statements);
 
         return statements;
