@@ -23,6 +23,8 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     private ObjectMapper mapper;
+    private Class<?> serializationView;
+    private Class<?> deserializationView;
 
     public Jackson2Config() {
         this.mapper = new ObjectMapper();
@@ -30,6 +32,8 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
 
     private Jackson2Config(Jackson2Config other) {
         this.mapper = other.mapper;
+        this.serializationView = other.serializationView;
+        this.deserializationView = other.deserializationView;
     }
 
     /**
@@ -47,6 +51,49 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
      */
     public ObjectMapper getMapper() {
         return mapper;
+    }
+
+    /**
+     * Set both serialization and deserialization {@code @JsonView} to the given class.
+     * @param view the view class
+     * @return this
+     */
+    public Jackson2Config setView(Class<?> view) {
+        return setSerializationView(view).setDeserializationView(view);
+    }
+
+    /**
+     * Set the {@code @JsonView} used to serialize.
+     * @param serializationView the serialization view
+     * @return this
+     */
+    public Jackson2Config setSerializationView(Class<?> serializationView) {
+        this.serializationView = serializationView;
+        return this;
+    }
+
+    /**
+     * @return the current {@code @JsonView} used for serialization
+     */
+    public Class<?> getSerializationView() {
+        return serializationView;
+    }
+
+    /**
+     * Set the {@code @JsonView} used to deserialize.
+     * @param deserializationView the serialization view
+     * @return this
+     */
+    public Jackson2Config setDeserializationView(Class<?> deserializationView) {
+        this.deserializationView = deserializationView;
+        return this;
+    }
+
+    /**
+     * @return the current {@code @JsonView} used for deserialization
+     */
+    public Class<?> getDeserializationView() {
+        return deserializationView;
     }
 
     @Override
