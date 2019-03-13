@@ -410,6 +410,10 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
+        if (isInTransaction()) {
+            return callback.withHandle(this);
+        }
+
         return transactions.inTransaction(this, callback);
     }
 
@@ -422,7 +426,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
-        transactions.inTransaction(this, handle -> {
+        inTransaction(handle -> {
             callback.useHandle(handle);
             return null;
         });
@@ -446,6 +450,16 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
+        if (isInTransaction()) {
+            TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
+            if (currentLevel != level && level != TransactionIsolationLevel.UNKNOWN) {
+                throw new TransactionException(
+                    "Tried to execute nested transaction with isolation level " + level + ", "
+                    + "but already running in a transaction with isolation level " + currentLevel + ".");
+            }
+            return callback.withHandle(this);
+        }
+
         try (TransactionResetter tr = new TransactionResetter(getTransactionIsolationLevel())) {
             setTransactionIsolation(level);
             return transactions.inTransaction(this, level, callback);
