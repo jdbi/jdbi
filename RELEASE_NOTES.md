@@ -14,6 +14,13 @@
   - Improve Error handling with transactions
   - Clean up our dependencies, remove vestiges of `shade` plugin
   - antlr4
+  - Nested `inTransaction` and `useTransaction` calls are now allowed in core, provided the inner
+    transaction specifies the same transaction isolation level, or does not specify isolation. This
+    brings core transaction behavior in line with the existing behavior for nested `@Transaction` SQL
+    object methods.
+  - Nested calls to `Jdbi` methods `useHandle`, `withHandle`, `useTransaction`, `withTransaction`,
+    `useExtension`, `withExtension`, or to any method of an on-demand extension will now execute against
+    the handle from the outermost call, rather than each invocation getting a separate handle.
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 
