@@ -30,6 +30,7 @@ import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -61,7 +62,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
-    private final ThreadLocal<Handle> threadHandle = new ThreadLocal<>();
+    private final ThreadLocal<HandleSupplier> threadHandleSupplier = new ThreadLocal<>();
 
     private Jdbi(ConnectionFactory connectionFactory) {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
@@ -329,15 +330,15 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
-        if (threadHandle.get() != null) {
-            return callback.withHandle(threadHandle.get());
+        if (threadHandleSupplier.get() != null) {
+            return callback.withHandle(threadHandleSupplier.get().getHandle());
         }
 
         try (Handle h = this.open()) {
-            threadHandle.set(h);
+            threadHandleSupplier.set(new ConstantHandleSupplier(h));
             return callback.withHandle(h);
         } finally {
-            threadHandle.remove();
+            threadHandleSupplier.remove();
         }
     }
 
@@ -453,17 +454,26 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X {
-        if (threadHandle.get() != null) {
-            return callback.withExtension(threadHandle.get().attach(extensionType));
+        if (threadHandleSupplier.get() != null) {
+            return tryWithExtension(extensionType, callback, threadHandleSupplier.get());
         }
 
-        try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config)) {
-            E extension = getConfig(Extensions.class)
-                    .findFor(extensionType, handle)
-                    .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
-
-            return callback.withExtension(extension);
+        try (LazyHandleSupplier handleSupplier = new LazyHandleSupplier(this, config)) {
+            threadHandleSupplier.set(handleSupplier);
+            return tryWithExtension(extensionType, callback, handleSupplier);
+        } finally {
+            threadHandleSupplier.remove();
         }
+    }
+
+    private <R, E, X extends Exception> R tryWithExtension(Class<E> extensionType,
+                                                           ExtensionCallback<R, E, X> callback,
+                                                           HandleSupplier handle) throws X {
+        E extension = getConfig(Extensions.class)
+            .findFor(extensionType, handle)
+            .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+
+        return callback.withExtension(extension);
     }
 
     /**

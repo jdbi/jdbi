@@ -114,20 +114,22 @@ public class TestModifiers {
 
     @Test
     public void testIsolationLevel() {
-        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
-            dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
-                spiffy.begin();
-                spiffy.insert(1, "Tom");
+        try (Handle h1 = dbRule.getJdbi().open();
+             Handle h2 = dbRule.getJdbi().open()) {
+            Spiffy spiffy = h1.attach(Spiffy.class);
+            IsoLevels iso = h2.attach(IsoLevels.class);
 
-                Something tom = iso.findById(1);
-                assertThat(tom).isNotNull();
+            spiffy.begin();
+            spiffy.insert(1, "Tom");
 
-                spiffy.rollback();
+            Something tom = iso.findById(1);
+            assertThat(tom).isNotNull();
 
-                Something notTom = iso.findById(1);
-                assertThat(notTom).isNull();
-            });
-        });
+            spiffy.rollback();
+
+            Something notTom = iso.findById(1);
+            assertThat(notTom).isNull();
+        }
     }
 
     @RegisterRowMapper(SomethingMapper.class)
