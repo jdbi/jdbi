@@ -206,7 +206,7 @@
                     <excludePackageNames>io.r2dbc.client.*</excludePackageNames>
                     <links>
                         <link>https://projectreactor.io/docs/core/release/api/</link>
-                        <link>http://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
+                        <link>https://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
                     </links>
                 </configuration>
                 <executions>
