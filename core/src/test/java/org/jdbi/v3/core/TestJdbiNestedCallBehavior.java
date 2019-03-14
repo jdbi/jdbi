@@ -17,12 +17,15 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 
 public class TestJdbiNestedCallBehavior {
     @Rule
@@ -181,47 +184,53 @@ public class TestJdbiNestedCallBehavior {
             return null;
         });
 
-//        jdbi.useTransaction(h1 ->
-//            jdbi.useTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(READ_COMMITTED, h1 ->
-//            jdbi.useTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(h1 ->
-//            jdbi.useTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(READ_COMMITTED, h1 ->
-//            jdbi.useTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(READ_COMMITTED, h1 ->
-//            jdbi.useTransaction(READ_UNCOMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(h1 ->
+            jdbi.useTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(READ_COMMITTED, h1 ->
+            jdbi.useTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(h1 ->
+            jdbi.useTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(READ_COMMITTED, h1 ->
+            jdbi.useTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
+        assertThatThrownBy(() ->
+            jdbi.useTransaction(READ_COMMITTED, h1 ->
+                jdbi.useTransaction(READ_UNCOMMITTED, h2 ->
+                    assertThat(h1).isSameAs(h2))))
+            .isInstanceOf(TransactionException.class)
+            .hasMessageContaining("already running in a transaction with isolation level READ_COMMITTED");
 
-//        jdbi.inTransaction(h1 -> {
-//            jdbi.useTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2));
-//            return null;
-//        });
-//        jdbi.inTransaction(READ_COMMITTED, h1 -> {
-//            jdbi.useTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2));
-//            return null;
-//        });
-//        jdbi.inTransaction(h1 -> {
-//            jdbi.useTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2));
-//            return null;
-//        });
-//        jdbi.inTransaction(READ_COMMITTED, h1 -> {
-//            jdbi.useTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2));
-//            return null;
-//        });
-//        jdbi.inTransaction(READ_COMMITTED, h1 -> {
-//            jdbi.useTransaction(READ_UNCOMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2));
-//            return null;
-//        });
+        jdbi.inTransaction(h1 -> {
+            jdbi.useTransaction(h2 ->
+                assertThat(h1).isSameAs(h2));
+            return null;
+        });
+        jdbi.inTransaction(READ_COMMITTED, h1 -> {
+            jdbi.useTransaction(h2 ->
+                assertThat(h1).isSameAs(h2));
+            return null;
+        });
+        jdbi.inTransaction(h1 -> {
+            jdbi.useTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2));
+            return null;
+        });
+        jdbi.inTransaction(READ_COMMITTED, h1 -> {
+            jdbi.useTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2));
+            return null;
+        });
+        assertThatThrownBy(() ->
+            jdbi.inTransaction(READ_COMMITTED, h1 -> {
+                jdbi.useTransaction(READ_UNCOMMITTED, h2 ->
+                    assertThat(h1).isSameAs(h2));
+                return null;
+            }))
+            .isInstanceOf(TransactionException.class)
+            .hasMessageContaining("already running in a transaction with isolation level READ_COMMITTED");
 
         jdbi.useExtension(TestExtension.class, e ->
             jdbi.useTransaction(h ->
@@ -259,31 +268,31 @@ public class TestJdbiNestedCallBehavior {
             jdbi.inTransaction(h2 ->
                 assertThat(h1).isSameAs(h2)));
 
-//        jdbi.useTransaction(h1 ->
-//            jdbi.inTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(READ_COMMITTED, h1 ->
-//            jdbi.inTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(h1 ->
-//            jdbi.inTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.useTransaction(READ_COMMITTED, h1 ->
-//            jdbi.inTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//
-//        jdbi.inTransaction(h1 ->
-//            jdbi.inTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.inTransaction(READ_COMMITTED, h1 ->
-//            jdbi.inTransaction(h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.inTransaction(h1 ->
-//            jdbi.inTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
-//        jdbi.inTransaction(READ_COMMITTED, h1 ->
-//            jdbi.inTransaction(READ_COMMITTED, h2 ->
-//                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(h1 ->
+            jdbi.inTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(READ_COMMITTED, h1 ->
+            jdbi.inTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(h1 ->
+            jdbi.inTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.useTransaction(READ_COMMITTED, h1 ->
+            jdbi.inTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
+
+        jdbi.inTransaction(h1 ->
+            jdbi.inTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.inTransaction(READ_COMMITTED, h1 ->
+            jdbi.inTransaction(h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.inTransaction(h1 ->
+            jdbi.inTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
+        jdbi.inTransaction(READ_COMMITTED, h1 ->
+            jdbi.inTransaction(READ_COMMITTED, h2 ->
+                assertThat(h1).isSameAs(h2)));
 
         jdbi.useExtension(TestExtension.class, e ->
             jdbi.inTransaction(h ->
