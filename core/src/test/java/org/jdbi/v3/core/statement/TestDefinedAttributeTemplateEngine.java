@@ -89,4 +89,10 @@ public class TestDefinedAttributeTemplateEngine {
         String sql = "/* comment with : colons :: inside it */ select 1";
         assertThat(render(sql)).isEqualTo(sql);
     }
+
+    @Test
+    public void testKoreanIdentifiers() {
+        String sql = "SELECT 제목 FROM 업무_게시물";
+        assertThat(render(sql)).isEqualTo(sql);
+    }
 }

@@ -23,8 +23,9 @@ public abstract class GrammarTestCase {
         Lexer lexer = createLexer(s);
         for (int token : tokens) {
             Token t = lexer.nextToken();
-            assertThat(t.getType()).isEqualTo(token)
-                    .withFailMessage("Expected %s, got %s, with '%s'", nameOf(token), nameOf(t.getType()), t.getText());
+            assertThat(t.getType())
+                    .withFailMessage("Expected %s, got %s, with '%s'", nameOf(token), nameOf(t.getType()), t.getText())
+                    .isEqualTo(token);
         }
     }
 

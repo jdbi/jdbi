@@ -17,5 +17,4 @@ ESCAPED_TEXT : ESCAPE . ;
 NAMED_PARAM: HASH (NAME)+;
 POSITIONAL_PARAM: QUESTION;
 
-LITERAL: (NAME | ' ' | '\t' | '\n' | '\r' | ',' | '@' | '!' | '=' | ';' | '(' | ')' | '[' | ']'
-         | '+' | '-' | '>' | '<' | '%' | '&' | '^' | '|' | '$' | '~' | '{' | '}' | '`' | DOUBLE_QUESTION)+ | '*' | '/';
+LITERAL: DOUBLE_QUESTION | .;

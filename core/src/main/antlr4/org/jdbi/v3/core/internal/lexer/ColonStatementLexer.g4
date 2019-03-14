@@ -18,5 +18,4 @@ ESCAPED_TEXT : ESCAPE . ;
 NAMED_PARAM: COLON (NAME)+;
 POSITIONAL_PARAM: QUESTION;
 
-LITERAL: (NAME | ' ' | '\t' | '\n' | '\r' | ',' | '@' | '!' | '=' | DOUBLE_COLON | ';' | '(' | ')' | '[' | ']'
-         | '+' | '-' | '<' | '>' | '%' | '&' | '^' | '|' | '$' | '~' | '{' | '}' | '`' | COLON '=' | DOUBLE_QUESTION)+ | '*' | '/';
+LITERAL: DOUBLE_COLON | DOUBLE_QUESTION | .;

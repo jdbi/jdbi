@@ -15,6 +15,7 @@ package org.jdbi.v3.core.internal.lexer;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Lexer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
@@ -24,6 +25,7 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
 
+@Ignore
 public class TestColonGrammar extends GrammarTestCase {
     @Test
     public void testNamedOnly() throws Exception {
