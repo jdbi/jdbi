@@ -50,9 +50,11 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
                 .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE));
 
         final JsonMapper mapper = config.get(JsonConfig.class).getJsonMapper();
-        return Optional.of((rs, i, ctx) -> {
-            String json = jsonStringMapper.map(rs, i, ctx);
-            return json == null ? null : mapper.fromJson(type, json, config);
-        });
+        return Optional.of((rs, i, ctx) ->
+            mapper.fromJson(
+                    type,
+                    Optional.ofNullable(jsonStringMapper.map(rs, i, ctx))
+                            .orElse("null"), // sql null -> json null
+                    config));
     }
 }

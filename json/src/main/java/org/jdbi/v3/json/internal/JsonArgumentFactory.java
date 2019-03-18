@@ -41,7 +41,8 @@ public class JsonArgumentFactory implements ArgumentFactory {
         if (String.class.equals(type)) {
             return Optional.empty();
         }
-        String json = value == null ? null : config.get(JsonConfig.class).getJsonMapper().toJson(type, value, config);
+        String nullableJson = value == null ? null : config.get(JsonConfig.class).getJsonMapper().toJson(type, value, config);
+        String json = "null".equals(nullableJson) ? null : nullableJson; // json null -> sql null
         Arguments a = config.get(Arguments.class);
         // look for specialized json support first, revert to simple String binding if absent
         return Optional.of(JdbiOptionals.findFirstPresent(
