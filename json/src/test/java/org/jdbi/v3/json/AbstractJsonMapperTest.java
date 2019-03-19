@@ -15,6 +15,7 @@ package org.jdbi.v3.json;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Jdbi;
@@ -101,6 +102,26 @@ public abstract class AbstractJsonMapperTest {
         });
     }
 
+    @Test
+    public void testOptionalNull() {
+        jdbi.useHandle(h -> {
+            h.execute("create table subjects (id serial primary key, subject json)");
+
+            JsonDao dao = h.attach(JsonDao.class);
+
+            dao.insertOptional(Optional.empty());
+            dao.insert(null);
+
+            assertThat(dao.selectOptional())
+                .containsExactly(Optional.empty(), Optional.empty());
+
+            assertThat(h.createQuery("select subject from subjects")
+                    .mapTo(String.class)
+                    .list())
+                .containsExactly(null, null);
+        });
+    }
+
     public static class JsonBean {
         private final String food;
         private final int bitcoins;
@@ -138,6 +159,13 @@ public abstract class AbstractJsonMapperTest {
         @SqlQuery("select subject from subjects")
         @Json
         List<JsonBean> select();
+
+        @SqlUpdate("insert into subjects (subject) values(?)")
+        int insertOptional(@Json Optional<JsonBean> value);
+
+        @SqlQuery("select subject from subjects")
+        @Json
+        List<Optional<JsonBean>> selectOptional();
     }
 
     public static class NestedJsonBean {

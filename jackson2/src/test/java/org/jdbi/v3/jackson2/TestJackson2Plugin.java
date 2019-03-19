@@ -16,6 +16,7 @@ package org.jdbi.v3.jackson2;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -43,7 +44,9 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
     @Before
     public void before() {
         jdbi = db.getJdbi().installPlugin(new Jackson2Plugin());
-        jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper().registerModule(new ParameterNamesModule()));
+        jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper()
+                .registerModule(new ParameterNamesModule())
+                .registerModule(new Jdk8Module()));
         h = jdbi.open();
     }
 

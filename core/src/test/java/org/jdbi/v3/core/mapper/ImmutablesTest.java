@@ -37,7 +37,8 @@ public class ImmutablesTest {
             .registerImmutable(FooBarBaz.class)
             .registerModifiable(FooBarBaz.class)
             .registerImmutable(Getter.class)
-            .registerImmutable(ByteArray.class));
+            .registerImmutable(ByteArray.class)
+        );
 
     private Jdbi jdbi;
     private Handle h;
