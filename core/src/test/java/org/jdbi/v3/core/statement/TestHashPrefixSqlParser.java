@@ -14,11 +14,9 @@
 package org.jdbi.v3.core.statement;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class TestHashPrefixSqlParser {
@@ -68,10 +66,10 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
-    @Ignore
-    public void testBailsOutOnInvalidInput() {
-        assertThatThrownBy(() -> parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", ctx))
-            .isInstanceOf(UnableToCreateStatementException.class);
+    public void testHashWithoutNameNotAParameter() {
+        String sql = "select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
     }
 
     @Test
