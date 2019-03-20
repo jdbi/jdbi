@@ -3,7 +3,7 @@ This project is an exploration of what a Java API for relational database access
 
 [jd]: http://jdbi.org
 [pr]: https://projectreactor.io
-[rs]: http://www.reactive-streams.org
+[rs]: https://www.reactive-streams.org
 
 ## Examples
 A quick example of configuration and execution would look like:
