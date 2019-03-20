@@ -13,13 +13,17 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator.Wombat;
@@ -54,9 +58,12 @@ public class TestStringTemplateLoading {
     @Test
     public void testConcurrentLoading() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
-        IntStream
+        List<Future<?>> futures = IntStream
             .range(1, 10)
-            .forEach(id -> pool.execute(() -> testBaz(id)));
-        pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            .mapToObj(id -> pool.submit(() -> testBaz(id)))
+            .collect(Collectors.toList());
+        pool.shutdown();
+        pool.awaitTermination(10, TimeUnit.SECONDS);
+        futures.forEach(Unchecked.consumer(f -> f.get(100, TimeUnit.MILLISECONDS)));
     }
 }
