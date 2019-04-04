@@ -20,6 +20,7 @@ import java.util.stream.Collector;
 
 import io.vavr.Lazy;
 import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashMultimap;
@@ -50,6 +51,7 @@ import org.jdbi.v3.core.collector.CollectorFactory;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.parameterizeClass;
 
 @SuppressWarnings("PMD.ReplaceVectorWithList")
 class VavrCollectorFactory implements CollectorFactory {
@@ -117,9 +119,9 @@ class VavrCollectorFactory implements CollectorFactory {
         Class<?> erasedType = getCollectionType(containerType);
 
         if (Map.class.isAssignableFrom(erasedType)) {
-            return Optional.of(VavrGenericMapUtil.resolveMapEntryType(containerType));
+            return Optional.of(resolveMaplikeEntryType(containerType, Map.class));
         } else if (Multimap.class.isAssignableFrom(erasedType)) {
-            return Optional.of(VavrGenericMapUtil.resolveMultimapEntryType(containerType));
+            return Optional.of(resolveMaplikeEntryType(containerType, Multimap.class));
         }
 
         return findGenericParameter(containerType, erasedType);
@@ -130,5 +132,11 @@ class VavrCollectorFactory implements CollectorFactory {
         Class<?> erasedType = getCollectionType(containerType);
         return collectors.getOrElse(erasedType,
                 Lazy.val(() -> resolveDefaultCollector(erasedType).get(), Collector.class));
+    }
+
+    private static Type resolveMaplikeEntryType(Type maplikeType, Class<?> maplikeClass) {
+        Type keyType = findGenericParameter(maplikeType, maplikeClass, 0).orElse(Object.class);
+        Type valueType = findGenericParameter(maplikeType, maplikeClass, 1).orElse(Object.class);
+        return parameterizeClass(Tuple2.class, keyType, valueType);
     }
 }

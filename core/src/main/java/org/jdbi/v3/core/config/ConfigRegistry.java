@@ -14,9 +14,8 @@
 package org.jdbi.v3.core.config;
 
 import java.util.Map;
-import java.util.WeakHashMap;
-
-import static java.util.Collections.synchronizedMap;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A registry of {@link JdbiConfig} instances by type.
@@ -24,7 +23,8 @@ import static java.util.Collections.synchronizedMap;
  * @see Configurable
  */
 public class ConfigRegistry {
-    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> cache = synchronizedMap(new WeakHashMap<>());
+    private final Object createLock = new Object();
+    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>();
 
     /**
      * Creates a new config registry.
@@ -32,10 +32,10 @@ public class ConfigRegistry {
     public ConfigRegistry() {}
 
     private ConfigRegistry(ConfigRegistry that) {
-        that.cache.forEach((type, config) -> {
+        that.configs.forEach((type, config) -> {
             JdbiConfig<?> copy = config.createCopy();
             copy.setRegistry(this);
-            cache.put(type, copy);
+            configs.put(type, copy);
         });
     }
 
@@ -48,16 +48,21 @@ public class ConfigRegistry {
      * @return the given config class instance that belongs to this registry.
      */
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
-        return configClass.cast(cache.computeIfAbsent(configClass, type -> {
+        // we would computeIfAbsent if not for JDK-8062841 >:(
+        final JdbiConfig<?> lookup = configs.get(configClass);
+        if (lookup != null) {
+            return configClass.cast(lookup);
+        }
+        synchronized (createLock) {
             try {
                 C config = configClass.getDeclaredConstructor().newInstance();
                 config.setRegistry(this);
-                return config;
+                return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass
                     + ". Is there a public no-arg constructor?", e);
             }
-        }));
+        }
     }
 
     /**

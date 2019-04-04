@@ -4094,6 +4094,13 @@ To use this plugin, add a Maven dependency:
 </dependency>
 ----
 
+Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version] is set to at least 1.8:
+[source,xml,subs="specialchars"]
+----
+<kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+----
+
+
 Then install the plugin into your `Jdbi` instance:
 
 [source,kotlin]

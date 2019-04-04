@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.JsonMapper;
@@ -26,10 +27,13 @@ class JacksonJsonMapper implements JsonMapper {
     @Override
     public String toJson(Type type, Object value, ConfigRegistry config) {
         try {
-            ObjectMapper mapper = getMapper(config);
-            return mapper
-                    .writerFor(mapper.constructType(type))
-                    .writeValueAsString(value);
+            Jackson2Config cfg = config.get(Jackson2Config.class);
+            ObjectWriter writer = cfg.getMapper().writerFor(cfg.getMapper().constructType(type));
+            Class<?> view = cfg.getSerializationView();
+            if (view != null) {
+                writer = writer.withView(view);
+            }
+            return writer.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             throw new UnableToProduceResultException(e);
         }
@@ -38,14 +42,15 @@ class JacksonJsonMapper implements JsonMapper {
     @Override
     public Object fromJson(Type type, String json, ConfigRegistry config) {
         try {
-            ObjectMapper mapper = getMapper(config);
-            return mapper.readValue(json, mapper.constructType(type));
+            Jackson2Config cfg = config.get(Jackson2Config.class);
+            ObjectReader reader = cfg.getMapper().readerFor(cfg.getMapper().constructType(type));
+            Class<?> view = cfg.getDeserializationView();
+            if (view != null) {
+                reader = reader.withView(view);
+            }
+            return reader.readValue(json);
         } catch (IOException e) {
             throw new UnableToProduceResultException(e);
         }
-    }
-
-    private ObjectMapper getMapper(ConfigRegistry config) {
-        return config.get(Jackson2Config.class).getMapper();
     }
 }

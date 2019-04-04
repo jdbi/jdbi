@@ -20,6 +20,7 @@ import java.util.OptionalInt;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -28,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ImmutablesTest {
     @Rule
@@ -37,7 +39,9 @@ public class ImmutablesTest {
             .registerImmutable(FooBarBaz.class)
             .registerModifiable(FooBarBaz.class)
             .registerImmutable(Getter.class)
-            .registerImmutable(ByteArray.class));
+            .registerImmutable(ByteArray.class)
+            .registerImmutable(DerivedProperty.class)
+        );
 
     private Jdbi jdbi;
     private Handle h;
@@ -180,5 +184,53 @@ public class ImmutablesTest {
                 .findOnly()
                 .value())
             .containsExactly(value);
+    }
+
+    @Value.Immutable
+    public interface DerivedProperty {
+        @Value.Default
+        default int foo() {
+            return 1;
+        }
+
+        @Value.Check
+        default void checkFoo() {
+            if (foo() == 999) {
+                throw new Boom();
+            }
+        }
+
+        @Value.Derived
+        @Unmappable
+        default int derivedFoo() {
+            return foo() + 40;
+        }
+    }
+
+    @Test
+    public void testUnmappableProperties() {
+        final DerivedProperty value = ImmutableDerivedProperty.builder().foo(2).build();
+        h.execute("create table derived (foo int, derivedFoo int)");
+        h.createUpdate("insert into derived(foo, derivedFoo) values (:foo, :derivedFoo)")
+            .bindPojo(value)
+            .execute();
+        assertThat(h.createQuery("select * from derived")
+                .mapTo(DerivedProperty.class)
+                .findOnly()
+                .foo())
+            .isEqualTo(value.foo());
+    }
+
+    @Test
+    public void testCheckMethod() {
+        assertThatThrownBy(() ->
+                h.createQuery("select 999 as foo")
+                    .mapTo(DerivedProperty.class)
+                    .findOnly())
+           .isInstanceOf(Boom.class);
+    }
+
+    static class Boom extends RuntimeException {
+        private static final long serialVersionUID = 1L;
     }
 }

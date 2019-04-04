@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
@@ -37,7 +38,11 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
 
     @Before
     public void before() {
-        jdbi = db.getJdbi().installPlugin(new Gson2Plugin());
+        jdbi = db.getJdbi().installPlugin(new Gson2Plugin())
+                .configure(Gson2Config.class, c -> c.setGson(
+                    new GsonBuilder()
+                        .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+                        .create()));
     }
 
     @Test

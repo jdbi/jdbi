@@ -41,6 +41,13 @@
         </dependency>
 
         <dependency>
+            <groupId>net.dongliu</groupId>
+            <artifactId>gson-java8-datatype</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <classifier>tests</classifier>
