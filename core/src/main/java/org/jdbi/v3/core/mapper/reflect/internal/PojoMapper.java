@@ -96,24 +96,21 @@ public class PojoMapper<T> implements RowMapper<T> {
 
         for (PojoProperty<T> property : properties.getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
-            boolean unmappable = property.getAnnotation(Unmappable.class)
-                    .map(Unmappable::value)
-                    .orElse(false);
+            if (property.getAnnotation(Unmappable.class).map(Unmappable::value).orElse(false)) {
+                continue;
+            }
 
             if (anno == null) {
                 String paramName = prefix + getName(property);
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
-                        if (!unmappable) {
-                            @SuppressWarnings({ "unchecked", "rawtypes" })
-                            ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
-                                .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
+                        @SuppressWarnings({ "unchecked", "rawtypes" })
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
+                            .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
-                            mappers.add(new SingleColumnMapper<>(mapper, index + 1));
-                            propList.add(property);
-                        }
-
+                        mappers.add(new SingleColumnMapper<>(mapper, index + 1));
+                        propList.add(property);
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
