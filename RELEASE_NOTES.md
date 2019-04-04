@@ -9,7 +9,9 @@
   - SetObjectArgumentFactory and GetObjectColumnMapperFactory to easily make use of direct type support
     provided by your database driver (e.g. many databases now directly support `java.time` objects).
   - simple Jackson2 `@JsonView` support
-  - @JdbiProperty lets you customize bean / pojo properties
+  - @Unmappable lets you skip properties during pojo / bean mapping
+- Beta Api Changes
+  - Qualifiers.qualifiers renamed to findFor, restyled as JdbiConfig configuration class
 - Bugfixes
   - Improve vavr handling of typed null
 - Improvements
