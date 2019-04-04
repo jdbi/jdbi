@@ -410,11 +410,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
-        if (isInTransaction()) {
-            return callback.withHandle(this);
-        }
-
-        return transactions.inTransaction(this, callback);
+        return isInTransaction()
+            ? callback.withHandle(this)
+            : transactions.inTransaction(this, callback);
     }
 
     /**

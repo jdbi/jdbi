@@ -455,20 +455,20 @@ public class Jdbi implements Configurable<Jdbi> {
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X {
         if (threadHandleSupplier.get() != null) {
-            return tryWithExtension(extensionType, callback, threadHandleSupplier.get());
+            return callWithExtension(extensionType, callback, threadHandleSupplier.get());
         }
 
         try (LazyHandleSupplier handleSupplier = new LazyHandleSupplier(this, config)) {
             threadHandleSupplier.set(handleSupplier);
-            return tryWithExtension(extensionType, callback, handleSupplier);
+            return callWithExtension(extensionType, callback, handleSupplier);
         } finally {
             threadHandleSupplier.remove();
         }
     }
 
-    private <R, E, X extends Exception> R tryWithExtension(Class<E> extensionType,
-                                                           ExtensionCallback<R, E, X> callback,
-                                                           HandleSupplier handle) throws X {
+    private <R, E, X extends Exception> R callWithExtension(Class<E> extensionType,
+                                                            ExtensionCallback<R, E, X> callback,
+                                                            HandleSupplier handle) throws X {
         E extension = getConfig(Extensions.class)
             .findFor(extensionType, handle)
             .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
