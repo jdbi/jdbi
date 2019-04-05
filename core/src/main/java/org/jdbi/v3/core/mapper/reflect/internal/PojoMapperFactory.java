@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 
@@ -26,10 +25,9 @@ import org.jdbi.v3.core.mapper.RowMapperFactory;
  * and binds them in the style of {@link org.jdbi.v3.core.mapper.reflect.BeanMapper}.
  */
 public class PojoMapperFactory implements RowMapperFactory {
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         return config.get(PojoTypes.class).findFor(type)
-                .map(p -> new PojoMapper(GenericTypes.getErasedType(type), p, ""));
+                .map(p -> new PojoMapper<>(type, ""));
     }
 }

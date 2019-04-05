@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
 
 /**
@@ -29,7 +30,11 @@ public class BeanPropertyArguments extends PojoPropertyArguments {
      * @param bean the bean to inspect and bind
      */
     public BeanPropertyArguments(String prefix, Object bean) {
-        super(prefix, bean, BeanPropertiesFactory.propertiesFor(bean.getClass()), null);
+        this(prefix, bean, new ConfigRegistry());
+    }
+
+    BeanPropertyArguments(String prefix, Object bean, ConfigRegistry config) {
+        super(prefix, bean, BeanPropertiesFactory.propertiesFor(bean.getClass(), config), config);
     }
 
     @Override

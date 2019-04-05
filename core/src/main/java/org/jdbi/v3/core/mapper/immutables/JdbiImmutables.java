@@ -15,9 +15,7 @@ package org.jdbi.v3.core.mapper.immutables;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Type;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -25,7 +23,6 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.ImmutablesPropertiesFactory;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
 
@@ -96,7 +93,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
         return register(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
     }
 
-    private JdbiImmutables register(Class<?> spec, Class<?> impl, Function<Type, PojoProperties<?>> factory) {
+    private JdbiImmutables register(Class<?> spec, Class<?> impl, ImmutablesPropertiesFactory factory) {
         registry.get(PojoTypes.class).register(spec, factory).register(impl, factory);
         return this;
     }

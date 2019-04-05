@@ -16,12 +16,15 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.toSet;
@@ -30,25 +33,42 @@ import static java.util.stream.Collectors.toSet;
  * Utility class for type qualifiers supported by Jdbi core.
  */
 @Beta
-public class Qualifiers {
-    private static final ExpiringMap<Object, Set<Annotation>> ANNOS = ExpiringMap.builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .build();
+public class Qualifiers implements JdbiConfig<Qualifiers> {
+    private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
+            elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
+            Qualifiers::getQualifiers);
+    private ConfigRegistry registry;
 
-    private Qualifiers() {}
+    public Qualifiers() {}
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
 
     /**
      * Returns the set of qualifying annotations on the given elements.
      * @param elements the annotated elements. Null elements are ignored.
      * @return the set of qualifying annotations on the given elements.
      */
-    public static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
-        return ANNOS.computeIfAbsent(elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)), x ->
-            Arrays.stream(elements)
+    public Set<Annotation> findFor(AnnotatedElement... elements) {
+        if (registry == null) {
+            return getQualifiers(elements);
+        }
+        return QUALIFIER_CACHE.get(elements, registry);
+    }
+
+    private static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
+        return Collections.unmodifiableSet(Arrays.stream(elements)
                 .filter(Objects::nonNull)
                 .map(AnnotatedElement::getAnnotations)
                 .flatMap(Arrays::stream)
                 .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
                 .collect(toSet()));
+    }
+
+    @Override
+    public Qualifiers createCopy() {
+        return this;
     }
 }

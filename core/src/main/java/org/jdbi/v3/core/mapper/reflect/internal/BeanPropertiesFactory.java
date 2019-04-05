@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect.internal;
 
-import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -22,31 +21,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.BeanPojoProperty;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
-
 public class BeanPropertiesFactory {
-    private static final Map<Type, PojoProperties<?>> CLASS_PROPERTY_DESCRIPTORS = ExpiringMap
-            .builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .<Type, PojoProperties<?>>entryLoader((Type type) -> {
-                return new BeanPojoProperties<>(type);
-            })
-            .build();
+    private static final JdbiCache<Type, Map<String, BeanPojoProperty<?>>> PROPERTY_CACHE =
+            JdbiCaches.declare(BeanPropertiesFactory::getProperties0);
 
     private static final String TYPE_NOT_INSTANTIABLE =
         "A bean, %s, was mapped which was not instantiable";
@@ -65,8 +60,8 @@ public class BeanPropertiesFactory {
 
     private BeanPropertiesFactory() {}
 
-    public static PojoProperties<?> propertiesFor(Type t) {
-        return CLASS_PROPERTY_DESCRIPTORS.get(t);
+    public static PojoProperties<?> propertiesFor(Type t, ConfigRegistry config) {
+        return new BeanPojoProperties<>(t, config);
     }
 
     private static boolean shouldSeeProperty(PropertyDescriptor pd) {
@@ -75,30 +70,29 @@ public class BeanPropertiesFactory {
         return read == null || read.getDeclaringClass() != Object.class;
     }
 
-    static class BeanPojoProperties<T> extends PojoProperties<T> {
-        private final BeanInfo info;
-        private final Map<String, BeanPojoProperty<T>> properties;
+    private static Map<String, BeanPojoProperty<?>> getProperties0(Type t) {
+        try {
+            return Arrays.stream(Introspector.getBeanInfo(GenericTypes.getErasedType(t)).getPropertyDescriptors())
+                    .filter(BeanPropertiesFactory::shouldSeeProperty)
+                    .map(BeanPojoProperty::new)
+                    .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
+        } catch (IntrospectionException e) {
+            throw new IllegalArgumentException("Failed to inspect bean " + t, e);
+        }
+    }
 
-        BeanPojoProperties(Type type) {
+    static class BeanPojoProperties<T> extends PojoProperties<T> {
+        private final ConfigRegistry config;
+
+        BeanPojoProperties(Type type, ConfigRegistry config) {
             super(type);
-            try {
-                this.info = Introspector.getBeanInfo(GenericTypes.getErasedType(type));
-            } catch (IntrospectionException e) {
-                throw new IllegalArgumentException("Failed to inspect bean " + type, e);
-            }
-            final Map<String, BeanPojoProperty<T>> props = new LinkedHashMap<>();
-            for (PropertyDescriptor property : info.getPropertyDescriptors()) {
-                if (shouldSeeProperty(property)) {
-                    final BeanPojoProperty<T> bp = new BeanPojoProperty<>(property);
-                    props.put(bp.getName(), bp);
-                }
-            }
-            properties = Collections.unmodifiableMap(props);
+            this.config = config;
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
-        public Map<String, ? extends PojoProperty<T>> getProperties() {
-            return properties;
+        public Map<String, BeanPojoProperty<T>> getProperties() {
+            return (Map) PROPERTY_CACHE.get(getType(), config);
         }
 
         @SuppressWarnings("unchecked")
@@ -114,7 +108,7 @@ public class BeanPropertiesFactory {
             return new PojoBuilder<T>() {
                 @Override
                 public void set(String property, Object value) {
-                    final BeanPojoProperties<T>.BeanPojoProperty<T> prop = properties.get(property);
+                    final BeanPojoProperty<T> prop = getProperties().get(property);
                     try {
                         Method writeMethod = prop.descriptor.getWriteMethod();
                         if (writeMethod == null) {
@@ -138,7 +132,7 @@ public class BeanPropertiesFactory {
             };
         }
 
-        class BeanPojoProperty<T> implements PojoProperty<T> {
+        static class BeanPojoProperty<T> implements PojoProperty<T> {
             final PropertyDescriptor descriptor;
 
             BeanPojoProperty(PropertyDescriptor property) {
@@ -161,7 +155,7 @@ public class BeanPropertiesFactory {
                         .map(Method::getGenericReturnType)
                         .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]))
                     .withAnnotations(
-                        getQualifiers(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
+                        new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
 
             @Override

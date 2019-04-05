@@ -19,39 +19,29 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
-
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Binds public methods with no parameters on a specified object.
  */
 public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder {
-    private static final Map<Class<?>, Map<String, Method>> CLASS_METHODS = ExpiringMap.builder()
-        .expiration(10, TimeUnit.MINUTES)
-        .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader(ObjectMethodArguments::load)
-        .build();
-
-    private final Map<String, Method> methods;
-
+    private static final JdbiCache<Class<?>, Map<String, Method>> NULLARY_METHOD_CACHE =
+            JdbiCaches.declare(ObjectMethodArguments::load);
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind functions on
      */
     public ObjectMethodArguments(String prefix, Object object) {
         super(prefix, object);
-
-        this.methods = CLASS_METHODS.get(object.getClass());
     }
 
     private static Map<String, Method> load(Class<?> type) {
@@ -69,14 +59,14 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        Method method = methods.get(name);
+        Method method = NULLARY_METHOD_CACHE.get(obj.getClass(), ctx).get(name);
 
         if (method == null) {
             return Optional.empty();
         }
 
         QualifiedType<?> type = QualifiedType.of(method.getGenericReturnType())
-                                .withAnnotations(getQualifiers(method));
+                                .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(method));
         Object value = invokeMethod(method, ctx);
 
         return Optional.of(new TypedValue(type, value));

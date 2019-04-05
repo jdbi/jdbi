@@ -28,12 +28,12 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -148,7 +148,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                     findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(field))
                         .ifPresent(index -> {
                             QualifiedType<?> type = QualifiedType.of(field.getGenericType())
-                                .withAnnotations(getQualifiers(field));
+                                .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(field));
                             @SuppressWarnings("unchecked")
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));

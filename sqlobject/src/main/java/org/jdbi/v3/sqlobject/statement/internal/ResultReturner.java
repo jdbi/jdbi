@@ -23,13 +23,13 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
@@ -59,7 +59,7 @@ abstract class ResultReturner {
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(getQualifiers(method));
+        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(new Qualifiers().findFor(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             return findConsumer(method)
@@ -298,7 +298,7 @@ abstract class ResultReturner {
                     .orElseThrow(() -> new IllegalStateException(
                         "Cannot reflect Consumer<T> element type T in method consumer parameter "
                             + parameterType)))
-                .withAnnotations(getQualifiers(method.getParameters()[consumerIndex]));
+                .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
         }
 
         @Override

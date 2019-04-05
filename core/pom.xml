@@ -63,11 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>expiringmap</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>io.leangen.geantyref</groupId>
             <artifactId>geantyref</artifactId>
         </dependency>
