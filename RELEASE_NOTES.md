@@ -17,8 +17,10 @@
 - Improvements
   - Improve Error handling with transactions
   - Clean up our dependencies, remove vestiges of `shade` plugin
-  - antlr4
+  - Upgrade to antlr4
   - Rework caching to not use extra threads (#1453)
+  - Any valid Java identifier is now supported as a named parameter (e.g. `:제목`) or defined attribute
+    (e.g. `<제목>`).
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 

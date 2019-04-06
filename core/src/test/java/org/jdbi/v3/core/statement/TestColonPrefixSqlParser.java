@@ -145,10 +145,13 @@ public class TestColonPrefixSqlParser {
     }
 
     @Test
-    public void testColonWithoutNameNotAParameter() {
-        String sql = "select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c";
-        assertThat(parser.parse(sql, ctx))
-            .isEqualTo(ParsedSql.builder().append(sql).build());
+    public void testNonLatinParameterName() {
+        assertThat(parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx))
+            .describedAs("Colon followed by non-ID characters (by Java rules) is treated as a literal instead of a named parameter")
+            .isEqualTo(ParsedSql.builder()
+                .append("select * from something\n where id = ")
+                .appendNamedParameter("\u0087\u008e\u0092\u0097\u009c")
+                .build());
     }
 
     @Test
@@ -168,10 +171,31 @@ public class TestColonPrefixSqlParser {
     }
 
     @Test
-    public void testKoreanIdentifiers() {
+    public void testKoreanDatabaseObjectNamesAreLiterals() {
         String sql = "SELECT 제목 FROM 업무_게시물";
 
         assertThat(parser.parse(sql, ctx))
             .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testKoreanParameterName() {
+        assertThat(parser.parse("SELECT :제목", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("SELECT ")
+                .appendNamedParameter("제목")
+                .build());
+    }
+
+    @Test
+    public void testEmojiParameterNames() {
+        assertThat(parser.parse("insert into something (id, name) values (:😱, :😂)", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("insert into something (id, name) values (")
+                .appendNamedParameter("😱")
+                .append(", ")
+                .appendNamedParameter("😂")
+                .append(")")
+                .build());
     }
 }

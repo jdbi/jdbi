@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Collections.singletonMap;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -62,7 +64,7 @@ public class TestDefinedAttributeTemplateEngine {
 
     @Test
     public void testNullAttribute() {
-        assertThatThrownBy(() -> render("select * from something where id=<id>", Collections.singletonMap("id", null)))
+        assertThatThrownBy(() -> render("select * from something where id=<id>", singletonMap("id", null)))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
@@ -86,13 +88,33 @@ public class TestDefinedAttributeTemplateEngine {
 
     @Test
     public void testColonInComment() {
-        String sql = "/* comment with : colons :: inside it */ select 1";
+        String sql = "/* comment with : colons :: inside it */ select :abc";
         assertThat(render(sql)).isEqualTo(sql);
+    }
+
+    @Test
+    public void testNonLatinTokenName() {
+        String sql = "select <\u0087\u008e\u0092\u0097\u009c>";
+        assertThat(render(sql, singletonMap("\u0087\u008e\u0092\u0097\u009c", "foo")))
+            .isEqualTo("select foo");
+    }
+
+    @Test
+    public void testKoreanTokenName() {
+        String sql = "select <제목>";
+        assertThat(render(sql, singletonMap("제목", "bar")))
+            .isEqualTo("select bar");
     }
 
     @Test
     public void testKoreanIdentifiers() {
         String sql = "SELECT 제목 FROM 업무_게시물";
         assertThat(render(sql)).isEqualTo(sql);
+    }
+
+    @Test
+    public void testEmojiTokenName() {
+        assertThat(render("select <😱>", singletonMap("😱", "baz")))
+            .isEqualTo("select baz");
     }
 }

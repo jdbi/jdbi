@@ -66,10 +66,12 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
-    public void testHashWithoutNameNotAParameter() {
+    public void testNonLatinNamedParameter() {
         String sql = "select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c";
         assertThat(parser.parse(sql, ctx))
-            .isEqualTo(ParsedSql.builder().append(sql).build());
+            .isEqualTo(ParsedSql.builder().append("select * from something\n where id = ")
+                .appendNamedParameter("\u0087\u008e\u0092\u0097\u009c")
+                .build());
     }
 
     @Test
@@ -97,12 +99,33 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
-    public void testKoreanIdentifiers() {
+    public void testKoreanDatabaseObjectNamesAreLiterals() {
         String sql = "SELECT 제목 FROM 업무_게시물";
-        ParsedSql parsed = parser.parse(sql, ctx);
 
-        assertThat(parsed).isEqualTo(ParsedSql.builder()
-            .append(sql)
-            .build());
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testKoreanParameterName() {
+        String sql = "SELECT #제목";
+
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("SELECT ")
+                .appendNamedParameter("제목")
+                .build());
+    }
+
+    @Test
+    public void testEmojiParameterNames() {
+        assertThat(parser.parse("insert into something (id, name) values (#😱, #😂)", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("insert into something (id, name) values (")
+                .appendNamedParameter("😱")
+                .append(", ")
+                .appendNamedParameter("😂")
+                .append(")")
+                .build());
     }
 }
