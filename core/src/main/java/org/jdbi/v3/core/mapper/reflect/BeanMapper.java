@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -77,14 +78,15 @@ public class BeanMapper<T> extends PojoMapper<T> {
         return new BeanMapper<>(type, prefix);
     }
 
-    private BeanMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
-        super(type, properties, prefix);
+    private BeanMapper(Class<T> type, String prefix) {
+        super(type, prefix);
         strictColumnTypeMapping = false;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    BeanMapper(Class<T> type, String prefix) {
-        this(type, (PojoProperties<T>) BeanPropertiesFactory.propertiesFor(type), prefix);
+    protected PojoProperties<T> getProperties(ConfigRegistry config) {
+        return (PojoProperties<T>) BeanPropertiesFactory.propertiesFor(type, config);
     }
 
     @Override

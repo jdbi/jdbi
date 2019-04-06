@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
@@ -44,20 +46,18 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
 public class PojoMapper<T> implements RowMapper<T> {
 
     private static final String NO_MATCHING_COLUMNS =
-        "Mapping bean type %s didn't find any matching columns in result set";
+        "Mapping bean %s didn't find any matching columns in result set";
 
     private static final String UNMATCHED_COLUMNS_STRICT =
-        "Mapping bean type %s could not match properties for columns: %s";
+        "Mapping bean %s could not match properties for columns: %s";
 
     protected boolean strictColumnTypeMapping = true; // this should be default (only?) behavior but that's a breaking change
-    protected final Class<T> type;
+    protected final Type type;
     protected final String prefix;
-    private final PojoProperties<T> properties;
     private final Map<PojoProperty<T>, PojoMapper<?>> nestedMappers = new ConcurrentHashMap<>();
 
-    public PojoMapper(Class<T> type, PojoProperties<T> properties, String prefix) {
+    public PojoMapper(Type type, String prefix) {
         this.type = type;
-        this.properties = properties;
         this.prefix = prefix.toLowerCase();
     }
 
@@ -80,7 +80,7 @@ public class PojoMapper<T> implements RowMapper<T> {
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
             throw new IllegalArgumentException(
-                String.format(UNMATCHED_COLUMNS_STRICT, type.getSimpleName(), unmatchedColumns));
+                String.format(UNMATCHED_COLUMNS_STRICT, type, unmatchedColumns));
         }
 
         return result;
@@ -93,8 +93,11 @@ public class PojoMapper<T> implements RowMapper<T> {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PojoProperty<T>> propList = new ArrayList<>();
 
-        for (PojoProperty<T> property : properties.getProperties().values()) {
+        for (PojoProperty<T> property : getProperties(ctx.getConfig()).getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
+            if (property.getAnnotation(Unmappable.class).map(Unmappable::value).orElse(false)) {
+                continue;
+            }
 
             if (anno == null) {
                 String paramName = prefix + getName(property);
@@ -107,7 +110,6 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                         propList.add(property);
-
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
@@ -129,7 +131,7 @@ public class PojoMapper<T> implements RowMapper<T> {
         }
 
         return Optional.of((r, c) -> {
-            final PojoBuilder<T> pojo = properties.create();
+            final PojoBuilder<T> pojo = getProperties(c.getConfig()).create();
 
             for (int i = 0; i < mappers.size(); i++) {
                 RowMapper<?> mapper = mappers.get(i);
@@ -144,13 +146,17 @@ public class PojoMapper<T> implements RowMapper<T> {
         });
     }
 
+    @SuppressWarnings("unchecked")
+    protected PojoProperties<T> getProperties(ConfigRegistry config) {
+        return (PojoProperties<T>) config.get(PojoTypes.class).findFor(type)
+                .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for " + type));
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" }) // Type loses <T>
     protected PojoMapper<?> createNestedMapper(StatementContext ctx, PojoProperty<T> property, String nestedPrefix) {
         final Type propertyType = property.getQualifiedType().getType();
         return new PojoMapper(
                 GenericTypes.getErasedType(propertyType),
-                ctx.getConfig(PojoTypes.class).findFor(type)
-                    .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for nested type " + propertyType, ctx)),
                 nestedPrefix);
     }
 
@@ -169,6 +175,6 @@ public class PojoMapper<T> implements RowMapper<T> {
     }
 
     private String debugName(PojoProperty<T> p) {
-        return String.format("%s.%s", type.getSimpleName(), p.getName());
+        return String.format("%s.%s", type, p.getName());
     }
 }

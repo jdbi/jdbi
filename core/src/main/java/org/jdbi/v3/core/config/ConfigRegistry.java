@@ -29,7 +29,9 @@ public class ConfigRegistry {
     /**
      * Creates a new config registry.
      */
-    public ConfigRegistry() {}
+    public ConfigRegistry() {
+        configs.put(JdbiCaches.class, new JdbiCaches());
+    }
 
     private ConfigRegistry(ConfigRegistry that) {
         that.configs.forEach((type, config) -> {

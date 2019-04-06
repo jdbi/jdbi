@@ -44,6 +44,7 @@ public class QualifiersBenchmark {
 
     private JdbiRule db;
     private Jdbi jdbi;
+    private Qualifiers qualifiers;
 
     @Setup
     public void setup() throws Throwable {
@@ -52,6 +53,7 @@ public class QualifiersBenchmark {
         jdbi = db.getJdbi();
         jdbi.registerRowMapper(BeanMapper.factory(UnqualifiedBean.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean.class));
+        qualifiers = new Qualifiers();
     }
 
     @TearDown
@@ -61,12 +63,12 @@ public class QualifiersBenchmark {
 
     @Benchmark
     public Set<Annotation> getQualifiersUnannotated() {
-        return Qualifiers.getQualifiers(UnqualifiedBean.class);
+        return qualifiers.findFor(UnqualifiedBean.class);
     }
 
     @Benchmark
     public Set<Annotation> getQualifiersAnnotated() {
-        return Qualifiers.getQualifiers(QualifiedBean.class);
+        return qualifiers.findFor(QualifiedBean.class);
     }
 
     @Benchmark

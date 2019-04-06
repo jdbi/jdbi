@@ -16,14 +16,12 @@ package org.jdbi.v3.core.locator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.internal.SqlScriptParser;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
@@ -37,15 +35,7 @@ import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 public final class ClasspathSqlLocator {
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
-    @SuppressWarnings("unchecked")
-    private static final Map<Entry<ClassLoader, String>, String> CACHE = ExpiringMap.builder()
-            .expiration(10, TimeUnit.MINUTES)
-            .expirationPolicy(ExpirationPolicy.ACCESSED)
-            .entryLoader(obj -> {
-                Entry<ClassLoader, String> entry = (Entry<ClassLoader, String>) obj;
-                return readResource(entry.getKey(), entry.getValue());
-            })
-            .build();
+    private static final Map<ClassLoader, Map<String, String>> CACHE = Collections.synchronizedMap(new WeakHashMap<>());
 
     private static final String SQL_EXTENSION = "sql";
 
@@ -109,7 +99,8 @@ public final class ClasspathSqlLocator {
      * @see ClassLoader#getResource(String)
      */
     public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
-        return CACHE.get(new AbstractMap.SimpleEntry<>(classLoader, path));
+        return CACHE.computeIfAbsent(classLoader, x -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(path, x -> readResource(classLoader, path));
     }
 
     private static String readResource(ClassLoader classLoader, String path) {

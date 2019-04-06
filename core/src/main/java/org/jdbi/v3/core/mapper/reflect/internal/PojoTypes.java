@@ -17,13 +17,14 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, Function<Type, PojoProperties<?>>> factories = new HashMap<>();
+    private final Map<Class<?>, ImmutablesPropertiesFactory> factories = new HashMap<>();
+    private ConfigRegistry registry;
 
     public PojoTypes() {}
 
@@ -31,14 +32,19 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
         factories.putAll(other.factories);
     }
 
-    public PojoTypes register(Class<?> key, Function<Type, PojoProperties<?>> factory) {
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
+
+    public PojoTypes register(Class<?> key, ImmutablesPropertiesFactory factory) {
         factories.put(key, factory);
         return this;
     }
 
     public Optional<PojoProperties<?>> findFor(Type type) {
         return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
-                .map(ppf -> ppf.apply(type));
+                .map(ppf -> ppf.create(type, registry));
     }
 
     @Override

@@ -20,12 +20,11 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
-
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 public class BindFactory implements SqlStatementCustomizerFactory {
     @Override
@@ -38,9 +37,10 @@ public class BindFactory implements SqlStatementCustomizerFactory {
         Bind b = (Bind) annotation;
         String nameFromAnnotation = b == null ? Bind.NO_VALUE : b.value();
         Optional<String> name = ParameterUtil.findParameterName(nameFromAnnotation, param);
-        QualifiedType<?> qualifiedType = QualifiedType.of(type).withAnnotations(getQualifiers(param));
 
         return (stmt, arg) -> {
+            QualifiedType<?> qualifiedType = QualifiedType.of(type).withAnnotations(
+                stmt.getConfig(Qualifiers.class).findFor(param));
             stmt.bindByType(index, arg, qualifiedType);
             name.ifPresent(n -> stmt.bindByType(n, arg, qualifiedType));
         };

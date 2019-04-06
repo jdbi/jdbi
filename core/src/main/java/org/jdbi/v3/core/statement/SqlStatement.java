@@ -216,7 +216,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public This bindPojo(String prefix, Object pojo) {
-        return bindNamedArgumentFinder(new PojoPropertyArguments(prefix, pojo, getContext()));
+        return bindNamedArgumentFinder(new PojoPropertyArguments(prefix, pojo, getConfig()));
     }
 
     /**

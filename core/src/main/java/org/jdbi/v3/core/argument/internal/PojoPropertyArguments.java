@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
@@ -29,20 +30,20 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  */
 public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
     private final PojoProperties<?> properties;
-    private final StatementContext ctx;
+    private final ConfigRegistry config;
 
-    public PojoPropertyArguments(String prefix, Object obj, StatementContext ctx) {
+    public PojoPropertyArguments(String prefix, Object obj, ConfigRegistry config) {
         this(prefix,
                 obj,
-                ctx.getConfig(PojoTypes.class).findFor(obj.getClass())
-                    .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass(), ctx)),
-                ctx);
+                config.get(PojoTypes.class).findFor(obj.getClass())
+                    .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass())),
+                config);
     }
 
-    protected PojoPropertyArguments(String prefix, Object obj, PojoProperties<?> properties, StatementContext ctx) {
+    protected PojoPropertyArguments(String prefix, Object obj, PojoProperties<?> properties, ConfigRegistry config) {
         super(prefix, obj);
         this.properties = properties;
-        this.ctx = ctx;
+        this.config = config;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
 
     @Override
     protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
-        return new PojoPropertyArguments(null, o, ctx);
+        return new PojoPropertyArguments(null, o, config);
     }
 
     @Override

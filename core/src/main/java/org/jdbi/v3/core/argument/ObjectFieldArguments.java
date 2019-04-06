@@ -16,35 +16,28 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-
-import static java.util.stream.Collectors.toMap;
-
-import static org.jdbi.v3.core.qualifier.Qualifiers.getQualifiers;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
  */
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
-    private static final Map<Class<?>, Map<String, Field>> CLASS_FIELDS = ExpiringMap.builder()
-        .expiration(10, TimeUnit.MINUTES)
-        .expirationPolicy(ExpirationPolicy.ACCESSED)
-        .entryLoader((Class<?> type) ->
-            Stream.of(type.getFields())
-                .collect(toMap(Field::getName, Function.identity())))
-        .build();
-
-    private final Map<String, Field> fields;
+    private static final JdbiCache<Class<?>, Map<String, Field>> FIELD_CACHE =
+            JdbiCaches.declare(beanClass ->
+                Stream.of(beanClass.getFields())
+                    .collect(Collectors.toMap(Field::getName, Function.identity())));
+    private final Class<?> beanClass;
 
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
@@ -53,12 +46,12 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     public ObjectFieldArguments(String prefix, Object bean) {
         super(prefix, bean);
 
-        this.fields = CLASS_FIELDS.get(bean.getClass());
+        this.beanClass = bean.getClass();
     }
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        Field field = fields.get(name);
+        Field field = FIELD_CACHE.get(beanClass, ctx).get(name);
 
         if (field == null) {
             return Optional.empty();
@@ -66,7 +59,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
         try {
             QualifiedType<?> type = QualifiedType.of(field.getGenericType())
-                                    .withAnnotations(getQualifiers(field));
+                                    .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(field));
             Object value = field.get(obj);
 
             return Optional.of(new TypedValue(type, value));
