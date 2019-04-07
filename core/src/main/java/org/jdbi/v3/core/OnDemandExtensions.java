@@ -19,7 +19,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.jdbi.v3.core.internal.JdbiThreadLocals;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
@@ -43,8 +42,6 @@ class OnDemandExtensions {
     }
 
     static <E> E create(Jdbi db, Class<E> extensionType) {
-        ThreadLocal<E> threadExtension = new ThreadLocal<>();
-
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
@@ -58,12 +55,7 @@ class OnDemandExtensions {
                 return extensionType + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
-            if (threadExtension.get() != null) {
-                return invoke(threadExtension.get(), method, args);
-            }
-            return db.withExtension(extensionType, extension ->
-                    JdbiThreadLocals.invokeInContext(threadExtension, extension,
-                            () -> invoke(extension, method, args)));
+            return db.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
         return extensionType.cast(

@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
@@ -28,10 +27,8 @@ import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,10 +37,10 @@ public class TestOnDemandMethodBehavior {
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
-    private ExtensionFactory mockExtensionFactory;
+    private ConnectionFactory connectionFactory;
 
     @Mock
-    private UselessDao mockDao;
+    private Connection connection;
 
     private Jdbi db;
 
@@ -60,6 +57,8 @@ public class TestOnDemandMethodBehavior {
             throw new SQLException("boom");
         }
 
+        Handle getHandle();
+
         void foo();
     }
 
@@ -71,60 +70,66 @@ public class TestOnDemandMethodBehavior {
 
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-            return extensionType.cast((UselessDao) () -> {});
+            return extensionType.cast(new UselessDao() {
+                @Override
+                public Handle getHandle() {
+                    return handle.getHandle();
+                }
+
+                @Override
+                public void foo() {}
+            });
         }
     }
 
     @Before
     public void setUp() {
-        when(mockExtensionFactory.accepts(UselessDao.class)).thenReturn(true);
-
-        final JdbcDataSource ds = new JdbcDataSource() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Connection getConnection() {
-                throw new UnsupportedOperationException();
-            }
-        };
-        db = Jdbi.create(ds);
-        db.registerExtension(mockExtensionFactory);
+        db = Jdbi.create(connectionFactory);
+        db.registerExtension(new UselessDaoExtension());
         onDemand = db.onDemand(UselessDao.class);
         anotherOnDemand = db.onDemand(UselessDao.class);
     }
 
     @Test
-    public void testEqualsDoesntAttach() {
+    public void testEqualsDoesntAttach() throws SQLException {
         assertThat(onDemand).isEqualTo(onDemand);
         assertThat(onDemand).isNotEqualTo(anotherOnDemand);
-        verify(mockExtensionFactory, never()).attach(any(), any());
+        verify(connectionFactory, never()).openConnection();
     }
 
     @Test
-    public void testHashCodeDoesntAttach() {
+    public void testHashCodeDoesntAttach() throws SQLException {
         assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
         assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
-        verify(mockExtensionFactory, never()).attach(any(), any());
+        verify(connectionFactory, never()).openConnection();
     }
 
     @Test
-    public void testToStringDoesntAttach() {
+    public void testToStringDoesntAttach() throws SQLException {
         assertThat(onDemand.toString()).isNotNull();
-        verify(mockExtensionFactory, never()).attach(any(), any());
+        verify(connectionFactory, never()).openConnection();
     }
 
     @Test
-    public void testReentrantCallReusesExtension() {
-        when(mockExtensionFactory.attach(any(), any()))
-                .thenReturn(mockDao)
-                .thenThrow(IllegalStateException.class);
+    public void testReentrantCallReusesHandle() throws Exception {
+        when(connectionFactory.openConnection())
+            .thenReturn(connection)
+            .thenThrow(IllegalStateException.class);
 
-        doCallRealMethod().when(mockDao).run(any());
-        onDemand.run(onDemand::foo);
+        onDemand.run(() -> assertThat(onDemand.getHandle().getConnection()).isSameAs(connection));
 
-        verify(mockExtensionFactory).attach(eq(UselessDao.class), any());
-        verify(mockDao).run(any());
-        verify(mockDao).foo();
+        verify(connectionFactory, times(1)).openConnection();
+    }
+
+    @Test
+    public void testNestedCallThroughSeparateOnDemandReusesHandle() throws Exception {
+        when(connectionFactory.openConnection())
+            .thenReturn(connection)
+            .thenThrow(IllegalStateException.class);
+
+        onDemand.run(() -> assertThat(anotherOnDemand.getHandle().getConnection()).isSameAs(connection));
+
+        verify(connectionFactory, times(1)).openConnection();
     }
 
     @Test
