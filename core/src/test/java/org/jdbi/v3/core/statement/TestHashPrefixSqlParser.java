@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class TestHashPrefixSqlParser {
@@ -67,9 +66,12 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
-    public void testBailsOutOnInvalidInput() {
-        assertThatThrownBy(() -> parser.parse("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", ctx))
-            .isInstanceOf(UnableToCreateStatementException.class);
+    public void testNonLatinNamedParameter() {
+        String sql = "select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append("select * from something\n where id = ")
+                .appendNamedParameter("\u0087\u008e\u0092\u0097\u009c")
+                .build());
     }
 
     @Test
@@ -94,5 +96,36 @@ public class TestHashPrefixSqlParser {
             .append("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? ")
             .appendNamedParameter("key")
             .build());
+    }
+
+    @Test
+    public void testKoreanDatabaseObjectNamesAreLiterals() {
+        String sql = "SELECT 제목 FROM 업무_게시물";
+
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testKoreanParameterName() {
+        String sql = "SELECT #제목";
+
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("SELECT ")
+                .appendNamedParameter("제목")
+                .build());
+    }
+
+    @Test
+    public void testEmojiParameterNames() {
+        assertThat(parser.parse("insert into something (id, name) values (#😱, #😂)", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("insert into something (id, name) values (")
+                .appendNamedParameter("😱")
+                .append(", ")
+                .appendNamedParameter("😂")
+                .append(")")
+                .build());
     }
 }

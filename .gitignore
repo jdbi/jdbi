@@ -22,3 +22,4 @@ travis-settings-security.xml
 .build-oracle
 .factorypath
 docs/src/main/resources/jdbi2/apidocs
+*.tokens

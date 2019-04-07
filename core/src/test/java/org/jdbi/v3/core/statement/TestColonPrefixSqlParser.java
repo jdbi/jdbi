@@ -19,7 +19,6 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 public class TestColonPrefixSqlParser {
     private SqlParser parser;
@@ -33,64 +32,130 @@ public class TestColonPrefixSqlParser {
 
     @Test
     public void testNewlinesOkay() {
-        ParsedSql parsed = parser.parse("select * from something\n where id = :id", ctx);
-        assertThat(parsed.getSql()).isEqualTo("select * from something\n where id = ?");
+        assertThat(parser.parse("select * from something\n where id = :id", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("select * from something\n where id = ")
+                .appendNamedParameter("id")
+                .build());
     }
 
     @Test
+    public void testEmptyQuotes() {
+        String sql = "select ''";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testEscapedQuoteInQuotes() {
+        String sql = "select '\\''";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testEscapedColon() {
+        assertThat(parser.parse("select \\:foo", ctx))
+            .isEqualTo(ParsedSql.builder().append("select :foo").build());
+    }
+
+    @Test
+    public void testMixedNamedAndPositionalParameters() {
+        assertThatThrownBy(() -> parser.parse("select :foo, ?", ctx))
+            .isInstanceOf(UnableToExecuteStatementException.class)
+            .hasMessageContaining("Cannot mix named and positional parameters");
+    }
+
+    @Test
+    public void testThisBrokeATest() {
+        assertThat(parser.parse("insert into something (id, name) values (:id, :name)", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("insert into something (id, name) values (")
+                .appendNamedParameter("id")
+                .append(", ")
+                .appendNamedParameter("name")
+                .append(")")
+                .build());
+    }
+
+    @Test
+    public void testExclamationWorks() {
+        String sql = "select 1 != 2 from dual";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testHashInColumnNameWorks() {
+        assertThat(parser.parse("select col# from something where id = :id", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("select col# from something where id = ")
+                .appendNamedParameter("id")
+                .build());
+    }
+    @Test
     public void testOddCharacters() {
-        ParsedSql parsed = parser.parse("~* :boo ':nope' _%&^& *@ :id", ctx);
-        assertThat(parsed.getSql()).isEqualTo("~* ? ':nope' _%&^& *@ ?");
+        assertThat(parser.parse("~* :boo ':nope' _%&^& *@ :id", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("~* ")
+                .appendNamedParameter("boo")
+                .append(" ':nope' _%&^& *@ ")
+                .appendNamedParameter("id")
+                .build());
     }
 
     @Test
     public void testNumbers() {
-        ParsedSql parsed = parser.parse(":bo0 ':nope' _%&^& *@ :id", ctx);
-        assertThat(parsed.getSql()).isEqualTo("? ':nope' _%&^& *@ ?");
+        assertThat(parser.parse(":bo0 ':nope' _%&^& *@ :id", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .appendNamedParameter("bo0")
+                .append(" ':nope' _%&^& *@ ")
+                .appendNamedParameter("id")
+                .build());
     }
 
     @Test
     public void testDollarSignOkay() {
-        ParsedSql parsed = parser.parse("select * from v$session", ctx);
-        assertThat(parsed.getSql()).isEqualTo("select * from v$session");
+        String sql = "select * from v$session";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
     }
 
     @Test
     public void testHashInColumnNameOkay() {
-        ParsedSql parsed = parser.parse("select column# from thetable where id = :id", ctx);
-       assertThat(parsed.getSql()).isEqualTo("select column# from thetable where id = ?");
+        assertThat(parser.parse("select column# from thetable where id = :id", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("select column# from thetable where id = ")
+                .appendNamedParameter("id")
+                .build());
     }
 
     @Test
     public void testBacktickOkay() {
-        ParsedSql parsed = parser.parse("select * from `v$session", ctx);
-        assertThat(parsed.getSql()).isEqualTo("select * from `v$session");
+        String sql = "select * from `v$session";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
     }
 
     @Test
     public void testDoubleColon() {
         final String doubleColon = "select 1::int";
-        ParsedSql parsed = parser.parse(doubleColon, ctx);
-        assertThat(parsed.getSql()).isEqualTo(doubleColon);
+        assertThat(parser.parse(doubleColon, ctx))
+            .isEqualTo(ParsedSql.builder().append(doubleColon).build());
     }
 
     @Test
-    public void testBailsOutOnInvalidInput() {
-        assertThatThrownBy(() -> parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx).getSql())
-            .isInstanceOf(UnableToCreateStatementException.class);
-    }
-
-    @Test
-    public void testSubstitutesDefinedAttributes() {
-        String sql = "select foo from bar where foo = :someValue";
-        ParsedSql parsed = parser.parse(sql, ctx);
-        assertThat(parsed.getSql()).isEqualTo("select foo from bar where foo = ?");
+    public void testNonLatinParameterName() {
+        assertThat(parser.parse("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", ctx))
+            .describedAs("Colon followed by non-ID characters (by Java rules) is treated as a literal instead of a named parameter")
+            .isEqualTo(ParsedSql.builder()
+                .append("select * from something\n where id = ")
+                .appendNamedParameter("\u0087\u008e\u0092\u0097\u009c")
+                .build());
     }
 
     @Test
     public void testCachesRewrittenStatements() {
-        parser = spy(parser);
-
         String sql = "insert into something (id, name) values (:id, :name)";
         ParsedSql parsed = parser.parse(sql, ctx);
         assertThat(parsed).isSameAs(parser.parse(sql, ctx));
@@ -98,12 +163,39 @@ public class TestColonPrefixSqlParser {
 
     @Test
     public void testEscapedQuestionMark() {
-        String sql = "SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key";
-        ParsedSql parsed = parser.parse(sql, ctx);
+        assertThat(parser.parse("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? ")
+                .appendNamedParameter("key")
+                .build());
+    }
 
-        assertThat(parsed).isEqualTo(ParsedSql.builder()
-            .append("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? ")
-            .appendNamedParameter("key")
-            .build());
+    @Test
+    public void testKoreanDatabaseObjectNamesAreLiterals() {
+        String sql = "SELECT 제목 FROM 업무_게시물";
+
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testKoreanParameterName() {
+        assertThat(parser.parse("SELECT :제목", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("SELECT ")
+                .appendNamedParameter("제목")
+                .build());
+    }
+
+    @Test
+    public void testEmojiParameterNames() {
+        assertThat(parser.parse("insert into something (id, name) values (:😱, :😂)", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("insert into something (id, name) values (")
+                .appendNamedParameter("😱")
+                .append(", ")
+                .appendNamedParameter("😂")
+                .append(")")
+                .build());
     }
 }
