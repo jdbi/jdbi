@@ -27,6 +27,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -126,6 +127,17 @@ public class SqlObjectFactory implements ExtensionFactory {
                 }
                 handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry, decorators));
             }
+
+            handlers.keySet().stream()
+                .filter(m -> !m.isSynthetic())
+                .collect(Collectors.groupingBy(m -> Arrays.asList(m.getName(), Arrays.asList(m.getParameterTypes()))))
+                .values()
+                .stream()
+                .filter(l -> l.size() > 1)
+                .findAny()
+                .ifPresent(ms -> {
+                    throw new UnableToCreateSqlObjectException(sqlObjectType + " has ambiguous methods " + ms + ", please resolve with an explicit override");
+                });
 
             return handlers;
         });
