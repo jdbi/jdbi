@@ -277,28 +277,23 @@ or `useHandle` over `open` whenever possible.
 
 === Arguments
 
-Arguments are Jdbi's representation of SQL statement parameters, as in `select * from Foo where bar = ?`.
+Arguments are Jdbi's representation of JDBC statement parameters (the `?` in `select * from Foo where bar = ?`).
 
-For this query, you would usually bind the 1st parameter as a varchar: `'Baz'`. In Jdbi terms, this means _binding_ an _Argument_ that will insert a String into the placeholder as a varchar. Arguments can perform other bindings: a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int, or a complex object could be serialized to a byte array and bound as a SQL blob.
+To set a parameter `?` on a JDBC `PreparedStatement`, you would `ps.setString(1, "Baz")`.
+With Jdbi, when you bind the string `"Baz"`, it will search through all registered _ArgumentFactory_ instances
+until it finds one that is willing to convert the String into an _Argument_.
+The argument is responsible for setting the String for the placeholder exactly as `setString` does.
 
-[TIP]
-Think of Arguments as functions that map Java objects to SQL data values.
-
-In addition to classic positional parameters (`?` placeholders), Jdbi has created the concept of _named_ parameters, which can make queries with multiple parameters easier to read. Any statement can use either positional or named arguments, but they can never be mixed in the same SQL statement. In such cases, Jdbi can't be sure it's binding the right arguments, and will throw an exception.
-
-[CAUTION]
-Support for query parameters (SQL data type and location within a query) is database-specific. JDBC drivers also have inconsistent support for different Java object types. This means Arguments, while convenient, SQL-safe, and familiar in concept, are platform-specific.
-
-[TIP]
-Jdbi's configuration system enables you to easily set up different Arguments and ArgumentFactories for different platforms, so don't worry about it too much. It is strongly recommended to use Arguments anywhere they make sense.
+Arguments can perform more advanced bindings than simple JDBC supports:
+a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int,
+or a complex object could be serialized to a byte array and bound as a SQL blob.
 
 [NOTE]
-_Binding_ is a term specifically related to _Arguments_ only. _Attributes_ are involved in _rendering_ a query _template_ using a _TemplateEngine_ to perform String-wise manipulations on a query before it is interpreted as SQL.
-
-[NOTE]
-The use of bound parameters is limited by JDBC support.  Notably, parameters usually cannot be used to change the structure of a query
+The use of Jdbi bindings is limited to JDBC prepared statement parameters.
+Notably, parameters usually cannot be used to change the structure of a query
 (for example the table or column name, `SELECT` or `INSERT`, etc.)
-nor may they be interpolated into string literals.  See <<TemplateEngine>> for more information.
+nor may they be interpolated into string literals.
+See <<Templating>> and <<TemplateEngine>> for more information.
 
 ==== Positional Arguments
 
@@ -322,6 +317,9 @@ include::{exampledir}/FiveMinuteTourTest.java[tags=namedParameters]
 
 [NOTE]
 This `:foo` syntax is default behavior that can be changed; see the `ColonPrefixSqlParser` class. Jdbi alternatively provides support for `#foo` syntax out-of-the-box, and you can create your own as well.
+
+[TIP]
+Mixing named and positional arguments is not allowed, as it would become confusing very quickly.
 
 ==== Supported Argument Types
 
@@ -393,7 +391,7 @@ handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)"
 [NOTE]
 Using `bindList` requires writing your SQL with an attribute, not a binding,
 despite the fact that your values are bound. The attribute is a placeholder that will be
-safely rendered to a comma-separated list of bindings.
+safely rendered to a comma-separated list of binding placeholders.
 
 You can bind multiple arguments from properties of a Java Bean:
 
@@ -467,12 +465,22 @@ properties, e.g. `:user.address.street`.
 `bindMap()` does not bind nested properties--map keys are expected to exactly
 match the bound parameter name.
 
+[TIP]
+The authors recommend checking out <<Immutables>> support for an advanced way
+to easily bind and map value types.
+
 ==== Custom Arguments
 
 Occasionally your data model will use data types not natively supported by
 Jdbi (see <<Supported Argument Types>>).
 
-Fortunately, Jdbi can be configured to bind custom data types as arguments.
+Fortunately, Jdbi can be configured to bind custom data types as arguments,
+by implementing a few simple interfaces.
+
+[NOTE]
+Core JDBC features are generally well supported by all database vendors.
+However, more advanced usages like array support or geometry types tend to
+quickly become vendor-specific.
 
 ===== Argument
 
@@ -1097,6 +1105,10 @@ try (Handle handle = jdbi.open()) {
 [TIP]
 The `GenericType` utility class is discussed in <<Working with Generic Types>>.
 
+==== Immutables Mapping
+
+`Immutables` value objects may be mapped, see the <<Immutables>> section for details.
+
 ==== Reflection Mappers
 
 Jdbi provides a few reflection-based mappers out of the box.
@@ -1106,6 +1118,9 @@ constructor parameter names (ConstructorMapper), or field names (FieldMapper).
 
 Reflective mappers are snake_case aware and will automatically match up these
 columns to camelCase field/argument/property names.
+
+[TIP]
+To instruct Jdbi to ignore an otherwise mappable method, annotate it as `@Unmappable`.
 
 ===== ConstructorMapper
 
@@ -1583,16 +1598,16 @@ Bound parameters are not always enough. Sometimes a query needs complicated or s
 Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
 
 [CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!]^  Always prefer binding parameters to static SQL over dynamic SQL when possible.
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!^]  Always prefer binding parameters to static SQL over dynamic SQL when possible.
 
 [source,java]
 ----
-handle.createQuery("select * from <TABLE> where name = :n;")
+handle.createQuery("select * from <TABLE> where name = :n")
 
-    // -> "select * from Person where name = :n;"
+    // -> "select * from Person where name = :n"
     .define("TABLE", "Person")
 
-    // -> "select * from Person where name = 'MyName';"
+    // -> "select * from Person where name = 'MyName'"
     .bind("n", "MyName");
 ----
 
@@ -1616,8 +1631,8 @@ handle.createQuery("select * from Foo where bar = :<attr>")
 
 [source,java]
 ----
-handle.createQuery("select * from emotion where emoticon = <sticker>;")
-    .define("sticker", ":-)") // -> "... where emoticon = :-);"
+handle.createQuery("select * from emotion where emoticon = <sticker>")
+    .define("sticker", ":-)") // -> "... where emoticon = :-)"
     .mapToMap()
     // exception: no binding/argument named "-)" present
     .list();
@@ -3905,8 +3920,11 @@ This plugin provides JSON backing through Jackson 2.
 [source,java]
 ----
 jdbi.installPlugin(new Jackson2Plugin());
-// optional
+// optionally configure your ObjectMapper (recommended)
 jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+
+// now with simple support for Json Views if you want to filter properties:
+jdbi.getConfig(Jackson2Config.class).setView(ApiProperty.class);
 ----
 
 ==== Gson 2
@@ -4003,7 +4021,7 @@ to `Jdbi` properties binding and row mapping.
 Immutables support is still experimental and does not yet support custom naming schemes.
 We do support the configurable `get`, `is`, and `set` prefixes.
 
-Just tell us about your types by installing the plugin (possibly multiple times):
+Just tell us about your types by installing the plugin and configuring your `Immutables` type:
 
 `jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class)`
 
@@ -5631,8 +5649,8 @@ handle.createUpdate("insert into characters (id, name) values (#id, #name)")
 ----
 
 [NOTE]
-The default parsers do not readily recognize non-Latin characters as identifiers;
-they must be surrounded by double quotes.
+The default parsers recognize any Java identifier as a parameter or attribute name.
+Even some strange cases like emoji are allowed, although the Jdbi authors encourage appropriate discretion 🧐.
 
 [NOTE]
 The default parsers try to ignore parameter-like constructions inside of string literals,
