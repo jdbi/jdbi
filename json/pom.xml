@@ -24,6 +24,10 @@
     <name>jdbi3 json</name>
     <description>Jdbi Json column support</description>
 
+    <properties>
+        <moduleName>org.jdbi.v3.json</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

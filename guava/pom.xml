@@ -24,6 +24,10 @@
     <artifactId>jdbi3-guava</artifactId>
     <name>jdbi3 Guava Integration</name>
 
+    <properties>
+        <moduleName>org.jdbi.v3.guava</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

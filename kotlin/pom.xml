@@ -41,6 +41,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <moduleName>org.jdbi.v3.kotlin</moduleName>
+    </properties>
+
     <dependencies>
 
         <dependency>

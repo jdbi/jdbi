@@ -28,6 +28,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <moduleName>org.jdbi.v3.noparameters</moduleName>
     </properties>
 
     <dependencies>

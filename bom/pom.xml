@@ -39,6 +39,10 @@
         </license>
     </licenses>
 
+    <properties>
+        <moduleName>org.jdbi.v3.bom</moduleName>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

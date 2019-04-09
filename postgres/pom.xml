@@ -34,6 +34,10 @@
         </license>
     </licenses>
 
+    <properties>
+        <moduleName>org.jdbi.v3.postgres</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

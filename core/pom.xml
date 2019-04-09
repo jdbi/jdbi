@@ -40,6 +40,7 @@
 
     <properties>
         <basepom.check.phase-license>validate</basepom.check.phase-license>
+        <moduleName>org.jdbi.v3.core</moduleName>
     </properties>
 
     <dependencies>

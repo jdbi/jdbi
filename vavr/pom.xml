@@ -27,6 +27,10 @@
         It is greatly inspired by scala and brings persistent,
         immutable datastructures to the Java World</description>
 
+    <properties>
+        <moduleName>org.jdbi.v3.vavr</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.vavr</groupId>
