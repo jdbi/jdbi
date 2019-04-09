@@ -25,6 +25,10 @@
     <description>Jdbi Gson 2 integration</description>
     <url>http://jdbi.org/</url>
 
+    <properties>
+        <moduleName>org.jdbi.v3.gson2</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

@@ -31,6 +31,7 @@
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
         <jmh.version>1.21</jmh.version>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <moduleName>org.jdbi.v3.benchmark</moduleName>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 

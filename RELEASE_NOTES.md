@@ -1,3 +1,7 @@
+#3.7.1
+- New Features
+  - Initial Java Module System support via Automatic-Module-Name
+
 #3.7.0
 - New Features
   - @AllowUnusedBindings SqlObject customizer, like SqlStatements.setUnusedBindingsAllowed

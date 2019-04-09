@@ -41,6 +41,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <moduleName>org.jdbi.v3.jpa</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

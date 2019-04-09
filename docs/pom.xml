@@ -29,6 +29,7 @@
     <properties>
         <basepom.check.skip-license>true</basepom.check.skip-license>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
 
     <dependencies>

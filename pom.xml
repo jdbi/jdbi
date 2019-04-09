@@ -75,7 +75,6 @@
     </scm>
 
     <properties>
-
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.maven.version>3.2.5</basepom.maven.version>
 
@@ -541,9 +540,15 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <!-- Fixes missing plugin during CI builds -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestEntries combine.children="append">
+                                <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
@@ -705,6 +710,10 @@
                                     <!-- Java 8 min -->
                                     <version>[1.8,)</version>
                                 </requireJavaVersion>
+                                <requireProperty>
+                                    <property>moduleName</property>
+                                    <message>This module must set a moduleName.</message>
+                                </requireProperty>
                             </rules>
                         </configuration>
                     </execution>
@@ -747,6 +756,18 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <!-- Set a module name for the parent that is explicitly not inherited -->
+        <profile>
+            <id>in-parent</id>
+            <activation>
+                <file>
+                    <exists>.jdbi-parent</exists>
+                </file>
+            </activation>
+            <properties>
+                <moduleName>org.jdbi.v3</moduleName>
+            </properties>
         </profile>
     </profiles>
 </project>

@@ -33,6 +33,10 @@
         </license>
     </licenses>
 
+    <properties>
+        <moduleName>org.jdbi.v3.sqlite</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>

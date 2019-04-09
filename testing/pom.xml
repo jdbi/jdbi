@@ -33,6 +33,10 @@
         </license>
     </licenses>
 
+    <properties>
+        <moduleName>org.jdbi.v3.testing</moduleName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
