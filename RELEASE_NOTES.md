@@ -1,6 +1,8 @@
 #3.7.1
 - New Features
   - Initial Java Module System support via Automatic-Module-Name
+- Improvements
+  - Postgres JDBC driver is now <scope>provided</scope> to avoid fighting with servlet containers.
 
 #3.7.0
 - New Features
