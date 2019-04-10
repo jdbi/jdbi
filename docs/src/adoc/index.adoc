@@ -289,8 +289,8 @@ a BigDecimal could be bound as a SQL decimal, a java.time.Year as a SQL int,
 or a complex object could be serialized to a byte array and bound as a SQL blob.
 
 [NOTE]
-The use of Jdbi bindings is limited to JDBC prepared statement parameters.
-Notably, parameters usually cannot be used to change the structure of a query
+The use of Jdbi arguments is limited to JDBC prepared statement parameters.
+Notably, arguments usually cannot be used to change the structure of a query
 (for example the table or column name, `SELECT` or `INSERT`, etc.)
 nor may they be interpolated into string literals.
 See <<Templating>> and <<TemplateEngine>> for more information.
