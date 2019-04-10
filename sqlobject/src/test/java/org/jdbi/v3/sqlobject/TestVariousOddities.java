@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestVariousOddities {
     @Rule
@@ -121,4 +122,33 @@ public class TestVariousOddities {
      * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
      */
     public interface SpiffyConcurrent extends SqlObject {}
+
+    @Test
+    public void testInterfaceAmbiguousMethods() {
+        assertThatThrownBy(() ->
+                dbRule.getSharedHandle().attach(AmbiguousMethods.class))
+            .isInstanceOf(UnableToCreateSqlObjectException.class)
+            .hasMessageContaining("AmbiguousMethods has ambiguous methods");
+    }
+
+    @Test
+    public void testAbiguityResolved() {
+        dbRule.getSharedHandle().attach(ResolvedMethods.class);
+    }
+
+    public interface VersionA {
+        @SqlQuery("select 'intriguing'")
+        String value();
+    }
+    public interface VersionB {
+        @SqlQuery("select 'indubitably'")
+        String value();
+    }
+
+    public interface AmbiguousMethods extends VersionA, VersionB {}
+    public interface ResolvedMethods extends AmbiguousMethods {
+        @SqlQuery("select ''")
+        @Override
+        String value();
+    }
 }
