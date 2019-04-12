@@ -22,7 +22,16 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Specify the mapping name for a property or parameter explicitly.
+ * Specify the mapping name for a property or parameter explicitly. This annotation is respected by:
+ *
+ * <ul>
+ *     <li>BeanMapper, FieldMapper, and ConstructorMapper in core</li>
+ *     <li>The Kotlin data class mapper in KotlinPlugin</li>
+ * </ul>
+ *
+ * Note that this annotation only applies to mapping, not parameter binding. When binding with e.g.
+ * {@link org.jdbi.v3.core.statement.SqlStatement#bindBean(Object) bindBean()}, bind parameters by
+ * the property name ({@code :firstName}), not the column name ({@code :first_name}).
  */
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD, METHOD})

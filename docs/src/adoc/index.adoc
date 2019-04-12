@@ -1200,6 +1200,11 @@ public User(@ColumnName("user_id") int id, String name) {
 }
 ----
 
+[NOTE]
+The `@ColumnName` annotation only applies while mapping SQL data into Java
+objects. When binding object properties (e.g. with `bindBean()`), bind the
+property name (`:id`) rather than the column name (`:user_id`).
+
 Nested constructor-injected types can be mapped using the `@Nested` annotation:
 
 [source,java]
@@ -1331,6 +1336,11 @@ public class User {
 The `@ColumnName` annotation can be placed on either the getter or setter
 method.
 
+[NOTE]
+The `@ColumnName` annotation only applies while mapping SQL data into Java
+objects. When binding object properties (e.g. with `bindBean()`), bind the
+property name (`:id`) rather than the column name (`:user_id`).
+
 Nested Java Bean types can be mapped using the `@Nested` annotation:
 
 [source,java]
@@ -1448,6 +1458,11 @@ public class User {
   public String name;
 }
 ----
+
+[NOTE]
+The `@ColumnName` annotation only applies while mapping SQL data into Java
+objects. When binding object properties (e.g. with `bindBean()`), bind the
+property name (`:id`) rather than the column name (`:user_id`).
 
 Nested field-mapped types can be mapped using the `@Nested` annotation:
 
@@ -4118,7 +4133,6 @@ Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.h
 <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 ----
 
-
 Then install the plugin into your `Jdbi` instance:
 
 [source,kotlin]
@@ -4129,6 +4143,11 @@ jdbi.installPlugin(KotlinPlugin());
 The Kotlin mapper also supports `@ColumnName` annotation that allows to specify
 name for a property or parameter explicitly, as well as the `@Nested` annotation
 that allows mapping nested Kotlin objects.
+
+[NOTE]
+The `@ColumnName` annotation only applies while mapping SQL data into Java
+objects. When binding object properties (e.g. with `bindBean()`), bind the
+property name (`:id`) rather than the column name (`:user_id`).
 
 If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
 discovered and registered automatically. Otherwise, you can attach it using
