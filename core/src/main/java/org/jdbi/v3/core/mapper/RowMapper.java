@@ -31,12 +31,12 @@ import org.jdbi.v3.core.statement.StatementContext;
 @FunctionalInterface
 public interface RowMapper<T> {
     /**
-     * Map the row the result set is at when passed in. This method should not cause the result
-     * set to advance; allow Jdbi to do that, please.
+     * Map the current row of the result set.
+     * This method should not cause the result set to advance; allow Jdbi to do that, please.
      *
      * @param rs  the result set being iterated
      * @param ctx the statement context
-     * @return the value to return for this row
+     * @return the value to produce for this row
      * @throws SQLException if anything goes wrong go ahead and let this percolate; Jdbi will handle it
      */
     T map(ResultSet rs, StatementContext ctx) throws SQLException;

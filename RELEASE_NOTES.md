@@ -1,3 +1,7 @@
+#3.8.0
+- New Features
+  - RowViewMapper lets you use higher level RowView in a RowMapper
+
 #3.7.1
 - New Features
   - Initial Java Module System support via Automatic-Module-Name

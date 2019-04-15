@@ -14,36 +14,17 @@
 package org.jdbi.v3.core.result;
 
 import java.lang.reflect.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.MappingException;
-import org.jdbi.v3.core.mapper.NoSuchMapperException;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A RowView is an accessor for {@code ResultSet} that uses
  * {@code RowMapper} or {@code ColumnMapper} to extract values.
  * It is not valid outside the scope of the method that receives it.
  */
-public class RowView {
-    private final StatementContext ctx;
-    private final ResultSet rs;
-
-    private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
-    private final Map<QualifiedType<?>, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
-
-    RowView(ResultSet rs, StatementContext ctx) {
-        this.rs = rs;
-        this.ctx = ctx;
-    }
-
+// TODO v4: should be interface, but that's a breaking change
+public abstract class RowView {
     /**
      * Use a row mapper to extract a type from the current ResultSet row.
      * @param <T> the type to map
@@ -70,26 +51,7 @@ public class RowView {
      * @param type the type to map
      * @return the materialized object
      */
-    public Object getRow(Type type) {
-        try {
-            return rowMapperFor(type).map(rs, ctx);
-        } catch (SQLException e) {
-            throw new MappingException(e);
-        }
-    }
-
-    private RowMapper<?> rowMapperFor(Type type) throws SQLException {
-        if (rowMappers.containsKey(type)) {
-            return rowMappers.get(type);
-        }
-
-        RowMapper<?> mapper = ctx.findRowMapperFor(type)
-                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type))
-                .specialize(rs, ctx);
-        rowMappers.put(type, mapper);
-
-        return mapper;
-    }
+    public abstract Object getRow(Type type);
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
@@ -132,13 +94,7 @@ public class RowView {
      * @param type the QualifiedType of the type
      * @return the materialized T
      */
-    public <T> T getColumn(int column, QualifiedType<T> type) {
-        try {
-            return (T) columnMapperFor(type).map(rs, column, ctx);
-        } catch (SQLException e) {
-            throw new MappingException(e);
-        }
-    }
+    public abstract <T> T getColumn(int column, QualifiedType<T> type);
 
     /**
      * Use a qualified column mapper to extract a type from the current ResultSet row.
@@ -147,13 +103,7 @@ public class RowView {
      * @param type the QualifiedType of the type
      * @return the materialized T
      */
-    public <T> T getColumn(String column, QualifiedType<T> type) {
-        try {
-            return (T) columnMapperFor(type).map(rs, column, ctx);
-        } catch (SQLException e) {
-            throw new MappingException(e);
-        }
-    }
+    public abstract <T> T getColumn(String column, QualifiedType<T> type);
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
@@ -185,11 +135,5 @@ public class RowView {
      */
     public Object getColumn(int column, Type type) {
         return getColumn(column, QualifiedType.of(type));
-    }
-
-    private ColumnMapper<?> columnMapperFor(QualifiedType<?> type) {
-        return columnMappers.computeIfAbsent(type, t ->
-                ctx.findColumnMapperFor(t)
-                        .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for " + t)));
     }
 }

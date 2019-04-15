@@ -32,9 +32,11 @@ import org.jdbi.v3.core.mapper.GenericMapMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowViewMapper;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.result.internal.RowViewImpl;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
 
@@ -204,6 +206,18 @@ public interface ResultBearing {
     }
 
     /**
+     * Maps this result set to a {@link ResultIterable}, using the given {@link RowViewMapper}.
+     * This overload only exists to allow RowViewMapper as the type of a lambda expression.
+     *
+     * @param mapper RowViewMapper used to map each row
+     * @param <T>    the type to map the result set rows to
+     * @return a {@link ResultIterable} of type {@code <T>}.
+     */
+    default <T> ResultIterable<T> map(RowViewMapper<T> mapper) {
+        return map((RowMapper<T>) mapper);
+    }
+
+    /**
      * Reduce the result rows using the given row reducer.
      *
      * @param reducer the row reducer.
@@ -215,7 +229,7 @@ public interface ResultBearing {
     default <C, R> Stream<R> reduceRows(RowReducer<C, R> reducer) {
         return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
-                RowView rowView = new RowView(rs, ctx);
+                RowView rowView = new RowViewImpl(rs, ctx);
 
                 C container = reducer.container();
                 while (rs.next()) {
@@ -257,7 +271,7 @@ public interface ResultBearing {
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
         return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
-                RowView rv = new RowView(rs, ctx);
+                RowView rv = new RowViewImpl(rs, ctx);
                 U result = seed;
                 while (rs.next()) {
                     result = accumulator.apply(result, rv);
@@ -310,7 +324,7 @@ public interface ResultBearing {
     default <A, R> R collectRows(Collector<RowView, A, R> collector) {
         return scanResultSet((supplier, ctx) -> {
             try (ResultSet rs = supplier.get()) {
-                RowView rv = new RowView(rs, ctx);
+                RowView rv = new RowViewImpl(rs, ctx);
                 A acc = collector.supplier().get();
 
                 BiConsumer<A, RowView> consumer = collector.accumulator();
