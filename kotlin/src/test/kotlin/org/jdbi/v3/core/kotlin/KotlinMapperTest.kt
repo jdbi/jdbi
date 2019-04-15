@@ -63,19 +63,35 @@ class KotlinMapperTest {
         assertThat(result).isEqualTo(expected)
     }
 
-    data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("first") val n: String)
+    data class DataClassWithAnnotatedValParameter(val id: Int, @ColumnName("first") val n: String)
 
     @Test
-    fun testDataClassWithAnnotatedParameter() {
-        val expected = DataClassWithAnnotatedParameter(1, "does this work?")
+    fun testDataClassWithAnnotatedValParameter() {
+        val expected = DataClassWithAnnotatedValParameter(1, "does this work?")
 
-        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bind("id", expected.id)
-                .bind("first", expected.n)
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :n)")
+                .bindBean(expected)
                 .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<DataClassWithAnnotatedParameter>()
+                .mapTo<DataClassWithAnnotatedValParameter>()
+                .single()
+
+        assertThat(result).isEqualTo(expected)
+    }
+
+    data class DataClassWithAnnotatedVarParameter(var id: Int, @ColumnName("first") var n: String)
+
+    @Test
+    fun testDataClassWithAnnotatedVarParameter() {
+        val expected = DataClassWithAnnotatedVarParameter(1, "does this work?")
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :n)")
+                .bindBean(expected)
+                .execute()
+
+        val result = handle.createQuery("SELECT * from the_things")
+                .mapTo<DataClassWithAnnotatedVarParameter>()
                 .single()
 
         assertThat(result).isEqualTo(expected)
