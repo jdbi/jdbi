@@ -31,26 +31,14 @@ import reactor.util.annotation.Nullable;
 import java.io.IOException;
 
 import static io.r2dbc.mssql.MssqlConnectionFactoryProvider.MSSQL_DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
 
 final class MssqlExample implements Example<String> {
 
     @RegisterExtension
     static final MssqlServerExtension SERVER = new MssqlServerExtension();
 
-    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
-        .option(DRIVER, MSSQL_DRIVER)
-        .option(HOST, SERVER.getHost())
-        .option(PORT, SERVER.getPort())
-        .option(PASSWORD, SERVER.getPassword())
-        .option(USER, SERVER.getUsername())
-        .build()));
-
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(
+        String.format("r2dbc:pool:%s://%s:%s@%s:%d", MSSQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort())));
 
     @Override
     public String getIdentifier(int index) {

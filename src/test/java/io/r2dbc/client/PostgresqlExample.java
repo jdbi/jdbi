@@ -31,27 +31,14 @@ import reactor.util.annotation.Nullable;
 import java.io.IOException;
 
 import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.POSTGRESQL_DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
 
 final class PostgresqlExample implements Example<String> {
 
     @RegisterExtension
     static final PostgresqlServerExtension SERVER = new PostgresqlServerExtension();
 
-    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
-        .option(DRIVER, POSTGRESQL_DRIVER)
-        .option(DATABASE, SERVER.getDatabase())
-        .option(HOST, SERVER.getHost())
-        .option(PORT, SERVER.getPort())
-        .option(PASSWORD, SERVER.getPassword())
-        .option(USER, SERVER.getUsername())
-        .build()));
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(
+        String.format("r2dbc:pool:%s://%s:%s@%s:%d/%s", POSTGRESQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort(), SERVER.getDatabase())));
 
     @Override
     public String getIdentifier(int index) {

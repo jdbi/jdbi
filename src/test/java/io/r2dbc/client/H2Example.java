@@ -41,6 +41,7 @@ final class H2Example {
     @RegisterExtension
     static final H2ServerExtension SERVER = new H2ServerExtension();
 
+    // TODO: Convert to use URI format with pool.
     private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(DRIVER, H2_DRIVER)
         .option(PASSWORD, SERVER.getPassword())

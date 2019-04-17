@@ -42,6 +42,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
         <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
+        <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
         <reactor.version>Californium-SR3</reactor.version>
@@ -124,6 +125,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-pool</artifactId>
+            <version>${r2dbc-pool.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -286,24 +293,7 @@
             <repositories>
                 <repository>
                     <id>r2dbc-h2-artifactory</id>
-                    <url>${r2dbcH2lArtifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-        <profile>
-            <id>r2dbc-postgresql-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcPostgresqlArtifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-postgresql-artifactory</id>
-                    <url>${r2dbcPostgresqlArtifactory}</url>
+                    <url>${r2dbcH2Artifactory}</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
@@ -321,6 +311,40 @@
                 <repository>
                     <id>r2dbc-mssql-artifactory</id>
                     <url>${r2dbcMssqlArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>r2dbc-pool-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcPoolArtifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-pool-artifactory</id>
+                    <url>${r2dbcPoolArtifactory}</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>r2dbc-postgresql-artifactory</id>
+            <activation>
+                <property>
+                    <name>r2dbcPostgresqlArtifactory</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>r2dbc-postgresql-artifactory</id>
+                    <url>${r2dbcPostgresqlArtifactory}</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
