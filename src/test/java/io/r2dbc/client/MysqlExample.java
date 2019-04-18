@@ -45,14 +45,19 @@ final class MysqlExample implements Example<String> {
     static final MysqlServerExtension SERVER = new MysqlServerExtension();
 
     private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
-            .option(DRIVER, MYSQL_DRIVER)
-            .option(HOST, SERVER.getHost())
-            .option(PORT, SERVER.getPort())
-            .option(PASSWORD, SERVER.getPassword())
-            .option(USER, SERVER.getUsername())
-            .option(DATABASE, SERVER.getDatabase())
-            .build()));
+        .option(DRIVER, MYSQL_DRIVER)
+        .option(HOST, SERVER.getHost())
+        .option(PORT, SERVER.getPort())
+        .option(PASSWORD, SERVER.getPassword())
+        .option(USER, SERVER.getUsername())
+        .option(DATABASE, SERVER.getDatabase())
+        .build()));
 
+    @Test
+    @Ignore("compound statements are not supported by the driver")
+    @Override
+    public void compoundStatement() {
+    }
 
     @Override
     public String getIdentifier(int index) {
@@ -99,15 +104,19 @@ final class MysqlExample implements Example<String> {
             this.container.start();
 
             this.dataSource = DataSourceBuilder.create()
-                    .type(HikariDataSource.class)
-                    .url(this.container.getJdbcUrl())
-                    .username(this.container.getUsername())
-                    .password(this.container.getPassword())
-                    .build();
+                .type(HikariDataSource.class)
+                .url(this.container.getJdbcUrl())
+                .username(this.container.getUsername())
+                .password(this.container.getPassword())
+                .build();
 
             this.dataSource.setMaximumPoolSize(1);
 
             this.jdbcOperations = new JdbcTemplate(this.dataSource);
+        }
+
+        String getDatabase() {
+            return this.container.getDatabaseName();
         }
 
         String getHost() {
@@ -130,15 +139,5 @@ final class MysqlExample implements Example<String> {
         String getUsername() {
             return this.container.getUsername();
         }
-
-        String getDatabase() {
-            return this.container.getDatabaseName();
-        }
-    }
-
-    @Test
-    @Ignore("compound statements are not supported by the driver")
-    @Override
-    public void compoundStatement() {
     }
 }

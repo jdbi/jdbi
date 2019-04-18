@@ -36,15 +36,15 @@
         <jsr305.version>3.0.2</jsr305.version>
         <junit.version>5.3.2</junit.version>
         <logback.version>1.2.3</logback.version>
-        <postgresql.version>42.2.5</postgresql.version>
         <mssql-jdbc.version>7.0.0.jre8</mssql-jdbc.version>
+        <mysql.version>8.0.12</mysql.version>
+        <postgresql.version>42.2.5</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
         <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
-        <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-mysql.version>0.9.38</r2dbc-mysql.version>
-        <mysql.version>8.0.12</mysql.version>
+        <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
         <reactor.version>Californium-SR3</reactor.version>
@@ -103,6 +103,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.jasync-sql</groupId>
+            <artifactId>jasync-r2dbc-mysql</artifactId>
+            <version>${r2dbc-mysql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>${mssql-jdbc.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
@@ -154,12 +166,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jasync-sql</groupId>
-            <artifactId>jasync-r2dbc-mysql</artifactId>
-            <version>${r2dbc-mysql.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
@@ -172,12 +178,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>${mssql-jdbc.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <version>${spring-boot.version}</version>
@@ -185,7 +185,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>mssqlserver</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -195,7 +195,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>mssqlserver</artifactId>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
