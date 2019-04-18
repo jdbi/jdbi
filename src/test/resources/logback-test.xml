@@ -23,6 +23,7 @@
         </encoder>
     </appender>
 
+    <logger name="com.github.jasync"   level="INFO"/>
     <logger name="io.r2dbc.client"     level="INFO"/>
     <logger name="io.r2dbc.postgresql" level="INFO"/>
     <logger name="io.r2dbc.mssql"      level="INFO"/>
