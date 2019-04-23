@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.immutables;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -55,6 +56,23 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
     }
 
     /**
+     * Convenience method for registering many immutable types.
+     * @see #registerImmutable(Class)
+     */
+    public JdbiImmutables registerImmutable(Class<?>... specs) {
+        return registerImmutable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many immutable types.
+     * @see #registerImmutable(Class)
+     */
+    public JdbiImmutables registerImmutable(Iterable<Class<?>> specs) {
+        specs.forEach(this::registerImmutable);
+        return this;
+    }
+
+    /**
      * Register bean arguments and row mapping for an {@code Immutable*} value class, using a supplied implementation and builder.
      * @param spec the specification interface or abstract class
      * @param impl the generated implementation class
@@ -65,6 +83,23 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
      */
     public <S, I extends S> JdbiImmutables registerImmutable(Class<S> spec, Class<I> impl, Supplier<?> builder) {
         return register(spec, impl, ImmutablesPropertiesFactory.immutable(spec, builder));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     * @see #registerModifiable(Class)
+     */
+    public JdbiImmutables registerModifiable(Class<?>... specs) {
+        return registerModifiable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     * @see #registerModifiable(Class)
+     */
+    public JdbiImmutables registerModifiable(Iterable<Class<?>> specs) {
+        specs.forEach(this::registerModifiable);
+        return this;
     }
 
     /**
