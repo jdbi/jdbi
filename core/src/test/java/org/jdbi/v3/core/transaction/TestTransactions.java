@@ -125,13 +125,13 @@ public class TestTransactions {
         h.execute("insert into something (id, name) values (?, ?)", 1, "Tom");
         h.savepoint("first");
         h.execute("insert into something (id, name) values (?, ?)", 2, "Martin");
-        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
                 .isEqualTo(Integer.valueOf(2));
         h.rollbackToSavepoint("first");
-        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
                 .isEqualTo(Integer.valueOf(1));
         h.commit();
-        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
                 .isEqualTo(Integer.valueOf(1));
     }
 

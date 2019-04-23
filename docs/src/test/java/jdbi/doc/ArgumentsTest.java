@@ -47,7 +47,7 @@ public class ArgumentsTest {
         assertThat(handle.createQuery("SELECT :id")
             .bind("id", 3)
             .mapTo(Integer.class)
-            .findOnly()
+            .one()
             .intValue()).isEqualTo(3);
     }
     // end::bindValue[]
@@ -73,7 +73,7 @@ public class ArgumentsTest {
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", new UUIDArgument(u))
             .mapTo(String.class)
-            .findOnly()).isEqualTo(u.toString());
+            .one()).isEqualTo(u.toString());
     }
     // end::uuidArgument[]
 
@@ -96,7 +96,7 @@ public class ArgumentsTest {
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", u)
             .mapTo(String.class)
-            .findOnly()).isEqualTo(u.toString());
+            .one()).isEqualTo(u.toString());
     }
     // end::uuidArgumentFactory[]
 }

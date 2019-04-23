@@ -297,7 +297,7 @@ public class BeanMapperTest {
 
         ColumnNameBean bean = handle.createQuery("select * from something")
                 .mapTo(ColumnNameBean.class)
-                .findOnly();
+                .one();
 
         assertThat(bean.getI()).isEqualTo(1);
         assertThat(bean.getS()).isEqualTo("foo");
@@ -313,7 +313,7 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
     }
@@ -329,14 +329,14 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
 
         assertThatThrownBy(() -> handle
             .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
     }
@@ -348,7 +348,7 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select 42 as testValue")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .extracting("testValue", "nested")
             .containsExactly(42, null);
     }
@@ -385,7 +385,7 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
     }
@@ -401,21 +401,21 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select id nested_id, name nested_name, integerValue from something")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.id", "nested.name", "integerValue")
             .containsExactly(1, "foo", 5);
 
         assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
 
         assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [nested_other]");
     }
@@ -427,7 +427,7 @@ public class BeanMapperTest {
         assertThat(handle
             .createQuery("select 42 as integerValue")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .extracting("integerValue", "nested")
             .containsExactly(42, null);
     }

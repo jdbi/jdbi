@@ -36,7 +36,7 @@ public class TestHandle {
 
         String value = h.inTransaction(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
-            return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
+            return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
         });
         assertThat(value).isEqualTo("Brian");
     }
@@ -50,7 +50,7 @@ public class TestHandle {
         // strangely enough, the compiler can't infer this and thinks the throws is redundant
         String value = dbRule.getJdbi().<String, Exception>withHandle(handle ->
                 handle.inTransaction(handle1 ->
-                        handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
+                        handle1.createQuery("select name from something where id = 1").mapTo(String.class).one()));
 
         assertThat(value).isEqualTo("Keith");
     }

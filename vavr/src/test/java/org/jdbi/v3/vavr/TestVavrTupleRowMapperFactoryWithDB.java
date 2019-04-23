@@ -47,7 +47,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple1<String> result = dbRule.getSharedHandle()
                 .createQuery("select name from something where id = 1")
                 .mapTo(new GenericType<Tuple1<String>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualToIgnoringCase("eric");
     }
@@ -60,7 +60,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple1<Something> result = handle
                 .createQuery("select id, name from something where id = 1")
                 .mapTo(new GenericType<Tuple1<Something>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(new Something(1, "eric"));
     }
@@ -76,7 +76,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple2<Something, SomethingValues> result = handle
                 .createQuery("select * from something where id = 2")
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(new Something(2, "brian"));
         assertThat(result._2).isEqualTo(new SomethingValues(101, 102));
@@ -90,7 +90,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
-                .findOnly()
+                .one()
        ).isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("SomethingValues");
     }
@@ -105,7 +105,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple3<Something, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Something, Integer, Integer>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(new Something(1, "eric"));
         assertThat(result._2).isEqualTo(99);
@@ -123,7 +123,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple3<Integer, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Integer, Integer>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(99);
         assertThat(result._2).isEqualTo(100);
@@ -138,7 +138,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
-                .findOnly())
+                .one())
                 .isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("TupleMappers config class");
     }
@@ -153,7 +153,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
-                .findOnly()).isInstanceOf(NoSuchMapperException.class)
+                .one()).isInstanceOf(NoSuchMapperException.class)
                 .isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("TupleMappers config class");
     }
@@ -163,7 +163,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple2<Integer, String> result = dbRule.getSharedHandle()
                 .createQuery("select intValue, name from something where id = 2")
                 .mapTo(new GenericType<Tuple2<Integer, String>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(102);
         assertThat(result._2).isEqualTo("brian");
@@ -174,7 +174,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Tuple4<Integer, String, Integer, Integer> result = dbRule.getSharedHandle()
                 .createQuery("select * from something where id = 2")
                 .mapTo(new GenericType<Tuple4<Integer, String, Integer, Integer>>() {})
-                .findOnly();
+                .one();
 
         assertThat(result._1).isEqualTo(2);
         assertThat(result._2).isEqualTo("brian");

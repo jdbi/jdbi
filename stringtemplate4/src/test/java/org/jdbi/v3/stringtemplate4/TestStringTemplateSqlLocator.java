@@ -54,7 +54,7 @@ public class TestStringTemplateSqlLocator {
 
         String name = handle.createQuery("select name from something where id = 7")
                             .mapTo(String.class)
-                            .findOnly();
+                            .one();
 
         assertThat(name).isEqualTo("Henning");
     }
@@ -80,7 +80,7 @@ public class TestStringTemplateSqlLocator {
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
                             .mapTo(String.class)
-                            .findOnly();
+                            .one();
 
         assertThat(name).isEqualTo("Bouncer");
     }

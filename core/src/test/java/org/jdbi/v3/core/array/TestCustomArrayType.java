@@ -61,7 +61,7 @@ public class TestCustomArrayType {
             final List<UserId> result = handle.createQuery("select user_ids from groups where id = ?")
                 .bind(0, 1)
                 .mapTo(new GenericType<List<UserId>>() {})
-                .findOnly();
+                .one();
 
             assertThat(result).containsExactly(user1, user2);
         }

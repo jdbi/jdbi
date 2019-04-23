@@ -125,7 +125,7 @@ public class TestQualifiers {
 
         assertThat(handle.select("SELECT name FROM something WHERE id = 1")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("cba");
     }
 
@@ -235,7 +235,7 @@ public class TestQualifiers {
         assertThat(
             handle.select("select name from something")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
             .isEqualTo("cba");
     }
 
@@ -268,7 +268,7 @@ public class TestQualifiers {
         assertThat(
             handle.select("select name from something")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
             .isEqualTo("cba");
     }
 

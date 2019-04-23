@@ -50,7 +50,7 @@ public class EnumsConfigTest {
 
             String ordinal = h.createQuery("select name from enums")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
 
             assertThat(ordinal)
                 .isEqualTo(Foobar.FOO.name());
@@ -63,7 +63,7 @@ public class EnumsConfigTest {
             Foobar name = h.createQuery("select :name")
                 .bind("name", Foobar.FOO.name())
                 .mapTo(Foobar.class)
-                .findOnly();
+                .one();
 
             assertThat(name)
                 .isEqualTo(Foobar.FOO);
@@ -83,7 +83,7 @@ public class EnumsConfigTest {
 
             Integer ordinal = h.createQuery("select ordinal from enums")
                 .mapTo(Integer.class)
-                .findOnly();
+                .one();
 
             assertThat(ordinal)
                 .isEqualTo(Foobar.FOO.ordinal());
@@ -98,7 +98,7 @@ public class EnumsConfigTest {
             Foobar name = h.createQuery("select :ordinal")
                 .bind("ordinal", Foobar.FOO.ordinal())
                 .mapTo(Foobar.class)
-                .findOnly();
+                .one();
 
             assertThat(name)
                 .isEqualTo(Foobar.FOO);
@@ -108,7 +108,7 @@ public class EnumsConfigTest {
     @Test
     public void badNameThrows() {
         db.getJdbi().useHandle(h -> {
-            assertThatThrownBy(h.createQuery("select 'xxx'").mapTo(Foobar.class)::findOnly)
+            assertThatThrownBy(h.createQuery("select 'xxx'").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)
                 .hasMessageContaining("no Foobar value could be matched to the name xxx");
         });
@@ -119,7 +119,7 @@ public class EnumsConfigTest {
         db.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
-            assertThatThrownBy(h.createQuery("select 2").mapTo(Foobar.class)::findOnly)
+            assertThatThrownBy(h.createQuery("select 2").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)
                 .hasMessageContaining("no Foobar value could be matched to the ordinal 2");
         });
@@ -136,12 +136,12 @@ public class EnumsConfigTest {
 
             String inserted = h.createQuery("select value from enums")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isNull();
 
             Foobar mapped = h.createQuery("select value from enums")
                 .mapTo(Foobar.class)
-                .findOnly();
+                .one();
             assertThat(mapped).isNull();
         });
     }

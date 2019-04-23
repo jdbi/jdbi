@@ -77,7 +77,7 @@ public class ImmutablesTest {
             assertThat(
                 handle.createQuery("select * from train")
                     .mapTo(Train.class)
-                    .findOnly())
+                    .one())
                 .extracting("name", "carriages", "observationCar")
                 .containsExactly("Zephyr", 8, true);
         }
@@ -95,7 +95,7 @@ public class ImmutablesTest {
         assertThat(
             h.createQuery("select * from immutables")
                 .mapTo(new GenericType<SubValue<String, Integer>>() {})
-                .findOnly())
+                .one())
             .extracting("t", "x")
             .containsExactly(42, "foo");
     }
@@ -129,13 +129,13 @@ public class ImmutablesTest {
 
         assertThat(h.createQuery("select * from fbb")
                 .mapTo(ModifiableFooBarBaz.class)
-                .findOnly())
+                .one())
             .extracting("id", "foo", "bar", "baz")
             .containsExactly(1, Optional.of("foo"), OptionalInt.of(42), OptionalDouble.of(1.0));
 
         assertThat(h.createQuery("select * from fbb")
                 .mapTo(ImmutableFooBarBaz.class)
-                .findOnly())
+                .one())
             .extracting("id", "foo", "bar", "baz")
             .containsExactly(1, Optional.of("foo"), OptionalInt.of(42), OptionalDouble.of(1.0));
     }
@@ -163,7 +163,7 @@ public class ImmutablesTest {
             .isEqualTo(1);
         assertThat(h.createQuery("select * from getter")
                 .mapTo(Getter.class)
-                .findOnly())
+                .one())
             .isEqualTo(expected);
     }
 
@@ -181,7 +181,7 @@ public class ImmutablesTest {
             .execute();
         assertThat(h.createQuery("select * from bytearr")
                 .mapTo(ByteArray.class)
-                .findOnly()
+                .one()
                 .value())
             .containsExactly(value);
     }
@@ -216,7 +216,7 @@ public class ImmutablesTest {
             .execute();
         assertThat(h.createQuery("select * from derived")
                 .mapTo(DerivedProperty.class)
-                .findOnly()
+                .one()
                 .foo())
             .isEqualTo(value.foo());
     }
@@ -226,7 +226,7 @@ public class ImmutablesTest {
         assertThatThrownBy(() ->
                 h.createQuery("select 999 as foo")
                     .mapTo(DerivedProperty.class)
-                    .findOnly())
+                    .one())
            .isInstanceOf(Boom.class);
     }
 

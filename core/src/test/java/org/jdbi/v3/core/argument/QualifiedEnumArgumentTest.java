@@ -41,7 +41,7 @@ public class QualifiedEnumArgumentTest {
 
             String inserted = h.createQuery("select name from enums")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(Foobar.FOO.name());
         });
     }
@@ -57,7 +57,7 @@ public class QualifiedEnumArgumentTest {
 
             Integer inserted = h.createQuery("select ordinal from enums")
                 .mapTo(Integer.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(Foobar.FOO.ordinal());
         });
     }
@@ -75,7 +75,7 @@ public class QualifiedEnumArgumentTest {
 
             String inserted = h.createQuery("select name from enums")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(ByName.ALPHABETIC.name());
         });
     }
@@ -91,7 +91,7 @@ public class QualifiedEnumArgumentTest {
 
             Integer inserted = h.createQuery("select ordinal from enums")
                 .mapTo(Integer.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(ByOrdinal.NUMERIC.ordinal());
         });
     }
@@ -109,7 +109,7 @@ public class QualifiedEnumArgumentTest {
 
             String inserted = h.createQuery("select name from enums")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(ByOrdinal.NUMERIC.name());
         });
     }
@@ -125,7 +125,7 @@ public class QualifiedEnumArgumentTest {
 
             Integer inserted = h.createQuery("select ordinal from enums")
                 .mapTo(Integer.class)
-                .findOnly();
+                .one();
             assertThat(inserted).isEqualTo(ByName.ALPHABETIC.ordinal());
         });
     }

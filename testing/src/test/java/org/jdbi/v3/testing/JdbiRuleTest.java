@@ -38,7 +38,7 @@ public class JdbiRuleTest {
                         rule.getHandle()
                             .select("select value from standard_migration_location")
                             .mapTo(String.class)
-                            .findOnly())
+                            .one())
                     .isEqualTo("inserted in migration script in the default location");
               }
             };
@@ -59,7 +59,7 @@ public class JdbiRuleTest {
                         rule.getHandle()
                             .select("select value from custom_migration_location")
                             .mapTo(String.class)
-                            .findOnly())
+                            .one())
                     .isEqualTo("inserted in migration script in a custom location");
               }
             };

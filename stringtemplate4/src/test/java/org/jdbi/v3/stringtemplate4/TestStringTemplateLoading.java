@@ -50,7 +50,7 @@ public class TestStringTemplateLoading {
 
         String name = handle.createQuery("select name from something where id = " + id)
                             .mapTo(String.class)
-                            .findOnly();
+                            .one();
 
         assertThat(name).isEqualTo("Doo" + id);
     }

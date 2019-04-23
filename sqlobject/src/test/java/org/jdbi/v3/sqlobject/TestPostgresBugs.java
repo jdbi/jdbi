@@ -46,7 +46,7 @@ public class TestPostgresBugs {
     @Test
     public void testConnected() {
         int four = dbRule.getJdbi().withHandle(handle ->
-                handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
+                handle.createQuery("select 2 + 2").mapTo(Integer.class).one());
 
         assertThat(four).isEqualTo(4);
     }

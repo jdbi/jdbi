@@ -75,7 +75,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", original.getId())
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(original);
     }
 
@@ -93,7 +93,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", original.getId())
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(original);
     }
 
@@ -111,7 +111,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", thing.getId())
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(thing);
     }
 
@@ -140,7 +140,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -157,7 +157,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -177,7 +177,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -211,7 +211,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -228,7 +228,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -245,7 +245,7 @@ public class TestNamedParams {
         assertThat(h
             .select("select * from something where id = ?", 0)
             .mapToBean(Something.class)
-            .findOnly())
+            .one())
             .isEqualTo(new Something(0, "Keith"));
     }
 
@@ -277,7 +277,7 @@ public class TestNamedParams {
         int insertCount = s.execute();
 
         Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
-        final Something fromDb = q.mapToBean(Something.class).findOnly();
+        final Something fromDb = q.mapToBean(Something.class).one();
 
         assertThat(insertCount).isEqualTo(1);
         assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
@@ -293,7 +293,7 @@ public class TestNamedParams {
         s.bindBean(new Keith());
         int insertCount = s.execute();
         assertThat(insertCount).isEqualTo(1);
-        Something something = h.createQuery("select id, name from something").mapToBean(Something.class).findOnly();
+        Something something = h.createQuery("select id, name from something").mapToBean(Something.class).one();
         assertThat(something).isEqualTo(new Something(0, "Keith"));
     }
 

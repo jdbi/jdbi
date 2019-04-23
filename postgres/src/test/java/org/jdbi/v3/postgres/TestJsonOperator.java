@@ -32,100 +32,100 @@ public class TestJsonOperator {
         assertThat(db.getHandle()
             .createQuery("SELECT '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json->2")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("{\"c\":\"baz\"}");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\": {\"b\":\"foo\"}}'::json->'a'")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("{\"b\":\"foo\"}");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '[1,2,3]'::json->>2")
             .mapTo(Integer.class)
-            .findOnly())
+            .one())
             .isEqualTo(3);
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":1,\"b\":2}'::json->>'b'")
             .mapTo(Integer.class)
-            .findOnly())
+            .one())
             .isEqualTo(2);
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\": {\"b\":{\"c\": \"foo\"}}}'::json#>'{a,b}'")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("{\"c\": \"foo\"}");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":[1,2,3],\"b\":[4,5,6]}'::json#>>'{a,2}'")
             .mapTo(Integer.class)
-            .findOnly())
+            .one())
             .isEqualTo(3);
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb @> '{\"b\":2}'::jsonb")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"b\":2}'::jsonb <@ '{\"a\":1, \"b\":2}'::jsonb")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
 
         // ? escaped to ??
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? 'b'")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
 
         // ?| escaped to ??|
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2, \"c\":3}'::jsonb ??| array['b', 'c']")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
 
         // ?& escaped to ??&
         assertThat(db.getHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb ??& array['a', 'b']")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
 
         assertThat(db.getHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb || '[\"c\", \"d\"]'::jsonb")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("[\"a\", \"b\", \"c\", \"d\"]");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\": \"b\"}'::jsonb - 'a'")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("{}");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '{\"a\": \"b\", \"c\": \"d\"}'::jsonb - '{a,c}'::text[]")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("{}");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb - 1")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("[\"a\"]");
 
         assertThat(db.getHandle()
             .createQuery("SELECT '[\"a\", {\"b\":1}]'::jsonb #- '{1,b}'")
             .mapTo(String.class)
-            .findOnly())
+            .one())
             .isEqualTo("[\"a\", {}]");
     }
 
@@ -135,7 +135,7 @@ public class TestJsonOperator {
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
             .bind("key", "a")
             .mapTo(boolean.class)
-            .findOnly())
+            .one())
             .isEqualTo(true);
     }
 }

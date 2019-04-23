@@ -121,7 +121,7 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
         assertThat(h.createQuery("select :vt::json ->> 'a'")
                 .bindByType("vt", viewValue, viewJsonType)
                 .mapTo(Integer.class)
-                .findOnly())
+                .one())
             .isNull();
     }
 
@@ -130,7 +130,7 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
         h.getConfig(Jackson2Config.class).setDeserializationView(ViewTest.ViewA.class);
         assertThat(h.createQuery("select '{\"a\":42,\"b\":43}'::json")
                 .mapTo(viewJsonType)
-                .findOnly())
+                .one())
             .extracting(ViewTest::getA, ViewTest::getB)
             .containsExactly(42, 0);
     }

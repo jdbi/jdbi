@@ -47,7 +47,7 @@ public class TestVendorArrays {
             String[] seasons = handle.createQuery("select seasons from player_stats where name=:name")
                     .bind("name", "Jack Johnson")
                     .mapTo(String[].class)
-                    .findOnly();
+                    .one();
             assertThat(seasons).containsExactly("2013-2014", "2014-2015", "2015-2016");
         }
     }

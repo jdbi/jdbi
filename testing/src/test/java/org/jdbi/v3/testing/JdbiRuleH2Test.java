@@ -24,7 +24,7 @@ public class JdbiRuleH2Test {
 
     @Test
     public void isAlive() {
-        Integer one = h2.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).findOnly());
+        Integer one = h2.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
 
         assertThat(one).isEqualTo(1);
     }

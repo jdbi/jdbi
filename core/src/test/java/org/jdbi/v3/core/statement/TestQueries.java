@@ -179,8 +179,7 @@ public class TestQueries {
 
         Something r = h.createQuery("select * from something order by id")
                        .mapToBean(Something.class)
-                       .findFirst()
-                       .get();
+                       .first();
 
         assertThat(r.getName()).isEqualTo("eric");
     }
@@ -275,8 +274,8 @@ public class TestQueries {
     @Test
     public void testNullValueInColumn() {
         h.execute("insert into something (id, name) values (?, ?)", 1, null);
-        Optional<String> s = h.createQuery("select name from something where id=1").mapTo(String.class).findFirst();
-        assertThat(s.isPresent()).isFalse();
+        String s = h.createQuery("select name from something where id=1").mapTo(String.class).first();
+        assertThat(s).isNull();
     }
 
     @Test

@@ -72,7 +72,7 @@ public class TestPreparedBatch {
         }
         b.execute();
 
-        int rowCount = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
+        int rowCount = h.createQuery("select count(id) from something").mapTo(int.class).one();
 
         assertThat(rowCount).isEqualTo(count);
     }

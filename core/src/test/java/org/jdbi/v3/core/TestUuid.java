@@ -50,6 +50,6 @@ public class TestUuid {
             .bind("uuid", u)
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM foo").mapTo(UUID.class).findOnly()).isEqualTo(u);
+        assertThat(h.createQuery("SELECT * FROM foo").mapTo(UUID.class).one()).isEqualTo(u);
     }
 }

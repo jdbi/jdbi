@@ -41,7 +41,7 @@ public class TestArgumentFactory {
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
 
-            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).one();
 
             assertThat(fullName).isEqualTo("Brian McCallister");
         }
@@ -56,7 +56,7 @@ public class TestArgumentFactory {
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
 
-            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+            String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).one();
 
             assertThat(fullName).isEqualTo("Brian McCallister");
         }

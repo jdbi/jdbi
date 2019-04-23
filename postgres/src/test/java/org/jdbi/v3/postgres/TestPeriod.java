@@ -68,7 +68,7 @@ public class TestPeriod {
         Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 4)
                 .mapTo(Period.class)
-                .findOnly();
+                .one();
         assertThat(p.isZero());
     }
 
@@ -78,7 +78,7 @@ public class TestPeriod {
         final Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 5)
                 .mapTo(Period.class)
-                .findOnly();
+                .one();
         assertThat(p).isNull();
     }
 
@@ -88,7 +88,7 @@ public class TestPeriod {
         final Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 6)
                 .mapTo(Period.class)
-                .findOnly();
+                .one();
         assertThat(p).isEqualTo(testPeriod);
     }
 
@@ -97,7 +97,7 @@ public class TestPeriod {
         assertThatThrownBy(() -> handle.createQuery("select foo from intervals where id=?")
             .bind(0, 3) // The bad one.
             .mapTo(Period.class)
-            .findOnly()).isInstanceOf(IllegalArgumentException.class);
+            .one()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class TestPeriod {
         final Period p = handle.createQuery("select foo from intervals where id=?")
             .bind(0, 7)
                 .mapTo(Period.class)
-                .findOnly();
+                .one();
         assertThat(p).isEqualTo(Period.of(-3, -1, 2));
     }
 }

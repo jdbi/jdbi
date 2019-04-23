@@ -32,7 +32,7 @@ public class TestStatements {
             // this is what is under test here
             int rowsAffected = i.insert(2, "Diego");
 
-            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
+            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).one();
 
             assertThat(rowsAffected).isEqualTo(1);
             assertThat(name).isEqualTo("Diego");
@@ -45,7 +45,7 @@ public class TestStatements {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
-            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
+            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).one();
 
             assertThat(name).isEqualTo("Diego");
         });

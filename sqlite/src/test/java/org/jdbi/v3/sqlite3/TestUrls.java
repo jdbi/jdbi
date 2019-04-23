@@ -52,7 +52,7 @@ public class TestUrls {
                 .bind("url", googleUrl)
                 .execute();
 
-        URL actualUrl = handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly();
+        URL actualUrl = handle.createQuery("SELECT url FROM foo").mapTo(URL.class).one();
         Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
     }
 
@@ -62,7 +62,7 @@ public class TestUrls {
                 .bind("url", ((URL) null))
                 .execute();
 
-        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly())
+        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).one())
             .isInstanceOf(ResultSetException.class);
     }
 
@@ -74,7 +74,7 @@ public class TestUrls {
                 .bindByType("url", githubUrl, URL.class)
                 .execute();
 
-        URL dbUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).findOnly();
+        URL dbUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).one();
         Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
     }
 
@@ -84,7 +84,7 @@ public class TestUrls {
                 .bindByType("url", null, URL.class)
                 .execute();
 
-        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).findOnly())
+        assertThatThrownBy(() -> handle.createQuery("SELECT url FROM foo").mapTo(URL.class).one())
             .isInstanceOf(ResultSetException.class);
     }
 

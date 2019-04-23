@@ -665,7 +665,7 @@ public class JpaTest {
 
             assertThat(handle.select("SELECT name FROM something WHERE id = 2")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isEqualTo("zyx");
         });
     }
@@ -754,7 +754,7 @@ public class JpaTest {
 
             assertThat(handle.select("SELECT name FROM something WHERE id = 2")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isEqualTo("zyx");
         });
     }
@@ -843,7 +843,7 @@ public class JpaTest {
 
             assertThat(handle.select("SELECT name FROM something WHERE id = 2")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isEqualTo("zyx");
         });
     }
@@ -932,7 +932,7 @@ public class JpaTest {
 
             assertThat(handle.select("SELECT name FROM something WHERE id = 2")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isEqualTo("zyx");
         });
     }

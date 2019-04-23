@@ -42,7 +42,7 @@ public class TestMapMapper {
     public void testCaseDefaultNop() {
         h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.NOP);
 
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
+        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("Id", "FirstName");
     }
@@ -51,7 +51,7 @@ public class TestMapMapper {
     public void testCaseLower() {
         h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOCALE_LOWER);
 
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
+        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("id", "firstname");
     }
@@ -60,7 +60,7 @@ public class TestMapMapper {
     public void testCaseUpper() {
         h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOCALE_UPPER);
 
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().findOnly();
+        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("ID", "FIRSTNAME");
     }

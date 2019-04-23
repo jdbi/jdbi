@@ -33,6 +33,6 @@ public class DateTimeTest {
         DateTime dt = new DateTime();
         h.execute("insert into stuff(ts) values (?)", dt);
 
-        assertThat(h.createQuery("select ts from stuff").mapTo(DateTime.class).findOnly()).isEqualTo(dt);
+        assertThat(h.createQuery("select ts from stuff").mapTo(DateTime.class).one()).isEqualTo(dt);
     }
 }

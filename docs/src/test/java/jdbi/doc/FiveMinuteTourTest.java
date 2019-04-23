@@ -131,7 +131,7 @@ public class FiveMinuteTourTest {
         String name = handle.createQuery("select name from contacts where id = ?")
                             .bind(0, 3)
                             .mapTo(String.class)
-                            .findOnly();
+                            .one();
         // end::positionalParameters[]
         assertThat(name).isEqualTo("Chuck");
     }
@@ -148,7 +148,7 @@ public class FiveMinuteTourTest {
         String name = handle.createQuery("select name from contacts where id = :id")
                             .bind("id", 3)
                             .mapTo(String.class)
-                            .findOnly();
+                            .one();
         // end::namedParameters[]
         assertThat(name).isEqualTo("Chuck");
     }

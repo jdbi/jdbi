@@ -83,7 +83,7 @@ public class TestQualifiedHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
-                .findOnly();
+                .one();
         assertThat(newCaps).isEmpty();
     }
 
@@ -93,7 +93,7 @@ public class TestQualifiedHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
-                .findOnly();
+                .one();
         assertThat(newCaps).isNull();
     }
 
@@ -116,7 +116,7 @@ public class TestQualifiedHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 3)
                 .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
-                .findOnly();
+                .one();
         assertThat(newCaps).isEqualTo(caps);
     }
 
