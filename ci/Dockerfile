@@ -1,7 +1,5 @@
 FROM openjdk:8-jdk
 
-ENV _JAVA_OPTIONS -Djdk.net.URLClassPath.disableClassPathURLCheck=true
-
 RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-transport-https \
     ca-certificates \
