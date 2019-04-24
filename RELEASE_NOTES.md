@@ -1,4 +1,4 @@
-#3.8.0
+# 3.8.0
 - New Features
   - `RowViewMapper` lets you use higher level `RowView` in a `RowMapper`.
   - `ResultIterable.first()` returns the first row. Throws an exception if there are zero rows.
@@ -9,13 +9,13 @@
 - Deprecated API
   - `ResultIterable.findOnly()` is deprecated, in favor of the new method `ResultIterable.one()`.
 
-#3.7.1
+# 3.7.1
 - New Features
   - Initial Java Module System support via Automatic-Module-Name
 - Improvements
   - Postgres JDBC driver is now <scope>provided</scope> to avoid fighting with servlet containers.
 
-#3.7.0
+# 3.7.0
 - New Features
   - @AllowUnusedBindings SqlObject customizer, like SqlStatements.setUnusedBindingsAllowed
   - Enums config class to change the default policy for binding and mapping Enum values.
@@ -49,7 +49,7 @@
 - Minor source incompatibility
   - JdbiPlugin methods now `throws SQLException`
 
-#3.6.0
+# 3.6.0
 - New Features
   - ConnectionFactory now also may customize connection closing
   - GenericTypes.findGenericParameter(Type, Class) now also takes an index, e.g. to resolve `V`
@@ -87,7 +87,7 @@
 - API changes
   - SQLitePlugin now has the ServiceLoader manifest it deserves for automagical installation.
 
-#3.5.2
+# 3.5.2
 - Bug Fixes
   - bindList throws an NPE if called with an immutable list,
     method is safe according to the specification
@@ -95,7 +95,7 @@
   - improve binding private implementations of interfaces
   - improved loggability (through SqlLogger) of JDBI's built-in Argument instances
 
-#3.5.1
+# 3.5.1
 (whoops, 3.5.0 was released from the wrong commit!)
 - New API
   - SqlStatements.allowUnusedBindings allows you to bind Arguments to query parts that may be
@@ -125,7 +125,7 @@
   - test on openjdk11
   - EnumSet mapping support
 
-#3.4.0
+# 3.4.0
 NOTE: this release's git tags are missing due to maintainer error!
 - New API
   - StatementException.getShortMessage
@@ -136,7 +136,7 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Improvements
   - Handle `null` values in defined attributes
 
-#3.3.0
+# 3.3.0
 - New API
   - SerializableTransactionRunner.setOnFailure(), setOnSuccess() methods allow callbacks to be
     registered to observe transaction success and failure.
@@ -166,10 +166,10 @@ NOTE: this release's git tags are missing due to maintainer error!
   - Remove StringSubstitutorTemplateEngine.defaults(), .withCustomizer() factory methods, in
     favor of the corresponding public constructors.
 
-#3.2.1
+# 3.2.1
 - Fix IllegalArgumentException "URI is not hierarchical" in FreemarkerSqlLocator.
 
-#3.2.0
+# 3.2.0
 - New modules:
   - jdbi3-testing - JdbiRule test rule for JUnit tests
   - jdbi3-freemarker - render SQL templates using FreeMarker
@@ -199,12 +199,12 @@ NOTE: this release's git tags are missing due to maintainer error!
   - LocalDate binding should store the correct date when the server and database are running
     in different time zones.
 
-#3.1.1
+# 3.1.1
 - Improve IBM JDK compatibility with default methods
 - Allow non-public SqlObject types!!!
 - Fix some ThreadLocal and StringTemplate leaks
 
-#3.1.0
+# 3.1.0
 - The strict transaction handling check in Handle.close() may be disabled via
   getConfig(Handles.class).setForceEndTransactions(false).
 - StringTemplate SQL locator supports StringTemplate groups importing from other groups.
@@ -225,7 +225,7 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Fixed regression in Postgres typed enum mapper, which caused a fallback on the
   Jdbi default enum mapper.
 
-#3.0.1
+# 3.0.1
 - Kotlin mapper support for @Nested annotation
 - ReflectionMapperUtil utility class made public.
 - collectInto() and SQL Object return type support for OptionalInt, OptionalLong,
@@ -234,10 +234,10 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Workaround for multithreaded race condition loading StringTemplate STGroups and templates.
 - Column mapper for Vavr Option.
 
-#3.0.0
+# 3.0.0
 - [breaking] Added ConfigRegistry parameter to SqlLocator.locate() method.
 
-#3.0.0-rc2
+# 3.0.0-rc2
 - Row and column mapper for Optional types
 - Binding of nested attributes e.g. ":user.address.city" with bindBean(), bindMethods(),
   bindFields(), as well as @BindBean, @BindMethods, and @BindFields in SQL objects.
@@ -248,11 +248,11 @@ NOTE: this release's git tags are missing due to maintainer error!
   via the new SqlParser.nameParameter() method. e.g. ":foo" for ColonPrefixSqlParser, vs
   "#foo" for HashPrefixSqlParser.
 
-#3.0.0-rc1
+# 3.0.0-rc1
 - SQL Object methods may have a Consumer<T> instead of a return type. See
   http://jdbi.github.io/#_consumer_methods.
 
-#3.0.0-beta4
+# 3.0.0-beta4
 - [breaking] ResultSetMapper -> ResultSetScanner; reducing overloaded 'Mapper'
 - PreparedBatch: throw an exception if you try to add() an empty binding
 - [breaking] Removed column mapper fallback behavior from
@@ -270,7 +270,7 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Added support for Vavr object-functional data types in jdbi3-vavr module.
 - java.time.ZoneId support
 
-#3.0.0-beta3
+# 3.0.0-beta3
 - Added Kotlin extension methods to Jdbi class, to work around Kotlin's lack
   of support for exception transparency: withHandleUnchecked,
   useHandleUnchecked, inTransactionUnchecked, useTransactionUnchecked,
@@ -280,7 +280,7 @@ NOTE: this release's git tags are missing due to maintainer error!
 - [breaking] StatementContext.getParsedSql() now returns a ParsedSql instead of String
 - [breaking] Remove SqlStatement fetchForward / Reverse ; statements now FORWARD_ONLY
 
-#3.0.0-beta2
+# 3.0.0-beta2
 - [breaking] Removed Handle.update() and Handle.insert(), in favor of
   Handle.execute(), which does the same thing. Handle.execute() now returns
   the update count.
@@ -297,7 +297,7 @@ NOTE: this release's git tags are missing due to maintainer error!
 - [breaking] remove TransactionStatus enum
 - [breaking] Refactored StatementRewriter into TemplateEngine and SqlParser.
 
-#3.0.0-beta1
+# 3.0.0-beta1
 - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
   - Now returns new SqlStatementParameterCustomizer type, so parameter customizers
     can be cached and reused for performance.
@@ -327,7 +327,7 @@ NOTE: this release's git tags are missing due to maintainer error!
   - IllegalArgumentException with @SqlBatch when the batch is empty
   - NullPointerException when `null` is bound to an array column.
 
-#3.0.0-beta0
+# 3.0.0-beta0
 - Redesigned for Java 8 - lambdas, streams, optionals, exception transparency
 - Support for java.time (JSR-310) types like LocalDate and OffsetDateTime
 - Better support for custom collection types, using Java 8 Collector
@@ -341,34 +341,34 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Migration-friendly: Jdbi v2 and v3 will happily coexist within the same
   project, so you can migrate at your own pace.
 
-#2.78
+# 2.78
 - @BindIn: fix handling of empty lists on Postgres
 - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload
 - expose Script.getStatements()
 
-#2.77
+# 2.77
 - Improved BindIn functionality: can now process Iterables and arrays/varargs
   of any type, and has configurable handling for a null/empty argument.
   Check the source code comments or your IDE hints for details.
 
-#2.76
+# 2.76
 - SPRING BREAKING CHANGE: move from Spring 2 to Spring 3, how timely of us
 - SQL lookups in the context of a SqlObject method now also find according
   to the same rules as annotation
 - DefaultMapper now has option to disable case folding
 - Fix AbstractMethodError swallowing in SqlObject methods
 
-#2.75
+# 2.75
 - simple @GetGeneratedKeys @SqlBatch support (only int keys for now)
 - ClasspathStatementLocator performance improvements
 
-#2.74
+# 2.74
 - cglib 3.2.2, asm 5.1; fixes codegen for new Java 8 bridge methods
 - @UseStringTemplate3StatementLocator now caches created locators
 - new @OutParameter annotation for fetching named out params on @SqlCall methods
 - expose Handle.isClosed
 
-#2.73
+# 2.73
 - Allow clearing of bindings in SQLStatement
 - (finally!) parse Postgres CAST syntax 'value::type' properly in colon
   prefix statements
@@ -376,14 +376,14 @@ NOTE: this release's git tags are missing due to maintainer error!
 - fix @SqlUpdate @GetGeneratedKeys to allow non-number return types
 - Expose Foreman on StatementContext
 
-#2.72
+# 2.72
 - Support for the ability to provide a list of the column names returned
   in a prepared batch #254
 
-#2.71
+# 2.71
 - fix @BindBean of private subtypes, #242
 
-#2.70
+# 2.70
 *** MAJOR CHANGES ***
 - allow JDK8 default methods in SQLObject interfaces. Backport of #190.
 - switch to standard Maven toolchains.xml for cross-compilation, #169.
@@ -403,17 +403,17 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Cache StatementRewriter parsing of statements
 - Support mapping of URI, char, Character types
 
-#2.63
+# 2.63
 - Include lambda-friendly callback methods on Handle and DBI, #156
 
-#2.62
+# 2.62
 - Also include asm in shade, fixes build.  Sorry about the broken releases...
 
-#2.61
+# 2.61
 *** DO NOT USE ***
 - Fix shading broken in 2.60, fixes #152
 
-#2.60
+# 2.60
 *** DO NOT USE ***
 - Fix Javadoc generation for JDK6 and JDK8
 - Add support for /* */ style comments in statements
@@ -424,14 +424,14 @@ NOTE: this release's git tags are missing due to maintainer error!
 - Switch to using cglib instead of cglib-nodep so we can pull ASM 5.0.2 which is Java 8 compatible
 - Classmate to 1.1.0
 
-#2.59
+# 2.59
 - Fixes #137, broken ClasspathStatementLocator cache (thanks @HiJon89).
 - Recognize MySQL REPLACE statements
 
-#2.58
+# 2.58
 - Identical to 2.57 except that the jar is correctly shaded.
 
-#2.57
+# 2.57
 *** DO NOT USE ***
 - Packaging for 2.57 was accidentially broken, use 2.58 instead.
   Thanks to @HiJon89 for spotting the problem!
@@ -440,21 +440,21 @@ NOTE: this release's git tags are missing due to maintainer error!
 - fix connection leak in on-demand sqlobject (thanks @pmaury)
 - code cleanups
 
-#2.54
+# 2.54
 - fix cleanup bug when e.g. cleanupHandle was called multiple times
   on the same query.
 - Generic object binding uses specific type if value is non-null.
 
-#2.53
+# 2.53
 - Tests now run in parallel
 - Added Template supergroup loading to StringTemplate3StatementLocator
 - add a global cache for templates loaded from an annotation.
 - fix a handler cache bug.
 
-#2.52
+# 2.52
 - not released
 
-#2.51
+# 2.51
 - fix PMD, Findbugs and javadoc complaints
 - clean license headers in all source files
 - use basepom.org standard-oss base pom to build, build with all checkers enabled
@@ -462,65 +462,65 @@ NOTE: this release's git tags are missing due to maintainer error!
 - use classmate 0.9.0 (from 0.8.0)
 - make all dependencies that are not required optional (not provided)
 
-#2.50
+# 2.50
 - add travis setup for autobuilds
 - Remove log4j dependency for slf4j logger
 - Ensure that compilation using JDK7 or better uses a JDK6 rt.jar
 - Fix the @BindBean / Foreman.waffle code to use correct ArgumentFactories and not just the ObjectArgumentFactory
 - fix spurious test failures when using newer versions of the surefire plugin
 
-#2.45
+# 2.45
 - Support for setting Enum values from strings in BeanMapper
   
-#2.44
+# 2.44
 - Add java.io.Closeable to Handle and ResultIterator
  
-#2.35
+# 2.35
 - Use CGLIB for sql objects instead of dyanmic proxies
 - Support for classes as well as interfaces in the sql object api
 - Add @Transaction for non @Sql* methods in sql objects
 - @CreateSqlObject annotation sql objects to replace Transmogrifier
 
-#2.31
+# 2.31
 - Add access to ResultSet on FoldController
 
-#2.12
+# 2.12
 - Registered Mappers on DBi and Handle, and the Query#mapTo addition
 - Sql Object API
 
-#2.11
+# 2.11
 - Botched release attempt with Maven 3
 
-#2.10.2
+# 2.10.2
 - Bugfix: Allow escaping of arbitrary characters in the SQL source, especially allow
   escaping of ':' (which is needed for postgres type casts)
 
-#2.10.0
+# 2.10.0
 - minor code cleanups to reduce number of warnings
 - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
   two implementations of the Interface, one for Maps and one for BeanProperties.
 - Add ability to set query timeout (in seconds) on SqlStatement
 
-#2.9.3
+# 2.9.3
 - Add <url /> element to pom so can get into central :-)
 
-#2.9.2
+# 2.9.2
 - Add ` as a legal SQL character in colon prefix grammar
 - non-existent release, fighting maven
 
-#2.9.1
+# 2.9.1
 - First 2.9 series release
 
-#2.9.0
+# 2.9.0
 - Make the DefaultMapper public.
 - Aborted, trying to make gpg signing work correctly
 
-#2.8.0
+# 2.8.0
 - Add methods to SqlStatement and PreparedBatch that allow adding a set of defines
   to the context in one go.
 - Add ~ { and } as legal characters in the colon prefix grammar
 
-#2.7.0
+# 2.7.0
 - A TimingCollector was added which can be registered on the DBI or handle which then
   gets called with nanosecond resolution elapsed time every time a statement is run
   against the data base.
@@ -538,41 +538,41 @@ NOTE: this release's git tags are missing due to maintainer error!
   into the Argument classes. Keep the checks for object/primitive
   types in SQL to avoid boxing/unboxing overhead.
 
-#2.6.0
+# 2.6.0
 - Fix a number of compiler warnings
 - Add new binding methods for SqlStatement
   - Integer, Boolean, Byte, Long, Short  Object
   - double, float, short primitive
 - All bind methods taking an object should check for null values and bind a NullArgument accordingly.
 
-#2.5.0
+# 2.5.0
 - Add new binding methods for SqlStatement
   - char types
   - boolean as int (for DBs missing a boolean type)
 - Re-add unit test removed in 2.4.9 with unicode escapes
 
-#2.4.9
+# 2.4.9
 - Remove Unit tests that fails depending on Platform Encoding
 
-#2.4.8
+# 2.4.8
 - Switch to ANTLR 3 for grammars so that shading works again
 
-#2.4.5
+# 2.4.5
 - Move source code to github
 
-#2.4.4
+# 2.4.4
 - Fix several dependency and shading issues which came up from the
 ant to conversion.
 
-#2.4.3
+# 2.4.3
 - Add better messages on statement exceptions
 
-#2.4.2
+# 2.4.2
 - Switch to maven2 for builds
 - Add the statement context to statement related exceptions, including a new
   DBIExcpetion abstact subclass, StatementException, which exposes this.
 
-#2.3.0
+# 2.3.0
 - Fix OracleReturning compile time dependency using Reflection.
 - Deprecated OracleReturning.
 - Added CallableStatement support :
@@ -581,42 +581,42 @@ ant to conversion.
 - Fixes to colon prefix grammar to support empty string literals and escaped quotes.
 - Added access to more of the actual context for a statement to StatementContext
 
-#2.2.2
+# 2.2.2
 - Change OracleReturning to use oracle.jdbc.oraclePreparedStatement for
   compatibility with ojdbc6.jar compatibility
 
-#2.2.1
+# 2.2.1
 - Fix a result set leak in the case of a Mapper raising an exception rather
 than returning cleanly
 
-#2.2.0
+# 2.2.0
 - Add DBI#inTransaction
 
-#2.1.1
+# 2.1.1
 - Add timing info to logging calls
 
-#2.1.0
+# 2.1.0
 - Add Query#fold
 - Add additional logging around handles and transactions
 
-#2.0.2
+# 2.0.2
 - Clean up a NullPointerException which was masking an UnableToCreateStatementException
 
-#2.0.1
+# 2.0.1
 - Add '!' to the characters for LITERAL in the colon prefix grammar
 
-#2.0.0
+# 2.0.0
 - Add Query#list(int) in order to allow for a maximum resukt size from eager query execution.
 - Add sql logging facility
 
-#1.4.6
+# 1.4.6
 - Fix an NPE when dealing with metadata in Args.
 
-#2.0pre17
+# 2.0pre17
 - Change statement customizer to have before and after callbacks
 - Change OracleReturning to use the after callback to extract results
 
-#2.0pre16
+# 2.0pre16
 - Clean up the build so the stringtemplate stuff is useful
 - SqlStatement#bind(*, Character) which converts to a string
 - Provide a non-caching default statement builder
@@ -624,16 +624,16 @@ than returning cleanly
 - Allow re-use of a prepared batch by clearing the parts prior to execution
 - Change query iterated results to clean resources in the same manner as list, just later
 
-#2.0pre15
+# 2.0pre15
 - Move StringTemplate stuff back into unstable
 - Support for checkpointed transactions
 
-#2.0pre14
+# 2.0pre14
 - Add convenience classes for one value result sets
 - StringTemplate 3.0 based statement locator and a classpath based loader
 - Improve grammar for named param parsing (| in LITERAL)
 
-#2.0pre13
+# 2.0pre13
 - Spring (2.0) support classes
 - Add ability to define statement attributes at the DBI and Handle levels
 - Have prepared batch use the statement locator
@@ -645,111 +645,111 @@ than returning cleanly
 - Allow setting attributes on statement contexts for batches and prepared batches
 - SqlStatement.bindNull(...)
 
-#2.0pre12
+# 2.0pre12
 - [bugfix] Pass statement context into result mapped queries
 
-#2.0pre11
+# 2.0pre11
 - Create the StatementContext to allow for tunneling state into the various
 client defined tweakables
 
-#2.0pre10
+# 2.0pre10
 - allow numbers in named params
 
-#2.0pre9
+# 2.0pre9
 - Fix up IDBI to have the DBI functional methods and not the config methods
 
-#2.0pre8
+# 2.0pre8
 - Add double quote handling to named param magic
 
-#2.0pre7
+# 2.0pre7
 - Added Oracle DML Returning features
 
-#2.0pre6
+# 2.0pre6
 - Pluggable statement builders
 - More literal characters in the named statement parser
 
-#2.0pre5
+# 2.0pre5
 - Improve grammar for named param parsing (_ @ and _ in LITERAL)
 
-#2.0pre4
+# 2.0pre4
 - Switch to an ANTLR based grammar for named param parsing
 
-#2.0pre3
+# 2.0pre3
 - JDBC4 Style "Ease of Development" and API Docs
 
-#2.0pre2
+# 2.0pre2
 - Flesh out convenience APIS
 
-#2.0pre1
+# 2.0pre1
 - Complete Rewrite
 
-#1.4.5
+# 1.4.5
 - Fix bug in caching added in 1.4.4
 - Optimize statement literal or named statement detection
 
-#1.4.4
+# 1.4.4
 - Allow for create/drop/alter statements
 - Cache whether or not a driver supports asking for prepared statement parameter types
 
-#1.4.3
+# 1.4.3
 - Handle drivers (such as Oracle) which throw an exception when trying to retrieve
   prepared statement parameter type information.
 
-#1.4.2
+# 1.4.2
 - Be explicit about target jdk version (1.4) for this branch
 
-#1.4.1
+# 1.4.1
 - Fixed bug where null is being set via setObject instead of setNull. Thank you, Simone Gianni!
 
-#1.4.0
+# 1.4.0
 - Expose the new functionality on interfaces as well as concrete classes
 
-#1.3.3
+# 1.3.3
 - Expose the handle decorator functionality on the IDBI interface
 - Add a script locator mechanism analogous to the statement locator
 
-#1.3.2
+# 1.3.2
 - Save SQLException to provide more information to the DBIException on statement execution
 
-#1.3.1
+# 1.3.1
 - Issue with a matcher not being reset which only showed up under jdk 1.5. Thank you Patrick!
 
-#1.3.0
+# 1.3.0
 - Wrap exceptions thrown from handle in Spring DataAccessExceptions for the
   Spring adaptor. Thank you Thomas Risberg.
 - Support for "global" named parameters at the handle and DBI levels
 
-#1.2.5
+# 1.2.5
 - Change Handle#script to batch the statements in the script
 
-#1.2.4
+# 1.2.4
 - Bug fix in named parameter handling with quotes (would ignore some named params incorrectly)
 
-#1.2.3
+# 1.2.3
 - Allow configuring transaction handlers in properties
 - Allow configuring of externalized sql locating (ie, non-classpath)
 
-#1.2.2
+# 1.2.2
 - Add callback based transaction handling in order to cleanly support the various
   transactional contexts (CMT, BMT, Spring, Local) etc.
 
-#1.2.1
+# 1.2.1
 - Via the Spring DBIBean, IDBI#open(HandleCallback) now uses the transactionally bound handle
   if there is one.
 
-#1.2.0
+# 1.2.0
 - DBIException now extends RuntimeException. The 7 character change major release =)
 - Added DBIUtils.closeHandleIfNecessary(Handle, IDBI) to allow for transparently managing
   transactions and connections in Spring whteher tx's are enabled or not.
 
-#1.1.2
+# 1.1.2
 - Handle#query(String, RowCallback): void no longer starts a transaction automagically
 
-#1.1.1
+# 1.1.1
 - Support full-line comments in external sql and sql scripts. Full line comments
   must begin with # or // or -- as the first character(s) on the line.
 
-#1.1.0
+# 1.1.0
 - Added handle#first(..): Map convenience functions to query for individual rows
 - Removed DBITransactionFailedException and used plain old DBIException in its place
 - Added unstable package for holding elements subject to API changes during a major release cycle.
@@ -763,44 +763,44 @@ client defined tweakables
   (read the javadocs if you use this method)
 - Removed method Handle#query(String, Object, Object). Could lead to confusion with changed behavior mentioned above
 
-#1.0.10
+# 1.0.10
 - Batch and PreparedBatch Support
 - Removed an unused exception
 - Fixed bug in named parameter extractor (would miss named params not preceeded by whitespace)
 
-#1.0.9
+# 1.0.9
 - Better auto-detection of statement type (named, raw sql, etc)
 
-#1.0.8
+# 1.0.8
 - Spring integration tools
 
-#1.0.7
+# 1.0.7
 - Provide an interface for the DBI class in order to play nicer with proxies
 
-#1.0.6
+# 1.0.6
 - Prepared statement re-use was failing on Oracle, fixed.
 
-#1.0.5
+# 1.0.5
 - Fleshed out the execute(..) methods to take full array of arguments, like query.
 - Added update(..): int which return number of rows affected
 - Lots of internal refactoring
 
-#1.0.4
+# 1.0.4
 - Was swallowing an exception in one place for the (brief) 1.0.3 release. Definitely upgrade if using 1.0.3
 
-#1.0.3
+# 1.0.3
 - Fixed a bug where quoted text could be interpreted as named tokens, bad me.
 - Added HandleCallback methods to DBI to manage handle db resources etc for clients.
 - Removed test dependency on Jakarta commons-io, which had been used, previously,
   for deleting the test database. Tests now depend only on derby and junit, still
   with no runtime dependencies (other than the JDBC driver for your database).
 
-#1.0.2
+# 1.0.2
 - Added facility for loading connection info from properties file
   for convenience. Totally optional, thankfully.
 
-#1.0.1
+# 1.0.1
 - Added overloaded argument signatures to callback-based queries
 
-#1.0
+# 1.0
 - Initial Release
