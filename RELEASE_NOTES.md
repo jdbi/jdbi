@@ -1,11 +1,13 @@
 #3.8.0
-- API Changes
+- New Features
+  - `RowViewMapper` lets you use higher level `RowView` in a `RowMapper`.
   - `ResultIterable.first()` returns the first row. Throws an exception if there are zero rows.
   - `ResultIterable.one()` returns the only row. Throws an exception if there are zero or multiple
     rows.
   - `ResultIterable.findOne()` returns an `Optional<T>` of the only row, or `Optional.empty()` if
     there are zero rows, or the only row is `null`. Throws an exception if there are multiple rows.
-  - `ResultIterable.findOnly()` is deprecated, in favor of `ResultIterable.one()`.
+- Deprecated API
+  - `ResultIterable.findOnly()` is deprecated, in favor of the new method `ResultIterable.one()`.
 
 #3.7.1
 - New Features
