@@ -556,8 +556,9 @@ include::{exampledir}/StatementsTest.java[tags=query]
 To get a single row from a query, there are a few possible methods to use,
 depending on the number of rows that might be in the result set.
 
-Call `one()` when the result contains exactly one row. Throws an exception if
-the result has zero or multiple rows.
+Call `one()` when you expect the result to contain exactly one row. Returns
+`null` only if the returned row maps to `null`. Throws an exception if the
+result has zero or multiple rows.
 
 [source,java]
 ----
@@ -566,8 +567,9 @@ String name = handle.select("select name from users where id = ?", 3)
     .one();
 ----
 
-Call `findOne()` when the result contains zero or one row. Throws an exception
-if the result has multiple rows.
+Call `findOne()` when you expect the result to contain zero or one row. Returns
+`Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
+an exception if the result has multiple rows.
 
 [source,java]
 ----
@@ -576,8 +578,9 @@ Optional<String> name = handle.select(...)
     .findOne();
 ----
 
-Call `first()` when the result contains at least one row. Throws an exception
-if the result has zero rows.
+Call `first()` when you expect the result to contain at least one row. Returns
+`null` if the first row maps to `null`. Throws an exception if the result has
+zero rows.
 
 [source,java]
 ----
@@ -586,7 +589,8 @@ String name = handle.select("select name from users where id = ?", 3)
     .first();
 ----
 
-Call `findFirst()` when the result may contain any number of rows.
+Call `findFirst()` when the result may contain any number of rows. Returns
+`Optional.empty()` if there are no rows, or the first row maps to `null`.
 
 [source,java]
 ----

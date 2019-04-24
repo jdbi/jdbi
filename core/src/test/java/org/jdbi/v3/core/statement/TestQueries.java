@@ -174,14 +174,66 @@ public class TestQueries {
 
     @Test
     public void testFirstResult() {
+        Query query = h.createQuery("select name from something order by id");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).first()).isInstanceOf(IllegalStateException.class);
+        assertThat(query.mapTo(String.class).findFirst()).isEmpty();
+
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        Something r = h.createQuery("select * from something order by id")
-                       .mapToBean(Something.class)
-                       .first();
+        assertThat(query.mapTo(String.class).first()).isEqualTo("eric");
+        assertThat(query.mapTo(String.class).findFirst()).contains("eric");
+    }
 
-        assertThat(r.getName()).isEqualTo("eric");
+    @Test
+    public void testFirstResultNull() {
+        Query query = h.createQuery("select name from something order by id");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).first()).isInstanceOf(IllegalStateException.class);
+        assertThat(query.mapTo(String.class).findFirst()).isEmpty();
+
+        h.execute("insert into something (id, name) values (1, null)");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        assertThat(query.mapTo(String.class).first()).isNull();
+        assertThat(query.mapTo(String.class).findFirst()).isEmpty();
+    }
+
+    @Test
+    public void testOneResult() {
+        Query query = h.createQuery("select name from something order by id");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
+        assertThat(query.mapTo(String.class).findOne()).isEmpty();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+
+        assertThat(query.mapTo(String.class).one()).isEqualTo("eric");
+        assertThat(query.mapTo(String.class).findOne()).contains("eric");
+
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> query.mapTo(String.class).findOne()).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    public void testOneResultNull() {
+        Query query = h.createQuery("select name from something order by id");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
+        assertThat(query.mapTo(String.class).findOne()).isEmpty();
+
+        h.execute("insert into something (id, name) values (1, null)");
+
+        assertThat(query.mapTo(String.class).one()).isNull();
+        assertThat(query.mapTo(String.class).findOne()).isEmpty();
+
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> query.mapTo(String.class).findOne()).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
