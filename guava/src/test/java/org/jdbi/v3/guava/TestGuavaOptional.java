@@ -57,7 +57,7 @@ public class TestGuavaOptional {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
         assertThat(result).isEqualTo(new Something(1, "eric"));
     }
 
@@ -94,7 +94,7 @@ public class TestGuavaOptional {
         Something result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of("brian"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(new Something(2, "brian"));
     }

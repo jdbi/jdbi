@@ -43,13 +43,13 @@ public class TestUpdateGeneratedKeys {
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
-        Long id1 = insert1.executeAndReturnGeneratedKeys().mapTo(long.class).findOnly();
+        Long id1 = insert1.executeAndReturnGeneratedKeys().mapTo(long.class).one();
 
         assertThat(id1).isNotNull();
 
         Update insert2 = h.createUpdate("insert into something_else (name) values (:name)");
         insert2.bind("name", "Tom");
-        Long id2 = insert2.executeAndReturnGeneratedKeys().mapTo(long.class).findOnly();
+        Long id2 = insert2.executeAndReturnGeneratedKeys().mapTo(long.class).one();
 
         assertThat(id2).isNotNull();
         assertThat(id2).isGreaterThan(id1);
@@ -61,7 +61,7 @@ public class TestUpdateGeneratedKeys {
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
-        Long id1 = insert.executeAndReturnGeneratedKeys().mapTo(long.class).findOnly();
+        Long id1 = insert.executeAndReturnGeneratedKeys().mapTo(long.class).one();
 
         assertThat(id1).isNotNull();
 
@@ -70,7 +70,7 @@ public class TestUpdateGeneratedKeys {
         update.bind("name", "Tom");
         Optional<Long> id2 = update.executeAndReturnGeneratedKeys().mapTo(long.class).findFirst();
 
-        assertThat(id2.isPresent()).isFalse();
+        assertThat(id2).isNotPresent();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TestUpdateGeneratedKeys {
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
-        Long id1 = insert.executeAndReturnGeneratedKeys().mapTo(long.class).findOnly();
+        Long id1 = insert.executeAndReturnGeneratedKeys().mapTo(long.class).one();
 
         assertThat(id1).isNotNull();
 
@@ -87,6 +87,6 @@ public class TestUpdateGeneratedKeys {
         delete.bind("id", id1);
         Optional<Long> id2 = delete.executeAndReturnGeneratedKeys().mapTo(long.class).findFirst();
 
-        assertThat(id2.isPresent()).isFalse();
+        assertThat(id2).isNotPresent();
     }
 }

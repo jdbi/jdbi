@@ -82,7 +82,7 @@ public class TestHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(STRING_MAP)
-                .findOnly();
+                .one();
         assertThat(newCaps).isEmpty();
     }
 
@@ -92,7 +92,7 @@ public class TestHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(STRING_MAP)
-                .findOnly();
+                .one();
         assertThat(newCaps).isNull();
     }
 
@@ -112,7 +112,7 @@ public class TestHStore {
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 3)
                 .mapTo(STRING_MAP)
-                .findOnly();
+                .one();
         assertThat(newCaps).isEqualTo(caps);
     }
 

@@ -76,7 +76,7 @@ public class TestVavrOptionMapperWithDB {
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 1")
                 .mapTo(SomethingWithOption.class)
-                .findOnly();
+                .one();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
         assertThat(result).isEqualTo(new SomethingWithOption(1, Option.of("eric")));
@@ -88,7 +88,7 @@ public class TestVavrOptionMapperWithDB {
                 .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
                 .createQuery("select id, name from something where id = 2")
                 .mapTo(SomethingWithOption.class)
-                .findOnly();
+                .one();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
         assertThat(result).isEqualTo(new SomethingWithOption(2, Option.none()));

@@ -68,7 +68,7 @@ public class TestH2SqlArrays {
         assertThat(
             h.createQuery(U_SELECT)
                 .mapTo(UUID[].class)
-                .findOnly())
+                .one())
             .containsExactly(testUuids);
     }
 
@@ -82,7 +82,7 @@ public class TestH2SqlArrays {
         assertThat(
             h.createQuery(U_SELECT)
                 .mapTo(UUID_LIST)
-                .findOnly())
+                .one())
             .containsExactly(testUuids);
     }
 
@@ -96,7 +96,7 @@ public class TestH2SqlArrays {
         assertThat(
             h.createQuery(U_SELECT)
                 .mapTo(UUID_ARRAYLIST)
-                .findOnly())
+                .one())
             .containsExactly(testUuids);
     }
 
@@ -110,7 +110,7 @@ public class TestH2SqlArrays {
         assertThat(
             h.createQuery(U_SELECT)
                 .mapTo(UUID_HASHSET)
-                .findOnly())
+                .one())
             .containsExactlyInAnyOrder(testUuids);
     }
 
@@ -124,7 +124,7 @@ public class TestH2SqlArrays {
         assertThat(
             h.createQuery(U_SELECT)
                 .mapTo(UUID_LINKEDHASHSET)
-                .findOnly())
+                .one())
             .isInstanceOf(LinkedHashSet.class)
             .containsExactly(testUuids);
     }
@@ -137,7 +137,7 @@ public class TestH2SqlArrays {
 
         assertThat(h.select("select ?")
             .bindByType(0, Arrays.asList(TestEnum.values()), testEnumList)
-            .mapTo(testEnumList).findOnly())
+            .mapTo(testEnumList).one())
             .containsExactly(TestEnum.values());
     }
 

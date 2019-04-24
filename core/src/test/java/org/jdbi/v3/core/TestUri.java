@@ -34,6 +34,6 @@ public class TestUri {
 
         assertThat(h.createQuery("SELECT name FROM something")
             .mapTo(URI.class)
-            .findOnly()).isEqualTo(TEST_URI);
+            .one()).isEqualTo(TEST_URI);
     }
 }

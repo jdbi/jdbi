@@ -46,7 +46,7 @@ public class TestTooManyCursors {
         db.useHandle(handle -> {
             handle.setStatementBuilder(new DefaultStatementBuilder());
             for (int idx = 0; idx < 100; idx++) {
-                handle.createQuery("SELECT " + idx + " FROM something").mapTo(int.class).findFirst();
+                handle.createQuery("SELECT " + idx).mapTo(int.class).first();
             }
         });
     }

@@ -89,20 +89,21 @@ public interface ResultIterable<T> extends Iterable<T> {
     }
 
     /**
-     * Get the only row in the result set.
-     * @throws IllegalStateException if zero or multiple rows are returned
-     * @return the object mapped from the singular row in the results
+     * Returns the only row in the result set. Returns {@code null} if the row itself is
+     * {@code null}.
+     * @throws IllegalStateException if the result set contains zero or multiple rows
+     * @return the only row in the result set.
      */
-    default T findOnly() {
+    default T one() {
         try (ResultIterator<T> iter = iterator()) {
             if (!iter.hasNext()) {
-                throw new IllegalStateException("No element found in 'only'");
+                throw new IllegalStateException("Expected one element, but found none");
             }
 
             final T r = iter.next();
 
             if (iter.hasNext()) {
-                throw new IllegalStateException("Multiple elements found in 'only'");
+                throw new IllegalStateException("Expected one element, but found multiple");
             }
 
             return r;
@@ -110,6 +111,57 @@ public interface ResultIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Returns the only row in the result set, if any. Returns {@code Optional.empty()} if zero
+     * rows are returned, or if the row itself is {@code null}.
+     * @throws IllegalStateException if the result set contains multiple rows
+     * @return the only row in the result set, if any.
+     */
+    default Optional<T> findOne() {
+        try (ResultIterator<T> iter = iterator()) {
+            if (!iter.hasNext()) {
+                return Optional.empty();
+            }
+
+            final T r = iter.next();
+
+            if (iter.hasNext()) {
+                throw new IllegalStateException("Expected zero to one elements, but found multiple");
+            }
+
+            return Optional.ofNullable(r);
+        }
+    }
+
+    /**
+     * Get the only row in the result set.
+     * @throws IllegalStateException if zero or multiple rows are returned
+     * @return the object mapped from the singular row in the results
+     * @deprecated use {@link #one()} or {@link #findOne()} instead.
+     */
+    @Deprecated
+    default T findOnly() {
+        return one();
+    }
+
+    /**
+     * Returns the first row in the result set. Returns {@code null} if the row itself is
+     * {@code null}.
+     * @throws IllegalStateException if zero rows are returned
+     * @return the first row in the result set.
+     */
+    default T first() {
+        try (ResultIterator<T> iter = iterator()) {
+            if (!iter.hasNext()) {
+                throw new IllegalStateException("Expected at least one element, but found none");
+            }
+
+            return iter.next();
+        }
+    }
+
+    /**
+     * Returns the first row in the result set, if present. Returns {@code Optional.empty()} if
+     * zero rows are returned or the first row is {@code null}.
      * @return the first row in the result set, if present.
      */
     default Optional<T> findFirst() {

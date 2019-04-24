@@ -80,7 +80,7 @@ public class TestOnDemandSqlObject {
 
         s.insert(7, "Bill");
 
-        String bill = db.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+        String bill = db.open().createQuery("select name from something where id = 7").mapTo(String.class).one();
 
         assertThat(bill).isEqualTo("Bill");
     }

@@ -89,7 +89,7 @@ public class TestEnums {
 
     @Test
     public void testEnumCaseInsensitive() {
-        assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).findOnly())
+        assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).one())
             .isEqualTo(SomethingElse.Name.brian);
     }
 }

@@ -44,7 +44,7 @@ public class QualifiedEnumMappingTest {
         Object byName = h.createQuery("select :name")
             .bind("name", Foobar.FOO.name())
             .mapTo(QualifiedType.of(Foobar.class).with(EnumByName.class))
-            .findOnly();
+            .one();
 
         assertThat(byName)
             .isEqualTo(Foobar.FOO);
@@ -55,7 +55,7 @@ public class QualifiedEnumMappingTest {
         Object byOrdinal = h.createQuery("select :ordinal")
             .bind("ordinal", Foobar.FOO.ordinal())
             .mapTo(QualifiedType.of(Foobar.class).with(EnumByOrdinal.class))
-            .findOnly();
+            .one();
 
         assertThat(byOrdinal)
             .isEqualTo(Foobar.FOO);
@@ -68,7 +68,7 @@ public class QualifiedEnumMappingTest {
         ByName byName = h.createQuery("select :name")
             .bind("name", ByName.ALPHABETIC.name())
             .mapTo(ByName.class)
-            .findOnly();
+            .one();
 
         assertThat(byName)
             .isEqualTo(ByName.ALPHABETIC);
@@ -79,7 +79,7 @@ public class QualifiedEnumMappingTest {
         ByOrdinal byOrdinal = h.createQuery("select :ordinal")
             .bind("ordinal", ByOrdinal.NUMERIC.ordinal())
             .mapTo(ByOrdinal.class)
-            .findOnly();
+            .one();
 
         assertThat(byOrdinal)
             .isEqualTo(ByOrdinal.NUMERIC);
@@ -92,7 +92,7 @@ public class QualifiedEnumMappingTest {
         Object byName = h.createQuery("select :name")
             .bind("name", ByOrdinal.NUMERIC.name())
             .mapTo(QualifiedType.of(ByOrdinal.class).with(EnumByName.class))
-            .findOnly();
+            .one();
 
         assertThat(byName)
             .isEqualTo(ByOrdinal.NUMERIC);
@@ -103,7 +103,7 @@ public class QualifiedEnumMappingTest {
         Object byOrdinal = h.createQuery("select :ordinal")
             .bind("ordinal", ByName.ALPHABETIC.ordinal())
             .mapTo(QualifiedType.of(ByName.class).with(EnumByOrdinal.class))
-            .findOnly();
+            .one();
 
         assertThat(byOrdinal)
             .isEqualTo(ByName.ALPHABETIC);

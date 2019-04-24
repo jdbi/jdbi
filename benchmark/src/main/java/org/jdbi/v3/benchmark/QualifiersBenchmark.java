@@ -73,12 +73,12 @@ public class QualifiersBenchmark {
 
     @Benchmark
     public UnqualifiedBean mapUnqualifiedBean() {
-        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(UnqualifiedBean.class).findOnly());
+        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(UnqualifiedBean.class).one());
     }
 
     @Benchmark
     public QualifiedBean mapQualifiedBean() {
-        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(QualifiedBean.class).findOnly());
+        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(QualifiedBean.class).one());
     }
 
     @SuppressWarnings("PMD.DataClass")

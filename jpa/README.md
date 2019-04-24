@@ -47,7 +47,7 @@ Your entity type will be automatically mapped:
 ```java
 Something result = handle.select("select * from Something where id = ?", id)
     .mapTo(Something.class)
-    .findOnly();
+    .one();
 ```
 
 ```java

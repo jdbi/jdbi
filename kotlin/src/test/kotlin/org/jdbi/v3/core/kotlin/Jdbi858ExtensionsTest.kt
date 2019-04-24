@@ -46,7 +46,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testWithHandleUnchecked() {
         val name = jdbi.withHandleUnchecked { handle ->
-            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
 
         assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -54,7 +54,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testUseHandleUnchecked() {
         jdbi.useHandleUnchecked { handle ->
-            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
         }
@@ -62,7 +62,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testInTransactionUnchecked() {
         val name = jdbi.inTransactionUnchecked { handle ->
-            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
 
         assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -70,7 +70,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testUseTransactionUnchecked() {
         jdbi.useTransactionUnchecked { handle ->
-            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
         }
@@ -78,7 +78,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testInTransactionUncheckedWithLevel() {
         val name = jdbi.inTransactionUnchecked(TransactionIsolationLevel.READ_COMMITTED) { handle ->
-            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
 
         assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -86,7 +86,7 @@ class Jdbi858ExtensionsTest {
 
     @Test fun testUseTransactionUncheckedWithLevel() {
         jdbi.useTransactionUnchecked(TransactionIsolationLevel.READ_COMMITTED) { handle ->
-            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).findOnly()
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
         }

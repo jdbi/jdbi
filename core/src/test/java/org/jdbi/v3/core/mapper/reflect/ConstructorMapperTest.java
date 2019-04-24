@@ -48,7 +48,7 @@ public class ConstructorMapperTest {
     }
 
     private <T> T selectOne(String query, Class<T> type) {
-        return dbRule.getSharedHandle().createQuery(query).mapTo(type).findOnly();
+        return dbRule.getSharedHandle().createQuery(query).mapTo(type).one();
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ConstructorMapperTest {
         final ConstructorPropertiesBean cpi = dbRule.getSharedHandle()
                 .createQuery("SELECT * FROM bean")
                 .mapTo(ConstructorPropertiesBean.class)
-                .findOnly();
+                .one();
         assertThat(cpi.s).isEqualTo("3");
         assertThat(cpi.i).isEqualTo(2);
     }
@@ -177,7 +177,7 @@ public class ConstructorMapperTest {
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
             .select("select s, i from bean")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.s", "nested.i")
             .containsExactly("3", 2);
     }
@@ -192,14 +192,14 @@ public class ConstructorMapperTest {
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
             .select("select s, i from bean")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.s", "nested.i")
             .containsExactly("3", 2);
 
         assertThatThrownBy(() -> handle
             .createQuery("select s, i, 1 as other from bean")
             .mapTo(NestedBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [other]");
     }
@@ -260,7 +260,7 @@ public class ConstructorMapperTest {
             .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
             .select("select i nested_i, s nested_s from bean")
             .mapTo(NestedPrefixBean.class)
-            .findOnly();
+            .one();
         assertThat(result.nested.s).isEqualTo("3");
         assertThat(result.nested.i).isEqualTo(2);
     }
@@ -274,21 +274,21 @@ public class ConstructorMapperTest {
         assertThat(handle
             .createQuery("select i nested_i, s nested_s from bean")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .extracting("nested.s", "nested.i")
             .containsExactly("3", 2);
 
         assertThatThrownBy(() -> handle
             .createQuery("select i nested_i, s nested_s, 1 as other from bean")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [other]");
 
         assertThatThrownBy(() -> handle
             .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
             .mapTo(NestedPrefixBean.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match parameters for columns: [nested_other]");
     }

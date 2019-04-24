@@ -52,7 +52,7 @@ public class TestGuavaMappers {
         h.execute("INSERT INTO arrays (u) VALUES(?)", (Object) testUuids);
         ImmutableList<UUID> list = h.createQuery("SELECT u FROM arrays")
                 .mapTo(new GenericType<ImmutableList<UUID>>() {})
-                .findOnly();
+                .one();
         assertThat(list).contains(testUuids);
     }
 
@@ -65,7 +65,7 @@ public class TestGuavaMappers {
         h.execute("INSERT INTO arrays (i) VALUES(?)", (Object) testInts);
         ImmutableList<Integer> list = h.createQuery("SELECT i FROM arrays")
                 .mapTo(new GenericType<ImmutableList<Integer>>() {})
-                .findOnly();
+                .one();
         assertThat(list).contains(testInts);
     }
 }

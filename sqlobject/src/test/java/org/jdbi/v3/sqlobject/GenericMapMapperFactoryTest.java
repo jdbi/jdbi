@@ -51,7 +51,7 @@ public class GenericMapMapperFactoryTest {
         jdbi.useHandle(h -> {
             Map<String, BigDecimal> map = h.createQuery(QUERY)
                 .mapTo(new GenericType<Map<String, BigDecimal>>() {})
-                .findOnly();
+                .one();
 
             assertThat(map)
                 .containsOnlyKeys("one", "two", "three")
@@ -64,7 +64,7 @@ public class GenericMapMapperFactoryTest {
         jdbi.useHandle(h -> {
             Map<String, BigDecimal> map = h.createQuery(QUERY)
                 .mapToMap(new GenericType<BigDecimal>() {})
-                .findOnly();
+                .one();
 
             assertThat(map)
                 .containsOnlyKeys("one", "two", "three")
@@ -77,7 +77,7 @@ public class GenericMapMapperFactoryTest {
         jdbi.useHandle(h -> {
             Map<String, BigDecimal> map = h.createQuery(QUERY)
                 .mapToMap(BigDecimal.class)
-                .findOnly();
+                .one();
 
             assertThat(map)
                 .containsOnlyKeys("one", "two", "three")

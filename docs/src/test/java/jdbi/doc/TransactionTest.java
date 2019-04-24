@@ -177,7 +177,7 @@ public class TransactionTest {
         Callable<Integer> sumAndInsert = () ->
             db.inTransaction(TransactionIsolationLevel.SERIALIZABLE, h -> {
                 // Both read initial state of table
-                int sum = h.select("SELECT sum(value) FROM ints").mapTo(int.class).findOnly();
+                int sum = h.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
 
                 // First time through, make sure neither transaction writes until both have read
                 latch.countDown();

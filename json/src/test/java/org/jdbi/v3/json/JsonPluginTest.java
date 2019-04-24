@@ -56,12 +56,12 @@ public class JsonPluginTest {
                 .bindByType("foo", instance, QualifiedType.of(Foo.class).with(Json.class))
                 .execute();
 
-            assertThat(h.createQuery("select bar from foo").mapTo(String.class).findOnly())
+            assertThat(h.createQuery("select bar from foo").mapTo(String.class).one())
                 .isEqualTo(json);
 
             return h.createQuery("select bar from foo")
                 .mapTo(QualifiedType.of(Foo.class).with(Json.class))
-                .findOnly();
+                .one();
         });
 
         assertThat(result).isSameAs(instance);

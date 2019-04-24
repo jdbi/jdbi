@@ -57,28 +57,28 @@ public class TestJavaTime {
     public void localDate() {
         LocalDate d = LocalDate.now();
         h.execute("insert into stuff(d) values (?)", d);
-        assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly()).isEqualTo(d);
+        assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).one()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
         LocalDateTime d = LocalDateTime.now();
         h.execute("insert into stuff(ts) values (?)", d);
-        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isCloseTo(d, getAllowableOffset());
+        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).one()).isCloseTo(d, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTime() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC);
         h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isCloseTo(dt, getAllowableOffset());
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isCloseTo(dt, getAllowableOffset());
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
     }
 
     @Test
@@ -87,21 +87,21 @@ public class TestJavaTime {
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime stop = LocalTime.of(10, 30, 0);
         h.execute("insert into schedule (start, stop) values (?,?)", start, stop);
-        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(start);
-        assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(stop);
+        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).one()).isEqualTo(start);
+        assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).one()).isEqualTo(stop);
     }
 
     @Test
     public void instant() {
         final Instant leap = Instant.ofEpochMilli(-14159025000L);
         h.execute("insert into stuff values(?)", leap);
-        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).findOnly()).isEqualTo(leap);
+        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).one()).isEqualTo(leap);
     }
 
     @Test
     public void zoneId() {
         final ZoneId zone = ZoneId.systemDefault();
         h.execute("insert into stuff(z) values (?)", zone);
-        assertThat(h.createQuery("select z from stuff").mapTo(ZoneId.class).findOnly()).isEqualTo(zone);
+        assertThat(h.createQuery("select z from stuff").mapTo(ZoneId.class).one()).isEqualTo(zone);
     }
 }

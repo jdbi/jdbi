@@ -44,7 +44,7 @@ public class TestTypedEnum {
             .bind("value", EnumT.BAR)
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM values").mapTo(String.class).findOnly())
+        assertThat(h.createQuery("SELECT * FROM values").mapTo(String.class).one())
             .isEqualTo("BAR");
     }
 
@@ -53,7 +53,7 @@ public class TestTypedEnum {
         h.createUpdate("INSERT INTO values VALUES('BAZ')")
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM values").mapTo(EnumT.class).findOnly())
+        assertThat(h.createQuery("SELECT * FROM values").mapTo(EnumT.class).one())
             .isEqualTo(EnumT.BAZ);
     }
 

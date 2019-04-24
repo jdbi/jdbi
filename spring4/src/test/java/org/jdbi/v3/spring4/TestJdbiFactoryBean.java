@@ -73,7 +73,7 @@ public class TestJdbiFactoryBean {
         });
 
         try (Handle h = Jdbi.open(ds)) {
-            int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
+            int count = h.createQuery("select count(*) from something").mapTo(int.class).one();
             assertThat(count).isEqualTo(0);
         }
     }
@@ -108,19 +108,19 @@ public class TestJdbiFactoryBean {
                         final Handle h1 = JdbiUtil.getHandle(inner);
                         h1.execute("insert into something (id, name) values (8, 'ignored again')");
 
-                        int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                        int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
                         assertThat(count).isEqualTo(2);
                         throw new ForceRollback();
                     });
                 });
-                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
                 assertThat(count).isEqualTo(1);
                 throw new ForceRollback();
             });
         });
         service.inPropagationRequired(jdbi -> {
             final Handle h = JdbiUtil.getHandle(jdbi);
-            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(0);
         });
     }
@@ -135,14 +135,14 @@ public class TestJdbiFactoryBean {
             assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
                 service.inRequiresNewReadUncommitted(inner -> {
                     final Handle h1 = JdbiUtil.getHandle(inner);
-                    int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                    int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
                     assertThat(count).isEqualTo(1);
                     h1.execute("insert into something (id, name) values (8, 'ignored again')");
                     throw new ForceRollback();
                 });
             });
 
-            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(1);
         });
     }

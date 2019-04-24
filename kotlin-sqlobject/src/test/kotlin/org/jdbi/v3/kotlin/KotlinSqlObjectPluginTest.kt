@@ -136,7 +136,7 @@ class KotlinSqlObjectPluginTest {
         assertThat(db.sharedHandle
             .select("SELECT name FROM something WHERE id = 1")
             .mapTo<String>()
-            .findOnly())
+            .one())
             .isEqualTo("cba")
 
         db.sharedHandle.execute("insert into something (id, name) values (2, 'xyz')")

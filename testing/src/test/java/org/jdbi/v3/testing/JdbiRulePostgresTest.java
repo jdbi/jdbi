@@ -24,7 +24,7 @@ public class JdbiRulePostgresTest {
 
     @Test
     public void isAlive() {
-        Integer one = postgres.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).findOnly());
+        Integer one = postgres.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
 
         assertThat(one).isEqualTo(1);
     }

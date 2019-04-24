@@ -68,7 +68,7 @@ public class TestDuration {
         Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 4)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d.isZero());
     }
 
@@ -78,7 +78,7 @@ public class TestDuration {
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 5)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d).isNull();
     }
 
@@ -88,7 +88,7 @@ public class TestDuration {
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 6)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d).isEqualTo(testDuration);
     }
 
@@ -97,7 +97,7 @@ public class TestDuration {
         assertThatThrownBy(() -> handle.createQuery("select foo from intervals where id=?")
             .bind(0, 3) // The bad one.
             .mapTo(Duration.class)
-            .findOnly()).isInstanceOf(IllegalArgumentException.class);
+            .one()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class TestDuration {
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 7)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d).isEqualTo(Duration.ofDays(-2).plusHours(-3));
     }
 
@@ -117,7 +117,7 @@ public class TestDuration {
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 8)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d).isEqualTo(Duration.ofDays(-3).plusMinutes(2));
     }
 
@@ -143,7 +143,7 @@ public class TestDuration {
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 11)
                 .mapTo(Duration.class)
-                .findOnly();
+                .one();
         assertThat(d).isEqualTo(Duration.ofNanos(13_000));
     }
 

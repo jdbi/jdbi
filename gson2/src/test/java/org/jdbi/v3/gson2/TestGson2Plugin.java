@@ -63,7 +63,7 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
 
             User subuser = h.createQuery("select usr from users")
                 .mapTo(QualifiedType.of(User.class).with(Json.class))
-                .findOnly();
+                .one();
 
             assertThat(subuser.name)
                 .describedAs("instead of being bound via getClass(), the object was bound according to the type param")

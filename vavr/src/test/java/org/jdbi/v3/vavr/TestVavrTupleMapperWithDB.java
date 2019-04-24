@@ -54,7 +54,7 @@ public class TestVavrTupleMapperWithDB {
         Tuple1<String> tupleProjection = dbRule.getSharedHandle()
                 .createQuery("select t2 from tuples order by t1 asc")
                 .mapTo(new GenericType<Tuple1<String>>() {})
-                .findFirst().get();
+                .first();
 
         assertThat(tupleProjection).isEqualTo(Tuple.of("t20"));
     }

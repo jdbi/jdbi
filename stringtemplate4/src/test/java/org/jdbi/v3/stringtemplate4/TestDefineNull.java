@@ -52,7 +52,7 @@ public class TestDefineNull {
         assertThat(h.createQuery("select true<if(defined)>broken<endif>")
                 .define("defined", null)
                 .mapTo(boolean.class)
-                .findOnly())
+                .one())
             .isEqualTo(true);
         assertThat(err.toString()).isEmpty();
     }

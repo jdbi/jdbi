@@ -230,7 +230,7 @@ public class FieldMapperTest {
 
         ColumnNameThing thing = handle.createQuery("select * from something")
                 .map(FieldMapper.of(ColumnNameThing.class))
-                .findOnly();
+                .one();
 
         assertThat(thing.i).isEqualTo(1);
         assertThat(thing.s).isEqualTo("foo");
@@ -245,7 +245,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .select("SELECT id, name FROM something")
             .mapTo(NestedThing.class)
-            .findOnly())
+            .one())
             .extracting("nested.i", "nested.s")
             .containsExactly(1, "foo");
     }
@@ -262,14 +262,14 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .select("select id, name from something")
             .mapTo(NestedThing.class)
-            .findOnly())
+            .one())
             .extracting("nested.i", "nested.s")
             .containsExactly(1, "foo");
 
         assertThatThrownBy(() -> handle
             .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedThing.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [other]");
     }
@@ -286,7 +286,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, 2 as i, '3' as s")
             .mapTo(NullableNestedThing.class)
-            .findOnly())
+            .one())
             .extracting("testValue", "nested.i", "nested.s")
             .containsExactly(42, 2, "3");
     }
@@ -298,7 +298,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, '3' as s")
             .mapTo(NullableNestedThing.class)
-            .findOnly())
+            .one())
             .extracting("testValue", "nested.i", "nested.s")
             .containsExactly(42, null, "3");
     }
@@ -310,7 +310,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue")
             .mapTo(NullableNestedThing.class)
-            .findOnly())
+            .one())
             .extracting("testValue", "nested")
             .containsExactly(42, null);
     }
@@ -322,7 +322,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 's' s, 1 i")
             .mapTo(NullableNestedThing.class)
-            .findOnly())
+            .one())
             .extracting("testValue", "nested.s", "nested.i")
             .containsExactly(null, "s", 1);
     }
@@ -334,7 +334,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 'foo' bar")
             .mapTo(NullableNestedThing.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -364,7 +364,7 @@ public class FieldMapperTest {
             .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
             .select("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixThing.class)
-            .findOnly())
+            .one())
             .extracting("nested.i", "nested.s")
             .containsExactly(1, "foo");
     }
@@ -380,21 +380,21 @@ public class FieldMapperTest {
         assertThat(handle
             .createQuery("select id nested_id, name nested_name, integerValue from something")
             .mapTo(NestedPrefixThing.class)
-            .findOnly())
+            .one())
             .extracting("nested.i", "nested.s", "integerValue")
             .containsExactly(1, "foo", 5);
 
         assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixThing.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [other]");
 
         assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
             .mapTo(NestedPrefixThing.class)
-            .findOnly())
+            .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [nested_other]");
     }

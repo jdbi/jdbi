@@ -176,7 +176,7 @@ public class ResultsTest {
         NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
             .bind("name", "Bob")
             .mapTo(NamedUser.class)
-            .findOnly();
+            .one();
 
         assertThat(bob.name.name).isEqualTo("Bob");
     }

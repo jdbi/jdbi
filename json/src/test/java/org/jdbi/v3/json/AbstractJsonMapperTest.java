@@ -59,7 +59,7 @@ public abstract class AbstractJsonMapperTest {
 
             JsonBean out = h.createQuery("select subject from subjects")
                 .mapTo(QualifiedType.of(JsonBean.class).with(Json.class))
-                .findOnly();
+                .one();
 
             assertThat(out).isEqualTo(in);
         });
@@ -75,7 +75,7 @@ public abstract class AbstractJsonMapperTest {
 
             NestedJsonBean beany = h.createQuery("select * from bean")
                 .mapToBean(NestedJsonBean.class)
-                .findOnly();
+                .one();
 
             assertThat(beany.getId()).isEqualTo(42);
             assertThat(beany.getNested1().getA()).isEqualTo(64);
@@ -94,7 +94,7 @@ public abstract class AbstractJsonMapperTest {
 
             assertThat(h.createQuery("select subject from subjects")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isNull();
 
             assertThat(dao.select())

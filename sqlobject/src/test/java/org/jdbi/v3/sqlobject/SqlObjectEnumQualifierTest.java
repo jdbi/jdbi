@@ -38,7 +38,7 @@ public class SqlObjectEnumQualifierTest {
             FooByOrdinalDao dao = h.attach(FooByOrdinalDao.class);
 
             dao.insert(Foo.BAR);
-            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).findOnly()).isEqualTo(0);
+            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).one()).isEqualTo(0);
 
             Foo value = dao.select();
             assertThat(value).isEqualTo(Foo.BAR);
@@ -55,7 +55,7 @@ public class SqlObjectEnumQualifierTest {
             FooByNameDao dao = h.attach(FooByNameDao.class);
 
             dao.insert(Foo.BAR);
-            assertThat(h.createQuery("select name from enums").mapTo(String.class).findOnly()).isEqualTo("BAR");
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
 
             Foo value = dao.select();
             assertThat(value).isEqualTo(Foo.BAR);
@@ -72,7 +72,7 @@ public class SqlObjectEnumQualifierTest {
             UseEnumStrategyOrdinalDao dao = h.attach(UseEnumStrategyOrdinalDao.class);
 
             dao.insert(Foo.BAR);
-            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).findOnly()).isEqualTo(0);
+            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).one()).isEqualTo(0);
 
             Foo value = dao.select();
             assertThat(value).isEqualTo(Foo.BAR);
@@ -89,7 +89,7 @@ public class SqlObjectEnumQualifierTest {
             UseEnumStrategyNameDao dao = h.attach(UseEnumStrategyNameDao.class);
 
             dao.insert(Foo.BAR);
-            assertThat(h.createQuery("select name from enums").mapTo(String.class).findOnly()).isEqualTo("BAR");
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
 
             Foo value = dao.select();
             assertThat(value).isEqualTo(Foo.BAR);

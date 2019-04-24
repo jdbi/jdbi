@@ -48,7 +48,7 @@ public class TestConcurrentUpdatingQuery {
         final String name = handle.createQuery("select name from something where id = :id")
                 .bind("id", 7)
                 .mapTo(String.class)
-                .findOnly();
+                .one();
 
         assertThat(name).isEqualTo("Tom");
     }

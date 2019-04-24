@@ -32,7 +32,7 @@ public class TestDefineNamedBindingsST {
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
-                .findOnly())
+                .one())
         .isTrue();
     }
 

@@ -67,7 +67,7 @@ public class TestMixinInterfaces {
         String name = g.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (8, 'Mike')");
 
-            return handle1.createQuery("select name from something where id = 8").mapTo(String.class).findOnly();
+            return handle1.createQuery("select name from something where id = 8").mapTo(String.class).one();
         });
 
         assertThat(name).isEqualTo("Mike");
@@ -80,7 +80,7 @@ public class TestMixinInterfaces {
 
         assertThat(handle.createQuery("select name from something where id = 9")
                 .mapTo(String.class)
-                .findOnly())
+                .one())
                 .isEqualTo("James");
     }
 
@@ -151,7 +151,7 @@ public class TestMixinInterfaces {
 
             assertThat(h2.createQuery("select name from something where id = 8")
                     .mapTo(String.class)
-                    .findOnly())
+                    .one())
                     .isEqualTo("Mike");
             h1.commit();
         }

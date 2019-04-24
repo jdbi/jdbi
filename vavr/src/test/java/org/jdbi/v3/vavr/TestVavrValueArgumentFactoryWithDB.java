@@ -53,7 +53,7 @@ public class TestVavrValueArgumentFactoryWithDB {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Option.of("eric"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(ERICSOMETHING);
     }
@@ -73,7 +73,7 @@ public class TestVavrValueArgumentFactoryWithDB {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Lazy.of(() -> "brian"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
@@ -83,7 +83,7 @@ public class TestVavrValueArgumentFactoryWithDB {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Try.success("brian"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
@@ -103,7 +103,7 @@ public class TestVavrValueArgumentFactoryWithDB {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Either.right("brian"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
@@ -123,7 +123,7 @@ public class TestVavrValueArgumentFactoryWithDB {
         Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
                 .bind("name", Validation.valid("brian"))
                 .mapToBean(Something.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }

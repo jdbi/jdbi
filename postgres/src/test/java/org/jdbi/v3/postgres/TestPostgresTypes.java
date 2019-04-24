@@ -132,7 +132,7 @@ public class TestPostgresTypes {
     public void testReadViaFluentAPI() {
         FooBarPGType result = handle.createQuery("SELECT get_foo_bar(1)")
                 .mapTo(FooBarPGType.class)
-                .findOnly();
+                .one();
 
         assertThat(result).isEqualTo(new FooBarPGType(1, "foo1", "bar1"));
     }
@@ -160,7 +160,7 @@ public class TestPostgresTypes {
         FooBarPGType result = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar3.getId())
                 .mapTo(FooBarPGType.class)
-                .findOnly();
+                .one();
 
         assertThat(fooBar3).isEqualTo(result);
     }
@@ -177,12 +177,12 @@ public class TestPostgresTypes {
         FooBarPGType result5 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar5.getId())
                 .mapTo(FooBarPGType.class)
-                .findOnly();
+                .one();
 
         FooBarPGType result6 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar6.getId())
                 .mapTo(FooBarPGType.class)
-                .findOnly();
+                .one();
 
         assertThat(fooBar5).isEqualTo(result5);
         assertThat(fooBar6).isEqualTo(result6);
@@ -276,13 +276,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :box")
             .bind("box", new PGbox(1, 2, 3, 4))
             .mapTo(PGbox.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGbox(1, 2, 3, 4));
 
         assertThat(handle.select("select :boxes")
             .bind("boxes", new PGbox[] {new PGbox(1, 2, 3, 4), new PGbox(5, 6, 7, 8)})
             .mapTo(PGbox[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGbox(1, 2, 3, 4), new PGbox(5, 6, 7, 8));
     }
 
@@ -291,13 +291,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :circle")
             .bind("circle", new PGcircle(1, 2, 3))
             .mapTo(PGcircle.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGcircle(1, 2, 3));
 
         assertThat(handle.select("select :circles")
             .bind("circles", new PGcircle[] {new PGcircle(1, 2, 3), new PGcircle(4, 5, 6)})
             .mapTo(PGcircle[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGcircle(1, 2, 3), new PGcircle(4, 5, 6));
     }
 
@@ -306,13 +306,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :interval")
             .bind("interval", new PGInterval(1, 2, 3, 4, 5, 6))
             .mapTo(PGInterval.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGInterval(1, 2, 3, 4, 5, 6));
 
         assertThat(handle.select("select :intervals")
             .bind("intervals", new PGInterval[] {new PGInterval(1, 2, 3, 4, 5, 6), new PGInterval(7, 8, 9, 10, 11, 12)})
             .mapTo(PGInterval[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGInterval(1, 2, 3, 4, 5, 6), new PGInterval(7, 8, 9, 10, 11, 12));
     }
 
@@ -321,13 +321,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :line")
             .bind("line", new PGline(1, 2, 3, 4))
             .mapTo(PGline.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGline(1, 2, 3, 4));
 
         assertThat(handle.select("select :lines")
             .bind("lines", new PGline[] {new PGline(1, 2, 3, 4), new PGline(5, 6, 7, 8)})
             .mapTo(PGline[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGline(1, 2, 3, 4), new PGline(5, 6, 7, 8));
     }
 
@@ -336,13 +336,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :lseg")
             .bind("lseg", new PGlseg(1, 2, 3, 4))
             .mapTo(PGlseg.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGlseg(1, 2, 3, 4));
 
         assertThat(handle.select("select :lsegs")
             .bind("lsegs", new PGlseg[] {new PGlseg(1, 2, 3, 4), new PGlseg(5, 6, 7, 8)})
             .mapTo(PGlseg[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGlseg(1, 2, 3, 4), new PGlseg(5, 6, 7, 8));
     }
 
@@ -351,13 +351,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :money")
             .bind("money", new PGmoney(1))
             .mapTo(PGmoney.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGmoney(1));
 
         assertThat(handle.select("select :moneys")
             .bind("moneys", new PGmoney[] {new PGmoney(1), new PGmoney(2)})
             .mapTo(PGmoney[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGmoney(1), new PGmoney(2));
     }
 
@@ -366,7 +366,7 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :path")
             .bind("path", new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true))
             .mapTo(PGpath.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true));
 
         assertThat(handle.select("select :paths")
@@ -375,7 +375,7 @@ public class TestPostgresTypes {
                 new PGpath(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)}, false)
             })
             .mapTo(PGpath[].class)
-            .findOnly())
+            .one())
             .containsExactly(
                 new PGpath(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}, true),
                 new PGpath(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)}, false)
@@ -387,13 +387,13 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :point")
             .bind("point", new PGpoint(1, 2))
             .mapTo(PGpoint.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGpoint(1, 2));
 
         assertThat(handle.select("select :points")
             .bind("points", new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)})
             .mapTo(PGpoint[].class)
-            .findOnly())
+            .one())
             .containsExactly(new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6));
     }
 
@@ -402,7 +402,7 @@ public class TestPostgresTypes {
         assertThat(handle.select("select :polygon")
             .bind("polygon", new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}))
             .mapTo(PGpolygon.class)
-            .findOnly())
+            .one())
             .isEqualTo(new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}));
 
         assertThat(handle.select("select :polygons")
@@ -411,7 +411,7 @@ public class TestPostgresTypes {
                 new PGpolygon(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)})
             })
             .mapTo(PGpolygon[].class)
-            .findOnly())
+            .one())
             .containsExactly(
                 new PGpolygon(new PGpoint[] {new PGpoint(1, 2), new PGpoint(3, 4), new PGpoint(5, 6)}),
                 new PGpolygon(new PGpoint[] {new PGpoint(7, 8), new PGpoint(9, 10), new PGpoint(11, 12)})

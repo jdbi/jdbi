@@ -553,22 +553,48 @@ that returns a result set from the database.
 include::{exampledir}/StatementsTest.java[tags=query]
 ----
 
-For single rows, you can use `findOnly()`, which expects exactly one row (or
-throws an exception):
+To get a single row from a query, there are a few possible methods to use,
+depending on the number of rows that might be in the result set.
+
+Call `one()` when you expect the result to contain exactly one row. Returns
+`null` only if the returned row maps to `null`. Throws an exception if the
+result has zero or multiple rows.
 
 [source,java]
 ----
 String name = handle.select("select name from users where id = ?", 3)
     .mapTo(String.class)
-    .findOnly();
+    .one();
 ----
 
-You can also use `findFirst()`, which returns an `Optional` of the mapped type:
+Call `findOne()` when you expect the result to contain zero or one row. Returns
+`Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
+an exception if the result has multiple rows.
 
 [source,java]
 ----
-Optional<String> name = handle.createUpdate("select name from users where id = :id")
-    .bind("id", 3)
+Optional<String> name = handle.select(...)
+    .mapTo(String.class)
+    .findOne();
+----
+
+Call `first()` when you expect the result to contain at least one row. Returns
+`null` if the first row maps to `null`. Throws an exception if the result has
+zero rows.
+
+[source,java]
+----
+String name = handle.select("select name from users where id = ?", 3)
+    .mapTo(String.class)
+    .first();
+----
+
+Call `findFirst()` when the result may contain any number of rows. Returns
+`Optional.empty()` if there are no rows, or the first row maps to `null`.
+
+[source,java]
+----
+Optional<String> name = handle.select(...)
     .mapTo(String.class)
     .findFirst();
 ----
@@ -617,7 +643,7 @@ LocalDate releaseDate = handle.createQuery(
         "select release_date from films where name = :name")
     .bind("name", "Star Wars: A New Hope")
     .mapTo(LocalDate.class)
-    .findOnly();
+    .one();
 ----
 
 === Mappers
@@ -1691,7 +1717,7 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
 int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
       .bind("id", 1)
       .mapTo(int[].class)
-      .findOnly();
+      .one();
 ----
 
 You can also use Collections in place of arrays, but you'll need to provide
@@ -1707,7 +1733,7 @@ handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
 List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
       .bind("id", 1)
       .mapTo(new GenericType<List<Integer>>() {})
-      .findOnly();
+      .one();
 ----
 
 Use `@SingleValue` for mapping an array result with the SqlObject API:
@@ -1804,7 +1830,7 @@ handle.registerColumnMapper(new UserIdColumnMapper());
 List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
       .bind("id", 1)
       .mapTo(new GenericType<List<UserId>>() {})
-      .findOnly();
+      .one();
 ----
 
 [NOTE]
@@ -1878,10 +1904,17 @@ TODO:
 
 ===== Find a Single Result
 
-*ResultIterable#findOnly* returns the only row in the result set. If zero or
-multiple rows are encountered, it will throw *IllegalStateException*.
+`ResultIterable.one()` returns the only row in the result set. If zero or
+multiple rows are encountered, it will throw `IllegalStateException`.
 
-*#findFirst* returns an *Optional<T>* with the first row, if any.
+`ResultIterable.findOne()` returns an `Optional<T>` of the only row in the
+result set, or `Optional.empty()` if no rows are returned.
+
+`ResultIterable.first()` returns the first row in the result set. If zero
+rows are encountered, `IllegalStateException` is thrown.
+
+`ResultIterable.findFirst()` returns an `Optional<T>` of the first row, if
+any.
 
 ===== Stream
 
@@ -4023,7 +4056,7 @@ h.createUpdate("insert into myjsons(json) values(:json)")
 
 MyJson result = h.createQuery("select json from myjsons")
     .mapTo(qualifiedType)
-    .findOnly();
+    .one();
 ----
 
 === Immutables
@@ -4335,7 +4368,7 @@ and vice versa argument factory:
 Map<String, String> accountAttributes = handle
     .select("select attributes from account where id = ?", userId)
     .mapTo(new GenericType<Map<String, String>>() {})
-    .findOnly();
+    .one();
 ----
 
 With `@HStore` qualified type:
@@ -4761,7 +4794,7 @@ Tuple2<City, Address> tupleProjection = handle
         .createQuery("select cityname, zipcode, street, housenumber from " +
             "addresses where user_id = 1")
         .mapTo(new GenericType<Tuple2<City, Address>>() {})
-        .findOnly();
+        .one();
 ----
 
 If you want to mix complex types and simple ones we also got you covered.
@@ -4777,7 +4810,7 @@ Tuple3<City, String, Integer> result = handle
         .createQuery("select cityname, zipcode, street, housenumber from " +
              "addresses where user_id = 1")
         .mapTo(new GenericType<Tuple3<City, String, Integer>>() {})
-        .findOnly();
+        .one();
 ----
 
 Bear in mind:

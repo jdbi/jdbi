@@ -52,7 +52,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select name from something")
             .mapTo<String>()
-            .findOnly())
+            .one())
             .isEqualTo("cba")
     }
 
@@ -62,7 +62,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select * from something")
             .mapTo<DataClassQualifiedConstructorParam>()
-            .findOnly())
+            .one())
             .isEqualTo(DataClassQualifiedConstructorParam(1, "cba"))
     }
 
@@ -77,7 +77,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select name from something")
             .mapTo<String>()
-            .findOnly())
+            .one())
             .isEqualTo("cba")
     }
 
@@ -87,7 +87,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select * from something")
             .mapTo<DataClassQualifiedLateInitProperty>()
-            .findOnly())
+            .one())
             .isEqualTo(DataClassQualifiedLateInitProperty(1).also { it.name = "cba" })
     }
 
@@ -103,7 +103,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select name from something")
             .mapTo<String>()
-            .findOnly())
+            .one())
             .isEqualTo("cba")
     }
 
@@ -113,7 +113,7 @@ class KotlinQualifierTest {
 
         assertThat(handle.select("select * from something")
             .mapTo<DataClassQualifiedVarProperty>()
-            .findOnly())
+            .one())
             .isEqualTo(DataClassQualifiedVarProperty(1).also { it.name = "cba" })
     }
 

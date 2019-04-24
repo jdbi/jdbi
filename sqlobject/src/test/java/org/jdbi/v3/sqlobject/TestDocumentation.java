@@ -54,7 +54,7 @@ public class TestDocumentation {
             String name = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(name).isEqualTo("Brian");
         }
     }
@@ -231,7 +231,7 @@ public class TestDocumentation {
             QueryReturningResultIterable qrri = h.attach(QueryReturningResultIterable.class);
 
             ResultIterable<String> iterable = qrri.findById(1);
-            assertThat(iterable.findOnly()).isEqualTo("Brian");
+            assertThat(iterable.one()).isEqualTo("Brian");
         }
     }
 
@@ -252,7 +252,7 @@ public class TestDocumentation {
 
             String name = h.createQuery("select name from something where id = 17")
                 .mapTo(String.class)
-                .findOnly();
+                .one();
             assertThat(name).isEqualTo("David P.");
         }
     }

@@ -44,7 +44,7 @@ public class TestReturningQuery {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
-            Something s = spiffy.findById(7).findOnly();
+            Something s = spiffy.findById(7).one();
 
             assertThat(s.getName()).isEqualTo("Tim");
         });
@@ -55,7 +55,7 @@ public class TestReturningQuery {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         dbRule.getJdbi().useExtension(Spiffy2.class, spiffy -> {
-            Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
+            Something s = spiffy.findByIdWithExplicitMapper(7).one();
 
             assertThat(s.getName()).isEqualTo("Tim");
         });

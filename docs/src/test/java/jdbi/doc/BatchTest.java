@@ -41,7 +41,7 @@ public class BatchTest {
         assertThat(rowsModified).containsExactly(1, 1);
         assertThat(handle.createQuery("SELECT count(1) FROM fruit")
                 .mapTo(int.class)
-                .findOnly()
+                .one()
                 .intValue())
                 .isEqualTo(2);
     }

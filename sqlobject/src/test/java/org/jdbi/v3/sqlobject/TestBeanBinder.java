@@ -44,7 +44,7 @@ public class TestBeanBinder {
         Spiffy s = handle.attach(Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
-        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
+        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).one();
         assertThat(name).isEqualTo("Bean");
     }
 

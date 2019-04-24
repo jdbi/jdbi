@@ -55,14 +55,14 @@ public class LikeClauseTest {
         Query query = db.getSharedHandle().createQuery("select bar from foo where bar like '%:hello%'")
             .bind("hello", "am");
 
-        assertThatThrownBy(() -> query.mapTo(String.class).findOnly())
+        assertThatThrownBy(() -> query.mapTo(String.class).one())
             .isInstanceOf(UnableToCreateStatementException.class);
 
         String name = query
             // this lovely safeguard :)
             .configure(SqlStatements.class, sqls -> sqls.setUnusedBindingAllowed(true))
             .mapTo(String.class)
-            .findOnly();
+            .one();
 
         assertThat(name).isEqualTo(":hello");
     }
