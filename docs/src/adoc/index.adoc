@@ -2189,6 +2189,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         contact = acc.get(contactId);
       } else {
         contact = new Contact();
+        acc.put(contactId,contact);
         contact.setId(contactId);
         contact.setName(resultSet.getString("c_name");
       }
