@@ -143,7 +143,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         getContext().setParsedSql(parsedSql);
 
         try {
-            final PreparedStatement stmt;
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 @SuppressWarnings("PMD.CloseResource")
