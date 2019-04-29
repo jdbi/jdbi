@@ -65,11 +65,7 @@ import static java.util.stream.Collectors.joining;
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private final Handle handle;
     private final String sql;
-
-    /**
-     * This will be set on execution, not before
-     */
-    private PreparedStatement stmt;
+    protected PreparedStatement stmt;
 
     SqlStatement(Handle handle,
                  String sql) {
