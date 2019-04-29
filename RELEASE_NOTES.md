@@ -1,3 +1,7 @@
+# 3.8.1
+- Bugfixes
+  - provide SqlBatch statement customizers with non-`null` Statement
+
 # 3.8.0
 - New Features
   - `RowViewMapper` lets you use higher level `RowView` in a `RowMapper`.
