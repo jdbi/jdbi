@@ -24,7 +24,7 @@
 
     <groupId>io.r2dbc</groupId>
     <artifactId>r2dbc-client</artifactId>
-    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <version>0.8.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Reactive Relational Database Connectivity - Client</name>
