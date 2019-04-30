@@ -17,7 +17,8 @@ lexer grammar SqlScriptLexer;
 COMMENT
     : '--' ~('\n'|'\r')* |
       '//' ~('\n'|'\r')* |
-      '#'  ~('\n'|'\r')*
+      '#' ~('>'|'\r'|'\n') ~('\n'|'\r')* |
+      '#' ('\n'|'\r')
      { skip(); }
     ;
 

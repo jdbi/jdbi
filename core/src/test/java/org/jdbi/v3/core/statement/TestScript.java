@@ -19,7 +19,9 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.JdbiPreparer;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -31,6 +33,14 @@ import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspat
 public class TestScript {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @Rule
+    public PgDatabaseRule postgresDbRule = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
+        @Override
+        protected void prepare(Handle handle) {
+            handle.execute("create table something (id serial, data json)");
+        }
+    });
 
     @Test
     public void testScriptStuff() {
@@ -83,5 +93,14 @@ public class TestScript {
                 })
                 .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
                         .isEqualTo("insert into something(id, name) values (2, eric)"));
+    }
+
+    @Test
+    public void testPostgresJsonExtractTextOperator() {
+        Handle h = postgresDbRule.getJdbi().open();
+        Script script = h.createScript(getResourceOnClasspath("script/postgres-json-operator.sql"));
+        script.execute();
+
+        assertThat(h.select("select * from something").mapToMap()).hasSize(1);
     }
 }
