@@ -1,3 +1,7 @@
+# 3.8.2
+- Improvements
+  - `jdbi3-gson2` artifact is now managed in `jdbi3-bom`.
+
 # 3.8.1
 - Bugfixes
   - provide SqlBatch statement customizers with non-`null` Statement
