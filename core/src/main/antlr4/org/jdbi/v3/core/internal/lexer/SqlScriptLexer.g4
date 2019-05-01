@@ -17,8 +17,7 @@ lexer grammar SqlScriptLexer;
 COMMENT
     : '--' ~('\n'|'\r')* |
       '//' ~('\n'|'\r')* |
-      '#' ~('>'|'\r'|'\n') ~('\n'|'\r')* |
-      '#' ('\n'|'\r')
+      {_input.LA(2) != '>'}? '#' ~('\n'|'\r')* // Exception for Postgres #> and #>> JSON operators
      { skip(); }
     ;
 
