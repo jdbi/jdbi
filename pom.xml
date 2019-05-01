@@ -31,13 +31,13 @@
     <url>https://github.com/r2dbc/r2dbc-client</url>
 
     <properties>
-        <assertj.version>3.11.1</assertj.version>
+        <assertj.version>3.12.0</assertj.version>
         <java.version>1.8</java.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <junit.version>5.3.2</junit.version>
+        <junit.version>5.4.2</junit.version>
         <logback.version>1.2.3</logback.version>
-        <mssql-jdbc.version>7.0.0.jre8</mssql-jdbc.version>
-        <mysql.version>8.0.12</mysql.version>
+        <mssql-jdbc.version>7.2.2.jre8</mssql-jdbc.version>
+        <mysql.version>8.0.16</mysql.version>
         <postgresql.version>42.2.5</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -47,9 +47,9 @@
         <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
-        <reactor.version>Californium-SR3</reactor.version>
-        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
-        <testcontainers.version>1.10.6</testcontainers.version>
+        <reactor.version>Californium-SR6</reactor.version>
+        <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
+        <testcontainers.version>1.11.2</testcontainers.version>
     </properties>
 
     <dependencyManagement>
