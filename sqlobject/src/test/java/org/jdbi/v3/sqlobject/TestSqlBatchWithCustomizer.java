@@ -20,8 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -52,36 +52,39 @@ public class TestSqlBatchWithCustomizer {
 
         h.execute("create table things (thing varchar)");
 
-        h.attach(ThingDAO.class).batchInsertThings(asList("foo", "bar"));
+        List<String> things = asList("foo", "bar", "baz");
+        h.attach(ThingDAO.class).batchInsertThings(things);
 
         assertThat(h.createQuery("select thing from things").mapTo(String.class).list())
-            .containsExactlyInAnyOrder("foo", "bar");
+            .containsExactlyInAnyOrderElementsOf(things);
+
+        assertThat(VerifyImpl.INVOKED_COUNT).hasValue(things.size());
     }
 
     public interface ThingDAO {
         @SqlBatch("insert into things (thing) values (:things)")
-        @DemandWritable
+        @Verify
         void batchInsertThings(@Bind List<String> things);
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
-    @SqlStatementCustomizingAnnotation(DemandWritableCheckFactory.class)
-    public @interface DemandWritable {}
+    @SqlStatementCustomizingAnnotation(VerifyFactory.class)
+    public @interface Verify {}
 
-    public static class DemandWritableCheckFactory implements SqlStatementCustomizerFactory {
+    public static class VerifyFactory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return stmt -> stmt.addCustomizer(new DemandWritableCheck());
+            return stmt -> stmt.addCustomizer(new VerifyImpl());
         }
     }
 
-    public static class DemandWritableCheck implements StatementCustomizer {
+    public static class VerifyImpl implements StatementCustomizer {
+        private static final AtomicInteger INVOKED_COUNT = new AtomicInteger(0);
+
         @Override
-        public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
-            if (stmt.getConnection().isReadOnly()) {
-                throw new SQLException("can not perform this operation on a readonly connection");
-            }
+        public void beforeExecution(PreparedStatement stmt, StatementContext ctx) {
+            INVOKED_COUNT.getAndIncrement();
         }
     }
 }
