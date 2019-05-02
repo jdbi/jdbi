@@ -13,16 +13,23 @@
  */
 package org.jdbi.v3.core.statement;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class TestEscapedCharacters {
-    private final ColonPrefixSqlParser parser = new ColonPrefixSqlParser();
+    private ColonPrefixSqlParser parser;
+    private StatementContext ctx;
+
+    @Before
+    public void setUp() {
+        parser = new ColonPrefixSqlParser();
+        ctx = StatementContextAccess.createContext();
+    }
 
     private String parseString(final String src) {
-        return parser.parse(src, mock(StatementContext.class)).getSql();
+        return parser.parse(src, ctx).getSql();
     }
 
     @Test
