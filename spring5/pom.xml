@@ -17,7 +17,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.7.0-SNAPSHOT</version>
+        <version>3.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-spring5</artifactId>
@@ -26,7 +26,8 @@
     <url>http://jdbi.org/</url>
 
     <properties>
-        <dep.spring.version>5.1.3.RELEASE</dep.spring.version>
+        <dep.spring.version>5.1.8.RELEASE</dep.spring.version>
+        <moduleName>org.jdbi.v3.spring5</moduleName>
     </properties>
 
     <dependencies>

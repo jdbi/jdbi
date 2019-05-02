@@ -4498,7 +4498,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 
 [NOTE]
 This module has been tested to be compatible
-with Spring 5.1.3 (used by Spring Boot 2.1.1) as well.
+with Spring 5.1.8 (used by Spring Boot 2.1.4) as well.
 
 ==== Installing plugins
 

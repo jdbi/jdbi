@@ -5,6 +5,8 @@
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
+- Compatibility
+  - added a module that runs the Spring 4 integration tests against Spring 5 to monitor forward compatibility
 
 # 3.9.1
 - Bug Fixes
