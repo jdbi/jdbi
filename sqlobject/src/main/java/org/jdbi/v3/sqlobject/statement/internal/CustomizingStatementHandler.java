@@ -67,9 +67,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             .map(a -> instantiateFactory(a).createForMethod(a, type, method))
             .map(BoundCustomizer::of);
 
-        final Stream<BoundCustomizer> parameterCustomizers = parameterCustomizers(type, method);
-
-        statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers)
+        statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers())
             .reduce(Stream.empty(), Stream::concat)
             .collect(Collectors.toList());
     }
@@ -81,22 +79,19 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .filter(a -> a.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class));
     }
 
-    private Stream<BoundCustomizer> parameterCustomizers(Class<?> type,
-                                                         Method method) {
+    private Stream<BoundCustomizer> parameterCustomizers() {
         final Parameter[] parameters = method.getParameters();
 
         return IntStream.range(0, parameters.length)
                 .boxed()
-                .flatMap(i -> eachParameterCustomizers(type, method, parameters[i], i));
+                .flatMap(i -> eachParameterCustomizers(parameters[i], i));
     }
 
-    private Stream<BoundCustomizer> eachParameterCustomizers(Class<?> type,
-                                                             Method method,
-                                                             Parameter parameter,
+    private Stream<BoundCustomizer> eachParameterCustomizers(Parameter parameter,
                                                              Integer i) {
 
         List<BoundCustomizer> customizers = annotationsFor(parameter)
-                .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameter, i, getParameterType(parameter)))
+                .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, getParameterType(parameter)))
                 .<BoundCustomizer>map(c -> (stmt, args) -> c.apply(stmt, args[i])).collect(Collectors.toList());
 
         if (!customizers.isEmpty()) {
@@ -111,18 +106,16 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             return Stream.empty();
         }
 
-        return Stream.of(defaultParameterCustomizer(type, method, parameter, i));
+        return Stream.of(defaultParameterCustomizer(parameter, i));
     }
 
     /**
      * Default parameter customizer for parameters with no annotations.
      */
-    private BoundCustomizer defaultParameterCustomizer(Class<?> type,
-                                                       Method method,
-                                                       Parameter parameter,
+    private BoundCustomizer defaultParameterCustomizer(Parameter parameter,
                                                        Integer i) {
         return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
-                .createForParameter(type, method, parameter, i, getParameterType(parameter))
+                .createForParameter(sqlObjectType, method, parameter, i, getParameterType(parameter))
                 .apply(stmt, args[i]);
     }
 
