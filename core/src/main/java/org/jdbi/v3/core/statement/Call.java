@@ -122,10 +122,10 @@ public class Call extends SqlStatement<Call> {
             this.position = position;
         }
 
-        public Object map(CallableStatement stmt) {
+        public Object map(CallableStatement statement) {
             try {
                 if (mapper != null) {
-                    return mapper.map(position, stmt);
+                    return mapper.map(position, statement);
                 }
                 switch (sqlType) {
                     case Types.CLOB:
@@ -134,28 +134,28 @@ public class Call extends SqlStatement<Call> {
                     case Types.LONGVARCHAR:
                     case Types.NCLOB:
                     case Types.NVARCHAR:
-                        return stmt.getString(position);
+                        return statement.getString(position);
                     case Types.BLOB:
                     case Types.VARBINARY:
-                        return stmt.getBytes(position);
+                        return statement.getBytes(position);
                     case Types.SMALLINT:
-                        return stmt.getShort(position);
+                        return statement.getShort(position);
                     case Types.INTEGER:
-                        return stmt.getInt(position);
+                        return statement.getInt(position);
                     case Types.BIGINT:
-                        return stmt.getLong(position);
+                        return statement.getLong(position);
                     case Types.TIMESTAMP:
                         case Types.TIME:
-                        return stmt.getTimestamp(position);
+                        return statement.getTimestamp(position);
                     case Types.DATE:
-                        return stmt.getDate(position);
+                        return statement.getDate(position);
                     case Types.FLOAT:
-                        return stmt.getFloat(position);
+                        return statement.getFloat(position);
                     case Types.DECIMAL:
                     case Types.DOUBLE:
-                        return stmt.getDouble(position);
+                        return statement.getDouble(position);
                     default:
-                        return stmt.getObject(position);
+                        return statement.getObject(position);
                 }
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());

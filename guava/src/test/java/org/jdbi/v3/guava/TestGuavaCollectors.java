@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.base.Optional;
@@ -43,6 +43,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static java.util.stream.Collectors.toList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -56,12 +58,10 @@ public class TestGuavaCollectors {
 
     @Before
     public void addData() {
-        ImmutableList.Builder<Integer> expected = ImmutableList.builder();
-        for (int i = 0; i < 10; i++) {
-            dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
-            expected.add(i);
-        }
-        this.expected = expected.build();
+        expected = IntStream.range(0, 10)
+            .peek(i -> dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i))
+            .boxed()
+            .collect(toList());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class TestGuavaCollectors {
 
         assertThat(set).containsExactlyElementsOf(expected.stream()
                 .sorted(comparator)
-                .collect(Collectors.toList()));
+                .collect(toList()));
     }
 
     @Test

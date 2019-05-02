@@ -56,7 +56,7 @@ public class FieldMapperTest {
     public void testColumnNameAnnotation() {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        ColumnNameThing thing = handle.createQuery("select * from something")
+        ColumnNameThing thing = sharedHandle.createQuery("select * from something")
                 .map(FieldMapper.of(ColumnNameThing.class))
                 .one();
 
@@ -68,7 +68,7 @@ public class FieldMapperTest {
     public void testNested() {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(sharedHandle
             .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .select("SELECT id, name FROM something")
             .mapTo(NestedThing.class)
@@ -82,9 +82,9 @@ public class FieldMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(FieldMapper.factory(NestedThing.class));
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+        sharedHandle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(sharedHandle
             .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .select("select id, name from something")
             .mapTo(NestedThing.class)
@@ -92,7 +92,7 @@ public class FieldMapperTest {
             .extracting("nested.i", "nested.s")
             .containsExactly(1, "foo");
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> sharedHandle
             .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedThing.class)
             .one())
@@ -180,7 +180,7 @@ public class FieldMapperTest {
     public void testNestedPrefix() {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(handle
+        assertThat(sharedHandle
             .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
             .select("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixThing.class)
@@ -194,23 +194,23 @@ public class FieldMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
 
-        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+        sharedHandle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
 
-        assertThat(handle
+        assertThat(sharedHandle
             .createQuery("select id nested_id, name nested_name, integerValue from something")
             .mapTo(NestedPrefixThing.class)
             .one())
             .extracting("nested.i", "nested.s", "integerValue")
             .containsExactly(1, "foo", 5);
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> sharedHandle
             .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixThing.class)
             .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [other]");
 
-        assertThatThrownBy(() -> handle
+        assertThatThrownBy(() -> sharedHandle
             .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
             .mapTo(NestedPrefixThing.class)
             .one())

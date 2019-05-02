@@ -68,10 +68,10 @@ public class TestQualifiedHStore {
 
     @Test
     public void testReadsViaFluentAPI() {
-        List<Map<String, String>> caps = handle.createQuery("select caps from campaigns order by id")
+        List<Map<String, String>> initialCaps = handle.createQuery("select caps from campaigns order by id")
                 .mapTo(QualifiedType.of(STRING_MAP).with(HStore.class))
                 .list();
-        assertThat(caps).isEqualTo(ImmutableList.of(
+        assertThat(initialCaps).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
                 ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")
        ));

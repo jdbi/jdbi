@@ -38,19 +38,19 @@ public class TestSqlMethodDecorators {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private Handle handle;
+    private Handle testHandle;
 
     private static final ThreadLocal<List<String>> INVOCATIONS = ThreadLocal.withInitial(ArrayList::new);
 
     @Before
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        testHandle = dbRule.getSharedHandle();
         INVOCATIONS.get().clear();
     }
 
     @Test
     public void testUnordered() {
-        Dao dao = handle.attach(Dao.class);
+        Dao dao = testHandle.attach(Dao.class);
         dao.unordered();
 
         assertThat(INVOCATIONS.get()).isIn(asList("foo", "bar", "method"), asList("bar", "foo", "method"));
@@ -58,7 +58,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testOrderedFooBar() {
-        Dao dao = handle.attach(Dao.class);
+        Dao dao = testHandle.attach(Dao.class);
         dao.orderedFooBar();
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
@@ -66,7 +66,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testOrderedBarFoo() {
-        Dao dao = handle.attach(Dao.class);
+        Dao dao = testHandle.attach(Dao.class);
         dao.orderedBarFoo();
 
         assertThat(INVOCATIONS.get()).containsExactly("bar", "foo", "method");
@@ -74,7 +74,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testOrderedFooBarOnType() {
-        OrderedOnType dao = handle.attach(OrderedOnType.class);
+        OrderedOnType dao = testHandle.attach(OrderedOnType.class);
         dao.orderedFooBarOnType();
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
@@ -82,7 +82,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testOrderedFooBarOnTypeOverriddenToBarFooOnMethod() {
-        OrderedOnType dao = handle.attach(OrderedOnType.class);
+        OrderedOnType dao = testHandle.attach(OrderedOnType.class);
         dao.orderedBarFooOnMethod();
 
         assertThat(INVOCATIONS.get()).containsExactly("bar", "foo", "method");
@@ -90,7 +90,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testAbortingDecorator() {
-        Dao dao = handle.attach(Dao.class);
+        Dao dao = testHandle.attach(Dao.class);
         dao.abortingDecorator();
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "abort");
@@ -98,23 +98,23 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecorator() {
-        handle.getConfig(HandlerDecorators.class).register(
+        testHandle.getConfig(HandlerDecorators.class).register(
                 (base, sqlObjectType, method) ->
                         (obj, args, handle) -> {
                             invoked("custom");
                             return base.invoke(obj, args, handle);
                         });
 
-        handle.attach(Dao.class).orderedFooBar();
+        testHandle.attach(Dao.class).orderedFooBar();
 
         assertThat(INVOCATIONS.get()).containsExactly("custom", "foo", "bar", "method");
     }
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        handle.getConfig(HandlerDecorators.class).register((base, sqlObjectType, method) -> base);
+        testHandle.getConfig(HandlerDecorators.class).register((base, sqlObjectType, method) -> base);
 
-        handle.attach(Dao.class).orderedFooBar();
+        testHandle.attach(Dao.class).orderedFooBar();
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }

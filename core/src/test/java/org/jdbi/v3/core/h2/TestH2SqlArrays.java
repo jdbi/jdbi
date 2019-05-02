@@ -131,8 +131,6 @@ public class TestH2SqlArrays {
 
     @Test
     public void testEnumArrays() {
-        Handle h = dbRule.openHandle();
-
         GenericType<List<TestEnum>> testEnumList = new GenericType<List<TestEnum>>() {};
 
         assertThat(h.select("select ?")
@@ -144,5 +142,4 @@ public class TestH2SqlArrays {
     public enum TestEnum {
         FOO, BAR, BAZ
     }
-
 }

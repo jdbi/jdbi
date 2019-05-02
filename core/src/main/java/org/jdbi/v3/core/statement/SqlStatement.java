@@ -1526,14 +1526,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
                 .parse(renderedSql, ctx);
-        String sql = parsedSql.getSql();
+        String parsedPlainSql = parsedSql.getSql();
         ctx.setParsedSql(parsedSql);
 
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), sql, ctx);
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), parsedPlainSql, ctx);
             } else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), sql, ctx);
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), parsedPlainSql, ctx);
             }
 
             // The statement builder might (or might not) clean up the statement when called. E.g. the

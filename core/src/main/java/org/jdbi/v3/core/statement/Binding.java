@@ -100,11 +100,11 @@ public class Binding {
 
     @Override
     public String toString() {
-        String positionals = this.positionals.entrySet().stream()
+        String positionalsDescription = positionals.entrySet().stream()
             .map(x -> x.getKey().toString() + ':' + x.getValue())
             .collect(Collectors.joining(","));
 
-        String named = this.named.entrySet().stream()
+        String namedDescription = named.entrySet().stream()
             .map(x -> x.getKey() + ':' + x.getValue())
             .collect(Collectors.joining(","));
 
@@ -112,7 +112,7 @@ public class Binding {
             .map(Object::toString)
             .collect(Collectors.joining(","));
 
-        return "{positional:{" + positionals + "}, named:{" + named + "}, finder:[" + found + "]}";
+        return "{positional:{" + positionalsDescription + "}, named:{" + namedDescription + "}, finder:[" + found + "]}";
     }
 
     /**

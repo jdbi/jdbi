@@ -92,10 +92,10 @@ public class TestBindBean {
         handle.execute("create table beans (id integer, value_type varchar, fromField varchar, fromGetter varchar)");
         handle.registerArgument(new ValueTypeArgumentFactory());
 
-        BeanDao dao = handle.attach(BeanDao.class);
+        BeanDao beanDao = handle.attach(BeanDao.class);
 
-        dao.insert(new Bean(1, ValueType.valueOf("foo")));
-        assertThat(dao.getById(1)).extracting(Bean::getId, Bean::getValueType)
+        beanDao.insert(new Bean(1, ValueType.valueOf("foo")));
+        assertThat(beanDao.getById(1)).extracting(Bean::getId, Bean::getValueType)
                 .containsExactly(1, ValueType.valueOf("foo"));
     }
 
