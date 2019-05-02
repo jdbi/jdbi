@@ -16,6 +16,8 @@
 <module name="Checker">
     <property name="fileExtensions" value="java,properties,xml"/>
 
+    <module name="SuppressWarningsFilter" />
+
     <module name="NewlineAtEndOfFile">
         <property name="lineSeparator" value="lf"/>
     </module>
@@ -104,6 +106,7 @@
         <module name="StringLiteralEquality"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
+        <module name="SuppressWarningsHolder" />
         <module name="TodoComment"/>
         <module name="TypecastParenPad"/>
         <module name="TypeName"/>
