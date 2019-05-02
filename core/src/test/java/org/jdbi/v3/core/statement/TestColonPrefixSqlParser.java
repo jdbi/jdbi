@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 
 public class TestColonPrefixSqlParser {
     private SqlParser parser;
@@ -27,7 +26,7 @@ public class TestColonPrefixSqlParser {
     @Before
     public void setUp() {
         parser = new ColonPrefixSqlParser();
-        ctx = mock(StatementContext.class);
+        ctx = StatementContextAccess.createContext();
     }
 
     @Test
@@ -93,6 +92,7 @@ public class TestColonPrefixSqlParser {
                 .appendNamedParameter("id")
                 .build());
     }
+
     @Test
     public void testOddCharacters() {
         assertThat(parser.parse("~* :boo ':nope' _%&^& *@ :id", ctx))
