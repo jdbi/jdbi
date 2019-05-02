@@ -24,20 +24,20 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     private final Object[] lock = new Object[0];
 
     private final Jdbi db;
-    private final ThreadLocal<ConfigRegistry> config;
-    private final ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
+    private final ThreadLocal<ConfigRegistry> localConfig;
+    private final ThreadLocal<ExtensionMethod> localExtensionMethod = new ThreadLocal<>();
 
     private volatile Handle handle;
     private volatile boolean closed = false;
 
     LazyHandleSupplier(Jdbi db, ConfigRegistry config) {
         this.db = db;
-        this.config = ThreadLocal.withInitial(() -> config);
+        localConfig = ThreadLocal.withInitial(() -> config);
     }
 
     @Override
     public ConfigRegistry getConfig() {
-        return config.get();
+        return localConfig.get();
     }
 
     @Override
@@ -58,8 +58,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
                 Handle handle = db.open();
                 // share extension method thread local with handle,
                 // so extension methods set in other threads are preserved
-                handle.setExtensionMethodThreadLocal(extensionMethod);
-                handle.setConfigThreadLocal(config);
+                handle.setExtensionMethodThreadLocal(localExtensionMethod);
+                handle.setConfigThreadLocal(localConfig);
 
                 this.handle = handle;
             }
@@ -68,8 +68,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return JdbiThreadLocals.invokeInContext(this.extensionMethod, extensionMethod,
-                () -> JdbiThreadLocals.invokeInContext(this.config, config, task));
+        return JdbiThreadLocals.invokeInContext(localExtensionMethod, extensionMethod,
+                () -> JdbiThreadLocals.invokeInContext(localConfig, config, task));
     }
 
     @Override
@@ -78,8 +78,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
             closed = true;
             // once created, the handle owns cleanup of the threadlocals
             if (handle == null) {
-                config.remove();
-                extensionMethod.remove();
+                localConfig.remove();
+                localExtensionMethod.remove();
             } else {
                 handle.close();
             }

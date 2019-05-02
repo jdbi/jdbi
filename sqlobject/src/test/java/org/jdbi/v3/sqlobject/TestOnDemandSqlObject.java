@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
 
 public class TestOnDemandSqlObject {
     private Jdbi db;
-    private Handle handle;
+    private Handle metaHandle;
     private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
 
@@ -63,15 +63,15 @@ public class TestOnDemandSqlObject {
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         db = Jdbi.create(ds);
         db.installPlugin(new SqlObjectPlugin());
-        handle = db.open();
-        handle.execute("create table something (id int primary key, name varchar(100))");
+        metaHandle = db.open();
+        metaHandle.execute("create table something (id int primary key, name varchar(100))");
 
         db.installPlugin(tracker);
     }
 
     @After
     public void tearDown() {
-        handle.close();
+        metaHandle.close();
     }
 
     @Test
@@ -90,10 +90,10 @@ public class TestOnDemandSqlObject {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
-                Handle h = spy(handle);
-                when(h.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doThrow(new CloseException("already closed", null)).when(h).close();
-                return h;
+                Handle spyHandle = spy(handle);
+                when(spyHandle.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
+                doThrow(new CloseException("already closed", null)).when(spyHandle).close();
+                return spyHandle;
             }
         };
         db.installPlugin(plugin);

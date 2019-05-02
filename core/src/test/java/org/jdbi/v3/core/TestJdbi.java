@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementCustomizers;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,15 +29,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestJdbi {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
-
-    private Handle handle;
-
-    @After
-    public void doTearDown() throws Exception {
-        if (handle != null) {
-            handle.close();
-        }
-    }
 
     @Test
     public void testDataSourceConstructor() {
@@ -104,10 +94,10 @@ public class TestJdbi {
     }
 
     @Test
-    public void testGlobalStatementCustomizers() throws Exception {
+    public void testGlobalStatementCustomizers() {
         dbRule.getJdbi().addCustomizer(StatementCustomizers.maxRows(1));
 
-        handle = dbRule.openHandle();
+        Handle handle = dbRule.openHandle();
 
         handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         handle.execute("insert into something (id, name) values (?, ?)", 2, "world");
