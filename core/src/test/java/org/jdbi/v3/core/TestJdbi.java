@@ -51,6 +51,7 @@ public class TestJdbi {
         assertThat(connection.isClosed()).isFalse();
     }
 
+    @Test
     public void testConnectionFactoryCtor() {
         Jdbi db = Jdbi.create(() -> {
             try {
