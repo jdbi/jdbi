@@ -71,8 +71,8 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected NamedArgumentFinder getNestedArgumentFinder(Object bean) {
-        return new ObjectFieldArguments(null, bean);
+    protected NamedArgumentFinder getNestedArgumentFinder(Object source) {
+        return new ObjectFieldArguments(null, source);
     }
 
     @Override
