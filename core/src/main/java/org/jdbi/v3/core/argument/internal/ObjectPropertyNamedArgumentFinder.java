@@ -29,7 +29,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * optional prefix.
  */
 public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgumentFinder {
-    final String prefix;
+    private final String prefix;
     protected final Object obj;
 
     private final Map<String, Optional<NamedArgumentFinder>> childArgumentFinders = new ConcurrentHashMap<>();
