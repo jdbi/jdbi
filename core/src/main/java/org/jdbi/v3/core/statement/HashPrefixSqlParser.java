@@ -39,7 +39,11 @@ public class HashPrefixSqlParser implements SqlParser {
 
     @Override
     public ParsedSql parse(String sql, StatementContext ctx) {
-        return PARSED_SQL_CACHE.get(sql, ctx);
+        try {
+            return PARSED_SQL_CACHE.get(sql, ctx);
+        } catch (IllegalArgumentException e) {
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+        }
     }
 
     @Override
