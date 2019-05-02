@@ -117,9 +117,9 @@ public class Call extends SqlStatement<Call> {
         }
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-            ((CallableStatement) statement).registerOutParameter(position, sqlType);
-            this.position = position;
+        public void apply(int newPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            ((CallableStatement) statement).registerOutParameter(newPosition, sqlType);
+            this.position = newPosition;
         }
 
         public Object map(CallableStatement statement) {

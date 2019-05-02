@@ -44,8 +44,8 @@ public class TestJdbiFactoryBean {
     }
 
     @Autowired
-    public void setDataSource(DataSource ds) {
-        this.ds = ds;
+    public void setDataSource(DataSource dataSource) {
+        this.ds = dataSource;
     }
 
     @Autowired

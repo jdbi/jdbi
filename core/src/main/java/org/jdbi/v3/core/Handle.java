@@ -85,8 +85,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.config.set(config);
     }
 
-    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
-        this.config = config;
+    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> configThreadLocal) {
+        this.config = configThreadLocal;
     }
 
     /**
@@ -550,8 +550,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.extensionMethod.set(extensionMethod);
     }
 
-    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
-        this.extensionMethod = requireNonNull(extensionMethod);
+    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
+        this.extensionMethod = requireNonNull(extensionMethodThreadLocal);
     }
 
     interface ConnectionCloser {
