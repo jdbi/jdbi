@@ -37,10 +37,8 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
  * </p>
  */
 public class ColonPrefixSqlParser implements SqlParser {
-    private static final String CACHE_PREFIX = "ColonPrefixSqlParser:";
-
     private static final JdbiCache<String, ParsedSql> PARSED_SQL_CACHE =
-        JdbiCaches.declare(rawSql -> CACHE_PREFIX + rawSql, ColonPrefixSqlParser::internalParse);
+        JdbiCaches.declare(ColonPrefixSqlParser::internalParse);
 
     @Override
     public ParsedSql parse(String sql, StatementContext ctx) {
