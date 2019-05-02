@@ -13,12 +13,10 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
 
@@ -36,15 +34,14 @@ import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
  * <code>#tokenName</code>.
  */
 public class HashPrefixSqlParser implements SqlParser {
-    private final Map<String, ParsedSql> cache = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final String CACHE_PREFIX = "HashPrefixSqlParser:";
+
+    private static final JdbiCache<String, ParsedSql> PARSED_SQL_CACHE =
+        JdbiCaches.declare(rawSql -> CACHE_PREFIX + rawSql, HashPrefixSqlParser::internalParse);
 
     @Override
     public ParsedSql parse(String sql, StatementContext ctx) {
-        try {
-            return cache.computeIfAbsent(sql, this::internalParse);
-        } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-        }
+        return PARSED_SQL_CACHE.get(sql, ctx);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class HashPrefixSqlParser implements SqlParser {
         return "#" + rawName;
     }
 
-    private ParsedSql internalParse(final String sql) {
+    private static ParsedSql internalParse(final String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         HashStatementLexer lexer = new HashStatementLexer(CharStreams.fromString(sql));
         lexer.addErrorListener(new ErrorListener());

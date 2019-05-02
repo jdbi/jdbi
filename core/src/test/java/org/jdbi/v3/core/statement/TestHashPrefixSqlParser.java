@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class TestHashPrefixSqlParser {
     private SqlParser parser;
@@ -26,7 +25,7 @@ public class TestHashPrefixSqlParser {
     @Before
     public void setUp() {
         this.parser = new HashPrefixSqlParser();
-        ctx = mock(StatementContext.class);
+        ctx = StatementContextAccess.createContext();
     }
 
     @Test
@@ -72,6 +71,13 @@ public class TestHashPrefixSqlParser {
             .isEqualTo(ParsedSql.builder().append("select * from something\n where id = ")
                 .appendNamedParameter("\u0087\u008e\u0092\u0097\u009c")
                 .build());
+    }
+
+    @Test
+    public void testCachesRewrittenStatements() {
+        String sql = "insert into something (id, name) values (#id, #name)";
+        ParsedSql parsed = parser.parse(sql, ctx);
+        assertThat(parsed).isSameAs(parser.parse(sql, ctx));
     }
 
     @Test
