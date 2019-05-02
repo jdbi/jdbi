@@ -35,7 +35,7 @@ public class TestUrls {
         Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
         jdbi.installPlugin(new SQLitePlugin());
         handle = jdbi.open();
-        handle.useTransaction(handle -> handle.execute("CREATE TABLE foo(url URL);"));
+        handle.useTransaction(h -> h.execute("CREATE TABLE foo(url URL);"));
     }
 
     @After
