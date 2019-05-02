@@ -83,7 +83,7 @@ public class Call extends SqlStatement<Call> {
      */
     public OutParameters invoke() {
         try {
-            final PreparedStatement stmt = this.internalExecute();
+            this.internalExecute();
             OutParameters out = new OutParameters();
             for (OutParamArgument param : params) {
                 Object obj = param.map((CallableStatement) stmt);
