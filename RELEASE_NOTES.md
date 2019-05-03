@@ -1,7 +1,8 @@
 # 3.8.2
 - Improvements
   - `jdbi3-gson2` artifact is now managed in `jdbi3-bom`.
-  - SQL script parser doesn't confuse Postgres JSON operators like #> with comments
+  - SQL script parser no longer treats Postgres JSON operators `#>` or `#>>` as comments.
+  - Improved caching reduces garbage generation from Jdbi's SQL parsing internals.
 
 # 3.8.1
 - Bugfixes
