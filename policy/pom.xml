@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-policy</artifactId>
-    <version>3.8.2-SNAPSHOT</version>
+    <version>3.8.2</version>
     <name>jdbi3 Policy</name>
     <description>Policy files for Jdbi build configuration</description>
 </project>
