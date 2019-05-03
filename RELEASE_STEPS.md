@@ -8,7 +8,7 @@ at http://pool.sks-keyservers.net/
 
 ## Create a release branch off of the latest master
 
-Name it `jdbi3-<version>-release`.
+Name it `jdbi-<version>-release`.
 
 Example:
 
@@ -17,6 +17,10 @@ $ git checkout master
 $ git pull
 $ git checkout -b jdbi-<version>-release 
 ```
+
+## Update release notes
+
+Double check that release notes contain all the most important changes for the release.
 
 ## Build the release on your workstation
 
@@ -63,10 +67,6 @@ It also creates a release tag, pointing to the release commit.
 $ git push -u origin jdbi-<version>-release
 $ git push --tags
 ```
-
-## Update release notes
-
-Double check that release notes contain all the most important changes for the release.
 
 ## Publish the docs
 
