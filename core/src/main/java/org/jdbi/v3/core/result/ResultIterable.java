@@ -90,7 +90,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param <U>    Element type of the returned ResultIterable
      * @return the new ResultIterable
      */
-    default <U> ResultIterable<U> map(Function<T, U> mapper) {
+    default <U> ResultIterable<U> map(Function<? super T, ? extends U> mapper) {
         return () -> new ResultIterator<U>() {
             ResultIterator<T> delegate = iterator();
 
