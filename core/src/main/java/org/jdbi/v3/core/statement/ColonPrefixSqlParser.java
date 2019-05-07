@@ -54,7 +54,7 @@ public class ColonPrefixSqlParser implements SqlParser {
         return ":" + rawName;
     }
 
-    private static ParsedSql internalParse(String sql) throws IllegalArgumentException {
+    private static ParsedSql internalParse(String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(CharStreams.fromString(sql));
         lexer.addErrorListener(new ErrorListener());

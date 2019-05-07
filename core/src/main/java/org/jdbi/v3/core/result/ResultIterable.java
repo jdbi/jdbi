@@ -91,31 +91,28 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @return the new ResultIterable
      */
     default <U> ResultIterable<U> map(Function<T, U> mapper) {
-        return () -> {
+        return () -> new ResultIterator<U>() {
             ResultIterator<T> delegate = iterator();
 
-            return new ResultIterator<U>() {
+            @Override
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
 
-                @Override
-                public boolean hasNext() {
-                    return delegate.hasNext();
-                }
+            @Override
+            public U next() {
+                return mapper.apply(delegate.next());
+            }
 
-                @Override
-                public U next() {
-                    return mapper.apply(delegate.next());
-                }
+            @Override
+            public StatementContext getContext() {
+                return delegate.getContext();
+            }
 
-                @Override
-                public StatementContext getContext() {
-                    return delegate.getContext();
-                }
-
-                @Override
-                public void close() {
-                    delegate.close();
-                }
-            };
+            @Override
+            public void close() {
+                delegate.close();
+            }
         };
     }
 

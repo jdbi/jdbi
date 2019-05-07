@@ -148,7 +148,7 @@ public class IterableLike {
      * @return a new list with the elements
      */
     public static List<Object> toList(Object iterable) {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         of(iterable).forEachRemaining(result::add);
         return result;
     }

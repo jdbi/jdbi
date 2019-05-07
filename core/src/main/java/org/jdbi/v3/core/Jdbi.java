@@ -453,7 +453,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X                        if thrown by the callback.
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
-            throws NoSuchExtensionException, X {
+            throws X {
         if (threadHandleSupplier.get() != null) {
             return callWithExtension(extensionType, callback, threadHandleSupplier.get());
         }
@@ -488,7 +488,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X                        if thrown by the callback.
      */
     public <E, X extends Exception> void useExtension(Class<E> extensionType, ExtensionConsumer<E, X> callback)
-            throws NoSuchExtensionException, X {
+            throws X {
         withExtension(extensionType, extension -> {
             callback.useExtension(extension);
             return null;
@@ -502,7 +502,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return an extension which opens and closes handles (as needed) for individual method calls. Only public
      * interface types may be used as on-demand extensions.
      */
-    public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
+    public <E> E onDemand(Class<E> extensionType) {
         if (!extensionType.isInterface()) {
             throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
         }

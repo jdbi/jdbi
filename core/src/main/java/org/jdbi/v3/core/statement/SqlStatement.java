@@ -1336,7 +1336,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the list of values or properties is empty.
      * @throws UnableToCreateStatementException If a property can't be found on an value or we can't find a Argument for it.
      */
-    public final This bindBeanList(String key, List<?> values, List<String> propertyNames) throws UnableToCreateStatementException {
+    public final This bindBeanList(String key, List<?> values, List<String> propertyNames) {
         if (values.isEmpty()) {
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".bindBeanList was called with no values.");
@@ -1386,7 +1386,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the list of values or properties is empty.
      * @throws UnableToCreateStatementException if the method cannot be found
      */
-    public final This bindMethodsList(String key, Iterable<?> values, List<String> methodNames) throws UnableToCreateStatementException {
+    public final This bindMethodsList(String key, Iterable<?> values, List<String> methodNames) {
         final Iterator<?> valueIter = values.iterator();
         if (!valueIter.hasNext()) {
             throw new IllegalArgumentException(
