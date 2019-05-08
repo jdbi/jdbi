@@ -92,7 +92,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default <U> ResultIterable<U> map(Function<? super T, ? extends U> mapper) {
         return () -> new ResultIterator<U>() {
-            ResultIterator<T> delegate = iterator();
+            private final ResultIterator<T> delegate = iterator();
 
             @Override
             public boolean hasNext() {
