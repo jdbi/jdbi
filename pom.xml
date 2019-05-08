@@ -23,7 +23,7 @@
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.8.3-SNAPSHOT</version>
+    <version>3.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
@@ -93,7 +93,7 @@
         <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.plugin.spotbugs.version>3.1.10</dep.plugin.spotbugs.version>
-        <dep.pmd.version>6.10.0</dep.pmd.version>
+        <dep.pmd.version>6.14.0</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -80,6 +81,40 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     @Override
     ResultIterator<T> iterator();
+
+    /**
+     * Returns a {@code ResultIterable<U>} derived from this {@code ResultIterable<T>}, by
+     * transforming elements using the given mapper function.
+     *
+     * @param mapper function to apply to elements of this ResultIterable
+     * @param <U>    Element type of the returned ResultIterable
+     * @return the new ResultIterable
+     */
+    default <U> ResultIterable<U> map(Function<? super T, ? extends U> mapper) {
+        return () -> new ResultIterator<U>() {
+            ResultIterator<T> delegate = iterator();
+
+            @Override
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
+
+            @Override
+            public U next() {
+                return mapper.apply(delegate.next());
+            }
+
+            @Override
+            public StatementContext getContext() {
+                return delegate.getContext();
+            }
+
+            @Override
+            public void close() {
+                delegate.close();
+            }
+        };
+    }
 
     @Override
     default void forEach(Consumer<? super T> action) {

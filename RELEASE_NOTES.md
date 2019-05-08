@@ -1,3 +1,8 @@
+# 3.9.0
+- New Features
+  - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
+    using the given mapper function.
+
 # 3.8.2
 - Improvements
   - `jdbi3-gson2` artifact is now managed in `jdbi3-bom`.
