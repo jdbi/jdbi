@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -35,6 +36,7 @@ import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher;
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoBuilder;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -105,7 +107,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
                         @SuppressWarnings({ "unchecked", "rawtypes" })
-                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(box(property.getQualifiedType()))
                             .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
@@ -139,11 +141,17 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                 Object value = mapper.map(r, ctx);
 
-                pojo.set(property, value);
+                if (value != null) {
+                    pojo.set(property, value);
+                }
             }
 
             return pojo.build();
         });
+    }
+
+    private static QualifiedType<?> box(QualifiedType<?> qualifiedType) {
+        return qualifiedType.mapType(t -> Optional.of(GenericTypeReflector.box(t))).get();
     }
 
     @SuppressWarnings("unchecked")
