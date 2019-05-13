@@ -47,7 +47,7 @@
         <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
-        <reactor.version>Californium-SR6</reactor.version>
+        <reactor.version>Dysprosium-M1</reactor.version>
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
         <testcontainers.version>1.11.2</testcontainers.version>
     </properties>
