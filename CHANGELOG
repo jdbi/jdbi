@@ -1,6 +1,10 @@
 R2DBC Client Changelog
 =============================
 
+0.8.0.M8
+------------------
+* Added MySQL Example
+
 1.0.0.M7
 ------------------
 * Update changelong for M7 #37
