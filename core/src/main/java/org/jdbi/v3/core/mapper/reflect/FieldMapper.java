@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
@@ -138,6 +139,8 @@ public class FieldMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<Field> fields = new ArrayList<>();
+        final List<Boolean> propagateNulls = new ArrayList<>();
+        final List<Boolean> isPrimitive = new ArrayList<>();
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
@@ -154,7 +157,8 @@ public class FieldMapper<T> implements RowMapper<T> {
                                 .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
                             mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                             fields.add(field);
-
+                            propagateNulls.add(field.getAnnotation(PropagateNull.class) != null);
+                            isPrimitive.add(field.getType().isPrimitive());
                             unmatchedColumns.remove(columnNames.get(index));
                         });
                 } else {
@@ -167,6 +171,8 @@ public class FieldMapper<T> implements RowMapper<T> {
                             .ifPresent(mapper -> {
                                 mappers.add(mapper);
                                 fields.add(field);
+                                isPrimitive.add(false);
+                                propagateNulls.add(field.getAnnotation(PropagateNull.class) != null);
                             });
                     }
                 }
@@ -185,6 +191,10 @@ public class FieldMapper<T> implements RowMapper<T> {
                 Field field = fields.get(i);
 
                 Object value = mapper.map(r, ctx);
+
+                if (propagateNulls.get(i) && (value == null || isPrimitive.get(i) && r.wasNull())) {
+                    return null;
+                }
                 writeField(obj, field, value);
             }
 

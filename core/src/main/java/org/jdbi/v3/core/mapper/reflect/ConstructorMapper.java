@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
@@ -202,8 +203,9 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
-
         final RowMapper<?>[] mappers = new RowMapper<?>[count];
+        final boolean[] propagateNulls = new boolean[count];
+        final boolean[] isPrimitive = new boolean[count];
 
         boolean matchedColumns = false;
         final List<String> unmatchedParameters = new ArrayList<>();
@@ -226,6 +228,8 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(
                             String.format(MISSING_COLUMN_MAPPER, type, paramName, factory)));
+                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
+                    isPrimitive[i] = parameter.getType().isPrimitive();
 
                     matchedColumns = true;
                     unmatchedColumns.remove(columnNames.get(colIndex));
@@ -244,9 +248,13 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
                 if (nestedMapper.isPresent()) {
                     mappers[i] = nestedMapper.get();
+                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
+                    isPrimitive[i] = false;
                     matchedColumns = true;
                 } else if (nullable) {
                     mappers[i] = (r, c) -> null;
+                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
+                    isPrimitive[i] = false;
                 } else {
                     unmatchedParameters.add(paramName(parameters, i, constructorProperties));
                 }
@@ -267,6 +275,9 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
             for (int i = 0; i < count; i++) {
                 params[i] = mappers[i].map(r, c);
+                if (propagateNulls[i] && (params[i] == null || isPrimitive[i] && r.wasNull())) {
+                    return null;
+                }
             }
 
             return factory.newInstance(params);
