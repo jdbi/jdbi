@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -298,6 +299,73 @@ public class ConstructorMapperTest {
 
         NestedPrefixBean(@Nested("nested") ConstructorBean nested) {
             this.nested = nested;
+        }
+    }
+
+    @Test
+    public void testPropagateNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
+            .select("SELECT null as testValue, 'foo' as s")
+            .mapTo(PropagateNullThing.class)
+            .one())
+            .isNull();
+    }
+
+    @Test
+    public void testPropagateNotNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
+            .select("SELECT 42 as testValue, 'foo' as s")
+            .mapTo(PropagateNullThing.class)
+            .one())
+            .extracting("testValue", "s")
+            .containsExactly(42, "foo");
+    }
+
+    @Test
+    public void testNestedPropagateNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
+            .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+            .mapTo(NestedPropagateNullThing.class)
+            .one())
+            .extracting("integerValue", "nested")
+            .containsExactly(42, null);
+    }
+
+    @Test
+    public void testNestedPropagateNotNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
+            .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+            .mapTo(NestedPropagateNullThing.class)
+            .one())
+            .extracting("integerValue", "nested.testValue", "nested.s")
+            .containsExactly(42, 60, "foo");
+    }
+
+    static class NestedPropagateNullThing {
+        private final Integer integerValue;
+        private final PropagateNullThing nested;
+
+        NestedPropagateNullThing(Integer integerValue, @Nested PropagateNullThing nested) {
+            this.integerValue = integerValue;
+            this.nested = nested;
+        }
+    }
+
+    static class PropagateNullThing {
+        private final Integer testValue;
+        private final String s;
+
+        PropagateNullThing(@PropagateNull Integer testValue, @Nullable String s) {
+            this.testValue = testValue;
+            this.s = s;
         }
     }
 

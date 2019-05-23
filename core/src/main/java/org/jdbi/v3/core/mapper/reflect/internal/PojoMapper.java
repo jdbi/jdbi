@@ -28,6 +28,7 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
@@ -92,6 +93,8 @@ public class PojoMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final List<RowMapper<?>> mappers = new ArrayList<>();
         final List<PojoProperty<T>> propList = new ArrayList<>();
+        final List<Boolean> propagateNulls = new ArrayList<>();
+        final List<Boolean> isPrimitive = new ArrayList<>();
 
         for (PojoProperty<T> property : getProperties(ctx.getConfig()).getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
@@ -110,6 +113,9 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
                         propList.add(property);
+                        propagateNulls.add(property.getAnnotation(PropagateNull.class).isPresent());
+                        Type propertyType = property.getQualifiedType().getType();
+                        isPrimitive.add(propertyType instanceof Class && ((Class) propertyType).isPrimitive());
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
@@ -121,6 +127,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                         .ifPresent(nestedMapper -> {
                             mappers.add(nestedMapper);
                             propList.add(property);
+                            propagateNulls.add(property.getAnnotation(PropagateNull.class).isPresent());
                         });
                 }
             }
@@ -138,6 +145,9 @@ public class PojoMapper<T> implements RowMapper<T> {
                 PojoProperty<T> property = propList.get(i);
 
                 Object value = mapper.map(r, ctx);
+                if (propagateNulls.get(i) && (value == null || isPrimitive.get(i) && r.wasNull())) {
+                    return null;
+                }
 
                 if (value != null) {
                     pojo.set(property, value);

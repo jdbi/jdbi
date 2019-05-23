@@ -19,12 +19,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import javax.annotation.Nullable;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -451,6 +454,98 @@ public class BeanMapperTest {
         @Nested("nested")
         public void setNested(Something nested) {
             this.nested = nested;
+        }
+    }
+
+    @Test
+    public void testPropagateNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
+            .select("SELECT null as testValue, 'foo' as s")
+            .mapTo(PropagateNullThing.class)
+            .one())
+            .isNull();
+    }
+
+    @Test
+    public void testPropagateNotNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
+            .select("SELECT 42 as testValue, 'foo' as s")
+            .mapTo(PropagateNullThing.class)
+            .one())
+            .extracting("testValue", "s")
+            .containsExactly(42, "foo");
+    }
+
+    @Test
+    public void testNestedPropagateNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
+            .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+            .mapTo(NestedPropagateNullThing.class)
+            .one())
+            .extracting("integerValue", "nested")
+            .containsExactly(42, null);
+    }
+
+    @Test
+    public void testNestedPropagateNotNull() {
+        Handle handle = dbRule.getSharedHandle();
+        assertThat(handle
+            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
+            .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+            .mapTo(NestedPropagateNullThing.class)
+            .one())
+            .extracting("integerValue", "nested.testValue", "nested.s")
+            .containsExactly(42, 60, "foo");
+    }
+
+    public static class NestedPropagateNullThing {
+        private Integer integerValue;
+        private PropagateNullThing nested;
+
+        public Integer getIntegerValue() {
+            return integerValue;
+        }
+
+        @Nullable
+        public void setIntegerValue(Integer integerValue) {
+            this.integerValue = integerValue;
+        }
+
+        public PropagateNullThing getNested() {
+            return nested;
+        }
+
+        @Nested
+        public void setNested(PropagateNullThing nested) {
+            this.nested = nested;
+        }
+    }
+
+    public static class PropagateNullThing {
+        private int testValue;
+        private String s;
+
+        public int getTestValue() {
+            return testValue;
+        }
+
+        @PropagateNull
+        public void setTestValue(int testValue) {
+            this.testValue = testValue;
+        }
+
+        public String getS() {
+            return s;
+        }
+
+        public void setS(String s) {
+            this.s = s;
         }
     }
 }
