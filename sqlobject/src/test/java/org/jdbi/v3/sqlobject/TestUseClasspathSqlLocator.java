@@ -80,7 +80,7 @@ public class TestUseClasspathSqlLocator {
             .describedAs("empty string used as query")
             .isInstanceOf(NoResultsException.class)
             .hasMessageContaining("Statement returned no results")
-            .hasMessageContaining("sql=''");
+            .hasMessageContaining("statement:\"\"");
     }
 
     @Test

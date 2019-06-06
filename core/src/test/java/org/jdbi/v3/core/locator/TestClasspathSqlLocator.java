@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementException;
+import org.jdbi.v3.core.statement.StatementExceptions;
+import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -69,7 +71,21 @@ public class TestClasspathSqlLocator {
 
         exception.expect(StatementException.class);
         exception.expectMessage("insert into something(id, name) values (:id, :name)");
+        exception.expectMessage("id:1");
+        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+                .bind("id", 1)
+                .execute();
+    }
+
+    @Test
+    public void testDetailExceptionForBackTracing() {
+        Handle h = dbRule.openHandle();
+        h.getConfig(StatementExceptions.class).setMessageRendering(MessageRendering.DETAIL);
+
+        exception.expect(StatementException.class);
+        exception.expectMessage("insert into something(id, name) values (:id, :name)");
         exception.expectMessage("insert into something(id, name) values (?, ?)");
+        exception.expectMessage("id:1");
         h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .execute();
