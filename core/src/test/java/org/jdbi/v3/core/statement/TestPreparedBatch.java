@@ -48,6 +48,11 @@ public class TestPreparedBatch {
     }
 
     @Test
+    public void emptyBatch() {
+        assertThat(h.prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
+    }
+
+    @Test
     public void testBindBatch() {
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 

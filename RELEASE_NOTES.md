@@ -2,6 +2,8 @@
 - New Features
   - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
     using the given mapper function.
+- Changes
+  - Align PreparedBatch with no bindings behavior to normal empty Batch (return no results)
 
 # 3.8.2
 - Improvements

@@ -124,9 +124,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         if (!getBinding().isEmpty()) {
             add();
         }
-        if (bindings.isEmpty()) {
-            throw new IllegalStateException("No batch parts to execute");
-        }
 
         beforeTemplating();
 
