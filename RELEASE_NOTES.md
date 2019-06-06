@@ -4,6 +4,7 @@
     using the given mapper function.
   - `ColumnMappers.setNullPrimitivesToDefaults(boolean)` allows you to decide if database nulls
     should become Java primitive defaults or a mapping exception.
+  - `@PropagateNull` annotation allows a missing property to indicate a missing compound value
 - Bug Fixes
   - Immutables integration doesn't respect @Value.Default for primitives that are nulled in the db
 - Improvements

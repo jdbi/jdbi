@@ -16,14 +16,20 @@ package org.jdbi.v3.core.mapper;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.meta.Beta;
+
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Signals that the annotated element is required and mappers should return null if this element is null.
+ * Signals that the annotated property signals the presence of the mapped type:
+ * reflective mappers should map a null bean if this property is null, rather than a
+ * present bean with a null property value.  This is useful e.g. for a {@code LEFT OUTER JOIN}
+ * or an optionally-present compound value type.
  */
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD, METHOD})
+@Beta
 public @interface PropagateNull {}
