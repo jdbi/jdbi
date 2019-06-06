@@ -41,6 +41,7 @@ public class ImmutablesTest {
             .registerImmutable(Getter.class)
             .registerImmutable(ByteArray.class)
             .registerImmutable(DerivedProperty.class)
+            .registerImmutable(IsIsIsIs.class)
         );
 
     private Jdbi jdbi;
@@ -232,5 +233,25 @@ public class ImmutablesTest {
 
     static class Boom extends RuntimeException {
         private static final long serialVersionUID = 1L;
+    }
+
+    @Value.Immutable
+    public interface IsIsIsIs {
+        boolean is();
+        boolean isFoo();
+        String issueType();
+    }
+
+    @Test
+    public void testIs() {
+        IsIsIsIs value = ImmutableIsIsIsIs.builder().is(true).isFoo(false).issueType("a").build();
+        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar)");
+        h.createUpdate("insert into isisisis (\"is\", foo, issueType) values (:is, :foo, :issueType)")
+            .bindPojo(value)
+            .execute();
+        assertThat(h.createQuery("select * from isisisis")
+                .mapTo(IsIsIsIs.class)
+                .one())
+            .isEqualTo(value);
     }
 }

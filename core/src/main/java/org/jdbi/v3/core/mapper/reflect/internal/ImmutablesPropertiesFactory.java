@@ -22,7 +22,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,7 +85,9 @@ public interface ImmutablesPropertiesFactory {
             final String[] prefixes = new String[] {"get", "is"};
             final String name = m.getName();
             for (String prefix : prefixes) {
-                if (name.startsWith(prefix)) {
+                if (name.startsWith(prefix)
+                    && name.length() > prefix.length()
+                    && Character.isUpperCase(name.charAt(prefix.length()))) {
                     return chopPrefix(name, prefix.length());
                 }
             }
@@ -142,8 +144,13 @@ public interface ImmutablesPropertiesFactory {
         private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Type type)
         throws IllegalAccessException, NoSuchMethodException {
             final List<NoSuchMethodException> failures = new ArrayList<>();
-            final String setName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            final Set<String> names = new HashSet<>(Arrays.asList(setName, name));
+            final Set<String> names = new LinkedHashSet<>();
+            if (name.length() > 1) {
+                final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
+                names.add("set" + rest);
+                names.add("is" + rest);
+            }
+            names.add(name);
             for (String tryName : names) {
                 try {
                     return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));

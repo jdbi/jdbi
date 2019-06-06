@@ -2,6 +2,8 @@
 - New Features
   - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
     using the given mapper function.
+- Improvements
+  - Immutables: handle `is` prefix more intelligently
 
 # 3.8.2
 - Improvements
