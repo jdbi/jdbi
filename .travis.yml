@@ -1,6 +1,7 @@
 language: java
 
 sudo: false
+dist: trusty
 
 # No much sense in keeping jdbi artifacts cached
 before_cache:
