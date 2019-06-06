@@ -145,7 +145,19 @@ public final class QualifiedType<T> {
      * @param mapper a mapping function to apply to the type
      * @return an optional qualified type with the mapped type and the same qualifiers
      */
-    public Optional<QualifiedType<?>> mapType(Function<Type, Optional<Type>> mapper) {
+    public QualifiedType<?> mapType(Function<Type, Type> mapper) {
+        return new QualifiedType<>(mapper.apply(type), qualifiers);
+    }
+
+    /**
+     * Apply the provided mapping function to the type, and if non-empty is returned,
+     * return an {@code Optional<QualifiedType<?>>} with the returned type, and the same
+     * qualifiers as this instance.
+     *
+     * @param mapper a mapping function to apply to the type
+     * @return an optional qualified type with the mapped type and the same qualifiers
+     */
+    public Optional<QualifiedType<?>> flatMapType(Function<Type, Optional<Type>> mapper) {
         return mapper.apply(type).map(mappedType -> new QualifiedType<>(mappedType, qualifiers));
     }
 

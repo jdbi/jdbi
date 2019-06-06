@@ -160,4 +160,14 @@ public class GenericTypes {
     public static Type parameterizeClass(Class<?> clazz, Type... arguments) {
         return TypeFactory.parameterizedClass(clazz, arguments);
     }
+
+    /**
+     * Perform boxing conversion on a {@code Type}, if it is a primitive type.
+     * Otherwise return the input argument.
+     * @param type the type to box
+     * @return the boxed type, or the input type if it is not a primitive
+     */
+    public static Type box(Type type) {
+        return GenericTypeReflector.box(type);
+    }
 }
