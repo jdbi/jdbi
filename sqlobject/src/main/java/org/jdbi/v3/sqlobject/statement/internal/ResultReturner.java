@@ -133,7 +133,7 @@ abstract class ResultReturner {
 
         ResultIterableReturner(QualifiedType<?> returnType) {
             // extract T from Query<T>
-            elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, ResultIterable.class))
+            elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, ResultIterable.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
         }
@@ -158,7 +158,7 @@ abstract class ResultReturner {
         private final QualifiedType<?> elementType;
 
         StreamReturner(QualifiedType<?> returnType) {
-            elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Stream.class))
+            elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Stream.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect Stream<T> element type T in method return type " + returnType));
         }
@@ -183,7 +183,7 @@ abstract class ResultReturner {
         private final QualifiedType<?> elementType;
 
         ResultIteratorReturner(QualifiedType<?> returnType) {
-            this.elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
+            this.elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
         }
@@ -208,7 +208,7 @@ abstract class ResultReturner {
         private final QualifiedType<?> elementType;
 
         IteratorReturner(QualifiedType<?> returnType) {
-            this.elementType = returnType.mapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
+            this.elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
                 .orElseThrow(() -> new IllegalStateException(
                     "Cannot reflect Iterator<T> element type T in method return type " + returnType));
         }
@@ -281,7 +281,7 @@ abstract class ResultReturner {
         @Override
         protected QualifiedType<?> elementType(StatementContext ctx) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return returnType.mapType(type -> ctx.findElementTypeFor(type))
+            return returnType.flatMapType(type -> ctx.findElementTypeFor(type))
                 .orElse(returnType);
         }
     }

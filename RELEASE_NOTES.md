@@ -2,10 +2,15 @@
 - New Features
   - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
     using the given mapper function.
+- Bug Fixes
+  - Immutables integration doesn't respect @Value.Default for primitives that are nulled in the db
 - Improvements
   - Immutables: handle `is` prefix more intelligently
 - Changes
   - Align PreparedBatch with no bindings behavior to normal empty Batch (return no results)
+- Beta API Changes
+  - add GenericTypes.box
+  - QualifiedType: rename mapType -> flatMapType, add a proper mapType
 
 # 3.8.2
 - Improvements

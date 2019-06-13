@@ -105,7 +105,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
                         @SuppressWarnings({ "unchecked", "rawtypes" })
-                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType())
+                        ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType().mapType(GenericTypes::box))
                             .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
                         mappers.add(new SingleColumnMapper<>(mapper, index + 1));
@@ -139,7 +139,9 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                 Object value = mapper.map(r, ctx);
 
-                pojo.set(property, value);
+                if (value != null) {
+                    pojo.set(property, value);
+                }
             }
 
             return pojo.build();

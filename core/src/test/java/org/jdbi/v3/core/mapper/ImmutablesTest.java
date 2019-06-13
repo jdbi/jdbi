@@ -35,13 +35,15 @@ public class ImmutablesTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule()
         .withConfig(JdbiImmutables.class, c -> c
-            .registerImmutable(SubValue.class)
-            .registerImmutable(FooBarBaz.class)
-            .registerModifiable(FooBarBaz.class)
-            .registerImmutable(Getter.class)
-            .registerImmutable(ByteArray.class)
-            .registerImmutable(DerivedProperty.class)
-            .registerImmutable(IsIsIsIs.class)
+            .registerImmutable(
+                    SubValue.class,
+                    FooBarBaz.class,
+                    Getter.class,
+                    ByteArray.class,
+                    DerivedProperty.class,
+                    Defaulty.class,
+                    IsIsIsIs.class
+            ).registerModifiable(FooBarBaz.class)
         );
 
     private Jdbi jdbi;
@@ -253,5 +255,22 @@ public class ImmutablesTest {
                 .mapTo(IsIsIsIs.class)
                 .one())
             .isEqualTo(value);
+    }
+
+    @Test
+    public void testDefaultNotStoredInDb() {
+        assertThat(h.createQuery("select null as defaulted")
+                .mapTo(Defaulty.class)
+                .one())
+            .extracting(Defaulty::defaulted)
+            .isEqualTo(42);
+    }
+
+    @Value.Immutable
+    public interface Defaulty {
+        @Value.Default
+        default int defaulted() {
+            return 42;
+        }
     }
 }
