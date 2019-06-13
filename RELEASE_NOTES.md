@@ -4,6 +4,8 @@
     using the given mapper function.
 - Improvements
   - Immutables: handle `is` prefix more intelligently
+- Changes
+  - Align PreparedBatch with no bindings behavior to normal empty Batch (return no results)
 
 # 3.8.2
 - Improvements
