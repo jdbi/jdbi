@@ -127,7 +127,7 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         public String apply(StatementException exc) {
             final StatementContext ctx = exc.getStatementContext();
             if (ctx == null) {
-                return NONE.render(exc, ctx);
+                return NONE.render(exc, null);
             }
             return render(exc, ctx);
         }
