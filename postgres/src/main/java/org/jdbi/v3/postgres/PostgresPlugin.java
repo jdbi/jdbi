@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
@@ -136,7 +137,7 @@ public class PostgresPlugin implements JdbiPlugin {
         jdbi.registerColumnMapper(new PGobjectColumnMapperFactory());
 
         // legacy unqualified HSTORE
-        jdbi.registerArgument(new HStoreArgumentFactory()::build);
+        jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
         jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
 
         // optional integration
