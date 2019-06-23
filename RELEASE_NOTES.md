@@ -2,6 +2,8 @@
 - New Features
   - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
     using the given mapper function.
+  - `ColumnMappers.setNullPrimitivesToDefaults(boolean)` allows you to decide if database nulls
+    should become Java primitive defaults or a mapping exception.
 - Bug Fixes
   - Immutables integration doesn't respect @Value.Default for primitives that are nulled in the db
 - Improvements
