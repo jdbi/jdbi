@@ -125,6 +125,15 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         private Consumer<List<Exception>> onFailure = NOP;
         private Consumer<List<Exception>> onSuccess = NOP;
 
+        public Configuration() {}
+
+        private Configuration(Configuration that) {
+            maxRetries = that.maxRetries;
+            serializationFailureSqlState = that.serializationFailureSqlState;
+            onFailure = that.onFailure;
+            onSuccess = that.onSuccess;
+        }
+
         /**
          * @param maxRetries number of retry attempts before aborting
          * @return this
@@ -167,11 +176,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
 
         @Override
         public Configuration createCopy() {
-            return new Configuration()
-                    .setMaxRetries(maxRetries)
-                    .setSerializationFailureSqlState(serializationFailureSqlState)
-                    .setOnFailure(onFailure)
-                    .setOnSuccess(onSuccess);
+            return new Configuration(this);
         }
     }
 }
