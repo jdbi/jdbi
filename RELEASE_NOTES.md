@@ -6,6 +6,7 @@
   - Immutables integration doesn't respect @Value.Default for primitives that are nulled in the db
 - Improvements
   - Immutables: handle `is` prefix more intelligently
+  - `StatementExceptions` configuration class lets you configure generated exception message length
 - Changes
   - Align PreparedBatch with no bindings behavior to normal empty Batch (return no results)
 - Beta API Changes

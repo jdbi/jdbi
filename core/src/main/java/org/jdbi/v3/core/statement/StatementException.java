@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.Optional;
+
 import org.jdbi.v3.core.JdbiException;
+import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
 
 /**
  * Superclass for exceptions thrown while trying to execute a statement.
@@ -63,17 +66,9 @@ public abstract class StatementException extends JdbiException {
 
     @Override
     public String getMessage() {
-        String base = super.getMessage();
-        StatementContext ctx = getStatementContext();
-        if (ctx == null) {
-            return base;
-        } else {
-            return String.format("%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]",
-                                 base,
-                                 ctx.getRawSql(),
-                                 ctx.getRenderedSql(),
-                                 ctx.getParsedSql(),
-                                 ctx.getBinding());
-        }
+        return Optional.ofNullable(getStatementContext())
+            .map(c -> c.getConfig(StatementExceptions.class).getMessageRendering())
+            .orElse(MessageRendering.NONE)
+            .apply(this);
     }
 }
