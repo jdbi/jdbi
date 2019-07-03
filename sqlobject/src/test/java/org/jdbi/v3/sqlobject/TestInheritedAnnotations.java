@@ -41,7 +41,7 @@ public class TestInheritedAnnotations {
 
     @Before
     public void setUp() {
-        dbRule.getJdbi().getConfig(BindTime.Config.class).clock = mockClock;
+        dbRule.getJdbi().getConfig(BindTimeConfig.class).setClock(mockClock);
 
         Handle handle = dbRule.getSharedHandle();
         handle.execute("CREATE TABLE characters (id INT, name VARCHAR, created TIMESTAMP, modified TIMESTAMP)");
