@@ -27,7 +27,7 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void defaultConfiguration() {
-        assertThat(db.getJdbi().getConfig(ColumnMappers.class).getNullPrimitivesToDefaults()).isTrue();
+        assertThat(db.getJdbi().getConfig(ColumnMappers.class).getCoalesceNullPrimitivesToDefaults()).isTrue();
     }
 
     @Test
@@ -44,19 +44,20 @@ public class PrimitiveMapperFactoryTest {
     @Test
     public void forbidNullPrimitives() {
         assertThatThrownBy(() -> db.getJdbi().withHandle(h ->
-            h.configure(ColumnMappers.class, mappers -> mappers.setNullPrimitivesToDefaults(false))
-                .createQuery("select null")
+            h.configure(ColumnMappers.class, mappers -> mappers.setCoalesceNullPrimitivesToDefaults(false))
+                .createQuery("select null as foo")
                 .mapTo(int.class)
                 .one()
         ))
             .isInstanceOf(UnableToProduceResultException.class)
-            .hasMessage("a Java primitive value was attempted to be mapped from a database null value");
+            .hasMessageContaining("Database null values are not allowed for Java primitives")
+            .hasMessageContaining("column 1 (FOO)");
     }
 
     @Test
     public void doesntApplyToBoxed() {
         Integer value = db.getJdbi().withHandle(h ->
-            h.configure(ColumnMappers.class, mappers -> mappers.setNullPrimitivesToDefaults(false))
+            h.configure(ColumnMappers.class, mappers -> mappers.setCoalesceNullPrimitivesToDefaults(false))
                 .createQuery("select null")
                 .mapTo(Integer.class)
                 .one()

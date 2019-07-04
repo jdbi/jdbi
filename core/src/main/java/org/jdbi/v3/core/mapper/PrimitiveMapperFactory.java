@@ -62,8 +62,11 @@ class PrimitiveMapperFactory implements ColumnMapperFactory {
     private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
         return (r, i, ctx) -> {
             T value = getter.get(r, i);
-            if (r.wasNull() && !ctx.getConfig(ColumnMappers.class).getNullPrimitivesToDefaults()) {
-                throw new UnableToProduceResultException("a Java primitive value was attempted to be mapped from a database null value");
+            if (r.wasNull() && !ctx.getConfig(ColumnMappers.class).getCoalesceNullPrimitivesToDefaults()) {
+                String msg = String.format("Database null values are not allowed for Java primitives by the current configuration:"
+                    + " could not map column %s (%s)."
+                    + " Change your result type to a boxed primitive to resolve.", i, r.getMetaData().getColumnLabel(i));
+                throw new UnableToProduceResultException(msg);
             } else {
                 return value;
             }
