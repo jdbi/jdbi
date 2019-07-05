@@ -19,6 +19,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.jdbi.v3.sqlobject.customizer.DefineList;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -57,7 +58,8 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory {
                 throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define "
                         + "an empty attribute.");
             }
-            if (argsList.contains(null)) {
+            // Uses stream match, cause the Java 9 ImmutableList implementation throws an NPE if asked `contains(null)`
+            if (argsList.stream().anyMatch(Objects::isNull)) {
                 throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");
             }
 
