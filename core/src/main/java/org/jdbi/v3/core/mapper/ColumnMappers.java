@@ -34,6 +34,7 @@ import org.jdbi.v3.meta.Beta;
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<QualifiedType<?>, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
+    private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
 
     public ColumnMappers() {
@@ -58,6 +59,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private ColumnMappers(ColumnMappers that) {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
+        coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
 
     /**
@@ -193,6 +195,19 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         mapper.ifPresent(m -> cache.put(type, m));
 
         return mapper;
+    }
+
+    /**
+     * @return {@code true} if database {@code null}s should translate to the Java defaults for primitives, or throw an exception otherwise
+     *
+     * Default value is true: nulls will be coalesced to defaults
+     */
+    public boolean getCoalesceNullPrimitivesToDefaults() {
+        return coalesceNullPrimitivesToDefaults;
+    }
+
+    public void setCoalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
+        this.coalesceNullPrimitivesToDefaults = coalesceNullPrimitivesToDefaults;
     }
 
     @Override

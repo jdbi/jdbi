@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
@@ -59,7 +60,17 @@ class PrimitiveMapperFactory implements ColumnMapperFactory {
     }
 
     private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
-        return (r, i, ctx) -> getter.get(r, i);
+        return (r, i, ctx) -> {
+            T value = getter.get(r, i);
+            if (r.wasNull() && !ctx.getConfig(ColumnMappers.class).getCoalesceNullPrimitivesToDefaults()) {
+                String msg = String.format("Database null values are not allowed for Java primitives by the current configuration:"
+                    + " could not map column %s (%s)."
+                    + " Change your result type to a boxed primitive to resolve.", i, r.getMetaData().getColumnLabel(i));
+                throw new UnableToProduceResultException(msg);
+            } else {
+                return value;
+            }
+        };
     }
 
     private static char getChar(ResultSet r, int i) throws SQLException {
