@@ -14,9 +14,12 @@
 
 package org.jdbi.v3.sqlobject;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -40,17 +43,16 @@ public class TestDefineListParameter {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
+    private final String[] columnsArray = new String[] {"id", "name"};
+    private final List<String> testColumns = Arrays.asList(columnsArray);
+
     private Handle handle;
-    private List<String> testColumns;
 
     @Before
     public void setUp() {
         handle = dbRule.getSharedHandle();
         handle.execute("create table test (id identity primary key, name varchar(50))");
         handle.execute("create table testNullable (id identity primary key, name varchar(50) null)");
-        testColumns = new ArrayList<>();
-        testColumns.add("id");
-        testColumns.add("name");
     }
 
     @Test
@@ -98,11 +100,33 @@ public class TestDefineListParameter {
     @Test
     public void testArray() {
         TestDao testDao = handle.attach(TestDao.class);
-        String[] columnsArray = {"id", "name"};
+        testDao.insert("test", columnsArray, ImmutableList.of(1, "Some Pig"));
+    }
+
+    @Test
+    public void nullHostileContains() {
+        TestDao testDao = handle.attach(TestDao.class);
+        List<String> columns = new AbstractList<String>() {
+            @Override
+            public int size() {
+                return testColumns.size();
+            }
+            @Override
+            public String get(int index) {
+                return testColumns.get(index);
+            }
+            @Override
+            public boolean contains(Object o) {
+                if (o == null) {
+                    throw new NullPointerException();
+                }
+                return testColumns.contains(o);
+            }
+        };
         List<Object> values = new ArrayList<>();
         values.add(1);
         values.add("Some Pig");
-        testDao.insert("test", columnsArray, values);
+        testDao.insert("test", columns, values);
     }
 
     @Test
