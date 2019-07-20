@@ -86,7 +86,7 @@
         <dep.checkstyle.version>8.16</dep.checkstyle.version>
         <dep.dokka.version>0.9.17</dep.dokka.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
-        <dep.jackson2.version>2.9.8</dep.jackson2.version>
+        <dep.jackson2.version>2.9.9.1</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.2.31</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
