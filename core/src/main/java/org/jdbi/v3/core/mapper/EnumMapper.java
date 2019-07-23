@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.enums.DatabaseValue;
 import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.Enums;
@@ -78,6 +80,16 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
         private static Object getValueByName(Class<? extends Enum<?>> enumClass, String name) {
             final Enum<?>[] enumConstants = enumClass.getEnumConstants();
             return JdbiOptionals.findFirstPresent(
+                    () -> Arrays.stream(enumConstants).filter(e -> {
+                        final Field field;
+                        try {
+                            field = enumClass.getField(e.name());
+                        } catch (final NoSuchFieldException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        final DatabaseValue databaseValue = field.getAnnotation(DatabaseValue.class);
+                        return databaseValue != null && databaseValue.value().equals(name);
+                    }).findFirst(),
                     () -> Arrays.stream(enumConstants).filter(e -> e.name().equals(name)).findFirst(),
                     () -> Arrays.stream(enumConstants).filter(e -> e.name().equalsIgnoreCase(name)).findFirst()
                 )
