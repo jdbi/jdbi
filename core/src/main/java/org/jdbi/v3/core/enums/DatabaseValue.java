@@ -26,5 +26,5 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public @interface DatabaseValue {
 
-    public String value();
+    String value();
 }
