@@ -32,6 +32,7 @@ import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -270,7 +271,13 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
+        final Optional<String> nullMarkerColumn =
+                Optional.ofNullable(factory.getAnnotationIncludingType(PropagateNull.class))
+                    .map(PropagateNull::value);
         return Optional.of((r, c) -> {
+            if (PojoMapper.propagateNull(r, nullMarkerColumn)) {
+                return null;
+            }
             final Object[] params = new Object[count];
 
             for (int i = 0; i < count; i++) {

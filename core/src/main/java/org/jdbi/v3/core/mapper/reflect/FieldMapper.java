@@ -28,6 +28,7 @@ import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -183,7 +184,13 @@ public class FieldMapper<T> implements RowMapper<T> {
             return Optional.empty();
         }
 
+        final Optional<String> nullMarkerColumn =
+                Optional.ofNullable(type.getAnnotation(PropagateNull.class))
+                    .map(PropagateNull::value);
         return Optional.of((r, c) -> {
+            if (PojoMapper.propagateNull(r, nullMarkerColumn)) {
+                return null;
+            }
             T obj = construct();
 
             for (int i = 0; i < mappers.size(); i++) {

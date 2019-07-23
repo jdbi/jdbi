@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -137,7 +138,13 @@ public class PojoMapper<T> implements RowMapper<T> {
             return Optional.empty();
         }
 
+        final Optional<String> nullMarkerColumn =
+                Optional.ofNullable(GenericTypes.getErasedType(type).getAnnotation(PropagateNull.class))
+                    .map(PropagateNull::value);
         return Optional.of((r, c) -> {
+            if (propagateNull(r, nullMarkerColumn)) {
+                return null;
+            }
             final PojoBuilder<T> pojo = getProperties(c.getConfig()).create();
 
             for (int i = 0; i < mappers.size(); i++) {
@@ -171,6 +178,16 @@ public class PojoMapper<T> implements RowMapper<T> {
                 GenericTypes.getErasedType(propertyType),
                 nestedPrefix);
     }
+
+    public static boolean propagateNull(ResultSet r, Optional<String> nullMarkerColumn) {
+        return nullMarkerColumn.map(
+                Unchecked.function(col -> {
+                    r.getObject(col);
+                    return r.wasNull();
+                }))
+            .orElse(false);
+    }
+
 
     private ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
         if (strictColumnTypeMapping) {

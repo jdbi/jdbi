@@ -33,9 +33,11 @@ public class ConstructorMapperTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
+    private Handle handle;
+
     @Before
     public void setUp() {
-        dbRule.getSharedHandle()
+        handle = dbRule.getSharedHandle()
             .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
             .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class))
             .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
@@ -43,13 +45,13 @@ public class ConstructorMapperTest {
             .registerRowMapper(ConstructorMapper.factory(NullableParameterBean.class))
             .registerRowMapper(ConstructorMapper.factory(StaticFactoryMethodBean.class));
 
-        dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
+        handle.execute("CREATE TABLE bean (s varchar, i integer)");
 
-        dbRule.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
+        handle.execute("INSERT INTO bean VALUES('3', 2)");
     }
 
     private <T> T selectOne(String query, Class<T> type) {
-        return dbRule.getSharedHandle().createQuery(query).mapTo(type).one();
+        return handle.createQuery(query).mapTo(type).one();
     }
 
     @Test
@@ -149,7 +151,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testConstructorProperties() {
-        final ConstructorPropertiesBean cpi = dbRule.getSharedHandle()
+        final ConstructorPropertiesBean cpi = handle
                 .createQuery("SELECT * FROM bean")
                 .mapTo(ConstructorPropertiesBean.class)
                 .one();
@@ -175,7 +177,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParameters() {
-        assertThat(dbRule.getSharedHandle()
+        assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
             .select("select s, i from bean")
             .mapTo(NestedBean.class)
@@ -186,11 +188,10 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParametersStrict() {
-        Handle handle = dbRule.getSharedHandle();
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
 
-        assertThat(dbRule.getSharedHandle()
+        assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
             .select("select s, i from bean")
             .mapTo(NestedBean.class)
@@ -258,7 +259,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPrefixParameters() {
-        NestedPrefixBean result = dbRule.getSharedHandle()
+        NestedPrefixBean result = handle
             .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
             .select("select i nested_i, s nested_s from bean")
             .mapTo(NestedPrefixBean.class)
@@ -269,7 +270,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPrefixParametersStrict() {
-        Handle handle = dbRule.getSharedHandle();
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
 
@@ -305,7 +305,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void propagateNull() {
-        Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
             .select("SELECT null as testValue, 'foo' as s")
@@ -316,7 +315,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void propagateNotNull() {
-        Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
             .select("SELECT 42 as testValue, 'foo' as s")
@@ -328,7 +326,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPropagateNull() {
-        Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
@@ -340,7 +337,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPropagateNotNull() {
-        Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
@@ -348,6 +344,23 @@ public class ConstructorMapperTest {
             .one())
             .extracting("integerValue", "nested.testValue", "nested.s")
             .containsExactly(42, 60, "foo");
+    }
+
+    @Test
+    public void classPropagateNull() {
+            assertThat(handle.select("select 42 as value, null as fk")
+                    .map(ConstructorMapper.of(ClassPropagateNullThing.class))
+                    .one())
+                .isNull();
+    }
+
+    @Test
+    public void classPropagateNotNull() {
+            assertThat(handle.select("select 42 as value, 'a' as fk")
+                    .map(ConstructorMapper.of(ClassPropagateNullThing.class))
+                    .one())
+                .extracting(cpnt -> cpnt.value)
+                .isEqualTo(42);
     }
 
     static class NestedPropagateNullThing {
@@ -377,6 +390,27 @@ public class ConstructorMapperTest {
         @Override
         public String toString() {
             return "PropagateNullThing [testValue=" + testValue + ", s=" + s + "]";
+        }
+    }
+
+    @PropagateNull("fk")
+    public static class ClassPropagateNullThing {
+        int value;
+
+        public ClassPropagateNullThing() {
+            this(-1);
+        }
+
+        @JdbiConstructor
+        ClassPropagateNullThing(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+        public void setValue(int value) {
+            this.value = value;
         }
     }
 

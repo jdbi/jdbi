@@ -21,6 +21,7 @@ import org.jdbi.v3.meta.Beta;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -30,6 +31,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * or an optionally-present compound value type.
  */
 @Retention(RUNTIME)
-@Target({PARAMETER, FIELD, METHOD})
+@Target({PARAMETER, FIELD, METHOD, TYPE})
 @Beta
-public @interface PropagateNull {}
+public @interface PropagateNull {
+    String value() default "";
+}

@@ -22,6 +22,7 @@ import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -265,6 +266,23 @@ public class FieldMapperTest {
             .one())
             .extracting("integerValue", "nested.testValue", "nested.s")
             .containsExactly(42, 60, "foo");
+    }
+
+    @Test
+    public void classPropagateNull() {
+            assertThat(handle.select("select 42 as value, null as fk")
+                    .map(FieldMapper.of(ClassPropagateNullThing.class))
+                    .one())
+                .isNull();
+    }
+
+    @Test
+    public void classPropagateNotNull() {
+            assertThat(handle.select("select 42 as value, 'a' as fk")
+                    .map(FieldMapper.of(ClassPropagateNullThing.class))
+                    .one())
+                .extracting(cpnt -> cpnt.value)
+                .isEqualTo(42);
     }
 
     static class NestedPropagateNullThing {

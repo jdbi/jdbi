@@ -16,6 +16,8 @@ package org.jdbi.v3.core.mapper.reflect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +45,16 @@ abstract class InstanceFactory<T> {
     @Nullable
     <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
         return executable.getAnnotation(annotationClass);
+    }
+
+    @Nullable
+    <A extends Annotation> A getAnnotationIncludingType(Class<A> annotationClass) {
+        return Stream.of(
+                getAnnotation(annotationClass),
+                executable.getDeclaringClass().getAnnotation(annotationClass))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     abstract T newInstance(Object... params);
