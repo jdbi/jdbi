@@ -115,7 +115,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                         propList.add(property);
                         propagateNulls.add(property.getAnnotation(PropagateNull.class).isPresent());
                         Type propertyType = property.getQualifiedType().getType();
-                        isPrimitive.add(propertyType instanceof Class && ((Class) propertyType).isPrimitive());
+                        isPrimitive.add(propertyType instanceof Class && ((Class<?>) propertyType).isPrimitive());
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
@@ -164,7 +164,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for " + type));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" }) // Type loses <T>
+    @SuppressWarnings("rawtypes") // Type loses <T>
     protected PojoMapper<?> createNestedMapper(StatementContext ctx, PojoProperty<T> property, String nestedPrefix) {
         final Type propertyType = property.getQualifiedType().getType();
         return new PojoMapper(

@@ -80,6 +80,7 @@ public class ConstructorMapperTest {
         private final String s;
         private final int i;
 
+        @SuppressWarnings("unused")
         ConstructorBean(int some, String other, long constructor) {
             throw new UnsupportedOperationException("You don't belong here!");
         }
@@ -303,7 +304,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testPropagateNull() {
+    public void propagateNull() {
         Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
@@ -314,7 +315,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testPropagateNotNull() {
+    public void propagateNotNull() {
         Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
@@ -326,7 +327,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testNestedPropagateNull() {
+    public void nestedPropagateNull() {
         Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
@@ -338,7 +339,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testNestedPropagateNotNull() {
+    public void nestedPropagateNotNull() {
         Handle handle = dbRule.getSharedHandle();
         assertThat(handle
             .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
@@ -357,6 +358,11 @@ public class ConstructorMapperTest {
             this.integerValue = integerValue;
             this.nested = nested;
         }
+
+        @Override
+        public String toString() {
+            return "NestedPropagateNullThing [integerValue=" + integerValue + ", nested=" + nested + "]";
+        }
     }
 
     static class PropagateNullThing {
@@ -367,10 +373,15 @@ public class ConstructorMapperTest {
             this.testValue = testValue;
             this.s = s;
         }
+
+        @Override
+        public String toString() {
+            return "PropagateNullThing [testValue=" + testValue + ", s=" + s + "]";
+        }
     }
 
     @Test
-    public void testFactoryMethod() {
+    public void factoryMethod() {
         StaticFactoryMethodBean bean = selectOne("SELECT s, i FROM bean", StaticFactoryMethodBean.class);
 
         assertThat(bean.s).isEqualTo("3");
@@ -378,7 +389,7 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testFactoryMethodReversed() {
+    public void factoryMethodReversed() {
         StaticFactoryMethodBean bean = selectOne("SELECT i, s FROM bean", StaticFactoryMethodBean.class);
 
         assertThat(bean.s).isEqualTo("3");
@@ -402,12 +413,13 @@ public class ConstructorMapperTest {
     }
 
     @Test
-    public void testMultipleFactoryMethods() {
+    public void multipleFactoryMethods() {
         assertThatThrownBy(() -> ConstructorMapper.factory(MultipleStaticFactoryMethodsBean.class))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageMatching("class .* may have at most one constructor or static factory method annotated @JdbiConstructor");
     }
 
+    @SuppressWarnings("unused")
     static class MultipleStaticFactoryMethodsBean {
         @JdbiConstructor
         static MultipleStaticFactoryMethodsBean one(String s) {

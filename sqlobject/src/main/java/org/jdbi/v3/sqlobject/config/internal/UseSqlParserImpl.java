@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.Configurer;
@@ -55,17 +55,17 @@ public class UseSqlParserImpl implements Configurer {
     }
 
     private static <T extends SqlParser> Supplier<T> tryConstructor(Class<T> clazz, Object... args) {
-        return () -> {
+        return Unchecked.supplier(() -> {
             try {
                 Object[] nonNullArgs = Arrays.stream(args).filter(Objects::nonNull).toArray(Object[]::new);
-                Class[] argClasses = Arrays.stream(nonNullArgs).map(Object::getClass).toArray(Class[]::new);
+                Class<?>[] argClasses = Arrays.stream(nonNullArgs).map(Object::getClass).toArray(Class[]::new);
                 MethodType type = MethodType.methodType(void.class, argClasses);
-                return (T) MethodHandles.lookup().findConstructor(clazz, type).invokeWithArguments(nonNullArgs);
+                return clazz.cast(MethodHandles.lookup()
+                        .findConstructor(clazz, type)
+                        .invokeWithArguments(nonNullArgs));
             } catch (NoSuchMethodException ignored) {
                 return null;
-            } catch (Throwable t) {
-                throw Sneaky.throwAnyway(t);
             }
-        };
+        });
     }
 }
