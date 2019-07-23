@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import java.lang.annotation.RetentionPolicy;
 
+import org.jdbi.v3.core.enums.DatabaseValue;
 import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
@@ -71,6 +72,37 @@ public class EnumsConfigTest {
     }
 
     @Test
+    public void customizedNamesAreBoundCorrectly() throws NoSuchFieldException {
+        db.getJdbi().useHandle(h -> {
+            h.createUpdate("create table enums(id int, name varchar)").execute();
+
+            h.createUpdate("insert into enums (id, name) values (1, :name)")
+                    .bind("name", Foobar.CUSTOM)
+                    .execute();
+
+            final String databaseString = h.createQuery("select name from enums")
+                    .mapTo(String.class)
+                    .one();
+
+            assertThat(databaseString)
+                    .isEqualTo("CUST");
+        });
+    }
+
+    @Test
+    public void customizedNamesAreMappedCorrectly() throws NoSuchFieldException {
+        db.getJdbi().useHandle(h -> {
+            Foobar mappedEnum = h.createQuery("select :name")
+                    .bind("name", "CUST")
+                    .mapTo(Foobar.class)
+                    .one();
+
+            assertThat(mappedEnum)
+                    .isEqualTo(Foobar.CUSTOM);
+        });
+    }
+    
+    @Test
     public void ordinalsAreBoundCorrectly() {
         db.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
@@ -119,9 +151,9 @@ public class EnumsConfigTest {
         db.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
-            assertThatThrownBy(h.createQuery("select 2").mapTo(Foobar.class)::one)
+            assertThatThrownBy(h.createQuery("select 3").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)
-                .hasMessageContaining("no Foobar value could be matched to the ordinal 2");
+                .hasMessageContaining("no Foobar value could be matched to the ordinal 3");
         });
     }
 
@@ -148,7 +180,7 @@ public class EnumsConfigTest {
 
     // bar is unused to make sure we don't have any coincidental correctness
     private enum Foobar {
-        BAR, FOO
+        BAR, FOO, @DatabaseValue("CUST") CUSTOM
     }
 
     @Test
