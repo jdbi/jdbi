@@ -20,6 +20,8 @@ import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -204,12 +206,10 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
-        final RowMapper<?>[] mappers = new RowMapper<?>[count];
-        final boolean[] propagateNulls = new boolean[count];
-        final boolean[] isPrimitive = new boolean[count];
 
         boolean matchedColumns = false;
         final List<String> unmatchedParameters = new ArrayList<>();
+        final List<ParameterData> paramData = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
 
@@ -225,17 +225,15 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     int colIndex = columnIndex.getAsInt();
                     final QualifiedType<?> type = QualifiedType.of(parameter.getParameterizedType())
                         .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(parameter));
-                    mappers[i] = ctx.findColumnMapperFor(type)
+                    paramData.add(new ParameterData(i, parameter, ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(
-                            String.format(MISSING_COLUMN_MAPPER, type, paramName, factory)));
-                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
-                    isPrimitive[i] = parameter.getType().isPrimitive();
+                            String.format(MISSING_COLUMN_MAPPER, type, paramName, factory)))));
 
                     matchedColumns = true;
                     unmatchedColumns.remove(columnNames.get(colIndex));
                 } else if (nullable) {
-                    mappers[i] = (r, c) -> null;
+                    paramData.add(new ParameterData(i, parameter, (r, c) -> null));
                 } else {
                     unmatchedParameters.add(paramName);
                 }
@@ -248,14 +246,10 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns);
 
                 if (nestedMapper.isPresent()) {
-                    mappers[i] = nestedMapper.get();
-                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
-                    isPrimitive[i] = false;
+                    paramData.add(new ParameterData(i, parameter, nestedMapper.get()));
                     matchedColumns = true;
                 } else if (nullable) {
-                    mappers[i] = (r, c) -> null;
-                    propagateNulls[i] = parameter.getAnnotation(PropagateNull.class) != null;
-                    isPrimitive[i] = false;
+                    paramData.add(new ParameterData(i, parameter, (r, c) -> null));
                 } else {
                     unmatchedParameters.add(paramName(parameters, i, constructorProperties));
                 }
@@ -265,6 +259,9 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         if (!matchedColumns) {
             return Optional.empty();
         }
+
+        Collections.sort(paramData, Comparator.comparing(
+                p -> p.propagateNull ? 1 : 0));
 
         if (!unmatchedParameters.isEmpty()) {
             throw new IllegalArgumentException(String.format(
@@ -280,9 +277,9 @@ public class ConstructorMapper<T> implements RowMapper<T> {
             }
             final Object[] params = new Object[count];
 
-            for (int i = 0; i < count; i++) {
-                params[i] = mappers[i].map(r, c);
-                if (propagateNulls[i] && (params[i] == null || isPrimitive[i] && r.wasNull())) {
+            for (ParameterData p : paramData) {
+                params[p.index] = p.mapper.map(r, c);
+                if (p.propagateNull && (params[p.index] == null || p.isPrimitive && r.wasNull())) {
                     return null;
                 }
             }
@@ -317,5 +314,20 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         return String.format("%s constructor parameter %s",
             factory.getDeclaringClass().getSimpleName(),
             parameter.getName());
+    }
+
+    private static class ParameterData {
+        ParameterData(int index, Parameter parameter, RowMapper<?> mapper) {
+            this.index = index;
+            this.parameter = parameter;
+            this.mapper = mapper;
+            propagateNull = parameter.getAnnotation(PropagateNull.class) != null;
+            isPrimitive = parameter.getType().isPrimitive();
+        }
+        final int index;
+        final Parameter parameter;
+        final RowMapper<?> mapper;
+        final boolean propagateNull;
+        final boolean isPrimitive;
     }
 }

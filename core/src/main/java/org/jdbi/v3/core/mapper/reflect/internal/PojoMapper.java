@@ -17,6 +17,8 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -92,10 +94,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
                                                List<String> unmatchedColumns) {
-        final List<RowMapper<?>> mappers = new ArrayList<>();
-        final List<PojoProperty<T>> propList = new ArrayList<>();
-        final List<Boolean> propagateNulls = new ArrayList<>();
-        final List<Boolean> isPrimitive = new ArrayList<>();
+        final List<PropertyData<T>> propList = new ArrayList<>();
 
         for (PojoProperty<T> property : getProperties(ctx.getConfig()).getProperties().values()) {
             Nested anno = property.getAnnotation(Nested.class).orElse(null);
@@ -112,11 +111,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType().mapType(GenericTypes::box))
                             .orElseGet(() -> (ColumnMapper) defaultColumnMapper(property));
 
-                        mappers.add(new SingleColumnMapper<>(mapper, index + 1));
-                        propList.add(property);
-                        propagateNulls.add(property.getAnnotation(PropagateNull.class).isPresent());
-                        Type propertyType = property.getQualifiedType().getType();
-                        isPrimitive.add(propertyType instanceof Class && ((Class<?>) propertyType).isPrimitive());
+                        propList.add(new PropertyData<>(property, new SingleColumnMapper<>(mapper, index + 1)));
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
@@ -125,18 +120,16 @@ public class PojoMapper<T> implements RowMapper<T> {
                     nestedMappers
                         .computeIfAbsent(property, d -> createNestedMapper(ctx, d, nestedPrefix))
                         .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
-                        .ifPresent(nestedMapper -> {
-                            mappers.add(nestedMapper);
-                            propList.add(property);
-                            propagateNulls.add(property.getAnnotation(PropagateNull.class).isPresent());
-                        });
+                        .ifPresent(nestedMapper ->
+                            propList.add(new PropertyData<>(property, nestedMapper)));
                 }
             }
         }
 
-        if (mappers.isEmpty() && !columnNames.isEmpty()) {
+        if (propList.isEmpty() && !columnNames.isEmpty()) {
             return Optional.empty();
         }
+        Collections.sort(propList, Comparator.comparing(p -> p.propagateNull ? 1 : 0));
 
         final Optional<String> nullMarkerColumn =
                 Optional.ofNullable(GenericTypes.getErasedType(type).getAnnotation(PropagateNull.class))
@@ -147,17 +140,14 @@ public class PojoMapper<T> implements RowMapper<T> {
             }
             final PojoBuilder<T> pojo = getProperties(c.getConfig()).create();
 
-            for (int i = 0; i < mappers.size(); i++) {
-                RowMapper<?> mapper = mappers.get(i);
-                PojoProperty<T> property = propList.get(i);
-
-                Object value = mapper.map(r, ctx);
-                if (propagateNulls.get(i) && (value == null || isPrimitive.get(i) && r.wasNull())) {
+            for (PropertyData<T> p : propList) {
+                Object value = p.mapper.map(r, ctx);
+                if (p.propagateNull && (value == null || p.isPrimitive && r.wasNull())) {
                     return null;
                 }
 
                 if (value != null) {
-                    pojo.set(property, value);
+                    pojo.set(p.property, value);
                 }
             }
 
@@ -188,7 +178,6 @@ public class PojoMapper<T> implements RowMapper<T> {
             .orElse(false);
     }
 
-
     private ColumnMapper<?> defaultColumnMapper(PojoProperty<T> property) {
         if (strictColumnTypeMapping) {
             throw new NoSuchMapperException(String.format(
@@ -205,5 +194,18 @@ public class PojoMapper<T> implements RowMapper<T> {
 
     private String debugName(PojoProperty<T> p) {
         return String.format("%s.%s", type, p.getName());
+    }
+
+    private static class PropertyData<T> {
+        PropertyData(PojoProperty<T> property, RowMapper<?> mapper) {
+            this.property = property;
+            this.mapper = mapper;
+            propagateNull = property.getAnnotation(PropagateNull.class).isPresent();
+            isPrimitive = GenericTypes.getErasedType(property.getQualifiedType().getType()).isPrimitive();
+        }
+        final PojoProperty<T> property;
+        final RowMapper<?> mapper;
+        final boolean propagateNull;
+        final boolean isPrimitive;
     }
 }

@@ -17,6 +17,8 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,10 +140,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
                                                List<String> unmatchedColumns) {
-        final List<RowMapper<?>> mappers = new ArrayList<>();
-        final List<Field> fields = new ArrayList<>();
-        final List<Boolean> propagateNulls = new ArrayList<>();
-        final List<Boolean> isPrimitive = new ArrayList<>();
+        final List<FieldData> fields = new ArrayList<>();
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
@@ -156,10 +155,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                             @SuppressWarnings("unchecked")
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
                                 .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
-                            mappers.add(new SingleColumnMapper<>(mapper, index + 1));
-                            fields.add(field);
-                            propagateNulls.add(field.getAnnotation(PropagateNull.class) != null);
-                            isPrimitive.add(field.getType().isPrimitive());
+                            fields.add(new FieldData(field, new SingleColumnMapper<>(mapper, index + 1)));
                             unmatchedColumns.remove(columnNames.get(index));
                         });
                 } else {
@@ -169,20 +165,18 @@ public class FieldMapper<T> implements RowMapper<T> {
                         nestedMappers
                             .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
                             .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
-                            .ifPresent(mapper -> {
-                                mappers.add(mapper);
-                                fields.add(field);
-                                isPrimitive.add(false);
-                                propagateNulls.add(field.getAnnotation(PropagateNull.class) != null);
-                            });
+                            .ifPresent(mapper ->
+                                fields.add(new FieldData(field, mapper)));
                     }
                 }
             }
         }
 
-        if (mappers.isEmpty() && !columnNames.isEmpty()) {
+        if (fields.isEmpty() && !columnNames.isEmpty()) {
             return Optional.empty();
         }
+
+        Collections.sort(fields, Comparator.comparing(f -> f.propagateNull ? 1 : 0));
 
         final Optional<String> nullMarkerColumn =
                 Optional.ofNullable(type.getAnnotation(PropagateNull.class))
@@ -193,16 +187,12 @@ public class FieldMapper<T> implements RowMapper<T> {
             }
             T obj = construct();
 
-            for (int i = 0; i < mappers.size(); i++) {
-                RowMapper<?> mapper = mappers.get(i);
-                Field field = fields.get(i);
-
-                Object value = mapper.map(r, ctx);
-
-                if (propagateNulls.get(i) && (value == null || isPrimitive.get(i) && r.wasNull())) {
+            for (FieldData f : fields) {
+                Object value = f.mapper.map(r, ctx);
+                if (f.propagateNull && (value == null || f.isPrimitive && r.wasNull())) {
                     return null;
                 }
-                writeField(obj, field, value);
+                writeField(obj, f.field, value);
             }
 
             return obj;
@@ -234,6 +224,19 @@ public class FieldMapper<T> implements RowMapper<T> {
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(String.format(CANNOT_ACCESS_PROPERTY, field.getName()), e);
         }
+    }
+
+    private static class FieldData {
+        FieldData(Field field, RowMapper<?> mapper) {
+            this.field = field;
+            this.mapper = mapper;
+            propagateNull = field.getAnnotation(PropagateNull.class) != null;
+            isPrimitive = field.getType().isPrimitive();
+        }
+        final Field field;
+        final RowMapper<?> mapper;
+        final boolean propagateNull;
+        final boolean isPrimitive;
     }
 }
 
