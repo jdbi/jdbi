@@ -59,9 +59,9 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
                 throw new RuntimeException(ex);
             }
             final DatabaseValue databaseValue = field.getAnnotation(DatabaseValue.class);
-            return databaseValue != null
-                    ? databaseValue.value()
-                    : e.name();
+            return databaseValue == null
+                    ? e.name()
+                    : databaseValue.value();
         }, config);
     }
 
