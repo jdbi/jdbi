@@ -71,8 +71,8 @@ public class EnumsConfigTest {
         });
     }
 
-        @Test
-        public void customizedNamesAreBoundCorrectly() throws NoSuchFieldException {
+    @Test
+    public void customizedNamesAreBoundCorrectly() throws NoSuchFieldException {
         db.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -80,26 +80,24 @@ public class EnumsConfigTest {
                     .bind("name", Foobar.CUSTOM)
                     .execute();
 
-            String ordinal = h.createQuery("select name from enums")
+            final String databaseString = h.createQuery("select name from enums")
                     .mapTo(String.class)
                     .one();
 
-            assertThat(ordinal)
-                    .isEqualTo(Foobar.class.getField(Foobar.CUSTOM.name())
-                            .getAnnotation(DatabaseValue.class).value());
+            assertThat(databaseString)
+                    .isEqualTo("CUST");
         });
     }
 
     @Test
     public void customizedNamesAreMappedCorrectly() throws NoSuchFieldException {
         db.getJdbi().useHandle(h -> {
-            Foobar name = h.createQuery("select :name")
-                    .bind("name", Foobar.class.getField(Foobar.CUSTOM.name())
-                            .getAnnotation(DatabaseValue.class).value())
+            Foobar mappedEnum = h.createQuery("select :name")
+                    .bind("name", "CUST")
                     .mapTo(Foobar.class)
                     .one();
 
-            assertThat(name)
+            assertThat(mappedEnum)
                     .isEqualTo(Foobar.CUSTOM);
         });
     }
