@@ -24,6 +24,7 @@ import org.jdbi.v3.core.enums.DatabaseValue;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.EnumStrategies;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 class EnumArgumentFactory implements QualifiedArgumentFactory {
@@ -51,18 +52,14 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     private static <E extends Enum<E>> Optional<Argument> byName(E value, ConfigRegistry config) {
-        return makeArgument(Types.VARCHAR, String.class, value, e -> {
-            final Field field;
-            try {
-                field = e.getDeclaringClass().getField(e.name());
-            } catch (final NoSuchFieldException ex) {
-                throw new RuntimeException(ex);
-            }
+        final Function<E, String> transform = e -> {
+            final Field field = Unchecked.function(e.getDeclaringClass()::getField).apply(e.name());
             final DatabaseValue databaseValue = field.getAnnotation(DatabaseValue.class);
             return databaseValue == null
                     ? e.name()
                     : databaseValue.value();
-        }, config);
+        };
+        return makeArgument(Types.VARCHAR, String.class, value, transform, config);
     }
 
     private static <E extends Enum<E>> Optional<Argument> byOrdinal(E value, ConfigRegistry config) {
