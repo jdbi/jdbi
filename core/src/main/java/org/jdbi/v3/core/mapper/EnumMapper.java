@@ -25,6 +25,7 @@ import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -81,12 +82,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
             final Enum<?>[] enumConstants = enumClass.getEnumConstants();
             return JdbiOptionals.findFirstPresent(
                     () -> Arrays.stream(enumConstants).filter(e -> {
-                        final Field field;
-                        try {
-                            field = enumClass.getField(e.name());
-                        } catch (final NoSuchFieldException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                        final Field field = Unchecked.function(enumClass::getField).apply(e.name());
                         final DatabaseValue databaseValue = field.getAnnotation(DatabaseValue.class);
                         return databaseValue != null && databaseValue.value().equals(name);
                     }).findFirst(),
