@@ -25,6 +25,5 @@ import org.jdbi.v3.meta.Beta;
 @Qualifier
 @Beta
 public @interface DatabaseValue {
-
     String value();
 }
