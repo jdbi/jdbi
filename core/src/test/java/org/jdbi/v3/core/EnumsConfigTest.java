@@ -101,7 +101,7 @@ public class EnumsConfigTest {
                     .isEqualTo(Foobar.CUSTOM);
         });
     }
-    
+
     @Test
     public void ordinalsAreBoundCorrectly() {
         db.getJdbi().useHandle(h -> {

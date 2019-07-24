@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Optional;
@@ -52,14 +51,15 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     private static <E extends Enum<E>> Optional<Argument> byName(E value, ConfigRegistry config) {
-        final Function<E, String> transform = e -> {
-            final Field field = Unchecked.function(e.getDeclaringClass()::getField).apply(e.name());
-            final DatabaseValue databaseValue = field.getAnnotation(DatabaseValue.class);
-            return databaseValue == null
-                    ? e.name()
-                    : databaseValue.value();
-        };
-        return makeArgument(Types.VARCHAR, String.class, value, transform, config);
+        return makeArgument(Types.VARCHAR, String.class, value, EnumArgumentFactory::annotatedValue, config);
+    }
+
+    private static <E extends Enum<E>> String annotatedValue(E e) {
+        return Optional.of(e.getDeclaringClass())
+                .map(Unchecked.function(type -> type.getField(e.name())))
+                .map(field -> field.getAnnotation(DatabaseValue.class))
+                .map(DatabaseValue::value)
+                .orElse(e.name());
     }
 
     private static <E extends Enum<E>> Optional<Argument> byOrdinal(E value, ConfigRegistry config) {
