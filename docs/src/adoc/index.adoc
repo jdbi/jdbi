@@ -5459,7 +5459,7 @@ of the link:{jdbidocs}/sqlobject/Handler.html[Handler^] interface. Every time
 you call a method on a SQL Object instance, the method is executed by executing
 the handler for the given method.
 
-When use use a decorating annotation (like `@Transaction`), the regular handler
+When you use a decorating annotation (like `@Transaction`), the regular handler
 for a method is wrapped in another handler which may perform some action before
 and/or after passing the call to the original handler.
 
