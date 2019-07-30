@@ -23,7 +23,6 @@ import org.jdbi.v3.meta.Beta;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Qualifier
 @Beta
 public @interface DatabaseValue {
     String value();
