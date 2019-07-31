@@ -23,6 +23,7 @@ public class TestStatementExceptions {
     public final void testLimit() {
         String exception = "This is a very long exception that is used for testing";
 
+        assertThat(limit(null, 10)).isEqualTo(null);
         assertThat(limit(exception, 0)).isEqualTo("[...]");
         assertThat(limit(exception, 10)).isEqualTo("This is a [...]");
         assertThat(limit(exception, 20)).isEqualTo("This is a very long [...]");
