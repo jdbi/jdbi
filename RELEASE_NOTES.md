@@ -1,3 +1,7 @@
+# 3.9.1
+- Bug Fixes
+  - fix minor PreparedBatch statement leak
+
 # 3.9.0
 - New Features
   - `ResultIterable<T>.map(Function<T, U>)` returns a `ResultIterable<U>` with elements transformed
