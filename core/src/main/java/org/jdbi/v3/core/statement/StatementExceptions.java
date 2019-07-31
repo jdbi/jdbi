@@ -137,6 +137,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
 
     @SuppressWarnings("PMD.UseStringBufferForStringAppends")
     protected static String limit(String s, int len) {
+        if (s == null) {
+            return null;
+        }
         String truncated = s.substring(0, Math.min(len, s.length()));
         boolean isTruncated = len < s.length();
         if (isTruncated) {
