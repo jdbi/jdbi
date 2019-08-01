@@ -23,7 +23,7 @@
 
     <artifactId>jdbi3-benchmark</artifactId>
 
-    <name>Jdbi JMH benchmarks</name>
+    <name>jdbi3 benchmarks</name>
 
     <properties>
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
