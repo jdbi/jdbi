@@ -49,7 +49,9 @@ public class TestPreparedBatch {
 
     @Test
     public void emptyBatch() {
-        assertThat(h.prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
+        final PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        assertThat(batch.execute()).isEmpty();
+        assertThat(batch.getContext().isClosed()).isTrue();
     }
 
     @Test

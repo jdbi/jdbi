@@ -63,7 +63,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @return the number of rows modified or inserted per batch part.
      */
     public int[] execute() {
-        return internalBatchExecute().updateCounts;
+        try {
+            return internalBatchExecute().updateCounts;
+        } finally {
+            getContext().close();
+        }
     }
 
     public ResultIterator<Integer> executeAndGetModCount() {

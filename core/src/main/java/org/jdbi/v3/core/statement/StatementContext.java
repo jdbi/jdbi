@@ -577,4 +577,8 @@ public class StatementContext implements Closeable {
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod;
     }
+
+    boolean isClosed() {
+        return cleanables.isEmpty();
+    }
 }
