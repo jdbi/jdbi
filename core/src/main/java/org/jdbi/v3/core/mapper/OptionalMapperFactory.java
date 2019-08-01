@@ -15,16 +15,19 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.util.IdentityHashMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
@@ -38,28 +41,40 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class OptionalMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
+    private static final Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> STRATEGIES;
 
-    OptionalMapperFactory() {
-        mappers.put(OptionalInt.class, optionalMapper(ResultSet::getInt, OptionalInt::empty, OptionalInt::of));
-        mappers.put(OptionalLong.class, optionalMapper(ResultSet::getLong, OptionalLong::empty, OptionalLong::of));
-        mappers.put(OptionalDouble.class, optionalMapper(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of));
+    static {
+        Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> s = new HashMap<>();
+
+        s.put(Optional.class, OptionalMapperFactory::create);
+        s.put(OptionalInt.class, singleton(create(ResultSet::getInt, OptionalInt::empty, OptionalInt::of)));
+        s.put(OptionalLong.class, singleton(create(ResultSet::getLong, OptionalLong::empty, OptionalLong::of)));
+        s.put(OptionalDouble.class, singleton(create(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of)));
+
+        STRATEGIES = Collections.unmodifiableMap(s);
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> rawType = getErasedType(type);
-
-        if (rawType == Optional.class) {
-            return Optional.of(OptionalMapper.of(type));
-        }
-
-        return Optional.ofNullable(mappers.get(rawType));
+        return Optional.ofNullable(STRATEGIES.get(getErasedType(type)))
+                .map(strategy -> strategy.apply(type, config));
     }
 
-    private static <Opt, Box> ColumnMapper<?> optionalMapper(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
+    static BiFunction<Type, ConfigRegistry, ColumnMapper<?>> singleton(ColumnMapper<?> instance) {
+        return (t, c) -> instance;
+    }
+
+    static <Opt, Box> ColumnMapper<?> create(ColumnGetter<Box> columnGetter, Supplier<Opt> empty, Function<Box, Opt> present) {
         return (r, columnNumber, ctx) -> Optional.ofNullable(new GetterMapper<>(columnGetter).map(r, columnNumber, ctx))
-            .map(present)
-            .orElseGet(empty);
+                .map(present)
+                .orElseGet(empty);
+    }
+
+    private static ColumnMapper<?> create(Type type, ConfigRegistry config) {
+        final ColumnMapper<?> mapper = config.get(ColumnMappers.class).findFor(
+                GenericTypes.findGenericParameter(type, Optional.class)
+                    .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))
+                .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + type + " nested in Optional"));
+        return (r, i, ctx) -> (Optional<?>) Optional.ofNullable(mapper.map(r, i, ctx));
     }
 }
