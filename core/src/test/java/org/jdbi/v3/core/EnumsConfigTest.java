@@ -72,7 +72,7 @@ public class EnumsConfigTest {
     }
 
     @Test
-    public void customizedNamesAreBoundCorrectly() throws NoSuchFieldException {
+    public void customizedNamesAreBoundCorrectly() {
         db.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
@@ -90,7 +90,7 @@ public class EnumsConfigTest {
     }
 
     @Test
-    public void customizedNamesAreMappedCorrectly() throws NoSuchFieldException {
+    public void customizedNamesAreMappedCorrectly() {
         db.getJdbi().useHandle(h -> {
             Foobar mappedEnum = h.createQuery("select :name")
                     .bind("name", "CUST")
@@ -100,6 +100,18 @@ public class EnumsConfigTest {
             assertThat(mappedEnum)
                     .isEqualTo(Foobar.CUSTOM);
         });
+    }
+
+    @Test
+    public void customizedNamesAreNotMappedToEnumName() {
+        assertThatThrownBy(() -> {
+            db.getJdbi().useHandle(h -> {
+                h.createQuery("select :name")
+                        .bind("name", Foobar.CUSTOM.name())
+                        .mapTo(Foobar.class)
+                        .findOne();
+            });
+        }).isInstanceOf(UnableToProduceResultException.class);
     }
 
     @Test
