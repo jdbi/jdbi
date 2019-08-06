@@ -1,6 +1,9 @@
 # 3.9.1
 - Bug Fixes
   - fix minor PreparedBatch statement leak
+  - fix statement summarization NPE
+- Improvements
+  - minor Optional mapping performance improvement
 
 # 3.9.0
 - New Features
