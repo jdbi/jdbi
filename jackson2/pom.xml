@@ -17,7 +17,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.9.1-SNAPSHOT</version>
+        <version>3.9.1</version>
     </parent>
 
     <artifactId>jdbi3-jackson2</artifactId>
