@@ -58,8 +58,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
                 Handle newHandle = db.open();
                 // share extension method thread local with handle,
                 // so extension methods set in other threads are preserved
-                newHandle.setExtensionMethodThreadLocal(localExtensionMethod);
-                newHandle.setConfigThreadLocal(localConfig);
+                newHandle.setLocalExtensionMethod(localExtensionMethod);
+                newHandle.setLocalConfig(localConfig);
 
                 this.handle = newHandle;
             }

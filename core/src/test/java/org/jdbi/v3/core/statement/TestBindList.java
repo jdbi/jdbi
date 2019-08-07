@@ -60,16 +60,16 @@ public class TestBindList {
 
     @Test
     public void testBindListWithHashPrefixParser() {
-        handle.registerRowMapper(FieldMapper.factory(Thing.class));
+        handle
+            .registerRowMapper(FieldMapper.factory(Thing.class))
+            .setSqlParser(new HashPrefixSqlParser());
 
         handle.createUpdate("insert into thing (<columns>) values (<values>)")
-            .setSqlParser(new HashPrefixSqlParser())
             .defineList("columns", "id", "foo")
             .bindList("values", 3, "abc")
             .execute();
 
         List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
-            .setSqlParser(new HashPrefixSqlParser())
             .bindList("ids", 1, 3)
             .mapTo(Thing.class)
             .list();

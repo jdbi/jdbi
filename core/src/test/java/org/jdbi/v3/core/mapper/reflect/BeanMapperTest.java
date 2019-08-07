@@ -14,8 +14,6 @@
 
 package org.jdbi.v3.core.mapper.reflect;
 
-import java.sql.SQLException;
-
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
@@ -37,12 +35,12 @@ public class BeanMapperTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    Handle handle;
+    private Handle handle;
 
     RowMapper<SampleBean> mapper = BeanMapper.of(SampleBean.class);
 
     @Before
-    public void getHandle() throws SQLException {
+    public void getHandle() {
         handle = dbRule.getSharedHandle();
     }
 
@@ -73,9 +71,9 @@ public class BeanMapperTest {
     public void testColumnNameAnnotation() {
         handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
 
-        sharedHandle.execute("insert into something (id, name) values (1, 'foo')");
+        handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        ColumnNameBean bean = sharedHandle.createQuery("select * from something")
+        ColumnNameBean bean = handle.createQuery("select * from something")
                 .mapTo(ColumnNameBean.class)
                 .one();
 
@@ -87,9 +85,9 @@ public class BeanMapperTest {
     public void testNested() {
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
-        sharedHandle.execute("insert into something (id, name) values (1, 'foo')");
+        handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(sharedHandle
+        assertThat(handle
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
             .one())
@@ -102,16 +100,16 @@ public class BeanMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
-        sharedHandle.execute("insert into something (id, name) values (1, 'foo')");
+        handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(sharedHandle
+        assertThat(handle
             .createQuery("select id, name from something")
             .mapTo(NestedBean.class)
             .one())
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
 
-        assertThatThrownBy(() -> sharedHandle
+        assertThatThrownBy(() -> handle
             .createQuery("select id, name, 1 as other from something")
             .mapTo(NestedBean.class)
             .one())
@@ -156,9 +154,9 @@ public class BeanMapperTest {
     public void testNestedPrefix() {
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
-        sharedHandle.execute("insert into something (id, name) values (1, 'foo')");
+        handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        assertThat(sharedHandle
+        assertThat(handle
             .createQuery("select id nested_id, name nested_name from something")
             .mapTo(NestedPrefixBean.class)
             .one())
@@ -171,23 +169,23 @@ public class BeanMapperTest {
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
-        sharedHandle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
 
-        assertThat(sharedHandle
+        assertThat(handle
             .createQuery("select id nested_id, name nested_name, integerValue from something")
             .mapTo(NestedPrefixBean.class)
             .one())
             .extracting("nested.id", "nested.name", "integerValue")
             .containsExactly(1, "foo", 5);
 
-        assertThatThrownBy(() -> sharedHandle
+        assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as other from something")
             .mapTo(NestedPrefixBean.class)
             .one())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
 
-        assertThatThrownBy(() -> sharedHandle
+        assertThatThrownBy(() -> handle
             .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
             .mapTo(NestedPrefixBean.class)
             .one())

@@ -117,15 +117,15 @@ public class Call extends SqlStatement<Call> {
         }
 
         @Override
-        public void apply(int newPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
-            ((CallableStatement) statement).registerOutParameter(newPosition, sqlType);
-            this.position = newPosition;
+        public void apply(int outPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            ((CallableStatement) statement).registerOutParameter(outPosition, sqlType);
+            this.position = outPosition;
         }
 
-        public Object map(CallableStatement statement) {
+        public Object map(CallableStatement stmt) {
             try {
                 if (mapper != null) {
-                    return mapper.map(position, statement);
+                    return mapper.map(position, stmt);
                 }
                 switch (sqlType) {
                     case Types.CLOB:
@@ -134,28 +134,28 @@ public class Call extends SqlStatement<Call> {
                     case Types.LONGVARCHAR:
                     case Types.NCLOB:
                     case Types.NVARCHAR:
-                        return statement.getString(position);
+                        return stmt.getString(position);
                     case Types.BLOB:
                     case Types.VARBINARY:
-                        return statement.getBytes(position);
+                        return stmt.getBytes(position);
                     case Types.SMALLINT:
-                        return statement.getShort(position);
+                        return stmt.getShort(position);
                     case Types.INTEGER:
-                        return statement.getInt(position);
+                        return stmt.getInt(position);
                     case Types.BIGINT:
-                        return statement.getLong(position);
+                        return stmt.getLong(position);
                     case Types.TIMESTAMP:
                         case Types.TIME:
-                        return statement.getTimestamp(position);
+                        return stmt.getTimestamp(position);
                     case Types.DATE:
-                        return statement.getDate(position);
+                        return stmt.getDate(position);
                     case Types.FLOAT:
-                        return statement.getFloat(position);
+                        return stmt.getFloat(position);
                     case Types.DECIMAL:
                     case Types.DOUBLE:
-                        return statement.getDouble(position);
+                        return stmt.getDouble(position);
                     default:
-                        return statement.getObject(position);
+                        return stmt.getObject(position);
                 }
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
