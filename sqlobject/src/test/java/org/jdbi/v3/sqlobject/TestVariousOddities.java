@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -26,6 +27,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -150,5 +152,45 @@ public class TestVariousOddities {
         @SqlQuery("select ''")
         @Override
         String value();
+    }
+
+    public interface OnDemandOddities extends SqlObject, Transactional<OnDemandOddities> {
+        @CreateSqlObject
+        VersionA versionA();
+    }
+
+    public class DecoratedOnDemandOddities implements OnDemandOddities {
+        private OnDemandOddities onDemand = dbRule.getJdbi().onDemand(OnDemandOddities.class);
+
+        @Override
+        public Handle getHandle() {
+            return onDemand.getHandle();
+        }
+
+        @Override
+        public VersionA versionA() {
+            return onDemand.versionA();
+        }
+    }
+
+    @Test
+    public void onDemandCreateSqlObject() throws Exception {
+        assertThat(dbRule.getJdbi().onDemand(OnDemandOddities.class).versionA().value())
+                .isEqualTo("intriguing");
+    }
+
+    @Test
+    public void decoratedOnDemandWithHandleInTransaction() throws Exception {
+        OnDemandOddities onDemand = new DecoratedOnDemandOddities();
+        onDemand.withHandle(h ->
+            h.inTransaction(txn ->
+                assertThat(onDemand.versionA().value()).isEqualTo("intriguing")));
+    }
+
+    @Test
+    public void decoratedOnDemandInTransaction() throws Exception {
+        OnDemandOddities onDemand = new DecoratedOnDemandOddities();
+        onDemand.inTransaction(txn ->
+                assertThat(onDemand.versionA().value()).isEqualTo("intriguing"));
     }
 }
