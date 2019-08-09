@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.internal;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -19,10 +19,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
-class OnDemandExtensions {
+public class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
     private static final Method HASHCODE_METHOD;
     private static final Method TOSTRING_METHOD;
@@ -33,7 +34,7 @@ class OnDemandExtensions {
             HASHCODE_METHOD = Object.class.getMethod("hashCode");
             TOSTRING_METHOD = Object.class.getMethod("toString");
         } catch (NoSuchMethodException wat) {
-            throw new IllegalStateException("JVM error", wat);
+            throw new IllegalStateException("OnDemandExtensions initialization failed", wat);
         }
     }
 
@@ -67,7 +68,7 @@ class OnDemandExtensions {
     private static Object invoke(Object target, Method method, Object[] args) {
         if (Proxy.isProxyClass(target.getClass())) {
             InvocationHandler handler = Proxy.getInvocationHandler(target);
-            return Unchecked.<Object[], Object>function((params) -> handler.invoke(target, method, params)).apply(args);
+            return Unchecked.<Object[], Object>function(params -> handler.invoke(target, method, params)).apply(args);
         } else {
             MethodHandle handle = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method).bindTo(target);
             return Unchecked.<Object[], Object>function(handle::invokeWithArguments).apply(args);
