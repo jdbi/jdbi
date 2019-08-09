@@ -16,6 +16,7 @@ package org.jdbi.v3.core.extension;
 import java.util.concurrent.Callable;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 
@@ -30,6 +31,11 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
      * @return an open Handle
      */
     Handle getHandle();
+
+    /**
+     * @return the owning Jdbi instance
+     */
+    Jdbi getJdbi();
 
     /**
      * Bind an extension method and configuration registry to the Handle,

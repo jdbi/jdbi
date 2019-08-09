@@ -50,6 +50,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
+    private final Jdbi jdbi;
     private final ConnectionCloser closer;
     private final TransactionHandler transactions;
     private final Connection connection;
@@ -61,11 +62,13 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private boolean closed = false;
 
-    Handle(ConfigRegistry config,
+    Handle(Jdbi jdbi,
+           ConfigRegistry config,
            ConnectionCloser closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
            Connection connection) {
+        this.jdbi = jdbi;
         this.closer = closer;
         this.transactions = transactions;
         this.connection = connection;
@@ -74,6 +77,10 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.extensionMethod = new ThreadLocal<>();
         this.statementBuilder = statementBuilder;
         this.forceEndTransactions = !transactions.isInTransaction(this);
+    }
+
+    public Jdbi getJdbi() {
+        return jdbi;
     }
 
     @Override

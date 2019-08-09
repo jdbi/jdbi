@@ -43,6 +43,11 @@ public class TestSqlObjectMethodBehavior {
             }
 
             @Override
+            public Jdbi getJdbi() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
                 return task.call();
             }

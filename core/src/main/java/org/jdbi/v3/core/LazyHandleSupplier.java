@@ -41,6 +41,11 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     }
 
     @Override
+    public Jdbi getJdbi() {
+        return db;
+    }
+
+    @Override
     public Handle getHandle() {
         if (handle == null) {
             initHandle();
