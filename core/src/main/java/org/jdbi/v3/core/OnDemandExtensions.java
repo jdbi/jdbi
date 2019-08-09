@@ -41,7 +41,7 @@ class OnDemandExtensions {
         throw new UtilityClassException();
     }
 
-    static <E> E create(Jdbi db, Class<E> extensionType) {
+    public static <E> E create(Jdbi db, Class<E> extensionType) {
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];

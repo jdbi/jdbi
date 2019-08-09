@@ -31,6 +31,11 @@ class ConstantHandleSupplier implements HandleSupplier {
     }
 
     @Override
+    public Jdbi getJdbi() {
+        return handle.getJdbi();
+    }
+
+    @Override
     public ConfigRegistry getConfig() {
         return handle.getConfig();
     }
