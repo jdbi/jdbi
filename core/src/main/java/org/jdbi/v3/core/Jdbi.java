@@ -347,16 +347,13 @@ public class Jdbi implements Configurable<Jdbi> {
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *
-     * @param callback A callback which will receive an open Handle
+     * @param consumer A callback which will receive an open Handle
      * @param <X> exception type thrown by the callback, if any.
      *
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X {
-        withHandle(h -> {
-            callback.useHandle(h);
-            return null;
-        });
+    public <X extends Exception> void useHandle(final HandleConsumer<X> consumer) throws X {
+        withHandle(consumer.asCallback());
     }
 
     /**

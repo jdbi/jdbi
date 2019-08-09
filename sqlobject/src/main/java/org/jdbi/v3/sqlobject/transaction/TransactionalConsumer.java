@@ -27,4 +27,11 @@ public interface TransactionalConsumer<T extends Transactional<T>, X extends Exc
      * @throws X any exception thrown will cause the transaction to be rolled back
      */
     void useTransaction(T transactional) throws X;
+
+    default TransactionalCallback<Void, T, X> asCallback() {
+        return h -> {
+            useTransaction(h);
+            return null;
+        };
+    }
 }
