@@ -1,3 +1,10 @@
+# 3.10.0
+- New Features
+  - Handle.getJdbi gets owning Jdbi instance
+- Bug Fixes
+  - onDemand extensions work with @CreateSqlObject
+  - onDemand SqlObject.withHandle / Transactional.inTransaction work as top-level extension method
+
 # 3.9.1
 - Bug Fixes
   - fix minor PreparedBatch statement leak

@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 public class OnDemandExtensions {

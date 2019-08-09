@@ -18,6 +18,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 /**
  * Implements the contract of a SQL Object method.
  */
+@FunctionalInterface
 public interface Handler {
     /**
      * Executes a SQL Object method, and returns the result.

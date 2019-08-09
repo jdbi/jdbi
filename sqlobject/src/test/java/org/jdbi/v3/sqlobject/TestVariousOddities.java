@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -165,6 +166,11 @@ public class TestVariousOddities {
         @Override
         public Handle getHandle() {
             return onDemand.getHandle();
+        }
+
+        @Override
+        public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
+            return onDemand.withHandle(callback);
         }
 
         @Override

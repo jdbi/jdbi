@@ -154,12 +154,7 @@ public class SqlObjectFactory implements ExtensionFactory {
     }
 
     private static Map<Method, Handler> handlerEntry(Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        try {
-            return Collections.singletonMap(klass.getMethod(methodName, parameterTypes), handler);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException(
-                    String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
-        }
+        return Collections.singletonMap(Handlers.methodLookup(klass, methodName, parameterTypes), handler);
     }
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,

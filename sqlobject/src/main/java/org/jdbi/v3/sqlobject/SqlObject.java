@@ -41,9 +41,7 @@ public interface SqlObject {
      *
      * @throws X any exception thrown by the callback
      */
-    default <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
-        return callback.withHandle(getHandle());
-    }
+    <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X;
 
     /**
      * A convenience function which manages the lifecycle of the handle associated to this sql object,
@@ -55,6 +53,6 @@ public interface SqlObject {
      * @throws X any exception thrown by the callback
      */
     default <X extends Exception> void useHandle(HandleConsumer<X> consumer) throws X {
-        consumer.useHandle(getHandle());
+        withHandle(consumer.asCallback());
     }
 }

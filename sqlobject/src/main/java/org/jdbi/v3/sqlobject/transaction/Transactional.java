@@ -93,7 +93,7 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
      */
     @SuppressWarnings("unchecked")
     default <R, X extends Exception> R inTransaction(TransactionalCallback<R, This, X> callback) throws X {
-        return getHandle().inTransaction(h -> callback.inTransaction((This) this));
+        return withHandle(h -> h.inTransaction(txn -> callback.inTransaction((This) this)));
     }
 
     /**
@@ -109,7 +109,7 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
     @SuppressWarnings("unchecked")
     default <R, X extends Exception> R inTransaction(
             TransactionIsolationLevel isolation, TransactionalCallback<R, This, X> callback) throws X {
-        return getHandle().inTransaction(isolation, h -> callback.inTransaction((This) this));
+        return withHandle(h -> h.inTransaction(isolation, txn -> callback.inTransaction((This) this)));
     }
 
     /**
@@ -120,10 +120,7 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
      * @throws X any exception thrown by the callback.
      */
     default <X extends Exception> void useTransaction(TransactionalConsumer<This, X> callback) throws X {
-        inTransaction(transactional -> {
-            callback.useTransaction(transactional);
-            return null;
-        });
+        inTransaction(callback.asCallback());
     }
 
     /**
@@ -136,9 +133,6 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
      */
     default <X extends Exception> void useTransaction(TransactionIsolationLevel isolation,
                                                       TransactionalConsumer<This, X> callback) throws X {
-        inTransaction(isolation, transactional -> {
-            callback.useTransaction(transactional);
-            return null;
-        });
+        inTransaction(isolation, callback.asCallback());
     }
 }

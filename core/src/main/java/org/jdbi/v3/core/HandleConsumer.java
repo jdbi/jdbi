@@ -26,4 +26,11 @@ public interface HandleConsumer<X extends Exception> {
      * @throws X optional exception thrown by the callback
      */
     void useHandle(Handle handle) throws X;
+
+    default HandleCallback<Void, X> asCallback() {
+        return h -> {
+            useHandle(h);
+            return null;
+        };
+    }
 }
