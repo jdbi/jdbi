@@ -55,17 +55,33 @@ public class TestTimestamped {
     public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
     private PersonDAO personDAO;
 
-    private OffsetDateTime insertedTimestamp;
-    private Timestamp insertedSqlTimestamp;
+    private static ThreadLocal<String> logNext = new ThreadLocal<>();
+    private static ThreadLocal<OffsetDateTime> insertedTimestamp = new ThreadLocal<>();
 
     private final MockClock clock = MockClock.at(UTC_MOMENT.toZonedDateTime());
 
     @Before
     public void before() {
         TimestampedFactory.setTimeSource(clock::withZone);
-        dbRule.getJdbi().getConfig(TimestampedConfig.class).setTimezone(GMT_PLUS_2);
+        final Jdbi db = dbRule.getJdbi();
+        db.getConfig(TimestampedConfig.class).setTimezone(GMT_PLUS_2);
 
-        personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
+        db.setSqlLogger(new SqlLogger() {
+            @Override
+            public void logBeforeExecution(StatementContext ctx) {
+                String name = logNext.get();
+                if (name != null) {
+                    String toString = ctx.getBinding()
+                        .findForName(name, ctx)
+                        .orElseThrow(AssertionError::new)
+                        .toString();
+                    insertedTimestamp.set(OffsetDateTime.parse(toString));
+                    logNext.set(null);
+                }
+            }
+        });
+
+        personDAO = db.onDemand(PersonDAO.class);
         personDAO.createTable();
     }
 
@@ -74,16 +90,16 @@ public class TestTimestamped {
         Person input = new Person("John", "Phiri");
         input.setId(1);
 
-        recordNextTimestamp("now");
+        logNext.set("now");
         personDAO.insert(input);
-        assertThat(insertedTimestamp.getOffset()).isEqualTo(GMT_PLUS_2);
-        assertThat(insertedTimestamp.toInstant()).isEqualTo(UTC_MOMENT.toInstant());
+        assertThat(insertedTimestamp.get().getOffset()).isEqualTo(GMT_PLUS_2);
+        assertThat(insertedTimestamp.get().toInstant()).isEqualTo(UTC_MOMENT.toInstant());
 
         Person result = personDAO.get(1);
 
         assertThat(result.getCreated())
             .isEqualTo(result.getModified())
-            .isEqualTo(insertedSqlTimestamp);
+            .isEqualTo(insertedSqlTimestamp());
     }
 
     @Test
@@ -91,10 +107,10 @@ public class TestTimestamped {
         Person input = new Person("John", "Phiri");
         input.setId(1);
 
-        recordNextTimestamp("createdAt");
+        logNext.set("createdAt");
         personDAO.insertWithCustomTimestampFields(input);
-        assertThat(insertedTimestamp.getOffset()).isEqualTo(GMT_PLUS_2);
-        assertThat(insertedTimestamp.toInstant()).isEqualTo(UTC_MOMENT.toInstant());
+        assertThat(insertedTimestamp.get().getOffset()).isEqualTo(GMT_PLUS_2);
+        assertThat(insertedTimestamp.get().toInstant()).isEqualTo(UTC_MOMENT.toInstant());
 
         Person result = personDAO.get(1);
 
@@ -102,7 +118,7 @@ public class TestTimestamped {
         assertThat(result.getLastName()).isEqualTo(input.getLastName());
         assertThat(result.getCreated())
             .isEqualTo(result.getModified())
-            .isEqualTo(insertedSqlTimestamp);
+            .isEqualTo(insertedSqlTimestamp());
     }
 
     @Test
@@ -110,17 +126,17 @@ public class TestTimestamped {
         Person input = new Person("John", "Phiri");
         input.setId(3);
 
-        recordNextTimestamp("now");
+        logNext.set("now");
         personDAO.insert(input);
-        Timestamp insert = insertedSqlTimestamp;
+        Timestamp insert = insertedSqlTimestamp();
 
         Person fetched = personDAO.get(3);
         fetched.setLastName("Banda");
         clock.advance(1, ChronoUnit.SECONDS);
 
-        recordNextTimestamp("now");
+        logNext.set("now");
         personDAO.updatePerson(fetched);
-        Timestamp update = insertedSqlTimestamp;
+        Timestamp update = insertedSqlTimestamp();
 
         Person result = personDAO.get(3);
 
@@ -128,6 +144,10 @@ public class TestTimestamped {
         assertThat(result.getLastName()).isEqualToIgnoringCase("Banda");
         assertThat(result.getCreated()).isEqualTo(insert);
         assertThat(result.getModified()).isEqualTo(update);
+    }
+
+    private static Timestamp insertedSqlTimestamp() {
+        return Timestamp.from(insertedTimestamp.get().toInstant());
     }
 
     @RegisterRowMapper(PersonRowMapper.class)
@@ -150,32 +170,6 @@ public class TestTimestamped {
 
         @SqlQuery("SELECT id, firstName, lastName, created, modified from people WHERE id=:id")
         Person get(@Bind("id") int id);
-    }
-
-    private void recordNextTimestamp(String name) {
-        final Jdbi jdbi = dbRule.getJdbi();
-
-        jdbi.setSqlLogger(new SqlLogger() {
-            @Override
-            public void logBeforeExecution(StatementContext ctx) {
-                String toString = ctx.getBinding()
-                    .findForName(name, ctx)
-                    .orElseThrow(AssertionError::new)
-                    .toString();
-                insertedTimestamp = OffsetDateTime.parse(toString);
-                insertedSqlTimestamp = Timestamp.from(insertedTimestamp.toInstant());
-            }
-
-            @Override
-            public void logAfterExecution(StatementContext context) {
-                jdbi.setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
-            }
-
-            @Override
-            public void logException(StatementContext context, SQLException ex) {
-                jdbi.setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
-            }
-        });
     }
 
     public static final class PersonRowMapper implements RowMapper<Person> {
