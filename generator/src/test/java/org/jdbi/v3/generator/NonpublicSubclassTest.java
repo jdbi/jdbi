@@ -77,6 +77,11 @@ public class NonpublicSubclassTest {
         dao.assertConfigurer(cfg -> cfg.configuredMethod);
     }
 
+    @Test
+    public void defaultMethod() {
+        assertThat(handle.attach(InterfaceDao.class).defaultMethod()).isEqualTo(2288);
+    }
+
     @GenerateSqlObject
     @GeneratorConfigurerType
     abstract static class AbstractClassDao implements SqlObject {
@@ -108,6 +113,13 @@ public class NonpublicSubclassTest {
 
         private int password() {
             return 42;
+        }
+    }
+
+    @GenerateSqlObject
+    interface InterfaceDao extends SqlObject {
+        default int defaultMethod() {
+            return 2288;
         }
     }
 

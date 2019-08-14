@@ -163,9 +163,13 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                             castReturn, invokerField, paramNames);
         } else {
             body = CodeBlock.builder()
-                    .add("$L $L.get().call(() -> super.$L($L));\n",
+                    .add("$L $L.get().call(() -> ",
                             castReturn,
-                            invokerField,
+                            invokerField);
+            if (e.getModifiers().contains(Modifier.DEFAULT)) {
+                body.add("$T.", ee.getEnclosingElement().asType());
+            }
+            body.add("super.$L($L));\n",
                             e.getSimpleName(),
                             paramNames);
         }

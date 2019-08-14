@@ -154,7 +154,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                                         sqlObjectType.getSimpleName(),
                                         method.getName()));
-                                if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic()) {
+                                if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic() && !Modifier.isPrivate(method.getModifiers())) {
                                     throw x.get();
                                 }
                                 return (t, a, h) -> {
