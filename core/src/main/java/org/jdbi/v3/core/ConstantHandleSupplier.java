@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.JdbiInvocationWrappers;
 
 class ConstantHandleSupplier implements HandleSupplier {
     private final Handle handle;
@@ -47,19 +48,16 @@ class ConstantHandleSupplier implements HandleSupplier {
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        ExtensionMethod oldExtensionMethod = handle.getExtensionMethod();
-        try {
-            handle.setExtensionMethod(extensionMethod);
-
-            ConfigRegistry oldConfig = handle.getConfig();
-            try {
-                handle.setConfig(config);
-                return task.call();
-            } finally {
-                handle.setConfig(oldConfig);
-            }
-        } finally {
-            handle.setExtensionMethod(oldExtensionMethod);
-        }
+        return JdbiInvocationWrappers.setAndRevert(
+            handle::getExtensionMethod,
+            handle::setExtensionMethod,
+            extensionMethod,
+            () -> JdbiInvocationWrappers.setAndRevert(
+                handle::getConfig,
+                handle::setConfig,
+                config,
+                task
+            )
+        );
     }
 }

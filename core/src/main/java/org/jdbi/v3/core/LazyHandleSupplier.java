@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.JdbiThreadLocals;
+import org.jdbi.v3.core.internal.JdbiInvocationWrappers;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandleSupplier {
@@ -74,8 +74,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandl
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return JdbiThreadLocals.invokeInContext(this.extensionMethod, extensionMethod,
-                () -> JdbiThreadLocals.invokeInContext(this.config, config, task));
+        return JdbiInvocationWrappers.setAndRevert(this.extensionMethod, extensionMethod,
+                () -> JdbiInvocationWrappers.setAndRevert(this.config, config, task));
     }
 
     @Override
