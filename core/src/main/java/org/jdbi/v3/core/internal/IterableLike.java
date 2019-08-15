@@ -17,7 +17,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -115,31 +114,6 @@ public class IterableLike {
      */
     public static Iterable<Object> iterable(Object iterable) {
         return () -> of(iterable);
-    }
-
-    /**
-     * Attempt to determine if a iterable-like is empty, preferably without iterating.
-     * @param obj the iterable-like to check for emptiness
-     * @return emptiness to fill your heart
-     */
-    public static boolean isEmpty(final Object obj) {
-        if (obj == null) {
-            throw new IllegalArgumentException("cannot determine emptiness of null");
-        }
-
-        if (obj instanceof Collection) {
-            return ((Collection<?>) obj).isEmpty();
-        }
-
-        if (obj instanceof Iterable) {
-            return !((Iterable<?>) obj).iterator().hasNext();
-        }
-
-        if (obj.getClass().isArray()) {
-            return Array.getLength(obj) == 0;
-        }
-
-        throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
     }
 
     /**
