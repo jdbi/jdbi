@@ -148,60 +148,10 @@ public class IterableLikeTest {
     }
 
     private static Object[] toArray(final Iterator<?> iterator) {
-        final List<Object> out = new ArrayList<Object>();
+        final List<Object> out = new ArrayList<>();
         while (iterator.hasNext()) {
             out.add(iterator.next());
         }
         return out.toArray();
-    }
-
-    @Test
-    public void testIsEmptyPrimitiveArray() {
-        assertThat(IterableLike.isEmpty(new int[]{1, 2, 3})).isFalse();
-    }
-
-    @Test
-    public void testIsEmptyEmptyPrimitiveArray() {
-        assertThat(IterableLike.isEmpty(new int[]{})).isTrue();
-    }
-
-    @Test
-    public void testIsEmptyObjectArray() {
-        assertThat(IterableLike.isEmpty(new Object[]{"1", "2", "3"})).isFalse();
-    }
-
-    @Test
-    public void testIsEmptyEmptyObjectArray() {
-        assertThat(IterableLike.isEmpty(new Object[]{})).isTrue();
-    }
-
-    @Test
-    public void testIsEmptyList() {
-        final List<String> in = new ArrayList<String>();
-        in.add("1");
-        in.add("2");
-        in.add("3");
-
-        assertThat(IterableLike.isEmpty(in)).isFalse();
-    }
-
-    @Test
-    public void testIsEmptyEmptyList() {
-        assertThat(IterableLike.isEmpty(new ArrayList<String>())).isTrue();
-    }
-
-    @Test
-    public void testIsEmptyObject() {
-        assertThatThrownBy(() -> IterableLike.isEmpty(new Object())).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    public void testIsEmptyPrimitive() {
-        assertThatThrownBy(() -> IterableLike.isEmpty(5)).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    public void testIsEmptyNull() {
-        assertThatThrownBy(() -> IterableLike.isEmpty(null)).isInstanceOf(IllegalArgumentException.class);
     }
 }
