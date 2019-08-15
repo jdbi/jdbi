@@ -18,6 +18,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
@@ -41,7 +43,7 @@ public class OnDemandExtensions {
         throw new UtilityClassException();
     }
 
-    public static <E> E create(Jdbi db, Class<E> extensionType) {
+    public static <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
@@ -58,10 +60,8 @@ public class OnDemandExtensions {
             return db.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
-        return extensionType.cast(
-                Proxy.newProxyInstance(
-                        extensionType.getClassLoader(),
-                        new Class[]{extensionType}, handler));
+        Class<?>[] types = Stream.concat(Stream.of(extensionType), Arrays.stream(extraTypes)).toArray(Class[]::new);
+        return extensionType.cast(Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler));
     }
 
     private static Object invoke(Object target, Method method, Object[] args) {

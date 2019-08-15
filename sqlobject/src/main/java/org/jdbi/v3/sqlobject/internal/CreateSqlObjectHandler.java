@@ -20,6 +20,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
 import org.jdbi.v3.sqlobject.Handler;
+import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectFactory;
 
 public class CreateSqlObjectHandler implements Handler {
@@ -32,7 +33,7 @@ public class CreateSqlObjectHandler implements Handler {
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
         if (handle instanceof OnDemandHandleSupplier) {
-            return OnDemandExtensions.create(handle.getJdbi(), method.getReturnType());
+            return OnDemandExtensions.create(handle.getJdbi(), method.getReturnType(), SqlObject.class);
         }
         return handle.getConfig(Extensions.class)
                 .findFactory(SqlObjectFactory.class)
