@@ -38,12 +38,6 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                         + "and parameter name data is not present in the class file, for: "
                         + param.getDeclaringExecutable() + "::" + param));
 
-        return (stmt, arg) -> {
-            if (arg == null || IterableLike.isEmpty(arg)) {
-                bindList.onEmpty().define(stmt, name);
-            } else {
-                stmt.bindList(name, IterableLike.toList(arg));
-            }
-        };
+        return (stmt, arg) -> stmt.bindList(bindList.onEmpty().getCoreImpl(), name, arg == null ? null : IterableLike.toList(arg));
     }
 }
