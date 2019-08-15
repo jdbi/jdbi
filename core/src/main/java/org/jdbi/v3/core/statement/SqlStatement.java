@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -47,6 +48,7 @@ import org.jdbi.v3.core.argument.ObjectFieldArguments;
 import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -1234,21 +1236,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * Bind a parameter for each value in the given vararg array, and defines an attribute as the comma-separated list
-     * of parameter references (using colon prefix).
-     * <p>
-     * Examples:
-     * <pre>
-     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
-     *     .defineList("columnNames", "id", "name", "created_on")
-     *     .bindList("values", 1, "Alice", LocalDate.now())
-     *     .execute();
-     *
-     * List&lt;Thing&gt; things = handle.createQuery("select * from things where id in (&lt;ids&gt;)")
-     *     .bindList("ids", 1, 2, 3)
-     *     .mapTo(Contact.class)
-     *     .list();
-     * </pre>
+     * see {@link #bindList(BiConsumer, String, List)}
      *
      * @param key    attribute name
      * @param values vararg values that will be comma-spliced into the defined attribute value.
@@ -1256,12 +1244,73 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the vararg array is empty.
      */
     public final This bindList(String key, Object... values) {
-        if (values.length == 0) {
-            throw new IllegalArgumentException(
-                    getClass().getSimpleName() + ".bindList was called with no vararg values.");
-        }
+        return bindList(EmptyHandling.THROW, key, values);
+    }
 
-        return bindList(key, Arrays.asList(values));
+    /**
+     * see {@link #bindList(BiConsumer, String, List)}
+     *
+     * @param onEmpty handler for null/empty vararg array
+     * @param key     attribute name
+     * @param values  vararg values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the vararg array is empty.
+     * @see EmptyHandling
+     */
+    public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Object... values) {
+        return bindList(onEmpty, key, values == null ? null : Arrays.asList(values));
+    }
+
+    /**
+     * see {@link #bindList(BiConsumer, String, List)}
+     *
+     * @param key    attribute name
+     * @param values iterable values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the iterable is empty.
+     */
+    public final This bindList(String key, Iterable<?> values) {
+        return bindList(EmptyHandling.THROW, key, values);
+    }
+
+    /**
+     * see {@link #bindList(BiConsumer, String, List)}
+     *
+     * @param onEmpty handler for null/empty list
+     * @param key     attribute name
+     * @param values  iterable values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the iterable is empty.
+     * @see EmptyHandling
+     */
+    public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterable<?> values) {
+        return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
+    }
+
+    /**
+     * see {@link #bindList(BiConsumer, String, List)}
+     *
+     * @param key    attribute name
+     * @param values iterator of values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the iterator is empty.
+     */
+    public final This bindList(String key, Iterator<?> values) {
+        return bindList(EmptyHandling.THROW, key, values);
+    }
+
+    /**
+     * see {@link #bindList(BiConsumer, String, List)}
+     *
+     * @param onEmpty handler for null/empty list
+     * @param key     attribute name
+     * @param values  iterator of values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the iterator is empty.
+     * @see EmptyHandling
+     */
+    public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterator<?> values) {
+        return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
     }
 
     /**
@@ -1284,15 +1333,17 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *     .list();
      * </pre>
      *
-     * @param key    attribute name
-     * @param values list of values that will be comma-spliced into the defined attribute value.
+     * @param onEmpty handler for null/empty list
+     * @param key     attribute name
+     * @param values  list of values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the list is empty.
+     * @see EmptyHandling
      */
-    public final This bindList(String key, List<?> values) {
-        if (values.isEmpty()) {
-            throw new IllegalArgumentException(
-                    getClass().getSimpleName() + ".bindList was called with an empty list.");
+    public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, List<?> values) {
+        if (values == null || values.isEmpty()) {
+            onEmpty.accept(this, key);
+            return typedThis;
         }
 
         StringBuilder names = new StringBuilder();

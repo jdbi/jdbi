@@ -23,8 +23,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static java.util.Collections.emptyList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
 
 public class TestBindList {
     @Rule
@@ -39,6 +42,26 @@ public class TestBindList {
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 2, "foo2", "bar2", "baz2");
+    }
+
+    @Test
+    public void testNullVararg() {
+        String out = handle.createQuery("select (<empty>)")
+            .bindList(NULL_KEYWORD, "empty", (Object[]) null)
+            .mapTo(String.class)
+            .one();
+
+        assertThat(out).isNull();
+    }
+
+    @Test
+    public void testEmptyList() {
+        String out = handle.createQuery("select (<empty>)")
+            .bindList(NULL_KEYWORD, "empty", emptyList())
+            .mapTo(String.class)
+            .one();
+
+        assertThat(out).isNull();
     }
 
     @Test
