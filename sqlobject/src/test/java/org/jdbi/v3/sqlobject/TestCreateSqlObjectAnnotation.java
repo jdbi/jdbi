@@ -70,6 +70,11 @@ public class TestCreateSqlObjectAnnotation {
         assertThat(n).isNull();
     }
 
+    @Test
+    public void subObjectIsSqlObject() {
+        assertThat(dbRule.getJdbi().withExtension(Foo.class, Foo::createBar)).isInstanceOf(SqlObject.class);
+    }
+
     public interface Foo {
         @CreateSqlObject
         Bar createBar();
