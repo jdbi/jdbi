@@ -71,7 +71,7 @@ public class TestCreateSqlObjectAnnotation {
     }
 
     @Test
-    public void subObjectIsSqlObject() {
+    public void subObjectIsSqlObject() throws Exception {
         assertThat(dbRule.getJdbi().withExtension(Foo.class, Foo::createBar)).isInstanceOf(SqlObject.class);
     }
 
