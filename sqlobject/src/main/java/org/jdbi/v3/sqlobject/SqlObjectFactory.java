@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,11 +34,14 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
@@ -46,7 +50,7 @@ import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
 /**
  * Creates implementations for SqlObject interfaces.
  */
-public class SqlObjectFactory implements ExtensionFactory {
+public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Factory {
     private final JdbiCache<Class<?>, SqlObjectInitData> sqlObjectCache =
             JdbiCaches.declare(SqlObjectFactory::initDataFor);
 
@@ -107,6 +111,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                 SqlObjectInitData.INIT_DATA.set(null);
             }
         }
+        instanceConfig.get(Extensions.class).onCreateProxy();
 
         Map<Method, Supplier<InContextInvoker>> handlers = new HashMap<>();
         final Object proxy = Proxy.newProxyInstance(
@@ -117,6 +122,22 @@ public class SqlObjectFactory implements ExtensionFactory {
         data.methodHandlers.forEach((m, h) ->
                 handlers.put(m, data.lazyInvoker(proxy, m, handle, instanceConfig)));
         return extensionType.cast(proxy);
+    }
+
+    @Override
+    public Optional<Object> onDemand(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
+        SqlObjectInitData data = sqlObjectCache.get(extensionType, db);
+        if (!data.concrete) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Class.forName(
+                    extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl$OnDemand")
+                .getConstructor(Jdbi.class)
+                .newInstance(db));
+        } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
+            throw new UnableToCreateSqlObjectException(e);
+        }
     }
 
     private static Map<Method, Handler> buildMethodHandlers(

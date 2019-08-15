@@ -16,8 +16,11 @@ package org.jdbi.v3.generator;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -43,6 +46,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericType;
@@ -89,26 +93,46 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         final String implName = te.getSimpleName() + "Impl";
         final TypeSpec.Builder builder = TypeSpec.classBuilder(implName).addModifiers(Modifier.PUBLIC);
         final TypeName superName = TypeName.get(te.asType());
-        if (te.getKind() == ElementKind.CLASS) {
-            builder.superclass(superName);
-        } else {
-            builder.addSuperinterface(superName);
-        }
+        final Consumer<TypeSpec.Builder> supers = b -> {
+            if (te.getKind() == ElementKind.CLASS) {
+                b.superclass(superName);
+            } else {
+                b.addSuperinterface(superName);
+            }
+        };
+        supers.accept(builder);
         builder.addSuperinterface(SqlObject.class);
 
         final CodeBlock.Builder staticInit = CodeBlock.builder()
                 .add("initData = $T.initData();\n", SqlObjectInitData.class);
         final CodeBlock.Builder constructor = CodeBlock.builder();
 
-        builder.addMethod(generateMethod(builder, staticInit, constructor, element(SqlObject.class, "getHandle")));
-        builder.addMethod(generateMethod(builder, staticInit, constructor, element(SqlObject.class, "withHandle")));
         builder.addField(SqlObjectInitData.class, "initData", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
-        te.getEnclosedElements().stream()
+        List<Element> implMethods = te.getEnclosedElements().stream()
                 .filter(ee -> ee.getKind() == ElementKind.METHOD)
                 .filter(ee -> !ee.getModifiers().contains(Modifier.PRIVATE))
-                .map(ee -> generateMethod(builder, staticInit, constructor, ee))
-                .forEach(builder::addMethod);
+                .collect(Collectors.toCollection(ArrayList::new));
+        implMethods.add(element(SqlObject.class, "getHandle"));
+        implMethods.add(element(SqlObject.class, "withHandle"));
+
+        implMethods.stream()
+                   .map(ee -> generateMethod(builder, staticInit, constructor, ee))
+                   .forEach(builder::addMethod);
+
+        final TypeSpec.Builder onDemand = TypeSpec.classBuilder("OnDemand");
+        onDemand.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+        onDemand.addField(Jdbi.class, "db", Modifier.PRIVATE, Modifier.FINAL);
+        onDemand.addMethod(MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Jdbi.class, "db")
+                .addCode("this.db = db;\n")
+                .build());
+        supers.accept(onDemand);
+        implMethods.stream()
+                   .map(ee -> generateOnDemand(builder, te, ee))
+                   .forEach(onDemand::addMethod);
+        builder.addType(onDemand.build());
 
         builder.addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
@@ -173,6 +197,30 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                             e.getSimpleName(),
                             paramNames);
         }
+
+        return builder.addCode(body.build()).build();
+    }
+
+    private MethodSpec generateOnDemand(TypeSpec.Builder typeBuilder, TypeElement sqlObjectType, Element e) {
+        final ExecutableElement method = (ExecutableElement) e;
+        final Builder builder = MethodSpec.overriding(method);
+        final String paramNames = method.getParameters().stream()
+                .map(VariableElement::getSimpleName)
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
+
+        final CodeBlock.Builder body;
+        final String castReturn =
+                method.getReturnType().getKind() == TypeKind.VOID
+                ? ""
+                : ("return (" + method.getReturnType().toString() + ")"); // NOPMD
+        body = CodeBlock.builder()
+                .add("$L db.$L($T.class, e -> e.$L($L));\n",
+                        castReturn,
+                        method.getReturnType().getKind() == TypeKind.VOID ? "useExtension" : "withExtension",
+                        sqlObjectType.asType(),
+                        method.getSimpleName(),
+                        paramNames);
 
         return builder.addCode(body.build()).build();
     }

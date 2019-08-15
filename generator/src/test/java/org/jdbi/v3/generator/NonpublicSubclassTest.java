@@ -27,6 +27,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
@@ -44,7 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NonpublicSubclassTest {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withSomething();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withSomething()
+        .withConfig(Extensions.class, c -> c.setAllowProxy(false));
 
     private Handle handle;
     private AbstractClassDao dao;
@@ -57,7 +59,7 @@ public class NonpublicSubclassTest {
     }
 
     @Test
-    public void testSimpleGeneratedClass() {
+    public void simpleGeneratedClass() {
         dao.insert(1, "Bella");
         assertThat(dao.list()).extracting("id", "name")
             .containsExactly(Tuple.tuple(1, "Bella"));
@@ -78,8 +80,9 @@ public class NonpublicSubclassTest {
     }
 
     @Test
-    public void defaultMethod() {
-        assertThat(handle.attach(InterfaceDao.class).defaultMethod()).isEqualTo(2288);
+    public void onDemandDefaultMethod() {
+        assertThat(dbRule.getJdbi().onDemand(InterfaceDao.class)
+                .defaultMethod()).isEqualTo(2288);
     }
 
     @GenerateSqlObject

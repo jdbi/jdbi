@@ -508,6 +508,6 @@ public class Jdbi implements Configurable<Jdbi> {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 
-        return OnDemandExtensions.create(this, extensionType);
+        return getConfig(OnDemandExtensions.class).create(this, extensionType);
     }
 }

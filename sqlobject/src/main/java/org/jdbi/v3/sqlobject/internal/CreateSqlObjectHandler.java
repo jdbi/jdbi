@@ -33,7 +33,7 @@ public class CreateSqlObjectHandler implements Handler {
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
         if (handle instanceof OnDemandHandleSupplier) {
-            return OnDemandExtensions.create(handle.getJdbi(), method.getReturnType(), SqlObject.class);
+            return handle.getConfig(OnDemandExtensions.class).create(handle.getJdbi(), method.getReturnType(), SqlObject.class);
         }
         return handle.getConfig(Extensions.class)
                 .findFactory(SqlObjectFactory.class)

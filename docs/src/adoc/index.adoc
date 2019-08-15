@@ -5767,6 +5767,14 @@ that the context is closed eventually to release database resources.
 
 Most users will not need to implement the *ResultProducer* interface.
 
+=== Generator
+
+Jdbi includes an experimental SqlObject code generator.  If you include the
+`jdbi3-generator` artifact as an annotation processor and annotate your SqlObject
+definitions with `@GenerateSqlObject`, the generator will produce an implementing
+class and avoid using `Proxy` instances.  This may be useful for `graal-native`
+compilation.
+
 == Appendix
 
 === Best Practices

@@ -19,16 +19,21 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
-public class OnDemandExtensions {
+public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     private static final Method EQUALS_METHOD;
     private static final Method HASHCODE_METHOD;
     private static final Method TOSTRING_METHOD;
+
+    private Factory factory;
 
     static {
         try {
@@ -40,11 +45,27 @@ public class OnDemandExtensions {
         }
     }
 
-    private OnDemandExtensions() {
-        throw new UtilityClassException();
+    public OnDemandExtensions() {
+        factory = (d, x, t) -> Optional.empty();
     }
 
-    public static <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
+    private OnDemandExtensions(OnDemandExtensions other) {
+        factory = other.factory;
+    }
+
+    public OnDemandExtensions setFactory(Factory factory) {
+        this.factory = factory;
+        return this;
+    }
+
+    public <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
+        return extensionType.cast(
+               factory.onDemand(db, extensionType, extraTypes)
+                .orElseGet(() -> create0(db, extensionType, extraTypes)));
+    }
+
+    private Object create0(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
+        db.getConfig(Extensions.class).onCreateProxy();
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
@@ -68,7 +89,7 @@ public class OnDemandExtensions {
             .flatMap(Function.identity())
             .distinct()
             .toArray(Class[]::new);
-        return extensionType.cast(Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler));
+        return Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler);
     }
 
     private static Object invoke(Object target, Method method, Object[] args) {
@@ -79,5 +100,15 @@ public class OnDemandExtensions {
             MethodHandle handle = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method).bindTo(target);
             return Unchecked.<Object[], Object>function(handle::invokeWithArguments).apply(args);
         }
+    }
+
+    @Override
+    public OnDemandExtensions createCopy() {
+        return new OnDemandExtensions(this);
+    }
+
+    @FunctionalInterface
+    public interface Factory {
+        Optional<Object> onDemand(Jdbi db, Class<?> extensionType, Class<?>... extraTypes);
     }
 }

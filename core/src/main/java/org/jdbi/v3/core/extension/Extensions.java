@@ -25,6 +25,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
  */
 public class Extensions implements JdbiConfig<Extensions> {
     private final List<ExtensionFactory> factories = new CopyOnWriteArrayList<>();
+    private boolean allowProxy = true;
 
     /**
      * Create an empty {@link ExtensionFactory} configuration.
@@ -89,8 +90,34 @@ public class Extensions implements JdbiConfig<Extensions> {
                 .findFirst();
     }
 
+    /**
+     * Allow using {@link java.lang.reflect.Proxy} to implement extensions.
+     * @param allowProxy whether to allow use of Proxy types
+     * @return this
+     */
+    public Extensions setAllowProxy(boolean allowProxy) {
+        this.allowProxy = allowProxy;
+        return this;
+    }
+
+    /**
+     * @return whether Proxy classes are allowed to be used
+     */
+    public boolean isAllowProxy() {
+        return allowProxy;
+    }
+
     @Override
     public Extensions createCopy() {
         return new Extensions(this);
+    }
+
+    /**
+     * Throw if proxy creation is disallowed.
+     */
+    public void onCreateProxy() {
+        if (!isAllowProxy()) {
+            throw new IllegalStateException("Creating onDemand proxy disallowed. Ensure @GenerateSqlObject annotation is being processed by `jdbi3-generator` annotation processor.");
+        }
     }
 }
