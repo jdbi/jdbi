@@ -18,7 +18,8 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.JdbiInvocationWrappers;
+
+import static org.jdbi.v3.core.internal.Invocations.invokeWith;
 
 class ConstantHandleSupplier implements HandleSupplier {
     private final Handle handle;
@@ -48,11 +49,11 @@ class ConstantHandleSupplier implements HandleSupplier {
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return JdbiInvocationWrappers.setAndRevert(
+        return invokeWith(
             handle::getExtensionMethod,
             handle::setExtensionMethod,
             extensionMethod,
-            () -> JdbiInvocationWrappers.setAndRevert(
+            () -> invokeWith(
                 handle::getConfig,
                 handle::setConfig,
                 config,

@@ -17,13 +17,13 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class JdbiInvocationWrappers {
-    private JdbiInvocationWrappers() {
+public class Invocations {
+    private Invocations() {
         throw new UtilityClassException();
     }
 
-    public static <V, L> V setAndRevert(ThreadLocal<L> backing, L context, Callable<V> task) throws Exception {
-        return setAndRevert(
+    public static <V, L> V invokeWith(ThreadLocal<L> backing, L context, Callable<V> task) throws Exception {
+        return invokeWith(
             backing::get,
             value -> {
                 if (value == null) {
@@ -37,7 +37,7 @@ public class JdbiInvocationWrappers {
         );
     }
 
-    public static <V, L> V setAndRevert(Supplier<L> initial, Consumer<L> becoming, L taskContext, Callable<V> task) throws Exception {
+    public static <V, L> V invokeWith(Supplier<L> initial, Consumer<L> becoming, L taskContext, Callable<V> task) throws Exception {
         L original = initial.get();
         try {
             becoming.accept(taskContext);
