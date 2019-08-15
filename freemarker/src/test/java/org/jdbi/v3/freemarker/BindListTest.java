@@ -197,7 +197,7 @@ public class BindListTest {
 
     @UseFreemarkerEngine
     private interface SomethingByIterableHandleThrow {
-        @SqlQuery("select id, name from something where id in (${ids])")
+        @SqlQuery("select id, name from something where id in (${ids})")
         List<Something> get(@BindList(onEmpty = THROW) Iterable<Integer> ids);
     }
 
@@ -207,12 +207,12 @@ public class BindListTest {
     public void testSomethingByIteratorHandleDefault() {
         final SomethingByIteratorHandleDefault s = handle.attach(SomethingByIteratorHandleDefault.class);
 
-        assertThatThrownBy(() -> s.get(Arrays.asList(1, 2).iterator())).isInstanceOf(IllegalArgumentException.class);
+        assertThat(s.get(Arrays.asList(1, 2).iterator())).hasSameElementsAs(expectedSomethings);
     }
 
     @UseFreemarkerEngine
     private interface SomethingByIteratorHandleDefault {
-        @SqlQuery("select id, name from something where id in (${ids])")
+        @SqlQuery("select id, name from something where id in (${ids})")
         List<Something> get(@BindList Iterator<Integer> ids);
     }
 }
