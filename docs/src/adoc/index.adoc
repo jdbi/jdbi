@@ -3665,8 +3665,6 @@ TODO: Demonstrate Transactional mixin
 
 * Call methods on the mixin to begin, checkpoint, rollback, and commit
   transactions.
-* Be careful using this mixin with on-demand SQL Objects. Only use
-  inTransaction or useTransaction. None of the others will do what you expect.
 ////
 
 === Using SQL Objects
@@ -3722,24 +3720,34 @@ long aliceId = dao.insertFullContact(alice);
 long bobId = dao.insertFullContact(bob);
 ----
 
-[WARNING]
+On-demand state is stored in `ThreadLocal` storage to imitate lexical scoping.
+
 There is a performance penalty every time a connection is allocated and
-released. If you need to make successive calls to a SQL Object, consider using
-one of the above options for better performance, instead of on-demand.
+released.  In the example above, the two `insertFullContact` operations take
+separate `Connection` objects from your database connection pool.
+To avoid this, keep the handle open for the duration that you will use your DAO:
 
-////
-TODO:
+[source,java]
+----
+dao.useTransaction(txn -> {
+    User bob = txn.readContact(bobId);
+    Order order = txn.getOpenOrder(bobId);
+    txn.createInvoice(computeInvoice(bob, metadata));
+});
+----
 
-* Explain how nested calls within e.g. a default method use the same handle
-  until the outer method returns
-* Default methods can make multiple calls and will execute through the same
-  handle.
-* To make multiple calls from outside the DAO be executed against the same
-  handle, extend `SqlObject` and embed all calls inside a `useHandle()` /
-  `withHandle()` lambda.
-* `@CreateSqlObject` does not play nice with on-demand.
-* `Stream<T>` or `Iterable<T>` return types do not play nice with on-demand.
-////
+Interface `default` methods, and mix-ins such as 
+link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^]
+and
+link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^],
+allow you to run your code with the on-demand handle held open.
+Re-entrant calls on the same thread will receive the same `Handle`.
+The handle will be closed when the outermost on-demand invocation completes.
+
+[WARNING]
+Returning cursor-like types such as `Stream<T>` or `Iterable<T>` outside of
+the outermost on-demand call does not work.  Since the `Handle` is closed,
+the database cursor is released and reading will fail.
 
 === Additional Annotations
 

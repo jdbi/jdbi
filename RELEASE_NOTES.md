@@ -2,8 +2,8 @@
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
 - Bug Fixes
-  - onDemand extensions work with @CreateSqlObject
-  - onDemand SqlObject.withHandle / Transactional.inTransaction work as top-level extension method
+  - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
+  - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
 
 # 3.9.1
 - Bug Fixes
