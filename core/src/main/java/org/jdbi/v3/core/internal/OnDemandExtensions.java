@@ -60,7 +60,12 @@ public class OnDemandExtensions {
             return db.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
-        Class<?>[] types = Stream.concat(Stream.of(extensionType), Arrays.stream(extraTypes)).toArray(Class[]::new);
+        Class<?>[] types = Stream.concat(Stream.concat(
+                Stream.of(extensionType),
+                Arrays.stream(extensionType.getInterfaces())),
+                Arrays.stream(extraTypes))
+            .distinct()
+            .toArray(Class[]::new);
         return extensionType.cast(Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler));
     }
 
