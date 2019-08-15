@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
@@ -60,10 +61,11 @@ public class OnDemandExtensions {
             return db.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
-        Class<?>[] types = Stream.concat(Stream.concat(
+        Class<?>[] types = Stream.of(
                 Stream.of(extensionType),
-                Arrays.stream(extensionType.getInterfaces())),
+                Arrays.stream(extensionType.getInterfaces()),
                 Arrays.stream(extraTypes))
+            .flatMap(Function.identity())
             .distinct()
             .toArray(Class[]::new);
         return extensionType.cast(Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler));
