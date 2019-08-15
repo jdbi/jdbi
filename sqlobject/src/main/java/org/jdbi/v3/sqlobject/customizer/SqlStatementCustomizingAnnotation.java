@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to build customizing annotations. Use this to annotate an annotation. See examples
- * in the org.jdbi.v3.sqlobject.customizers package.
+ * in the {@link org.jdbi.v3.sqlobject.customizer} package.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
