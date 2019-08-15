@@ -17,10 +17,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.function.BiConsumer;
 
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
+
+import static org.jdbi.v3.core.statement.EmptyHandling.BLANK;
+import static org.jdbi.v3.core.statement.EmptyHandling.DEFINE_NULL;
+import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
 
 /**
  * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
@@ -50,54 +53,61 @@ public @interface BindList {
     /**
      * @return what to do when the argument is null or empty
      */
-    EmptyHandling onEmpty() default EmptyHandling.THROW;
+    EmptyHandling onEmpty() default BindList.EmptyHandling.THROW;
 
+    // TODO jdbi4 remove this duplicate of `core` EmptyHandling
     /**
      * describes what needs to be done if the passed argument is null or empty
      */
     enum EmptyHandling {
         /**
-         * <p>Output "" (without quotes, i.e. nothing).</p>
+         * <p>Define "".</p>
          *
          * {@code select * from things where x in ()}
          */
-        VOID((stmt, name) -> stmt.define(name, "")),
+        VOID(BLANK),
         /**
-         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         * <p>Define "null", useful e.g. in postgresql where "in ()" is invalid syntax.</p>
          *
          * {@code select * from things where x in (null)}
          *
          * @deprecated vaguely named in light of new additions, use {@link EmptyHandling#NULL_STRING} instead
          */
         @Deprecated
-        NULL((stmt, name) -> stmt.define(name, "null")),
+        NULL(NULL_KEYWORD),
         /**
-         * <p>Output "null" (without quotes, as keyword), useful e.g. in postgresql where "in ()" is invalid syntax.</p>
+         * <p>Define "null", useful e.g. in postgresql where "in ()" is invalid syntax.</p>
          *
          * {@code select * from things where x in (null)}
          */
-        NULL_STRING((stmt, name) -> stmt.define(name, "null")),
+        NULL_STRING(NULL_KEYWORD),
         /**
-         * <p>Define a {@code null} value, leaving the resulting query text up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
+         * <p>Define {@code null}, leaving the result up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
          *
          * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
          */
-        NULL_VALUE((stmt, name) -> stmt.define(name, null)),
+        NULL_VALUE(DEFINE_NULL),
         /**
          * Throw IllegalArgumentException.
          */
-        THROW((stmt, name) -> {
-            throw new IllegalArgumentException("argument is null or empty; this was explicitly forbidden on this instance of BindList");
-        });
+        THROW(org.jdbi.v3.core.statement.EmptyHandling.THROW);
 
-        private final BiConsumer<SqlStatement, String> rendering;
+        private final org.jdbi.v3.core.statement.EmptyHandling coreImpl;
 
-        EmptyHandling(BiConsumer<SqlStatement, String> rendering) {
-            this.rendering = rendering;
+        EmptyHandling(org.jdbi.v3.core.statement.EmptyHandling coreImpl) {
+            this.coreImpl = coreImpl;
         }
 
+        /**
+         * @deprecated legacy internal API
+         */
+        @Deprecated
         public void define(SqlStatement stmt, String name) {
-            rendering.accept(stmt, name);
+            coreImpl.accept(stmt, name);
+        }
+
+        public org.jdbi.v3.core.statement.EmptyHandling getCoreImpl() {
+            return coreImpl;
         }
     }
 }
