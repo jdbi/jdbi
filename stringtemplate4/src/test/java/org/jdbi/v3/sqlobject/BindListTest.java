@@ -204,7 +204,7 @@ public class BindListTest {
     public void testSomethingByIteratorHandleDefault() {
         final SomethingByIteratorHandleDefault s = handle.attach(SomethingByIteratorHandleDefault.class);
 
-        assertThatThrownBy(() -> s.get(Arrays.asList(1, 2).iterator())).isInstanceOf(IllegalArgumentException.class);
+        assertThat(s.get(Arrays.asList(1, 2).iterator())).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateEngine
