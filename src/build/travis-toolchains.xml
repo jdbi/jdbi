@@ -18,22 +18,11 @@
         <type>jdk</type>
         <provides>
             <version>1.8</version>
-            <vendor>oracle</vendor>
+            <vendor>openjdk</vendor>
         </provides>
         <configuration>
             <!-- Location of a JDK8 in the Travis build environment -->
-            <jdkHome>/usr/lib/jvm/java-8-oracle</jdkHome>
-        </configuration>
-    </toolchain>
-    <toolchain>
-        <type>jdk</type>
-        <provides>
-            <version>1.9</version>
-            <vendor>oracle</vendor>
-        </provides>
-        <configuration>
-            <!-- Location of a JDK9 in the Travis build environment -->
-            <jdkHome>/usr/lib/jvm/java-9-oracle</jdkHome>
+            <jdkHome>/usr/lib/jvm/java-8-openjdk-amd64</jdkHome>
         </configuration>
     </toolchain>
 </toolchains>
