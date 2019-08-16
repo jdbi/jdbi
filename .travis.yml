@@ -1,7 +1,7 @@
 language: java
 
 sudo: false
-dist: trusty
+dist: xenial
 
 # No much sense in keeping jdbi artifacts cached
 before_cache:
@@ -20,7 +20,7 @@ matrix:
         - TESTS=Y
       script:
         - src/build/ci-test.sh
-      jdk: oraclejdk8
+      jdk: openjdk8
     - env:
         - TESTS=Y
 # make sure we don't accidentally introduce locale-sensitive tests
@@ -37,9 +37,9 @@ matrix:
         - DOCUMENTATION=Y
       script:
         - src/build/ci-doc.sh
-      jdk: oraclejdk8
+      jdk: openjdk8
     - env:
         - CODE_STYLE=Y
       script:
         - src/build/ci-code-style.sh
-      jdk: oraclejdk8
+      jdk: openjdk8
