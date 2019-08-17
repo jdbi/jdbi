@@ -4,6 +4,7 @@
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
   - `@Qualified` allows you to assign any annotation without its own `@Qualifier` (such as `@javax.annotation.Nonnull`)
     as a qualifier on an SQLObject. 
+  - `NonnullColumnMapperFactory`, for all your `@javax.annotation.Nonnull` column needs.
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context

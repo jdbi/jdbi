@@ -13,11 +13,15 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -35,6 +39,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<QualifiedType<?>, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
     private boolean coalesceNullPrimitivesToDefaults = true;
+    private final Set<Class<? extends Annotation>> nonNullQualifiers = new CopyOnWriteArraySet<>();
     private ConfigRegistry registry;
 
     public ColumnMappers() {
@@ -60,6 +65,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
         coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
+        nonNullQualifiers.addAll(that.nonNullQualifiers);
     }
 
     /**
@@ -217,6 +223,26 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
 
     public void setCoalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
         this.coalesceNullPrimitivesToDefaults = coalesceNullPrimitivesToDefaults;
+    }
+
+    @Beta
+    public ColumnMappers addNonNullQualifier(Class<? extends Annotation> clazz) {
+        nonNullQualifiers.add(clazz);
+        if (factories.stream().noneMatch(NonnullColumnMapperFactory.class::isInstance)) {
+            register(new NonnullColumnMapperFactory());
+        }
+        return this;
+    }
+
+    @Beta
+    public ColumnMappers cleanNonNullQualifiers() {
+        nonNullQualifiers.clear();
+        return this;
+    }
+
+    @Beta
+    public Set<Class<? extends Annotation>> getNonNullQualifiers() {
+        return new HashSet<>(nonNullQualifiers);
     }
 
     @Override

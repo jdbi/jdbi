@@ -2586,7 +2586,7 @@ and setter parameters.
 - `@MapTo`
 - `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
 - `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
-
+- `link:{jdbidocs}/core/mapper/NonnullColumnMapperFactory.html[@javax.annotation.Nonnull]` (via `link:{jdbidocs}/core/qualifier/Qualified.html[@Qualified]` for SQL Objects)
 
 == SQL Objects
 
