@@ -36,8 +36,8 @@ import static java.util.stream.Collectors.toSet;
 @Beta
 public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
-            elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
-            (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
+        elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
+        (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
     private ConfigRegistry registry;
 
     public Qualifiers() {}
@@ -49,6 +49,7 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     /**
      * Returns the set of qualifying annotations on the given elements.
+     *
      * @param elements the annotated elements. Null elements are ignored.
      * @return the set of qualifying annotations on the given elements.
      */
@@ -61,11 +62,11 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     private static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
         return Collections.unmodifiableSet(Arrays.stream(elements)
-                .filter(Objects::nonNull)
-                .map(AnnotatedElement::getAnnotations)
-                .flatMap(Arrays::stream)
-                .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-                .collect(toSet()));
+            .filter(Objects::nonNull)
+            .map(AnnotatedElement::getAnnotations)
+            .flatMap(Arrays::stream)
+            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
+            .collect(toSet()));
     }
 
     @Override
