@@ -18,6 +18,7 @@
   - `@Qualified` is a qualifier-carrier that allows you to assign any annotation
     without its own `@Qualifier` (such as `@javax.annotation.Nonnull`)
     as a qualifier where you couldn't before (e.g. bean mapping, SqlObject, ...)
+  - `NonnullColumnMapperFactory`, for all your `@javax.annotation.Nonnull` column needs.
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
