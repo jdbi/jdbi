@@ -20,13 +20,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -59,12 +62,24 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     }
 
     private static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
-        return Collections.unmodifiableSet(Arrays.stream(elements)
-                .filter(Objects::nonNull)
-                .map(AnnotatedElement::getAnnotations)
-                .flatMap(Arrays::stream)
-                .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-                .collect(toSet()));
+        Stream<Annotation> directQualifiers = Arrays.stream(elements)
+            .filter(Objects::nonNull)
+            .map(AnnotatedElement::getAnnotations)
+            .flatMap(Arrays::stream)
+            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class));
+
+        Stream<Annotation> indirectQualifiers = Arrays.stream(elements)
+            .filter(Objects::nonNull)
+            .map(AnnotatedElement::getAnnotations)
+            .flatMap(Arrays::stream)
+            .filter(anno -> anno instanceof Qualified)
+            .map(Qualified.class::cast)
+            .map(Qualified::value)
+            .flatMap(Arrays::stream)
+            .map(AnnotationFactory::create);
+
+        return Stream.concat(directQualifiers, indirectQualifiers)
+            .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     @Override

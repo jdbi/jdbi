@@ -2,6 +2,8 @@
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
+  - `@Qualified` allows you to assign any annotation without its own `@Qualifier` (such as `@javax.annotation.Nonnull`)
+    as a qualifier on an SQLObject. 
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
