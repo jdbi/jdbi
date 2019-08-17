@@ -31,6 +31,8 @@
 - Beta API Changes
   - add GenericTypes.box
   - QualifiedType: rename mapType -> flatMapType, add a proper mapType
+  - added `register` methods for qualified factories on `Configurable`,
+    `ColumnMappers`, and `ArgumentFactories`
 
 # 3.8.2
 - Improvements
