@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypeFactory;
@@ -32,6 +33,7 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.MapEntryMappers;
+import org.jdbi.v3.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -140,6 +142,17 @@ public interface Configurable<This> {
      * @return this
      */
     default This registerArgument(ArgumentFactory factory) {
+        return configure(Arguments.class, c -> c.register(factory));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(Arguments.class).register(factory)}
+     *
+     * @param factory qualified argument factory
+     * @return this
+     */
+    @Beta
+    default This registerArgument(QualifiedArgumentFactory factory) {
         return configure(Arguments.class, c -> c.register(factory));
     }
 
@@ -279,6 +292,17 @@ public interface Configurable<This> {
      * @return this
      */
     default This registerColumnMapper(ColumnMapperFactory factory) {
+        return configure(ColumnMappers.class, c -> c.register(factory));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
+     *
+     * @param factory column mapper factory
+     * @return this
+     */
+    @Beta
+    default This registerColumnMapper(QualifiedColumnMapperFactory factory) {
         return configure(ColumnMappers.class, c -> c.register(factory));
     }
 
