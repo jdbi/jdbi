@@ -78,7 +78,14 @@ public class Arguments implements JdbiConfig<Arguments> {
         return register(QualifiedArgumentFactory.adapt(factory));
     }
 
-    private Arguments register(QualifiedArgumentFactory factory) {
+    /**
+     * Registers the given qualified argument factory.
+     * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
+     * @param factory the qualified factory to add
+     * @return this
+     */
+    @Beta
+    public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
         return this;
     }

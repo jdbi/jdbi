@@ -2,6 +2,9 @@
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
+- New Beta Features
+  - added `register` methods for qualified factories on `Configurable`,
+    `ColumnMappers`, and `ArgumentFactories`
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context

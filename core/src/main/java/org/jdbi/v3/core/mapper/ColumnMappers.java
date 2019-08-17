@@ -127,7 +127,16 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         return register(QualifiedColumnMapperFactory.adapt(factory));
     }
 
-    private ColumnMappers register(QualifiedColumnMapperFactory factory) {
+    /**
+     * Register a qualified column mapper factory.
+     * <p>
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param factory the qualified column mapper factory
+     * @return this
+     */
+    @Beta
+    public ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
         return this;
