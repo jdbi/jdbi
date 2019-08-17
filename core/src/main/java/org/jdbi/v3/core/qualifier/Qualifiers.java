@@ -16,10 +16,10 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -37,14 +37,42 @@ import static java.util.stream.Collectors.toSet;
 public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
         elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
-        (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
+        (registry, elements) -> registry.get(Qualifiers.class).resolveQualifiers(elements));
+    private final Set<Function<AnnotatedElement, Set<Annotation>>> resolvers = new CopyOnWriteArraySet<>();
     private ConfigRegistry registry;
 
-    public Qualifiers() {}
+    public Qualifiers() {
+        resolvers.add(Qualifiers::getQualifierAnnotations);
+    }
+
+    private Qualifiers(Qualifiers other) {
+        this.resolvers.addAll(other.resolvers);
+        this.registry = null;
+    }
 
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
+    }
+
+    /**
+     * Adds a qualifier resolver, which inspects annotated elements (e.g. methods or parameters)
+     * and returns a set of qualifiers that are found to belong on it. An example resolver is {@link #getQualifierAnnotations},
+     * which searches for annotations themselves annotated with {@link Qualifier}.
+     *
+     * Resolvers should return static results that don't vary over time; therefore their results are cached.
+     * Adding a resolver will clear the local qualifier resolution cache, but is currently not guaranteed to have any effect on {@code SqlObjects}.
+     * Add any resolvers you may need <em>before</em> using any qualifiers-related features!
+     *
+     * @param resolver the resolver to be included in qualifier resolution
+     * @return this
+     */
+    public Qualifiers addResolver(Function<AnnotatedElement, Set<Annotation>> resolver) {
+        resolvers.add(resolver);
+        if (registry != null) {
+            QUALIFIER_CACHE.clear(registry);
+        }
+        return this;
     }
 
     /**
@@ -54,23 +82,30 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
      * @return the set of qualifying annotations on the given elements.
      */
     public Set<Annotation> findFor(AnnotatedElement... elements) {
-        if (registry == null) {
-            return getQualifiers(elements);
-        }
-        return QUALIFIER_CACHE.get(elements, registry);
+        return registry == null
+            ? resolveQualifiers(elements)
+            : QUALIFIER_CACHE.get(elements, registry);
     }
 
-    private static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
-        return Collections.unmodifiableSet(Arrays.stream(elements)
+    private Set<Annotation> resolveQualifiers(AnnotatedElement... elements) {
+        Set<AnnotatedElement> nonNullElements = Arrays.stream(elements)
             .filter(Objects::nonNull)
-            .map(AnnotatedElement::getAnnotations)
-            .flatMap(Arrays::stream)
-            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-            .collect(toSet()));
+            .collect(toSet());
+
+        return resolvers.stream()
+            .flatMap(resolver -> nonNullElements.stream().map(resolver))
+            .flatMap(Collection::stream)
+            .collect(toSet());
     }
 
     @Override
     public Qualifiers createCopy() {
-        return this;
+        return new Qualifiers(this);
+    }
+
+    private static Set<Annotation> getQualifierAnnotations(AnnotatedElement element) {
+        return Arrays.stream(element.getAnnotations())
+            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
+            .collect(toSet());
     }
 }
