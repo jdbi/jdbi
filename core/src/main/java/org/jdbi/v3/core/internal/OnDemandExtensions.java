@@ -61,10 +61,10 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     public <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
         return extensionType.cast(
                factory.onDemand(db, extensionType, extraTypes)
-                .orElseGet(() -> create0(db, extensionType, extraTypes)));
+                  .orElseGet(() -> createProxy(db, extensionType, extraTypes)));
     }
 
-    private Object create0(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
+    private Object createProxy(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
         db.getConfig(Extensions.class).onCreateProxy();
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {

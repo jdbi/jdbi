@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,6 @@ import javax.tools.JavaFileObject;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.jdbi.v3.core.Jdbi;
@@ -67,58 +65,52 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         }
         final TypeElement gens = annotations.iterator().next();
         final Set<? extends Element> annoTypes = roundEnv.getElementsAnnotatedWith(gens);
-        annoTypes.forEach(this::generate);
+        annoTypes.forEach(this::tryGenerate);
         return true;
     }
 
-    private void generate(Element e) {
+    private void tryGenerate(Element sqlObj) {
         try {
-            generate0(e);
+            generate(sqlObj);
         } catch (Exception ex) {
-            processingEnv.getMessager().printMessage(Kind.ERROR, "Failure: " + ex, e);
+            processingEnv.getMessager().printMessage(Kind.ERROR, "Failure: " + ex, sqlObj);
             throw new RuntimeException(ex);
         }
     }
 
-    private void generate0(Element e) throws IOException {
-        processingEnv.getMessager().printMessage(Kind.NOTE, String.format("[jdbi] generating for %s", e));
-        if (!ACCEPTABLE.contains(e.getKind())) {
-            throw new IllegalStateException("Generate on non-class: " + e);
+    private void generate(Element sqlObjE) throws IOException {
+        processingEnv.getMessager().printMessage(Kind.NOTE, String.format("[jdbi] generating for %s", sqlObjE));
+        if (!ACCEPTABLE.contains(sqlObjE.getKind())) {
+            throw new IllegalStateException("Generate on non-class: " + sqlObjE);
         }
-        if (!e.getModifiers().contains(Modifier.ABSTRACT)) {
-            throw new IllegalStateException("Generate on non-abstract class: " + e);
+        if (!sqlObjE.getModifiers().contains(Modifier.ABSTRACT)) {
+            throw new IllegalStateException("Generate on non-abstract class: " + sqlObjE);
         }
 
-        final TypeElement te = (TypeElement) e;
-        final String implName = te.getSimpleName() + "Impl";
-        final TypeSpec.Builder builder = TypeSpec.classBuilder(implName).addModifiers(Modifier.PUBLIC);
-        final TypeName superName = TypeName.get(te.asType());
-        final Consumer<TypeSpec.Builder> supers = b -> {
-            if (te.getKind() == ElementKind.CLASS) {
-                b.superclass(superName);
-            } else {
-                b.addSuperinterface(superName);
-            }
-        };
-        supers.accept(builder);
-        builder.addSuperinterface(SqlObject.class);
+        final TypeElement sqlObj = (TypeElement) sqlObjE;
+        final String implName = sqlObj.getSimpleName() + "Impl";
+        final TypeSpec.Builder implSpec = TypeSpec.classBuilder(implName).addModifiers(Modifier.PUBLIC);
+        final TypeName superName = TypeName.get(sqlObj.asType());
+        addSuper(implSpec, sqlObj, superName);
+        implSpec.addSuperinterface(SqlObject.class);
 
         final CodeBlock.Builder staticInit = CodeBlock.builder()
                 .add("initData = $T.initData();\n", SqlObjectInitData.class);
         final CodeBlock.Builder constructor = CodeBlock.builder();
 
-        builder.addField(SqlObjectInitData.class, "initData", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        implSpec.addField(SqlObjectInitData.class, "initData", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
-        List<Element> implMethods = te.getEnclosedElements().stream()
+        List<ExecutableElement> implMethods = sqlObj.getEnclosedElements().stream()
                 .filter(ee -> ee.getKind() == ElementKind.METHOD)
+                .map(ExecutableElement.class::cast)
                 .filter(ee -> !ee.getModifiers().contains(Modifier.PRIVATE))
                 .collect(Collectors.toCollection(ArrayList::new));
         implMethods.add(element(SqlObject.class, "getHandle"));
         implMethods.add(element(SqlObject.class, "withHandle"));
 
         implMethods.stream()
-                   .map(ee -> generateMethod(builder, staticInit, constructor, ee))
-                   .forEach(builder::addMethod);
+                   .map(ee -> generateMethod(implSpec, staticInit, constructor, ee))
+                   .forEach(implSpec::addMethod);
 
         final TypeSpec.Builder onDemand = TypeSpec.classBuilder("OnDemand");
         onDemand.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
@@ -128,112 +120,115 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 .addParameter(Jdbi.class, "db")
                 .addCode("this.db = db;\n")
                 .build());
-        supers.accept(onDemand);
+        addSuper(onDemand, sqlObj, superName);
         implMethods.stream()
-                   .map(ee -> generateOnDemand(builder, te, ee))
+                   .map(method -> generateOnDemand(sqlObj, method))
                    .forEach(onDemand::addMethod);
-        builder.addType(onDemand.build());
+        implSpec.addType(onDemand.build());
 
-        builder.addMethod(MethodSpec.constructorBuilder()
+        implSpec.addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(HandleSupplier.class, "handle")
                 .addParameter(ConfigRegistry.class, "config")
                 .addCode(constructor.build())
                 .build());
 
-        builder.addStaticBlock(staticInit.build());
+        implSpec.addStaticBlock(staticInit.build());
 
-        final JavaFileObject file = processingEnv.getFiler().createSourceFile(processingEnv.getElementUtils().getPackageOf(e) + "." + implName, e);
+        final JavaFileObject file = processingEnv.getFiler().createSourceFile(processingEnv.getElementUtils().getPackageOf(sqlObjE) + "." + implName, sqlObjE);
         try (Writer out = file.openWriter()) {
-            JavaFile.builder(packageName(te), builder.build()).build().writeTo(out);
+            JavaFile.builder(packageName(sqlObj), implSpec.build()).build().writeTo(out);
         }
     }
 
-    private MethodSpec generateMethod(TypeSpec.Builder typeBuilder, CodeBlock.Builder staticInit, CodeBlock.Builder init, Element e) {
+    private MethodSpec generateMethod(TypeSpec.Builder typeBuilder, CodeBlock.Builder staticInit, CodeBlock.Builder init, Element el) {
         final Types typeUtils = processingEnv.getTypeUtils();
-        final ExecutableElement ee = (ExecutableElement) e;
-        final Builder builder = MethodSpec.overriding(ee);
-        final String paramNames = ee.getParameters().stream()
-                .map(VariableElement::getSimpleName)
-                .map(Object::toString)
-                .collect(Collectors.joining(","));
-        final String paramTypes = ee.getParameters().stream()
+        final ExecutableElement method = (ExecutableElement) el;
+        final String paramList = paramList(method);
+        final String paramTypes = method.getParameters().stream()
                 .map(VariableElement::asType)
                 .map(typeUtils::erasure)
                 .map(t -> t + ".class")
                 .collect(Collectors.joining(","));
-        final String methodField = "m_" + e.getSimpleName() + "_" + counter;
-        final String invokerField = "i_" + e.getSimpleName() + "_" + counter++;
+        final String methodField = "m_" + el.getSimpleName() + "_" + counter;
+        final String invokerField = "i_" + el.getSimpleName() + "_" + counter++;
         typeBuilder.addField(Method.class, methodField, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
         typeBuilder.addField(new GenericType<Supplier<InContextInvoker>>() {}.getType(), invokerField, Modifier.PRIVATE, Modifier.FINAL);
 
         staticInit.add("$L = initData.lookupMethod($S, new Class<?>[] {$L});\n",
                 methodField,
-                e.getSimpleName(),
+                el.getSimpleName(),
                 paramTypes);
 
         init.add("$L = initData.lazyInvoker(this, $L, handle, config);\n",
                 invokerField,
                 methodField);
 
-        final CodeBlock.Builder body;
         final String castReturn =
-                ee.getReturnType().getKind() == TypeKind.VOID
+                method.getReturnType().getKind() == TypeKind.VOID
                 ? ""
-                : ("return (" + ee.getReturnType().toString() + ")"); // NOPMD
-        if (ee.getModifiers().contains(Modifier.ABSTRACT)) {
+                : ("return (" + method.getReturnType().toString() + ")"); // NOPMD
+        final CodeBlock.Builder body;
+        if (method.getModifiers().contains(Modifier.ABSTRACT)) {
             body = CodeBlock.builder()
                     .add("$L $L.get().invoke(new Object[] {$L});\n",
-                            castReturn, invokerField, paramNames);
+                            castReturn, invokerField, paramList);
         } else {
             body = CodeBlock.builder()
                     .add("$L $L.get().call(() -> ",
                             castReturn,
                             invokerField);
-            if (e.getModifiers().contains(Modifier.DEFAULT)) {
-                body.add("$T.", ee.getEnclosingElement().asType());
+            if (el.getModifiers().contains(Modifier.DEFAULT)) {
+                body.add("$T.", method.getEnclosingElement().asType());
             }
             body.add("super.$L($L));\n",
-                            e.getSimpleName(),
-                            paramNames);
+                            el.getSimpleName(),
+                            paramList);
         }
 
-        return builder.addCode(body.build()).build();
+        return MethodSpec.overriding(method)
+                .addCode(body.build())
+                .build();
     }
 
-    private MethodSpec generateOnDemand(TypeSpec.Builder typeBuilder, TypeElement sqlObjectType, Element e) {
-        final ExecutableElement method = (ExecutableElement) e;
-        final Builder builder = MethodSpec.overriding(method);
-        final String paramNames = method.getParameters().stream()
-                .map(VariableElement::getSimpleName)
-                .map(Object::toString)
-                .collect(Collectors.joining(","));
-
-        final CodeBlock.Builder body;
-        final String castReturn =
-                method.getReturnType().getKind() == TypeKind.VOID
-                ? ""
-                : ("return (" + method.getReturnType().toString() + ")"); // NOPMD
-        body = CodeBlock.builder()
-                .add("$L db.$L($T.class, e -> e.$L($L));\n",
-                        castReturn,
-                        method.getReturnType().getKind() == TypeKind.VOID ? "useExtension" : "withExtension",
-                        sqlObjectType.asType(),
-                        method.getSimpleName(),
-                        paramNames);
-
-        return builder.addCode(body.build()).build();
+    private MethodSpec generateOnDemand(TypeElement sqlObjectType, ExecutableElement method) {
+        return MethodSpec.overriding(method)
+                .addCode(CodeBlock.builder()
+                    .add("$L db.$L($T.class, e -> e.$L($L));\n",
+                            method.getReturnType().getKind() == TypeKind.VOID ? "" : ("return (" + method.getReturnType().toString() + ")"), // NOPMD
+                            method.getReturnType().getKind() == TypeKind.VOID ? "useExtension" : "withExtension",
+                            sqlObjectType.asType(),
+                            method.getSimpleName(),
+                            paramList(method))
+                    .build())
+                .build();
     }
 
-    private Element element(Class<?> klass, String name) {
+    private ExecutableElement element(Class<?> klass, String name) {
         return processingEnv.getElementUtils().getTypeElement(klass.getName()).getEnclosedElements()
                 .stream()
                 .filter(e -> e.getSimpleName().toString().equals(name))
                 .findFirst()
+                .map(ExecutableElement.class::cast)
                 .orElseThrow(() -> new IllegalStateException("no " + klass + "." + name + " found"));
+    }
+
+    private String paramList(final ExecutableElement method) {
+        return method.getParameters().stream()
+                .map(VariableElement::getSimpleName)
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
     }
 
     private String packageName(Element e) {
         return processingEnv.getElementUtils().getPackageOf(e).toString();
+    }
+
+    private void addSuper(TypeSpec.Builder spec, TypeElement el, TypeName superName) {
+        if (el.getKind() == ElementKind.CLASS) {
+            spec.superclass(superName);
+        } else {
+            spec.addSuperinterface(superName);
+        }
     }
 }

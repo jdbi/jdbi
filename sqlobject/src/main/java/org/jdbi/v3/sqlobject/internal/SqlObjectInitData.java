@@ -17,25 +17,28 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.Invocations;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.Handler;
+import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
 public final class SqlObjectInitData {
     private static final Object[] NO_ARGS = new Object[0];
     public static final ThreadLocal<SqlObjectInitData> INIT_DATA = new ThreadLocal<>();
 
-    public final boolean concrete;
-    public final Class<?> extensionType;
-    public final UnaryOperator<ConfigRegistry> instanceConfigurer;
-    public final Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers;
-    public final Map<Method, Handler> methodHandlers;
+    private final boolean concrete;
+    private final Class<?> extensionType;
+    private final UnaryOperator<ConfigRegistry> instanceConfigurer;
+    private final Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers;
+    private final Map<Method, Handler> methodHandlers;
 
     public SqlObjectInitData(
             Class<?> extensionType,
@@ -62,10 +65,10 @@ public final class SqlObjectInitData {
     }
 
     public static Method lookupMethod(String methodName, Class<?>... parameterTypes) {
-        return lookup0(initData().extensionType, methodName, parameterTypes);
+        return lookupMethod(initData().extensionType, methodName, parameterTypes);
     }
 
-    private static Method lookup0(Class<?> klass, String methodName, Class<?>... parameterTypes) {
+    private static Method lookupMethod(Class<?> klass, String methodName, Class<?>... parameterTypes) {
         try {
             return klass.getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -77,6 +80,37 @@ public final class SqlObjectInitData {
             throw new IllegalStateException(
                     String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
         }
+    }
+
+    public boolean isConcrete() {
+        return concrete;
+    }
+
+    public Class<?> extensionType() {
+        return extensionType;
+    }
+
+    public <E> E instantiate(Class<E> passExtensionType, HandleSupplier handle, ConfigRegistry instanceConfig) {
+        if (!extensionType.equals(passExtensionType)) {
+            throw new IllegalArgumentException("mismatch extension type");
+        }
+        try {
+            return Invocations.invokeWith(SqlObjectInitData.INIT_DATA, this, () ->
+                passExtensionType.cast(
+                    Class.forName(extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl")
+                        .getConstructor(HandleSupplier.class, ConfigRegistry.class)
+                        .newInstance(handle, instanceConfig)));
+        } catch (Exception | ExceptionInInitializerError e) {
+            throw new UnableToCreateSqlObjectException(e);
+        }
+    }
+
+    public void configureInstance(ConfigRegistry config) {
+        instanceConfigurer.apply(config);
+    }
+
+    public void forEachMethodHandler(BiConsumer<Method, Handler> action) {
+        methodHandlers.forEach(action);
     }
 
     // Thanks Holger!

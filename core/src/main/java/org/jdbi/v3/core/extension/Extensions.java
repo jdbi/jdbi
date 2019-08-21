@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for defining {@code Jdbi} extensions via {@link ExtensionFactory}
@@ -95,6 +96,7 @@ public class Extensions implements JdbiConfig<Extensions> {
      * @param allowProxy whether to allow use of Proxy types
      * @return this
      */
+    @Beta
     public Extensions setAllowProxy(boolean allowProxy) {
         this.allowProxy = allowProxy;
         return this;
@@ -103,6 +105,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * @return whether Proxy classes are allowed to be used
      */
+    @Beta
     public boolean isAllowProxy() {
         return allowProxy;
     }
@@ -115,6 +118,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Throw if proxy creation is disallowed.
      */
+    @Beta
     public void onCreateProxy() {
         if (!isAllowProxy()) {
             throw new IllegalStateException("Creating onDemand proxy disallowed. Ensure @GenerateSqlObject annotation is being processed by `jdbi3-generator` annotation processor.");

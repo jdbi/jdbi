@@ -96,20 +96,10 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
 
         SqlObjectInitData data = sqlObjectCache.get(extensionType, handle.getConfig());
-        data.instanceConfigurer.apply(instanceConfig);
+        data.configureInstance(instanceConfig);
 
-        if (data.concrete) {
-            try {
-                SqlObjectInitData.INIT_DATA.set(data);
-                return extensionType.cast(
-                    Class.forName(extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl")
-                        .getConstructor(HandleSupplier.class, ConfigRegistry.class)
-                        .newInstance(handle, instanceConfig));
-            } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
-                throw new UnableToCreateSqlObjectException(e);
-            } finally {
-                SqlObjectInitData.INIT_DATA.set(null);
-            }
+        if (data.isConcrete()) {
+            return data.instantiate(extensionType, handle, instanceConfig);
         }
         instanceConfig.get(Extensions.class).onCreateProxy();
 
@@ -119,7 +109,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                 new Class[] {extensionType},
                 (p, m, a) -> handlers.get(m).get().invoke(a));
 
-        data.methodHandlers.forEach((m, h) ->
+        data.forEachMethodHandler((m, h) ->
                 handlers.put(m, data.lazyInvoker(proxy, m, handle, instanceConfig)));
         return extensionType.cast(proxy);
     }
@@ -127,7 +117,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
     @Override
     public Optional<Object> onDemand(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
         SqlObjectInitData data = sqlObjectCache.get(extensionType, db);
-        if (!data.concrete) {
+        if (!data.isConcrete()) {
             return Optional.empty();
         }
         try {
