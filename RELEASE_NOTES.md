@@ -8,6 +8,7 @@
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
+  - SqlParsers no longer retain all statements and instead use a `caffeine` cache
 
 # 3.9.1
 - Bug Fixes

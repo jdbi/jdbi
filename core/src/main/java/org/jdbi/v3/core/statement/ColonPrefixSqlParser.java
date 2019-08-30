@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
+import org.jdbi.v3.meta.Beta;
 
 import static org.antlr.v4.runtime.Recognizer.EOF;
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.COMMENT;
@@ -36,17 +36,15 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
  * This is the default SQL parser
  * </p>
  */
-public class ColonPrefixSqlParser implements SqlParser {
-    private static final JdbiCache<String, ParsedSql> PARSED_SQL_CACHE =
-        JdbiCaches.declare(ColonPrefixSqlParser::internalParse);
+public class ColonPrefixSqlParser extends CachingSqlParser {
 
-    @Override
-    public ParsedSql parse(String sql, StatementContext ctx) {
-        try {
-            return PARSED_SQL_CACHE.get(sql, ctx);
-        } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-        }
+    public ColonPrefixSqlParser() {
+        this(Caffeine.newBuilder());
+    }
+
+    @Beta
+    public ColonPrefixSqlParser(Caffeine<Object, Object> cache) {
+        super(cache);
     }
 
     @Override
@@ -54,7 +52,8 @@ public class ColonPrefixSqlParser implements SqlParser {
         return ":" + rawName;
     }
 
-    private static ParsedSql internalParse(String sql) {
+    @Override
+    ParsedSql internalParse(String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(CharStreams.fromString(sql));
         lexer.addErrorListener(new ErrorListener());

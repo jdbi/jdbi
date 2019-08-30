@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.internal.lexer.HashStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
+import org.jdbi.v3.meta.Beta;
 
 import static org.antlr.v4.runtime.Recognizer.EOF;
 import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.COMMENT;
@@ -33,17 +33,15 @@ import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
  * SQL parser which recognizes named parameter tokens of the form
  * <code>#tokenName</code>.
  */
-public class HashPrefixSqlParser implements SqlParser {
-    private static final JdbiCache<String, ParsedSql> PARSED_SQL_CACHE =
-        JdbiCaches.declare(HashPrefixSqlParser::internalParse);
+public class HashPrefixSqlParser extends CachingSqlParser {
 
-    @Override
-    public ParsedSql parse(String sql, StatementContext ctx) {
-        try {
-            return PARSED_SQL_CACHE.get(sql, ctx);
-        } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-        }
+    public HashPrefixSqlParser() {
+        this(Caffeine.newBuilder());
+    }
+
+    @Beta
+    public HashPrefixSqlParser(final Caffeine<Object, Object> cache) {
+        super(cache);
     }
 
     @Override
@@ -51,7 +49,8 @@ public class HashPrefixSqlParser implements SqlParser {
         return "#" + rawName;
     }
 
-    private static ParsedSql internalParse(final String sql) {
+    @Override
+    ParsedSql internalParse(String sql) {
         ParsedSql.Builder parsedSql = ParsedSql.builder();
         HashStatementLexer lexer = new HashStatementLexer(CharStreams.fromString(sql));
         lexer.addErrorListener(new ErrorListener());
