@@ -24,11 +24,21 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
  * @see org.jdbi.v3.core.locator.ClasspathSqlLocator
  */
 public class SqlObjectClasspathSqlLocator implements SqlLocator {
+    private final ClasspathSqlLocator locator;
+
+    public SqlObjectClasspathSqlLocator() {
+        this(ClasspathSqlLocator.removingComments());
+    }
+
+    public SqlObjectClasspathSqlLocator(ClasspathSqlLocator locator) {
+        this.locator = locator;
+    }
+
     @Override
     public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
         Function<String, String> valueOrMethodNameToSql = key -> {
             String filename = key.isEmpty() ? method.getName() : key;
-            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, filename);
+            return locator.locate(sqlObjectType, filename);
         };
 
         return SqlAnnotations.getAnnotationValue(method, valueOrMethodNameToSql)

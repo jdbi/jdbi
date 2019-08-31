@@ -44,4 +44,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @ConfiguringAnnotation(UseClasspathSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface UseClasspathSqlLocator {}
+public @interface UseClasspathSqlLocator {
+    boolean stripComments() default true;
+}

@@ -15,15 +15,21 @@ package org.jdbi.v3.core.locator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.internal.SqlScriptParser;
+import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 
 /**
@@ -33,13 +39,92 @@ import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
  * The contents are then parsed, cached, and returned for use by a statement.
  */
 public final class ClasspathSqlLocator {
-    private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
-
-    private static final Map<ClassLoader, Map<String, String>> CACHE = Collections.synchronizedMap(new WeakHashMap<>());
-
     private static final String SQL_EXTENSION = "sql";
 
-    private ClasspathSqlLocator() {}
+    private final Map<ClassLoader, Map<String, String>> cache =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private final Function<InputStream, String> parser;
+
+    private ClasspathSqlLocator(CheckedFunction<InputStream, String> parser) {
+        this.parser = Unchecked.function(parser);
+    }
+
+    /**
+     * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
+     * <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its
+     * contents as a String.
+     *
+     * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
+     *             classpath.
+     * @param methodName the SQL statement name (usually a method or field name from the type).
+     * @return the located SQL.
+     * @deprecated {@link #create()} an instance instead of using static methods
+     */
+    @Deprecated
+    public static String findSqlOnClasspath(Class<?> type, String methodName) {
+        return Holder.INSTANCE.locate(type, methodName);
+    }
+
+    /**
+     * Locates SQL for the given fully-qualified name. Example: Given the name <code>com.foo.Bar.baz</code>, looks for
+     * a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
+     *
+     * @param name fully qualified name.
+     * @return the located SQL.
+     * @deprecated {@link #create()} an instance instead of using static methods
+     */
+    @Deprecated
+    public static String findSqlOnClasspath(String name) {
+        return Holder.INSTANCE.locate(name);
+    }
+
+    /**
+     * Returns resource's contents as a string at the specified path. The path should point directly
+     * to the resource at the classpath. The resource is loaded by the current thread's classloader.
+     *
+     * @param path the resource path
+     * @return the resource's contents
+     * @see ClassLoader#getResource(String)
+     * @deprecated {@link #create()} an instance instead of using static methods
+     */
+    @Deprecated
+    public static String getResourceOnClasspath(String path) {
+        return Holder.INSTANCE.getResource(path);
+    }
+
+    /**
+     * Returns resource's contents as a string at the specified path by the specified classloader.
+     * The path should point directly to the resource at the classpath. The classloader should have
+     * access to the resource.
+     *
+     * @param classLoader the classloader which loads the resource
+     * @param path the resource path
+     * @return the resource's contents
+     * @see ClassLoader#getResource(String)
+     * @deprecated {@link #create()} an instance instead of using static methods
+     */
+    @Deprecated
+    public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
+        return Holder.INSTANCE.getResource(classLoader, path);
+    }
+
+    /**
+     * @return a new ClasspathSqlLocator that returns SQL with comments removed
+     */
+    public static ClasspathSqlLocator removingComments() {
+        final SqlScriptParser commentStripper =
+                new SqlScriptParser((t, sb) -> sb.append(t.getText()));
+        return new ClasspathSqlLocator(
+                r -> commentStripper.parse(CharStreams.fromStream(r)));
+    }
+
+    /**
+     * @return a new ClasspathSqlLocator that returns SQL without modifying it
+     */
+    public static ClasspathSqlLocator create() {
+        return new ClasspathSqlLocator(ClasspathSqlLocator::readAsString);
+    }
 
     /**
      * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
@@ -51,14 +136,14 @@ public final class ClasspathSqlLocator {
      * @param methodName the SQL statement name (usually a method or field name from the type).
      * @return the located SQL.
      */
-    public static String findSqlOnClasspath(Class<?> type, String methodName) {
-        String path = new ClasspathBuilder()
-            .appendFullyQualifiedClassName(type)
-            .appendVerbatim(methodName)
-            .setExtension(SQL_EXTENSION)
-            .build();
-
-        return getResourceOnClasspath(type.getClassLoader(), path);
+    public String locate(Class<?> type, String methodName) {
+        return getResource(
+                type.getClassLoader(),
+                new ClasspathBuilder()
+                    .appendFullyQualifiedClassName(type)
+                    .appendVerbatim(methodName)
+                    .setExtension(SQL_EXTENSION)
+                    .build());
     }
 
     /**
@@ -68,12 +153,13 @@ public final class ClasspathSqlLocator {
      * @param name fully qualified name.
      * @return the located SQL.
      */
-    public static String findSqlOnClasspath(String name) {
-        ClasspathBuilder builder = new ClasspathBuilder()
-            .appendDotPath(name)
-            .setExtension(SQL_EXTENSION);
-
-        return getResourceOnClasspath(selectClassLoader(), builder.build());
+    public String locate(String name) {
+        return getResource(
+                selectClassLoader(),
+                new ClasspathBuilder()
+                    .appendDotPath(name)
+                    .setExtension(SQL_EXTENSION)
+                    .build());
     }
 
     /**
@@ -84,8 +170,8 @@ public final class ClasspathSqlLocator {
      * @return the resource's contents
      * @see ClassLoader#getResource(String)
      */
-    public static String getResourceOnClasspath(String path) {
-        return getResourceOnClasspath(selectClassLoader(), path);
+    public String getResource(String path) {
+        return getResource(selectClassLoader(), path);
     }
 
     /**
@@ -98,17 +184,28 @@ public final class ClasspathSqlLocator {
      * @return the resource's contents
      * @see ClassLoader#getResource(String)
      */
-    public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
-        return CACHE.computeIfAbsent(classLoader, x -> new ConcurrentHashMap<>())
+    public String getResource(ClassLoader classLoader, String path) {
+        return cache.computeIfAbsent(classLoader, x -> new ConcurrentHashMap<>())
                     .computeIfAbsent(path, x -> readResource(classLoader, path));
     }
 
-    private static String readResource(ClassLoader classLoader, String path) {
+    private String readResource(ClassLoader classLoader, String path) {
         try (InputStream is = openStream(classLoader, path)) {
-            // strips away comments
-            return SQL_SCRIPT_PARSER.parse(CharStreams.fromStream(is));
+            return parser.apply(is);
         } catch (IOException e) {
             throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
+        }
+    }
+
+    private static String readAsString(InputStream is) throws IOException {
+        try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            StringBuilder result = new StringBuilder();
+            char[] buffer = new char[256];
+            int n;
+            while (-1 != (n = r.read(buffer))) { // NOPMD
+                result.append(buffer, 0, n);
+            }
+            return result.toString();
         }
     }
 
@@ -123,5 +220,9 @@ public final class ClasspathSqlLocator {
     private static ClassLoader selectClassLoader() {
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElseGet(ClasspathSqlLocator.class::getClassLoader);
+    }
+
+    static class Holder {
+        static final ClasspathSqlLocator INSTANCE = ClasspathSqlLocator.removingComments();
     }
 }

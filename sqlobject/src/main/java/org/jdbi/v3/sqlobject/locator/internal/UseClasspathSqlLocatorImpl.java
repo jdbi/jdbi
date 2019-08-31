@@ -17,14 +17,19 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.locator.SqlObjectClasspathSqlLocator;
+import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 
 public class UseClasspathSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator());
+        registry.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator(
+            ((UseClasspathSqlLocator) annotation).stripComments()
+                ? ClasspathSqlLocator.removingComments()
+                : ClasspathSqlLocator.create()));
     }
 
     @Override
