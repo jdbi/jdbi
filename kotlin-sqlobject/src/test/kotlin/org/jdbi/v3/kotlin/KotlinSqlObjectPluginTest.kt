@@ -176,4 +176,19 @@ class KotlinSqlObjectPluginTest {
         assertThat(result.s).isEqualTo("x")
         assertThat(result.i).isEqualTo(2)
     }
+
+    interface BaseDao<T> {
+        @SqlQuery("select 'boo'")
+        fun select(): T;
+    }
+    interface SubDao : BaseDao<String> {
+        @SqlQuery("select '42'")
+        override fun select(): String;
+    }
+
+    @Test
+    fun returnTypeBridge() {
+        assertThat(db.sharedHandle.attach<SubDao>().select())
+            .isEqualTo("42");
+    }
 }
