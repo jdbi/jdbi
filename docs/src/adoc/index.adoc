@@ -4496,6 +4496,10 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
     `@Inject` annotations on the target class instead of configuring it in
     your `beans.xml`.
 
+[NOTE]
+This module has been tested to be compatible
+with Spring 5.1.8 (used by Spring Boot 2.1.4) as well.
+
 ==== Installing plugins
 
 Plugins may be automatically installed by scanning the classpath for

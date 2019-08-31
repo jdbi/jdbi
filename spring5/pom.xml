@@ -14,49 +14,38 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
         <version>3.10.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-spring4</artifactId>
-    <name>jdbi3 Spring 4</name>
-    <description>jdbi Spring 4 integration</description>
+    <artifactId>jdbi3-spring5</artifactId>
+    <name>jdbi3 Spring 5</name>
+    <description>jdbi Spring 4/5 forward compatibility testing</description>
     <url>http://jdbi.org/</url>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
     <properties>
-        <moduleName>org.jdbi.v3.spring4</moduleName>
+        <dep.spring.version>5.1.8.RELEASE</dep.spring.version>
+        <moduleName>org.jdbi.v3.spring5</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${dep.spring.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi3-spring4</artifactId>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-spring4</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -64,7 +53,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
