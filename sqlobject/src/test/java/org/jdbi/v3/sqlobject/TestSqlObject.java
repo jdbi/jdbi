@@ -77,7 +77,7 @@ public class TestSqlObject {
     @Test
     public void testUnimplementedMethod() {
         exception.expect(IllegalStateException.class);
-        exception.expectMessage("Method UnimplementedDao.totallyBroken must be default "
+        exception.expectMessage("Method UnimplementedDao.totallyBroken must have an implementation "
             + "or be annotated with a SQL method annotation.");
         handle.attach(UnimplementedDao.class);
     }

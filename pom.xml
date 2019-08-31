@@ -89,7 +89,7 @@
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.9.9.20190807</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
-        <dep.kotlin.version>1.2.31</dep.kotlin.version>
+        <dep.kotlin.version>1.3.50</dep.kotlin.version>
         <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
         <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>

@@ -162,8 +162,8 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                         registry.findFor(sqlObjectType, method)
                             .orElseGet(() -> {
                                 Supplier<IllegalStateException> x = () -> new IllegalStateException(String.format(
-                                        "Method %s.%s must be default or be annotated with a SQL method annotation.",
-                                        sqlObjectType.getSimpleName(),
+                                        "Method %s.%s must have an implementation or be annotated with a SQL method annotation.",
+                                        method.getDeclaringClass().getSimpleName(),
                                         method.getName()));
                                 if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic() && !Modifier.isPrivate(method.getModifiers())) {
                                     throw x.get();
