@@ -3,6 +3,8 @@
   - Handle.getJdbi gets owning Jdbi instance
   - SqlStatement (like Query) has new bindArray helper methods
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
+  - installPlugin skips duplicate JdbiPlugins (according to Object.equals)
+  - KotlinSqlObjectPlugin will install forgotten SqlObjectPlugin for you
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`

@@ -26,8 +26,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
  *  <li>supports column mapping for {@link io.vavr.control.Option}</li>
  * </ul>
  */
-public class VavrPlugin implements JdbiPlugin {
-
+public class VavrPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerCollector(new VavrCollectorFactory());

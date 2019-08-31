@@ -229,8 +229,9 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return this
      */
     public Jdbi installPlugin(JdbiPlugin plugin) {
-        Unchecked.consumer(plugin::customizeJdbi).accept(this);
-        plugins.add(plugin);
+        if (plugins.addIfAbsent(plugin)) {
+            Unchecked.consumer(plugin::customizeJdbi).accept(this);
+        }
         return this;
     }
 

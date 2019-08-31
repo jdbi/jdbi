@@ -18,7 +18,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.json.internal.JsonArgumentFactory;
 import org.jdbi.v3.json.internal.JsonColumnMapperFactory;
 
-public class JsonPlugin implements JdbiPlugin {
+public class JsonPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new JsonArgumentFactory());

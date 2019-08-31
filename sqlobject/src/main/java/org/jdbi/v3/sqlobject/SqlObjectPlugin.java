@@ -20,7 +20,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 /**
  * Plugin that installs the SqlObject extension.
  */
-public class SqlObjectPlugin implements JdbiPlugin {
+public class SqlObjectPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi db) {
         SqlObjectFactory factory = new SqlObjectFactory();

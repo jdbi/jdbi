@@ -93,7 +93,7 @@ import org.postgresql.util.PGmoney;
  * logic. For example, at the time of writing, storing a Period of -3 years, 2 months, and -1 days results in an
  * interval (and consequently, a column-mapped Period) of <em>-2 years, -10 months</em>, and -1 days.
  */
-public class PostgresPlugin implements JdbiPlugin {
+public class PostgresPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new TypedEnumArgumentFactory());

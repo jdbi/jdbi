@@ -22,7 +22,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 /**
  * Configure vendor supported types for the H2 Java database implementation
  */
-public class H2DatabasePlugin implements JdbiPlugin {
+public class H2DatabasePlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi db) {
         db.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);

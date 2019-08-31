@@ -27,7 +27,7 @@ import org.jdbi.v3.meta.Beta;
  * @see org.jdbi.v3.json.Json
  */
 @Beta
-public class Gson2Plugin implements JdbiPlugin {
+public class Gson2Plugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());
