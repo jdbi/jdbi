@@ -48,6 +48,7 @@ import org.jdbi.v3.core.argument.ObjectFieldArguments;
 import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -1121,6 +1122,98 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     @Beta
     public final This bindByType(String name, Object value, QualifiedType<?> argumentType) {
         return bind(name, toArgument(argumentType, value));
+    }
+
+    /**
+     * Bind a Java array as a SQL array.  Usually you can just {@link #bind(int, Object)} an array,
+     * but this method allows varargs.
+     * @param <T> the array element type
+     * @param name the name of the parameter to bind
+     * @param array the array to bind
+     * @return this Query
+     */
+    @SafeVarargs
+    public final <T> This bindArray(String name, T... array) {
+        return bindArray(name, array.getClass().getComponentType(), array);
+    }
+
+    /**
+     * Bind a Java array as a SQL array.  Usually you can just {@link #bind(int, Object)} an array,
+     * but this method allows varargs.
+     * @param <T> the array element type
+     * @param pos the position of the parameter to bind
+     * @param array the array to bind
+     * @return this Query
+     */
+    @SafeVarargs
+    public final <T> This bindArray(int pos, T... array) {
+        return bindArray(pos, array.getClass().getComponentType(), array);
+    }
+
+    /**
+     * Bind a Java array as a SQL array, casting each element to a new type.
+     * @param name the name of the parameter to bind
+     * @param elementType the array element type
+     * @param array the array to bind
+     * @return this Query
+     */
+    public final This bindArray(String name, Type elementType, Object... array) {
+        return bindByType(name, array, GenericTypes.arrayType(elementType));
+    }
+
+    /**
+     * Bind a Java array as a SQL array, casting each element to a new type.
+     * @param pos the position of the parameter to bind
+     * @param elementType the array element type
+     * @param array the array to bind
+     * @return this Query
+     */
+    public final This bindArray(int pos, Type elementType, Object... array) {
+        return bindByType(pos, array, GenericTypes.arrayType(elementType));
+    }
+
+    /**
+     * Bind an Iterable as a SQL array.
+     * @param name the name of the parameter to bind
+     * @param elementType the element type of the Iterable
+     * @param iterable the iterable to bind as an array
+     * @return this Query
+     */
+    public final This bindArray(String name, Type elementType, Iterable<?> iterable) {
+        return bindArray(name, elementType, iterable.iterator());
+    }
+
+    /**
+     * Bind an Iterable as a SQL array.
+     * @param pos the position of the parameter to bind
+     * @param elementType the element type of the Iterable
+     * @param iterable the iterable to bind as an array
+     * @return this Query
+     */
+    public final This bindArray(int pos, Type elementType, Iterable<?> iterable) {
+        return bindArray(pos, elementType, iterable.iterator());
+    }
+
+    /**
+     * Bind an Iterator as a SQL array.
+     * @param name the name of the parameter to bind
+     * @param elementType the element type of the Iterable
+     * @param iterator the iterator to bind as an array
+     * @return this Query
+     */
+    public final This bindArray(String name, Type elementType, Iterator<?> iterator) {
+        return bindByType(name, iterator, GenericTypes.parameterizeClass(Iterator.class, elementType));
+    }
+
+    /**
+     * Bind an Iterator as a SQL array.
+     * @param pos the position of the parameter to bind
+     * @param elementType the element type of the Iterator
+     * @param iterator the Iterator to bind as an array
+     * @return this Query
+     */
+    public final This bindArray(int pos, Type elementType, Iterator<?> iterator) {
+        return bindByType(pos, iterator, GenericTypes.parameterizeClass(Iterator.class, elementType));
     }
 
     private Argument toArgument(Object value) {

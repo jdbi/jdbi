@@ -1,6 +1,7 @@
 # 3.10.0
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
+  - SqlStatement (like Query) has new bindArray helper methods
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
