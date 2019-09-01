@@ -34,5 +34,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({PARAMETER, FIELD, METHOD, TYPE})
 @Beta
 public @interface PropagateNull {
+    /**
+     * When annotating a type, the {@code value} is the column name to check for null.
+     * When annotating a property, the {@code value} is unused: instead, the property value is tested against null.
+     * @return the column name whose null-ness shall be propagated
+     */
     String value() default "";
 }
