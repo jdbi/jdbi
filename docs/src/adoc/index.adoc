@@ -1131,6 +1131,16 @@ try (Handle handle = jdbi.open()) {
 [TIP]
 The `GenericType` utility class is discussed in <<Working with Generic Types>>.
 
+==== Primitive Mapping
+
+All Java primitive types have default mappings to their corresponding JDBC types.
+Generally, Jdbi will automatically perform boxing and unboxing as appropriate when
+it encounters wrapper types.
+
+By default, SQL `null` mapped to a primitive type will adopt the Java default value.
+This may be disabled by configuring
+`jdbi.getConfig(ColumnMappers.class).setCoalesceNullPrimitivesToDefaults(false)`.
+
 ==== Immutables Mapping
 
 `Immutables` value objects may be mapped, see the <<Immutables>> section for details.
