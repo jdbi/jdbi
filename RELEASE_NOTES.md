@@ -3,6 +3,9 @@
   - Handle.getJdbi gets owning Jdbi instance
   - SqlStatement (like Query) has new bindArray helper methods
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
+  - OutParameters lets you `getRowSet` to view cursor-typed out parameters
+  - Call.invoke lets you process OutParameters before closing the statement with a Consumer or Function
+  - @SqlCall lets you process OutParameters before closing the statement by passing a Consumer or Function
   - installPlugin skips duplicate JdbiPlugins (according to Object.equals)
   - KotlinSqlObjectPlugin will install forgotten SqlObjectPlugin for you
   - ClasspathSqlLocator allows disabling comment stripping and deprecate static API
@@ -15,6 +18,7 @@
   - SqlParsers no longer retain all statements and instead use a `caffeine` cache
 - Compatibility
   - added a module that runs the Spring 4 integration tests against Spring 5 to monitor forward compatibility
+  - OutParameters no longer has a public constructor (this type should never really have been constructed anyway)
 
 # 3.9.1
 - Bug Fixes
