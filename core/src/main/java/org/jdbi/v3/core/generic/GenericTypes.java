@@ -125,6 +125,14 @@ public class GenericTypes {
     }
 
     /**
+     * @param type the array's element type
+     * @return the array Type
+     */
+    public static Type arrayType(Type type) {
+        return TypeFactory.arrayOf(type);
+    }
+
+    /**
      * Given a subtype of {@code Map<K,V>}, returns the corresponding map entry type {@code Map.Entry<K,V>}.
      * @param mapType the map subtype
      * @return the map entry type

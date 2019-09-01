@@ -1731,13 +1731,13 @@ int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
 ----
 
 You can also use Collections in place of arrays, but you'll need to provide
-generic type information if you're using the fluent API:
+the element type if you're using the fluent API, since it's erased:
 
 [source,java]
 ----
 handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
       .bind("id", 1)
-      .bindByType("userIds", Arrays.asList(10, 5, 70), new GenericType<List<Integer>>() {})
+      .bindArray("userIds", int.class, Arrays.asList(10, 5, 70))
       .execute();
 
 List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
