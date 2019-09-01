@@ -551,7 +551,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.localExtensionMethod.set(extensionMethod);
     }
 
-    void setLocalExtensionMethod(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
+    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
         this.localExtensionMethod = requireNonNull(extensionMethodThreadLocal);
     }
 

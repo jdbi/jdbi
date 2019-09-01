@@ -96,19 +96,17 @@ public class TestJdbi {
 
     @Test
     public void testGlobalStatementCustomizers() {
-        dbRule.getJdbi().addCustomizer(StatementCustomizers.maxRows(1));
+        dbRule.getJdbi().addCustomizer(StatementCustomizers.maxRows(1))
+            .useHandle(handle -> {
+                handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
+                handle.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
-        Handle handle = dbRule.openHandle();
+                List<Something> rs = handle.createQuery("select id, name from something")
+                        .mapToBean(Something.class)
+                        .list();
 
-        handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
-        handle.execute("insert into something (id, name) values (?, ?)", 2, "world");
-
-        List<Something> rs = handle.createQuery("select id, name from something")
-                .mapToBean(Something.class)
-                .list();
-
-        assertThat(rs).hasSize(1);
+                assertThat(rs).hasSize(1);
+            });
     }
-
 }
 
