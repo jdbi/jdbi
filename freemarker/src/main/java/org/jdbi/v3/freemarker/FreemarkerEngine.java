@@ -28,13 +28,13 @@ public class FreemarkerEngine implements TemplateEngine {
     @Override
     public String render(String sql, StatementContext ctx) {
         try {
-            Template template = new Template(null, sql, null);
+            Template template = new Template(null, sql,
+                    ctx.getConfig(FreemarkerConfig.class).getFreemarkerConfiguration());
             StringWriter writer = new StringWriter();
             template.process(ctx.getAttributes(), writer);
             return writer.toString();
         } catch (IOException | TemplateException e) {
             throw new IllegalStateException("Failed to process template: " + sql, e);
         }
-
     }
 }
