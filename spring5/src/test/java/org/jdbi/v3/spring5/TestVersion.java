@@ -11,20 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.spring5;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.internal.OnDemandExtensions;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.junit.Test;
+import org.springframework.core.SpringVersion;
 
-/**
- * Plugin that installs the SqlObject extension.
- */
-public class SqlObjectPlugin extends JdbiPlugin.Singleton {
-    @Override
-    public void customizeJdbi(Jdbi db) {
-        SqlObjectFactory factory = new SqlObjectFactory();
-        db.registerExtension(factory);
-        db.getConfig(OnDemandExtensions.class).setFactory(factory);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class TestVersion {
+    @Test
+    public void thisIsSpring5() {
+        assertThat(SpringVersion.getVersion())
+            .isEqualTo("5.1.8.RELEASE");
     }
 }

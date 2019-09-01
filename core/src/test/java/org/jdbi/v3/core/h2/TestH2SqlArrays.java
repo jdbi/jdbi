@@ -62,7 +62,7 @@ public class TestH2SqlArrays {
     public void testUuidArray() {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bind("u", testUuids)
+                .bindArray("u", testUuids)
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -76,7 +76,7 @@ public class TestH2SqlArrays {
     public void testUuidList() {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", Arrays.asList(testUuids), UUID_LIST)
+                .bindArray("u", UUID.class, Arrays.asList(testUuids))
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -90,7 +90,7 @@ public class TestH2SqlArrays {
     public void testUuidArrayList() {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", new ArrayList<>(Arrays.asList(testUuids)), UUID_LIST)
+                .bindArray("u", UUID.class, new ArrayList<>(Arrays.asList(testUuids)))
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -131,8 +131,6 @@ public class TestH2SqlArrays {
 
     @Test
     public void testEnumArrays() {
-        Handle h = dbRule.openHandle();
-
         GenericType<List<TestEnum>> testEnumList = new GenericType<List<TestEnum>>() {};
 
         assertThat(h.select("select ?")
@@ -144,5 +142,4 @@ public class TestH2SqlArrays {
     public enum TestEnum {
         FOO, BAR, BAZ
     }
-
 }

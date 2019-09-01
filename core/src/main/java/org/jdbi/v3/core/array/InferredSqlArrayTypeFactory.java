@@ -26,18 +26,18 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
  * {@link UnsupportedOperationException} will be thrown.
  */
 class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
-    private final Type elementType;
+    private final Type inferredElementType;
     private final SqlArrayType<?> arrayType;
 
     InferredSqlArrayTypeFactory(SqlArrayType<?> arrayType) {
-        this.elementType = findGenericParameter(arrayType.getClass(), SqlArrayType.class)
+        inferredElementType = findGenericParameter(arrayType.getClass(), SqlArrayType.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed SqlArrayType here"));
         this.arrayType = arrayType;
     }
 
     @Override
     public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
-        return this.elementType.equals(elementType)
+        return inferredElementType.equals(elementType)
                 ? Optional.of(arrayType)
                 : Optional.empty();
     }

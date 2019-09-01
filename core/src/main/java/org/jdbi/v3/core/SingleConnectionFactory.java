@@ -32,5 +32,5 @@ class SingleConnectionFactory implements ConnectionFactory {
     }
 
     @Override
-    public void closeConnection(Connection connection) {}
+    public void closeConnection(Connection toClose) {}
 }

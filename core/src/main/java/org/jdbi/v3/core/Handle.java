@@ -56,14 +56,14 @@ public class Handle implements Closeable, Configurable<Handle> {
     private final Connection connection;
     private final boolean forceEndTransactions;
 
-    private ThreadLocal<ConfigRegistry> config;
-    private ThreadLocal<ExtensionMethod> extensionMethod;
+    private ThreadLocal<ConfigRegistry> localConfig;
+    private ThreadLocal<ExtensionMethod> localExtensionMethod;
     private StatementBuilder statementBuilder;
 
     private boolean closed = false;
 
     Handle(Jdbi jdbi,
-           ConfigRegistry config,
+           ConfigRegistry localConfig,
            ConnectionCloser closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
@@ -73,8 +73,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.transactions = transactions;
         this.connection = connection;
 
-        this.config = ThreadLocal.withInitial(() -> config);
-        this.extensionMethod = new ThreadLocal<>();
+        this.localConfig = ThreadLocal.withInitial(() -> localConfig);
+        this.localExtensionMethod = new ThreadLocal<>();
         this.statementBuilder = statementBuilder;
         this.forceEndTransactions = !transactions.isInTransaction(this);
     }
@@ -85,15 +85,15 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     @Override
     public ConfigRegistry getConfig() {
-        return config.get();
+        return localConfig.get();
     }
 
     void setConfig(ConfigRegistry config) {
-        this.config.set(config);
+        this.localConfig.set(config);
     }
 
-    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
-        this.config = config;
+    void setLocalConfig(ThreadLocal<ConfigRegistry> configThreadLocal) {
+        this.localConfig = configThreadLocal;
     }
 
     /**
@@ -137,7 +137,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
 
         boolean wasInTransaction = false;
-        if (forceEndTransactions && config.get().get(Handles.class).isForceEndTransactions()) {
+        if (forceEndTransactions && localConfig.get().get(Handles.class).isForceEndTransactions()) {
             try {
                 wasInTransaction = isInTransaction();
             } catch (Exception e) {
@@ -145,8 +145,8 @@ public class Handle implements Closeable, Configurable<Handle> {
             }
         }
 
-        extensionMethod.remove();
-        config.remove();
+        localExtensionMethod.remove();
+        localConfig.remove();
 
         if (wasInTransaction) {
             try {
@@ -544,15 +544,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the extension method currently bound to the handle's context
      */
     public ExtensionMethod getExtensionMethod() {
-        return extensionMethod.get();
+        return localExtensionMethod.get();
     }
 
     void setExtensionMethod(ExtensionMethod extensionMethod) {
-        this.extensionMethod.set(extensionMethod);
+        this.localExtensionMethod.set(extensionMethod);
     }
 
-    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
-        this.extensionMethod = requireNonNull(extensionMethod);
+    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
+        this.localExtensionMethod = requireNonNull(extensionMethodThreadLocal);
     }
 
     interface ConnectionCloser {

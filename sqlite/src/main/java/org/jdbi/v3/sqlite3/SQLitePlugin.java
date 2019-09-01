@@ -19,7 +19,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 /**
  * Jdbi plugin for SQLite.
  */
-public class SQLitePlugin implements JdbiPlugin {
+public class SQLitePlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new URLArgumentFactory());

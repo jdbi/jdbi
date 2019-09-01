@@ -14,8 +14,6 @@
 
 package org.jdbi.v3.core.mapper.reflect;
 
-import java.sql.SQLException;
-
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
@@ -37,12 +35,12 @@ public class BeanMapperTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    Handle handle;
+    private Handle handle;
 
     RowMapper<SampleBean> mapper = BeanMapper.of(SampleBean.class);
 
     @Before
-    public void getHandle() throws SQLException {
+    public void getHandle() {
         handle = dbRule.getSharedHandle();
     }
 

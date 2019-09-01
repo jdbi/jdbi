@@ -1,7 +1,10 @@
 # 3.10.0
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
+  - SqlStatement (like Query) has new bindArray helper methods
   - sqlobject's `EmptyHandling` enum backported to core for invocations of `SqlStatement.bindList`
+  - installPlugin skips duplicate JdbiPlugins (according to Object.equals)
+  - KotlinSqlObjectPlugin will install forgotten SqlObjectPlugin for you
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`
@@ -9,6 +12,8 @@
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context
   - SqlParsers no longer retain all statements and instead use a `caffeine` cache
+- Compatibility
+  - added a module that runs the Spring 4 integration tests against Spring 5 to monitor forward compatibility
 
 # 3.9.1
 - Bug Fixes

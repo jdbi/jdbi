@@ -122,8 +122,8 @@ public abstract class JdbiRule extends ExternalResource {
     /**
      * Run database migration.
      */
-    public JdbiRule withMigration(final Migration migration) {
-        this.migration = migration;
+    public JdbiRule withMigration(final Migration newMigration) {
+        this.migration = newMigration;
         return this;
     }
 

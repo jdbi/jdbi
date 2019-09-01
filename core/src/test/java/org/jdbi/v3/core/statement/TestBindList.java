@@ -16,7 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
@@ -84,25 +83,25 @@ public class TestBindList {
 
     @Test
     public void testBindListWithHashPrefixParser() {
-        Jdbi jdbi = Jdbi.create(dbRule.getConnectionFactory());
-        jdbi.setSqlParser(new HashPrefixSqlParser());
-        jdbi.useHandle(handle -> {
-            handle.registerRowMapper(FieldMapper.factory(Thing.class));
-            handle.createUpdate("insert into thing (<columns>) values (<values>)")
-                  .defineList("columns", "id", "foo")
-                  .bindList("values", 3, "abc")
-                  .execute();
+        handle
+            .registerRowMapper(FieldMapper.factory(Thing.class))
+            .setSqlParser(new HashPrefixSqlParser());
 
-            List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
-                                     .bindList("ids", 1, 3)
-                                     .mapTo(Thing.class)
-                                     .list();
-            assertThat(list)
-                    .extracting(Thing::getId, Thing::getFoo, Thing::getBar, Thing::getBaz)
-                    .containsExactly(
-                            tuple(1, "foo1", null, null),
-                            tuple(3, "abc", null, null));
-        });
+        handle.createUpdate("insert into thing (<columns>) values (<values>)")
+            .defineList("columns", "id", "foo")
+            .bindList("values", 3, "abc")
+            .execute();
+
+        List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
+            .bindList("ids", 1, 3)
+            .mapTo(Thing.class)
+            .list();
+
+        assertThat(list)
+            .extracting(Thing::getId, Thing::getFoo, Thing::getBar, Thing::getBaz)
+            .containsExactly(
+                tuple(1, "foo1", null, null),
+                tuple(3, "abc", null, null));
     }
 
     public static class Thing {

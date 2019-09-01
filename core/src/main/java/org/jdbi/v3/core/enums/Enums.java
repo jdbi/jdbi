@@ -40,11 +40,11 @@ public class Enums implements JdbiConfig<Enums> {
 
     /**
      * Sets the default strategy for mapping and binding enums.
-     * @param strategy the new strategy
+     * @param enumStrategy the new strategy
      * @return this Enums instance, for chaining
      */
-    public Enums setEnumStrategy(EnumStrategy strategy) {
-        this.strategy = strategy;
+    public Enums setEnumStrategy(EnumStrategy enumStrategy) {
+        this.strategy = enumStrategy;
         return this;
     }
 

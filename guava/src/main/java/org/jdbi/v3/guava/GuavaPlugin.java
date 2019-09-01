@@ -19,7 +19,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 /**
  * Plugin to enable all {@code Guava} functionality.
  */
-public class GuavaPlugin implements JdbiPlugin {
+public class GuavaPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi db) {
         db.registerArgument(GuavaArguments.factory());

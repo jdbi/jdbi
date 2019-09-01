@@ -73,8 +73,8 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    protected NamedArgumentFinder getNestedArgumentFinder(Object obj) {
-        return new ObjectMethodArguments(null, obj);
+    protected NamedArgumentFinder getNestedArgumentFinder(Object source) {
+        return new ObjectMethodArguments(null, source);
     }
 
     @Override

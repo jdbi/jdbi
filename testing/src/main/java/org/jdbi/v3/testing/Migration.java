@@ -62,8 +62,8 @@ public class Migration {
     /**
      * Add flyway migration schemas.
      */
-    public Migration withSchemas(final String... schemas) {
-        this.schemas.addAll(Arrays.asList(schemas));
+    public Migration withSchemas(final String... moreSchemas) {
+        this.schemas.addAll(Arrays.asList(moreSchemas));
         return this;
     }
 

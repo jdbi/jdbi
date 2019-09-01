@@ -11,20 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.spring5;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.internal.OnDemandExtensions;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.spring4.TestPluginInstall.Config;
+import org.springframework.test.context.ContextConfiguration;
 
-/**
- * Plugin that installs the SqlObject extension.
- */
-public class SqlObjectPlugin extends JdbiPlugin.Singleton {
-    @Override
-    public void customizeJdbi(Jdbi db) {
-        SqlObjectFactory factory = new SqlObjectFactory();
-        db.registerExtension(factory);
-        db.getConfig(OnDemandExtensions.class).setFactory(factory);
-    }
-}
+@ContextConfiguration(classes = Config.class)
+public class TestPluginInstall extends org.jdbi.v3.spring4.TestPluginInstall {}
