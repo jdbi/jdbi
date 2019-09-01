@@ -222,11 +222,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Defaults to false: unused bindings are not allowed.
      *
      * @see org.jdbi.v3.core.argument.Argument
-     * @param allowUnusedBindings the new setting
+     * @param unusedBindingAllowed the new setting
      * @return this
      */
-    public SqlStatements setUnusedBindingAllowed(boolean allowUnusedBindings) {
-        this.allowUnusedBindings = allowUnusedBindings;
+    public SqlStatements setUnusedBindingAllowed(boolean unusedBindingAllowed) {
+        this.allowUnusedBindings = unusedBindingAllowed;
         return this;
     }
 

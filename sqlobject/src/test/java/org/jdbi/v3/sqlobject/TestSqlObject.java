@@ -119,47 +119,47 @@ public class TestSqlObject {
 
     @Test
     public void testNestedTransactionsCollapseIntoSingleTransaction() {
-        Handle handle = Mockito.spy(dbRule.getSharedHandle());
-        Dao dao = handle.attach(Dao.class);
+        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Dao dao = spyHandle.attach(Dao.class);
 
         dao.threeNestedTransactions();
-        verify(handle, times(1)).begin();
-        verify(handle, times(1)).commit();
+        verify(spyHandle, times(1)).begin();
+        verify(spyHandle, times(1)).commit();
 
         dao.twoNestedTransactions();
-        verify(handle, times(2)).begin();
-        verify(handle, times(2)).commit();
+        verify(spyHandle, times(2)).begin();
+        verify(spyHandle, times(2)).commit();
     }
 
     @Test
     public void testNestedTransactionWithSameIsolation() {
-        Handle handle = Mockito.spy(dbRule.getSharedHandle());
-        Dao dao = handle.attach(Dao.class);
+        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Dao dao = spyHandle.attach(Dao.class);
 
         dao.nestedTransactionWithSameIsolation();
-        verify(handle, times(1)).begin();
-        verify(handle, times(1)).commit();
+        verify(spyHandle, times(1)).begin();
+        verify(spyHandle, times(1)).commit();
     }
 
     @Test
     public void testNestedTransactionWithDifferentIsoltion() {
-        Handle handle = Mockito.spy(dbRule.getSharedHandle());
-        Dao dao = handle.attach(Dao.class);
+        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Dao dao = spyHandle.attach(Dao.class);
 
         assertThatThrownBy(dao::nestedTransactionWithDifferentIsolation).isInstanceOf(TransactionException.class);
     }
 
     @Test
     public void testSqlUpdateWithTransaction() {
-        Handle handle = Mockito.spy(dbRule.getSharedHandle());
-        Dao dao = handle.attach(Dao.class);
+        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Dao dao = spyHandle.attach(Dao.class);
 
         dao.insert(1, "foo");
-        verify(handle, never()).begin();
+        verify(spyHandle, never()).begin();
         assertThat(dao.findById(1)).isEqualTo(new Something(1, "foo"));
 
         assertThat(dao.insertTransactional(2, "bar")).isEqualTo(1);
-        verify(handle, times(1)).begin();
+        verify(spyHandle, times(1)).begin();
         assertThat(dao.findById(2)).isEqualTo(new Something(2, "bar"));
     }
 

@@ -76,7 +76,7 @@ public class TestMixinInterfaces {
     @Test
     public void testUseHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
-        g.useHandle(handle -> handle.execute("insert into something(id, name) values (9, 'James')"));
+        g.useHandle(h -> h.execute("insert into something(id, name) values (9, 'James')"));
 
         assertThat(handle.createQuery("select name from something where id = 9")
                 .mapTo(String.class)

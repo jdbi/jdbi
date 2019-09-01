@@ -29,8 +29,8 @@ public class JsonConfig implements JdbiConfig<JsonConfig> {
         this.mapper = other.mapper;
     }
 
-    public JsonConfig setJsonMapper(JsonMapper mapper) {
-        this.mapper = mapper;
+    public JsonConfig setJsonMapper(JsonMapper jsonMapper) {
+        this.mapper = jsonMapper;
         return this;
     }
 

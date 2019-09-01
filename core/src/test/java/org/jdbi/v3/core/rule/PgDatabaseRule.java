@@ -67,8 +67,8 @@ public class PgDatabaseRule extends ExternalResource implements DatabaseRule<PgD
         return this;
     }
 
-    public PgDatabaseRule withPreparer(JdbiPreparer preparer) {
-        this.preparer = preparer;
+    public PgDatabaseRule withPreparer(JdbiPreparer newPreparer) {
+        this.preparer = newPreparer;
         return this;
     }
 }

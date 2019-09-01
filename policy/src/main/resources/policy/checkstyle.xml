@@ -16,6 +16,8 @@
 <module name="Checker">
     <property name="fileExtensions" value="java,properties,xml"/>
 
+    <module name="SuppressWarningsFilter" />
+
     <module name="NewlineAtEndOfFile">
         <property name="lineSeparator" value="lf"/>
     </module>
@@ -49,6 +51,12 @@
         <module name="EqualsAvoidNull"/>
         <module name="EqualsHashCode"/>
         <module name="GenericWhitespace"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+            <property name="setterCanReturnItsClass" value="true"/>
+            <property name="ignoreAbstractMethods" value="true"/>
+        </module>
         <module name="HideUtilityClassConstructor"/>
         <module name="IllegalImport"/>
         <module name="IllegalInstantiation"/>
@@ -98,6 +106,7 @@
         <module name="StringLiteralEquality"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
+        <module name="SuppressWarningsHolder" />
         <module name="TodoComment"/>
         <module name="TypecastParenPad"/>
         <module name="TypeName"/>

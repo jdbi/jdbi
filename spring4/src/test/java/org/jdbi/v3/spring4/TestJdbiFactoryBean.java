@@ -44,8 +44,8 @@ public class TestJdbiFactoryBean {
     }
 
     @Autowired
-    public void setDataSource(DataSource ds) {
-        this.ds = ds;
+    public void setDataSource(DataSource dataSource) {
+        this.ds = dataSource;
     }
 
     @Autowired
@@ -61,8 +61,8 @@ public class TestJdbiFactoryBean {
     @Test
     public void testFailsViaException() {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
-            service.inPropagationRequired(jdbi -> {
-                Handle h = JdbiUtil.getHandle(jdbi);
+            service.inPropagationRequired(aJdbi -> {
+                Handle h = JdbiUtil.getHandle(aJdbi);
                 final int count = h.execute("insert into something (id, name) values (7, 'ignored')");
                 if (count == 1) {
                     throw new ForceRollback();
@@ -118,8 +118,8 @@ public class TestJdbiFactoryBean {
                 throw new ForceRollback();
             });
         });
-        service.inPropagationRequired(jdbi -> {
-            final Handle h = JdbiUtil.getHandle(jdbi);
+        service.inPropagationRequired(aJdbi -> {
+            final Handle h = JdbiUtil.getHandle(aJdbi);
             int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(0);
         });

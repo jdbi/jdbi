@@ -66,21 +66,21 @@ public class TestBeanMapper {
         List<TestBean> listBeansPrefix();
     }
 
-    Handle h;
-    TestDao dao;
+    private Handle h;
+    private TestDao testDao;
 
     @Before
     public void createTable() {
         h = dbRule.openHandle();
         h.createUpdate("create table testBean (valueType varchar(50))").execute();
-        dao = h.attach(TestDao.class);
+        testDao = h.attach(TestDao.class);
     }
 
     @Test
     public void testMapBean() {
         h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
-        List<TestBean> beans = dao.listBeans();
+        List<TestBean> beans = testDao.listBeans();
         assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
@@ -88,7 +88,7 @@ public class TestBeanMapper {
     public void testMapBeanPrefix() {
         h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
-        List<TestBean> beans = dao.listBeansPrefix();
+        List<TestBean> beans = testDao.listBeansPrefix();
         assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 

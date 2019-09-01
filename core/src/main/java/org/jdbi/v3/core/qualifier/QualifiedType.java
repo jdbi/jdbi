@@ -80,23 +80,23 @@ public final class QualifiedType<T> {
     /**
      * Returns a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
-     * @param qualifiers the qualifiers for the new qualified type.
+     * @param newQualifiers the qualifiers for the new qualified type.
      * @return the QualifiedType
      */
-    public QualifiedType<T> with(Annotation... qualifiers) {
-        return new QualifiedType<>(type, Arrays.stream(qualifiers).collect(toSet()));
+    public QualifiedType<T> with(Annotation... newQualifiers) {
+        return new QualifiedType<>(type, Arrays.stream(newQualifiers).collect(toSet()));
     }
 
     /**
      * Returns a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
-     * @param qualifiers the qualifiers for the new qualified type.
+     * @param newQualifiers the qualifiers for the new qualified type.
      * @throws IllegalArgumentException if any of the given qualifier types have annotation attributes.
      * @return the QualifiedType
      */
     @SafeVarargs
-    public final QualifiedType<T> with(Class<? extends Annotation>... qualifiers) {
-        Set<? extends Annotation> annotations = Arrays.stream(qualifiers)
+    public final QualifiedType<T> with(Class<? extends Annotation>... newQualifiers) {
+        Set<? extends Annotation> annotations = Arrays.stream(newQualifiers)
             .map(AnnotationFactory::create)
             .collect(toSet());
         return new QualifiedType<>(type, annotations);
@@ -105,19 +105,19 @@ public final class QualifiedType<T> {
     /**
      * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
-     * @param qualifiers the qualifiers for the new qualified type.
+     * @param newQualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> qualifiers) {
-        return new QualifiedType<>(type, StreamSupport.stream(qualifiers.spliterator(), false).collect(toSet()));
+    public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> newQualifiers) {
+        return new QualifiedType<>(type, StreamSupport.stream(newQualifiers.spliterator(), false).collect(toSet()));
     }
 
     /**
      * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
-     * @param qualifiers the qualifiers for the new qualified type.
+     * @param newQualifiers the qualifiers for the new qualified type.
      */
-    public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> qualifiers) {
-        Set<? extends Annotation> annotations = StreamSupport.stream(qualifiers.spliterator(), false)
+    public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> newQualifiers) {
+        Set<? extends Annotation> annotations = StreamSupport.stream(newQualifiers.spliterator(), false)
             .map(AnnotationFactory::create)
             .collect(toSet());
         return new QualifiedType<>(type, annotations);

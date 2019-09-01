@@ -83,7 +83,7 @@ public class Call extends SqlStatement<Call> {
      */
     public OutParameters invoke() {
         try {
-            final PreparedStatement stmt = this.internalExecute();
+            this.internalExecute();
             OutParameters out = new OutParameters();
             for (OutParamArgument param : params) {
                 Object obj = param.map((CallableStatement) stmt);
@@ -117,9 +117,9 @@ public class Call extends SqlStatement<Call> {
         }
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-            ((CallableStatement) statement).registerOutParameter(position, sqlType);
-            this.position = position;
+        public void apply(int outPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            ((CallableStatement) statement).registerOutParameter(outPosition, sqlType);
+            this.position = outPosition;
         }
 
         public Object map(CallableStatement stmt) {
