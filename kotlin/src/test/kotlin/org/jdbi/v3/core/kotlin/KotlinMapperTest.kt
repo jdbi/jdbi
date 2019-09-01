@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
+import org.jdbi.v3.core.mapper.PropagateNull
 
 class KotlinMapperTest {
     @Rule
@@ -553,5 +554,41 @@ class KotlinMapperTest {
             .mapTo<ClassWithNullableNestedProperty>()
             .first())
             .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", "bar") })
+    }
+
+    @PropagateNull("name")
+    class ClassWithPropagateNull(val id: Int) {
+        var name:String? = null
+    }
+
+    @Test
+    fun classPropagateNull() {
+        assertThat(handle.select("select 1 as id, null as name")
+                .mapTo<ClassWithPropagateNull>()
+                .one())
+            .isNull()
+    }
+
+    class MemberWithPropagateNull(val id: Int) {
+        @PropagateNull
+        var name:String? = null
+    }
+
+    @Test
+    fun memberPropagateNull() {
+        assertThat(handle.select("select 1 as id, null as name")
+                .mapTo<MemberWithPropagateNull>()
+                .one())
+            .isNull()
+    }
+
+    data class ConstructorWithPropagateNull(val id: Int, @PropagateNull var name:String?)
+
+    @Test
+    fun constructorPropagateNull() {
+        assertThat(handle.select("select 1 as id, null as name")
+                .mapTo<ConstructorWithPropagateNull>()
+                .one())
+            .isNull()
     }
 }
