@@ -24,9 +24,17 @@ import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
  * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
  */
 public class FreemarkerSqlLocator {
+    /**
+     * @deprecated don't use static scope
+     */
+    @Deprecated
     private static final Configuration CONFIGURATION;
 
-    private FreemarkerSqlLocator() {}
+    private final FreemarkerConfig config;
+
+    FreemarkerSqlLocator(FreemarkerConfig config) {
+        this.config = config;
+    }
 
     static {
         Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
@@ -40,7 +48,15 @@ public class FreemarkerSqlLocator {
             .orElseGet(FreemarkerSqlLocator.class::getClassLoader);
     }
 
+    /**
+     * @deprecated this static method does not respect configuration, use {@link FreemarkerConfig#createLocator()}
+     */
+    @Deprecated
     public static Template findTemplate(Class<?> type, String templateName) {
+        return findTemplate(CONFIGURATION, type, templateName);
+    }
+
+    public static Template findTemplate(Configuration config, Class<?> type, String templateName) {
         String path = new ClasspathBuilder()
             .appendFullyQualifiedClassName(type)
             .appendVerbatim(templateName)
@@ -48,10 +64,23 @@ public class FreemarkerSqlLocator {
             .build();
 
         try {
-            return CONFIGURATION.getTemplate(path);
+            return config.getTemplate(path);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + path, e);
         }
     }
 
+    public Template locate(Class<?> type, String templateName) {
+        String path = new ClasspathBuilder()
+            .appendFullyQualifiedClassName(type)
+            .appendVerbatim(templateName)
+            .setExtension("sql.ftl")
+            .build();
+
+        try {
+            return config.getFreemarkerConfiguration().getTemplate(path);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load Freemarker template " + templateName + " in " + path, e);
+        }
+    }
 }

@@ -23,6 +23,7 @@ import freemarker.template.TemplateException;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.freemarker.FreemarkerConfig;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
@@ -33,13 +34,12 @@ import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplate;
 public class UseFreemarkerSqlLocatorImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method, config) -> {
-            String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            findTemplate(sqlObjectType, templateName);
-            return templateName;
-        };
+        SqlLocator locator = (type, method, config) ->
+                SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
         TemplateEngine templateEngine = (templateName, ctx) -> {
-            Template template = findTemplate(sqlObjectType, templateName);
+            Template template = findTemplate(
+                    ctx.getConfig(FreemarkerConfig.class).getFreemarkerConfiguration(),
+                    sqlObjectType, templateName);
             StringWriter writer = new StringWriter();
             try {
                 template.process(ctx.getAttributes(), writer);
