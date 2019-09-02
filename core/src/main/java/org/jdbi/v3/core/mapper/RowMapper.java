@@ -60,4 +60,13 @@ public interface RowMapper<T> {
     default RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         return this;
     }
+
+    public interface Specialized<T> extends RowMapper<T> {
+        @Override
+        default T map(ResultSet rs, StatementContext ctx) throws SQLException {
+            return specialize(rs, ctx).map(rs, ctx);
+        }
+        @Override
+        RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException;
+    }
 }

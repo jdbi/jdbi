@@ -28,18 +28,12 @@ import org.jdbi.v3.core.statement.StatementContext;
  * for retrieving multiple tables' Java representations from a
  * joined row.
  */
-public class JoinRowMapper implements RowMapper<JoinRow> {
+public class JoinRowMapper implements RowMapper.Specialized<JoinRow> {
 
     private final Type[] types;
 
     private JoinRowMapper(Type[] types) {
         this.types = Arrays.copyOf(types, types.length);
-    }
-
-    @Override
-    public JoinRow map(ResultSet r, StatementContext ctx)
-    throws SQLException {
-        return specialize(r, ctx).map(r, ctx);
     }
 
     @Override

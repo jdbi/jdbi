@@ -34,7 +34,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * @see GenericMapMapperFactory
  */
-public class MapMapper implements RowMapper<Map<String, Object>> {
+public class MapMapper implements RowMapper.Specialized<Map<String, Object>> {
     /**
      * @deprecated remove
      */
@@ -55,11 +55,6 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
     // TODO deprecate when MapMappers.caseChange is out of beta
     public MapMapper(boolean toLowerCase) {
         caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER : ctx -> CaseStrategy.NOP;
-    }
-
-    @Override
-    public Map<String, Object> map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @Override

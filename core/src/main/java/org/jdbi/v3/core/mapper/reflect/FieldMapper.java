@@ -46,7 +46,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  *
  * The mapped class must have a default constructor.
  */
-public class FieldMapper<T> implements RowMapper<T> {
+public class FieldMapper<T> implements RowMapper.Specialized<T> {
     private static final String DEFAULT_PREFIX = "";
 
     private static final String NO_MATCHING_COLUMNS =
@@ -110,11 +110,6 @@ public class FieldMapper<T> implements RowMapper<T> {
     private FieldMapper(Class<T> type, String prefix) {
         this.type = type;
         this.prefix = prefix.toLowerCase();
-    }
-
-    @Override
-    public T map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @Override

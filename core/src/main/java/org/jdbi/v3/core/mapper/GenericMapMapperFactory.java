@@ -88,16 +88,11 @@ public class GenericMapMapperFactory implements RowMapperFactory {
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
     }
 
-    private static class GenericMapMapper<T> implements RowMapper<Map<String, T>> {
+    private static class GenericMapMapper<T> implements RowMapper.Specialized<Map<String, T>> {
         private final ColumnMapper<T> mapper;
 
         private GenericMapMapper(ColumnMapper<T> mapper) {
             this.mapper = mapper;
-        }
-
-        @Override
-        public Map<String, T> map(ResultSet rs, StatementContext ctx) throws SQLException {
-            return specialize(rs, ctx).map(rs, ctx);
         }
 
         @Override

@@ -43,7 +43,7 @@ import kotlin.reflect.jvm.jvmErasure
 
 private val nullValueRowMapper = RowMapper<Any?> { _, _ -> null }
 
-class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
+class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper.Specialized<Any> {
     private val kClass: KClass<*> = clazz.kotlin
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
@@ -55,10 +55,6 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
     private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
-
-    override fun map(rs: ResultSet, ctx: StatementContext): Any {
-        return specialize(rs, ctx).map(rs, ctx)
-    }
 
     override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<Any> {
         val columnNames = getColumnNames(rs)

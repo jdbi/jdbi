@@ -31,7 +31,7 @@ import org.jdbi.v3.jpa.internal.JpaMember;
  * Row mapper for a JPA-annotated type as a result.
  * @param <C> the type to map
  */
-public class JpaMapper<C> implements RowMapper<C> {
+public class JpaMapper<C> implements RowMapper.Specialized<C> {
 
     private final Class<C> clazz;
     private final JpaClass<C> jpaClass;
@@ -78,11 +78,6 @@ public class JpaMapper<C> implements RowMapper<C> {
             }
             return obj;
         };
-    }
-
-    @Override
-    public C map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @FunctionalInterface

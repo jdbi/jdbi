@@ -54,7 +54,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  * Constructor parameters annotated as {@code @Nullable} may be omitted from the result set without
  * error. Any annotation named "Nullable" is respected--nay, worshipped--no matter which package it is from.
  */
-public class ConstructorMapper<T> implements RowMapper<T> {
+public class ConstructorMapper<T> implements RowMapper.Specialized<T> {
     private static final String DEFAULT_PREFIX = "";
 
     private static final String UNMATCHED_CONSTRUCTOR_PARAMETERS =
@@ -172,11 +172,6 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         this.factory = factory;
         this.prefix = prefix.toLowerCase();
         this.constructorProperties = factory.getAnnotation(ConstructorProperties.class);
-    }
-
-    @Override
-    public T map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @Override

@@ -47,7 +47,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnInd
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /** This class is the future home of BeanMapper functionality. */
-public class PojoMapper<T> implements RowMapper<T> {
+public class PojoMapper<T> implements RowMapper.Specialized<T> {
 
     private static final String NO_MATCHING_COLUMNS =
         "Mapping bean %s didn't find any matching columns in result set";
@@ -63,11 +63,6 @@ public class PojoMapper<T> implements RowMapper<T> {
     public PojoMapper(Type type, String prefix) {
         this.type = type;
         this.prefix = prefix.toLowerCase();
-    }
-
-    @Override
-    public T map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @Override
