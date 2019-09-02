@@ -3,6 +3,7 @@ package org.jdbi.v3.core.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
@@ -11,6 +12,8 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoinMapperTest {
     @Rule
@@ -21,36 +24,36 @@ public class JoinMapperTest {
     List<Author> authors = new ArrayList<>();
     List<Book> books = new ArrayList<>();
 
+    Author a, b, c, d;
+    Book pb, cm, cd, bt;
+
     @Before
     public void setup() {
         h = db.getSharedHandle();
         h.getConfig(JdbiImmutables.class)
             .registerImmutable(Book.class, Author.class);
 
-        h.execute("create table books (bookId int not null, name varchar not null, authorId int)");
+        h.execute("create table book (bookId int not null, name varchar not null, authorId int)");
         h.execute("create table author (authorId int not null, name varchar not null)");
 
-        addAuthors(
-                "Alice",
-                "Bob",
-                "Carol",
-                "Dave"
-        );
+        a = addAuthor(1, "Alice");
+        b = addAuthor(2, "Bob");
+        c = addAuthor(3, "Carol");
+        d = addAuthor(4, "Dave");
 
-        Book pb = addBook("Alice", 1, "Pretty Birds"),
-             cm = addBook("Alice", 2, "Curious Mammals"),
-             cd = addBook("Bob", 3, "Cooking for Dummies"),
-             bt = addBook("Carol", 4, "Big Trucks");
+        pb = addBook("Alice", 1, "Pretty Birds");
+        cm = addBook("Alice", 2, "Curious Mammals");
+        cd = addBook("Bob", 3, "Cooking for Dummies");
+        bt = addBook("Carol", 4, "Big Trucks");
     }
 
-    private void addAuthors(String... authorNames) {
-        for (int i = 0; i < authorNames.length; i++) {
-            Author a = author(i, authorNames[i]);
-            authors.add(a);
-            h.createUpdate("insert into author (authorId, name) values (:authorId, :name)")
+    private Author addAuthor(int authorId, String authorName) {
+        Author a = author(authorId, authorName);
+        authors.add(a);
+        h.createUpdate("insert into author (authorId, name) values (:authorId, :name)")
                 .bindPojo(a)
                 .execute();
-        }
+        return a;
     }
 
     private Book addBook(String authorName, int bookId, String bookName) {
@@ -68,8 +71,14 @@ public class JoinMapperTest {
     @Test
     public void naturalJoin() {
         assertThat(h.createQuery("select * from book natural join author")
-                .mapTo(Library.class)
-                .execute());
+                .collectInto(Library.class))
+            .extracting(Library::books)
+            .isEqualTo(ImmutableMultimap.builder()
+                    .put(a, pb)
+                    .put(a, cm)
+                    .put(b, cd)
+                    .put(c, bt)
+                    .build());
     }
 
     @Value.Immutable

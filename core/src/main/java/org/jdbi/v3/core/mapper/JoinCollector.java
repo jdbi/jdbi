@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class JoinMapper<R> implements RowMapper.Specialized<R> {
+public class JoinCollector<R> implements RowMapper.Specialized<R> {
     @Override
     public RowMapper<R> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         // TODO Auto-generated method stub
