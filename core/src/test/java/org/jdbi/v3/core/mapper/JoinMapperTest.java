@@ -3,6 +3,7 @@ package org.jdbi.v3.core.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Multimap;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -66,7 +67,14 @@ public class JoinMapperTest {
 
     @Test
     public void naturalJoin() {
+        assertThat(h.createQuery("select * from book natural join author")
+                .mapTo(Library.class)
+                .execute());
+    }
 
+    @Value.Immutable
+    public interface Library {
+        Multimap<Author, Book> books();
     }
 
     @Value.Immutable
