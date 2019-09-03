@@ -31,4 +31,6 @@ public interface JdbiCache<K, V> {
     default V get(K key, StatementContext ctx) {
         return get(key, ctx.getConfig());
     }
+
+    void clear(ConfigRegistry config);
 }

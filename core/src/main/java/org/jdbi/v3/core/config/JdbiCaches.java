@@ -62,6 +62,11 @@ public final class JdbiCaches implements JdbiConfig<JdbiCaches> {
                         .computeIfAbsent(this, x -> new ConcurrentHashMap<>())
                         .computeIfAbsent(keyNormalizer.apply(key), x -> computer.apply(config, key));
             }
+
+            @Override
+            public void clear(ConfigRegistry config) {
+                config.get(JdbiCaches.class).caches.computeIfPresent(this, (dis, cache) -> new ConcurrentHashMap<>());
+            }
         };
     }
 }
