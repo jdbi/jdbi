@@ -7,6 +7,8 @@
   - KotlinSqlObjectPlugin will install forgotten SqlObjectPlugin for you
   - ClasspathSqlLocator allows disabling comment stripping and deprecate static API
   - KotlinMapper respects `@PropagateNull`
+  - Freemarker allows customizing Configuration
+  - FreemarkerSqlLocator should now be created via FreemarkerConfig so it shares config
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`
