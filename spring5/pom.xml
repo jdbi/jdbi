@@ -26,6 +26,7 @@
     <url>http://jdbi.org/</url>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip> <!-- No main jar.  (yet?) -->
         <dep.spring.version>5.1.8.RELEASE</dep.spring.version>
         <moduleName>org.jdbi.v3.spring5</moduleName>
     </properties>
