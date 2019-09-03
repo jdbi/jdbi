@@ -6,6 +6,7 @@
   - installPlugin skips duplicate JdbiPlugins (according to Object.equals)
   - KotlinSqlObjectPlugin will install forgotten SqlObjectPlugin for you
   - ClasspathSqlLocator allows disabling comment stripping and deprecate static API
+  - KotlinMapper respects `@PropagateNull`
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`
