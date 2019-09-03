@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JoinMapperTest {
+public class JoinCollectorTest {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
@@ -48,24 +48,25 @@ public class JoinMapperTest {
     }
 
     private Author addAuthor(int authorId, String authorName) {
-        Author a = author(authorId, authorName);
-        authors.add(a);
+        Author au = author(authorId, authorName);
+        authors.add(au);
         h.createUpdate("insert into author (authorId, name) values (:authorId, :name)")
-                .bindPojo(a)
+                .bindPojo(au)
                 .execute();
-        return a;
+        return au;
     }
 
     private Book addBook(String authorName, int bookId, String bookName) {
-        Book b = book(bookId, bookName, authors.stream()
-                    .filter(a -> a.name().equals(authorName))
+        Book bk = book(bookId, bookName,
+                authors.stream()
+                    .filter(bookAuthor -> bookAuthor.name().equals(authorName))
                     .findAny()
                     .orElseThrow(AssertionError::new));
-        books.add(b);
+        books.add(bk);
         h.createUpdate("insert into book (bookId, name, authorId) values(:bookId, :name, :authorId)")
-                .bindPojo(b)
+                .bindPojo(bk)
                 .execute();
-        return b;
+        return bk;
     }
 
     @Test
