@@ -18,6 +18,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
@@ -26,6 +27,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.toSet;
@@ -43,6 +45,7 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     public Qualifiers() {
         resolvers.add(Qualifiers::getQualifierAnnotations);
+        resolvers.add(Qualifiers::inspectQualifiedCarrier);
     }
 
     private Qualifiers(Qualifiers other) {
@@ -106,6 +109,16 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static Set<Annotation> getQualifierAnnotations(AnnotatedElement element) {
         return Arrays.stream(element.getAnnotations())
             .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
+            .collect(toSet());
+    }
+
+    private static Set<Annotation> inspectQualifiedCarrier(AnnotatedElement element) {
+        return Arrays.stream(element.getAnnotations())
+            .filter(anno -> anno instanceof Qualified)
+            .map(Qualified.class::cast)
+            .map(Qualified::value)
+            .flatMap(Arrays::stream)
+            .map(AnnotationFactory::create)
             .collect(toSet());
     }
 }

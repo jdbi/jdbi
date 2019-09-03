@@ -15,6 +15,9 @@
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`
+  - `@Qualified` is a qualifier-carrier that allows you to assign any annotation
+    without its own `@Qualifier` (such as `@javax.annotation.Nonnull`)
+    as a qualifier where you couldn't before (e.g. bean mapping, SqlObject, ...)
 - Bug Fixes
   - onDemand invocations @CreateSqlObject create new on-demand SqlObjects
   - onDemand SqlObject.withHandle / Transactional.inTransaction are now safe to call even outside an on-demand context

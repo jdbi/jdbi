@@ -2603,6 +2603,47 @@ and setter parameters.
 - `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
 - `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
 
+==== Custom qualifiers
+
+There are always 2 parties involved in using qualifiers:
+the target (method, parameter, etc) and the handler (`ArgumentFactory`, etc). Generally, both need to be _qualified_ identically to interact with each other.
+
+In order to qualify either a target (in addition to `QualifiedType` mentioned earlier) or handler, there are two options:
+
+- create a custom annotation, meta-annotated with link:{jdbidocs}/core/qualifier/Qualifier.html[@Qualifier] (see any of our discussed qualifiers)
+- use an existing annotation (e.g. from a library) and thumb-tack it on using link:{jdbidocs}/core/qualifier/Qualified.html[@Qualified]
+
+==== Qualified handlers
+
+Qualified targets can be handled by two types of handler implementations:
+
+- classic handlers (e.g. `ArgumentFactory`) that happen to be qualified themselves
+- or the `Qualified*` counterpart to these handlers (e.g. `QualifiedArgumentFactory`)
+
+The former will be matched to targets with the exact same type and qualifiers by Jdbi
+through class inspection, and is otherwise oblivious to qualifiers.
+
+The latter is treated as a _wildcard_ in terms of qualifiers,
+will receive _any_ target along with its qualifier data, and must use its own logic
+to decide to interact with a given value.
+
+Consider this transparent `@javax.annotation.NonNull` enforcer example:
+
+[source,java]
+----
+class NonnullColumnMapperFactory implements QualifiedColumnMapperFactory {
+    @Override
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
+        if (!type.hasQualifier(Nonnull.class)) {
+            return Optional.empty();
+        }
+
+        return config.get(ColumnMappers.class)
+            .findFor(type.remove(Nonnull.class))
+            .map(actualMapper -> (r, i, ctx) -> Objects.requireNonNull(actualMapper.map(r, i, ctx), "type annotated with non-null qualifier got a null value"));
+    }
+}
+----
 
 == SQL Objects
 
@@ -3756,7 +3797,7 @@ dao.useTransaction(txn -> {
 });
 ----
 
-Interface `default` methods, and mix-ins such as 
+Interface `default` methods, and mix-ins such as
 link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^]
 and
 link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^],
