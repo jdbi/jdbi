@@ -51,4 +51,36 @@ public class TestQualifiedType {
             .isNotEqualTo(QualifiedType.of(String.class).with(foo(1)))
             .isNotEqualTo(QualifiedType.of(String.class).with(bar("1")));
     }
+
+    @Test
+    public void testHas() {
+        QualifiedType nvarcharString = QualifiedType.of(String.class).with(NVarchar.class);
+
+        assertThat(nvarcharString.hasQualifier(NVarchar.class)).isTrue();
+        assertThat(nvarcharString.hasQualifier(Reversed.class)).isFalse();
+    }
+
+    @Test
+    public void testAdd() {
+        QualifiedType string = QualifiedType.of(String.class);
+
+        assertThat(string.hasQualifier(Reversed.class)).isFalse();
+
+        QualifiedType reversedString = string.add(Reversed.class);
+
+        assertThat(string.hasQualifier(Reversed.class)).isFalse();
+        assertThat(reversedString.hasQualifier(Reversed.class)).isTrue();
+    }
+
+    @Test
+    public void testRemove() {
+        QualifiedType<String> reversedString = QualifiedType.of(String.class).with(Reversed.class);
+
+        assertThat(reversedString.hasQualifier(Reversed.class)).isTrue();
+
+        QualifiedType string = reversedString.remove(Reversed.class);
+
+        assertThat(reversedString.hasQualifier(Reversed.class)).isTrue();
+        assertThat(string.hasQualifier(Reversed.class)).isFalse();
+    }
 }

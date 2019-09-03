@@ -16,6 +16,7 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -121,6 +122,31 @@ public final class QualifiedType<T> {
             .map(AnnotationFactory::create)
             .collect(toSet());
         return new QualifiedType<>(type, annotations);
+    }
+
+    /**
+     * @return a QualifiedType that has the same type and qualifiers as this instance, <b>except</b>> the given qualifier.
+     *
+     * @param unwanted the qualifier class to remove.
+     */
+    public QualifiedType<T> remove(Class<? extends Annotation> unwanted) {
+        Set<Annotation> filtered = qualifiers.stream()
+            .filter(qual -> !unwanted.isInstance(qual))
+            .collect(toSet());
+
+        return new QualifiedType<>(type, filtered);
+    }
+
+    /**
+     * @return a QualifiedType that has the same type and qualifiers as this instance, <b>plus</b>> the given qualifier.
+     *
+     * @param additional the qualifier class to add.
+     */
+    public QualifiedType<T> add(Class<? extends Annotation> additional) {
+        Set<Annotation> combined = new HashSet<>(qualifiers);
+        combined.add(AnnotationFactory.create(additional));
+
+        return new QualifiedType<>(type, combined);
     }
 
     /**
