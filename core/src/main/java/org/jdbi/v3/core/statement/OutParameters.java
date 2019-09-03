@@ -14,16 +14,24 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jdbi.v3.core.result.ResultBearing;
 
 /**
  * Represents output from a Call (CallableStatement).
  * @see Call
  */
 public class OutParameters {
+    private final StatementContext ctx;
     private final Map<Object, Object> map = new HashMap<>();
+
+    OutParameters(StatementContext ctx) {
+        this.ctx = ctx;
+    }
 
     /**
      * Type-casting convenience method which obtains an object from the map, the
@@ -211,6 +219,14 @@ public class OutParameters {
 
     public Float getFloat(int pos) {
         return getNumber(pos).floatValue();
+    }
+
+    public ResultBearing getRowSet(String name) {
+        return ResultBearing.of(() -> getObject(name, ResultSet.class), ctx);
+    }
+
+    public ResultBearing getRowSet(int pos) {
+        return ResultBearing.of(() -> getObject(pos, ResultSet.class), ctx);
     }
 
     private Number getNumber(String name) {

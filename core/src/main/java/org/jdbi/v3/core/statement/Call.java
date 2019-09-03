@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
@@ -34,7 +36,7 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a positional output parameter
+     * Register a positional output parameter.
      * @param position the parameter position (zero-based)
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @return self
@@ -44,7 +46,7 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a positional output parameter
+     * Register a positional output parameter.
      * @param position the parameter position (zero-based)
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
@@ -56,7 +58,7 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a named output parameter
+     * Register a named output parameter.
      * @param name the parameter name
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @return self
@@ -66,7 +68,7 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a named output parameter
+     * Register a named output parameter.
      * @param name the parameter name
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
@@ -78,13 +80,32 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Invoke the callable statement
+     * Invoke the callable statement.  Note that the statement will be {@link #close()}d,
+     * so cursor-typed values may not work.
      * @return the output parameters resulting from the invocation.
      */
     public OutParameters invoke() {
+        return invoke(Function.identity());
+    }
+
+    /**
+     * Invoke the callable statement and process its {@link OutParameters} results.
+     */
+    public void invoke(Consumer<OutParameters> resultConsumer) {
+        invoke((Function<OutParameters, Void>) r -> {
+            resultConsumer.accept(r);
+            return null;
+        });
+    }
+
+    /**
+     * Invoke the callable statement and process its {@link OutParameters} results,
+     * returning a computed value of type {@code T}.
+     */
+    public <T> T invoke(Function<OutParameters, T> resultComputer) {
         try {
-            internalExecute();
-            OutParameters out = new OutParameters();
+            this.internalExecute();
+            OutParameters out = new OutParameters(getContext());
             for (OutParamArgument param : params) {
                 Object obj = param.map((CallableStatement) stmt);
 
@@ -96,7 +117,7 @@ public class Call extends SqlStatement<Call> {
                     out.getMap().put(param.name, obj);
                 }
             }
-            return out;
+            return resultComputer.apply(out);
         } finally {
             close();
         }

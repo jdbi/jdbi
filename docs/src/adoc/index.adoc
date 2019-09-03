@@ -2418,6 +2418,12 @@ Now we can extract the result(s) from `OutParameters`:
 include::{exampledir}/CallTest.java[tags=getOutParameters]
 ----
 
+It is possible to return open cursors as a result-like object by declaring it
+as `Types.REF_CURSOR` and then inspecting it via `OutParameters.getRowSet()`.
+Usually this must be done in a transaction, and the results must be consumed
+before closing the statement by processing it using the `Call.invoke(Consumer)`
+or `Call.invoke(Function)` callback style.
+
 [WARNING]
 Due to design constraints within JDBC, the parameter data types available
 through `OutParameters` is limited to those types supported directly by JDBC.
@@ -3487,6 +3493,10 @@ OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
 long orderId = outParams.getLong("orderId");
 double orderTotal = outParams.getDouble("orderTotal");
 ----
+
+By passing a `Consumer<OutParameters>` or a `Function<OutParameters, T>`,
+you may process the result before the statement is closed.  This is useful
+to process cursor-typed results.
 
 ==== @SqlScript
 
