@@ -27,7 +27,8 @@
 
     <properties>
         <dep.spring.version>5.1.8.RELEASE</dep.spring.version>
-        <maven.deploy.skip>true</maven.deploy.skip> <!-- No main jar.  (yet?) -->
+        <!-- No main jar.  (yet?) -->
+        <maven.deploy.skip>true</maven.deploy.skip>
         <moduleName>org.jdbi.v3.spring5</moduleName>
     </properties>
 
