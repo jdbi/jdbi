@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.statement.internal;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
@@ -26,9 +27,9 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     private final ResultReturner magic;
 
-    public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
-        super(sqlObjectType, method);
-        this.magic = ResultReturner.forMethod(sqlObjectType, method);
+    public SqlQueryHandler(ConfigRegistry config, Class<?> sqlObjectType, Method method) {
+        super(config, sqlObjectType, method);
+        this.magic = ResultReturner.forMethod(config, sqlObjectType, method);
     }
 
     @Override

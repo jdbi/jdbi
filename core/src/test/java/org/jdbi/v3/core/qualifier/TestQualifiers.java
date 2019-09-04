@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableSet;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
@@ -68,20 +69,15 @@ public class TestQualifiers {
 
     @Test
     public void singleQualified() throws NoSuchMethodException {
-        Set<Annotation> annos = qualifiers.findFor(WithQualified.class.getMethod("nonNull"));
-
-        assertThat(annos)
-            .extracting(Annotation::annotationType)
-            .containsExactly((Class) Nonnull.class);
+        assertThat(qualifiers.findFor(WithQualified.class.getMethod("nonNull")))
+            .hasOnlyOneElementSatisfying(Nonnull.class::equals);
     }
 
     @Test
     public void multipleQualified() throws NoSuchMethodException {
-        Set<Annotation> annos = qualifiers.findFor(WithQualified.class.getMethod("both"));
-
-        assertThat(annos)
-            .extracting(Annotation::annotationType)
-            .containsExactlyInAnyOrder((Class) Nonnull.class, (Class) Nullable.class);
+        assertThat(qualifiers.findFor(WithQualified.class.getMethod("both")))
+            .<Class<? extends Annotation>>extracting(Annotation::annotationType)
+            .containsExactlyInAnyOrderElementsOf(ImmutableSet.of(Nonnull.class, Nullable.class));
     }
 
     @Test
@@ -94,7 +90,9 @@ public class TestQualifiers {
         qualifiers.addResolver(element -> singleton(AnnotationFactory.create(Nonnull.class)));
 
         annos = qualifiers.findFor(method);
-        assertThat(annos).extracting(Annotation::annotationType).containsExactly((Class) Nonnull.class);
+        assertThat(annos)
+            .extracting(Annotation::annotationType)
+            .hasOnlyOneElementSatisfying(Nonnull.class::equals);
     }
 
     public static class WithQualifiers {

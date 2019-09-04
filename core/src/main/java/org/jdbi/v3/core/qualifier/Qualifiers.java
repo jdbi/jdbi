@@ -50,7 +50,6 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     private Qualifiers(Qualifiers other) {
         this.resolvers.addAll(other.resolvers);
-        this.registry = null;
     }
 
     @Override
@@ -64,8 +63,8 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
      * which searches for annotations themselves annotated with {@link Qualifier}.
      *
      * Resolvers should return static results that don't vary over time; therefore their results are cached.
-     * Adding a resolver will clear the local qualifier resolution cache, but {@code SqlObjects} and other features
-     * may have their own caching mechanisms. Add any resolvers you may need <strong>before</strong> using any qualifiers-related features!
+     * Add any resolvers you may need <em>before</em> using any types that may be qualified - cached qualifiers
+     * are not guaranteed to update!
      *
      * @param resolver the resolver to be included in qualifier resolution
      * @return this
@@ -83,9 +82,7 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
      * @return the set of qualifying annotations on the given elements.
      */
     public Set<Annotation> findFor(AnnotatedElement... elements) {
-        return registry == null
-            ? resolveQualifiers(elements)
-            : QUALIFIER_CACHE.get(elements, registry);
+        return QUALIFIER_CACHE.get(elements, registry);
     }
 
     private Set<Annotation> resolveQualifiers(AnnotatedElement... elements) {

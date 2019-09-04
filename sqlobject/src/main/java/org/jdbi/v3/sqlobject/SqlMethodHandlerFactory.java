@@ -20,11 +20,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.util.stream.Collectors.toList;
 
-class SqlMethodHandlerFactory implements HandlerFactory {
+class SqlMethodHandlerFactory implements HandlerFactory, ConfigRegistry.Injected {
+    private ConfigRegistry registry;
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
+
     @Override
     public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
         List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
@@ -65,6 +73,15 @@ class SqlMethodHandlerFactory implements HandlerFactory {
 
     @SuppressWarnings("PMD.PreserveStackTrace")
     private Handler buildHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
+        try {
+            return handlerType.getConstructor(ConfigRegistry.class, Class.class, Method.class)
+                    .newInstance(registry, sqlObjectType, method);
+        } catch (InvocationTargetException e) {
+            throw Sneaky.throwAnyway(e.getCause());
+        } catch (ReflectiveOperationException ignored) {
+            // fall-through
+        }
+
         try {
             return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
         } catch (InvocationTargetException e) {

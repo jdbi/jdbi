@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -31,8 +32,8 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;
 
-    public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
-        super(sqlObjectType, method);
+    public SqlUpdateHandler(ConfigRegistry config, Class<?> sqlObjectType, Method method) {
+        super(config, sqlObjectType, method);
 
         if (method.isAnnotationPresent(UseRowReducer.class)) {
             throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
@@ -41,11 +42,11 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
         QualifiedType<?> returnType = QualifiedType.of(
-            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-            .withAnnotations(new Qualifiers().findFor(method));
+                GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+            .withAnnotations(config.get(Qualifiers.class).findFor(method));
 
         if (isGetGeneratedKeys) {
-            ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
+            ResultReturner magic = ResultReturner.forMethod(config, sqlObjectType, method);
 
             String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
 

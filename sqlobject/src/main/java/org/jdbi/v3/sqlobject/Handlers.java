@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
@@ -31,6 +32,7 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
  */
 public class Handlers implements JdbiConfig<Handlers> {
     private final List<HandlerFactory> factories = new CopyOnWriteArrayList<>();
+    private ConfigRegistry registry;
 
     public Handlers() {
         register(new DefaultMethodHandlerFactory());
@@ -43,12 +45,21 @@ public class Handlers implements JdbiConfig<Handlers> {
         factories.addAll(that.factories);
     }
 
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+        factories.forEach(hf -> hf.setRegistry(registry));
+    }
+
     /**
      * Registers the given handler factory with the registry.
      * @param factory the factory to register
      * @return this
      */
     public Handlers register(HandlerFactory factory) {
+        if (registry != null) {
+            factory.setRegistry(registry);
+        }
         factories.add(0, factory);
         return this;
     }

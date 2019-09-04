@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.statement.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -27,8 +28,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.RowReducer;
 import org.jdbi.v3.core.statement.SqlStatement;
@@ -50,13 +53,15 @@ import static java.util.stream.Stream.concat;
  * Base handler for annotations' implementation classes.
  */
 abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler {
+    private final ConfigRegistry config;
     private final List<BoundCustomizer> statementCustomizers;
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class<?> type, Method method) {
+    CustomizingStatementHandler(ConfigRegistry config, Class<?> type, Method method) {
         this.sqlObjectType = type;
         this.method = method;
+        this.config = config;
 
         // Include annotations on the interface's supertypes
         final Stream<BoundCustomizer> typeCustomizers = concat(Stream.of(type.getInterfaces()), Stream.of(type))
@@ -131,9 +136,17 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         return stmt.getConfig(SqlObjects.class).getDefaultParameterCustomizerFactory();
     }
 
-    private static SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {
+    @SuppressWarnings("PMD.PreserveStackTrace")
+    private SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {
         SqlStatementCustomizingAnnotation sca = annotation.annotationType()
                 .getAnnotation(SqlStatementCustomizingAnnotation.class);
+        try {
+            return sca.value().getConstructor(ConfigRegistry.class).newInstance(config);
+        } catch (InvocationTargetException e) {
+            throw Sneaky.throwAnyway(e.getCause());
+        } catch (ReflectiveOperationException ignored) {
+            // fall through
+        }
         try {
             return sca.value().getConstructor().newInstance();
         } catch (ReflectiveOperationException e) {

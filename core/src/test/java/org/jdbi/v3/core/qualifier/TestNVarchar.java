@@ -21,7 +21,6 @@ import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +37,7 @@ public class TestNVarchar {
     private static final QualifiedType<String> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
     @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void setUp() {

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -43,11 +44,11 @@ abstract class ResultReturner {
      * @see ResultReturner#forMethod(Class, Method) if the return type is not void
      * @return
      */
-    static ResultReturner forOptionalReturn(Class<?> extensionType, Method method) {
+    static ResultReturner forOptionalReturn(ConfigRegistry config, Class<?> extensionType, Method method) {
         if (method.getReturnType() == void.class) {
             return new VoidReturner();
         }
-        return forMethod(extensionType, method);
+        return forMethod(config, extensionType, method);
     }
 
     /**
@@ -57,12 +58,12 @@ abstract class ResultReturner {
      * @param method the method whose return type chooses the ResultReturner
      * @return an instance that takes a ResultIterable and constructs the return value
      */
-    static ResultReturner forMethod(Class<?> extensionType, Method method) {
+    static ResultReturner forMethod(ConfigRegistry config, Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(new Qualifiers().findFor(method));
+        QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(config.get(Qualifiers.class).findFor(method));
         Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
-            return findConsumer(method)
+            return findConsumer(config, method)
                 .orElseThrow(() -> new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
                     method.getDeclaringClass().getName(),
@@ -87,11 +88,11 @@ abstract class ResultReturner {
      * @param method the method called
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
-    static Optional<ResultReturner> findConsumer(Method method) {
+    static Optional<ResultReturner> findConsumer(ConfigRegistry config, Method method) {
         final Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             if (paramTypes[i] == Consumer.class) {
-                return Optional.of(new ConsumerResultReturner(method, i));
+                return Optional.of(new ConsumerResultReturner(config, method, i));
             }
         }
         return Optional.empty();
@@ -290,7 +291,7 @@ abstract class ResultReturner {
         private final int consumerIndex;
         private final QualifiedType<?> elementType;
 
-        ConsumerResultReturner(Method method, int consumerIndex) {
+        ConsumerResultReturner(ConfigRegistry config, Method method, int consumerIndex) {
             this.consumerIndex = consumerIndex;
             Type parameterType = method.getGenericParameterTypes()[consumerIndex];
             this.elementType = QualifiedType.of(
@@ -298,7 +299,7 @@ abstract class ResultReturner {
                     .orElseThrow(() -> new IllegalStateException(
                         "Cannot reflect Consumer<T> element type T in method consumer parameter "
                             + parameterType)))
-                .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
+                .withAnnotations(config.get(Qualifiers.class).findFor(method.getParameters()[consumerIndex]));
         }
 
         @Override

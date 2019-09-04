@@ -70,11 +70,11 @@ public class BeanPropertiesFactory {
         return read == null || read.getDeclaringClass() != Object.class;
     }
 
-    private static Map<String, BeanPojoProperty<?>> getProperties0(Type t) {
+    private static Map<String, BeanPojoProperty<?>> getProperties0(ConfigRegistry config, Type t) {
         try {
             return Arrays.stream(Introspector.getBeanInfo(GenericTypes.getErasedType(t)).getPropertyDescriptors())
                     .filter(BeanPropertiesFactory::shouldSeeProperty)
-                    .map(BeanPojoProperty::new)
+                    .map(p -> new BeanPojoProperty<>(config, p))
                     .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
         } catch (IntrospectionException e) {
             throw new IllegalArgumentException("Failed to inspect bean " + t, e);
@@ -134,8 +134,10 @@ public class BeanPropertiesFactory {
 
         static class BeanPojoProperty<T> implements PojoProperty<T> {
             final PropertyDescriptor descriptor;
+            final ConfigRegistry config;
 
-            BeanPojoProperty(PropertyDescriptor property) {
+            BeanPojoProperty(ConfigRegistry config, PropertyDescriptor property) {
+                this.config = config;
                 this.descriptor = property;
             }
 
@@ -155,7 +157,7 @@ public class BeanPropertiesFactory {
                         .map(Method::getGenericReturnType)
                         .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]))
                     .withAnnotations(
-                        new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
+                        config.get(Qualifiers.class).findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
 
             @Override

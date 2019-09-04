@@ -22,7 +22,7 @@ package org.jdbi.v3.core.config;
  *
  * @param <This> A "This" type. Should always be the configuration class.
  */
-public interface JdbiConfig<This extends JdbiConfig<This>> {
+public interface JdbiConfig<This extends JdbiConfig<This>> extends ConfigRegistry.Injected {
     /**
      * Returns a copy of this configuration object.
      * Changes to the copy should not modify the original, and vice-versa.
@@ -30,12 +30,4 @@ public interface JdbiConfig<This extends JdbiConfig<This>> {
      * @return a copy of this configuration object.
      */
     This createCopy();
-
-    /**
-     * The registry will inject itself into the configuration object.
-     * This can be useful if you need to look up dependencies.
-     * You will get a new registry after being copied.
-     * @param registry the registry that owns this configuration object
-     */
-    default void setRegistry(ConfigRegistry registry) {}
 }

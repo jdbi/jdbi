@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
@@ -28,8 +29,8 @@ import org.jdbi.v3.core.statement.OutParameters;
 public class SqlCallHandler extends CustomizingStatementHandler<Call> {
     private final BiFunction<OutParameters, Call, ?> returner;
 
-    public SqlCallHandler(Class<?> sqlObjectType, Method method) {
-        super(sqlObjectType, method);
+    public SqlCallHandler(ConfigRegistry config, Class<?> sqlObjectType, Method method) {
+        super(config, sqlObjectType, method);
         returner = createReturner(sqlObjectType, method);
     }
 

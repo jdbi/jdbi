@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.jpa.EntityMemberAccessException;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import static java.util.Objects.requireNonNull;
 
 public class JpaMember {
-    private static final Qualifiers QUALIFIERS = new Qualifiers();
+    private static final Qualifiers QUALIFIERS = new ConfigRegistry().get(Qualifiers.class);
     private static final Logger LOGGER = LoggerFactory.getLogger(JpaMember.class);
 
     private final Class<?> clazz;

@@ -33,11 +33,11 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
     private final QualifiedType<?> maps;
     private final ColumnMapper<?> mapper;
 
-    InferredColumnMapperFactory(ColumnMapper<?> mapper) {
+    InferredColumnMapperFactory(ConfigRegistry config, ColumnMapper<?> mapper) {
         this.maps = QualifiedType.of(
             findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")))
-            .withAnnotations(new Qualifiers().findFor(mapper.getClass()));
+            .withAnnotations(config.get(Qualifiers.class).findFor(mapper.getClass()));
         this.mapper = mapper;
     }
 

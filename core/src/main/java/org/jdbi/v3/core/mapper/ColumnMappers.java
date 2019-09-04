@@ -74,7 +74,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      */
     public ColumnMappers register(ColumnMapper<?> mapper) {
-        return this.register(new InferredColumnMapperFactory(mapper));
+        return this.register(new InferredColumnMapperFactory(registry, mapper));
     }
 
     /**

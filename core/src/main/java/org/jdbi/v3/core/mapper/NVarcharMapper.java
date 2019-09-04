@@ -13,19 +13,23 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Optional;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.NVarchar;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 
 /**
  * Column mapper for Java {@code @NVarchar String} qualified type.
  */
-@NVarchar
-class NVarcharMapper implements ColumnMapper<String> {
+class NVarcharMapper implements QualifiedColumnMapperFactory {
+    private static final QualifiedType<String> NSTRING =
+            QualifiedType.of(String.class).with(NVarchar.class);
+
     @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getNString(columnNumber);
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
+        return NSTRING.equals(type)
+                ? Optional.of((rs, c, ctx) -> rs.getNString(c))
+                : Optional.empty();
     }
 }

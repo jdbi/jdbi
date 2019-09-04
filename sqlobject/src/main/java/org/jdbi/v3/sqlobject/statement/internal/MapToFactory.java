@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultBearing;
@@ -25,6 +26,12 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 public class MapToFactory implements SqlStatementCustomizerFactory {
+    private final ConfigRegistry config;
+
+    public MapToFactory(ConfigRegistry config) {
+        this.config = config;
+    }
+
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
@@ -45,7 +52,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                 throw new UnsupportedOperationException("@MapTo must take a GenericType, QualifiedType, or Type, but got a " + arg.getClass().getName());
             }
 
-            ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
+            ResultReturner returner = ResultReturner.forMethod(config, sqlObjectType, method);
             stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
                     () -> returner.mappedResult(((ResultBearing) stmt).mapTo(mapTo), stmt.getContext()));
         };

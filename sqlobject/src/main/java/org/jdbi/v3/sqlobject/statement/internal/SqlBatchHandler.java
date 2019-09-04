@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
@@ -49,8 +50,8 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
     private final ResultReturner magic;
 
-    public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
-        super(sqlObjectType, method);
+    public SqlBatchHandler(ConfigRegistry config, Class<?> sqlObjectType, Method method) {
+        super(config, sqlObjectType, method);
 
         if (method.isAnnotationPresent(UseRowReducer.class)) {
             throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
@@ -68,10 +69,10 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             batchIntermediate = method.getReturnType().equals(boolean[].class)
                     ? mapToBoolean(modCounts)
                     : modCounts;
-            magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
+            magic = ResultReturner.forOptionalReturn(config, sqlObjectType, method);
         } else {
             String[] columnNames = getGeneratedKeys.value();
-            magic = ResultReturner.forMethod(sqlObjectType, method);
+            magic = ResultReturner.forMethod(config, sqlObjectType, method);
 
             if (method.isAnnotationPresent(UseRowMapper.class)) {
                 RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
