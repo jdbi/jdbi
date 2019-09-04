@@ -64,17 +64,15 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
      * which searches for annotations themselves annotated with {@link Qualifier}.
      *
      * Resolvers should return static results that don't vary over time; therefore their results are cached.
-     * Adding a resolver will clear the local qualifier resolution cache, but is currently not guaranteed to have any effect on {@code SqlObjects}.
-     * Add any resolvers you may need <em>before</em> using any qualifiers-related features!
+     * Adding a resolver will clear the local qualifier resolution cache, but {@code SqlObjects} and other features
+     * may have their own caching mechanisms. Add any resolvers you may need <strong>before</strong> using any qualifiers-related features!
      *
      * @param resolver the resolver to be included in qualifier resolution
      * @return this
      */
     public Qualifiers addResolver(Function<AnnotatedElement, Set<Annotation>> resolver) {
         resolvers.add(resolver);
-        if (registry != null) {
-            QUALIFIER_CACHE.clear(registry);
-        }
+        QUALIFIER_CACHE.clear(registry);
         return this;
     }
 
@@ -114,7 +112,7 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     private static Set<Annotation> inspectQualifiedCarrier(AnnotatedElement element) {
         return Arrays.stream(element.getAnnotations())
-            .filter(anno -> anno instanceof Qualified)
+            .filter(Qualified.class::isInstance)
             .map(Qualified.class::cast)
             .map(Qualified::value)
             .flatMap(Arrays::stream)

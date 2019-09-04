@@ -27,10 +27,12 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * This annotation is recognized by Jdbi as a "container" of qualifying annotations. Use this when you
- * want to use an annotation as a qualifier on SQL Objects but are unable to add @{@link Qualifier} to the annotation's source.
+ * Qualifies a target with the given annotation. Use this when you want to use an annotation as a qualifier
+ * but are unable to add @{@link Qualifier} to the annotation's source.
  *
  * An example use case is putting @{@link javax.annotation.Nonnull} as a qualifier on an SQL Object's fields/methods.
+ *
+ * @see Qualifier
  */
 @Beta
 @Retention(RUNTIME)

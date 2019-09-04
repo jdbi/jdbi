@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Foo;
@@ -37,7 +38,7 @@ public class TestQualifiers {
 
     @Before
     public void before() {
-        qualifiers = new Qualifiers();
+        qualifiers = new ConfigRegistry().get(Qualifiers.class);
     }
 
     @Test

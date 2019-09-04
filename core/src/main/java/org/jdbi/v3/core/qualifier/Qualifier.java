@@ -24,6 +24,7 @@ import org.jdbi.v3.meta.Beta;
  * Annotation used to identify type qualifying annotations. Use this to annotate an annotation.
  *
  * @see NVarchar as an example
+ * @see Qualified for annotations you cannot add this annotation to
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)

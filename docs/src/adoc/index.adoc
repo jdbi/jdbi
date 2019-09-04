@@ -2605,10 +2605,16 @@ and setter parameters.
 
 ==== Custom qualifiers
 
-There are always 2 parties involved in using qualifiers:
-the target (method, parameter, etc) and the handler (`ArgumentFactory`, etc). Generally, both need to be _qualified_ identically to interact with each other.
+Qualifiers can be applied to a few different kinds of _types_:
 
-In order to qualify either a target (in addition to `QualifiedType` mentioned earlier) or handler, there are two options:
+* on a method: qualifies return type
+* on a parameter: qualifies parameter type
+* on a type: qualifies the type the class operates on, usually;
+    ** on an ArgumentFactory, qualifies input argument type
+    ** on a ColumnMapper<T>, qualifies T
+    ** on a ColumnMapperFactory, qualifies the mapped type
+
+In order to qualify either a target (in addition to `QualifiedType` mentioned earlier) or executable "handler", there are two options:
 
 - create a custom annotation, meta-annotated with link:{jdbidocs}/core/qualifier/Qualifier.html[@Qualifier] (see any of our discussed qualifiers)
 - use an existing annotation (e.g. from a library) and thumb-tack it on using link:{jdbidocs}/core/qualifier/Qualified.html[@Qualified]
@@ -2625,7 +2631,7 @@ through class inspection, and is otherwise oblivious to qualifiers.
 
 The latter is treated as a _wildcard_ in terms of qualifiers,
 will receive _any_ target along with its qualifier data, and must use its own logic
-to decide to interact with a given value.
+to decide if and how to interact with a given value.
 
 Consider this transparent `@javax.annotation.NonNull` enforcer example:
 
