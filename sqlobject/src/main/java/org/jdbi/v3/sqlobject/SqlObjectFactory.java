@@ -131,9 +131,8 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
     }
 
     private static Map<Method, Handler> buildMethodHandlers(
-            Class<?> sqlObjectType,
-            Handlers registry,
-            HandlerDecorators decorators) {
+            ConfigRegistry registry,
+            Class<?> sqlObjectType) {
         final Map<Method, Handler> handlers = new HashMap<>();
 
         handlers.putAll(handlerEntry((t, a, h) ->
@@ -158,8 +157,8 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
             if (Modifier.isStatic(method.getModifiers()) || !seen.add(method)) {
                 continue;
             }
-            handlers.put(method, decorators.applyDecorators(
-                        registry.findFor(sqlObjectType, method)
+            handlers.put(method, registry.get(HandlerDecorators.class).applyDecorators(
+                        registry.get(Handlers.class).findFor(sqlObjectType, method)
                             .orElseGet(() -> {
                                 Supplier<IllegalStateException> x = () -> new IllegalStateException(String.format(
                                         "Method %s.%s must have an implementation or be annotated with a SQL method annotation.",
@@ -220,11 +219,9 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
         }
     }
 
-    static SqlObjectInitData initDataFor(ConfigRegistry handlersConfig, Class<?> sqlObjectType) {
-        Map<Method, Handler> methodHandlers = buildMethodHandlers(
-                sqlObjectType,
-                handlersConfig.get(Handlers.class),
-                handlersConfig.get(HandlerDecorators.class));
+    static SqlObjectInitData initDataFor(ConfigRegistry instanceConfig, Class<?> sqlObjectType) {
+        // this needs method config from below
+        Map<Method, Handler> methodHandlers = buildMethodHandlers(instanceConfig, sqlObjectType);
 
         UnaryOperator<ConfigRegistry> instanceConfigurer = buildConfigurers(
                 Stream.concat(

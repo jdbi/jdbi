@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.config;
 
+import org.jdbi.v3.core.config.internal.Injected;
+
 /**
  * Interface for classes that hold configuration. Implementations of this interface must have a public
  * constructor that takes the {@link ConfigRegistry}.
@@ -22,7 +24,7 @@ package org.jdbi.v3.core.config;
  *
  * @param <This> A "This" type. Should always be the configuration class.
  */
-public interface JdbiConfig<This extends JdbiConfig<This>> extends ConfigRegistry.Injected {
+public interface JdbiConfig<This extends JdbiConfig<This>> extends Injected {
     /**
      * Returns a copy of this configuration object.
      * Changes to the copy should not modify the original, and vice-versa.

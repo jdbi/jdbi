@@ -26,6 +26,8 @@ import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.rule.SqliteDatabaseRule;
+import org.jdbi.v3.sqlobject.config.RegisterQualifier;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +35,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class QualifiedTest {
+public class RegisterQualifierTest {
     private static final QualifiedType<String> NONNULL_STRING = QualifiedType.of(String.class).with(Nonnull.class);
 
     @Rule
@@ -55,19 +57,39 @@ public class QualifiedTest {
     @Test
     public void testWithEnforcerRegistered() {
         jdbi.registerColumnMapper(new NonNullEnforcer());
+        EnforcedDao dao = jdbi.onDemand(EnforcedDao.class);
 
-        assertThatThrownBy(() -> jdbi.useHandle(h -> h.createQuery("select null as foo").mapTo(NONNULL_STRING).one()))
+        assertThatThrownBy(() -> dao.echo(null))
             .isInstanceOf(NonNullEnforcer.IllegalNull.class);
 
-        assertThat((String) jdbi.withHandle(h -> h.createQuery("select 'abc' as foo").mapTo(NONNULL_STRING).one()))
-            .isEqualTo("abc");
+        String abc = "abc";
+        assertThat(dao.echo(abc))
+            .isEqualTo(abc);
+
+        assertThat(jdbi.onDemand(LaxDao.class).echo(null))
+            .isNull();
+    }
+
+    public interface LaxDao {
+        @SqlQuery("select :wat")
+        @Nonnull
+        String echo(String wat);
+    }
+
+    @RegisterQualifier(Nonnull.class)
+    public interface EnforcedDao {
+        @SqlQuery("select :wat")
+        @Nonnull
+        String echo(String wat);
     }
 
     public static class NonNullEnforcer implements QualifiedColumnMapperFactory {
         /**
          * because NPE could be something else
          */
-        private static class IllegalNull extends RuntimeException {}
+        private static class IllegalNull extends RuntimeException {
+            private static final long serialVersionUID = 1L;
+        }
 
         @Override
         public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {

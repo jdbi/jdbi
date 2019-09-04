@@ -77,9 +77,9 @@ abstract class ResultReturner {
         } else if (Iterator.class.equals(returnClass)) {
             return new IteratorReturner(qualifiedReturnType);
         } else if (method.isAnnotationPresent(SingleValue.class)) {
-            return new SingleValueReturner(qualifiedReturnType);
+            return new SingleValueReturner<>(qualifiedReturnType);
         } else {
-            return new CollectedResultReturner(qualifiedReturnType);
+            return new CollectedResultReturner<>(qualifiedReturnType);
         }
     }
 

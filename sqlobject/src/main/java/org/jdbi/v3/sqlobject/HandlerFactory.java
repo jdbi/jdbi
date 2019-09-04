@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.internal.Injected;
 
 /**
  * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
@@ -24,7 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  *
  * @see SqlOperation
  */
-public interface HandlerFactory extends ConfigRegistry.Injected {
+public interface HandlerFactory extends Injected {
     /**
      * Returns a {@link Handler} instance for executing the given SQL Object method.
      *

@@ -77,17 +77,4 @@ public class ConfigRegistry {
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this);
     }
-
-    /**
-     * Mark a Jdbi object which should have a {@code ConfigRegistry} injected before use.
-     */
-    public interface Injected {
-        /**
-         * The registry will inject itself into the configuration object.
-         * This can be useful if you need to look up dependencies.
-         * You will get a new registry after being copied.
-         * @param registry the registry that owns this configuration object
-         */
-        default void setRegistry(ConfigRegistry registry) {}
-    }
 }

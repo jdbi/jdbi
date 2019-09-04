@@ -16,18 +16,15 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.toSet;
@@ -40,16 +37,13 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
         elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
         (registry, elements) -> registry.get(Qualifiers.class).resolveQualifiers(elements));
-    private final Set<Function<AnnotatedElement, Set<Annotation>>> resolvers = new CopyOnWriteArraySet<>();
+    private final Set<Class<? extends Annotation>> registered = new CopyOnWriteArraySet<>();
     private ConfigRegistry registry;
 
-    public Qualifiers() {
-        resolvers.add(Qualifiers::getQualifierAnnotations);
-        resolvers.add(Qualifiers::inspectQualifiedCarrier);
-    }
+    public Qualifiers() {}
 
     private Qualifiers(Qualifiers other) {
-        this.resolvers.addAll(other.resolvers);
+        this.registered.addAll(other.registered);
     }
 
     @Override
@@ -69,8 +63,9 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
      * @param resolver the resolver to be included in qualifier resolution
      * @return this
      */
-    public Qualifiers addResolver(Function<AnnotatedElement, Set<Annotation>> resolver) {
-        resolvers.add(resolver);
+    @SafeVarargs
+    public final Qualifiers registerQualifier(Class<? extends Annotation>... annotations) {
+        registered.addAll(Arrays.asList(annotations));
         QUALIFIER_CACHE.clear(registry);
         return this;
     }
@@ -86,34 +81,16 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     }
 
     private Set<Annotation> resolveQualifiers(AnnotatedElement... elements) {
-        Set<AnnotatedElement> nonNullElements = Arrays.stream(elements)
+        return Arrays.stream(elements)
             .filter(Objects::nonNull)
-            .collect(toSet());
-
-        return resolvers.stream()
-            .flatMap(resolver -> nonNullElements.stream().map(resolver))
-            .flatMap(Collection::stream)
+            .flatMap(elem -> Arrays.stream(elem.getAnnotations()))
+            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class)
+                    || registered.contains(anno.annotationType()))
             .collect(toSet());
     }
 
     @Override
     public Qualifiers createCopy() {
         return new Qualifiers(this);
-    }
-
-    private static Set<Annotation> getQualifierAnnotations(AnnotatedElement element) {
-        return Arrays.stream(element.getAnnotations())
-            .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-            .collect(toSet());
-    }
-
-    private static Set<Annotation> inspectQualifiedCarrier(AnnotatedElement element) {
-        return Arrays.stream(element.getAnnotations())
-            .filter(Qualified.class::isInstance)
-            .map(Qualified.class::cast)
-            .map(Qualified::value)
-            .flatMap(Arrays::stream)
-            .map(AnnotationFactory::create)
-            .collect(toSet());
     }
 }

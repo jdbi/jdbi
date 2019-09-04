@@ -11,18 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.qualifier;
+package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.qualifier.Qualifier;
 import org.jdbi.v3.meta.Beta;
+import org.jdbi.v3.sqlobject.config.internal.RegisterQualifierFactory;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -36,7 +35,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Beta
 @Retention(RUNTIME)
-@Target({FIELD, PARAMETER, METHOD, CONSTRUCTOR, TYPE})
-public @interface Qualified {
+@Target({METHOD, TYPE})
+@ConfiguringAnnotation(RegisterQualifierFactory.class)
+public @interface RegisterQualifier {
     Class<? extends Annotation>[] value();
 }

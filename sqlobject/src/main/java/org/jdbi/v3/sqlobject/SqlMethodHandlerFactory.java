@@ -21,11 +21,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.internal.Injected;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.util.stream.Collectors.toList;
 
-class SqlMethodHandlerFactory implements HandlerFactory, ConfigRegistry.Injected {
+class SqlMethodHandlerFactory implements HandlerFactory, Injected {
     private ConfigRegistry registry;
 
     @Override

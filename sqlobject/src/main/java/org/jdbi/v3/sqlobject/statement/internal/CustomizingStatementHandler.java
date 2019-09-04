@@ -161,8 +161,8 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final StatementType stmt = createStatement(h, locatedSql);
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
         cfg.setArgs(args);
-        configureReturner(stmt, cfg);
         applyCustomizers(stmt, args);
+        configureReturner(stmt, cfg);
         return cfg.getReturner().get();
     }
 

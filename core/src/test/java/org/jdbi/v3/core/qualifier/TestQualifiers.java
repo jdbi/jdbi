@@ -22,13 +22,10 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableSet;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Foo;
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.util.Collections.singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
@@ -69,25 +66,27 @@ public class TestQualifiers {
 
     @Test
     public void singleQualified() throws NoSuchMethodException {
+        qualifiers.registerQualifier(Nonnull.class);
         assertThat(qualifiers.findFor(WithQualified.class.getMethod("nonNull")))
             .hasOnlyOneElementSatisfying(Nonnull.class::equals);
     }
 
     @Test
     public void multipleQualified() throws NoSuchMethodException {
+        qualifiers.registerQualifier(Nonnull.class, Nullable.class);
         assertThat(qualifiers.findFor(WithQualified.class.getMethod("both")))
             .<Class<? extends Annotation>>extracting(Annotation::annotationType)
             .containsExactlyInAnyOrderElementsOf(ImmutableSet.of(Nonnull.class, Nullable.class));
     }
 
     @Test
-    public void addResolver() throws NoSuchMethodException {
-        Method method = WithQualified.class.getMethod("none");
+    public void registerNonnull() throws NoSuchMethodException {
+        Method method = WithQualified.class.getMethod("nonNull");
 
         Set<Annotation> annos = qualifiers.findFor(method);
         assertThat(annos).isEmpty();
 
-        qualifiers.addResolver(element -> singleton(AnnotationFactory.create(Nonnull.class)));
+        qualifiers.registerQualifier(Nonnull.class);
 
         annos = qualifiers.findFor(method);
         assertThat(annos)
@@ -115,12 +114,11 @@ public class TestQualifiers {
     }
 
     public interface WithQualified {
-        void none();
-
-        @Qualified(Nonnull.class)
+        @Nonnull
         void nonNull();
 
-        @Qualified({Nonnull.class, Nullable.class})
+        @Nonnull
+        @Nullable
         void both();
     }
 }
