@@ -209,7 +209,7 @@ final class HandleTest {
             .verifyComplete();
 
         assertThat(connection.isBeginTransactionCalled()).isTrue();
-        assertThat(connection.getSetTransactionIsolationLevelIsolationLevel()).isEqualTo(SERIALIZABLE);
+        assertThat(connection.getTransactionIsolationLevel()).isEqualTo(SERIALIZABLE);
         assertThat(connection.isCommitTransactionCalled()).isTrue();
     }
 
@@ -306,7 +306,7 @@ final class HandleTest {
             .setTransactionIsolationLevel(SERIALIZABLE);
 
         StepVerifier.create(publisher).verifyComplete();
-        assertThat(connection.getSetTransactionIsolationLevelIsolationLevel()).isEqualTo(SERIALIZABLE);
+        assertThat(connection.getTransactionIsolationLevel()).isEqualTo(SERIALIZABLE);
     }
 
     @Test
@@ -355,7 +355,7 @@ final class HandleTest {
             .verifyComplete();
 
         assertThat(connection.isBeginTransactionCalled()).isTrue();
-        assertThat(connection.getSetTransactionIsolationLevelIsolationLevel()).isEqualTo(SERIALIZABLE);
+        assertThat(connection.getTransactionIsolationLevel()).isEqualTo(SERIALIZABLE);
         assertThat(connection.isCommitTransactionCalled()).isTrue();
     }
 
