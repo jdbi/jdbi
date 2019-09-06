@@ -31,7 +31,11 @@ public class JoinCollectorTest {
     public void setup() {
         h = db.getSharedHandle();
         h.getConfig(JdbiImmutables.class)
-            .registerImmutable(Book.class, Author.class);
+                .registerImmutable(Book.class, Author.class);
+        h.registerCollector(
+                JoinCollector.natural(Book.class)
+                        .join(Author.class)
+                        .build(Library.class));
 
         h.execute("create table book (bookId int not null, name varchar not null, authorId int)");
         h.execute("create table author (authorId int not null, name varchar not null)");
@@ -45,6 +49,7 @@ public class JoinCollectorTest {
         cm = addBook("Alice", 2, "Curious Mammals");
         cd = addBook("Bob", 3, "Cooking for Dummies");
         bt = addBook("Carol", 4, "Big Trucks");
+
     }
 
     private Author addAuthor(int authorId, String authorName) {
@@ -79,7 +84,7 @@ public class JoinCollectorTest {
                     .put(a, cm)
                     .put(b, cd)
                     .put(c, bt)
-                    .build());
+                .build());
     }
 
     @Value.Immutable
