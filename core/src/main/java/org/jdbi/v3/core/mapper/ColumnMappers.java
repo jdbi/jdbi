@@ -38,7 +38,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private ConfigRegistry registry;
 
     public ColumnMappers() {
-        // TODO move to BuiltInSupportPlugin
         register(new SqlArrayMapperFactory());
         register(new JavaTimeMapperFactory());
         register(new SqlTimeMapperFactory());
