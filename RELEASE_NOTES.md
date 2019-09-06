@@ -1,3 +1,6 @@
+# 3.10.1
+- SqlArray: Fix binding Postgres double[] / float[]
+
 # 3.10.0
 - New Features
   - Handle.getJdbi gets owning Jdbi instance
