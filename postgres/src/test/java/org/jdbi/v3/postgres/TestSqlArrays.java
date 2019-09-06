@@ -146,6 +146,26 @@ public class TestSqlArrays {
         assertThat(ao.fetchUuidLinkedList()).isNull();
     }
 
+    @Test
+    public void testFloatArray() {
+        final float[] expected = new float[] {1, 2, 3};
+        assertThat(h.createQuery("select :array")
+                .bind("array", expected)
+                .mapTo(float[].class)
+                .one())
+            .isEqualTo(expected);
+    }
+
+    @Test
+    public void testDoubleArray() {
+        final double[] expected = new double[] {1, 2, 3};
+        assertThat(h.createQuery("select :array")
+                .bind("array", expected)
+                .mapTo(double[].class)
+                .one())
+            .isEqualTo(expected);
+    }
+
     public interface ArrayObject {
         @SqlQuery(U_SELECT)
         @SingleValue

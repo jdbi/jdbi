@@ -112,10 +112,10 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArrayType(Long.class, "bigint");
         jdbi.registerArrayType(String.class, "varchar");
         jdbi.registerArrayType(UUID.class, "uuid");
-        jdbi.registerArrayType(float.class, "real");
-        jdbi.registerArrayType(Float.class, "real");
-        jdbi.registerArrayType(double.class, "double precision");
-        jdbi.registerArrayType(Double.class, "double precision");
+        jdbi.registerArrayType(float.class, "float4");
+        jdbi.registerArrayType(Float.class, "float4");
+        jdbi.registerArrayType(double.class, "float8");
+        jdbi.registerArrayType(Double.class, "float8");
 
         // built-in PGobject types
         jdbi.registerArrayType(PGbox.class, "box");
