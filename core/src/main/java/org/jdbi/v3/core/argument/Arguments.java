@@ -47,7 +47,6 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     public Arguments(ConfigRegistry registry) {
         this.registry = registry;
-        // TODO move to BuiltInSupportPlugin
 
         // the null factory must be interrogated last to preserve types!
         register(new UntypedNullArgumentFactory());
