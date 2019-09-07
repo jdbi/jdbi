@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestEnumSets {
     private static final GenericType<EnumSet<Platform>> PLATFORM_SET = new GenericType<EnumSet<Platform>>() {};
 
+    // postgres is kinda slow so this test is set up to reuse a single instance
     @ClassRule
     public static JdbiRule db = PostgresDbRule.rule();
 
@@ -40,6 +42,7 @@ public class TestEnumSets {
         db.getHandle().useTransaction(h -> {
             h.execute("drop table if exists videos");
             h.execute("create table videos (id int primary key, supported_platforms bit(5))");
+
             PreparedBatch batch = h.prepareBatch("insert into videos(id, supported_platforms) values (:id,:supported_platforms::varbit)");
             batch
                 .bind("id", 0)
@@ -67,6 +70,7 @@ public class TestEnumSets {
                 .add();
             batch.execute();
         });
+
         videoDao = db.getHandle().attach(VideoDao.class);
     }
 
@@ -158,25 +162,26 @@ public class TestEnumSets {
         void insert(int id, EnumSet<Platform> platforms);
 
         @SqlQuery("select supported_platforms from videos where id=:id")
+        @SingleValue
         EnumSet<Platform> getSupportedPlatforms(int id);
 
-        @SqlQuery("select id from videos " +
-            "where (supported_platforms & :platforms::varbit) = :platforms::varbit " +
-            "order by id")
+        @SqlQuery("select id from videos "
+            + "where (supported_platforms & :platforms::varbit) = :platforms::varbit "
+            + "order by id")
         List<Integer> getSupportedVideosOnPlatforms(EnumSet<Platform> platforms);
 
-        @SqlUpdate("update videos " +
-            "set supported_platforms = (supported_platforms | :platforms::varbit) " +
-            "where id=:id")
+        @SqlUpdate("update videos "
+            + "set supported_platforms = (supported_platforms | :platforms::varbit) "
+            + "where id=:id")
         void addPlatforms(int id, EnumSet<Platform> platforms);
 
-        @SqlUpdate("update videos " +
-            "set supported_platforms = (supported_platforms & ~:platforms::varbit) " +
-            "where id=:id")
+        @SqlUpdate("update videos "
+            + "set supported_platforms = (supported_platforms & ~:platforms::varbit) "
+            + "where id=:id")
         void removePlatforms(int id, EnumSet<Platform> platforms);
 
-        @SqlQuery("select length(replace(supported_platforms::varchar, '0', '')) from videos " +
-            "where id=:id")
+        @SqlQuery("select length(replace(supported_platforms::varchar, '0', '')) from videos "
+            + "where id=:id")
         int getAmountOfSupportedPlatforms(int id);
     }
 

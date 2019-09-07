@@ -23,22 +23,17 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
 public class BitStringEnumSetMapperFactory implements ColumnMapperFactory {
-
     @Override
-    @SuppressWarnings("unchecked")
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry ctx) {
-        Class<?> erasedType = GenericTypes.getErasedType(type);
-        if (erasedType == EnumSet.class) {
-            Optional<Type> genericParameter = GenericTypes.findGenericParameter(type, EnumSet.class);
-            Type type1 = genericParameter
-                    .orElseThrow(() -> new IllegalArgumentException("No generic information for " + type));
-            if (Enum.class.isAssignableFrom((Class<?>) type1)) {
-                return Optional.of(new BitStringEnumSetColumnMapper<>((Class<Enum>) type1));
-            } else {
-                throw new IllegalArgumentException("Generic type is not enum");
-            }
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        if (!EnumSet.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
 
+        Class<Enum> enumType = GenericTypes.findGenericParameter(type, EnumSet.class)
+            // guaranteed by EnumSet
+            .map(t -> (Class<Enum>) t)
+            .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
+
+        return Optional.of(new BitStringEnumSetColumnMapper<>(enumType));
+    }
 }

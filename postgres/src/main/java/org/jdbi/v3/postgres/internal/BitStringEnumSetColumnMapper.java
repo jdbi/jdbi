@@ -16,16 +16,18 @@ package org.jdbi.v3.postgres.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
+import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static java.util.stream.Collectors.toCollection;
+
 public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMapper<EnumSet<E>> {
+    private final Class<E> enumType;
+    private final E[] enumConstants;
 
-    private Class<E> enumType;
-    private E[] enumConstants;
-
-    public BitStringEnumSetColumnMapper(Class<E> enumType) {
+    BitStringEnumSetColumnMapper(Class<E> enumType) {
         this.enumType = enumType;
         enumConstants = enumType.getEnumConstants();
     }
@@ -33,20 +35,20 @@ public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMa
     @Override
     public EnumSet<E> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         String bits = r.getString(columnNumber);
+
         if (bits == null) {
             return null;
         }
-
-        EnumSet<E> elements = EnumSet.noneOf(enumType);
-        for (int i = 0; i < bits.length(); i++) {
-            char bit = bits.charAt(i);
-            if (bit != '0' && bit != '1') {
-                throw new IllegalArgumentException("Wrong element in a bit string: " + bits);
-            }
-            if (bit == '1') {
-                elements.add(enumConstants[i]);
-            }
+        if (bits.length() != enumConstants.length) {
+            throw new IllegalArgumentException("bit string \"" + bits + "\" for " + enumType + " should not contain " + bits.length() + " characters");
         }
-        return elements;
+        if (!bits.matches("^[01]+$")) {
+            throw new IllegalArgumentException("bit string \"" + bits + "\" contains other characters than bits");
+        }
+
+        return IntStream.range(0, bits.length())
+            .filter(i -> bits.charAt(i) == '1')
+            .mapToObj(i -> enumConstants[i])
+            .collect(toCollection(() -> EnumSet.noneOf(enumType)));
     }
 }

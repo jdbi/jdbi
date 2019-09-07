@@ -23,17 +23,21 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class BitStringEnumSetArgumentFactory implements ArgumentFactory {
-
     @Override
-    @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry ctx) {
-        Class<?> erasedType = GenericTypes.getErasedType(type);
-        if (EnumSet.class.isAssignableFrom(erasedType)) {
-            Optional<Type> genericParameter = GenericTypes.findGenericParameter(type, EnumSet.class);
-            Class<Enum<?>> enumType = (Class<Enum<?>>) genericParameter
-                    .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
-            return Optional.of(new BitStringEnumSetArgument(enumType, (EnumSet<?>) value));
+    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        if (!EnumSet.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        return Optional.of(buildGeneric(type, value));
+    }
+
+    private static <E extends Enum<E>> BitStringEnumSetArgument<E> buildGeneric(Type type, Object value) {
+        Class<E> enumType = GenericTypes.findGenericParameter(type, EnumSet.class)
+            // guaranteed by EnumSet
+            .map(t -> (Class<E>) t)
+            .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
+
+        return new BitStringEnumSetArgument<>(enumType, (EnumSet<E>) value);
     }
 }

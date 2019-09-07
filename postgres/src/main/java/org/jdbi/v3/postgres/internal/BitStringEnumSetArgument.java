@@ -15,32 +15,29 @@ package org.jdbi.v3.postgres.internal;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class BitStringEnumSetArgument implements Argument {
+import static java.util.stream.Collectors.joining;
 
-    private Enum<?>[] enumConstants;
-    private EnumSet<?> elements;
+public class BitStringEnumSetArgument<E extends Enum<E>> implements Argument {
+    private final E[] enumConstants;
+    private final EnumSet<E> elements;
 
-    public BitStringEnumSetArgument(Class<Enum<?>> enumType, EnumSet<?> elements) {
-        this.elements = elements;
+    BitStringEnumSetArgument(Class<E> enumType, EnumSet<E> elements) {
         enumConstants = enumType.getEnumConstants();
+        this.elements = elements;
     }
 
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        if (elements == null) {
-            statement.setString(position, null);
-            return;
-        }
+        String bits = elements == null ? null : Arrays.stream(enumConstants)
+            .map(value -> elements.contains(value) ? "1" : "0")
+            .collect(joining());
 
-        char[] bits = new char[enumConstants.length];
-        for (int i = 0; i < enumConstants.length; i++) {
-            bits[i] = elements.contains(enumConstants[i]) ? '1' : '0';
-        }
-        statement.setString(position, new String(bits));
+        statement.setString(position, bits);
     }
 }
