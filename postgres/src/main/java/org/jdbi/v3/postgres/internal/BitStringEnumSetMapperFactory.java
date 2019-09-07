@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.postgres.internal;
 
 import java.lang.reflect.Type;
 import java.util.EnumSet;
@@ -22,7 +22,7 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
-public class EnumSetMapperFactory implements ColumnMapperFactory {
+public class BitStringEnumSetMapperFactory implements ColumnMapperFactory {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -33,7 +33,7 @@ public class EnumSetMapperFactory implements ColumnMapperFactory {
             Type type1 = genericParameter
                     .orElseThrow(() -> new IllegalArgumentException("No generic information for " + type));
             if (Enum.class.isAssignableFrom((Class<?>) type1)) {
-                return Optional.of(new EnumSetColumnMapper<>((Class<Enum>) type1));
+                return Optional.of(new BitStringEnumSetColumnMapper<>((Class<Enum>) type1));
             } else {
                 throw new IllegalArgumentException("Generic type is not enum");
             }

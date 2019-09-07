@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.postgres.internal;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,12 +20,12 @@ import java.util.EnumSet;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class EnumSetArgument implements Argument {
+public class BitStringEnumSetArgument implements Argument {
 
     private Enum<?>[] enumConstants;
     private EnumSet<?> elements;
 
-    public EnumSetArgument(Class<Enum<?>> enumType, EnumSet<?> elements) {
+    public BitStringEnumSetArgument(Class<Enum<?>> enumType, EnumSet<?> elements) {
         this.elements = elements;
         enumConstants = enumType.getEnumConstants();
     }

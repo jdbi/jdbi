@@ -23,6 +23,8 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.postgres.internal.BitStringEnumSetArgumentFactory;
+import org.jdbi.v3.postgres.internal.BitStringEnumSetMapperFactory;
 import org.postgresql.PGConnection;
 import org.postgresql.geometric.PGbox;
 import org.postgresql.geometric.PGcircle;
@@ -105,7 +107,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArgument(new MacAddrArgumentFactory());
         jdbi.registerArgument(new UUIDArgumentFactory());
         jdbi.registerArgument(new PGobjectArgumentFactory());
-        jdbi.registerArgument(new EnumSetArgumentFactory());
+        jdbi.registerArgument(new BitStringEnumSetArgumentFactory());
 
         jdbi.registerArrayType(int.class, "integer");
         jdbi.registerArrayType(Integer.class, "integer");
@@ -135,7 +137,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerColumnMapper(new DurationColumnMapperFactory());
         jdbi.registerColumnMapper(new PeriodColumnMapperFactory());
         jdbi.registerColumnMapper(new PGobjectColumnMapperFactory());
-        jdbi.registerColumnMapper(new EnumSetMapperFactory());
+        jdbi.registerColumnMapper(new BitStringEnumSetMapperFactory());
 
         // legacy unqualified HSTORE
         jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.postgres.internal;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,12 +20,12 @@ import java.util.EnumSet;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class EnumSetColumnMapper<E extends Enum<E>> implements ColumnMapper<EnumSet<E>> {
+public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMapper<EnumSet<E>> {
 
     private Class<E> enumType;
     private E[] enumConstants;
 
-    public EnumSetColumnMapper(Class<E> enumType) {
+    public BitStringEnumSetColumnMapper(Class<E> enumType) {
         this.enumType = enumType;
         enumConstants = enumType.getEnumConstants();
     }

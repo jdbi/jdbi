@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.postgres.internal;
 
 import java.lang.reflect.Type;
 import java.util.EnumSet;
@@ -22,7 +22,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 
-public class EnumSetArgumentFactory implements ArgumentFactory {
+public class BitStringEnumSetArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public class EnumSetArgumentFactory implements ArgumentFactory {
             Optional<Type> genericParameter = GenericTypes.findGenericParameter(type, EnumSet.class);
             Class<Enum<?>> enumType = (Class<Enum<?>>) genericParameter
                     .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
-            return Optional.of(new EnumSetArgument(enumType, (EnumSet<?>) value));
+            return Optional.of(new BitStringEnumSetArgument(enumType, (EnumSet<?>) value));
         }
         return Optional.empty();
     }
