@@ -46,17 +46,17 @@ public final class R2dbc {
     /**
      * Execute behavior within a transaction returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param f   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
+     * @param resourceFunction   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
      * @param <T> the type of results
      * @return a {@link Flux} of results
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
-    public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
-        return withHandle(handle -> handle.inTransaction(f));
+        return withHandle(handle -> handle.inTransaction(resourceFunction));
     }
 
     /**
@@ -81,46 +81,46 @@ public final class R2dbc {
     /**
      * Execute behavior with a {@link Handle} not returning results.
      *
-     * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      */
-    public Mono<Void> useHandle(Function<Handle, ? extends Publisher<?>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public Mono<Void> useHandle(Function<Handle, ? extends Publisher<?>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
-        return withHandle(f)
+        return withHandle(resourceFunction)
             .then();
     }
 
     /**
      * Execute behavior within a transaction not returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
-    public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
-        return useHandle(handle -> handle.useTransaction(f));
+        return useHandle(handle -> handle.useTransaction(resourceFunction));
     }
 
     /**
      * Execute behavior with a {@link Handle} returning results.
      *
-     * @param f   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
+     * @param resourceFunction   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
      * @param <T> the type of results
      * @return a {@link Flux} of results
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      */
-    public <T> Flux<T> withHandle(Function<Handle, ? extends Publisher<? extends T>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public <T> Flux<T> withHandle(Function<Handle, ? extends Publisher<? extends T>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
         return open()
             .flatMapMany(handle -> Flux.from(
-                f.apply(handle))
+                resourceFunction.apply(handle))
                 .concatWith(ReactiveUtils.typeSafe(handle::close))
                 .onErrorResume(ReactiveUtils.appendError(handle::close)));
     }

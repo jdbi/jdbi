@@ -216,7 +216,7 @@ final class HandleTest {
     @Test
     void inTransactionIsolationLevelNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(SERIALIZABLE, null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -228,7 +228,7 @@ final class HandleTest {
     @Test
     void inTransactionNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).inTransaction(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -362,7 +362,7 @@ final class HandleTest {
     @Test
     void useTransactionIsolationLevelNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(SERIALIZABLE, null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -374,7 +374,7 @@ final class HandleTest {
     @Test
     void useTransactionNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Handle(MockConnection.empty()).useTransaction(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
 }

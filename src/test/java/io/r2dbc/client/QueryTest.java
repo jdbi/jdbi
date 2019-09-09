@@ -126,7 +126,7 @@ final class QueryTest {
     @Test
     void mapResultNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
-            .withMessage("f must not be null");
+            .withMessage("mappingFunction must not be null");
     }
 
 }

@@ -36,10 +36,10 @@ public final class MockResultBearing implements ResultBearing {
     }
 
     @Override
-    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
+        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
-        return Flux.from(f.apply(this.result));
+        return Flux.from(mappingFunction.apply(this.result));
     }
 
     @Override

@@ -77,7 +77,7 @@ final class R2dbcTest {
     @Test
     void inTransactionNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).inTransaction(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -134,7 +134,7 @@ final class R2dbcTest {
     @Test
     void useHandleNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useHandle(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -180,7 +180,7 @@ final class R2dbcTest {
     @Test
     void useTransactionNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).useTransaction(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
     @Test
@@ -223,7 +223,7 @@ final class R2dbcTest {
     @Test
     void withHandleNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new R2dbc(MockConnectionFactory.empty()).withHandle(null))
-            .withMessage("f must not be null");
+            .withMessage("resourceFunction must not be null");
     }
 
 }

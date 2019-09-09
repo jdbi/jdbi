@@ -138,20 +138,20 @@ public final class Handle {
     /**
      * Execute behavior within a transaction returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param f   a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
-     * @param <T> the type of results
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
+     * @param <T>              the type of results
      * @return a {@link Flux} of results
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     @SuppressWarnings("unchecked")
-    public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public <T> Flux<T> inTransaction(Function<Handle, ? extends Publisher<? extends T>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
         return Mono.from(
             beginTransaction())
-            .thenMany((Publisher<T>) f.apply(this))
+            .thenMany((Publisher<T>) resourceFunction.apply(this))
             .concatWith(typeSafe(this::commitTransaction))
             .onErrorResume(appendError(this::rollbackTransaction));
     }
@@ -159,23 +159,23 @@ public final class Handle {
     /**
      * Execute behavior within a transaction returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param isolationLevel the isolation level of the transaction
-     * @param f              a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
-     * @param <T>            the type of results
+     * @param isolationLevel   the isolation level of the transaction
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results
+     * @param <T>              the type of results
      * @return a {@link Flux} of results
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      * @see Connection#setTransactionIsolationLevel(IsolationLevel)
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
     @SuppressWarnings("unchecked")
-    public <T> Flux<T> inTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<? extends T>> f) {
+    public <T> Flux<T> inTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<? extends T>> resourceFunction) {
         Assert.requireNonNull(isolationLevel, "isolationLevel must not be null");
-        Assert.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
         return inTransaction(handle -> Flux.from(handle
             .setTransactionIsolationLevel(isolationLevel))
-            .thenMany((Publisher<T>) f.apply(this)));
+            .thenMany((Publisher<T>) resourceFunction.apply(this)));
     }
 
     /**
@@ -256,35 +256,35 @@ public final class Handle {
     /**
      * Execute behavior within a transaction not returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param f a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code resourceFunction} is {@code null}
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
-    public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public Mono<Void> useTransaction(Function<Handle, ? extends Publisher<?>> resourceFunction) {
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
-        return inTransaction(f)
+        return inTransaction(resourceFunction)
             .then();
     }
 
     /**
      * Execute behavior within a transaction not returning results.  The transaction is committed if the behavior completes successfully, and rolled back it produces an error.
      *
-     * @param isolationLevel the isolation level of the transaction
-     * @param f              a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
+     * @param isolationLevel   the isolation level of the transaction
+     * @param resourceFunction a {@link Function} that takes a {@link Handle} and returns a {@link Publisher} of results.  These results are discarded.
      * @return a {@link Mono} that execution is complete
-     * @throws IllegalArgumentException if {@code isolationLevel} or {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code isolationLevel} or {@code resourceFunction} is {@code null}
      * @see Connection#setTransactionIsolationLevel(IsolationLevel)
      * @see Connection#commitTransaction()
      * @see Connection#rollbackTransaction()
      */
-    public Mono<Void> useTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<?>> f) {
+    public Mono<Void> useTransaction(IsolationLevel isolationLevel, Function<Handle, ? extends Publisher<?>> resourceFunction) {
         Assert.requireNonNull(isolationLevel, "isolationLevel must not be null");
-        Assert.requireNonNull(f, "f must not be null");
+        Assert.requireNonNull(resourceFunction, "resourceFunction must not be null");
 
-        return inTransaction(isolationLevel, f)
+        return inTransaction(isolationLevel, resourceFunction)
             .then();
     }
 

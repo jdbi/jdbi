@@ -72,7 +72,7 @@ final class ResultBearingTest {
             .build();
 
         assertThatIllegalArgumentException().isThrownBy(() -> resultBearing.mapRow((BiFunction<Row, RowMetadata, ?>) null))
-            .withMessage("f must not be null");
+            .withMessage("mappingFunction must not be null");
     }
 
     @Test
@@ -107,7 +107,7 @@ final class ResultBearingTest {
             .build();
 
         assertThatIllegalArgumentException().isThrownBy(() -> resultBearing.mapRow((Function<Row, ?>) null))
-            .withMessage("f must not be null");
+            .withMessage("mappingFunction must not be null");
     }
 
 }

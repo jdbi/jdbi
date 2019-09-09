@@ -34,41 +34,41 @@ public interface ResultBearing {
     /**
      * Transforms the {@link Result}s that are returned from execution.
      *
-     * @param f   a {@link Function} used to transform each {@link Result} into a {@code Publisher} of values
-     * @param <T> the type of results
+     * @param mappingFunction a {@link Function} used to transform each {@link Result} into a {@code Publisher} of values
+     * @param <T>             the type of results
      * @return the values resulting from the {@link Result} transformation
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code mappingFunction} is {@code null}
      * @see #mapRow(Function)
      * @see #mapRow(BiFunction)
      */
-    <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f);
+    <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction);
 
     /**
      * Transforms each {@link Row} and {@link RowMetadata} pair into an object.
      *
-     * @param f   a {@link BiFunction} used to transform each {@link Row} and {@link RowMetadata} pair into an object
-     * @param <T> the type of results
+     * @param mappingFunction a {@link BiFunction} used to transform each {@link Row} and {@link RowMetadata} pair into an object
+     * @param <T>             the type of results
      * @return the values resulting from the {@link Row} and {@link RowMetadata} transformation
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code mappingFunction} is {@code null}
      */
-    default <T> Flux<T> mapRow(BiFunction<Row, RowMetadata, ? extends T> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    default <T> Flux<T> mapRow(BiFunction<Row, RowMetadata, ? extends T> mappingFunction) {
+        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
-        return mapResult(result -> result.map(f));
+        return mapResult(result -> result.map(mappingFunction));
     }
 
     /**
      * Transforms each {@link Row} into an object.
      *
-     * @param f   a {@link Function} used to transform each {@link Row} into an object
-     * @param <T> the type of the results
+     * @param mappingFunction a {@link Function} used to transform each {@link Row} into an object
+     * @param <T>             the type of the results
      * @return the values resulting from the {@link Row} transformation
-     * @throws IllegalArgumentException if {@code f} is {@code null}
+     * @throws IllegalArgumentException if {@code mappingFunction} is {@code null}
      */
-    default <T> Flux<T> mapRow(Function<Row, ? extends T> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    default <T> Flux<T> mapRow(Function<Row, ? extends T> mappingFunction) {
+        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
-        return mapRow((row, rowMetadata) -> f.apply(row));
+        return mapRow((row, rowMetadata) -> mappingFunction.apply(row));
     }
 
 }

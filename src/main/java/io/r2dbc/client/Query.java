@@ -107,12 +107,12 @@ public final class Query implements ResultBearing {
         return this;
     }
 
-    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> f) {
-        Assert.requireNonNull(f, "f must not be null");
+    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
+        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
         return Flux
             .from(this.statement.execute())
-            .flatMap(f::apply);
+            .flatMap(mappingFunction);
     }
 
     @Override

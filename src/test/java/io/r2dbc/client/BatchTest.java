@@ -70,7 +70,7 @@ final class BatchTest {
     @Test
     void mapResultNoF() {
         assertThatIllegalArgumentException().isThrownBy(() -> new Batch(MockBatch.empty()).mapResult(null))
-            .withMessage("f must not be null");
+            .withMessage("mappingFunction must not be null");
     }
 
 }
