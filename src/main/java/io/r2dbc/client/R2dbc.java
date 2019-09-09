@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 /**
- * An implementation of the Reactive Relational Database Connection API for PostgreSQL servers.
+ * An implementation of a Reactive Relational Database Connection Client.
  */
 public final class R2dbc {
 
