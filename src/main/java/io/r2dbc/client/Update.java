@@ -50,11 +50,26 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
-    public Update bind(Object identifier, Object value) {
+    public Update bind(String identifier, Object value) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(value, "value must not be null");
 
         this.statement.bind(identifier, value);
+        return this;
+    }
+
+    /**
+     * Bind a value.
+     *
+     * @param index the index to bind to
+     * @param value the value to bind
+     * @return this {@link Statement}
+     * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
+     */
+    public Update bind(int index, Object value) {
+        Assert.requireNonNull(value, "value must not be null");
+
+        this.statement.bind(index, value);
         return this;
     }
 
@@ -66,11 +81,26 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
-    public Update bindNull(Object identifier, Class<?> type) {
+    public Update bindNull(String identifier, Class<?> type) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(type, "type must not be null");
 
         this.statement.bindNull(identifier, type);
+        return this;
+    }
+
+    /**
+     * Bind a {@code null} value.
+     *
+     * @param index the index to bind to
+     * @param type  the type of null value
+     * @return this {@link Statement}
+     * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
+     */
+    public Update bindNull(int index, Class<?> type) {
+        Assert.requireNonNull(type, "type must not be null");
+
+        this.statement.bindNull(index, type);
         return this;
     }
 
@@ -90,13 +120,6 @@ public final class Update {
         return "Update{" +
             "statement=" + this.statement +
             '}';
-    }
-
-    Update bind(int index, Object value) {
-        Assert.requireNonNull(value, "value must not be null");
-
-        this.statement.bind(index, value);
-        return this;
     }
 
 }

@@ -16,6 +16,7 @@
 
 package io.r2dbc.client;
 
+import io.r2dbc.mssql.util.Assert;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,6 +118,17 @@ interface Example<T> {
      */
     R2dbc getR2dbc();
 
+    static Update bind(Update update, Object identifier, Object value) {
+
+        if (identifier instanceof Integer) {
+            return update.bind((Integer) identifier, value);
+        }
+
+        Assert.isTrue(identifier instanceof String, String.format("Identifier %s must be a String or an Integer.", identifier));
+
+        return update.bind((String) identifier, value);
+    }
+
     @Test
     default void prepareStatement() {
         getR2dbc()
@@ -124,7 +136,7 @@ interface Example<T> {
                 Update update = handle.createUpdate(String.format("INSERT INTO test VALUES(%s)", getPlaceholder(0)));
 
                 IntStream.range(0, 10)
-                    .forEach(i -> update.bind(getIdentifier(0), i).add());
+                    .forEach(i -> bind(update, getIdentifier(0), i).add());
 
                 return update.execute();
             })
