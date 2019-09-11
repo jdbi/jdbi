@@ -43,11 +43,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
         <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
-        <r2dbc-mysql.version>0.9.38</r2dbc-mysql.version>
+        <r2dbc-mysql.version>1.0.6</r2dbc-mysql.version>
         <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
-        <reactor.version>Dysprosium-M1</reactor.version>
+        <reactor.version>Dysprosium-RC1</reactor.version>
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
         <testcontainers.version>1.12.0</testcontainers.version>
     </properties>
@@ -298,10 +298,6 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
         </repository>
     </repositories>
 
