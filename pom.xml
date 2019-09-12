@@ -43,7 +43,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
         <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
-        <r2dbc-mysql.version>1.0.6</r2dbc-mysql.version>
+        <r2dbc-mysql.version>0.2.0.M2</r2dbc-mysql.version>
         <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
@@ -103,8 +103,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jasync-sql</groupId>
-            <artifactId>jasync-r2dbc-mysql</artifactId>
+            <groupId>com.github.mirromutth</groupId>
+            <artifactId>r2dbc-mysql</artifactId>
             <version>${r2dbc-mysql.version}</version>
             <scope>test</scope>
         </dependency>
@@ -298,6 +298,10 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 

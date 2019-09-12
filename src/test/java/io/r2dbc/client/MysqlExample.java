@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.MySQLContainer;
 import reactor.util.annotation.Nullable;
 
-import static com.github.jasync.r2dbc.mysql.MysqlConnectionFactoryProvider.MYSQL_DRIVER;
+import static io.github.mirromutth.r2dbc.mysql.MySqlConnectionFactoryProvider.MYSQL_DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
@@ -39,7 +39,7 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
 import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
 
-final class MysqlExample implements Example<String> {
+final class MysqlExample implements Example<Integer> {
 
     @RegisterExtension
     static final MysqlServerExtension SERVER = new MysqlServerExtension();
@@ -60,8 +60,8 @@ final class MysqlExample implements Example<String> {
     }
 
     @Override
-    public String getIdentifier(int index) {
-        return String.valueOf(index);
+    public Integer getIdentifier(int index) {
+        return index;
     }
 
     @Override
