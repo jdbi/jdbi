@@ -38,6 +38,7 @@ public class Extensions implements JdbiConfig<Extensions> {
      * @param that the configuration to clone
      */
     private Extensions(Extensions that) {
+        allowProxy = that.allowProxy;
         factories.addAll(that.factories);
     }
 
