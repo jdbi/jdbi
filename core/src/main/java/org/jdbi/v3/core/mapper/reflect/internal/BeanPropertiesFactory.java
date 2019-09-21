@@ -134,9 +134,11 @@ public class BeanPropertiesFactory {
 
         static class BeanPojoProperty<T> implements PojoProperty<T> {
             final PropertyDescriptor descriptor;
+            final QualifiedType<?> qualifiedType;
 
             BeanPojoProperty(PropertyDescriptor property) {
                 this.descriptor = property;
+                this.qualifiedType = determineQualifiedType();
             }
 
             @Override
@@ -146,6 +148,10 @@ public class BeanPropertiesFactory {
 
             @Override
             public QualifiedType<?> getQualifiedType() {
+                return qualifiedType;
+            }
+
+            private QualifiedType<?> determineQualifiedType() {
                 Parameter setterParam = Optional.ofNullable(descriptor.getWriteMethod())
                     .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
                     .orElse(null);
