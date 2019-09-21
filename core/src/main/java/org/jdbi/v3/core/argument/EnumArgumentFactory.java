@@ -21,7 +21,6 @@ import java.util.function.Function;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.DatabaseValue;
 import org.jdbi.v3.core.enums.EnumStrategy;
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.EnumStrategies;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -36,10 +35,13 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
 
     @SuppressWarnings("unchecked")
     static <E extends Enum<E>> Optional<Class<E>> ifEnum(Type type) {
-        return Optional.of(type)
-            .map(GenericTypes::getErasedType)
-            .filter(Class::isEnum)
-            .map(c -> (Class<E>) c);
+        if (type instanceof Class<?>) {
+            final Class<?> cast = (Class<?>) type;
+            if (cast.isEnum()) {
+                return Optional.of((Class<E>) cast);
+            }
+        }
+        return Optional.empty();
     }
 
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, ConfigRegistry config) {
