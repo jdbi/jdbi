@@ -33,12 +33,12 @@ public class BeanPropertyArguments extends PojoPropertyArguments {
         this(prefix, bean, new ConfigRegistry());
     }
 
-    BeanPropertyArguments(String prefix, Object bean, ConfigRegistry config) {
+    public BeanPropertyArguments(String prefix, Object bean, ConfigRegistry config) {
         super(prefix, bean, BeanPropertiesFactory.propertiesFor(bean.getClass(), config), config);
     }
 
     @Override
     protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
-        return new BeanPropertyArguments(null, o);
+        return new BeanPropertyArguments(null, o, config);
     }
 }

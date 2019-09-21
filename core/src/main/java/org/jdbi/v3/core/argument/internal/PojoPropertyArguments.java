@@ -29,8 +29,8 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * When we can remove that class from public API, this class will easily replace it.
  */
 public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
-    private final PojoProperties<?> properties;
-    private final ConfigRegistry config;
+    protected final PojoProperties<?> properties;
+    protected final ConfigRegistry config;
 
     public PojoPropertyArguments(String prefix, Object obj, ConfigRegistry config) {
         this(prefix,

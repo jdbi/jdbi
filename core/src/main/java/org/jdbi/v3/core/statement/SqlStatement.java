@@ -169,7 +169,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @SuppressWarnings("deprecation")
     public This bindBean(Object bean) {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean, getConfig()));
     }
 
     /**
@@ -184,7 +184,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @SuppressWarnings("deprecation")
     public This bindBean(String prefix, Object bean) {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean, getConfig()));
     }
 
     /**
@@ -1500,7 +1500,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             }
 
             Object bean = values.get(valueIndex);
-            BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean);
+            BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean, getConfig());
 
             names.append('(');
             for (int propertyIndex = 0; propertyIndex < propertyNames.size(); propertyIndex++) {
