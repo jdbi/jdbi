@@ -70,8 +70,9 @@ public class Binding {
      * @return the bound Argument
      */
     public Optional<Argument> findForName(String name, StatementContext ctx) {
-        if (named.containsKey(name)) {
-            return Optional.of(named.get(name));
+        final Argument found = named.get(name);
+        if (found != null) {
+            return Optional.of(found);
         }
 
         return namedArgumentFinder.stream()
