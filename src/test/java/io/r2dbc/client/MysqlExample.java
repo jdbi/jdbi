@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.MySQLContainer;
 import reactor.util.annotation.Nullable;
 
-import static io.github.mirromutth.r2dbc.mysql.MySqlConnectionFactoryProvider.MYSQL_DRIVER;
+import static dev.miku.r2dbc.mysql.MySqlConnectionFactoryProvider.MYSQL_DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;

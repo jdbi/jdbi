@@ -34,16 +34,16 @@
         <assertj.version>3.12.0</assertj.version>
         <java.version>1.8</java.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <junit.version>5.4.2</junit.version>
+        <junit.version>5.5.2</junit.version>
         <logback.version>1.2.3</logback.version>
         <mssql-jdbc.version>7.2.2.jre8</mssql-jdbc.version>
         <mysql.version>8.0.16</mysql.version>
-        <postgresql.version>42.2.5</postgresql.version>
+        <postgresql.version>42.2.8</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <r2dbc-h2.version>${project.version}</r2dbc-h2.version>
         <r2dbc-mssql.version>${project.version}</r2dbc-mssql.version>
-        <r2dbc-mysql.version>0.2.0.M2</r2dbc-mysql.version>
+        <r2dbc-mysql.version>0.3.0.BUILD-SNAPSHOT</r2dbc-mysql.version>
         <r2dbc-pool.version>${project.version}</r2dbc-pool.version>
         <r2dbc-postgresql.version>${project.version}</r2dbc-postgresql.version>
         <r2dbc-spi.version>${project.version}</r2dbc-spi.version>
@@ -103,7 +103,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.mirromutth</groupId>
+            <groupId>dev.miku</groupId>
             <artifactId>r2dbc-mysql</artifactId>
             <version>${r2dbc-mysql.version}</version>
             <scope>test</scope>
@@ -331,8 +331,11 @@
             </snapshots>
         </repository>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>oss-sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
