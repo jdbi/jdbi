@@ -47,10 +47,9 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx2) {
-        @SuppressWarnings("unchecked")
-        PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
-        return Optional.ofNullable(property)
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
+        return Optional.ofNullable(properties.getProperties().get(name))
+                .map(PojoProperty.class::cast)
                 .map(p -> new TypedValue(p.getQualifiedType(), p.get(obj)));
     }
 

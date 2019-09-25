@@ -88,7 +88,5 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
     }
 
     protected abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
-
     protected abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
-
 }

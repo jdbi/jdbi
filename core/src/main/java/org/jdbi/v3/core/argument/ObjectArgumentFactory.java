@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 
@@ -23,7 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * Argument factory that matches a specified type and binds
  * it as an {@link ObjectArgument}.
  */
-public class ObjectArgumentFactory implements ArgumentFactory {
+public class ObjectArgumentFactory implements ArgumentFactory.Preparable {
     /**
      * Match the given type and bind as an object without SQL type information.
      * @param type the Java type to match
@@ -50,6 +51,13 @@ public class ObjectArgumentFactory implements ArgumentFactory {
     private ObjectArgumentFactory(Class<?> type, Integer sqlType) {
         this.type = type;
         this.sqlType = sqlType;
+    }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type expectedType, ConfigRegistry config) {
+        return Optional.of(expectedType)
+                .filter(t -> type.equals(t))
+                .map(t -> o -> ObjectArgument.of(o, sqlType));
     }
 
     @Override

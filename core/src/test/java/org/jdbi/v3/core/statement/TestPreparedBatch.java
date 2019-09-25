@@ -110,8 +110,9 @@ public class TestPreparedBatch {
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(r).hasSize(3);
-        assertThat(r.get(2).getName()).isEqualTo("Brian");
+        assertThat(r)
+            .extracting(Something::getName)
+            .containsExactly("Keith", "Eric", "Brian");
     }
 
     @Test

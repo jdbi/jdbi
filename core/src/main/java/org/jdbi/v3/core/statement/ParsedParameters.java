@@ -24,6 +24,7 @@ import static java.util.Collections.unmodifiableList;
  * The parsed parameters from an SQL statement.
  */
 public class ParsedParameters {
+    static final ParsedParameters NONE = new ParsedParameters(true, Collections.emptyList());
     private final boolean positional;
     private final List<String> parameterNames;
 

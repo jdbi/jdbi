@@ -76,7 +76,7 @@ public class StatementContext implements Closeable {
     private ParsedSql parsedSql;
     private PreparedStatement statement;
     private Connection connection;
-    private Binding binding = new Binding();
+    private Binding binding = new Binding(this);
 
     private boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];

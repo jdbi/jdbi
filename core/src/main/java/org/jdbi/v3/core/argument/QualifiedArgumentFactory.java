@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -33,7 +34,6 @@ import org.jdbi.v3.meta.Beta;
 @FunctionalInterface
 @Beta
 public interface QualifiedArgumentFactory {
-
     /**
      * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.
      *
@@ -57,9 +57,56 @@ public interface QualifiedArgumentFactory {
      * @param factory the factory to adapt
      */
     static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
+        if (factory instanceof ArgumentFactory.Preparable) {
+            return adapt((ArgumentFactory.Preparable) factory);
+        }
         return (type, value, config) -> type.getQualifiers().equals(
                 config.get(Qualifiers.class).findFor(factory.getClass()))
             ? factory.build(type.getType(), value, config)
             : Optional.empty();
+    }
+
+    /**
+     * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable.
+     * The returned factory only matches qualified types with zero qualifiers.
+     *
+     * @param factory the factory to adapt
+     */
+    static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
+        return QualifiedArgumentFactory.Preparable.adapt(factory);
+    }
+
+    /**
+     * QualifiedArgumentFactory extension interface that allows preparing arguments for efficient batch binding.
+     */
+    @Beta
+    interface Preparable extends QualifiedArgumentFactory {
+        Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
+
+        /**
+         * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable
+         * The returned factory only matches qualified types with zero qualifiers.
+         *
+         * @param factory the factory to adapt
+         */
+        static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
+            return new Preparable() {
+                @Override
+                public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config) {
+                    return type.getQualifiers().equals(
+                                config.get(Qualifiers.class).findFor(factory.getClass()))
+                            ? factory.build(type.getType(), value, config)
+                            : Optional.empty();
+                }
+
+                @Override
+                public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config) {
+                    return type.getQualifiers().equals(
+                                config.get(Qualifiers.class).findFor(factory.getClass()))
+                            ? factory.prepare(type.getType(), config)
+                            : Optional.empty();
+                }
+            };
+        }
     }
 }

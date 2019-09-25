@@ -23,4 +23,17 @@ public class TypedValue {
         this.type = qualifiedType;
         this.value = value;
     }
+
+    public QualifiedType<?> getType() {
+        return type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + type + ") " + value;
+    }
 }

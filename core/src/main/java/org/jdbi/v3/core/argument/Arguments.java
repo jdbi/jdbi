@@ -15,9 +15,11 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -114,6 +116,36 @@ public class Arguments implements JdbiConfig<Arguments> {
         return factories.stream()
             .flatMap(factory -> JdbiOptionals.stream(factory.build(type, value, registry)))
             .findFirst();
+    }
+
+    /**
+     * Obtain a prepared argument function for given type in the given context.
+     *
+     * @param type  the type of the argument.
+     * @return an Argument factory function for the given value.
+     */
+    public Optional<Function<Object, Argument>> prepareFor(Type type) {
+        return prepareFor(QualifiedType.of(type));
+    }
+
+    /**
+     * Obtain a prepared argument function for given type in the given context.
+     *
+     * @param type  the qualified type of the argument.
+     * @return an Argument factory function for the given value.
+     */
+    @Beta
+    public Optional<Function<Object, Argument>> prepareFor(QualifiedType<?> type) {
+        return factories.stream()
+            .filter(QualifiedArgumentFactory.Preparable.class::isInstance)
+            .map(QualifiedArgumentFactory.Preparable.class::cast)
+            .flatMap(factory -> JdbiOptionals.stream(factory.prepare(type, registry)))
+            .findFirst();
+    }
+
+    @Beta
+    public List<QualifiedArgumentFactory> getFactories() {
+        return Collections.unmodifiableList(factories);
     }
 
     /**

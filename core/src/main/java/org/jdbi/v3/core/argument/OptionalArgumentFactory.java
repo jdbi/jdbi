@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 
@@ -59,6 +60,16 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
         } else {
             return super.build(expectedType, value, config);
         }
+    }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        if (Optional.class.equals(getErasedType(type))) {
+            return config.get(Arguments.class)
+                    .prepareFor(findOptionalType(type, null))
+                    .map(af -> opt -> af.apply(((Optional<?>) opt).orElse(null)));
+        }
+        return super.prepare(type, config);
     }
 
     private static Type findOptionalType(Type wrapperType, Object nestedValue) {

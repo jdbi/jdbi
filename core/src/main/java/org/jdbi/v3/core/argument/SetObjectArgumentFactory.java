@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.meta.Beta;
@@ -25,7 +26,7 @@ import org.jdbi.v3.meta.Beta;
  * Factory that uses {@link java.sql.PreparedStatement#setObject(int, Object, int)} to bind values.
  */
 @Beta
-public class SetObjectArgumentFactory implements ArgumentFactory {
+public class SetObjectArgumentFactory implements ArgumentFactory.Preparable {
     private final Map<Class<?>, Integer> supportedTypes;
 
     protected SetObjectArgumentFactory(Map<Class<?>, Integer> types) {
@@ -41,11 +42,11 @@ public class SetObjectArgumentFactory implements ArgumentFactory {
     }
 
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return Optional.of(type)
-            .filter(Class.class::isInstance)
-            .map(Class.class::cast)
-            .map(supportedTypes::get)
-            .map(sqlType -> ObjectArgument.of(value, sqlType));
+                .filter(Class.class::isInstance)
+                .map(Class.class::cast)
+                .map(supportedTypes::get)
+                .map(sqlType -> value -> ObjectArgument.of(value, sqlType));
     }
 }

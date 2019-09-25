@@ -136,7 +136,6 @@ public class IterableLikeTest {
         assertThat(out).containsExactly("1", "2");
     }
 
-
     @Test
     public void testStringArrayToIterator() {
         final String[] in = new String[]{"1", "2"};

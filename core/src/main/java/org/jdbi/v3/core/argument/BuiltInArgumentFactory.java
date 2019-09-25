@@ -17,12 +17,14 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlStatement;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * The BuiltInArgumentFactory provides instances of {@link Argument} for
@@ -33,10 +35,10 @@ import org.jdbi.v3.core.statement.SqlStatement;
  * @deprecated will be replaced by a plugin
  */
 @Deprecated
-public class BuiltInArgumentFactory implements ArgumentFactory {
+public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
-    private static final List<ArgumentFactory> FACTORIES = Arrays.asList(
+    private static final List<ArgumentFactory.Preparable> FACTORIES = Arrays.asList(
         new PrimitivesArgumentFactory(),
         new BoxedArgumentFactory(),
         new EssentialsArgumentFactory(),
@@ -50,14 +52,27 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     );
 
     @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return FACTORIES.stream()
+            .flatMap(factory -> JdbiOptionals.stream(factory.prepare(type, config)))
+            .findFirst();
+    }
+
+    @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         return FACTORIES.stream()
             .flatMap(factory -> JdbiOptionals.stream(factory.build(expectedType, value, config)))
             .findFirst();
     }
 
-    private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory {
+    private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory.Preparable {
         private final EnumArgumentFactory delegate = new EnumArgumentFactory();
+        @Override
+        public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+            return EnumArgumentFactory.ifEnum(type).map(clazz ->
+                    value -> build(type, value, config)
+                        .orElseThrow(() -> new UnableToCreateStatementException("No enum value to bind after prepare")));
+        }
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
             return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);

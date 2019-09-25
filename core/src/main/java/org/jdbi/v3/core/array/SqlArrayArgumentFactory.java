@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -37,12 +38,12 @@ import org.jdbi.v3.core.internal.IterableLike;
  * @see SqlArrayTypes
  * @see org.jdbi.v3.core.config.Configurable#registerArrayType(SqlArrayType)
  */
-public class SqlArrayArgumentFactory implements ArgumentFactory {
+public class SqlArrayArgumentFactory implements ArgumentFactory.Preparable {
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return IterableLike.elementTypeOf(type)
             .flatMap(config.get(SqlArrayTypes.class)::findFor)
-            .map(arrayType -> arrayArgument(value, arrayType));
+            .map(arrayType -> value -> arrayArgument(value, arrayType));
     }
 
     private Argument arrayArgument(Object value, SqlArrayType<?> arrayType) {

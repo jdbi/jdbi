@@ -33,7 +33,7 @@ public abstract class MethodReturnValueNamedArgumentFinder extends ObjectPropert
         super(prefix, object);
     }
 
-    protected Object invokeMethod(Method method, StatementContext ctx) {
+    protected static Object invokeMethod(Object obj, Method method, StatementContext ctx) {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException e) {

@@ -30,7 +30,7 @@ public class TestCollectionArguments {
     public void testBindTypeErased() {
         try (Handle h = db.openHandle()) {
             assertThatThrownBy(() ->
-                h.execute("SELECT * FROM something WHERE id = ANY(:ids)", Collections.singleton(1)))
+                h.execute("SELECT * FROM something WHERE id = ANY(?)", Collections.singleton(1)))
                     .isInstanceOf(UnsupportedOperationException.class)
                     .hasMessageContaining("No type parameters found");
         }

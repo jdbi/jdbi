@@ -15,8 +15,10 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -46,7 +48,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  *
  * @param <T> the type of argument supported by this factory.
  */
-public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
+public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Preparable {
     private final int sqlType;
     private final ArgumentPredicate isInstance;
 
@@ -68,6 +70,14 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
         } else {
             this.isInstance = (type, value) -> argumentType.equals(type);
         }
+    }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return isInstance.test(type, null)
+                ? Optional.of(value -> build(type, value, config)
+                        .orElseThrow(() -> new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to bind")))
+                : Optional.empty();
     }
 
     @Override

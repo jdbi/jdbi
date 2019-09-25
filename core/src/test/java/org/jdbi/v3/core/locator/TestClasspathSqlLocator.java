@@ -70,7 +70,7 @@ public class TestClasspathSqlLocator {
         Handle h = dbRule.openHandle();
 
         exception.expect(StatementException.class);
-        exception.expectMessage("insert into something(id, name) values (:id, :name)");
+        exception.expectMessage("Missing named parameter 'name'");
         exception.expectMessage("id:1");
         h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)

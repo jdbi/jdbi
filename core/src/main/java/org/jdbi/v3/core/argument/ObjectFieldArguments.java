@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -31,12 +32,18 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
+ * @deprecated this functionality will remain supported, but this class should not be API
  */
+@Deprecated
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
-    private static final JdbiCache<Class<?>, Map<String, Field>> FIELD_CACHE =
-            JdbiCaches.declare(beanClass ->
+    private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
+            JdbiCaches.declare((config, beanClass) ->
                 Stream.of(beanClass.getFields())
-                    .collect(Collectors.toMap(Field::getName, Function.identity())));
+                    .collect(Collectors.toMap(Field::getName, f -> {
+                        QualifiedType<?> qualifiedType = QualifiedType.of(f.getType())
+                                .withAnnotations(config.get(Qualifiers.class).findFor(f));
+                        return obj -> get(f, qualifiedType, obj);
+                    })));
     private final Class<?> beanClass;
 
     /**
@@ -45,29 +52,26 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
      */
     public ObjectFieldArguments(String prefix, Object bean) {
         super(prefix, bean);
-
         this.beanClass = bean.getClass();
+    }
+
+    private static TypedValue get(Field f, QualifiedType<?> type, Object obj) {
+        try {
+            return new TypedValue(type, f.get(obj));
+        } catch (IllegalAccessException e) {
+            throw new UnableToCreateStatementException(String.format("Access exception getting field for bean property [%s] on [%s]",
+                    f.getName(), obj), e);
+        }
+    }
+
+    public Optional<Function<Object, TypedValue>> getter(String name, ConfigRegistry config) {
+        return Optional.ofNullable(FIELD_CACHE.get(beanClass, config).get(name));
     }
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        Field field = FIELD_CACHE.get(beanClass, ctx).get(name);
-
-        if (field == null) {
-            return Optional.empty();
-        }
-
-        try {
-            QualifiedType<?> type = QualifiedType.of(field.getGenericType())
-                                    .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(field));
-            Object value = field.get(obj);
-
-            return Optional.of(new TypedValue(type, value));
-        } catch (IllegalAccessException e) {
-            throw new UnableToCreateStatementException(String.format("Access exception getting field for "
-                    + "bean property [%s] on [%s]",
-                name, obj), e, ctx);
-        }
+        return getter(name, ctx.getConfig())
+                .map(getter -> getter.apply(obj));
     }
 
     @Override

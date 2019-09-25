@@ -27,6 +27,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
+import java.util.function.UnaryOperator
 
 class KotlinPropertyArguments(obj: Any,
                               prefix: String = "") : ObjectPropertyNamedArgumentFinder(prefix, obj) {
@@ -34,6 +35,10 @@ class KotlinPropertyArguments(obj: Any,
     private val kClass: KClass<*> = obj.javaClass.kotlin
     private val properties = kClass.memberProperties
         .associateBy { it.name }
+
+    override fun getNames(): Collection<String> {
+        return properties.keys;
+    }
 
     override fun getValue(name: String, ctx: StatementContext): Optional<TypedValue> {
         val property: KProperty1<*, *> = properties[name] ?: return Optional.empty()

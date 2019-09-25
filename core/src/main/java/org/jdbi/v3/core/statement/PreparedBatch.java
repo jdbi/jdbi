@@ -131,55 +131,57 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
         beforeTemplating();
 
+        final StatementContext ctx = getContext();
         String renderedSql = getConfig(SqlStatements.class)
                 .getTemplateEngine()
-                .render(getSql(), getContext());
-        getContext().setRenderedSql(renderedSql);
+                .render(getSql(), ctx);
+        ctx.setRenderedSql(renderedSql);
 
         ParsedSql parsedSql = getConfig(SqlStatements.class)
                 .getSqlParser()
-                .parse(renderedSql, getContext());
+                .parse(renderedSql, ctx);
         String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
-        getContext().setParsedSql(parsedSql);
+        ctx.setParsedSql(parsedSql);
 
         try {
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 @SuppressWarnings("PMD.CloseResource")
                 Connection connection = getHandle().getConnection();
-                stmt = statementBuilder.create(connection, sql, getContext());
+                stmt = statementBuilder.create(connection, sql, ctx);
 
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
                 getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, getContext());
+                throw new UnableToCreateStatementException(e, ctx);
             }
 
             beforeBinding();
 
             try {
+                ArgumentBinder binder = ArgumentBinder.of(ctx, parsedParameters);
                 for (Binding binding : bindings) {
-                    getContext().setBinding(binding);
-                    ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
+                    ctx.setBinding(binding);
+                    binder.bind(binding, stmt, ctx);
                     stmt.addBatch();
                 }
             } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
+                throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
             }
 
             beforeExecution();
 
             try {
-                final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
+                final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
 
                 afterExecution();
 
-                getContext().setBinding(new Binding());
+                ctx.setBinding(new Binding(ctx));
 
                 return new ExecutedBatch(stmt, rs);
             } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
+                throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
             }
         } finally {
             bindings.clear();
@@ -197,7 +199,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                     + "- call add() *after* setting batch parameters");
         }
         bindings.add(currentBinding);
-        getContext().setBinding(new Binding());
+        getContext().setBinding(new Binding(getContext()));
         return this;
     }
 
