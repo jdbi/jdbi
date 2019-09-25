@@ -1,5 +1,8 @@
+# 3.11.0
+  - Argument: allow direct binding of Argument subtypes
+
 # 3.10.1
-- SqlArray: Fix binding Postgres double[] / float[]
+  - SqlArray: Fix binding Postgres double[] / float[]
 
 # 3.10.0
 - New Features
