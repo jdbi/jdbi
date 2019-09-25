@@ -29,12 +29,13 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import reactor.util.annotation.Nullable;
 
+import java.util.UUID;
+
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
 import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 final class H2Example {
 
@@ -51,11 +52,11 @@ final class H2Example {
 
     private static final class H2ServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-        private final String password = randomAlphanumeric(16);
+        private final String password = UUID.randomUUID().toString();
 
-        private final String url = String.format("mem:%s", randomAlphanumeric(8));
+        private final String url = String.format("mem:%s", UUID.randomUUID().toString());
 
-        private final String username = randomAlphanumeric(16);
+        private final String username = UUID.randomUUID().toString();
 
         private HikariDataSource dataSource;
 
