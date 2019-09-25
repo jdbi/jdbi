@@ -56,6 +56,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new NVarcharArgumentFactory());
         register(new EnumArgumentFactory());
         register(new OptionalArgumentFactory());
+        register(new DirectArgumentFactory());
     }
 
     @Override
