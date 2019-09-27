@@ -25,6 +25,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.Invocations;
+import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.Handler;
@@ -113,46 +114,30 @@ public final class SqlObjectInitData {
         methodHandlers.forEach(action);
     }
 
-    // Thanks Holger!
-    // https://stackoverflow.com/questions/35331327/does-java-8-have-cached-support-for-suppliers
     public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handle, ConfigRegistry instanceConfig) {
-        return new Supplier<InContextInvoker>() {
-            Supplier<InContextInvoker> delegate = this::create;
-            boolean initialized;
-            @Override
-            public InContextInvoker get() {
-                return delegate.get();
-            }
-
-            private synchronized InContextInvoker create() { // NOPMD
-                if (!initialized) {
-                    ExtensionMethod extensionMethod = new ExtensionMethod(extensionType, method);
-                    ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
-                    Handler methodHandler = methodHandlers.get(method);
-                    InContextInvoker result = new InContextInvoker() {
-                        @Override
-                        public Object invoke(Object[] args) {
-                            return call(() -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handle));
-                        }
-
-                        @Override
-                        public Object call(Callable<?> task) {
-                            try {
-                                return handle.invokeInContext(
-                                        extensionMethod,
-                                        methodConfig,
-                                        task);
-                            } catch (Exception x) {
-                                throw Sneaky.throwAnyway(x);
-                            }
-                        }
-                    };
-                    initialized = true;
-                    delegate = () -> result;
+        return MemoizingSupplier.of(() -> {
+            ExtensionMethod extensionMethod = new ExtensionMethod(extensionType, method);
+            ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
+            Handler methodHandler = methodHandlers.get(method);
+            return new InContextInvoker() {
+                @Override
+                public Object invoke(Object[] args) {
+                    return call(() -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handle));
                 }
-                return delegate.get();
-            }
-        };
+
+                @Override
+                public Object call(Callable<?> task) {
+                    try {
+                        return handle.invokeInContext(
+                                extensionMethod,
+                                methodConfig,
+                                task);
+                    } catch (Exception x) {
+                        throw Sneaky.throwAnyway(x);
+                    }
+                }
+            };
+        });
     }
 
     public interface InContextInvoker {
