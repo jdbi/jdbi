@@ -29,6 +29,10 @@ import org.mockito.junit.MockitoRule;
 
 import static org.mockito.Mockito.verify;
 
+/**
+ * @deprecated now we just bind arguments directly as named
+ */
+@Deprecated
 public class TestMapArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();

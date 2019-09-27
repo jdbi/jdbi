@@ -18,11 +18,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Binds all entries of a map as arguments.
+ *
+ * @deprecated use {@link SqlStatement#bindMap(Map)} instead
  */
+@Deprecated
 public class MapArguments implements NamedArgumentFinder {
     private final Map<String, ?> args;
 
