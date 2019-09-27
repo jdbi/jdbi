@@ -35,7 +35,7 @@ Both milestone and snapshot artifacts (library, source, and javadoc) can be foun
 <dependency>
   <groupId>io.r2dbc</groupId>
   <artifactId>r2dbc-client</artifactId>
-  <version>1.0.0.M6</version>
+  <version>0.8.0.RC1</version>
 </dependency>
 ```
 
