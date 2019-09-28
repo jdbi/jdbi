@@ -49,37 +49,37 @@ public class ArgumentBinderTest {
 
     @Test
     public void testPositionalEmpty() {
-        assertThatCode(() -> ArgumentBinder.of(ctx, positionalParams(0)).bind(positionalBinding(0), stmt, ctx))
+        assertThatCode(() -> new ArgumentBinder<>(stmt, ctx, positionalParams(0)).bind(positionalBinding(0)))
             .doesNotThrowAnyException();
     }
 
     @Test
     public void testNamedEmpty() {
-        assertThatCode(() -> ArgumentBinder.of(ctx, namedParams()).bind(namedBinding(), stmt, ctx))
+        assertThatCode(() -> new ArgumentBinder<>(stmt, ctx, namedParams()).bind(namedBinding()))
             .doesNotThrowAnyException();
     }
 
     @Test
     public void testPositionalDeclaredButNotProvided() {
-        assertThatThrownBy(() -> ArgumentBinder.of(ctx, positionalParams(1)).bind(positionalBinding(0), stmt, ctx))
+        assertThatThrownBy(() -> new ArgumentBinder<>(stmt, ctx, positionalParams(1)).bind(positionalBinding(0)))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testNamedDeclaredButNotProvided() {
-        assertThatThrownBy(() -> ArgumentBinder.of(ctx, namedParams("unused")).bind(namedBinding(), stmt, ctx))
+        assertThatThrownBy(() -> new ArgumentBinder<>(stmt, ctx, namedParams("unused")).bind(namedBinding()))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testPositionalNotDeclaredButProvided() {
-        assertThatThrownBy(() -> ArgumentBinder.of(ctx, positionalParams(0)).bind(positionalBinding(1), stmt, ctx))
+        assertThatThrownBy(() -> new ArgumentBinder<>(stmt, ctx, positionalParams(0)).bind(positionalBinding(1)))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testNamedNotDeclaredButProvided() {
-        assertThatThrownBy(() -> ArgumentBinder.of(ctx, namedParams()).bind(namedBinding("unused"), stmt, ctx))
+        assertThatThrownBy(() -> new ArgumentBinder<>(stmt, ctx, namedParams()).bind(namedBinding("unused")))
             .isInstanceOf(UnableToCreateStatementException.class);
     }
 
@@ -87,7 +87,7 @@ public class ArgumentBinderTest {
     public void testPositionalNotDeclaredButProvidedWithPermission() {
         allowUnused();
 
-        assertThatCode(() -> ArgumentBinder.of(ctx, positionalParams(0)).bind(positionalBinding(1), stmt, ctx))
+        assertThatCode(() -> new ArgumentBinder<>(stmt, ctx, positionalParams(0)).bind(positionalBinding(1)))
             .doesNotThrowAnyException();
     }
 
@@ -95,7 +95,7 @@ public class ArgumentBinderTest {
     public void testNamedNotDeclaredButProvidedWithPermission() {
         allowUnused();
 
-        assertThatCode(() -> ArgumentBinder.of(ctx, namedParams()).bind(namedBinding("unused"), stmt, ctx))
+        assertThatCode(() -> new ArgumentBinder<>(stmt, ctx, namedParams()).bind(namedBinding("unused")))
             .doesNotThrowAnyException();
     }
 

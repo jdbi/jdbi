@@ -18,17 +18,28 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.NamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
+import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.result.ResultSetScanner;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
+import org.jdbi.v3.core.statement.internal.PreparedBinding;
 
 import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
 
@@ -46,10 +57,34 @@ import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
  * or {@link PreparedBatch#add(Object...)}.
  */
 public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing {
-    private final List<Binding> bindings = new ArrayList<>();
+    private final List<PreparedBinding> bindings = new ArrayList<>();
+    final Map<PrepareKey, Function<String, Optional<Function<Object, Argument>>>> preparedFinders = new HashMap<>();
 
     public PreparedBatch(Handle handle, String sql) {
         super(handle, sql);
+        getContext().setBinding(new PreparedBinding(getContext()));
+    }
+
+    @Override
+    PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory<?> factory, String prefix, Object value, Supplier<NamedArgumentFinder> backupArgumentFinder) {
+        PreparedBinding binding = getBinding();
+        PrepareKey key = factory.keyFor(prefix, value);
+        preparedFinders.computeIfAbsent(key,
+                pk -> factory.prepareFor(getConfig(), this::buildArgument, prefix, value));
+        binding.prepareKeys.put(key, value);
+        binding.backupArgumentFinders.add(backupArgumentFinder);
+        return this;
+    }
+
+    @Override
+    protected PreparedBinding getBinding() {
+        return (PreparedBinding) super.getBinding();
+    }
+
+    Function<Object, Argument> buildArgument(QualifiedType<?> type) {
+        return getContext().getConfig(Arguments.class)
+                .prepareFor(type)
+                .orElseThrow(() -> new IllegalStateException());
     }
 
     @Override
@@ -157,13 +192,17 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 throw new UnableToCreateStatementException(e, ctx);
             }
 
+            if (bindings.isEmpty()) {
+                return new ExecutedBatch(stmt, new int[0]);
+            }
+
             beforeBinding();
 
             try {
-                ArgumentBinder binder = ArgumentBinder.of(ctx, parsedParameters);
+                ArgumentBinder<?> binder = new ArgumentBinder.Prepared(this, parsedParameters, bindings.get(0));
                 for (Binding binding : bindings) {
                     ctx.setBinding(binding);
-                    binder.bind(binding, stmt, ctx);
+                    binder.bind(binding);
                     stmt.addBatch();
                 }
             } catch (SQLException e) {
@@ -177,7 +216,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
                 afterExecution();
 
-                ctx.setBinding(new Binding(ctx));
+                ctx.setBinding(new PreparedBinding(ctx));
 
                 return new ExecutedBatch(stmt, rs);
             } catch (SQLException e) {
@@ -193,13 +232,13 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @return this
      */
     public PreparedBatch add() {
-        final Binding currentBinding = getBinding();
+        final PreparedBinding currentBinding = getBinding();
         if (currentBinding.isEmpty()) {
             throw new IllegalStateException("Attempt to add() an empty batch, you probably didn't mean to do this "
                     + "- call add() *after* setting batch parameters");
         }
         bindings.add(currentBinding);
-        getContext().setBinding(new Binding(getContext()));
+        getContext().setBinding(new PreparedBinding(getContext()));
         return this;
     }
 

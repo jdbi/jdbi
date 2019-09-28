@@ -35,6 +35,11 @@ public class Call extends SqlStatement<Call> {
         super(handle, sql);
     }
 
+    @Override
+    PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
+        return getHandle().getStatementBuilder().createCall(getHandle().getConnection(), parsedSql.getSql(), ctx);
+    }
+
     /**
      * Register a positional output parameter.
      * @param position the parameter position (zero-based)

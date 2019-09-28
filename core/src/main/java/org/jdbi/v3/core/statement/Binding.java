@@ -35,12 +35,12 @@ import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
  * Represents the arguments bound to a particular statement.
  */
 public class Binding {
-    final Map<Integer, Object> positionals = new HashMap<>();
-    final Map<String, Object> named = new HashMap<>();
-    final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    protected final Map<Integer, Object> positionals = new HashMap<>();
+    protected final Map<String, Object> named = new HashMap<>();
+    protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
     private final StatementContext ctx;
 
-    Binding(StatementContext ctx) {
+    protected Binding(StatementContext ctx) {
         this.ctx = ctx;
     }
 
@@ -118,8 +118,8 @@ public class Binding {
     @Deprecated
     public Optional<Argument> findForName(String name, StatementContext ctx2) {
         final Object found = named.get(name);
-        if (found != null) {
-            return Optional.of(new ArgumentBinder(ctx2, ParsedParameters.NONE).toArgument(found));
+        if (found != null || named.containsKey(name)) {
+            return Optional.of(new ArgumentBinder<>(null, ctx2, ParsedParameters.NONE).toArgument(found));
         }
 
         return namedArgumentFinder.stream()
@@ -147,7 +147,7 @@ public class Binding {
      */
     @Deprecated
     public Optional<Argument> findForPosition(int position) {
-        return Optional.ofNullable(new ArgumentBinder(ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
+        return Optional.ofNullable(new ArgumentBinder<>(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
     }
 
     @Override

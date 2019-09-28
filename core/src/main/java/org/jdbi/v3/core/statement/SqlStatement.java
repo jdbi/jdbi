@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
@@ -38,12 +39,12 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
-import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.argument.ObjectFieldArguments;
 import org.jdbi.v3.core.argument.ObjectMethodArguments;
+import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -165,9 +166,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return modified statement
      */
-    @SuppressWarnings("deprecation")
     public This bindBean(Object bean) {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean, getConfig()));
+        return bindBean(null, bean);
     }
 
     /**
@@ -182,7 +182,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @SuppressWarnings("deprecation")
     public This bindBean(String prefix, Object bean) {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean, getConfig()));
+        return bindNamedArgumentFinder(
+                NamedArgumentFinderFactory.BEAN,
+                prefix, bean,
+                () -> new BeanPropertyArguments(prefix, bean, getConfig()));
     }
 
     /**
@@ -213,7 +216,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public This bindPojo(String prefix, Object pojo) {
-        return bindNamedArgumentFinder(new PojoPropertyArguments(prefix, pojo, getConfig()));
+        return bindNamedArgumentFinder(
+                NamedArgumentFinderFactory.POJO,
+                prefix, pojo,
+                () -> new PojoPropertyArguments(prefix, pojo, getConfig()));
     }
 
     /**
@@ -224,7 +230,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     public This bindFields(Object object) {
-        return bindNamedArgumentFinder(new ObjectFieldArguments(null, object));
+        return bindFields(null, object);
     }
 
     /**
@@ -236,7 +242,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     public This bindFields(String prefix, Object object) {
-        return bindNamedArgumentFinder(new ObjectFieldArguments(prefix, object));
+        return bindNamedArgumentFinder(
+                NamedArgumentFinderFactory.FIELDS,
+                prefix, object,
+                () -> new ObjectFieldArguments(prefix, object));
     }
 
     /**
@@ -247,7 +256,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     public This bindMethods(Object object) {
-        return bindNamedArgumentFinder(new ObjectMethodArguments(null, object));
+        return bindMethods(null, object);
     }
 
     /**
@@ -259,7 +268,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     public This bindMethods(String prefix, Object object) {
-        return bindNamedArgumentFinder(new ObjectMethodArguments(prefix, object));
+        return bindNamedArgumentFinder(
+                NamedArgumentFinderFactory.METHODS,
+                prefix, object,
+                () -> new ObjectMethodArguments(prefix, object));
     }
 
     /**
@@ -271,7 +283,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return modified statement
      */
     public This bindMap(Map<String, ?> map) {
-        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map));
+        if (map != null) {
+            map.forEach((name, value) -> bind(name, value));
+        }
+        return typedThis;
     }
 
     /**
@@ -287,6 +302,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         }
 
         return typedThis;
+    }
+
+    This bindNamedArgumentFinder(
+            NamedArgumentFinderFactory<?> factory,
+            String prefix, Object value,
+            Supplier<NamedArgumentFinder> namedArgumentFinder) {
+        return bindNamedArgumentFinder(namedArgumentFinder.get());
     }
 
     /**
@@ -1623,12 +1645,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ctx.setParsedSql(parsedSql);
 
         try {
-            if (getClass().isAssignableFrom(Call.class)) {
-                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), parsedSql.getSql(), ctx);
-            } else {
-                stmt = handle.getStatementBuilder().create(handle.getConnection(), parsedSql.getSql(), ctx);
-            }
-
+            stmt = createStatement(ctx, parsedSql);
             // The statement builder might (or might not) clean up the statement when called. E.g. the
             // caching statement builder relies on the statement *not* being closed.
             addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
@@ -1641,7 +1658,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeBinding();
 
-        ArgumentBinder.of(ctx, parsedSql.getParameters()).bind(getBinding(), stmt, ctx);
+        new ArgumentBinder<>(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
 
         beforeExecution();
 
@@ -1660,6 +1677,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         afterExecution();
 
         return stmt;
+    }
+
+    PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
+        return handle.getStatementBuilder().create(handle.getConnection(), parsedSql.getSql(), ctx);
     }
 
     @SuppressWarnings("unchecked")

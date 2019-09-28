@@ -64,14 +64,14 @@ public class TestSqlLoggerToString {
     public void testInt() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, 1).execute();
 
-        assertThat(positional).isEqualTo("(int) 1");
+        assertThat(positional).isEqualTo("1");
     }
 
     @Test
     public void testString() {
         handle.createUpdate(INSERT_POSITIONAL).bind(0, "herp").execute();
 
-        assertThat(positional).isEqualTo("(java.lang.String) herp");
+        assertThat(positional).isEqualTo("herp");
     }
 
     @Test
