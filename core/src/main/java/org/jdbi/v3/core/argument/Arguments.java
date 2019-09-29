@@ -39,13 +39,14 @@ import org.jdbi.v3.meta.Beta;
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
-    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
+    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories;
 
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
     public Arguments(ConfigRegistry registry) {
         this.registry = registry;
+        preparedFactories = new ConcurrentHashMap<>();
         // TODO move to BuiltInSupportPlugin
 
         // the null factory must be interrogated last to preserve types!
@@ -73,7 +74,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private Arguments(Arguments that) {
         factories.addAll(that.factories);
-        preparedFactories.putAll(that.preparedFactories);
+        preparedFactories = new ConcurrentHashMap<>(that.preparedFactories);
         untypedNullArgument = that.untypedNullArgument;
     }
 
