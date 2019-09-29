@@ -13,8 +13,12 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -54,16 +58,18 @@ public interface QualifiedArgumentFactory {
      * Adapts an {@link ArgumentFactory} into a QualifiedArgumentFactory. The returned factory only
      * matches qualified types with zero qualifiers.
      *
+     * @param config the ConfigRegistry
      * @param factory the factory to adapt
      */
-    static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
+    static QualifiedArgumentFactory adapt(ConfigRegistry config, ArgumentFactory factory) {
         if (factory instanceof ArgumentFactory.Preparable) {
-            return adapt((ArgumentFactory.Preparable) factory);
+            return adapt(config, (ArgumentFactory.Preparable) factory);
         }
-        return (type, value, config) -> type.getQualifiers().equals(
-                config.get(Qualifiers.class).findFor(factory.getClass()))
-            ? factory.build(type.getType(), value, config)
-            : Optional.empty();
+        Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
+        return (type, value, cfg) ->
+            type.getQualifiers().equals(qualifiers)
+                ? factory.build(type.getType(), value, cfg)
+                : Optional.empty();
     }
 
     /**
@@ -72,8 +78,8 @@ public interface QualifiedArgumentFactory {
      *
      * @param factory the factory to adapt
      */
-    static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
-        return QualifiedArgumentFactory.Preparable.adapt(factory);
+    static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
+        return QualifiedArgumentFactory.Preparable.adapt(config, factory);
     }
 
     /**
@@ -83,28 +89,42 @@ public interface QualifiedArgumentFactory {
     interface Preparable extends QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
+        Collection<QualifiedType<?>> prepPreparedTypes();
+
         /**
          * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable
          * The returned factory only matches qualified types with zero qualifiers.
          *
          * @param factory the factory to adapt
          */
-        static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
+        static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
             return new Preparable() {
+                Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
                 @Override
-                public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config) {
-                    return type.getQualifiers().equals(
-                                config.get(Qualifiers.class).findFor(factory.getClass()))
-                            ? factory.build(type.getType(), value, config)
+                public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
+                    return type.getQualifiers().equals(qualifiers)
+                            ? factory.build(type.getType(), value, cfg)
                             : Optional.empty();
                 }
 
                 @Override
-                public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config) {
-                    return type.getQualifiers().equals(
-                                config.get(Qualifiers.class).findFor(factory.getClass()))
-                            ? factory.prepare(type.getType(), config)
+                public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry cfg) {
+                    return type.getQualifiers().equals(qualifiers)
+                            ? factory.prepare(type.getType(), cfg)
                             : Optional.empty();
+                }
+
+                @Override
+                public Collection<QualifiedType<?>> prepPreparedTypes() {
+                    return factory.prePreparedTypes().stream()
+                            .map(QualifiedType::of)
+                            .map(qt -> qt.withAnnotations(qualifiers))
+                            .collect(Collectors.toList());
+                }
+
+                @Override
+                public String toString() {
+                    return "Qualified[" + factory + "]";
                 }
             };
         }

@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -58,6 +60,11 @@ public class ObjectArgumentFactory implements ArgumentFactory.Preparable {
         return Optional.of(expectedType)
                 .filter(t -> type.equals(t))
                 .map(t -> o -> ObjectArgument.of(o, sqlType));
+    }
+
+    @Override
+    public Collection<? extends Type> prePreparedTypes() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -15,9 +15,12 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.EnumByName;
@@ -65,6 +68,14 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
             .findFirst();
     }
 
+    @Override
+    public Collection<? extends Type> prePreparedTypes() {
+        return FACTORIES.stream()
+                .map(ArgumentFactory.Preparable::prePreparedTypes)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory.Preparable {
         private final EnumArgumentFactory delegate = new EnumArgumentFactory();
         @Override
@@ -76,6 +87,11 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
             return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);
+        }
+
+        @Override
+        public Collection<? extends Type> prePreparedTypes() {
+            return Collections.emptyList();
         }
     }
 }

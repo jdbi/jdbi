@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -51,6 +53,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Preparable {
     private final int sqlType;
     private final ArgumentPredicate isInstance;
+    private final Type argumentType;
 
     /**
      * Constructs an {@link ArgumentFactory} for type {@code T}.
@@ -59,7 +62,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
      */
     protected AbstractArgumentFactory(int sqlType) {
         this.sqlType = sqlType;
-        Type argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
+        argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
                 .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName()
                     + " must extend AbstractArgumentFactory with a concrete T parameter"));
 
@@ -78,6 +81,11 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
                 ? Optional.of(value -> build(type, value, config)
                         .orElseThrow(() -> new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to bind")))
                 : Optional.empty();
+    }
+
+    @Override
+    public Collection<Type> prePreparedTypes() {
+        return Collections.singletonList(argumentType);
     }
 
     @Override
