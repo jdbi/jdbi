@@ -78,7 +78,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return isInstance.test(type, null)
-                ? Optional.of(value -> build(type, value, config)
+                ? Optional.of(value -> innerBuild(value, config)
                         .orElseThrow(() -> new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to bind")))
                 : Optional.empty();
     }
@@ -89,11 +89,15 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public final Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (!isInstance.test(type, value)) {
             return Optional.empty();
         }
+        return innerBuild(value, config);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<Argument> innerBuild(Object value, ConfigRegistry config) {
         return Optional.of(value == null
                 ? new NullArgument(sqlType)
                 : build((T) value, config));
