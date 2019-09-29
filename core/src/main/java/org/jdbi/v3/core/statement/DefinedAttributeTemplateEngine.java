@@ -13,8 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
 
@@ -33,41 +40,64 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
  * (<code>_</code>).
  */
 public class DefinedAttributeTemplateEngine implements TemplateEngine {
+    private static final JdbiCache<String, Function<StatementContext, String>> RENDER_CACHE =
+            JdbiCaches.declare(DefinedAttributeTemplateEngine::prepare);
+
     @Override
     public String render(String template, StatementContext ctx) {
-        StringBuilder b = new StringBuilder();
+        return RENDER_CACHE.get(template, ctx).apply(ctx);
+    }
+
+    private static Function<StatementContext, String> prepare(String template) {
+        StringBuilder buf = new StringBuilder();
+        List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
+        Runnable pushBuf = () -> { // NOPMD
+            if (buf.length() > 0) {
+                String bit = buf.toString();
+                buf.setLength(0);
+                preparation.add((ctx, b) -> b.append(bit));
+            }
+        };
         DefineStatementLexer lexer = new DefineStatementLexer(CharStreams.fromString(template));
         lexer.addErrorListener(new ErrorListener());
-        try {
-            Token t = lexer.nextToken();
-            while (t.getType() != EOF) {
-                switch (t.getType()) {
-                    case COMMENT:
-                    case LITERAL:
-                    case QUOTED_TEXT:
-                    case DOUBLE_QUOTED_TEXT:
-                        b.append(t.getText());
-                        break;
-                    case DEFINE:
-                        String text = t.getText();
-                        String key = text.substring(1, text.length() - 1);
-                        Object value = ctx.getAttribute(key);
-                        if (value == null) {
-                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
-                        }
-                        b.append(value);
-                        break;
-                    case ESCAPED_TEXT:
-                        b.append(t.getText().substring(1));
-                        break;
-                    default:
-                        break;
-                }
-                t = lexer.nextToken();
+        Token t = lexer.nextToken();
+        while (t.getType() != EOF) {
+            switch (t.getType()) {
+            case COMMENT:
+            case LITERAL:
+            case QUOTED_TEXT:
+            case DOUBLE_QUOTED_TEXT:
+                buf.append(t.getText());
+                break;
+            case DEFINE:
+                pushBuf.run();
+                String text = t.getText();
+                String key = text.substring(1, text.length() - 1);
+                preparation.add((ctx, b) -> {
+                    Object value = ctx.getAttribute(key);
+                    if (value == null) {
+                        throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
+                    }
+                    b.append(value);
+                });
+                break;
+            case ESCAPED_TEXT:
+                buf.append(t.getText().substring(1));
+                break;
+            default:
+                break;
             }
-            return b.toString();
-        } catch (RuntimeException e) {
-            throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
+            t = lexer.nextToken();
         }
+        pushBuf.run();
+        return ctx -> {
+            try {
+                StringBuilder result = new StringBuilder();
+                preparation.forEach(a -> a.accept(ctx, result));
+                return result.toString();
+            } catch (RuntimeException e) {
+                throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
+            }
+        };
     }
 }
