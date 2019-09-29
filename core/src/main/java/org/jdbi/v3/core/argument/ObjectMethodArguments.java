@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
@@ -37,7 +39,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @deprecated this functionality will remain supported, but this class should not be API
  */
 @Deprecated
-public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder {
+public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
     private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> NULLARY_METHOD_CACHE =
             JdbiCaches.declare(ObjectMethodArguments::load);
     /**
@@ -60,8 +62,9 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
                 .forEach((name, method) -> {
                     QualifiedType<?> qualifiedType = QualifiedType.of(method.getReturnType())
                             .withAnnotations(config.get(Qualifiers.class).findFor(method));
+                    MethodHandle mh = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method);
                     methodMap.put(name, Unchecked.function(
-                            value -> new TypedValue(qualifiedType, method.invoke(value))));
+                            value -> new TypedValue(qualifiedType, mh.invoke(value))));
                 });
         } else {
             Optional.ofNullable(type.getSuperclass()).ifPresent(superclass -> methodMap.putAll(load(config, superclass)));

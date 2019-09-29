@@ -161,17 +161,17 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
         };
     }
 
-    private static UnsupportedOperationException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
+    private UnableToCreateStatementException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
         Type type = qualifiedType.getType();
         if (type instanceof Class<?>) { // not a ParameterizedType
             final TypeVariable<?>[] typeVars = ((Class<?>) type).getTypeParameters();
             if (typeVars.length > 0) {
-                return new UnsupportedOperationException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
+                return new UnableToCreateStatementException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
                     + "' with qualifiers '" + qualifiedType.getQualifiers()
                     + "'. To bind a generic type, prefer using bindByType.");
             }
         }
-        return new UnsupportedOperationException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType);
+        return new UnableToCreateStatementException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType, ctx);
     }
 
     static Object unwrap(Object maybeTypedValue) {

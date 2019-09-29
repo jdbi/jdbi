@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
@@ -25,10 +26,10 @@ import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
@@ -42,7 +43,9 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
                     .collect(Collectors.toMap(Field::getName, f -> {
                         QualifiedType<?> qualifiedType = QualifiedType.of(f.getType())
                                 .withAnnotations(config.get(Qualifiers.class).findFor(f));
-                        return obj -> get(f, qualifiedType, obj);
+                        Function<Object, Object> getter = Unchecked.function(
+                                Unchecked.function(MethodHandles.lookup()::unreflectGetter).apply(f)::invoke);
+                        return obj -> new TypedValue(qualifiedType, getter.apply(obj));
                     })));
     private final Class<?> beanClass;
 
@@ -53,15 +56,6 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     public ObjectFieldArguments(String prefix, Object bean) {
         super(prefix, bean);
         this.beanClass = bean.getClass();
-    }
-
-    private static TypedValue get(Field f, QualifiedType<?> type, Object obj) {
-        try {
-            return new TypedValue(type, f.get(obj));
-        } catch (IllegalAccessException e) {
-            throw new UnableToCreateStatementException(String.format("Access exception getting field for bean property [%s] on [%s]",
-                    f.getName(), obj), e);
-        }
     }
 
     public Optional<Function<Object, TypedValue>> getter(String name, ConfigRegistry config) {

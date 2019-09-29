@@ -17,6 +17,7 @@ import java.util.Collections;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -31,7 +32,7 @@ public class TestCollectionArguments {
         try (Handle h = db.openHandle()) {
             assertThatThrownBy(() ->
                 h.execute("SELECT * FROM something WHERE id = ANY(?)", Collections.singleton(1)))
-                    .isInstanceOf(UnsupportedOperationException.class)
+                    .isInstanceOf(UnableToCreateStatementException.class)
                     .hasMessageContaining("No type parameters found");
         }
     }
