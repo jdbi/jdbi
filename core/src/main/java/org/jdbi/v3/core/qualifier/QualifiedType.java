@@ -40,6 +40,7 @@ import static java.util.stream.Collectors.toSet;
 public final class QualifiedType<T> {
     private final Type type;
     private final Set<Annotation> qualifiers;
+    private int hashCode;
 
     /**
      * Creates a {@code QualifiedType<T>} for a {@code Class<T>} with no qualifiers.
@@ -184,7 +185,10 @@ public final class QualifiedType<T> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, qualifiers);
+        if (hashCode != 0) {
+            return hashCode;
+        }
+        return hashCode = Objects.hash(type, qualifiers);
     }
 
     @Override
