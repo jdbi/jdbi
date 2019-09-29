@@ -66,8 +66,13 @@ public class ConfigRegistry {
         }
         synchronized (createLock) {
             try {
-                C config = configClass.getDeclaredConstructor().newInstance();
-                config.setRegistry(this);
+                C config;
+                try {
+                    config = configClass.getDeclaredConstructor(ConfigRegistry.class).newInstance(this);
+                } catch (NoSuchMethodException e) {
+                    config = configClass.getDeclaredConstructor().newInstance();
+                    config.setRegistry(this);
+                }
                 return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass

@@ -15,7 +15,7 @@ package org.jdbi.v3.core.config;
 
 /**
  * Interface for classes that hold configuration. Implementations of this interface must have a public
- * constructor that takes the {@link ConfigRegistry}.
+ * constructor that optionally takes the {@link ConfigRegistry}.
  *
  * Implementors should ensure that implementations are thread-safe for access and caching purposes, but not
  * necessarily for reconfiguration.
