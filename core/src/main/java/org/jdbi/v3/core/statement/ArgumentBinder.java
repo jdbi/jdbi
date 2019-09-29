@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.internal.JdbiOptionals;
@@ -86,11 +87,14 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
                 final String name = paramNames.get(index);
                 final Object value = binding.named.get(name);
                 if (value == null && !binding.named.containsKey(name)) {
-                    binding.namedArgumentFinder.stream()
-                        .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
-                        .findFirst()
-                        .orElseThrow(() -> missingNamedParameter(name, binding))
-                        .apply(index + 1, stmt, ctx);
+                    for (NamedArgumentFinder naf : binding.namedArgumentFinder) {
+                        Optional<Argument> found = naf.find(name, ctx);
+                        if (found.isPresent()) {
+                            found.get().apply(index + 1, stmt, ctx);
+                            return;
+                        }
+                    }
+                    throw missingNamedParameter(name, binding);
                 } else {
                     argumentFactoryForType(typeOf(value))
                             .apply(unwrap(value))
