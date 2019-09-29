@@ -17,6 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.statement.SqlStatements;
+
 /**
  * A registry of {@link JdbiConfig} instances by type.
  *
@@ -30,7 +35,11 @@ public class ConfigRegistry {
      * Creates a new config registry.
      */
     public ConfigRegistry() {
-        configs.put(JdbiCaches.class, new JdbiCaches());
+        get(JdbiCaches.class);
+        get(SqlStatements.class);
+        get(Arguments.class);
+        get(RowMappers.class);
+        get(ColumnMappers.class);
     }
 
     private ConfigRegistry(ConfigRegistry that) {
