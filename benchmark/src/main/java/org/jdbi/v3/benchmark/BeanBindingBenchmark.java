@@ -97,7 +97,7 @@ public class BeanBindingBenchmark {
     }
 
     @Benchmark
-    public void jdbcBatch() throws SQLException {
+    public void batchJdbc() throws SQLException {
         Connection c = db.getHandle().getConnection();
         PreparedStatement ps = c.prepareStatement("insert into sample_table values (?, ?, ?, ?, ?, ?, ?)");
         sampleList.forEach(Unchecked.consumer(sampleBean -> {
@@ -115,7 +115,7 @@ public class BeanBindingBenchmark {
     }
 
     @Benchmark
-    public void jdbcOne() throws SQLException {
+    public void oneJdbc() throws SQLException {
         Connection c = db.getHandle().getConnection();
         for (int i = 0; i < INNER_LOOPS; i++) {
             PreparedStatement ps = c.prepareStatement("insert into sample_table values (?, ?, ?, ?, ?, ?, ?)");
@@ -133,19 +133,19 @@ public class BeanBindingBenchmark {
     }
 
     @Benchmark
-    public void jdbiBatchBindBean() {
+    public void batchJdbiBean() {
         dao.batchBindBean(sampleList);
     }
 
     @Benchmark
-    public void jdbiBindOneBean() {
+    public void oneJdbi() {
         for (int i = 0; i < INNER_LOOPS; i++) {
             dao.bindBean(sampleList.get(0));
         }
     }
 
     @Benchmark
-    public void jdbiBatchBindNamed() {
+    public void batchJdbiNamed() {
         dao.useHandle(h -> {
             PreparedBatch b = h.prepareBatch(Dao.INSERT_NAMED);
             sampleList.forEach(sampleBean -> {
@@ -163,7 +163,7 @@ public class BeanBindingBenchmark {
     }
 
     @Benchmark
-    public void jdbiBatchBindPositional() {
+    public void batchJdbiPositional() {
         dao.useHandle(h -> {
             PreparedBatch b = h.prepareBatch(Dao.INSERT_POS);
             sampleList.forEach(sampleBean -> {
@@ -181,7 +181,7 @@ public class BeanBindingBenchmark {
     }
 
     @Benchmark
-    public void jdbiBatchBindMap() {
+    public void batchJdbiMap() {
         dao.batchBindMap(sampleList.stream()
                 .map(SampleBean::toMap)
                 .iterator());
