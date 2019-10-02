@@ -36,6 +36,7 @@ import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -83,6 +84,10 @@ public interface ImmutablesPropertiesFactory {
 
         static String propertyName(Method m) {
             final String[] prefixes = new String[] {"get", "is"};
+            ColumnName colName = m.getAnnotation(ColumnName.class);
+            if (colName != null) {
+                return colName.value();
+            }
             final String name = m.getName();
             for (String prefix : prefixes) {
                 if (name.startsWith(prefix)

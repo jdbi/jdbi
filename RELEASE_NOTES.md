@@ -1,5 +1,6 @@
 # 3.11.0
   - Argument: allow direct binding of Argument subtypes
+  - Immutables: use `@ColumnName("name")` to override property-derived names
 
 # 3.10.1
   - SqlArray: Fix binding Postgres double[] / float[]

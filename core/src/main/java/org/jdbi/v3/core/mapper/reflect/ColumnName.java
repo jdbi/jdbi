@@ -27,10 +27,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <ul>
  *     <li>BeanMapper, FieldMapper, and ConstructorMapper in core</li>
  *     <li>The Kotlin data class mapper in KotlinPlugin</li>
+ *     <li>Immutables property definitions</li>
  * </ul>
  *
- * Note that this annotation only applies to mapping, not parameter binding. When binding with e.g.
- * {@link org.jdbi.v3.core.statement.SqlStatement#bindBean(Object) bindBean()}, bind parameters by
+ * Note that for beans (e.g. {@link org.jdbi.v3.core.statement.SqlStatement#bindBean(Object) bindBean()}),
+ * this annotation only applies to mapping, not parameter binding. Refer to such parameters by
  * the property name ({@code :firstName}), not the column name ({@code :first_name}).
  */
 @Retention(RUNTIME)

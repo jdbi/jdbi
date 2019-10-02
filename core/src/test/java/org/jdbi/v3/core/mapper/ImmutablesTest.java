@@ -23,6 +23,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -242,13 +243,15 @@ public class ImmutablesTest {
         boolean is();
         boolean isFoo();
         String issueType();
+        @ColumnName("isInactive") // skip automatic "is" removal
+        boolean isInactive();
     }
 
     @Test
     public void testIs() {
-        IsIsIsIs value = ImmutableIsIsIsIs.builder().is(true).isFoo(false).issueType("a").build();
-        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar)");
-        h.createUpdate("insert into isisisis (\"is\", foo, issueType) values (:is, :foo, :issueType)")
+        IsIsIsIs value = ImmutableIsIsIsIs.builder().is(true).isFoo(false).issueType("a").isInactive(true).build();
+        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar, IsInactive boolean)");
+        h.createUpdate("insert into isisisis (\"is\", foo, issueType, isInactive) values (:is, :foo, :issueType, :isInactive)")
             .bindPojo(value)
             .execute();
         assertThat(h.createQuery("select * from isisisis")
