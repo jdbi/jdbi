@@ -27,7 +27,7 @@ import org.jdbi.v3.core.statement.SqlStatements;
  *
  * @see Configurable
  */
-public class ConfigRegistry {
+public final class ConfigRegistry {
     private final Object createLock = new Object();
     private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>();
 

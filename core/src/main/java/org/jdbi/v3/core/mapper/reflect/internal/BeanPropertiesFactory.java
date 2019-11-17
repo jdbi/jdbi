@@ -99,32 +99,38 @@ public class BeanPropertiesFactory {
             final PropertyDescriptor descriptor;
             final QualifiedType<?> qualifiedType;
             final ConcurrentMap<Class<?>, Optional<Annotation>> annoCache = new ConcurrentHashMap<>();
-            final Optional<Function<Object, Object>> getter;
-            final Optional<BiConsumer<Object, Object>> setter;
+            final Function<Object, Object> getter;
+            final BiConsumer<Object, Object> setter;
 
             BeanPojoProperty(PropertyDescriptor property) {
                 this.descriptor = property;
                 this.qualifiedType = determineQualifiedType();
                 getter = Optional.ofNullable(descriptor.getReadMethod())
                         .map(Unchecked.function(MethodHandles.lookup()::unreflect))
-                        .map(mh -> Unchecked.function(mh::invoke));
+                        .map(mh -> Unchecked.function(mh::invoke))
+                        .orElse(null);
                 setter = Optional.ofNullable(descriptor.getWriteMethod())
                         .map(Unchecked.function(MethodHandles.lookup()::unreflect))
-                        .map(mh -> Unchecked.biConsumer(mh::invoke));
+                        .map(mh -> Unchecked.biConsumer(mh::invoke))
+                        .orElse(null);
             }
 
             protected Function<Object, Object> getter() {
-                return getter.orElseThrow(() ->
-                        new UnableToCreateStatementException(String.format("No getter method found for "
-                            + "bean property [%s] on [%s]",
-                            getName(), qualifiedType)));
+                if (getter == null) {
+                    throw new UnableToCreateStatementException(String.format(
+                            "No getter method found for bean property [%s] on [%s]",
+                            getName(), qualifiedType));
+                }
+                return getter;
             }
 
             protected BiConsumer<Object, Object> setter() {
-                return setter.orElseThrow(() ->
-                    new UnableToCreateStatementException(String.format("No setter method found for "
-                        + "bean property [%s] on [%s]",
-                        getName(), qualifiedType)));
+                if (setter == null) {
+                    throw new UnableToCreateStatementException(String.format(
+                            "No setter method found for bean property [%s] on [%s]",
+                            getName(), qualifiedType));
+                }
+                return setter;
             }
 
             @Override

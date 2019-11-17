@@ -185,10 +185,11 @@ public final class QualifiedType<T> {
 
     @Override
     public int hashCode() {
-        if (hashCode != 0) {
-            return hashCode;
+        int h = hashCode;
+        if (h == 0) {
+            hashCode = h = Objects.hash(type, qualifiers);
         }
-        return hashCode = Objects.hash(type, qualifiers);
+        return h;
     }
 
     @Override
