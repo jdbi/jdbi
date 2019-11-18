@@ -2,6 +2,11 @@
   - Argument: allow direct binding of Argument subtypes
   - Immutables: use `@ColumnName("name")` to override property-derived names
 
+Major Performance Rework: ArgumentFactory is now Prepareable
+Prepared arguments must select an ArgumentFactory implementation
+based only on the qualified type, not the value.  This dramatically
+increases performance for large batch inserts.
+
 # 3.10.1
   - SqlArray: Fix binding Postgres double[] / float[]
 
