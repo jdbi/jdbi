@@ -42,7 +42,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
  * to set fields on the object. All declared fields of the class and its superclasses
- * may be set. Nested properties are not supported.
+ * may be set. Nested properties are supported via the {@link Nested} annotation.
  *
  * The mapped class must have a default constructor.
  */
