@@ -34,8 +34,7 @@ public class TestAbstractArgumentFactory {
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @Mock
-    ConfigRegistry config;
+    ConfigRegistry config = new ConfigRegistry();
 
     @Mock
     PreparedStatement statement;

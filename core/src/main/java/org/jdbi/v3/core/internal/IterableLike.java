@@ -65,6 +65,9 @@ public class IterableLike {
         } else if (iterable instanceof Iterable<?>) {
             return ((Iterable<Object>) iterable).iterator();
         }
+        if (iterable instanceof Stream<?>) {
+            return ((Stream<Object>) iterable).iterator();
+        }
 
         Class<?> klass = iterable.getClass();
         if (!klass.isArray()) {
@@ -128,7 +131,8 @@ public class IterableLike {
     }
 
     private static String getTypeWarning(final Class<?> type) {
-        return "argument must be one of the following: Iterable, or an array/varargs (primitive or complex type); was " + type.getName() + " instead";
+        return "argument must be one of the following: Stream, Iterable, Iterator, "
+                + "or an array/varargs (primitive or complex type); was " + type.getName() + " instead";
     }
 
     static class PrimitiveArrayIterator implements Iterator<Object> {

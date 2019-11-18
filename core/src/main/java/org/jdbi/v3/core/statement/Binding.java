@@ -26,14 +26,23 @@ import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+
+import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
 /**
  * Represents the arguments bound to a particular statement.
  */
 public class Binding {
-    private final Map<Integer, Argument> positionals = new HashMap<>();
-    private final Map<String, Argument> named = new HashMap<>();
-    private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    protected final Map<Integer, Object> positionals = new HashMap<>();
+    protected final Map<String, Object> named = new HashMap<>();
+    protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    private final StatementContext ctx;
+
+    protected Binding(StatementContext ctx) {
+        this.ctx = ctx;
+    }
 
     /**
      * Bind a positional parameter at the given index (0-based).
@@ -41,7 +50,7 @@ public class Binding {
      * @param argument the argument to bind
      */
     public void addPositional(int position, Argument argument) {
-        positionals.put(position, argument);
+        addPositional(position, (Object) argument);
     }
 
     /**
@@ -50,7 +59,43 @@ public class Binding {
      * @param argument the argument to bind
      */
     public void addNamed(String name, Argument argument) {
-        this.named.put(name, argument);
+        addNamed(name, (Object) argument);
+    }
+
+    /**
+     * Bind a positional parameter at the given index (0-based).
+     * @param position binding position
+     * @param argument the argument to bind
+     */
+    public void addPositional(int position, Object argument) {
+        positionals.put(position, argument);
+    }
+
+    /**
+     * Bind a named parameter for the given name.
+     * @param name bound argument name
+     * @param argument the argument to bind
+     */
+    public void addNamed(String name, Object argument) {
+        named.put(name, argument);
+    }
+
+    /**
+     * Bind a positional parameter at the given index (0-based).
+     * @param position binding position
+     * @param argument the argument to bind
+     */
+    public void addPositional(int position, Object argument, QualifiedType<?> type) {
+        positionals.put(position, new TypedValue(type, argument));
+    }
+
+    /**
+     * Bind a named parameter for the given name.
+     * @param name bound argument name
+     * @param argument the argument to bind
+     */
+    public void addNamed(String name, Object argument, QualifiedType<?> type) {
+        named.put(name, new TypedValue(type, argument));
     }
 
     /**
@@ -65,23 +110,28 @@ public class Binding {
      * Look up an argument by name.
      *
      * @param name the key to lookup the value of
-     * @param ctx the statement context
+     * @param ctx2 the statement context
      *
+     * @deprecated don't inspect a Binding: keep your own state!
      * @return the bound Argument
      */
-    public Optional<Argument> findForName(String name, StatementContext ctx) {
-        if (named.containsKey(name)) {
-            return Optional.of(named.get(name));
+    @Deprecated
+    public Optional<Argument> findForName(String name, StatementContext ctx2) {
+        final Object found = named.get(name);
+        if (found != null || named.containsKey(name)) {
+            return Optional.of(new ArgumentBinder<>(null, ctx2, ParsedParameters.NONE).toArgument(found));
         }
 
         return namedArgumentFinder.stream()
-                .flatMap(arguments -> JdbiOptionals.stream(arguments.find(name, ctx)))
+                .flatMap(arguments -> JdbiOptionals.stream(arguments.find(name, ctx2)))
                 .findFirst();
     }
 
     /**
      * @return the set of known binding names
+     * @deprecated this is expensive to compute, and it's bad practice to inspect a Binding: keep track of your own state!
      */
+    @Deprecated
     public Collection<String> getNames() {
         final Set<String> names = new HashSet<>(named.keySet());
         namedArgumentFinder.forEach(args -> names.addAll(args.getNames()));
@@ -92,20 +142,22 @@ public class Binding {
      * Look up an argument by position.
      *
      * @param position starts at 0, not 1
+     * @deprecated don't inspect a Binding: keep your own state!
      * @return argument bound to that position
      */
+    @Deprecated
     public Optional<Argument> findForPosition(int position) {
-        return Optional.ofNullable(positionals.get(position));
+        return Optional.ofNullable(new ArgumentBinder<>(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
     }
 
     @Override
     public String toString() {
         String positionalsDescription = positionals.entrySet().stream()
-            .map(x -> x.getKey().toString() + ':' + x.getValue())
+            .map(x -> x.getKey().toString() + ':' + unwrap(x.getValue()))
             .collect(Collectors.joining(","));
 
         String namedDescription = named.entrySet().stream()
-            .map(x -> x.getKey() + ':' + x.getValue())
+            .map(x -> x.getKey() + ':' + unwrap(x.getValue()))
             .collect(Collectors.joining(","));
 
         String found = namedArgumentFinder.stream()

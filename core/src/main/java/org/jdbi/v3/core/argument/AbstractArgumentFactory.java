@@ -14,9 +14,13 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -46,9 +50,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  *
  * @param <T> the type of argument supported by this factory.
  */
-public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
+public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Preparable {
     private final int sqlType;
     private final ArgumentPredicate isInstance;
+    private final Type argumentType;
 
     /**
      * Constructs an {@link ArgumentFactory} for type {@code T}.
@@ -57,7 +62,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
      */
     protected AbstractArgumentFactory(int sqlType) {
         this.sqlType = sqlType;
-        Type argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
+        argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
                 .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName()
                     + " must extend AbstractArgumentFactory with a concrete T parameter"));
 
@@ -71,11 +76,28 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return isInstance.test(type, null)
+                ? Optional.of(value -> innerBuild(value, config)
+                        .orElseThrow(() -> new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to bind")))
+                : Optional.empty();
+    }
+
+    @Override
+    public Collection<Type> prePreparedTypes() {
+        return Collections.singletonList(argumentType);
+    }
+
+    @Override
     public final Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (!isInstance.test(type, value)) {
             return Optional.empty();
         }
+        return innerBuild(value, config);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<Argument> innerBuild(Object value, ConfigRegistry config) {
         return Optional.of(value == null
                 ? new NullArgument(sqlType)
                 : build((T) value, config));

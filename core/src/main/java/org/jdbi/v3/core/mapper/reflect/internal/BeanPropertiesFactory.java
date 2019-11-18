@@ -17,7 +17,9 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -25,7 +27,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,30 +39,16 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.BeanPojoProperty;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.PropertiesHolder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 public class BeanPropertiesFactory {
-    private static final JdbiCache<Type, Map<String, BeanPojoProperty<?>>> PROPERTY_CACHE =
-            JdbiCaches.declare(BeanPropertiesFactory::getProperties0);
-
-    private static final String TYPE_NOT_INSTANTIABLE =
-        "A bean, %s, was mapped which was not instantiable";
-
-    private static final String MISSING_SETTER =
-        "No appropriate method to write property %s";
-
-    private static final String SETTER_NOT_ACCESSIBLE =
-        "Unable to access setter for property, %s";
-
-    private static final String INVOCATION_TARGET_EXCEPTION =
-        "Invocation target exception trying to invoker setter for the %s property";
-
-    private static final String REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION =
-        "Write method of %s for property %s is not compatible with the value passed";
+    private static final JdbiCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
+            JdbiCaches.declare(t -> new PropertiesHolder<>(GenericTypes.getErasedType(t)));
 
     private BeanPropertiesFactory() {}
 
@@ -70,17 +62,6 @@ public class BeanPropertiesFactory {
         return read == null || read.getDeclaringClass() != Object.class;
     }
 
-    private static Map<String, BeanPojoProperty<?>> getProperties0(Type t) {
-        try {
-            return Arrays.stream(Introspector.getBeanInfo(GenericTypes.getErasedType(t)).getPropertyDescriptors())
-                    .filter(BeanPropertiesFactory::shouldSeeProperty)
-                    .map(BeanPojoProperty::new)
-                    .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
-        } catch (IntrospectionException e) {
-            throw new IllegalArgumentException("Failed to inspect bean " + t, e);
-        }
-    }
-
     static class BeanPojoProperties<T> extends PojoProperties<T> {
         private final ConfigRegistry config;
 
@@ -92,37 +73,19 @@ public class BeanPropertiesFactory {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public Map<String, BeanPojoProperty<T>> getProperties() {
-            return (Map) PROPERTY_CACHE.get(getType(), config);
+            return (Map) PROPERTY_CACHE.get(getType(), config).properties;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public PojoBuilder<T> create() {
-            final Class<?> type = GenericTypes.getErasedType(getType());
-            final T instance;
-            try {
-                instance = (T) type.newInstance();
-            } catch (Exception e) {
-                throw new IllegalArgumentException(String.format(TYPE_NOT_INSTANTIABLE, type.getName()), e);
-            }
+            final PropertiesHolder<?> holder = PROPERTY_CACHE.get(getType(), config);
+            final T instance = (T) holder.constructor.get();
             return new PojoBuilder<T>() {
                 @Override
                 public void set(String property, Object value) {
-                    final BeanPojoProperty<T> prop = getProperties().get(property);
-                    try {
-                        Method writeMethod = prop.descriptor.getWriteMethod();
-                        if (writeMethod == null) {
-                            throw new IllegalArgumentException(String.format(MISSING_SETTER, property));
-                        }
-                        writeMethod.invoke(instance, value);
-                    } catch (IllegalAccessException e) {
-                        throw new IllegalArgumentException(String.format(SETTER_NOT_ACCESSIBLE, property), e);
-                    } catch (InvocationTargetException e) {
-                        throw new IllegalArgumentException(String.format(INVOCATION_TARGET_EXCEPTION, property), e);
-                    } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(String.format(REFLECTION_ILLEGAL_ARGUMENT_EXCEPTION,
-                            prop.getQualifiedType(), prop.getName()), e);
-                    }
+                    holder.properties.get(property)
+                        .setter()
+                        .accept(instance, value);
                 }
 
                 @Override
@@ -134,9 +97,40 @@ public class BeanPropertiesFactory {
 
         static class BeanPojoProperty<T> implements PojoProperty<T> {
             final PropertyDescriptor descriptor;
+            final QualifiedType<?> qualifiedType;
+            final ConcurrentMap<Class<?>, Optional<Annotation>> annoCache = new ConcurrentHashMap<>();
+            final Function<Object, Object> getter;
+            final BiConsumer<Object, Object> setter;
 
             BeanPojoProperty(PropertyDescriptor property) {
                 this.descriptor = property;
+                this.qualifiedType = determineQualifiedType();
+                getter = Optional.ofNullable(descriptor.getReadMethod())
+                        .map(Unchecked.function(MethodHandles.lookup()::unreflect))
+                        .map(mh -> Unchecked.function(mh::invoke))
+                        .orElse(null);
+                setter = Optional.ofNullable(descriptor.getWriteMethod())
+                        .map(Unchecked.function(MethodHandles.lookup()::unreflect))
+                        .map(mh -> Unchecked.biConsumer(mh::invoke))
+                        .orElse(null);
+            }
+
+            protected Function<Object, Object> getter() {
+                if (getter == null) {
+                    throw new UnableToCreateStatementException(String.format(
+                            "No getter method found for bean property [%s] on [%s]",
+                            getName(), qualifiedType));
+                }
+                return getter;
+            }
+
+            protected BiConsumer<Object, Object> setter() {
+                if (setter == null) {
+                    throw new UnableToCreateStatementException(String.format(
+                            "No setter method found for bean property [%s] on [%s]",
+                            getName(), qualifiedType));
+                }
+                return setter;
             }
 
             @Override
@@ -146,6 +140,10 @@ public class BeanPropertiesFactory {
 
             @Override
             public QualifiedType<?> getQualifiedType() {
+                return qualifiedType;
+            }
+
+            private QualifiedType<?> determineQualifiedType() {
                 Parameter setterParam = Optional.ofNullable(descriptor.getWriteMethod())
                     .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
                     .orElse(null);
@@ -160,34 +158,46 @@ public class BeanPropertiesFactory {
 
             @Override
             public <A extends Annotation> Optional<A> getAnnotation(Class<A> anno) {
-                return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+                return annoCache.computeIfAbsent(anno, x ->
+                    Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
                         .filter(Objects::nonNull)
                         .map(m -> m.getAnnotation(anno))
                         .filter(Objects::nonNull)
-                        .findFirst();
+                        .findFirst()
+                        .map(Annotation.class::cast))
+                    .map(anno::cast);
             }
 
             @Override
             public Object get(T pojo) {
-                Method getter = descriptor.getReadMethod();
+                return getter().apply(pojo);
+            }
+        }
 
-                if (getter == null) {
-                    throw new UnableToCreateStatementException(String.format("No getter method found for "
-                            + "bean property [%s] on [%s]",
-                        getName(), pojo));
-                }
-
+        static class PropertiesHolder<T> {
+            final Supplier<T> constructor;
+            final Map<String, BeanPojoProperty<?>> properties;
+            PropertiesHolder(Class<?> clazz) {
                 try {
-                    return getter.invoke(pojo);
-                } catch (IllegalAccessException e) {
-                    throw new UnableToCreateStatementException(String.format("Access exception invoking "
-                            + "method [%s] on [%s]",
-                            getter.getName(), pojo), e);
-                } catch (InvocationTargetException e) {
-                    throw new UnableToCreateStatementException(String.format("Invocation target exception invoking "
-                            + "method [%s] on [%s]",
-                            getter.getName(), pojo), e);
+                    properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
+                            .filter(BeanPropertiesFactory::shouldSeeProperty)
+                            .map(BeanPojoProperty::new)
+                            .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
+                } catch (IntrospectionException e) {
+                    throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
+                Supplier<T> myConstructor;
+                try {
+                    MethodHandle ctorMh = MethodHandles.lookup()
+                            .findConstructor(clazz, MethodType.methodType(void.class))
+                            .asType(MethodType.methodType(clazz));
+                    myConstructor = Unchecked.supplier(() -> (T) ctorMh.invoke());
+                } catch (ReflectiveOperationException e) {
+                    myConstructor = () -> {
+                        throw Sneaky.throwAnyway(e);
+                    };
+                }
+                constructor = myConstructor;
             }
         }
     }

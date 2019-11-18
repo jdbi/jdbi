@@ -13,8 +13,10 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
@@ -23,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 
 class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
     private final Class<T> type;
-    private final Method method;
+    private final Function<Object[], Object> method;
 
     StaticMethodInstanceFactory(Class<T> type, Method method) {
         super(method);
@@ -32,7 +34,10 @@ class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
         if (!isStaticFactoryMethodFor(method, type)) {
             throw new IllegalArgumentException(format("Given method \"%s\" is not a valid factory method for %s", method, type));
         }
-        this.method = method;
+        this.method = Unchecked.function(
+                Unchecked.function(MethodHandles.lookup()::unreflect)
+                    .apply(method)
+                ::invokeWithArguments);
     }
 
     private static boolean isStaticFactoryMethodFor(Method method, Class<?> type) {
@@ -42,7 +47,7 @@ class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
 
     @Override
     T newInstance(Object... params) {
-        return type.cast(Unchecked.<Object, Object[], Object>biFunction(method::invoke).apply(null, params));
+        return type.cast(method.apply(params));
     }
 
     @Override

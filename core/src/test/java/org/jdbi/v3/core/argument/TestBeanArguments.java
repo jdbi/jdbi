@@ -89,7 +89,7 @@ public class TestBeanArguments {
     @Test
     public void testBindIllegalAccess() {
         assertThatThrownBy(() -> new BeanPropertyArguments("foo", new ThrowsIllegalAccessException()).find("foo.bar", ctx))
-            .isInstanceOf(UnableToCreateStatementException.class);
+            .isInstanceOf(IllegalAccessException.class);
     }
 
     public static class ThrowsIllegalAccessException {

@@ -379,7 +379,7 @@ public class TestQueries {
     @Test
     public void testUsefulArgumentOutputForDebug() {
         expectedException.expect(StatementException.class);
-        expectedException.expectMessage("arguments:{positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean property arguments \"java.lang.Object");
+        expectedException.expectMessage("binding:{positional:{7:8}, named:{one:two,name:brian}, finder:[{lazy bean property arguments \"java.lang.Object");
 
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("name", "brian")

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -22,19 +24,23 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.core.argument.internal.MethodReturnValueNamedArgumentFinder;
+import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Binds public methods with no parameters on a specified object.
+ * @deprecated this functionality will remain supported, but this class should not be API
  */
-public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder {
-    private static final JdbiCache<Class<?>, Map<String, Method>> NULLARY_METHOD_CACHE =
+@Deprecated
+public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
+    private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> NULLARY_METHOD_CACHE =
             JdbiCaches.declare(ObjectMethodArguments::load);
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
@@ -44,32 +50,36 @@ public class ObjectMethodArguments extends MethodReturnValueNamedArgumentFinder 
         super(prefix, object);
     }
 
-    private static Map<String, Method> load(Class<?> type) {
+    private static Map<String, Function<Object, TypedValue>> load(ConfigRegistry config, Class<?> type) {
+        final HashMap<String, Function<Object, TypedValue>> methodMap = new HashMap<>();
         if (Modifier.isPublic(type.getModifiers())) {
-            return Arrays.stream(type.getMethods())
+            Arrays.stream(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
-                .collect(Collectors.toMap(Method::getName, Function.identity(), ObjectMethodArguments::bridgeMethodMerge));
+                .collect(Collectors.toMap(
+                        Method::getName,
+                        Function.identity(),
+                        ObjectMethodArguments::bridgeMethodMerge))
+                .forEach((name, method) -> {
+                    QualifiedType<?> qualifiedType = QualifiedType.of(method.getReturnType())
+                            .withAnnotations(config.get(Qualifiers.class).findFor(method));
+                    MethodHandle mh = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method);
+                    methodMap.put(name, Unchecked.function(
+                            value -> new TypedValue(qualifiedType, mh.invoke(value))));
+                });
         } else {
-            final HashMap<String, Method> methodMap = new HashMap<>();
-            Optional.ofNullable(type.getSuperclass()).ifPresent(superclass -> methodMap.putAll(load(superclass)));
-            Arrays.stream(type.getInterfaces()).forEach(interfaceClass -> methodMap.putAll(load(interfaceClass)));
-            return methodMap;
+            Optional.ofNullable(type.getSuperclass()).ifPresent(superclass -> methodMap.putAll(load(config, superclass)));
+            Arrays.stream(type.getInterfaces()).forEach(interfaceClass -> methodMap.putAll(load(config, interfaceClass)));
         }
+        return methodMap;
     }
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        Method method = NULLARY_METHOD_CACHE.get(obj.getClass(), ctx).get(name);
+        return getter(name, ctx.getConfig()).map(m -> m.apply(obj));
+    }
 
-        if (method == null) {
-            return Optional.empty();
-        }
-
-        QualifiedType<?> type = QualifiedType.of(method.getGenericReturnType())
-                                .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(method));
-        Object value = invokeMethod(method, ctx);
-
-        return Optional.of(new TypedValue(type, value));
+    public Optional<Function<Object, TypedValue>> getter(String name, ConfigRegistry config) {
+        return Optional.ofNullable(NULLARY_METHOD_CACHE.get(obj.getClass(), config).get(name));
     }
 
     @Override

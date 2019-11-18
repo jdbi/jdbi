@@ -28,6 +28,7 @@ import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -173,7 +174,7 @@ public class BeanMapperMockTest {
         when(resultSet.getString(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -183,7 +184,7 @@ public class BeanMapperMockTest {
         when(resultSet.getInt(1)).thenReturn(200);
         when(resultSet.wasNull()).thenReturn(false);
 
-        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -193,7 +194,7 @@ public class BeanMapperMockTest {
         when(resultSet.getBigDecimal(1)).thenReturn(BigDecimal.ONE);
         when(resultSet.wasNull()).thenReturn(false);
 
-        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -238,7 +239,7 @@ public class BeanMapperMockTest {
         when(resultSet.getObject(2)).thenReturn(new Object());
         when(resultSet.wasNull()).thenReturn(false);
 
-        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(ClassCastException.class);
     }
 
     @Test

@@ -17,12 +17,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.statement.SqlStatements;
+
 /**
  * A registry of {@link JdbiConfig} instances by type.
  *
  * @see Configurable
  */
-public class ConfigRegistry {
+public final class ConfigRegistry {
     private final Object createLock = new Object();
     private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>();
 
@@ -30,7 +35,11 @@ public class ConfigRegistry {
      * Creates a new config registry.
      */
     public ConfigRegistry() {
-        configs.put(JdbiCaches.class, new JdbiCaches());
+        get(JdbiCaches.class);
+        get(SqlStatements.class);
+        get(Arguments.class);
+        get(RowMappers.class);
+        get(ColumnMappers.class);
     }
 
     private ConfigRegistry(ConfigRegistry that) {
@@ -57,8 +66,13 @@ public class ConfigRegistry {
         }
         synchronized (createLock) {
             try {
-                C config = configClass.getDeclaredConstructor().newInstance();
-                config.setRegistry(this);
+                C config;
+                try {
+                    config = configClass.getDeclaredConstructor(ConfigRegistry.class).newInstance(this);
+                } catch (NoSuchMethodException e) {
+                    config = configClass.getDeclaredConstructor().newInstance();
+                    config.setRegistry(this);
+                }
                 return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass

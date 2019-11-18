@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,8 +26,13 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
-abstract class DelegatingArgumentFactory implements ArgumentFactory {
-    private final Map<Class<?>, Function<?, Argument>> builders = new IdentityHashMap<>();
+abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
+    private final Map<Class<?>, Function<Object, Argument>> builders = new IdentityHashMap<>();
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return Optional.ofNullable(builders.get(getErasedType(type)));
+    }
 
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
@@ -36,14 +42,16 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory {
             expectedClass = value.getClass();
         }
 
-        // we can assume argbuilder to be compatible with value because register method is strict
-        @SuppressWarnings("unchecked")
-        Function<Object, Argument> reusable = (Function<Object, Argument>) builders.get(expectedClass);
-
-        return Optional.ofNullable(reusable).map(r -> r.apply(value));
+        return Optional.ofNullable(builders.get(expectedClass)).map(r -> r.apply(value));
     }
 
+    @Override
+    public Collection<? extends Type> prePreparedTypes() {
+        return builders.keySet();
+    }
+
+    @SuppressWarnings("unchecked")
     <T> void register(Class<T> klass, int sqlType, StatementBinder<T> binder) {
-        builders.put(klass, (T value) -> value == null ? new NullArgument(sqlType) : new LoggableBinderArgument<>(value, binder));
+        builders.put(klass, value -> value == null ? new NullArgument(sqlType) : new LoggableBinderArgument<>((T) value, binder));
     }
 }

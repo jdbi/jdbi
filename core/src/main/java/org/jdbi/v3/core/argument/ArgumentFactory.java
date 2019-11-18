@@ -14,10 +14,13 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Inspect a value with optional static type information and produce
@@ -40,4 +43,19 @@ public interface ArgumentFactory {
      * @see Arguments#findFor(Type, Object)
      */
     Optional<Argument> build(Type type, Object value, ConfigRegistry config);
+
+    /**
+     * ArgumentFactory extension interface that allows preparing arguments for efficient batch binding.
+     */
+    @Beta
+    interface Preparable extends ArgumentFactory {
+        @Override
+        default Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+            return prepare(type, config).map(p -> p.apply(value));
+        }
+
+        Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config);
+
+        Collection<? extends Type> prePreparedTypes();
+    }
 }

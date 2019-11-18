@@ -135,13 +135,12 @@ public class TestStatements {
     }
 
     @Test
-    // TODO it would be nice if this failed in the future
     public void testFarAwayPositional() {
-        assertThatCode(() -> h.createQuery("select * from something where id = ?")
+        assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
             .bind(0, 1)
             .bind(2, "jack")
             .collectRows(Collectors.counting())
-        ).doesNotThrowAnyException();
+        ).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.sqlobject.statement.internal.SqlObjectStatementConfiguration;
 
 /**
  * Plugin that installs the SqlObject extension.
@@ -26,5 +27,6 @@ public class SqlObjectPlugin extends JdbiPlugin.Singleton {
         SqlObjectFactory factory = new SqlObjectFactory();
         db.registerExtension(factory);
         db.getConfig(OnDemandExtensions.class).setFactory(factory);
+        db.getConfig(SqlObjectStatementConfiguration.class);
     }
 }

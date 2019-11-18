@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -126,6 +127,12 @@ public class IterableLikeTest {
 
         final Object[] out = toArray(IterableLike.of(in));
 
+        assertThat(out).containsExactly("1", "2");
+    }
+
+    @Test
+    public void testStreamToIterator() {
+        final Object[] out = toArray(IterableLike.of(Stream.of("1", "2")));
         assertThat(out).containsExactly("1", "2");
     }
 

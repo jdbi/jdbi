@@ -15,9 +15,13 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -35,10 +39,14 @@ import org.jdbi.v3.meta.Beta;
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
+    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories;
+
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
-    public Arguments() {
+    public Arguments(ConfigRegistry registry) {
+        this.registry = registry;
+        preparedFactories = new ConcurrentHashMap<>();
         // TODO move to BuiltInSupportPlugin
 
         // the null factory must be interrogated last to preserve types!
@@ -66,6 +74,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private Arguments(Arguments that) {
         factories.addAll(that.factories);
+        preparedFactories = new ConcurrentHashMap<>(that.preparedFactories);
         untypedNullArgument = that.untypedNullArgument;
     }
 
@@ -76,7 +85,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return this
      */
     public Arguments register(ArgumentFactory factory) {
-        return register(QualifiedArgumentFactory.adapt(factory));
+        return register(QualifiedArgumentFactory.adapt(registry, factory));
     }
 
     /**
@@ -88,6 +97,14 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Beta
     public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
+        if (factory instanceof QualifiedArgumentFactory.Preparable) {
+            QualifiedArgumentFactory.Preparable qaf = (QualifiedArgumentFactory.Preparable) factory;
+            qaf.prepPreparedTypes()
+                .forEach(t ->
+                    preparedFactories.put(t,
+                        qaf.prepare(t, registry)
+                            .orElseThrow(() -> new IllegalStateException("Preparable " + t + " failed on " + qaf))));
+        }
         return this;
     }
 
@@ -111,9 +128,47 @@ public class Arguments implements JdbiConfig<Arguments> {
      */
     @Beta
     public Optional<Argument> findFor(QualifiedType<?> type, Object value) {
+        Function<Object, Argument> prepared = preparedFactories.get(type);
+        if (prepared != null) {
+            return Optional.of(prepared.apply(value));
+        }
         return factories.stream()
             .flatMap(factory -> JdbiOptionals.stream(factory.build(type, value, registry)))
             .findFirst();
+    }
+
+    /**
+     * Obtain a prepared argument function for given type in the given context.
+     *
+     * @param type  the type of the argument.
+     * @return an Argument factory function for the given value.
+     */
+    public Optional<Function<Object, Argument>> prepareFor(Type type) {
+        return prepareFor(QualifiedType.of(type));
+    }
+
+    /**
+     * Obtain a prepared argument function for given type in the given context.
+     *
+     * @param type  the qualified type of the argument.
+     * @return an Argument factory function for the given value.
+     */
+    @Beta
+    public Optional<Function<Object, Argument>> prepareFor(QualifiedType<?> type) {
+        Function<Object, Argument> prepared = preparedFactories.get(type);
+        if (prepared != null) {
+            return Optional.of(prepared);
+        }
+        return factories.stream()
+            .filter(QualifiedArgumentFactory.Preparable.class::isInstance)
+            .map(QualifiedArgumentFactory.Preparable.class::cast)
+            .flatMap(factory -> JdbiOptionals.stream(factory.prepare(type, registry)))
+            .findFirst();
+    }
+
+    @Beta
+    public List<QualifiedArgumentFactory> getFactories() {
+        return Collections.unmodifiableList(factories);
     }
 
     /**

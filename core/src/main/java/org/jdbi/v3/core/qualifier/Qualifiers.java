@@ -15,6 +15,7 @@ package org.jdbi.v3.core.qualifier;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,6 +46,10 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
+    }
+
+    public <ELEM extends AnnotatedElement & Type> QualifiedType<?> qualifiedTypeOf(ELEM type) {
+        return QualifiedType.of(type).withAnnotations(findFor(type));
     }
 
     /**

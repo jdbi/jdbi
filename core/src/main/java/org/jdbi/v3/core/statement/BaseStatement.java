@@ -20,7 +20,6 @@ import java.util.Collection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.generic.GenericTypes;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     @SuppressWarnings("unchecked")
@@ -32,15 +31,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     BaseStatement(Handle handle) {
         this.handle = handle;
         this.ctx = new StatementContext(handle.getConfig().createCopy(), handle.getExtensionMethod());
-
-        // Prevent bogus signatures like Update extends SqlStatement<Query>
-        // SqlStatement's generic parameter must be supertype of getClass()
-        if (GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
-            .map(GenericTypes::getErasedType)
-            .map(type -> !type.isAssignableFrom(getClass()))
-            .orElse(false)) { // subclass is raw type.. ¯\_(ツ)_/¯
-            throw new IllegalStateException("inconsistent SqlStatement hierarchy");
-        }
     }
 
     public Handle getHandle() {

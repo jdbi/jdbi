@@ -25,6 +25,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -82,7 +83,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnsupportedOperationException.class);
+        exception.expect(UnableToCreateStatementException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -122,7 +123,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnsupportedOperationException.class);
+        exception.expect(UnableToCreateStatementException.class);
         handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)

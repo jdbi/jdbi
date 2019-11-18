@@ -28,9 +28,9 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  * This class hosts the logic from BeanPropertyArguments.
  * When we can remove that class from public API, this class will easily replace it.
  */
-public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder {
-    private final PojoProperties<?> properties;
-    private final ConfigRegistry config;
+public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
+    protected final PojoProperties<?> properties;
+    protected final ConfigRegistry config;
 
     public PojoPropertyArguments(String prefix, Object obj, ConfigRegistry config) {
         this(prefix,
@@ -47,10 +47,9 @@ public class PojoPropertyArguments extends MethodReturnValueNamedArgumentFinder 
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx2) {
-        @SuppressWarnings("unchecked")
-        PojoProperty<Object> property = (PojoProperty<Object>) properties.getProperties().get(name);
-        return Optional.ofNullable(property)
+    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
+        return Optional.ofNullable(properties.getProperties().get(name))
+                .map(PojoProperty.class::cast)
                 .map(p -> new TypedValue(p.getQualifiedType(), p.get(obj)));
     }
 

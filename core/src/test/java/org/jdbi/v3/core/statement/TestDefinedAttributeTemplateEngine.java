@@ -24,8 +24,6 @@ import static java.util.Collections.singletonMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestDefinedAttributeTemplateEngine {
     private TemplateEngine templateEngine;
@@ -34,7 +32,7 @@ public class TestDefinedAttributeTemplateEngine {
     @Before
     public void setUp() {
         templateEngine = new DefinedAttributeTemplateEngine();
-        ctx = mock(StatementContext.class);
+        ctx = new StatementContext();
     }
 
     private String render(String sql) {
@@ -42,7 +40,7 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     private String render(String sql, Map<String, Object> attributes) {
-        attributes.forEach((key, value) -> when(ctx.getAttribute(key)).thenReturn(value));
+        attributes.forEach(ctx.getConfig(SqlStatements.class)::define);
 
         return templateEngine.render(sql, ctx);
     }
