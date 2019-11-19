@@ -82,9 +82,10 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     Function<Object, Argument> buildArgument(QualifiedType<?> type) {
-        return getContext().getConfig(Arguments.class)
+        Arguments args = getContext().getConfig(Arguments.class);
+        return args
                 .prepareFor(type)
-                .orElseThrow(() -> new IllegalStateException());
+                .orElse(value -> (pos, stmt, ctx) -> args.findFor(type, value));
     }
 
     @Override

@@ -1,3 +1,6 @@
+# 3.11.1
+  - fix PreparedBatch binding non-prepareable nested arguments
+
 # 3.11.0
   - Argument: allow direct binding of Argument subtypes
   - Immutables: use `@ColumnName("name")` to override property-derived names
