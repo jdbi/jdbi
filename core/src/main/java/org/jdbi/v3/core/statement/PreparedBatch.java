@@ -82,12 +82,14 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     Function<Object, Argument> buildArgument(QualifiedType<?> type) {
-        Arguments args = getContext().getConfig(Arguments.class);
-        return args
+        return getContext().getConfig(Arguments.class)
                 .prepareFor(type)
-                .orElse(value -> (pos, st, ctx) -> args.findFor(type, value)
-                        .orElseThrow(() -> new UnableToCreateStatementException("no argument factory for type " + type, ctx))
-                        .apply(pos, st, ctx));
+                .orElse(value ->
+                    (pos, st, ctx) ->
+                        ctx.getConfig(Arguments.class)
+                            .findFor(type, value)
+                            .orElseThrow(() -> new UnableToCreateStatementException("no argument factory for type " + type, ctx))
+                            .apply(pos, st, ctx));
     }
 
     @Override
