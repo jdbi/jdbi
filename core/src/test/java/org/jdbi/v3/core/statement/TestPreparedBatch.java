@@ -14,12 +14,20 @@
 package org.jdbi.v3.core.statement;
 
 import java.beans.ConstructorProperties;
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.After;
@@ -227,6 +235,21 @@ public class TestPreparedBatch {
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
+    @Test
+    public void testNestedNotPrepareable() {
+        h.registerArgument(new WrappedIntArgumentFactory());
+        h.registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class));
+        h.registerColumnMapper(new WrappedIntColumnMapperFactory());
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bindFields(new WrappedIntPublicSomething(new WrappedInt(2), "Sally")).add();
+        b.bindFields(new WrappedIntPublicSomething(new WrappedInt(3), "Erica")).add();
+        b.execute();
+
+        final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id").mapTo(WrappedIntPublicSomething.class).list();
+        assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(new WrappedInt(2), "Sally"), tuple(new WrappedInt(3), "Erica"));
+    }
+
     public static class PublicSomething {
         public int id;
         public String name;
@@ -235,6 +258,61 @@ public class TestPreparedBatch {
         public PublicSomething(Integer id, String name) {
             this.id = id;
             this.name = name;
+        }
+    }
+
+    public static class WrappedIntPublicSomething {
+        public WrappedInt id;
+        public String name;
+
+        @ConstructorProperties({"id", "name"})
+        public WrappedIntPublicSomething(WrappedInt id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    public static class WrappedInt {
+        final int i;
+
+        public WrappedInt(final int i) {
+            this.i = i;
+        }
+
+        @Override
+        public int hashCode() {
+            return i;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            WrappedInt other = (WrappedInt) obj;
+            return i == other.i;
+        }
+    }
+
+    public static class WrappedIntArgumentFactory implements ArgumentFactory {
+        @Override
+        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+            return type == WrappedInt.class
+                    ? Optional.of((p, s, c) -> s.setInt(p, ((WrappedInt) value).i))
+                    : Optional.empty();
+        }
+    }
+
+    public static class WrappedIntColumnMapperFactory implements ColumnMapper<WrappedInt> {
+        @Override
+        public WrappedInt map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return new WrappedInt(r.getInt(columnNumber));
         }
     }
 }
