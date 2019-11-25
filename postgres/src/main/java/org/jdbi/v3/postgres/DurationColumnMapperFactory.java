@@ -57,10 +57,10 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
                                 interval.getValue()));
             }
             final long secondsLong = (long) seconds;
-            final long nanos = ((BigDecimal.valueOf(seconds)
-                .subtract(BigDecimal.valueOf(secondsLong)))
-                .movePointRight(9))
-                .longValue();
+            final long nanos = BigDecimal.valueOf(seconds)
+                    .subtract(BigDecimal.valueOf(secondsLong))
+                    .movePointRight(9)
+                    .longValue();
             return Duration.ofDays(interval.getDays())
                     .plusHours(interval.getHours())
                     .plusMinutes(interval.getMinutes())
