@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.time.Duration;
 
@@ -68,7 +69,9 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
             throw new IllegalArgumentException(
                     String.format("duration %s too precise to represented as postgres interval", d));
         }
-        double seconds = d.getSeconds() + d.getNano() / 1e9;
+        double seconds = BigDecimal.valueOf(d.getSeconds())
+                .add(BigDecimal.valueOf(d.getNano()).movePointLeft(9))
+                .doubleValue();
         final PGInterval interval = new PGInterval(0, 0, (int) days, hours, minutes, seconds);
         if (isNegative) {
             interval.scale(-1);
