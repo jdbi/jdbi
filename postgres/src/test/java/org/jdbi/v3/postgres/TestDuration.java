@@ -153,6 +153,16 @@ public class TestDuration {
             .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    public void testFloatingPointMath() {
+        handle.execute("insert into intervals(id, foo) values(?, interval '.129428s')", 13);
+        final Duration d = handle.createQuery("select foo from intervals where id=?")
+            .bind(0, 13)
+            .mapTo(Duration.class)
+            .one();
+        assertThat(d).isEqualTo(Duration.ofNanos(129_428_000));
+    }
+
     // We guard against reading intervals with seconds too big or too small (i.e., more extreme than Long minimum and
     // maximum values), but it's unclear how to actually create such intervals in Postgres.
 }

@@ -14,6 +14,7 @@
 package org.jdbi.v3.postgres;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -56,7 +57,10 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
                                 interval.getValue()));
             }
             final long secondsLong = (long) seconds;
-            final long nanos = (long) ((seconds - secondsLong) * 1e9);
+            final long nanos = ((BigDecimal.valueOf(seconds)
+                .subtract(BigDecimal.valueOf(secondsLong)))
+                .movePointRight(9))
+                .longValue();
             return Duration.ofDays(interval.getDays())
                     .plusHours(interval.getHours())
                     .plusMinutes(interval.getMinutes())
