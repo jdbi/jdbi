@@ -537,7 +537,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public <T> T attach(Class<T> extensionType) {
         return getConfig(Extensions.class)
                 .findFor(extensionType, ConstantHandleSupplier.of(this))
-                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+                .orElseThrow(() -> new NoSuchExtensionException(extensionType));
     }
 
     /**

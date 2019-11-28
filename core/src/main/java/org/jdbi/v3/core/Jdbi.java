@@ -470,7 +470,7 @@ public class Jdbi implements Configurable<Jdbi> {
                                                             HandleSupplier handle) throws X {
         E extension = getConfig(Extensions.class)
             .findFor(extensionType, handle)
-            .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+            .orElseThrow(() -> new NoSuchExtensionException(extensionType));
 
         return callback.withExtension(extension);
     }

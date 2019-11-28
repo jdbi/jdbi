@@ -21,6 +21,10 @@ import org.jdbi.v3.core.JdbiException;
 public class NoSuchExtensionException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
+    public NoSuchExtensionException(Class<?> extensionClass) {
+        this("Extension not found: " + extensionClass + " [Hint: maybe you need to register a plugin, like SqlObjectPlugin]");
+    }
+
     public NoSuchExtensionException(String string, Throwable throwable) {
         super(string, throwable);
     }
