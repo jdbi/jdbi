@@ -521,6 +521,14 @@ include::{exampledir}/ArgumentsTest.java[tags=uuidArgumentFactory]
 <2> Since `Argument` is a functional interface, it can be implemented as a
     simple lambda expression.
 
+===== Prepared Arguments
+
+Traditional argument factories decide to bind based on both the type and actual value of the binding.
+This is very flexible but when binding a large `PreparedBatch` it incurs a serious performance penalty
+as the entire chain of argument factories must be consulted for each batch of arguments added.
+To address this issue, implement `ArgumentFactory.Preparable` which promises to handle all values
+of a given `Type`.  Most built in argument factories now implement the Preparable interface.
+
 ===== Arguments Registry
 
 When you register an `ArgumentFactory`, the registration is stored in an
@@ -538,7 +546,8 @@ link:{jdkdocs}/java/sql/PreparedStatement.html[PreparedStatement^].
 
 [NOTE]
 Occasionally, two or more argument factories will support arguments of the same
-data type. When this happens, the last-registered factory wins. This means that
+data type. When this happens, the last-registered factory wins. Preparable argument factories
+always take precedence over base argument factories. This means that
 you can override the way any data type is bound, including the data types
 supported out of the box.
 
