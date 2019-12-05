@@ -37,6 +37,7 @@ public abstract class JdbiRule extends ExternalResource {
     private volatile DataSource dataSource;
     private Jdbi jdbi;
     private Handle handle;
+    private Flyway flyway;
     private boolean installPlugins;
     private Migration migration;
 
@@ -148,12 +149,12 @@ public abstract class JdbiRule extends ExternalResource {
     @Override
     public void before() throws Throwable {
         if (migration != null) {
-            Flyway.configure()
+            flyway = Flyway.configure()
                 .dataSource(getDataSource())
                 .locations(migration.paths.toArray(new String[0]))
                 .schemas(migration.schemas.toArray(new String[0]))
-                .load()
-                .migrate();
+                .load();
+            flyway.migrate();
         }
 
         jdbi = Jdbi.create(getDataSource());
@@ -166,13 +167,8 @@ public abstract class JdbiRule extends ExternalResource {
 
     @Override
     public void after() {
-        if (migration != null && migration.cleanAfter) {
-            Flyway.configure()
-                .dataSource(getDataSource())
-                .locations(migration.paths.toArray(new String[0]))
-                .schemas(migration.schemas.toArray(new String[0]))
-                .load()
-                .clean();
+        if (flyway != null && migration.cleanAfter) {
+            flyway.clean();
         }
         handle.close();
         jdbi = null;
