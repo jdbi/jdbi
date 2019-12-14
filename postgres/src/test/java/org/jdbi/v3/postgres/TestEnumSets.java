@@ -27,6 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestEnumSets {
     private static final GenericType<EnumSet<Platform>> PLATFORM_SET = new GenericType<EnumSet<Platform>>() {};
@@ -146,6 +147,26 @@ public class TestEnumSets {
     public void testAmountPlatforms() {
         int amount = videoDao.getAmountOfSupportedPlatforms(0);
         assertThat(amount).isEqualTo(3);
+    }
+
+    @Test
+    public void throwsOnNonBitChars() {
+        db.getHandle().useTransaction(handle -> {
+            // redefine column to varchar type
+            handle.execute("drop table if exists videos");
+            handle.execute("create table videos (id int primary key, supported_platforms varchar)");
+
+            // insert wrong bitstring
+            int id = 1;
+            String notBit = "2";
+            handle.createUpdate("insert into videos(id, supported_platforms) values (:id, :notBits)")
+                .bind("id", id)
+                .bind("notBits", "0101" + notBit)
+                .execute();
+
+            assertThatThrownBy(() -> handle.attach(VideoDao.class).getSupportedPlatforms(id))
+                .hasMessageContaining("non-bit character " + notBit);
+        });
     }
 
     private EnumSet<Platform> getSupportedPlatforms(int id) {

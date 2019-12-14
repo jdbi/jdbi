@@ -16,6 +16,7 @@ package org.jdbi.v3.postgres.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -44,8 +45,18 @@ public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMa
         }
 
         return IntStream.range(0, bits.length())
+            .peek(checkIfBitIn(bits))
             .filter(i -> bits.charAt(i) == '1')
             .mapToObj(i -> enumConstants[i])
             .collect(toCollection(() -> EnumSet.noneOf(enumType)));
+    }
+
+    private static IntConsumer checkIfBitIn(String bits) {
+        return i -> {
+            char bit = bits.charAt(i);
+            if (bit != '0' && bit != '1') {
+                throw new IllegalArgumentException("bit string \"" + bits + "\" contains non-bit character " + bit);
+            }
+        };
     }
 }
