@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -56,6 +57,8 @@ public interface ArgumentFactory {
 
         Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config);
 
-        Collection<? extends Type> prePreparedTypes();
+        default Collection<? extends Type> prePreparedTypes() {
+            return Collections.emptyList();
+        }
     }
 }

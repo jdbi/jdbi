@@ -16,7 +16,6 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -87,11 +86,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
         @Override
         public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
             return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);
-        }
-
-        @Override
-        public Collection<? extends Type> prePreparedTypes() {
-            return Collections.emptyList();
         }
     }
 }

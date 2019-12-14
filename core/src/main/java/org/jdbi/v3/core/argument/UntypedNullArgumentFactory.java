@@ -14,8 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -25,11 +23,6 @@ class UntypedNullArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return Optional.empty(); // always dynamic
-    }
-
-    @Override
-    public Collection<? extends Type> prePreparedTypes() {
-        return Collections.emptyList();
     }
 
     @Override

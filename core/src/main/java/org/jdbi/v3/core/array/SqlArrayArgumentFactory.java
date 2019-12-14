@@ -16,7 +16,6 @@ package org.jdbi.v3.core.array;
 import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -45,11 +44,6 @@ public class SqlArrayArgumentFactory implements ArgumentFactory.Preparable {
         return IterableLike.elementTypeOf(type)
             .flatMap(config.get(SqlArrayTypes.class)::findFor)
             .map(arrayType -> value -> arrayArgument(value, arrayType));
-    }
-
-    @Override
-    public Collection<? extends Type> prePreparedTypes() {
-        return Collections.emptyList();
     }
 
     private Argument arrayArgument(Object value, SqlArrayType<?> arrayType) {

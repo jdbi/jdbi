@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -89,7 +90,9 @@ public interface QualifiedArgumentFactory {
     interface Preparable extends QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
-        Collection<QualifiedType<?>> prePreparedTypes();
+        default Collection<QualifiedType<?>> prePreparedTypes() {
+            return Collections.emptyList();
+        }
 
         /**
          * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable

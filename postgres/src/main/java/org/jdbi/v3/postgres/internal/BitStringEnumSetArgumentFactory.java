@@ -14,8 +14,6 @@
 package org.jdbi.v3.postgres.internal;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Function;
@@ -43,10 +41,5 @@ public class BitStringEnumSetArgumentFactory implements ArgumentFactory.Preparab
             .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
 
         return value -> new BitStringEnumSetArgument<>(enumType, (EnumSet<E>) value);
-    }
-
-    @Override
-    public Collection<? extends Type> prePreparedTypes() {
-        return Collections.singleton(EnumSet.class);
     }
 }
