@@ -42,9 +42,6 @@ public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMa
         if (bits.length() != enumConstants.length) {
             throw new IllegalArgumentException("bit string \"" + bits + "\" for " + enumType + " should not contain " + bits.length() + " characters");
         }
-        if (!bits.matches("^[01]+$")) {
-            throw new IllegalArgumentException("bit string \"" + bits + "\" contains other characters than bits");
-        }
 
         return IntStream.range(0, bits.length())
             .filter(i -> bits.charAt(i) == '1')

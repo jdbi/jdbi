@@ -14,30 +14,39 @@
 package org.jdbi.v3.postgres.internal;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 
-public class BitStringEnumSetArgumentFactory implements ArgumentFactory {
+public class BitStringEnumSetArgumentFactory implements ArgumentFactory.Preparable {
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         if (!EnumSet.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
             return Optional.empty();
         }
 
-        return Optional.of(buildGeneric(type, value));
+        return Optional.of(buildGeneric(type));
     }
 
-    private static <E extends Enum<E>> BitStringEnumSetArgument<E> buildGeneric(Type type, Object value) {
+    @SuppressWarnings("unchecked")
+    private static <E extends Enum<E>> Function<Object, Argument> buildGeneric(Type type) {
         Class<E> enumType = GenericTypes.findGenericParameter(type, EnumSet.class)
             // guaranteed by EnumSet
             .map(t -> (Class<E>) t)
             .orElseThrow(() -> new IllegalArgumentException("No generic type information for " + type));
 
-        return new BitStringEnumSetArgument<>(enumType, (EnumSet<E>) value);
+        return value -> new BitStringEnumSetArgument<>(enumType, (EnumSet<E>) value);
+    }
+
+    @Override
+    public Collection<? extends Type> prePreparedTypes() {
+        return Collections.singleton(EnumSet.class);
     }
 }
