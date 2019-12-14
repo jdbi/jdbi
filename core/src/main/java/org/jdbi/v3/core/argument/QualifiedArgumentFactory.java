@@ -89,7 +89,7 @@ public interface QualifiedArgumentFactory {
     interface Preparable extends QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
-        Collection<QualifiedType<?>> prepPreparedTypes();
+        Collection<QualifiedType<?>> prePreparedTypes();
 
         /**
          * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable
@@ -115,7 +115,7 @@ public interface QualifiedArgumentFactory {
                 }
 
                 @Override
-                public Collection<QualifiedType<?>> prepPreparedTypes() {
+                public Collection<QualifiedType<?>> prePreparedTypes() {
                     return factory.prePreparedTypes().stream()
                             .map(QualifiedType::of)
                             .map(qt -> qt.withAnnotations(qualifiers))

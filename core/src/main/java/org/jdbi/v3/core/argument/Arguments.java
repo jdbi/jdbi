@@ -99,7 +99,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         factories.add(0, factory);
         if (factory instanceof QualifiedArgumentFactory.Preparable) {
             QualifiedArgumentFactory.Preparable qaf = (QualifiedArgumentFactory.Preparable) factory;
-            qaf.prepPreparedTypes()
+            qaf.prePreparedTypes()
                 .forEach(t ->
                     preparedFactories.put(t,
                         qaf.prepare(t, registry)
