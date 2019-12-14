@@ -27,6 +27,8 @@ increases performance for large batch inserts.
   - KotlinMapper respects `@PropagateNull`
   - Freemarker allows customizing Configuration
   - FreemarkerSqlLocator should now be created via FreemarkerConfig so it shares config
+  - `EnumSet` can be bound and mapped as a bitstring to a Postgres `varbit` column
+    (requires appropriate use of `@SingleValue`).
 - New Beta Features
   - added `register` methods for qualified factories on `Configurable`,
     `ColumnMappers`, and `ArgumentFactories`
