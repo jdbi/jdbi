@@ -192,7 +192,7 @@ public class EnumsConfigTest {
 
     // bar is unused to make sure we don't have any coincidental correctness
     private enum Foobar {
-        BAR, FOO, @DatabaseValue("CUST") CUSTOM
+        BAR, FOO, @DatabaseValue("CUST") CUSTOM {}
     }
 
     @Test

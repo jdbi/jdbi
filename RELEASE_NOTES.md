@@ -1,6 +1,7 @@
 # 3.12.0
   - `EnumSet` can be bound and mapped as a bitstring to a Postgres `varbit` column
     (requires appropriate use of `@SingleValue`).
+  - fix detecting Enum anonymous subclasses (types with overridden methods)
 
 # 3.11.1
   - fix PreparedBatch binding non-prepareable nested arguments

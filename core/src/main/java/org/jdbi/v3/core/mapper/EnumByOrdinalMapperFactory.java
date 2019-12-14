@@ -40,7 +40,7 @@ public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
-        return clazz.isEnum()
+        return Enum.class.isAssignableFrom(clazz)
                 ? Optional.of(EnumMapper.byOrdinal(clazz.asSubclass(Enum.class)))
                 : Optional.empty();
     }

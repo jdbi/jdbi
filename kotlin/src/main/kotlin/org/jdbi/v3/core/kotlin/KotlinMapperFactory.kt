@@ -28,7 +28,7 @@ class KotlinMapperFactory : RowMapperFactory {
         //TODO: Validate if we should only handle 'data' classes with the Kotlin mapper
         // Switching this might cause issues for users, might be better to do it for a major release
         // See https://github.com/jdbi/jdbi/issues/1218 for more info
-        return if (erasedType.isKotlinClass() && !erasedType.isEnum) {
+        return if (erasedType.isKotlinClass() && !Enum::class.java.isAssignableFrom(erasedType)) {
             Optional.of(KotlinMapper(erasedType))
         } else {
             Optional.empty()
