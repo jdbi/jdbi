@@ -16,6 +16,7 @@ package org.jdbi.v3.postgres;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SingleValue;
@@ -151,20 +152,21 @@ public class TestEnumSets {
 
     @Test
     public void throwsOnNonBitChars() {
-        db.getHandle().useTransaction(handle -> {
-            // redefine column to varchar type
-            handle.execute("drop table if exists videos");
-            handle.execute("create table videos (id int primary key, supported_platforms varchar)");
-
+        Handle handle = db.getHandle();
+        // redefine column to varchar type
+        handle.execute("drop table if exists videos");
+        handle.execute("create table videos (id int primary key, supported_platforms varchar)");
+        handle.execute("discard all");
+        handle.useTransaction(h -> {
             // insert wrong bitstring
             int id = 1;
             String notBit = "2";
-            handle.createUpdate("insert into videos(id, supported_platforms) values (:id, :notBits)")
+            h.createUpdate("insert into videos(id, supported_platforms) values (:id, :notBits)")
                 .bind("id", id)
                 .bind("notBits", "0101" + notBit)
                 .execute();
 
-            assertThatThrownBy(() -> handle.attach(VideoDao.class).getSupportedPlatforms(id))
+            assertThatThrownBy(() -> h.attach(VideoDao.class).getSupportedPlatforms(id))
                 .hasMessageContaining("non-bit character " + notBit);
         });
     }
