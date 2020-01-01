@@ -91,7 +91,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         PARAMETERS {
             @Override
             public String render(StatementException exc, StatementContext ctx) {
-                return String.format("%s [arguments:%s]", ctx.getBinding());
+                return String.format("%s [arguments:%s]",
+                            exc.getShortMessage(),
+                            ctx.getBinding());
             }
         },
         /**
