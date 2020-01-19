@@ -1,3 +1,6 @@
+# 3.12.1
+  - Bean binding: ignore getter methods with parameters
+
 # 3.12.0
   - `EnumSet` can be bound and mapped as a bitstring to a Postgres `varbit` column
     (requires appropriate use of `@SingleValue`).

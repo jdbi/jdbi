@@ -57,9 +57,13 @@ public class BeanPropertiesFactory {
     }
 
     private static boolean shouldSeeProperty(PropertyDescriptor pd) {
-        // 'class' isn't really a property
         final Method read = pd.getReadMethod();
-        return read == null || read.getDeclaringClass() != Object.class;
+        if (read == null) {
+            return pd.getWriteMethod() != null;
+        }
+        // 'class' isn't really a property
+        return read.getParameterCount() == 0
+                && read.getDeclaringClass() != Object.class;
     }
 
     static class BeanPojoProperties<T> extends PojoProperties<T> {

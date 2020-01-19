@@ -115,6 +115,10 @@ public class TestBindBean {
         public ValueType getValueType() {
             return valueType;
         }
+
+        public int getWithParameterIsIgnored(int param) {
+            return param;
+        }
     }
 
     public static class ValueTypeArgumentFactory extends AbstractArgumentFactory<ValueType> {
