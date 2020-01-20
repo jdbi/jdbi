@@ -4872,6 +4872,32 @@ Bear in mind:
 
 This section includes examples of various things you might like to do with `Jdbi`.
 
+=== Simple Dependency Injection
+
+`Jdbi` tries to be independent of using a dependency injection framework,
+but it's straightforward to integrate yours.  Just do field injection on a simple custom config type:
+
+[source,java]
+----
+class InjectedDependencies implements JdbiConfig<InjectedDependencies> {
+    @Inject
+    SomeDependency dep;
+
+    public InjectedDependencies() {}
+
+    @Override
+    public InjectedDependencies createCopy() {
+        return this; // effectively immutable
+    }
+}
+
+Jdbi jdbi = Jdbi.create(myDataSource);
+myIoC.inject(jdbi.getConfig(InjectedDependencies.class));
+
+// Then, in any component that needs to access it:
+getHandle().getConfig(InjectedDependencies.class).dep
+----
+
 === LIKE clauses with Parameters
 
 Since JDBC (and therefore `Jdbi`) does not allow binding parameters into the middle of string literals,
