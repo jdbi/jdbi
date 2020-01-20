@@ -16,7 +16,9 @@ package org.jdbi.v3.sqlobject;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -72,6 +74,15 @@ public class TestSqlObject {
 
         Something c = dao.findByIdHeeHee(3);
         assertThat(c).isEqualTo(new Something(3, "Cora"));
+    }
+
+    @Test
+    public void testWildcardParameter() {
+        final Dao dao = handle.attach(Dao.class);
+        dao.insert(ImmutableMap.of(5, "A", 6, "B").entrySet());
+
+        final Something c = dao.findById(6);
+        assertThat(c).isEqualTo(new Something(6, "B"));
     }
 
     @Test
@@ -211,6 +222,9 @@ public class TestSqlObject {
     public interface Dao extends SqlObject {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         boolean insert(@Bind("id") int id, @Bind("name") String name);
+
+        @SqlBatch("insert into something(id, name) values(:key, :value)")
+        int[] insert(@BindBean Iterable<? extends Map.Entry<Integer, String>> entries);
 
         @SqlUpdate("update something set name=:name where id=:id")
         boolean update(int id, String name);
