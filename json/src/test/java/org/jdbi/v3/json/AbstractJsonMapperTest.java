@@ -66,6 +66,26 @@ public abstract class AbstractJsonMapperTest {
     }
 
     @Test
+    public void testFluentApiWithRegisteredArgumentAndMapper() {
+        jdbi.useHandle(h -> {
+            h.execute("create table subjects (id serial primary key, subject json not null)");
+
+            JsonBean in = new JsonBean("nom", 10);
+            h.createUpdate("insert into subjects(id, subject) values(1, :bean)")
+                .registerArgument(JsonArgument.of(JsonBean.class))
+                .bind("bean", in)
+                .execute();
+
+            JsonBean out = h.createQuery("select subject from subjects")
+                .registerRowMapper(JsonMapper.of(JsonBean.class))
+                .mapTo(JsonBean.class)
+                .one();
+
+            assertThat(out).isEqualTo(in);
+        });
+    }
+
+    @Test
     public void testFluentApiWithNesting() {
         jdbi.useHandle(h -> {
             h.execute("create table bean (id serial primary key, nested1 json, nested2 json)");

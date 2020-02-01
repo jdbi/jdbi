@@ -16,6 +16,8 @@ package org.jdbi.v3.json;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -28,6 +30,17 @@ import org.jdbi.v3.meta.Beta;
  */
 @Beta
 public interface JsonMapper {
+
+    /**
+     *
+     * @param cls
+     * @param <T>
+     * @return RowMapper for single columnar result
+     */
+    static <T> RowMapper<T> of(Class<T> cls) {
+       throw new UnsupportedOperationException("TODO this could/should behave similar to ConstructorMapper class");
+    }
+
     String toJson(Type type, Object value, ConfigRegistry config);
     Object fromJson(Type type, String json, ConfigRegistry config);
 }
