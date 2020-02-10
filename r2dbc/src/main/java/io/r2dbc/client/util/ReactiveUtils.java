@@ -16,20 +16,19 @@
 
 package io.r2dbc.client.util;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Utilities for working with Reactive flows.
  */
 public final class ReactiveUtils {
 
-    private ReactiveUtils() {
-    }
+    private ReactiveUtils() {}
 
     /**
      * Execute the {@link Publisher} provided by a {@link Supplier} and propagate the error that initiated this behavior.  Typically used with {@link Flux#onErrorResume(Function)} and

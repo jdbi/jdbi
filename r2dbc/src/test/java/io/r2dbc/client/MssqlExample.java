@@ -16,6 +16,8 @@
 
 package io.r2dbc.client;
 
+import java.io.IOException;
+
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.spi.ConnectionFactories;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -27,8 +29,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.MSSQLServerContainer;
 import reactor.util.annotation.Nullable;
-
-import java.io.IOException;
 
 import static io.r2dbc.mssql.MssqlConnectionFactoryProvider.MSSQL_DRIVER;
 

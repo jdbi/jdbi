@@ -23,8 +23,7 @@ import reactor.util.annotation.Nullable;
  */
 public final class Assert {
 
-    private Assert() {
-    }
+    private Assert() {}
 
     /**
      * Checks that a specified object reference is not {@code null} and throws a customized {@link IllegalArgumentException} if it is.

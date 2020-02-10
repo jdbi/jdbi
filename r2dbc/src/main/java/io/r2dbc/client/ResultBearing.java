@@ -16,15 +16,15 @@
 
 package io.r2dbc.client;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * An interface indicating that a type returns results.

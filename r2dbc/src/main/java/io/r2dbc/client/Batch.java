@@ -16,22 +16,22 @@
 
 package io.r2dbc.client;
 
+import java.util.function.Function;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-
-import java.util.function.Function;
 
 /**
  * A wrapper for a {@link io.r2dbc.spi.Batch} providing additional convenience APIs
  */
 public final class Batch implements ResultBearing {
 
-    private final io.r2dbc.spi.Batch batch;
+    private final io.r2dbc.spi.Batch batchInstance;
 
-    Batch(io.r2dbc.spi.Batch batch) {
-        this.batch = Assert.requireNonNull(batch, "batch must not be null");
+    Batch(io.r2dbc.spi.Batch batchInstance) {
+        this.batchInstance = Assert.requireNonNull(batchInstance, "batch must not be null");
     }
 
     /**
@@ -44,22 +44,23 @@ public final class Batch implements ResultBearing {
     public Batch add(String sql) {
         Assert.requireNonNull(sql, "sql must not be null");
 
-        this.batch.add(sql);
+        this.batchInstance.add(sql);
         return this;
     }
 
+    @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
         Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
-        return Flux.from(this.batch.execute())
+        return Flux.from(this.batchInstance.execute())
             .flatMap(mappingFunction);
     }
 
     @Override
     public String toString() {
-        return "Batch{" +
-            "batch=" + this.batch +
-            '}';
+        return "Batch{"
+            + "batch=" + this.batchInstance
+            + '}';
     }
 
 }

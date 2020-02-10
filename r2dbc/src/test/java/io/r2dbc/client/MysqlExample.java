@@ -56,8 +56,7 @@ final class MysqlExample implements Example<Integer> {
     @Test
     @Ignore("compound statements are not supported by the driver")
     @Override
-    public void compoundStatement() {
-    }
+    public void compoundStatement() {}
 
     @Override
     public Integer getIdentifier(int index) {

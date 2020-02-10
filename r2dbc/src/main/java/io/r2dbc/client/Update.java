@@ -117,9 +117,10 @@ public final class Update {
 
     @Override
     public String toString() {
-        return "Update{" +
-            "statement=" + this.statement +
-            '}';
+        return "Update{"
+            + "statement="
+            + this.statement
+            + '}';
     }
 
 }

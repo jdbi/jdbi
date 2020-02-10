@@ -16,6 +16,8 @@
 
 package io.r2dbc.client;
 
+import java.util.Collections;
+
 import io.r2dbc.spi.test.MockBatch;
 import io.r2dbc.spi.test.MockConnection;
 import io.r2dbc.spi.test.MockResult;
@@ -24,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Collections;
 
 import static io.r2dbc.spi.IsolationLevel.SERIALIZABLE;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -16,15 +16,15 @@
 
 package io.r2dbc.client;
 
+import java.util.function.Function;
+import java.util.stream.IntStream;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.IsolationLevel;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import static io.r2dbc.client.util.ReactiveUtils.appendError;
 import static io.r2dbc.client.util.ReactiveUtils.typeSafe;
@@ -248,9 +248,9 @@ public final class Handle {
 
     @Override
     public String toString() {
-        return "Handle{" +
-            "connection=" + this.connection +
-            '}';
+        return "Handle{"
+            + "connection=" + this.connection
+            + '}';
     }
 
     /**

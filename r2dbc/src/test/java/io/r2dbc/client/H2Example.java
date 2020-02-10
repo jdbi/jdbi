@@ -16,6 +16,8 @@
 
 package io.r2dbc.client;
 
+import java.util.UUID;
+
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -29,8 +31,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import reactor.util.annotation.Nullable;
 
-import java.util.UUID;
-
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
@@ -42,7 +42,6 @@ final class H2Example {
     @RegisterExtension
     static final H2ServerExtension SERVER = new H2ServerExtension();
 
-    // TODO: Convert to use URI format with pool.
     private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(DRIVER, H2_DRIVER)
         .option(PASSWORD, SERVER.getPassword())

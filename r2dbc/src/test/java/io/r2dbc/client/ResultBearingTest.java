@@ -16,6 +16,9 @@
 
 package io.r2dbc.client;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.test.MockColumnMetadata;
@@ -25,9 +28,6 @@ import io.r2dbc.spi.test.MockRowMetadata;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuples;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

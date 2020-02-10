@@ -16,6 +16,8 @@
 
 package io.r2dbc.client;
 
+import java.util.function.Function;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.client.util.ReactiveUtils;
 import io.r2dbc.spi.Connection;
@@ -23,8 +25,6 @@ import io.r2dbc.spi.ConnectionFactory;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
 
 /**
  * An implementation of a Reactive Relational Database Connection Client.
@@ -73,9 +73,9 @@ public final class R2dbc {
 
     @Override
     public String toString() {
-        return "R2dbc{" +
-            "connectionFactory=" + this.connectionFactory +
-            '}';
+        return "R2dbc{"
+            + "connectionFactory=" + this.connectionFactory
+            + '}';
     }
 
     /**

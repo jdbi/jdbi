@@ -16,13 +16,13 @@
 
 package io.r2dbc.client;
 
+import java.util.function.Function;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-
-import java.util.function.Function;
 
 /**
  * A wrapper for a {@link Statement} providing additional convenience APIs for running queries such as {@code SELECT}.
@@ -107,6 +107,7 @@ public final class Query implements ResultBearing {
         return this;
     }
 
+    @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
         Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
@@ -117,9 +118,9 @@ public final class Query implements ResultBearing {
 
     @Override
     public String toString() {
-        return "Query{" +
-            "statement=" + this.statement +
-            '}';
+        return "Query{"
+            + "statement=" + this.statement
+            + '}';
     }
 
 }

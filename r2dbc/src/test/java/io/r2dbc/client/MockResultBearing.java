@@ -16,12 +16,12 @@
 
 package io.r2dbc.client;
 
+import java.util.function.Function;
+
 import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-
-import java.util.function.Function;
 
 public final class MockResultBearing implements ResultBearing {
 
@@ -44,32 +44,31 @@ public final class MockResultBearing implements ResultBearing {
 
     @Override
     public String toString() {
-        return "MockResultBearing{" +
-            "result=" + this.result +
-            '}';
+        return "MockResultBearing{"
+            + "result=" + this.result
+            + '}';
     }
 
     public static final class Builder {
 
         private Result result;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public MockResultBearing build() {
             return new MockResultBearing(this.result);
         }
 
-        public Builder result(Result result) {
-            this.result = Assert.requireNonNull(result, "result must not be null");
+        public Builder result(Result newResult) {
+            this.result = Assert.requireNonNull(newResult, "result must not be null");
             return this;
         }
 
         @Override
         public String toString() {
-            return "Builder{" +
-                "result=" + this.result +
-                '}';
+            return "Builder{"
+                + "result=" + this.result
+                + '}';
         }
 
     }

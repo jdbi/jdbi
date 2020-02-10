@@ -16,6 +16,11 @@
 
 package io.r2dbc.client;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import io.r2dbc.mssql.util.Assert;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.AfterEach;
@@ -25,11 +30,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.IntStream;
 
 interface Example<T> {
 

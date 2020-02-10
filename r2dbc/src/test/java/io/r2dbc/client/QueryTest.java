@@ -16,13 +16,13 @@
 
 package io.r2dbc.client;
 
+import java.util.Collections;
+
 import io.r2dbc.spi.test.MockResult;
 import io.r2dbc.spi.test.MockStatement;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
