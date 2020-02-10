@@ -25,7 +25,7 @@
     </parent>
 
     <artifactId>jdbi3-r2dbc</artifactId>
-    <name>Reactive Relational Database Connectivity - Client</name>
+    <name>jdbi3 r2dbc client</name>
     <description>Reactive API for jdbi</description>
     <url>http://jdbi.org/</url>
 
@@ -41,6 +41,7 @@
         <basepom.check.skip-duplicate-finder>true</basepom.check.skip-duplicate-finder>
         <!-- skipped because of annotation dependencies -->
         <dep.annotation-api.version>1.3.2</dep.annotation-api.version>
+        <dep.h2.version>1.4.200</dep.h2.version>
         <dep.jackson2.version>2.10.2</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>17.0.0</dep.jetbrainsAnnotations.version>
         <dep.slf4j.version>1.7.30</dep.slf4j.version>
