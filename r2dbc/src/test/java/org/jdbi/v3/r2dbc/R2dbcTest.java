@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import io.r2dbc.spi.test.MockConnection;
 import io.r2dbc.spi.test.MockConnectionFactory;

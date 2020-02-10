@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
-
-import java.io.IOException;
+package org.jdbi.v3.r2dbc;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.spi.ConnectionFactories;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -27,22 +27,40 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.MySQLContainer;
 import reactor.util.annotation.Nullable;
 
-import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.POSTGRESQL_DRIVER;
+import static dev.miku.r2dbc.mysql.MySqlConnectionFactoryProvider.MYSQL_DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
 
-final class PostgresqlExample implements Example<String> {
+final class MysqlExample implements Example<Integer> {
 
     @RegisterExtension
-    static final PostgresqlServerExtension SERVER = new PostgresqlServerExtension();
+    static final MysqlServerExtension SERVER = new MysqlServerExtension();
 
-    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(
-        String.format("r2dbc:pool:%s://%s:%s@%s:%d/%s", POSTGRESQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort(), SERVER.getDatabase())));
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
+        .option(DRIVER, MYSQL_DRIVER)
+        .option(HOST, SERVER.getHost())
+        .option(PORT, SERVER.getPort())
+        .option(PASSWORD, SERVER.getPassword())
+        .option(USER, SERVER.getUsername())
+        .option(DATABASE, SERVER.getDatabase())
+        .build()));
+
+    @Test
+    @Ignore("compound statements are not supported by the driver")
+    @Override
+    public void compoundStatement() {}
 
     @Override
-    public String getIdentifier(int index) {
-        return getPlaceholder(index);
+    public Integer getIdentifier(int index) {
+        return index;
     }
 
     @Override
@@ -58,7 +76,7 @@ final class PostgresqlExample implements Example<String> {
 
     @Override
     public String getPlaceholder(int index) {
-        return String.format("$%d", index + 1);
+        return "?";
     }
 
     @Override
@@ -66,9 +84,9 @@ final class PostgresqlExample implements Example<String> {
         return this.r2dbc;
     }
 
-    private static final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCallback {
+    private static final class MysqlServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-        private final PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:latest");
+        private final MySQLContainer<?> container = new MySQLContainer<>("mysql:5.7");
 
         private HikariDataSource dataSource;
 
@@ -81,7 +99,7 @@ final class PostgresqlExample implements Example<String> {
         }
 
         @Override
-        public void beforeAll(ExtensionContext context) throws IOException {
+        public void beforeAll(ExtensionContext context) {
             this.container.start();
 
             this.dataSource = DataSourceBuilder.create()
@@ -114,12 +132,11 @@ final class PostgresqlExample implements Example<String> {
         }
 
         int getPort() {
-            return this.container.getMappedPort(5432);
+            return this.container.getFirstMappedPort();
         }
 
         String getUsername() {
             return this.container.getUsername();
         }
-
     }
 }

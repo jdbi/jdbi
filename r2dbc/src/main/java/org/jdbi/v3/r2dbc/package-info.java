@@ -15,10 +15,10 @@
  */
 
 /**
- * Utility code used throughout the project.
+ * The client Reactive Relational Database Connection API.
  */
 
 @NonNullApi
-package io.r2dbc.client.util;
+package org.jdbi.v3.r2dbc;
 
 import reactor.util.annotation.NonNullApi;

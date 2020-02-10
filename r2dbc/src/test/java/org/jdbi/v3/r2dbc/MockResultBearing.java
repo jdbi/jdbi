@@ -14,53 +14,63 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.function.Function;
 
-import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
+import org.jdbi.v3.r2dbc.util.Assert;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
-/**
- * A wrapper for a {@link io.r2dbc.spi.Batch} providing additional convenience APIs
- */
-public final class Batch implements ResultBearing {
+public final class MockResultBearing implements ResultBearing {
 
-    private final io.r2dbc.spi.Batch batchInstance;
+    private final Result result;
 
-    Batch(io.r2dbc.spi.Batch batchInstance) {
-        this.batchInstance = Assert.requireNonNull(batchInstance, "batch must not be null");
+    private MockResultBearing(Result result) {
+        this.result = Assert.requireNonNull(result, "result must not be null");
     }
 
-    /**
-     * Add a statement to this batch.
-     *
-     * @param sql the statement to add
-     * @return this {@link Batch}
-     * @throws IllegalArgumentException if {@code sql} is {@code null}
-     */
-    public Batch add(String sql) {
-        Assert.requireNonNull(sql, "sql must not be null");
-
-        this.batchInstance.add(sql);
-        return this;
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
     public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
         Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
 
-        return Flux.from(this.batchInstance.execute())
-            .flatMap(mappingFunction);
+        return Flux.from(mappingFunction.apply(this.result));
     }
 
     @Override
     public String toString() {
-        return "Batch{"
-            + "batch=" + this.batchInstance
+        return "MockResultBearing{"
+            + "result=" + this.result
             + '}';
+    }
+
+    public static final class Builder {
+
+        private Result result;
+
+        private Builder() {}
+
+        public MockResultBearing build() {
+            return new MockResultBearing(this.result);
+        }
+
+        public Builder result(Result newResult) {
+            this.result = Assert.requireNonNull(newResult, "result must not be null");
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{"
+                + "result=" + this.result
+                + '}';
+        }
+
     }
 
 }

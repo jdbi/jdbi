@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
-import java.util.function.Function;
-
-import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
-import org.reactivestreams.Publisher;
+import org.jdbi.v3.r2dbc.util.Assert;
 import reactor.core.publisher.Flux;
 
 /**
- * A wrapper for a {@link Statement} providing additional convenience APIs for running queries such as {@code SELECT}.
+ * A wrapper for a {@link Statement} providing additional convenience APIs for running updates such as {@code INSERT} and {@code DELETE}.
  */
-public final class Query implements ResultBearing {
+public final class Update {
 
     private final Statement statement;
 
-    Query(Statement statement) {
+    Update(Statement statement) {
         this.statement = Assert.requireNonNull(statement, "statement must not be null");
     }
 
@@ -40,7 +37,7 @@ public final class Query implements ResultBearing {
      *
      * @return this {@link Statement}
      */
-    public Query add() {
+    public Update add() {
         this.statement.add();
         return this;
     }
@@ -53,7 +50,7 @@ public final class Query implements ResultBearing {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
-    public Query bind(String identifier, Object value) {
+    public Update bind(String identifier, Object value) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(value, "value must not be null");
 
@@ -69,7 +66,7 @@ public final class Query implements ResultBearing {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
-    public Query bind(int index, Object value) {
+    public Update bind(int index, Object value) {
         Assert.requireNonNull(value, "value must not be null");
 
         this.statement.bind(index, value);
@@ -84,7 +81,7 @@ public final class Query implements ResultBearing {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
-    public Query bindNull(String identifier, Class<?> type) {
+    public Update bindNull(String identifier, Class<?> type) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(type, "type must not be null");
 
@@ -100,26 +97,29 @@ public final class Query implements ResultBearing {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
-    public Query bindNull(int index, Class<?> type) {
+    public Update bindNull(int index, Class<?> type) {
         Assert.requireNonNull(type, "type must not be null");
 
         this.statement.bindNull(index, type);
         return this;
     }
 
-    @Override
-    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
-        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
-
+    /**
+     * Executes the update and returns the number of rows that were updated.
+     *
+     * @return the number of rows that were updated
+     */
+    public Flux<Integer> execute() {
         return Flux
             .from(this.statement.execute())
-            .flatMap(mappingFunction);
+            .flatMap(Result::getRowsUpdated);
     }
 
     @Override
     public String toString() {
-        return "Query{"
-            + "statement=" + this.statement
+        return "Update{"
+            + "statement="
+            + this.statement
             + '}';
     }
 

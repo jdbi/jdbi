@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
-import io.r2dbc.client.util.Assert;
+import java.util.function.Function;
+
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
+import org.jdbi.v3.r2dbc.util.Assert;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
 /**
- * A wrapper for a {@link Statement} providing additional convenience APIs for running updates such as {@code INSERT} and {@code DELETE}.
+ * A wrapper for a {@link Statement} providing additional convenience APIs for running queries such as {@code SELECT}.
  */
-public final class Update {
+public final class Query implements ResultBearing {
 
     private final Statement statement;
 
-    Update(Statement statement) {
+    Query(Statement statement) {
         this.statement = Assert.requireNonNull(statement, "statement must not be null");
     }
 
@@ -37,7 +40,7 @@ public final class Update {
      *
      * @return this {@link Statement}
      */
-    public Update add() {
+    public Query add() {
         this.statement.add();
         return this;
     }
@@ -50,7 +53,7 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
-    public Update bind(String identifier, Object value) {
+    public Query bind(String identifier, Object value) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(value, "value must not be null");
 
@@ -66,7 +69,7 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code value} is {@code null}
      */
-    public Update bind(int index, Object value) {
+    public Query bind(int index, Object value) {
         Assert.requireNonNull(value, "value must not be null");
 
         this.statement.bind(index, value);
@@ -81,7 +84,7 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
-    public Update bindNull(String identifier, Class<?> type) {
+    public Query bindNull(String identifier, Class<?> type) {
         Assert.requireNonNull(identifier, "identifier must not be null");
         Assert.requireNonNull(type, "type must not be null");
 
@@ -97,29 +100,26 @@ public final class Update {
      * @return this {@link Statement}
      * @throws IllegalArgumentException if {@code identifier} or {@code type} is {@code null}
      */
-    public Update bindNull(int index, Class<?> type) {
+    public Query bindNull(int index, Class<?> type) {
         Assert.requireNonNull(type, "type must not be null");
 
         this.statement.bindNull(index, type);
         return this;
     }
 
-    /**
-     * Executes the update and returns the number of rows that were updated.
-     *
-     * @return the number of rows that were updated
-     */
-    public Flux<Integer> execute() {
+    @Override
+    public <T> Flux<T> mapResult(Function<Result, ? extends Publisher<? extends T>> mappingFunction) {
+        Assert.requireNonNull(mappingFunction, "mappingFunction must not be null");
+
         return Flux
             .from(this.statement.execute())
-            .flatMap(Result::getRowsUpdated);
+            .flatMap(mappingFunction);
     }
 
     @Override
     public String toString() {
-        return "Update{"
-            + "statement="
-            + this.statement
+        return "Query{"
+            + "statement=" + this.statement
             + '}';
     }
 

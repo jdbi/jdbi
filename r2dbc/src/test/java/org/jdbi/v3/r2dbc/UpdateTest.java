@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.Collections;
 
 import io.r2dbc.spi.test.MockResult;
 import io.r2dbc.spi.test.MockStatement;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-final class QueryTest {
+final class UpdateTest {
 
     @Test
     void add() {
         MockStatement statement = MockStatement.empty();
 
-        new Query(statement)
+        new Update(statement)
             .add();
 
         assertThat(statement.isAddCalled()).isTrue();
@@ -43,7 +42,7 @@ final class QueryTest {
     void bind() {
         MockStatement statement = MockStatement.empty();
 
-        new Query(statement)
+        new Update(statement)
             .bind("test-identifier", "test-value");
 
         assertThat(statement.getBindings()).contains(Collections.singletonMap("test-identifier", "test-value"));
@@ -53,7 +52,7 @@ final class QueryTest {
     void bindIndex() {
         MockStatement statement = MockStatement.empty();
 
-        new Query(statement)
+        new Update(statement)
             .bind(100, "test-value");
 
         assertThat(statement.getBindings()).contains(Collections.singletonMap(100, "test-value"));
@@ -61,19 +60,19 @@ final class QueryTest {
 
     @Test
     void bindIndexNoValue() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind(100, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind(100, null))
             .withMessage("value must not be null");
     }
 
     @Test
     void bindNoIdentifier() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind(null, new Object()))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind(null, new Object()))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNoValue() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bind("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bind("test-identifier", null))
             .withMessage("value must not be null");
     }
 
@@ -81,7 +80,7 @@ final class QueryTest {
     void bindNull() {
         MockStatement statement = MockStatement.empty();
 
-        new Query(statement)
+        new Update(statement)
             .bindNull("test-identifier", Integer.class);
 
         assertThat(statement.getBindings()).contains(Collections.singletonMap("test-identifier", Integer.class));
@@ -89,44 +88,37 @@ final class QueryTest {
 
     @Test
     void bindNullNoIdentifier() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull(null, Object.class))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull(null, Object.class))
             .withMessage("identifier must not be null");
     }
 
     @Test
     void bindNullNoType() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).bindNull("test-identifier", null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(MockStatement.empty()).bindNull("test-identifier", null))
             .withMessage("type must not be null");
     }
 
     @Test
     void constructorNoStatement() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(null))
+        assertThatIllegalArgumentException().isThrownBy(() -> new Update(null))
             .withMessage("statement must not be null");
     }
 
     @Test
-    void mapResult() {
-        MockResult result = MockResult.empty();
+    void execute() {
+        MockResult result = MockResult.builder()
+            .rowsUpdated(100)
+            .build();
 
         MockStatement statement = MockStatement.builder()
             .result(result)
             .build();
 
-        new Query(statement)
-            .mapResult(actual -> {
-                assertThat(actual).isSameAs(result);
-                return Mono.just(1);
-            })
+        new Update(statement)
+            .execute()
             .as(StepVerifier::create)
-            .expectNext(1)
+            .expectNext(100)
             .verifyComplete();
-    }
-
-    @Test
-    void mapResultNoF() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Query(MockStatement.empty()).mapResult(null))
-            .withMessage("mappingFunction must not be null");
     }
 
 }

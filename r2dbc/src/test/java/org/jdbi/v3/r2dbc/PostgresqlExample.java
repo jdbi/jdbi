@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.io.IOException;
 
@@ -27,22 +27,22 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import reactor.util.annotation.Nullable;
 
-import static io.r2dbc.mssql.MssqlConnectionFactoryProvider.MSSQL_DRIVER;
+import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.POSTGRESQL_DRIVER;
 
-final class MssqlExample implements Example<String> {
+final class PostgresqlExample implements Example<String> {
 
     @RegisterExtension
-    static final MssqlServerExtension SERVER = new MssqlServerExtension();
+    static final PostgresqlServerExtension SERVER = new PostgresqlServerExtension();
 
     private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(
-        String.format("r2dbc:pool:%s://%s:%s@%s:%d", MSSQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort())));
+        String.format("r2dbc:pool:%s://%s:%s@%s:%d/%s", POSTGRESQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort(), SERVER.getDatabase())));
 
     @Override
     public String getIdentifier(int index) {
-        return String.format("P%d", index);
+        return getPlaceholder(index);
     }
 
     @Override
@@ -58,7 +58,7 @@ final class MssqlExample implements Example<String> {
 
     @Override
     public String getPlaceholder(int index) {
-        return String.format("@P%d", index);
+        return String.format("$%d", index + 1);
     }
 
     @Override
@@ -66,9 +66,9 @@ final class MssqlExample implements Example<String> {
         return this.r2dbc;
     }
 
-    private static final class MssqlServerExtension implements BeforeAllCallback, AfterAllCallback {
+    private static final class PostgresqlServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-        private final MSSQLServerContainer<?> container = new MSSQLServerContainer<>();
+        private final PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:latest");
 
         private HikariDataSource dataSource;
 
@@ -96,6 +96,10 @@ final class MssqlExample implements Example<String> {
             this.jdbcOperations = new JdbcTemplate(this.dataSource);
         }
 
+        String getDatabase() {
+            return this.container.getDatabaseName();
+        }
+
         String getHost() {
             return this.container.getContainerIpAddress();
         }
@@ -110,7 +114,7 @@ final class MssqlExample implements Example<String> {
         }
 
         int getPort() {
-            return this.container.getMappedPort(MSSQLServerContainer.MS_SQL_SERVER_PORT);
+            return this.container.getMappedPort(5432);
         }
 
         String getUsername() {

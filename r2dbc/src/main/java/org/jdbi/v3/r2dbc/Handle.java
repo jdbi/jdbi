@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.IsolationLevel;
+import org.jdbi.v3.r2dbc.util.Assert;
+import org.jdbi.v3.r2dbc.util.ReactiveUtils;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import static io.r2dbc.client.util.ReactiveUtils.appendError;
-import static io.r2dbc.client.util.ReactiveUtils.typeSafe;
 
 /**
  * A wrapper for a {@link Connection} providing additional convenience APIs.
@@ -152,8 +150,8 @@ public final class Handle {
         return Mono.from(
             beginTransaction())
             .thenMany((Publisher<T>) resourceFunction.apply(this))
-            .concatWith(typeSafe(this::commitTransaction))
-            .onErrorResume(appendError(this::rollbackTransaction));
+            .concatWith(ReactiveUtils.typeSafe(this::commitTransaction))
+            .onErrorResume(ReactiveUtils.appendError(this::rollbackTransaction));
     }
 
     /**

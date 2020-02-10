@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.function.Function;
 
-import io.r2dbc.client.util.Assert;
-import io.r2dbc.client.util.ReactiveUtils;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
+import org.jdbi.v3.r2dbc.util.Assert;
+import org.jdbi.v3.r2dbc.util.ReactiveUtils;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

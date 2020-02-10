@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.Arrays;
 import java.util.Collections;

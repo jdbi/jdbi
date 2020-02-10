@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
+
+import java.io.IOException;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.r2dbc.spi.ConnectionFactories;
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -27,40 +27,22 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.MSSQLServerContainer;
 import reactor.util.annotation.Nullable;
 
-import static dev.miku.r2dbc.mysql.MySqlConnectionFactoryProvider.MYSQL_DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.builder;
+import static io.r2dbc.mssql.MssqlConnectionFactoryProvider.MSSQL_DRIVER;
 
-final class MysqlExample implements Example<Integer> {
+final class MssqlExample implements Example<String> {
 
     @RegisterExtension
-    static final MysqlServerExtension SERVER = new MysqlServerExtension();
+    static final MssqlServerExtension SERVER = new MssqlServerExtension();
 
-    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(builder()
-        .option(DRIVER, MYSQL_DRIVER)
-        .option(HOST, SERVER.getHost())
-        .option(PORT, SERVER.getPort())
-        .option(PASSWORD, SERVER.getPassword())
-        .option(USER, SERVER.getUsername())
-        .option(DATABASE, SERVER.getDatabase())
-        .build()));
-
-    @Test
-    @Ignore("compound statements are not supported by the driver")
-    @Override
-    public void compoundStatement() {}
+    private final R2dbc r2dbc = new R2dbc(ConnectionFactories.get(
+        String.format("r2dbc:pool:%s://%s:%s@%s:%d", MSSQL_DRIVER, SERVER.getUsername(), SERVER.getPassword(), SERVER.getHost(), SERVER.getPort())));
 
     @Override
-    public Integer getIdentifier(int index) {
-        return index;
+    public String getIdentifier(int index) {
+        return String.format("P%d", index);
     }
 
     @Override
@@ -76,7 +58,7 @@ final class MysqlExample implements Example<Integer> {
 
     @Override
     public String getPlaceholder(int index) {
-        return "?";
+        return String.format("@P%d", index);
     }
 
     @Override
@@ -84,9 +66,9 @@ final class MysqlExample implements Example<Integer> {
         return this.r2dbc;
     }
 
-    private static final class MysqlServerExtension implements BeforeAllCallback, AfterAllCallback {
+    private static final class MssqlServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-        private final MySQLContainer<?> container = new MySQLContainer<>("mysql:5.7");
+        private final MSSQLServerContainer<?> container = new MSSQLServerContainer<>();
 
         private HikariDataSource dataSource;
 
@@ -99,7 +81,7 @@ final class MysqlExample implements Example<Integer> {
         }
 
         @Override
-        public void beforeAll(ExtensionContext context) {
+        public void beforeAll(ExtensionContext context) throws IOException {
             this.container.start();
 
             this.dataSource = DataSourceBuilder.create()
@@ -112,10 +94,6 @@ final class MysqlExample implements Example<Integer> {
             this.dataSource.setMaximumPoolSize(1);
 
             this.jdbcOperations = new JdbcTemplate(this.dataSource);
-        }
-
-        String getDatabase() {
-            return this.container.getDatabaseName();
         }
 
         String getHost() {
@@ -132,11 +110,12 @@ final class MysqlExample implements Example<Integer> {
         }
 
         int getPort() {
-            return this.container.getFirstMappedPort();
+            return this.container.getMappedPort(MSSQLServerContainer.MS_SQL_SERVER_PORT);
         }
 
         String getUsername() {
             return this.container.getUsername();
         }
+
     }
 }

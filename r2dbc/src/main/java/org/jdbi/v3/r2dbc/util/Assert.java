@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client.util;
+package org.jdbi.v3.r2dbc.util;
 
 import reactor.util.annotation.Nullable;
 

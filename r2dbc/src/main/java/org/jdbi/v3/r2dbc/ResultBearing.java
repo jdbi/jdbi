@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.r2dbc.client;
+package org.jdbi.v3.r2dbc;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.r2dbc.client.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
+import org.jdbi.v3.r2dbc.util.Assert;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
