@@ -210,12 +210,6 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring-boot.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -230,43 +224,6 @@
             </resource>
         </resources>
         <plugins>
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-compiler-plugin</artifactId>-->
-            <!--                <version>3.8.0</version>-->
-            <!--                <configuration>-->
-            <!--                    <compilerArgs>-->
-            <!--                        <arg>-Werror</arg>-->
-            <!--                        <arg>-Xlint:all</arg>-->
-            <!--                        <arg>-Xlint:-options</arg>-->
-            <!--                        <arg>-Xlint:-processing</arg>-->
-            <!--                        <arg>-Xlint:-serial</arg>-->
-            <!--                    </compilerArgs>-->
-            <!--                    <showWarnings>true</showWarnings>-->
-            <!--                    <source>${java.version}</source>-->
-            <!--                    <target>${java.version}</target>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
-            <!-- <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <excludePackageNames>io.r2dbc.client.*</excludePackageNames>
-                    <links>
-                        <link>https://projectreactor.io/docs/core/release/api/</link>
-                        <link>https://www.reactive-streams.org/reactive-streams-1.0.2-javadoc/</link>
-                    </links>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin> -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -287,152 +244,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>org.codehaus.mojo</groupId>-->
-            <!--                <artifactId>flatten-maven-plugin</artifactId>-->
-            <!--                <version>1.1.0</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <id>flatten</id>-->
-            <!--                        <phase>process-resources</phase>-->
-            <!--                        <goals>-->
-            <!--                            <goal>flatten</goal>-->
-            <!--                        </goals>-->
-            <!--                        <configuration>-->
-            <!--                            <updatePomFile>true</updatePomFile>-->
-            <!--                            <flattenMode>oss</flattenMode>-->
-            <!--                            <pomElements>-->
-            <!--                                <pluginManagement>keep</pluginManagement>-->
-            <!--                                <properties>keep</properties>-->
-            <!--                                <parent>expand</parent>-->
-            <!--                                <repositories>remove</repositories>-->
-            <!--                            </pomElements>-->
-            <!--                        </configuration>-->
-            <!--                    </execution>-->
-            <!--                    <execution>-->
-            <!--                        <id>flatten-clean</id>-->
-            <!--                        <phase>clean</phase>-->
-            <!--                        <goals>-->
-            <!--                            <goal>clean</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
         </plugins>
     </build>
-
-    <!-- <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>spring-snapshots</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>oss-sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <profiles>
-        <profile>
-            <id>r2dbc-h2-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcH2Artifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-h2-artifactory</id>
-                    <url>${r2dbcH2Artifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-        <profile>
-            <id>r2dbc-mssql-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcMssqlArtifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-mssql-artifactory</id>
-                    <url>${r2dbcMssqlArtifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-        <profile>
-            <id>r2dbc-pool-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcPoolArtifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-pool-artifactory</id>
-                    <url>${r2dbcPoolArtifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-        <profile>
-            <id>r2dbc-postgresql-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcPostgresqlArtifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-postgresql-artifactory</id>
-                    <url>${r2dbcPostgresqlArtifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-        <profile>
-            <id>r2dbc-spi-artifactory</id>
-            <activation>
-                <property>
-                    <name>r2dbcSpiArtifactory</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>r2dbc-spi-artifactory</id>
-                    <url>${r2dbcSpiArtifactory}</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
-    </profiles> -->
 
 </project>
