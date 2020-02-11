@@ -44,21 +44,20 @@
         <dep.h2.version>1.4.200</dep.h2.version>
         <dep.jackson2.version>2.10.2</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>17.0.0</dep.jetbrainsAnnotations.version>
+        <dep.mssql-jdbc.version>7.2.2.jre8</dep.mssql-jdbc.version>
+        <dep.mysql.version>8.0.16</dep.mysql.version>
         <dep.slf4j.version>1.7.30</dep.slf4j.version>
+        <dep.spring-boot.version>2.2.4.RELEASE</dep.spring-boot.version>
         <dep.spring.version>5.2.3.RELEASE</dep.spring.version>
         <dep.testcontainers.version>1.12.5</dep.testcontainers.version>
         <java.version>1.8</java.version>
-        <jsr305.version>3.0.2</jsr305.version>
 
         <!-- No main jar.  (yet?) -->
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
         <moduleName>org.jdbi.v3.r2dbc</moduleName>
-        <mssql-jdbc.version>7.2.2.jre8</mssql-jdbc.version>
-        <mysql.version>8.0.16</mysql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -98,7 +97,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>${mssql-jdbc.version}</version>
+            <version>${dep.mssql-jdbc.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -125,7 +124,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <version>${spring-boot.version}</version>
+            <version>${dep.spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -167,7 +166,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
+            <version>${dep.mysql.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -178,7 +177,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>${spring-boot.version}</version>
+            <version>${dep.spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
