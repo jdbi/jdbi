@@ -25,9 +25,6 @@
 
     <logger name="com.github.jasync"   level="INFO"/>
     <logger name="org.jdbi.v3.r2dbc"   level="INFO"/>
-    <logger name="io.r2dbc.postgresql" level="INFO"/>
-    <logger name="io.r2dbc.mssql"      level="INFO"/>
-    <logger name="org.testcontainers"  level="INFO"/>
     <logger name="reactor.netty"       level="WARN"/>
     <logger name="stream"              level="INFO"/>
     <logger name="test"                level="INFO"/>
