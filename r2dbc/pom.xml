@@ -82,12 +82,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>${dep.spring.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <scope>test</scope>
@@ -216,22 +210,6 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.hateoas</groupId>-->
-        <!--            <artifactId>spring-hateoas</artifactId>-->
-        <!--            <version>1.0.3.RELEASE</version>-->
-        <!--            <scope>test</scope>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <artifactId>json-path</artifactId>-->
-        <!--                    <groupId>com.jayway.jsonpath</groupId>-->
-        <!--                </exclusion>-->
-        <!--                <exclusion>-->
-        <!--                    <artifactId>spring-aop</artifactId>-->
-        <!--                    <groupId>org.springframework</groupId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
