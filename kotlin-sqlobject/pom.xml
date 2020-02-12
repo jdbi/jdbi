@@ -43,6 +43,7 @@
 
     <properties>
         <moduleName>org.jdbi.v3.sqlobject.kotlin</moduleName>
+        <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
     </properties>
 
     <dependencies>
@@ -125,13 +126,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>
