@@ -140,22 +140,23 @@ public interface ImmutablesPropertiesFactory {
                         m,
                         alwaysSet(),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),
-                        findBuilderSetter(builderClass, name, propertyType).asFixedArity());
+                        findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
             } catch (IllegalAccessException | NoSuchMethodException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
         }
 
-        private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Type type)
+        private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Method decl, Type type)
         throws IllegalAccessException, NoSuchMethodException {
             final List<NoSuchMethodException> failures = new ArrayList<>();
             final Set<String> names = new LinkedHashSet<>();
+            names.add(decl.getName());
+            names.add(name);
             if (name.length() > 1) {
                 final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
                 names.add("set" + rest);
                 names.add("is" + rest);
             }
-            names.add(name);
             for (String tryName : names) {
                 try {
                     return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));

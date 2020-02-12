@@ -43,7 +43,8 @@ public class ImmutablesTest {
                     ByteArray.class,
                     DerivedProperty.class,
                     Defaulty.class,
-                    IsIsIsIs.class
+                    IsIsIsIs.class,
+                    AlternateColumnName.class
             ).registerModifiable(FooBarBaz.class)
         );
 
@@ -275,5 +276,21 @@ public class ImmutablesTest {
         default int defaulted() {
             return 42;
         }
+    }
+
+    @Test
+    public void testAlternateColumnName() {
+        assertThat(h.createQuery("select :TheAnswer as TheAnswer")
+                .bindPojo(ImmutableAlternateColumnName.builder().answer(42).build())
+                .mapTo(AlternateColumnName.class)
+                .one())
+            .extracting(AlternateColumnName::answer)
+            .isEqualTo(42);
+    }
+
+    @Value.Immutable
+    public interface AlternateColumnName {
+        @ColumnName("TheAnswer")
+        int answer();
     }
 }
