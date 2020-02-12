@@ -42,8 +42,8 @@
     </developers>
 
     <properties>
-        <moduleName>org.jdbi.v3.sqlobject.kotlin</moduleName>
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
+        <moduleName>org.jdbi.v3.sqlobject.kotlin</moduleName>
     </properties>
 
     <dependencies>
