@@ -31,6 +31,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
@@ -133,7 +134,7 @@ public interface ImmutablesPropertiesFactory {
         protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
             final Class<?> builderClass = builder.get().getClass();
             try {
-                final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
+                final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
                 return new ImmutablesPojoProperty<T>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),

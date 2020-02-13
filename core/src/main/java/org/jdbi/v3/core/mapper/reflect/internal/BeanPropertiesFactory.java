@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
@@ -48,7 +49,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 public class BeanPropertiesFactory {
     private static final JdbiCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
-            JdbiCaches.declare(t -> new PropertiesHolder<>(GenericTypes.getErasedType(t)));
+            JdbiCaches.declare(PropertiesHolder::new);
 
     private BeanPropertiesFactory() {}
 
@@ -105,9 +106,11 @@ public class BeanPropertiesFactory {
             final ConcurrentMap<Class<?>, Optional<Annotation>> annoCache = new ConcurrentHashMap<>();
             final Function<Object, Object> getter;
             final BiConsumer<Object, Object> setter;
+            final Type actualBeanType;
 
-            BeanPojoProperty(PropertyDescriptor property) {
+            BeanPojoProperty(PropertyDescriptor property, Type actualBeanType) {
                 this.descriptor = property;
+                this.actualBeanType = actualBeanType;
                 this.qualifiedType = determineQualifiedType();
                 getter = Optional.ofNullable(descriptor.getReadMethod())
                         .map(Unchecked.function(MethodHandles.lookup()::unreflect))
@@ -154,8 +157,8 @@ public class BeanPropertiesFactory {
 
                 return QualifiedType.of(
                     Optional.ofNullable(descriptor.getReadMethod())
-                        .map(Method::getGenericReturnType)
-                        .orElseGet(() -> descriptor.getWriteMethod().getGenericParameterTypes()[0]))
+                        .map(m -> GenericTypeReflector.getExactReturnType(m, actualBeanType))
+                        .orElseGet(() -> GenericTypeReflector.getExactParameterTypes(descriptor.getWriteMethod(), actualBeanType)[0]))
                     .withAnnotations(
                         new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
@@ -181,11 +184,12 @@ public class BeanPropertiesFactory {
         static class PropertiesHolder<T> {
             final Supplier<T> constructor;
             final Map<String, BeanPojoProperty<?>> properties;
-            PropertiesHolder(Class<?> clazz) {
+            PropertiesHolder(Type type) {
+                final Class<?> clazz = GenericTypes.getErasedType(type);
                 try {
                     properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
-                            .map(BeanPojoProperty::new)
+                            .map(p -> new BeanPojoProperty<>(p, type))
                             .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);

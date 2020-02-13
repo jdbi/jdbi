@@ -92,4 +92,25 @@ public class TestEnums {
         assertThat(dbRule.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).one())
             .isEqualTo(SomethingElse.Name.brian);
     }
+
+    @Test
+    public void testGenericEnumBindBean() {
+        dbRule.getSharedHandle().useTransaction(h -> {
+            assertThat(h.createQuery("select :e.val")
+                    .bindBean("e", new E<SomethingElse.Name>(SomethingElse.Name.brian))
+                    .mapTo(SomethingElse.Name.class)
+                    .one())
+                .isEqualTo(SomethingElse.Name.brian);
+        });
+    }
+
+    public static class E<T extends SomethingElse.Name> {
+        private final T val;
+        E(final T val) {
+            this.val = val;
+        }
+        public T getVal() {
+            return val;
+        }
+    }
 }
