@@ -2,6 +2,7 @@
   - Bean binding: ignore getter methods with parameters
   - Immutables: find builder set method even with @ColumnName
   - CachingSqlParser: default limit to 1000 parsed statements, #1658
+  - bom: don't inherit from parent #1656
 
 # 3.12.0
   - `EnumSet` can be bound and mapped as a bitstring to a Postgres `varbit` column

@@ -15,14 +15,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>jdbi3-parent</artifactId>
-        <groupId>org.jdbi</groupId>
-        <version>3.12.1-SNAPSHOT</version>
-    </parent>
-
+    <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-bom</artifactId>
+    <version>3.12.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>jdbi3 BOM</name>
     <description>Jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
