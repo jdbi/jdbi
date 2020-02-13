@@ -21,6 +21,11 @@ import org.jdbi.v3.meta.Beta;
 abstract class CachingSqlParser implements SqlParser {
     private final LoadingCache<String, ParsedSql> parsedSqlCache;
 
+    CachingSqlParser() {
+        this(Caffeine.newBuilder()
+                     .maximumSize(1_000));
+    }
+
     CachingSqlParser(Caffeine<Object, Object> cache) {
         parsedSqlCache = cache.build(this::internalParse);
     }

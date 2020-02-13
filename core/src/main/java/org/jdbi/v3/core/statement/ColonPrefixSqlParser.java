@@ -38,9 +38,7 @@ import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
  */
 public class ColonPrefixSqlParser extends CachingSqlParser {
 
-    public ColonPrefixSqlParser() {
-        this(Caffeine.newBuilder());
-    }
+    public ColonPrefixSqlParser() {}
 
     @Beta
     public ColonPrefixSqlParser(Caffeine<Object, Object> cache) {

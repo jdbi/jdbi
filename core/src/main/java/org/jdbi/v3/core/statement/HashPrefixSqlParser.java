@@ -35,9 +35,7 @@ import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
  */
 public class HashPrefixSqlParser extends CachingSqlParser {
 
-    public HashPrefixSqlParser() {
-        this(Caffeine.newBuilder());
-    }
+    public HashPrefixSqlParser() {}
 
     @Beta
     public HashPrefixSqlParser(final Caffeine<Object, Object> cache) {
