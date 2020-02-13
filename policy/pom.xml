@@ -19,12 +19,12 @@
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
         <version>31</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-policy</artifactId>
-    <version>3.12.1-SNAPSHOT</version>
+    <version>3.12.1</version>
     <name>jdbi3 Policy</name>
     <description>Policy files for Jdbi build configuration</description>
 </project>
