@@ -39,6 +39,11 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+      <developer>
+        <name>The Jdbi Team</name>
+      </developer>
+    </developers>
 
     <properties>
         <moduleName>org.jdbi.v3.bom</moduleName>
