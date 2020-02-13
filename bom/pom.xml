@@ -179,7 +179,6 @@
                     <flattenMode>bom</flattenMode>
                     <pomElements>
                         <properties>remove</properties>
-                        <scm>remove</scm>
                         <distributionManagement>remove</distributionManagement>
                     </pomElements>
                 </configuration>

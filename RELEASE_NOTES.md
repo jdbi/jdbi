@@ -1,4 +1,4 @@
-# 3.12.1
+# 3.12.2
   - Bean binding: ignore getter methods with parameters
   - Immutables: find builder set method even with @ColumnName
   - CachingSqlParser: default limit to 1000 parsed statements, #1658
