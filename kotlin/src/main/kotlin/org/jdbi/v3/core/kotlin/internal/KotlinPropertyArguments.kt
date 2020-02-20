@@ -57,4 +57,6 @@ class KotlinPropertyArguments(obj: Any,
     override fun getNestedArgumentFinder(obj: Any): NamedArgumentFinder {
         return KotlinPropertyArguments(obj)
     }
+    
+    override fun toString() = obj.toString()
 }
