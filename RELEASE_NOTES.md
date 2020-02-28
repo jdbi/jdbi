@@ -1,5 +1,7 @@
 # 3.13.0
   - Kotlin: respect default values in methods when passed null, #1690
+  - `Arguments.bindingNullToPrimitivesPermitted` helps you catch
+  erroneous binding of `null` to a primitive type
 
 # 3.12.2
   - Bean binding: ignore getter methods with parameters
