@@ -52,6 +52,9 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
 
     @SuppressWarnings("unchecked")
     <T> void register(Class<T> klass, int sqlType, StatementBinder<T> binder) {
-        builders.put(klass, value -> value == null ? new NullArgument(sqlType) : new LoggableBinderArgument<>((T) value, binder));
+        builders.put(klass,
+            value -> value == null
+                ? new NullArgument(sqlType)
+                : new LoggableBinderArgument<>((T) value, binder));
     }
 }

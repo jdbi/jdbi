@@ -43,7 +43,7 @@ public class TestBeanArguments {
         new BeanPropertyArguments("", new Foo(BigDecimal.ONE))
             .find("foo", ctx)
             .get()
-            .apply(5, stmt, null);
+            .apply(5, stmt, ctx);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
@@ -75,7 +75,7 @@ public class TestBeanArguments {
         new BeanPropertyArguments("foo", new Bar())
             .find("foo.bar", ctx)
             .get()
-            .apply(3, stmt, null);
+            .apply(3, stmt, ctx);
 
         verify(stmt).setString(3, "baz");
     }
@@ -171,7 +171,7 @@ public class TestBeanArguments {
     public void testBindNestedOptionalNonNull() throws Exception {
         Object bean = new FooProperty(new IdProperty(69));
 
-        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, null);
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, ctx);
 
         verify(stmt).setLong(3, 69);
     }
@@ -203,13 +203,13 @@ public class TestBeanArguments {
 
     @Test
     public void testPrivateClass() throws Exception {
-        new ObjectMethodArguments(null, Person.create("hello")).find("name", ctx).get().apply(4, stmt, null);
+        new ObjectMethodArguments(null, Person.create("hello")).find("name", ctx).get().apply(4, stmt, ctx);
         verify(stmt).setString(4, "hello");
     }
 
     @Test
     public void testPrivateInterfaceClass() throws Exception {
-        new ObjectMethodArguments(null, Car.create("hello")).find("name", ctx).get().apply(4, stmt, null);
+        new ObjectMethodArguments(null, Car.create("hello")).find("name", ctx).get().apply(4, stmt, ctx);
         verify(stmt).setString(4, "hello");
     }
 

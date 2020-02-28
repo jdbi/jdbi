@@ -20,8 +20,9 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,17 +37,19 @@ import static org.mockito.Mockito.verify;
 
 public class ByteArrayTest {
     @Rule
-    public DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule();
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
     private PreparedStatement stmt;
 
+    StatementContext ctx = StatementContextAccess.createContext();
+
     @Test
     public void byteArrayIsTypedAsVarbinary() throws SQLException {
         Argument nullByteArrayArg = db.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, new byte[] {1})).get();
 
-        nullByteArrayArg.apply(0, stmt, null);
+        nullByteArrayArg.apply(0, stmt, ctx);
 
         verify(stmt, never()).setArray(anyInt(), any(Array.class));
         verify(stmt).setBytes(anyInt(), any(byte[].class));
@@ -56,7 +59,7 @@ public class ByteArrayTest {
     public void nullByteArrayIsTypedAsVarbinary() throws SQLException {
         Argument nullByteArrayArg = db.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, null)).get();
 
-        nullByteArrayArg.apply(0, stmt, null);
+        nullByteArrayArg.apply(0, stmt, ctx);
 
         verify(stmt, never()).setNull(anyInt(), eq(Types.ARRAY));
         verify(stmt).setNull(anyInt(), eq(Types.VARBINARY));

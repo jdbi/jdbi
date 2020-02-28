@@ -13,8 +13,13 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.Types;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     PrimitivesArgumentFactory() {
@@ -26,5 +31,24 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
         register(long.class, Types.INTEGER, PreparedStatement::setLong);
         register(float.class, Types.FLOAT, PreparedStatement::setFloat);
         register(double.class, Types.DOUBLE, PreparedStatement::setDouble);
+    }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return super.prepare(type, config)
+                .map(prepared -> value -> prepared.apply(check(config, type, value)));
+    }
+    @Override
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        return super.build(expectedType, check(config, expectedType, value), config);
+    }
+
+    private Object check(ConfigRegistry cfg, Type type, Object value) {
+        if (value == null && !cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
+            throw new IllegalArgumentException(String.format(
+                    "binding null to a primitive %s is forbidden by configuration, declare a boxed type instead", type
+            ));
+        }
+        return value;
     }
 }
