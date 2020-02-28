@@ -39,7 +39,7 @@ public class TestMixinInterfaces {
     @Before
     public void setUp() {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
+        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
         db = Jdbi.create(ds);
         db.installPlugin(new SqlObjectPlugin());
         handle = db.open();

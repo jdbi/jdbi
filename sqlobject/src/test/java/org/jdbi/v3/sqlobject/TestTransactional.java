@@ -83,8 +83,7 @@ public class TestTransactional {
                 return (Connection) Proxy.newProxyInstance(real.getClass().getClassLoader(), new Class<?>[] {Connection.class}, new TxnIsolationCheckingInvocationHandler(real));
             }
         };
-        // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
-        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
+        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
         db = Jdbi.create(ds);
         db.installPlugin(new SqlObjectPlugin());
         db.registerRowMapper(new SomethingMapper());

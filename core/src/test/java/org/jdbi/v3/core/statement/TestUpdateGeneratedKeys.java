@@ -70,7 +70,7 @@ public class TestUpdateGeneratedKeys {
         update.bind("name", "Tom");
         Optional<Long> id2 = update.executeAndReturnGeneratedKeys().mapTo(long.class).findFirst();
 
-        assertThat(id2).isNotPresent();
+        assertThat(id2).hasValue(id1);
     }
 
     @Test

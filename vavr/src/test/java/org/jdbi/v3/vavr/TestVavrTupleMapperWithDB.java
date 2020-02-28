@@ -41,7 +41,7 @@ public class TestVavrTupleMapperWithDB {
         dbRule.getSharedHandle().execute("create table tuples ("
                 + "t1 int, "
                 + "t2 varchar(10), "
-                + "t3 varchar(255), "
+                + "t3 varchar(255) "
                 + ")");
         for (Integer i : expected) {
             dbRule.getSharedHandle().execute("insert into tuples values (?, ?, ?)",

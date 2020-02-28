@@ -41,7 +41,7 @@ public class TestBatchingSingleValue {
     @Before
     public void setUp() {
         handle = dbRule.getSharedHandle();
-        handle.execute("create table batching (id integer, values array)");
+        handle.execute("create table batching (id integer, vals array)");
         b = handle.attach(SingleValueBatching.class);
     }
 
@@ -61,39 +61,39 @@ public class TestBatchingSingleValue {
     @BatchChunkSize(4)
     @RegisterConstructorMapper(BatchingRow.class)
     public interface SingleValueBatching {
-        @SqlBatch("insert into batching (id, values) values (:id, :values)")
-        int[] insertValues(int[] id, @SingleValue int[] values);
+        @SqlBatch("insert into batching (id, vals) values (:id, :vals)")
+        int[] insertValues(int[] id, @SingleValue int[] vals);
 
-        @SqlQuery("select id, values from batching order by id asc")
+        @SqlQuery("select id, vals from batching order by id asc")
         List<BatchingRow> select();
     }
 
     public static class BatchingRow {
         final int id;
-        final int[] values;
+        final int[] vals;
 
-        public BatchingRow(int id, int[] values) {
+        public BatchingRow(int id, int[] vals) {
             this.id = id;
-            this.values = values;
+            this.vals = vals;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof BatchingRow) {
                 BatchingRow other = (BatchingRow) obj;
-                return id == other.id && Arrays.equals(values, other.values);
+                return id == other.id && Arrays.equals(vals, other.vals);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return id ^ Arrays.hashCode(values);
+            return id ^ Arrays.hashCode(vals);
         }
 
         @Override
         public String toString() {
-            return String.format("%s %s", id, Arrays.toString(values));
+            return String.format("%s %s", id, Arrays.toString(vals));
         }
     }
 }
