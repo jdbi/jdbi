@@ -43,6 +43,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
+    private boolean bindingNullToPrimitivesPermitted = true;
 
     public Arguments(ConfigRegistry registry) {
         this.registry = registry;
@@ -76,6 +77,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         factories.addAll(that.factories);
         preparedFactories = new ConcurrentHashMap<>(that.preparedFactories);
         untypedNullArgument = that.untypedNullArgument;
+        bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
     }
 
     /**
@@ -188,6 +190,20 @@ public class Arguments implements JdbiConfig<Arguments> {
      */
     public Argument getUntypedNullArgument() {
         return untypedNullArgument;
+    }
+
+    /**
+     * @return if binding {@code null} to a variable declared as a primitive type is allowed
+     */
+    public boolean isBindingNullToPrimitivesPermitted() {
+        return bindingNullToPrimitivesPermitted;
+    }
+
+    /**
+     * @param bindingNullToPrimitivesPermitted if binding {@code null} to a variable declared as a primitive type should be allowed
+     */
+    public void setBindingNullToPrimitivesPermitted(boolean bindingNullToPrimitivesPermitted) {
+        this.bindingNullToPrimitivesPermitted = bindingNullToPrimitivesPermitted;
     }
 
     @Override
