@@ -15,6 +15,7 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.mapper.SingleColumnMapper
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
