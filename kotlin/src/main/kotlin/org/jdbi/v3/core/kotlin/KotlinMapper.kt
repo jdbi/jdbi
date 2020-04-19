@@ -15,6 +15,7 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.mapper.SingleColumnMapper
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
@@ -43,6 +44,7 @@ import kotlin.reflect.jvm.jvmErasure
 import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper
 import java.lang.reflect.AnnotatedElement
+import java.sql.Statement
 import kotlin.reflect.KAnnotatedElement
 import java.util.Arrays
 
@@ -152,6 +154,7 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
                     }
                     v
                 }
+                .filterValues { it != ParamResolution.USE_DEFAULT }
 
             val memberPropertiesWithValues = memberProperties
                 .filter { memberPropertyMappers.get(it)?.mapper != null }
@@ -191,7 +194,12 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
                 return ctx.findColumnMapperFor(type)
                     .map { mapper ->
-                        ParamData(ParamResolution.MAPPED, SingleColumnMapper(mapper, columnIndex.asInt + 1), propagateNull)
+                        val m = if (parameter.isOptional && !parameter.type.isMarkedNullable) {
+                            kotlinDefaultMapper(mapper)
+                        } else {
+                            mapper
+                        }
+                        ParamData(ParamResolution.MAPPED, SingleColumnMapper(m, columnIndex.asInt + 1), propagateNull)
                     }
                     .orElseThrow {
                         IllegalArgumentException(
@@ -295,6 +303,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
         val mapper: RowMapper<*>?,
         val propagateNull: Boolean
     )
+
+    private fun kotlinDefaultMapper(mapper: ColumnMapper<*>): ColumnMapper<*> =
+        ColumnMapper { r, columnNumber, ctx -> mapper.map(r, columnNumber, ctx) ?: ParamResolution.USE_DEFAULT }
 }
 
 private fun <C : Any> findConstructor(kClass: KClass<C>) : KFunction<C> {
