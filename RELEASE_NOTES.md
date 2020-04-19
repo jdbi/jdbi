@@ -1,3 +1,6 @@
+# 3.13.0
+  - Kotlin: respect default values in methods when passed null, #1690
+
 # 3.12.2
   - Bean binding: ignore getter methods with parameters
   - Immutables: find builder set method even with @ColumnName
