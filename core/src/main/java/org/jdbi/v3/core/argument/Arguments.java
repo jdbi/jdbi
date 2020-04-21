@@ -39,7 +39,7 @@ import org.jdbi.v3.meta.Beta;
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
-    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories;
+    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
 
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
@@ -47,7 +47,6 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     public Arguments(ConfigRegistry registry) {
         this.registry = registry;
-        preparedFactories = new ConcurrentHashMap<>();
         // TODO move to BuiltInSupportPlugin
 
         // the null factory must be interrogated last to preserve types!
@@ -71,11 +70,15 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
+        if (preparedFactories.isEmpty()) {
+            for (int i = factories.size() - 1; i >= 0; --i) {
+                prePrepareTypes(factories.get(i));
+            }
+        }
     }
 
     private Arguments(Arguments that) {
         factories.addAll(that.factories);
-        preparedFactories = new ConcurrentHashMap<>(that.preparedFactories);
         untypedNullArgument = that.untypedNullArgument;
         bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
     }
@@ -99,6 +102,11 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Beta
     public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
+        prePrepareTypes(factory);
+        return this;
+    }
+
+    private void prePrepareTypes(QualifiedArgumentFactory factory) {
         if (factory instanceof QualifiedArgumentFactory.Preparable) {
             QualifiedArgumentFactory.Preparable qaf = (QualifiedArgumentFactory.Preparable) factory;
             qaf.prePreparedTypes()
@@ -107,7 +115,6 @@ public class Arguments implements JdbiConfig<Arguments> {
                         qaf.prepare(t, registry)
                             .orElseThrow(() -> new IllegalStateException("Preparable " + t + " failed on " + qaf))));
         }
-        return this;
     }
 
     /**

@@ -36,14 +36,14 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return super.prepare(type, config)
-                .map(prepared -> value -> prepared.apply(check(config, type, value)));
+                .map(prepared -> value -> prepared.apply(checkForNull(config, type, value)));
     }
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        return super.build(expectedType, check(config, expectedType, value), config);
+        return super.build(expectedType, checkForNull(config, expectedType, value), config);
     }
 
-    private Object check(ConfigRegistry cfg, Type type, Object value) {
+    private Object checkForNull(ConfigRegistry cfg, Type type, Object value) {
         if (value == null && !cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
             throw new IllegalArgumentException(String.format(
                     "binding null to a primitive %s is forbidden by configuration, declare a boxed type instead", type

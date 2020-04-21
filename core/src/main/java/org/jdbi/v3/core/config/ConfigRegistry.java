@@ -45,9 +45,9 @@ public final class ConfigRegistry {
     private ConfigRegistry(ConfigRegistry that) {
         that.configs.forEach((type, config) -> {
             JdbiConfig<?> copy = config.createCopy();
-            copy.setRegistry(this);
             configs.put(type, copy);
         });
+        configs.values().forEach(c -> c.setRegistry(this));
     }
 
     /**
