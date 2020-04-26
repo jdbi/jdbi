@@ -1981,7 +1981,7 @@ List<User> users =
 
 *#collect* takes a *Collector<T, ? , R>* that builds a resulting collection
 *R<T>*. The *java.util.stream.Collectors* class has a number of interesting
-*Collector*s to start with.
+*Collector* implementations to start with.
 
 You can also write your own custom collectors.  For example, to accumulate
 found rows into a *Map*:
@@ -2002,7 +2002,7 @@ Map<Integer, Something> users = h.createQuery("select id, name from something")
 ===== Reduction
 
 *#reduce* provides a simplified *Stream#reduce*. Given an identity starting
-value and a *BiFunction<U, T, U>* it will repeatedly combine *U*s until only a
+value and a *BiFunction<U, T, U>* it will repeatedly combine *U* until only a
 single remains, and then return that.
 
 // TODO: example
