@@ -52,13 +52,15 @@ public class FieldMapperMockTest {
     @Mock
     ResultSetMetaData resultSetMetaData;
 
-    Handle handle = HandleAccess.createHandle();
-    StatementContext ctx = StatementContextAccess.createContext(handle);
+    Handle handle;
+    StatementContext ctx;
 
     RowMapper<SampleBean> mapper = FieldMapper.of(SampleBean.class);
 
     @Before
     public void setUpMocks() throws SQLException {
+        handle = HandleAccess.createHandle();
+        ctx = StatementContextAccess.createContext(handle);
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
     }
 

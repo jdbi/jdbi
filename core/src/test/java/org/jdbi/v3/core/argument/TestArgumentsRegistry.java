@@ -15,6 +15,7 @@ package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
@@ -22,6 +23,7 @@ import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,11 +40,17 @@ public class TestArgumentsRegistry {
 
     private static final String I_AM_A_STRING = "I am a String";
 
-    private final Handle handle = HandleAccess.createHandle();
-    private final StatementContext ctx = StatementContextAccess.createContext(handle);
+    Handle handle;
+    StatementContext ctx;
 
     @Mock
     public PreparedStatement stmt;
+
+    @Before
+    public void setup() throws SQLException {
+        handle = HandleAccess.createHandle();
+        ctx = StatementContextAccess.createContext(handle);
+    }
 
     @Test
     public void testWaffleLong() throws Exception {

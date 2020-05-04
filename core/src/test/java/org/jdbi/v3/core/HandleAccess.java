@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
@@ -30,7 +31,7 @@ public class HandleAccess {
      * useful for tests that do not actually hit
      * a database.
      */
-    public static Handle createHandle() {
+    public static Handle createHandle() throws SQLException {
         Connection fakeConnection = Mockito.mock(Connection.class);
 
         return new Handle(null, new ConfigRegistry(), Connection::close, new LocalTransactionHandler(),

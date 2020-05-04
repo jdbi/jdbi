@@ -67,15 +67,15 @@ public class Handle implements Closeable, Configurable<Handle> {
            ConnectionCloser closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
-           Connection connection) {
+           Connection connection) throws SQLException {
         this.jdbi = jdbi;
         this.closer = closer;
-        this.transactions = transactions;
         this.connection = connection;
 
         this.localConfig = ThreadLocal.withInitial(() -> localConfig);
         this.localExtensionMethod = new ThreadLocal<>();
         this.statementBuilder = statementBuilder;
+        this.transactions = transactions.specialize(this);
         this.forceEndTransactions = !transactions.isInTransaction(this);
     }
 

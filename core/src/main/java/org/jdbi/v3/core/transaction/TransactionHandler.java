@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 
@@ -112,4 +114,13 @@ public interface TransactionHandler {
                                              TransactionIsolationLevel level,
                                              HandleCallback<R, X> callback) throws X;
 
+    /**
+     * Bind a TransactionHandler to a Handle, to allow it to track handle-local state.
+     * @param handle the handle to bind to
+     * @return the bound TransactionHandler
+     * @throws SQLException bad things happened
+     */
+    default TransactionHandler specialize(final Handle handle) throws SQLException {
+        return this;
+    }
 }

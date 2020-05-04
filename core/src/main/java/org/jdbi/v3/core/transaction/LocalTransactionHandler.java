@@ -16,12 +16,14 @@ package org.jdbi.v3.core.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions
@@ -29,167 +31,221 @@ import org.jdbi.v3.core.HandleCallback;
  * directly on the JDBC Connection instance.
  */
 public class LocalTransactionHandler implements TransactionHandler {
-    private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<>();
-    private final ThreadLocal<Boolean> didTxnRollback = ThreadLocal.withInitial(() -> false);
+    private final Map<Handle, BoundLocalTransactionHandler> bound = Collections.synchronizedMap(new WeakHashMap<>());
 
     @Override
     public void begin(Handle handle) {
-        try {
-            if (!localStuff.containsKey(handle)) {
-                boolean initial = handle.getConnection().getAutoCommit();
-                localStuff.putIfAbsent(handle, new LocalStuff(initial));
-                handle.getConnection().setAutoCommit(false);
-            }
-        } catch (SQLException e) {
-            throw new TransactionException("Failed to start transaction", e);
-        }
+        nonspecial(handle).begin(handle);
     }
 
     @Override
     public void commit(Handle handle) {
-        try {
-            handle.getConnection().commit();
-        } catch (SQLException e) {
-            throw new TransactionException("Failed to commit transaction", e);
-        } finally {
-            restoreAutoCommitState(handle);
-        }
+        nonspecial(handle).commit(handle);
     }
 
     @Override
     public void rollback(Handle handle) {
-        didTxnRollback.set(true);
-        try {
-            handle.getConnection().rollback();
-        } catch (SQLException e) {
-            throw new TransactionException("Failed to rollback transaction", e);
-        } finally {
-            restoreAutoCommitState(handle);
-        }
-    }
-
-    @Override
-    public void savepoint(Handle handle, String name) {
-        @SuppressWarnings("PMD.CloseResource")
-        final Connection conn = handle.getConnection();
-        try {
-            final Savepoint savepoint = conn.setSavepoint(name);
-            localStuff.get(handle).getSavepoints().put(name, savepoint);
-        } catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create savepoint '%s'", name), e);
-        }
-    }
-
-    @Override
-    public void releaseSavepoint(Handle handle, String name) {
-        @SuppressWarnings("PMD.CloseResource")
-        final Connection conn = handle.getConnection();
-        try {
-            final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
-            if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to release non-existent savepoint, '%s'",
-                                                             name));
-            }
-            conn.releaseSavepoint(savepoint);
-        } catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
-        }
-    }
-
-    @Override
-    public void rollbackToSavepoint(Handle handle, String name) {
-        @SuppressWarnings("PMD.CloseResource")
-        final Connection conn = handle.getConnection();
-        try {
-            final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
-            if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to rollback to non-existent savepoint, '%s'",
-                                                             name));
-            }
-            conn.rollback(savepoint);
-        } catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
-        }
+        nonspecial(handle).rollback(handle);
     }
 
     @Override
     public boolean isInTransaction(Handle handle) {
-        try {
-            return !handle.getConnection().getAutoCommit();
-        } catch (SQLException e) {
-            throw new TransactionException("Failed to test for transaction status", e);
-        }
+        return nonspecial(handle).isInTransaction(handle);
     }
 
     @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X {
-        if (isInTransaction(handle)) {
-            throw new IllegalStateException("Already in transaction");
-        }
-        didTxnRollback.set(false);
-        final R returnValue;
-        try {
-            handle.begin();
-            returnValue = callback.withHandle(handle);
-            if (!didTxnRollback.get()) {
-                handle.commit();
-            }
-        } catch (Throwable e) {
-            try {
-                handle.rollback();
-            } catch (Exception rollback) {
-                e.addSuppressed(rollback);
-            }
-            throw e;
-        }
-
-        didTxnRollback.remove();
-        return returnValue;
+    public void savepoint(Handle handle, String savepointName) {
+        nonspecial(handle).savepoint(handle, savepointName);
     }
 
     @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X {
-        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-        try {
-            handle.setTransactionIsolation(level);
-            return inTransaction(handle, callback);
-        } finally {
-            handle.setTransactionIsolation(initial);
+    public void rollbackToSavepoint(Handle handle, String savepointName) {
+        nonspecial(handle).rollbackToSavepoint(handle, savepointName);
+    }
+
+    @Override
+    public void releaseSavepoint(Handle handle, String savepointName) {
+        nonspecial(handle).releaseSavepoint(handle, savepointName);
+    }
+
+    @Override
+    public <R, X extends Exception> R inTransaction(Handle handle, HandleCallback<R, X> callback) throws X {
+        return nonspecial(handle).inTransaction(handle, callback);
+    }
+
+    @Override
+    public <R, X extends Exception> R inTransaction(Handle handle, TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
+        return nonspecial(handle).inTransaction(handle, level, callback);
+    }
+
+    TransactionHandler nonspecial(Handle handle) {
+        return bound.computeIfAbsent(handle, Unchecked.function(BoundLocalTransactionHandler::new));
+    }
+
+    public static LocalTransactionHandler binding() {
+        return new BindingLocalTransactionHandler();
+    }
+
+    static class BindingLocalTransactionHandler extends LocalTransactionHandler {
+        @Override
+        public TransactionHandler specialize(Handle handle) throws SQLException {
+            return new BoundLocalTransactionHandler(handle);
         }
     }
 
-    private void restoreAutoCommitState(final Handle handle) {
-        try {
-            final LocalStuff stuff = localStuff.remove(handle);
-            if (stuff != null) {
-                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getSavepoints().clear();
-            }
-        } catch (SQLException e) {
-            throw new UnableToRestoreAutoCommitStateException(e);
-        } finally {
-            // prevent memory leak if rollback throws an exception
-            localStuff.remove(handle);
-        }
-    }
-
-    private static class LocalStuff {
+    static class BoundLocalTransactionHandler implements TransactionHandler {
         private final Map<String, Savepoint> savepoints = new HashMap<>();
-        private final boolean initialAutocommit;
+        private boolean initialAutocommit;
+        private boolean didBegin;
+        private boolean didTxnRollback;
 
-        LocalStuff(boolean initial) {
-            this.initialAutocommit = initial;
+        BoundLocalTransactionHandler(Handle handle) throws SQLException {
+            this.initialAutocommit = handle.getConnection().getAutoCommit();
         }
 
-        Map<String, Savepoint> getSavepoints() {
-            return savepoints;
+        @Override
+        public void begin(Handle handle) {
+            try {
+                if (!didBegin) {
+                    Connection conn = handle.getConnection(); // NOPMD
+                    initialAutocommit = conn.getAutoCommit();
+                    didTxnRollback = false;
+                    savepoints.clear();
+                    conn.setAutoCommit(false);
+                    didBegin = true;
+                }
+            } catch (SQLException e) {
+                throw new TransactionException("Failed to start transaction", e);
+            }
         }
 
-        boolean getInitialAutocommit() {
-            return initialAutocommit;
+        @Override
+        public void commit(Handle handle) {
+            try {
+                handle.getConnection().commit();
+            } catch (SQLException e) {
+                throw new TransactionException("Failed to commit transaction", e);
+            } finally {
+                restoreAutoCommitState(handle);
+            }
+        }
+
+        @Override
+        public void rollback(Handle handle) {
+            didTxnRollback = true;
+            try {
+                handle.getConnection().rollback();
+            } catch (SQLException e) {
+                throw new TransactionException("Failed to rollback transaction", e);
+            } finally {
+                restoreAutoCommitState(handle);
+            }
+        }
+
+        @Override
+        public void savepoint(Handle handle, String name) {
+            @SuppressWarnings("PMD.CloseResource")
+            final Connection conn = handle.getConnection();
+            try {
+                final Savepoint savepoint = conn.setSavepoint(name);
+                savepoints.put(name, savepoint);
+            } catch (SQLException e) {
+                throw new TransactionException(String.format("Unable to create savepoint '%s'", name), e);
+            }
+        }
+
+        @Override
+        public void releaseSavepoint(Handle handle, String name) {
+            @SuppressWarnings("PMD.CloseResource")
+            final Connection conn = handle.getConnection();
+            try {
+                final Savepoint savepoint = savepoints.remove(name);
+                if (savepoint == null) {
+                    throw new TransactionException(String.format("Attempt to release non-existent savepoint, '%s'",
+                                                                 name));
+                }
+                conn.releaseSavepoint(savepoint);
+            } catch (SQLException e) {
+                throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
+            }
+        }
+
+        @Override
+        public void rollbackToSavepoint(Handle handle, String name) {
+            @SuppressWarnings("PMD.CloseResource")
+            final Connection conn = handle.getConnection();
+            try {
+                final Savepoint savepoint = savepoints.remove(name);
+                if (savepoint == null) {
+                    throw new TransactionException(String.format("Attempt to rollback to non-existent savepoint, '%s'",
+                                                                 name));
+                }
+                conn.rollback(savepoint);
+            } catch (SQLException e) {
+                throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
+            }
+        }
+
+        @Override
+        public boolean isInTransaction(Handle handle) {
+            try {
+                return !handle.getConnection().getAutoCommit();
+            } catch (SQLException e) {
+                throw new TransactionException("Failed to test for transaction status", e);
+            }
+        }
+
+        @Override
+        public <R, X extends Exception> R inTransaction(Handle handle,
+                                                        HandleCallback<R, X> callback) throws X {
+            if (isInTransaction(handle)) {
+                throw new IllegalStateException("Already in transaction");
+            }
+            didTxnRollback = false;
+            final R returnValue;
+            try {
+                handle.begin();
+                returnValue = callback.withHandle(handle);
+                if (!didTxnRollback) {
+                    handle.commit();
+                }
+            } catch (Throwable e) {
+                try {
+                    handle.rollback();
+                } catch (Exception rollback) {
+                    e.addSuppressed(rollback);
+                }
+                throw e;
+            } finally {
+                didTxnRollback = false;
+            }
+
+            return returnValue;
+        }
+
+        @Override
+        public <R, X extends Exception> R inTransaction(Handle handle,
+                                                        TransactionIsolationLevel level,
+                                                        HandleCallback<R, X> callback) throws X {
+            final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
+            try {
+                handle.setTransactionIsolation(level);
+                return inTransaction(handle, callback);
+            } finally {
+                handle.setTransactionIsolation(initial);
+            }
+        }
+
+        private void restoreAutoCommitState(Handle handle) {
+            try {
+                if (initialAutocommit) {
+                    handle.getConnection().setAutoCommit(initialAutocommit);
+                    savepoints.clear();
+                    didBegin = false;
+                }
+            } catch (SQLException e) {
+                throw new UnableToRestoreAutoCommitStateException(e);
+            }
         }
     }
 }

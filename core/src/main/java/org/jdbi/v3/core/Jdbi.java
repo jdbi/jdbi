@@ -58,7 +58,7 @@ public class Jdbi implements Configurable<Jdbi> {
     private final ConfigRegistry config = new ConfigRegistry();
 
     private final ConnectionFactory connectionFactory;
-    private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
+    private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(LocalTransactionHandler.binding());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();

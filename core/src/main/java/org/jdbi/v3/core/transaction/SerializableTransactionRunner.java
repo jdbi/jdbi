@@ -35,7 +35,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     private static final String SQLSTATE_TXN_SERIALIZATION_FAILED = "40001";
 
     public SerializableTransactionRunner() {
-        this(new LocalTransactionHandler());
+        this(LocalTransactionHandler.binding());
     }
 
     public SerializableTransactionRunner(TransactionHandler delegate) {
@@ -90,6 +90,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         } finally {
             handle.setTransactionIsolation(initial);
         }
+    }
+
+    @Override
+    public TransactionHandler specialize(Handle handle) throws SQLException {
+        return new SerializableTransactionRunner(getDelegate().specialize(handle));
     }
 
     /**
