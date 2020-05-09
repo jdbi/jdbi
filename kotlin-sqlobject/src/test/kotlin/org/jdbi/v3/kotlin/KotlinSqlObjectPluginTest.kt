@@ -107,8 +107,18 @@ class KotlinSqlObjectPluginTest {
     }
 
     @Test
+    fun testDaoCanAttachViaDbiOnDemandWithKClassArgument() {
+        commonTest(db.jdbi.onDemand(ThingDao::class))
+    }
+
+    @Test
     fun testDaoCanAttachViaHandleAttach() {
         commonTest(db.sharedHandle.attach<ThingDao>())
+    }
+
+    @Test
+    fun testDaoCanAttachViaHandleAttachWithKClassArgument() {
+        commonTest(db.sharedHandle.attach(ThingDao::class))
     }
 
     @Test
@@ -118,7 +128,6 @@ class KotlinSqlObjectPluginTest {
 
         val found = dao.insertAndFind(brian)
         assertEquals(brian, found)
-
     }
 
     @Test

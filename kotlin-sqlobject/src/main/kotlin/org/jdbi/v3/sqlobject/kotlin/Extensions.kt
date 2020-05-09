@@ -15,12 +15,20 @@ package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
+import kotlin.reflect.KClass
 
 inline fun <reified T : Any> Jdbi.onDemand(): T {
     return this.onDemand(T::class.java)
+}
+
+fun <T : Any> Jdbi.onDemand(kclass: KClass<T>): T {
+    return this.onDemand(kclass.java)
 }
 
 inline fun <reified T : Any> Handle.attach(): T {
     return this.attach(T::class.java)
 }
 
+fun <T : Any> Handle.attach(kclass: KClass<T>): T {
+    return this.attach(kclass.java)
+}
