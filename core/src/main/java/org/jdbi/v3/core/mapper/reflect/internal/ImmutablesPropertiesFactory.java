@@ -42,7 +42,7 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
-public interface ImmutablesPropertiesFactory {
+public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
     @SuppressWarnings("unchecked")
     JdbiCache<ImmutableSpec<?, ?>, ImmutablePojoProperties<?, ?>> IMMUTABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ImmutablePojoProperties::new);
@@ -50,13 +50,11 @@ public interface ImmutablesPropertiesFactory {
     JdbiCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ModifiablePojoProperties::new);
 
-    PojoProperties<?> create(Type type, ConfigRegistry config);
-
-    static <T, B> ImmutablesPropertiesFactory immutable(Class<T> defn, Supplier<B> builder) {
+    static <T, B> BuilderPropertiesFactory immutable(Class<T> defn, Supplier<B> builder) {
         return (t, config) -> IMMUTABLE_CACHE.get(new ImmutableSpec<>(t, config, defn, builder), config);
     }
 
-    static <T, M extends T> ImmutablesPropertiesFactory modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
+    static <T, M extends T> BuilderPropertiesFactory modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
         return (t, config) -> MODIFIABLE_CACHE.get(new ModifiableSpec<>(t, config, defn, impl, constructor), config);
     }
 

@@ -23,7 +23,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, ImmutablesPropertiesFactory> factories = new HashMap<>();
+    private final Map<Class<?>, BuilderPropertiesFactory> factories = new HashMap<>();
     private ConfigRegistry registry;
 
     public PojoTypes() {}
@@ -37,7 +37,7 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
         this.registry = registry;
     }
 
-    public PojoTypes register(Class<?> key, ImmutablesPropertiesFactory factory) {
+    public PojoTypes register(Class<?> key, BuilderPropertiesFactory factory) {
         factories.put(key, factory);
         return this;
     }
