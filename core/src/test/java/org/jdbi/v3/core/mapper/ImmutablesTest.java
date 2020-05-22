@@ -44,7 +44,8 @@ public class ImmutablesTest {
                     DerivedProperty.class,
                     Defaulty.class,
                     IsIsIsIs.class,
-                    AlternateColumnName.class
+                    AlternateColumnName.class,
+                    GetterWithColumnName.class
             ).registerModifiable(FooBarBaz.class)
         );
 
@@ -292,5 +293,21 @@ public class ImmutablesTest {
     public interface AlternateColumnName {
         @ColumnName("TheAnswer")
         int answer();
+    }
+
+    @Test
+    public void testGetterWithColumnName() {
+        assertThat(h.createQuery("select :answer as the_answer")
+            .bindBean(ImmutableGetterWithColumnName.builder().answer(42).build())
+            .mapTo(GetterWithColumnName.class)
+            .one())
+            .extracting(GetterWithColumnName::getAnswer)
+            .isEqualTo(42);
+    }
+
+    @Value.Immutable
+    public interface GetterWithColumnName {
+        @ColumnName("the_answer")
+        int getAnswer();
     }
 }

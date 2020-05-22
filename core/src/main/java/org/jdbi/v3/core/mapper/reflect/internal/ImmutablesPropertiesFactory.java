@@ -43,10 +43,10 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
 public interface ImmutablesPropertiesFactory {
-    @SuppressWarnings("unchecked")
+
     JdbiCache<ImmutableSpec<?, ?>, ImmutablePojoProperties<?, ?>> IMMUTABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ImmutablePojoProperties::new);
-    @SuppressWarnings("unchecked")
+
     JdbiCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ModifiablePojoProperties::new);
 
@@ -65,6 +65,8 @@ public interface ImmutablesPropertiesFactory {
     }
 
     abstract class BasePojoProperties<T, B> extends PojoProperties<T> {
+        private static final String[] GETTER_PREFIXES = new String[] {"get", "is"};
+
         private final Map<String, ImmutablesPojoProperty<T>> properties;
         protected final ConfigRegistry config;
         protected final Class<T> defn;
@@ -84,13 +86,15 @@ public interface ImmutablesPropertiesFactory {
         }
 
         static String propertyName(Method m) {
-            final String[] prefixes = new String[] {"get", "is"};
             ColumnName colName = m.getAnnotation(ColumnName.class);
             if (colName != null) {
                 return colName.value();
             }
-            final String name = m.getName();
-            for (String prefix : prefixes) {
+            return defaultSetterName(m.getName());
+        }
+
+        static String defaultSetterName(String name) {
+            for (String prefix : GETTER_PREFIXES) {
                 if (name.startsWith(prefix)
                     && name.length() > prefix.length()
                     && Character.isUpperCase(name.charAt(prefix.length()))) {
@@ -120,7 +124,7 @@ public interface ImmutablesPropertiesFactory {
     }
 
     class ImmutablePojoProperties<T, B> extends BasePojoProperties<T, B> {
-        private MethodHandle builderBuild;
+        private final MethodHandle builderBuild;
 
         ImmutablePojoProperties(ImmutableSpec<T, B> spec) {
             super(spec.type, spec.config, spec.defn, null, spec.builder);
@@ -135,23 +139,23 @@ public interface ImmutablesPropertiesFactory {
             final Class<?> builderClass = builder.get().getClass();
             try {
                 final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
-                return new ImmutablesPojoProperty<T>(
+                return new ImmutablesPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
                         alwaysSet(),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),
                         findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
-            } catch (IllegalAccessException | NoSuchMethodException e) {
+            } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
         }
 
         private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Method decl, Type type)
-        throws IllegalAccessException, NoSuchMethodException {
+        throws IllegalAccessException {
             final List<NoSuchMethodException> failures = new ArrayList<>();
             final Set<String> names = new LinkedHashSet<>();
-            names.add(decl.getName());
+            names.add(defaultSetterName(decl.getName()));
             names.add(name);
             if (name.length() > 1) {
                 final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
@@ -204,7 +208,7 @@ public interface ImmutablesPropertiesFactory {
         protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
             final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
             try {
-                return new ImmutablesPojoProperty<T>(
+                return new ImmutablesPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
