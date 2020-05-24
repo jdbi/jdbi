@@ -74,6 +74,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.inferred</groupId>
+            <artifactId>freebuilder</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
             <scope>test</scope>

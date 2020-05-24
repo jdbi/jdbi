@@ -13,27 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
@@ -55,6 +34,27 @@ import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
+
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 

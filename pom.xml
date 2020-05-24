@@ -88,6 +88,7 @@
         <dep.checkstyle.version>8.16</dep.checkstyle.version>
         <dep.dokka.version>0.9.18</dep.dokka.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
+        <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.3.61</dep.kotlin.version>
@@ -282,6 +283,12 @@
                 <groupId>org.immutables</groupId>
                 <artifactId>value</artifactId>
                 <version>${dep.immutables.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.inferred</groupId>
+                <artifactId>freebuilder</artifactId>
+                <version>${dep.freebuilder.version}</version>
             </dependency>
 
             <dependency>
@@ -534,6 +541,11 @@
                                 <groupId>org.immutables</groupId>
                                 <artifactId>value</artifactId>
                                 <version>${dep.immutables.version}</version>
+                            </annotationProcessorPath>
+                            <annotationProcessorPath>
+                                <groupId>org.inferred</groupId>
+                                <artifactId>freebuilder</artifactId>
+                                <version>${dep.freebuilder.version}</version>
                             </annotationProcessorPath>
                         </annotationProcessorPaths>
                     </configuration>
