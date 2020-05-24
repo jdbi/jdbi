@@ -13,16 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect.internal;
 
-import io.leangen.geantyref.GenericTypeReflector;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
-
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -36,7 +26,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory{
+import io.leangen.geantyref.GenericTypeReflector;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
+
+public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
     JdbiCache<ImmutableSpec<?, ?>, ImmutablePojoProperties<?, ?>> IMMUTABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ImmutablePojoProperties::new);
 

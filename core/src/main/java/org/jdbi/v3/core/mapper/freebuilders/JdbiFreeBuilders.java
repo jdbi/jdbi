@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.core.mapper.freebuilders;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.function.Supplier;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
@@ -20,10 +24,6 @@ import org.jdbi.v3.core.mapper.reflect.internal.BuilderPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.FreeBuilderPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
-
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.util.function.Supplier;
 
 @Beta
 public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
@@ -78,7 +78,7 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
         try {
             return Class.forName(builderName);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Couldn't locate builder class "+ builderName, e);
+            throw new IllegalArgumentException("Couldn't locate builder class " + builderName, e);
         }
     }
 
@@ -93,7 +93,7 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
         try {
             return Class.forName(valueName).asSubclass(spec);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Couldn't locate value class "+ valueName, e);
+            throw new IllegalArgumentException("Couldn't locate value class " + valueName, e);
         }
     }
 }

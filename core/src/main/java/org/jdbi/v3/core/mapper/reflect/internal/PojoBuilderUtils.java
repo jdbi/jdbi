@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect.internal;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.internal.UtilityClassException;
-import org.jdbi.v3.core.mapper.reflect.ColumnName;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -28,8 +24,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.UtilityClassException;
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
+
 public class PojoBuilderUtils {
-    private PojoBuilderUtils() { throw new UtilityClassException(); }
+    private PojoBuilderUtils() {
+        throw new UtilityClassException();
+    }
 
     private static final String[] GETTER_PREFIXES = new String[] {"get", "is"};
 

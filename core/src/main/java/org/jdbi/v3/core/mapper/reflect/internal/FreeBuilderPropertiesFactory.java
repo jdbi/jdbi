@@ -13,15 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect.internal;
 
-import io.leangen.geantyref.GenericTypeReflector;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.qualifier.Qualifiers;
-
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -33,6 +24,15 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import io.leangen.geantyref.GenericTypeReflector;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiCache;
+import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 
 public interface FreeBuilderPropertiesFactory extends BuilderPropertiesFactory {
     @SuppressWarnings("unchecked")
@@ -52,7 +52,7 @@ public interface FreeBuilderPropertiesFactory extends BuilderPropertiesFactory {
         return MethodHandles.dropArguments(MethodHandles.constant(boolean.class, true), 0, Object.class);
     }
 
-    class FreeBuilderSpec<T,B> {
+    class FreeBuilderSpec<T, B> {
         Type type;
         ConfigRegistry config;
         Class<T> defn;
@@ -66,11 +66,11 @@ public interface FreeBuilderPropertiesFactory extends BuilderPropertiesFactory {
         }
     }
 
-    class FreeBuilderPojoProperties<T,B> extends PojoProperties<T> {
+    class FreeBuilderPojoProperties<T, B> extends PojoProperties<T> {
         private final Map<String, FreeBuilderPojoProperty<T>> properties;
         protected final ConfigRegistry config;
         protected final Class<T> defn;
-        protected final Class<?> value;
+        protected final Class<?> valueClass;
         protected final Supplier<?> builder;
         private MethodHandle builderBuild;
 
@@ -78,7 +78,7 @@ public interface FreeBuilderPropertiesFactory extends BuilderPropertiesFactory {
             super(type);
             this.config = config;
             this.defn = defn;
-            this.value = value;
+            this.valueClass = value;
             this.builder = builder;
             properties = Arrays.stream(defn.getMethods())
                 .filter(PojoBuilderUtils::isProperty)
@@ -153,10 +153,14 @@ public interface FreeBuilderPropertiesFactory extends BuilderPropertiesFactory {
         }
 
         @Override
-        public String getName() { return name; }
+        public String getName() {
+            return name;
+        }
 
         @Override
-        public QualifiedType<?> getQualifiedType() { return type; }
+        public QualifiedType<?> getQualifiedType() {
+            return type;
+        }
 
         @Override
         public <A extends Annotation> Optional<A> getAnnotation(Class<A> anno) {

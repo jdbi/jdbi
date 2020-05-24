@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.core.mapper.reflect.internal;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-
 import java.lang.reflect.Type;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 public interface BuilderPropertiesFactory {
     PojoProperties<?> create(Type type, ConfigRegistry config);
