@@ -41,7 +41,7 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
         return new JdbiFreeBuilders();
     }
 
-    public <S> JdbiFreeBuilders registerFreeBuilder(Class<S> spec) throws NoSuchMethodException, IllegalAccessException {
+    public <S> JdbiFreeBuilders registerFreeBuilder(Class<S> spec) {
         final Class builderClass = builderClass(spec);
         final Class<? extends S> valueClass = valueClass(spec);
         return registerFreeBuilder(spec, valueClass, builderClass);
