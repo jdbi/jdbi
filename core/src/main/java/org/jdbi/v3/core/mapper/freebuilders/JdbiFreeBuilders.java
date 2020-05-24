@@ -68,11 +68,11 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
 
     private <S> Class builderClass(Class<S> spec) {
         final String builderName;
-        if (spec.getEnclosingClass() != null) {
+        if (spec.getEnclosingClass() == null) {
+            builderName = spec.getPackage().getName() + "." + spec.getSimpleName() + "." + "Builder";
+        } else {
             String enclosingName = spec.getEnclosingClass().getSimpleName();
             builderName = spec.getPackage().getName() + "." + enclosingName + "$" + spec.getSimpleName() + "$" + "Builder";
-        } else {
-            builderName = spec.getPackage().getName() + "." + spec.getSimpleName() + "." + "Builder";
         }
 
         try {
@@ -84,11 +84,11 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
 
     private <S> Class<? extends S> valueClass(Class<S> spec) {
         final String valueName;
-        if (spec.getEnclosingClass() != null) {
+        if (spec.getEnclosingClass() == null) {
+            valueName = spec.getPackage().getName() + "." + spec.getSimpleName() + "_" + "Builder" + "$" + "Value";
+        } else {
             String enclosingName = spec.getEnclosingClass().getSimpleName();
             valueName = spec.getPackage().getName() + "." + enclosingName + "_" + spec.getSimpleName() + "_" + "Builder" + "$" + "Value";
-        } else {
-            valueName = spec.getPackage().getName() + "." + spec.getSimpleName() + "_" + "Builder" + "$" + "Value";
         }
         try {
             return Class.forName(valueName).asSubclass(spec);
