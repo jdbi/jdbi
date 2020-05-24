@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -28,6 +24,10 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,7 +44,8 @@ public class ImmutablesTest {
                     DerivedProperty.class,
                     Defaulty.class,
                     IsIsIsIs.class,
-                    AlternateColumnName.class
+                    AlternateColumnName.class,
+                    GetterWithColumnName.class
             ).registerModifiable(FooBarBaz.class)
         );
 
@@ -292,5 +293,21 @@ public class ImmutablesTest {
     public interface AlternateColumnName {
         @ColumnName("TheAnswer")
         int answer();
+    }
+
+    @Test
+    public void testGetterWithColumnName() {
+        assertThat(h.createQuery("select :answer as the_answer")
+            .bindBean(ImmutableGetterWithColumnName.builder().answer(42).build())
+            .mapTo(GetterWithColumnName.class)
+            .one())
+            .extracting(GetterWithColumnName::getAnswer)
+            .isEqualTo(42);
+    }
+
+    @Value.Immutable
+    public interface GetterWithColumnName {
+        @ColumnName("the_answer")
+        int getAnswer();
     }
 }

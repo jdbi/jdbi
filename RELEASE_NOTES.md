@@ -1,3 +1,6 @@
+# 3.14.0
+  - immutables: support getter with @ColumnName, #1704
+
 # 3.13.0
   - Kotlin: respect default values in methods when passed null, #1690
   - `Arguments.bindingNullToPrimitivesPermitted` helps you catch

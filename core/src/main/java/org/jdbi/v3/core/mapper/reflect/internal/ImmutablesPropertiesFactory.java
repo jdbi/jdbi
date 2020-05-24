@@ -36,11 +36,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
-    @SuppressWarnings("unchecked")
+public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory{
     JdbiCache<ImmutableSpec<?, ?>, ImmutablePojoProperties<?, ?>> IMMUTABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ImmutablePojoProperties::new);
-    @SuppressWarnings("unchecked")
+
     JdbiCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
             JdbiCaches.declare(s -> s.type, ModifiablePojoProperties::new);
 
@@ -84,7 +83,7 @@ public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
     }
 
     class ImmutablePojoProperties<T, B> extends BasePojoProperties<T, B> {
-        private MethodHandle builderBuild;
+        private final MethodHandle builderBuild;
 
         ImmutablePojoProperties(ImmutableSpec<T, B> spec) {
             super(spec.type, spec.config, spec.defn, null, spec.builder);
@@ -99,14 +98,14 @@ public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
             final Class<?> builderClass = builder.get().getClass();
             try {
                 final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
-                return new ImmutablesPojoProperty<T>(
+                return new ImmutablesPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
                         alwaysSet(),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),
                         PojoBuilderUtils.findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
-            } catch (IllegalAccessException | NoSuchMethodException e) {
+            } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
         }
@@ -137,7 +136,7 @@ public interface ImmutablesPropertiesFactory extends BuilderPropertiesFactory {
         protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
             final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
             try {
-                return new ImmutablesPojoProperty<T>(
+                return new ImmutablesPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
