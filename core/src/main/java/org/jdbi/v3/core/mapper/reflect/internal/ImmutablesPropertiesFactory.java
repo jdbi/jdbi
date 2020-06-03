@@ -65,7 +65,7 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
     abstract class BasePojoProperties<T, B> extends PojoProperties<T> {
         private static final String[] GETTER_PREFIXES = new String[] {"get", "is"};
 
-        private final Map<String, ImmutablesPojoProperty<T>> properties;
+        private final Map<String, BuilderPojoProperty<T>> properties;
         protected final ConfigRegistry config;
         protected final Class<T> defn;
         protected final Class<?> impl;
@@ -114,11 +114,11 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
         }
 
         @Override
-        public Map<String, ImmutablesPojoProperty<T>> getProperties() {
+        public Map<String, BuilderPojoProperty<T>> getProperties() {
             return properties;
         }
 
-        abstract ImmutablesPojoProperty<T> createProperty(String name, Method m);
+        abstract BuilderPojoProperty<T> createProperty(String name, Method m);
     }
 
     class ImmutablePojoProperties<T, B> extends BasePojoProperties<T, B> {
@@ -133,11 +133,11 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
             }
         }
         @Override
-        protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
+        protected BuilderPojoProperty<T> createProperty(String name, Method m) {
             final Class<?> builderClass = builder.get().getClass();
             try {
                 final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
-                return new ImmutablesPojoProperty<>(
+                return new BuilderPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
@@ -203,10 +203,10 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
         }
 
         @Override
-        protected ImmutablesPojoProperty<T> createProperty(String name, Method m) {
+        protected BuilderPojoProperty<T> createProperty(String name, Method m) {
             final Type propertyType = GenericTypes.resolveType(m.getGenericReturnType(), getType());
             try {
-                return new ImmutablesPojoProperty<>(
+                return new BuilderPojoProperty<>(
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
@@ -251,7 +251,7 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
         }
     }
 
-    class ImmutablesPojoProperty<T> implements PojoProperty<T> {
+    class BuilderPojoProperty<T> implements PojoProperty<T> {
         private final String name;
         private final QualifiedType<?> type;
         private final Method defn;
@@ -259,7 +259,7 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
         private final MethodHandle getter;
         final MethodHandle setter;
 
-        ImmutablesPojoProperty(String name, QualifiedType<?> type, Method defn, MethodHandle isSet, MethodHandle getter, MethodHandle setter) {
+        BuilderPojoProperty(String name, QualifiedType<?> type, Method defn, MethodHandle isSet, MethodHandle getter, MethodHandle setter) {
             this.name = name;
             this.type = type;
             this.defn = defn;
