@@ -18,15 +18,10 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,7 +32,6 @@ import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -58,13 +52,7 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
         return (t, config) -> MODIFIABLE_CACHE.get(new ModifiableSpec<>(t, config, defn, impl, constructor), config);
     }
 
-    static MethodHandle alwaysSet() {
-        return MethodHandles.dropArguments(MethodHandles.constant(boolean.class, true), 0, Object.class);
-    }
-
     abstract class BasePojoProperties<T, B> extends PojoProperties<T> {
-        private static final String[] GETTER_PREFIXES = new String[] {"get", "is"};
-
         private final Map<String, BuilderPojoProperty<T>> properties;
         protected final ConfigRegistry config;
         protected final Class<T> defn;
@@ -78,39 +66,9 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
             this.impl = impl;
             this.builder = builder;
             properties = Arrays.stream(defn.getMethods())
-                    .filter(BasePojoProperties::isProperty)
-                    .map(p -> createProperty(propertyName(p), p))
+                    .filter(PojoBuilderUtils::isProperty)
+                    .map(p -> createProperty(PojoBuilderUtils.propertyName(p), p))
                     .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
-        }
-
-        static String propertyName(Method m) {
-            ColumnName colName = m.getAnnotation(ColumnName.class);
-            if (colName != null) {
-                return colName.value();
-            }
-            return defaultSetterName(m.getName());
-        }
-
-        static String defaultSetterName(String name) {
-            for (String prefix : GETTER_PREFIXES) {
-                if (name.startsWith(prefix)
-                    && name.length() > prefix.length()
-                    && Character.isUpperCase(name.charAt(prefix.length()))) {
-                    return chopPrefix(name, prefix.length());
-                }
-            }
-            return name;
-        }
-
-        private static String chopPrefix(final String name, int off) {
-            return name.substring(off, off + 1).toLowerCase() + name.substring(off + 1);
-        }
-
-        private static boolean isProperty(Method m) {
-            return m.getParameterCount() == 0
-                && !m.isSynthetic()
-                && !Modifier.isStatic(m.getModifiers())
-                && m.getDeclaringClass() != Object.class;
         }
 
         @Override
@@ -141,43 +99,12 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
                         name,
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
-                        alwaysSet(),
+                        PojoBuilderUtils.alwaysSet(),
                         MethodHandles.lookup().unreflect(m).asFixedArity(),
-                        findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
+                        PojoBuilderUtils.findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
-        }
-
-        private MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Method decl, Type type)
-        throws IllegalAccessException {
-            final List<NoSuchMethodException> failures = new ArrayList<>();
-            final Set<String> names = new LinkedHashSet<>();
-            names.add(defaultSetterName(decl.getName()));
-            names.add(name);
-            if (name.length() > 1) {
-                final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
-                names.add("set" + rest);
-                names.add("is" + rest);
-            }
-            for (String tryName : names) {
-                try {
-                    return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));
-                } catch (NoSuchMethodException e) {
-                    failures.add(e);
-                }
-            }
-            for (Method m : builderClass.getMethods()) {
-                if (names.contains(m.getName()) && m.getParameterCount() == 1) {
-                    return MethodHandles.lookup().unreflect(m);
-                }
-            }
-            final IllegalArgumentException iae = new IllegalArgumentException("Failed to find builder setter for property " + name + " on " + builderClass);
-            failures.forEach(iae::addSuppressed);
-            return MethodHandles.dropArguments(
-                    MethodHandles.throwException(Object.class, IllegalArgumentException.class),
-                    1, Arrays.asList(Object.class, Object.class))
-                .bindTo(iae);
         }
 
         @Override
@@ -223,7 +150,7 @@ public interface ImmutablesPropertiesFactory extends PojoPropertiesFactory {
                 return MethodHandles.lookup().findVirtual(impl, name + "IsSet", MethodType.methodType(boolean.class));
             } catch (NoSuchMethodException e) {
                 // not optional field
-                return alwaysSet();
+                return PojoBuilderUtils.alwaysSet();
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Failed to find IsSet method for " + name, e);
             }
