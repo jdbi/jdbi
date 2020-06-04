@@ -26,6 +26,9 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
 
+/**
+ * Configures support for an <a href="https://freebuilder.inferred.org">FreeBuilder</a> generated {@code Builder)} value type.
+ */
 @Beta
 public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
     private ConfigRegistry registry;
@@ -42,21 +45,44 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
         return new JdbiFreeBuilders();
     }
 
+    /**
+     * Register bean arguments and row mapping for a {@code Freebuilder} value class, expecting the default generated class and builder names.
+     * @param spec the specification interface of abstract class
+     * @param <S> the specification class
+     * @return a plugin that configures type mapping for the given class
+     */
     public <S> JdbiFreeBuilders registerFreeBuilder(Class<S> spec) {
         final Class<? extends S> impl = valueClass(spec);
         return registerFreeBuilder(spec, impl, builderConstructor(spec));
     }
 
+    /**
+     * Convenience method for registering many freebuilder types.
+     * @see #registerFreeBuilder(Class)
+     */
     public JdbiFreeBuilders registerFreeBuilder(Class<?>... specs) {
         return registerFreeBuilder(Arrays.asList(specs));
     }
 
-    private JdbiFreeBuilders registerFreeBuilder(Iterable<Class<?>> specs) {
+    /**
+     * Convenience method for registering many freebuilder types.
+     * @see #registerFreeBuilder(Class)
+     */
+    public JdbiFreeBuilders registerFreeBuilder(Iterable<Class<?>> specs) {
         specs.forEach(this::registerFreeBuilder);
         return this;
     }
 
-    private <S, B> JdbiFreeBuilders registerFreeBuilder(Class<S> spec, Class<? extends S> impl, Supplier<B> builderConstructor) {
+    /**
+     * Register bean arguments and row mapping for a {@code FreeBuilder} value class, using a supplied implementation and constructor.
+     * @param spec the specification interface or abstract class
+     * @param impl the generated value class
+     * @param builderConstructor a supplier of new Builder instances
+     * @param <S> the specification class
+     * @param <I> the generated value class
+     * @return a plugin that configures type mapping for the given class
+     */
+    public <S, I extends S> JdbiFreeBuilders registerFreeBuilder(Class<S> spec, Class<I> impl, Supplier<?> builderConstructor) {
         return register(spec, impl, BuilderPojoPropertiesFactory.builder(spec, builderConstructor));
     }
 
