@@ -4467,6 +4467,44 @@ public interface UserDao {
 }
 ----
 
+==== Large Objects
+
+Postgres supports storing large character or binary data in separate storage from
+table data.  Jdbi allows you to stream this data in and out of the database as part
+of an enclosing transaction.  Storing, reading, and a delete hook are provided.
+The test case serves as a simple example:
+
+[source,java,indent=0]
+----
+
+public void blobCrud(InputStream myStream) throws IOException {
+    h.useTransaction(th -> {
+        Lobject lob = th.attach(Lobject.class);
+        lob.insert(1, myStream);
+        readItBack = lob.readBlob(1);
+        lob.deleteLob(1);
+        assert lob.readBlob(1) == null;
+    });
+}
+
+public interface Lobject {
+    // CREATE TABLE lob (id int, lob oid
+    @SqlUpdate("insert into lob (id, lob) values (:id, :blob)")
+    void insert(int id, InputStream blob);
+
+    @SqlQuery("select lob from lob where id = :id")
+    InputStream readBlob(int id);
+
+    @SqlUpdate("delete from lob where id = :id returning lob")
+    @DeleteLob
+    void deleteLob(int id);
+}
+----
+
+Please refer to
+link:https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
+for upstream driver documentation.
+
 === Spring
 
 This module provides `JdbiFactoryBean`, a factory bean which sets up a `Jdbi`

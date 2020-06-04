@@ -20,6 +20,7 @@ import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.meta.Beta;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
 
@@ -29,12 +30,14 @@ import org.postgresql.util.PGobject;
 public class PostgresTypes implements JdbiConfig<PostgresTypes> {
     private final Map<Class<? extends PGobject>, String> types = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
+    private PgLobApi lob;
 
     @SuppressWarnings("unused")
     public PostgresTypes() {}
 
     private PostgresTypes(PostgresTypes that) {
         this.types.putAll(that.types);
+        this.lob = that.lob;
     }
 
     @Override
@@ -54,6 +57,20 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
         types.put(clazz, typeName);
 
         return this;
+    }
+
+    PostgresTypes setLobApi(PgLobApi lob) {
+        this.lob = lob;
+        return this;
+    }
+
+    /**
+     * Provide access to Large Object streaming via Postgres specific API.
+     * @return the postgres large object api
+     */
+    @Beta
+    public PgLobApi getLobApi() {
+        return lob;
     }
 
     /**
