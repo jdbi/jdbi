@@ -23,7 +23,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.core.mapper.reflect.internal.ImmutablesPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.BuilderPojoPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.ModifiablePojoPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.v3.meta.Beta;
@@ -83,7 +84,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
      * @return a plugin that configures type mapping for the given class
      */
     public <S, I extends S> JdbiImmutables registerImmutable(Class<S> spec, Class<I> impl, Supplier<?> builder) {
-        return register(spec, impl, ImmutablesPropertiesFactory.immutable(spec, builder));
+        return register(spec, impl, BuilderPojoPropertiesFactory.builder(spec, builder));
     }
 
     /**
@@ -126,7 +127,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
      * @return a plugin that configures type mapping for the given class
      */
     public <S, M extends S> JdbiImmutables registerModifiable(Class<S> spec, Class<M> impl, Supplier<?> constructor) {
-        return register(spec, impl, ImmutablesPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
+        return register(spec, impl, ModifiablePojoPropertiesFactory.modifiable(spec, impl, () -> impl.cast(constructor.get())));
     }
 
     private JdbiImmutables register(Class<?> spec, Class<?> impl, PojoPropertiesFactory factory) {
