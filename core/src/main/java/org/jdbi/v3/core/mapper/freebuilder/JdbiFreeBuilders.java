@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.freebuilder;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -44,6 +45,15 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
     public <S> JdbiFreeBuilders registerFreeBuilder(Class<S> spec) {
         final Class<? extends S> impl = valueClass(spec);
         return registerFreeBuilder(spec, impl, builderConstructor(spec));
+    }
+
+    public JdbiFreeBuilders registerFreeBuilder(Class<?>... specs) {
+        return registerFreeBuilder(Arrays.asList(specs));
+    }
+
+    private JdbiFreeBuilders registerFreeBuilder(Iterable<Class<?>> specs) {
+        specs.forEach(this::registerFreeBuilder);
+        return this;
     }
 
     private <S, B> JdbiFreeBuilders registerFreeBuilder(Class<S> spec, Class<? extends S> impl, Supplier<B> builderConstructor) {

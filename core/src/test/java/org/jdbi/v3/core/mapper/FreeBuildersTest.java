@@ -27,9 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FreeBuildersTest {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule()
-        .withConfig(JdbiFreeBuilders.class, c -> {
-            return;
-        });
+        .withConfig(JdbiFreeBuilders.class, c -> c
+            .registerFreeBuilder(
+                FreeBuilderGetter.class,
+                IsIsIsIs.class)
+        );
 
     private Jdbi jdbi;
     private Handle h;
@@ -80,4 +82,48 @@ public class FreeBuildersTest {
     }
     // end::example[]
 
+    @FreeBuilder
+    public interface FreeBuilderGetter {
+        int getFoo();
+        boolean isBar();
+
+        class Builder extends FreeBuildersTest_FreeBuilderGetter_Builder {}
+    }
+
+    @Test
+    public void testGetterStyle() {
+        final FreeBuilderGetter expected = new FreeBuilderGetter.Builder().setFoo(42).setBar(true).build();
+        h.execute("create table getter(foo int, bar boolean)");
+        assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
+            .bindPojo(expected)
+            .execute())
+            .isEqualTo(1);
+        assertThat(h.createQuery("select * from getter")
+            .mapTo(FreeBuildersTest.FreeBuilderGetter.class)
+            .one())
+            .isEqualTo(expected);
+    }
+
+    @FreeBuilder
+    public interface IsIsIsIs {
+        boolean is();
+        boolean isFoo();
+        String issueType();
+
+        class Builder extends FreeBuildersTest_IsIsIsIs_Builder {}
+    }
+
+    @Test
+    public void testIs() {
+        IsIsIsIs value = new IsIsIsIs.Builder().is(true).isFoo(false).issueType("a").build();
+
+        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar)");
+        h.createUpdate("insert into isisisis (\"is\", foo, issueType) values (:is, :foo, :issueType)")
+            .bindPojo(value)
+            .execute();
+        assertThat(h.createQuery("select * from isisisis")
+            .mapTo(IsIsIsIs.class)
+            .one())
+            .isEqualTo(value);
+    }
 }
