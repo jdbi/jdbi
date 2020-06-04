@@ -29,7 +29,7 @@ public class FreeBuildersTest {
     public H2DatabaseRule dbRule = new H2DatabaseRule()
         .withConfig(JdbiFreeBuilders.class, c -> c
             .registerFreeBuilder(
-                FreeBuilderGetter.class,
+                Getter.class,
                 IsIsIsIs.class)
         );
 
@@ -46,21 +46,21 @@ public class FreeBuildersTest {
     // tag::example[]
 
     @FreeBuilder
-    public interface FreeBuilderTrain {
+    public interface Train {
         String name();
         int carriages();
         boolean observationCar();
 
-        class Builder extends FreeBuildersTest_FreeBuilderTrain_Builder {}
+        class Builder extends FreeBuildersTest_Train_Builder {}
     }
 
     @Test
     public void simpleTest() {
-        jdbi.getConfig(JdbiFreeBuilders.class).registerFreeBuilder(FreeBuildersTest.FreeBuilderTrain.class);
+        jdbi.getConfig(JdbiFreeBuilders.class).registerFreeBuilder(Train.class);
         try (Handle handle = jdbi.open()) {
             handle.execute("create table train (name varchar, carriages int, observation_car boolean)");
 
-            FreeBuilderTrain train = new FreeBuilderTrain.Builder()
+            Train train = new Train.Builder()
                 .name("Zephyr")
                 .carriages(8)
                 .observationCar(true)
@@ -74,7 +74,7 @@ public class FreeBuildersTest {
 
             assertThat(
                 handle.createQuery("select * from train")
-                    .mapTo(FreeBuildersTest.FreeBuilderTrain.class)
+                    .mapTo(Train.class)
                     .one())
                 .extracting("name", "carriages", "observationCar")
                 .containsExactly("Zephyr", 8, true);
@@ -83,23 +83,23 @@ public class FreeBuildersTest {
     // end::example[]
 
     @FreeBuilder
-    public interface FreeBuilderGetter {
+    public interface Getter {
         int getFoo();
         boolean isBar();
 
-        class Builder extends FreeBuildersTest_FreeBuilderGetter_Builder {}
+        class Builder extends FreeBuildersTest_Getter_Builder {}
     }
 
     @Test
     public void testGetterStyle() {
-        final FreeBuilderGetter expected = new FreeBuilderGetter.Builder().setFoo(42).setBar(true).build();
+        final Getter expected = new Getter.Builder().setFoo(42).setBar(true).build();
         h.execute("create table getter(foo int, bar boolean)");
         assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
             .bindPojo(expected)
             .execute())
             .isEqualTo(1);
         assertThat(h.createQuery("select * from getter")
-            .mapTo(FreeBuildersTest.FreeBuilderGetter.class)
+            .mapTo(Getter.class)
             .one())
             .isEqualTo(expected);
     }
