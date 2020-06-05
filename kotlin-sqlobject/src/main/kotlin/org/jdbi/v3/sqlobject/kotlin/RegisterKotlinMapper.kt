@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
-import org.jdbi.v3.sqlobject.config.RegisterKotlinMappers
 import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy

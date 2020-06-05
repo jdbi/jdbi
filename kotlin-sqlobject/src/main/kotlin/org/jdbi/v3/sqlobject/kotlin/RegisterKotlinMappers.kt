@@ -11,8 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.config
+package org.jdbi.v3.sqlobject.kotlin
 
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
 import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
 import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMappersImpl
 import java.lang.annotation.ElementType
