@@ -30,6 +30,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
+import static org.jdbi.v3.core.result.ResultIterables.stash;
 
 /**
  * An {@link Iterable} of values, usually mapped from a {@link java.sql.ResultSet}. Generally, ResultIterables may only
@@ -37,30 +38,20 @@ import static java.util.Spliterators.spliteratorUnknownSize;
  *
  * @param <T> iterable element type
  */
-@FunctionalInterface
 public interface ResultIterable<T> extends Iterable<T> {
     /**
      * Returns a ResultIterable backed by the given result set supplier, mapper, and context.
      *
+     * @deprecated this shouldn't be public api
      * @param supplier result set supplier
      * @param mapper   row mapper
      * @param ctx      statement context
      * @param <T>      the mapped type
      * @return the result iterable
      */
+    @Deprecated
     static <T> ResultIterable<T> of(Supplier<ResultSet> supplier, RowMapper<T> mapper, StatementContext ctx) {
-        return () -> {
-            try {
-                return new ResultSetResultIterator<>(supplier.get(), mapper, ctx);
-            } catch (SQLException e) {
-                try {
-                    ctx.close();
-                } catch (Exception e1) {
-                    e.addSuppressed(e1);
-                }
-                throw new ResultSetException("Unable to iterator result set", e, ctx);
-            }
-        };
+        return ResultIterables.of(supplier, mapper, ctx);
     }
 
     /**
@@ -69,8 +60,9 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param <T> iterator element type
      * @return a ResultIterable
      */
+    @Deprecated
     static <T> ResultIterable<T> of(ResultIterator<T> iterator) {
-        return () -> iterator;
+        return ResultIterables.of(() -> iterator, null);
     }
 
     /**
@@ -83,6 +75,11 @@ public interface ResultIterable<T> extends Iterable<T> {
     ResultIterator<T> iterator();
 
     /**
+     * @return the {@link StatementContext} for the current statement
+     */
+    StatementContext statementContext();
+
+    /**
      * Returns a {@code ResultIterable<U>} derived from this {@code ResultIterable<T>}, by
      * transforming elements using the given mapper function.
      *
@@ -91,7 +88,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @return the new ResultIterable
      */
     default <U> ResultIterable<U> map(Function<? super T, ? extends U> mapper) {
-        return () -> new ResultIterator<U>() {
+        return ResultIterables.of(() -> new ResultIterator<U>() {
             private final ResultIterator<T> delegate = iterator();
 
             @Override
@@ -113,7 +110,7 @@ public interface ResultIterable<T> extends Iterable<T> {
             public void close() {
                 delegate.close();
             }
-        };
+        }, statementContext());
     }
 
     @Override
@@ -141,7 +138,7 @@ public interface ResultIterable<T> extends Iterable<T> {
                 throw new IllegalStateException("Expected one element, but found multiple");
             }
 
-            return r;
+            return stash(statementContext(), r);
         }
     }
 
@@ -163,7 +160,7 @@ public interface ResultIterable<T> extends Iterable<T> {
                 throw new IllegalStateException("Expected zero to one elements, but found multiple");
             }
 
-            return Optional.ofNullable(r);
+            return stash(statementContext(), Optional.ofNullable(r));
         }
     }
 
@@ -190,7 +187,7 @@ public interface ResultIterable<T> extends Iterable<T> {
                 throw new IllegalStateException("Expected at least one element, but found none");
             }
 
-            return iter.next();
+            return stash(statementContext(), iter.next());
         }
     }
 
@@ -201,7 +198,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default Optional<T> findFirst() {
         try (ResultIterator<T> iter = iterator()) {
-            return iter.hasNext() ? Optional.ofNullable(iter.next()) : Optional.empty();
+            return stash(statementContext(), iter.hasNext() ? Optional.ofNullable(iter.next()) : Optional.empty());
         }
     }
 
@@ -282,7 +279,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default <R> R collect(Collector<T, ?, R> collector) {
         try (Stream<T> stream = stream()) {
-            return stream.collect(collector);
+            return stash(statementContext(), stream.collect(collector));
         }
     }
 
@@ -297,10 +294,10 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default <U> U reduce(U identity, BiFunction<U, T, U> accumulator) {
         try (Stream<T> stream = stream()) {
-            return stream.reduce(identity, accumulator,
+            return stash(statementContext(), stream.reduce(identity, accumulator,
                 (u, v) -> {
                     throw new UnsupportedOperationException("parallel operation not supported");
-                });
+                }));
         }
     }
 }

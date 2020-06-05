@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Commonly used ResultProducer implementations.
@@ -27,6 +28,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 public class ResultProducers implements JdbiConfig<ResultProducers> {
 
     private boolean allowNoResults;
+    private Object result;
 
     public ResultProducers() {
         this(false);
@@ -133,5 +135,21 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
     public ResultProducers allowNoResults(boolean allowed) {
         this.allowNoResults = allowed;
         return this;
+    }
+
+    @Beta
+    public ResultProducers setResult(Object result) {
+        this.result = result;
+        return this;
+    }
+
+    /**
+     * Return the result of a Jdbi operation, after mapping and collecting, after statement execution.
+     * Only available when Jdbi consumes the result, not if you stream it out.
+     * @return the result if available, otherwise {@code null}
+     */
+    @Beta
+    public Object result() {
+        return result;
     }
 }

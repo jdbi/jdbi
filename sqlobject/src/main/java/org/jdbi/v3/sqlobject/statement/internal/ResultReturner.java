@@ -26,6 +26,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
+import org.jdbi.v3.core.result.ResultProducers;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
@@ -76,9 +77,9 @@ abstract class ResultReturner {
         } else if (Iterator.class.equals(returnClass)) {
             return new IteratorReturner(qualifiedReturnType);
         } else if (method.isAnnotationPresent(SingleValue.class)) {
-            return new SingleValueReturner(qualifiedReturnType);
+            return new SingleValueReturner<>(qualifiedReturnType);
         } else {
-            return new CollectedResultReturner(qualifiedReturnType);
+            return new CollectedResultReturner<>(qualifiedReturnType);
         }
     }
 
@@ -102,10 +103,11 @@ abstract class ResultReturner {
 
     protected abstract QualifiedType<?> elementType(StatementContext ctx);
 
-    private static Object checkResult(Object result, QualifiedType<?> type) {
+    private static Object checkAndStashResult(Object result, QualifiedType<?> type, StatementContext ctx) {
         if (result == null && getErasedType(type.getType()).isPrimitive()) {
             throw new IllegalStateException("SQL method returns primitive " + type + ", but statement returned no results");
         }
+        ctx.getConfig(ResultProducers.class).setResult(result);
         return result;
     }
 
@@ -238,12 +240,12 @@ abstract class ResultReturner {
 
         @Override
         protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            return checkResult(iterable.findFirst().orElse(null), returnType);
+            return checkAndStashResult(iterable.findFirst().orElse(null), returnType, ctx);
         }
 
         @Override
         protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
-            return checkResult(stream.findFirst().orElse(null), returnType);
+            return checkAndStashResult(stream.findFirst().orElse(null), returnType, ctx);
         }
 
         @Override
@@ -266,7 +268,7 @@ abstract class ResultReturner {
             if (collector != null) {
                 return iterable.collect(collector);
             }
-            return checkResult(iterable.findFirst().orElse(null), returnType);
+            return checkAndStashResult(iterable.findFirst().orElse(null), returnType, ctx);
         }
 
         @Override
@@ -275,7 +277,7 @@ abstract class ResultReturner {
             if (collector != null) {
                 return stream.collect(collector);
             }
-            return checkResult(stream.findFirst().orElse(null), returnType);
+            return checkAndStashResult(stream.findFirst().orElse(null), returnType, ctx);
         }
 
         @Override

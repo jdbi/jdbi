@@ -13,8 +13,14 @@
  */
 package org.jdbi.v3.core.result;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +47,25 @@ public class TestResultBearing {
                 .mapTo(Integer.class)
                 .reduce(0, TestResultBearing::add))
             .isEqualTo(10);
+    }
+
+    private List<Integer> foundResult;
+
+    @Test
+    public void resultAvailableInConfig() {
+        dbRule.getSharedHandle().useTransaction(h -> {
+            h.createQuery("select 1 union select 2")
+                    .addCustomizer(new StatementCustomizer() {
+                        @SuppressWarnings("unchecked")
+                        @Override
+                        public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
+                            foundResult = (List<Integer>) ctx.getConfig(ResultProducers.class).result();
+                        }
+                    })
+                    .mapTo(int.class)
+                    .list();
+            assertThat(foundResult).containsExactly(1, 2);
+        });
     }
 
     public static Integer add(Integer u, Integer v) {

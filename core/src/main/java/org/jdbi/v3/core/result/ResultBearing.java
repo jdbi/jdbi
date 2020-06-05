@@ -131,7 +131,7 @@ public interface ResultBearing {
         return scanResultSet((supplier, ctx) -> {
             RowMapper<T> mapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
-            return ResultIterable.of(supplier, mapper, ctx);
+            return ResultIterables.of(supplier, mapper, ctx);
         });
     }
 
@@ -142,7 +142,6 @@ public interface ResultBearing {
      * @param <T>  the bean type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      */
-    @SuppressWarnings("deprecation")
     default <T> ResultIterable<T> mapToBean(Class<T> type) {
         return map(BeanMapper.of(type));
     }
@@ -167,7 +166,7 @@ public interface ResultBearing {
      */
     @Beta
     default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+        return scanResultSet((supplier, ctx) -> ResultIterables.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
@@ -180,7 +179,7 @@ public interface ResultBearing {
      */
     @Beta
     default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+        return scanResultSet((supplier, ctx) -> ResultIterables.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
@@ -202,7 +201,7 @@ public interface ResultBearing {
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
     default <T> ResultIterable<T> map(RowMapper<T> mapper) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, mapper, ctx));
+        return scanResultSet((supplier, ctx) -> ResultIterables.of(supplier, mapper, ctx));
     }
 
     /**
@@ -402,7 +401,7 @@ public interface ResultBearing {
                     .orElseThrow(() -> new ElementTypeNotFoundException("Unknown element type for container type " + containerType));
             RowMapper<?> mapper = ctx.findMapperFor(elementType)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for element type " + elementType));
-            return ResultIterable.of(rs, mapper, ctx).collect(collector);
+            return ResultIterables.of(rs, mapper, ctx).collect(collector);
         });
     }
 }
