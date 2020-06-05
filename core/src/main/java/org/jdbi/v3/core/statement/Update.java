@@ -32,6 +32,13 @@ public class Update extends SqlStatement<Update> {
         super(handle, sql);
     }
 
+    public void one() {
+        int count = execute();
+        if (count != 1) {
+            throw new IllegalStateException("Expected 1 modified row, got " + count);
+        }
+    }
+
     /**
      * Executes the statement, returning the update count.
      *
