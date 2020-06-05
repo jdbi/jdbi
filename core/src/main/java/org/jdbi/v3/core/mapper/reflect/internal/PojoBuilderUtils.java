@@ -64,6 +64,16 @@ public class PojoBuilderUtils {
         return name.substring(off, off + 1).toLowerCase() + name.substring(off + 1);
     }
 
+    private static Set<String> setterNames(String name) {
+        final Set<String> names = new LinkedHashSet<>();
+        final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
+
+        names.add("set" + rest);
+        names.add("is" + rest);
+
+        return names;
+    }
+
     public static MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Method decl, Type type)
         throws IllegalAccessException {
         final List<NoSuchMethodException> failures = new ArrayList<>();
@@ -71,9 +81,11 @@ public class PojoBuilderUtils {
         names.add(PojoBuilderUtils.defaultSetterName(decl.getName()));
         names.add(name);
         if (name.length() > 1) {
-            final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
-            names.add("set" + rest);
-            names.add("is" + rest);
+            names.addAll(setterNames(name));
+        }
+        ColumnName columnName = decl.getAnnotation(ColumnName.class);
+        if (columnName != null && columnName.value().equals(name)) {
+            names.addAll(setterNames(PojoBuilderUtils.defaultSetterName(decl.getName())));
         }
         for (String tryName : names) {
             try {
