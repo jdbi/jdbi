@@ -4495,8 +4495,7 @@ public interface Lobject {
     @SqlQuery("select lob from lob where id = :id")
     InputStream readBlob(int id);
 
-    @SqlUpdate("delete from lob where id = :id returning lob")
-    @DeleteLob
+    @SqlUpdate("delete from lob where id = :id returning lo_unlink(lob)")
     void deleteLob(int id);
 }
 ----

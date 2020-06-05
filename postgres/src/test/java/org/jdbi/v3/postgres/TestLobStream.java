@@ -53,9 +53,12 @@ public class TestLobStream {
     public void blobCrud() throws IOException {
         final Supplier<InputStream> expectedData = () -> new IntsInputStream(0, 255);
         h.useTransaction(th -> {
+            assertThat(lob.countLob()).isEqualTo(0);
             lob.insert(1, expectedData.get());
+            assertThat(lob.countLob()).isEqualTo(1);
             assertSameBytes(lob.findBlob(1), expectedData.get());
             lob.deleteLob(1);
+            assertThat(lob.countLob()).isEqualTo(0);
             assertThat(lob.findBlob(1)).isNull();
         });
     }
@@ -66,6 +69,7 @@ public class TestLobStream {
         h.useTransaction(th -> {
             lob.insert(2, expectedData.get());
             assertSameChars(lob.findClob(2), expectedData.get());
+            lob.deleteLob(2);
         });
     }
 
@@ -104,9 +108,11 @@ public class TestLobStream {
         @SqlQuery("select lob from lob where id = :id")
         Reader findClob(int id);
 
-        @SqlUpdate("delete from lob where id = :id returning lob")
-        @DeleteLob
+        @SqlUpdate("delete from lob where id = :id returning lo_unlink(lob)")
         void deleteLob(int id);
+
+        @SqlQuery("select count(oid) from pg_largeobject_metadata")
+        int countLob();
     }
 
     class IntsInputStream extends InputStream {
