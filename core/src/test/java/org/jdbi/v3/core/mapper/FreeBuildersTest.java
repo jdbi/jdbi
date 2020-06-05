@@ -17,6 +17,7 @@ import org.inferred.freebuilder.FreeBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.freebuilder.JdbiFreeBuilders;
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +31,7 @@ public class FreeBuildersTest {
         .withConfig(JdbiFreeBuilders.class, c -> c
             .registerFreeBuilder(
                 Getter.class,
+                GetterWithColumnName.class,
                 IsIsIsIs.class)
         );
 
@@ -81,6 +83,24 @@ public class FreeBuildersTest {
         }
     }
     // end::example[]
+
+    @Test
+    public void testGetterWithColumnName() {
+        assertThat(h.createQuery("select :answer as the_answer")
+            .bindBean(ImmutableGetterWithColumnName.builder().answer(42).build())
+            .mapTo(GetterWithColumnName.class)
+            .one())
+            .extracting(GetterWithColumnName::getAnswer)
+            .isEqualTo(42);
+    }
+
+    @FreeBuilder
+    public interface GetterWithColumnName {
+        @ColumnName("the_answer")
+        int getAnswer();
+
+        class Builder extends FreeBuildersTest_GetterWithColumnName_Builder {}
+    }
 
     @FreeBuilder
     public interface Getter {
