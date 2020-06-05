@@ -16,6 +16,8 @@ package org.jdbi.v3.core.mapper;
 import org.inferred.freebuilder.FreeBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.freebuilder.JdbiFreeBuilders;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -30,9 +32,14 @@ public class FreeBuildersTest {
     public H2DatabaseRule dbRule = new H2DatabaseRule()
         .withConfig(JdbiFreeBuilders.class, c -> c
             .registerFreeBuilder(
+                ByteArray.class,
+                FreeBuilderClass.class,
                 Getter.class,
                 GetterWithColumnName.class,
-                IsIsIsIs.class)
+                IsIsIsIs.class,
+                SubValue.class,
+                Train.class,
+                UnmappableValue.class)
         );
 
     private Jdbi jdbi;
@@ -84,22 +91,31 @@ public class FreeBuildersTest {
     }
     // end::example[]
 
-    @Test
-    public void testGetterWithColumnName() {
-        assertThat(h.createQuery("select :answer as the_answer")
-            .bindBean(ImmutableGetterWithColumnName.builder().answer(42).build())
-            .mapTo(GetterWithColumnName.class)
-            .one())
-            .extracting(GetterWithColumnName::getAnswer)
-            .isEqualTo(42);
+    public interface BaseValue<T> {
+        T t();
     }
 
     @FreeBuilder
-    public interface GetterWithColumnName {
-        @ColumnName("the_answer")
-        int getAnswer();
+    public interface SubValue<X, T> extends BaseValue<T> {
+        X x();
 
-        class Builder extends FreeBuildersTest_GetterWithColumnName_Builder {}
+        class Builder<X, T> extends FreeBuildersTest_SubValue_Builder<X, T> {}
+    }
+
+    @Test
+    public void testParameterizedBuilder() {
+        assertThat(
+            h.createUpdate("insert into free_builders(t, x) values (:t, :x)")
+                .bindPojo(new SubValue.Builder<String, Integer>().t(42).x("foo").build())
+                .execute())
+            .isEqualTo(1);
+
+        assertThat(
+            h.createQuery("select * from free_builders")
+                .mapTo(new GenericType<SubValue<String, Integer>>() {})
+                .one())
+            .extracting("t", "x")
+            .containsExactly(42, "foo");
     }
 
     @FreeBuilder
@@ -125,20 +141,43 @@ public class FreeBuildersTest {
     }
 
     @FreeBuilder
+    public interface ByteArray {
+        byte[] value();
+
+        class Builder extends FreeBuildersTest_ByteArray_Builder {}
+    }
+
+    @Test
+    public void testByteArray() {
+        final byte[] value = new byte[] {(byte) 42, (byte) 24};
+        h.execute("create table bytearr(value bytea)");
+        h.createUpdate("insert into bytearr(value) values(:value)")
+            .bindPojo(new ByteArray.Builder().value(value).build())
+            .execute();
+        assertThat(h.createQuery("select * from bytearr")
+            .mapTo(ByteArray.class)
+            .one()
+            .value())
+            .containsExactly(value);
+    }
+
+    @FreeBuilder
     public interface IsIsIsIs {
         boolean is();
         boolean isFoo();
         String issueType();
+        @ColumnName("isInactive")
+        boolean isInactive();
 
         class Builder extends FreeBuildersTest_IsIsIsIs_Builder {}
     }
 
     @Test
     public void testIs() {
-        IsIsIsIs value = new IsIsIsIs.Builder().is(true).isFoo(false).issueType("a").build();
+        IsIsIsIs value = new IsIsIsIs.Builder().is(true).isFoo(false).issueType("a").isInactive(true).build();
 
-        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar)");
-        h.createUpdate("insert into isisisis (\"is\", foo, issueType) values (:is, :foo, :issueType)")
+        h.execute("create table isisisis (\"is\" boolean, foo boolean, issueType varchar, IsInactive boolean)");
+        h.createUpdate("insert into isisisis (\"is\", foo, issueType, isInactive) values (:is, :foo, :issueType, :isInactive)")
             .bindPojo(value)
             .execute();
         assertThat(h.createQuery("select * from isisisis")
@@ -146,4 +185,69 @@ public class FreeBuildersTest {
             .one())
             .isEqualTo(value);
     }
+
+    @Test
+    public void testGetterWithColumnName() {
+        assertThat(h.createQuery("select :answer as the_answer")
+            .bindBean(ImmutableGetterWithColumnName.builder().answer(42).build())
+            .mapTo(GetterWithColumnName.class)
+            .one())
+            .extracting(GetterWithColumnName::getAnswer)
+            .isEqualTo(42);
+    }
+
+    @FreeBuilder
+    public interface GetterWithColumnName {
+        @ColumnName("the_answer")
+        int getAnswer();
+
+        class Builder extends FreeBuildersTest_GetterWithColumnName_Builder {}
+    }
+
+    @FreeBuilder
+    public abstract static class FreeBuilderClass {
+        public abstract String getName();
+
+        public static class Builder extends FreeBuildersTest_FreeBuilderClass_Builder {}
+    }
+    @Test
+    public void testAbstractClass() {
+        FreeBuilderClass value = new FreeBuilderClass.Builder().setName("name").build();
+        h.execute("create table classes (name varchar)");
+        h.createUpdate("insert into classes (name) values (:name)")
+            .bindPojo(value)
+            .execute();
+        assertThat(h.createQuery("select * from classes")
+            .mapTo(FreeBuilderClass.class)
+            .one())
+            .isEqualTo(value);
+    }
+
+    @FreeBuilder
+    public interface UnmappableValue {
+        int getFoo();
+
+        @Unmappable
+        default int derivedFoo() {
+            return 1;
+        }
+
+        class Builder extends FreeBuildersTest_UnmappableValue_Builder {}
+    }
+
+    @Test
+    public void testUnmappableProperties() {
+        final UnmappableValue value = new UnmappableValue.Builder().setFoo(4).build();
+        h.execute("create table derived (foo int, derivedFoo int)");
+        h.createUpdate("insert into derived(foo, derivedFoo) values (:foo, :derivedFoo)")
+            .bindPojo(value)
+            .execute();
+        assertThat(h.createQuery("select * from derived")
+            .mapTo(UnmappableValue.class)
+            .one()
+            .getFoo())
+            .isEqualTo(value.getFoo());
+
+    }
+
 }
