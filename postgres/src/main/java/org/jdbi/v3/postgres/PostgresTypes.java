@@ -59,8 +59,8 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
         return this;
     }
 
-    PostgresTypes setLobApi(PgLobApi lob) {
-        this.lob = lob;
+    PostgresTypes setLobApi(PgLobApi newLob) {
+        this.lob = newLob;
         return this;
     }
 
