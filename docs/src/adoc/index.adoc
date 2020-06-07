@@ -2466,7 +2466,7 @@ Here, we (probably unnecessarily) guard a simple _SELECT_ statement with a trans
 
 Additionally, Handle has a number of methods for direct transaction management:
 begin(), savepoint(), rollback(), commit(), etc.  Normally, you will not need to use these.
-Failing to explicitly commit or roll back a transaction will roll back the transaction and throw an exception.
+If you do not explicitly commit a manually opened transaction, it will be rolled back.
 
 ==== Serializable Transactions
 
