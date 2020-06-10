@@ -21,6 +21,12 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class BindTimeConfig implements JdbiConfig<BindTimeConfig> {
     private Clock clock;
 
+    public BindTimeConfig() {}
+
+    private BindTimeConfig(BindTimeConfig that) {
+        clock = that.clock;
+    }
+
     Clock getClock() {
         return clock;
     }
@@ -31,8 +37,6 @@ public class BindTimeConfig implements JdbiConfig<BindTimeConfig> {
 
     @Override
     public BindTimeConfig createCopy() {
-        BindTimeConfig copy = new BindTimeConfig();
-        copy.clock = this.clock;
-        return copy;
+        return new BindTimeConfig(this);
     }
 }
