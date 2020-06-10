@@ -25,15 +25,12 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Commonly used ResultProducer implementations.
  */
 public class ResultProducers implements JdbiConfig<ResultProducers> {
+    private boolean allowNoResults = false;
 
-    private boolean allowNoResults;
+    public ResultProducers() {}
 
-    public ResultProducers() {
-        this(false);
-    }
-
-    private ResultProducers(boolean allowNoResults) {
-        this.allowNoResults = allowNoResults;
+    private ResultProducers(ResultProducers that) {
+        this.allowNoResults = that.allowNoResults;
     }
 
     /**
@@ -121,7 +118,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
 
     @Override
     public ResultProducers createCopy() {
-        return new ResultProducers(allowNoResults);
+        return new ResultProducers(this);
     }
 
     /**
