@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -164,6 +165,15 @@ public class TestSqlArrays {
                 .mapTo(double[].class)
                 .one())
             .isEqualTo(expected);
+    }
+
+    @Test
+    public void testReusedArrayWithString() throws Exception {
+        h.registerArrayType(String.class, "text");
+        assertThat(h.createQuery("select :array = :array")
+                .bindArray("array", String.class, Collections.singletonList("element"))
+                .mapTo(boolean.class)
+                .one()).isTrue();
     }
 
     public interface ArrayObject {

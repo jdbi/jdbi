@@ -47,7 +47,6 @@ import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -57,6 +56,9 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
+
+import static org.jdbi.v3.core.generic.GenericTypes.arrayType;
+import static org.jdbi.v3.core.generic.GenericTypes.parameterizeClass;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -1190,7 +1192,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(String name, Type elementType, Object... array) {
-        return bindByType(name, array, GenericTypes.arrayType(elementType));
+        return bindByType(name, array, arrayType(elementType));
     }
 
     /**
@@ -1201,7 +1203,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(int pos, Type elementType, Object... array) {
-        return bindByType(pos, array, GenericTypes.arrayType(elementType));
+        return bindByType(pos, array, arrayType(elementType));
     }
 
     /**
@@ -1212,7 +1214,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(String name, Type elementType, Iterable<?> iterable) {
-        return bindArray(name, elementType, iterable.iterator());
+        return bindByType(name, iterable, parameterizeClass(Iterable.class, elementType));
     }
 
     /**
@@ -1223,7 +1225,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(int pos, Type elementType, Iterable<?> iterable) {
-        return bindArray(pos, elementType, iterable.iterator());
+        return bindByType(pos, iterable, parameterizeClass(Iterable.class, elementType));
     }
 
     /**
@@ -1234,7 +1236,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(String name, Type elementType, Iterator<?> iterator) {
-        return bindByType(name, iterator, GenericTypes.parameterizeClass(Iterator.class, elementType));
+        return bindByType(name, iterator, parameterizeClass(Iterator.class, elementType));
     }
 
     /**
@@ -1245,7 +1247,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this Query
      */
     public final This bindArray(int pos, Type elementType, Iterator<?> iterator) {
-        return bindByType(pos, iterator, GenericTypes.parameterizeClass(Iterator.class, elementType));
+        return bindByType(pos, iterator, parameterizeClass(Iterator.class, elementType));
     }
 
     /**
