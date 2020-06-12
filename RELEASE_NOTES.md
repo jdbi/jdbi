@@ -4,6 +4,7 @@
   - kotlin-sqlobject: fix package declaration of RegisterKotlinMappers
   - LocalTransactionHandler: bind more closely to Handle for performance and to avoid leaks
   - Update: add `one` helper method
+  - Array: fix repeated binding of Iterable types, #1686
 
 # 3.13.0
   - Kotlin: respect default values in methods when passed null, #1690
