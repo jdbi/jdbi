@@ -39,7 +39,8 @@ public class FreeBuildersTest {
                 IsIsIsIs.class,
                 SubValue.class,
                 Train.class,
-                UnmappableValue.class)
+                UnmappableValue.class,
+                UnnestedFreeBuilder.class)
         );
 
     private Jdbi jdbi;
@@ -89,7 +90,26 @@ public class FreeBuildersTest {
                 .containsExactly("Zephyr", 8, true);
         }
     }
+
     // end::example[]
+
+    @Test
+    public void testUnnestedFreeBuilder() {
+        final UnnestedFreeBuilder unnestedFreeBuilder = new UnnestedFreeBuilder.Builder().setTest("foo").build();
+        h.execute("create table unnested_free_builders(test varchar)");
+
+        assertThat(
+            h.createUpdate("insert into unnested_free_builders(test) values (:test)")
+            .bindPojo(unnestedFreeBuilder)
+            .execute())
+        .isEqualTo(1);
+
+        assertThat(
+            h.createQuery("select * from unnested_free_builders")
+            .mapTo(UnnestedFreeBuilder.class)
+            .one())
+        .isEqualTo(unnestedFreeBuilder);
+    }
 
     public interface BaseValue<T> {
         T t();
