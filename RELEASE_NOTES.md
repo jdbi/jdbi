@@ -1,3 +1,6 @@
+# 3.14.1
+  - FreeBuilders: fix lookup of builder classes
+
 # 3.14.0
   - immutables: support getter with @ColumnName, #1704
   - postgres: simple CRUD support for LargeObject API
