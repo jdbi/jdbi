@@ -122,7 +122,7 @@ public class JdbiFreeBuilders implements JdbiConfig<JdbiFreeBuilders> {
     private <S> Class builderClass(Class<S> spec) {
         final String builderName;
         if (spec.getEnclosingClass() == null) {
-            builderName = spec.getPackage().getName() + "." + spec.getSimpleName() + "." + "Builder";
+            builderName = spec.getPackage().getName() + "." + spec.getSimpleName() + "$" + "Builder";
         } else {
             String enclosingName = spec.getEnclosingClass().getSimpleName();
             builderName = spec.getPackage().getName() + "." + enclosingName + "$" + spec.getSimpleName() + "$" + "Builder";
