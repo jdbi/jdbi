@@ -3765,7 +3765,7 @@ dao.useTransaction(txn -> {
 });
 ----
 
-Interface `default` methods, and mix-ins such as 
+Interface `default` methods, and mix-ins such as
 link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^]
 and
 link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^],
@@ -4116,6 +4116,30 @@ The configuration will both register appropriate `RowMapper`s as well as configu
 [source,java,indent=0]
 ----
 include::{coreexampledir}/ImmutablesTest.java[tags=example]
+----
+
+=== Freebuilder
+link:https://https://freebuilder.inferred.org/[Freebuilder^] is an annotation
+processor that generates value types based on simple interface or abstract
+class descriptions. Jdbi supports Freebuilder in much the same way that it
+supports Immutables.
+
+[WARNING]
+Freebuilder support is still experimental and may not support all Freebuilder
+implemented feaatures. We do support both JavaBean style getters and setters as
+well as unprefixed getters and setters.
+
+Just tell us about your Freebuilder types by installing the plugin and
+configuring your `Freebuilder` type:
+
+`jdbi.getConfig(JdbiFreebuilder.class).registerFreebuilder(MyFreeBuilderType.class)`
+
+The configuration will both register appropriate `RowMapper`s as well as
+configure the new `bindPojo` (or `@BindPojo`) binders:
+
+[source,java,indent=0]
+----
+include::{coreexampledir}/FreeBuildersTest.java[tags=example]
 ----
 
 === JodaTime
