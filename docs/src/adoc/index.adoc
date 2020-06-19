@@ -1154,6 +1154,10 @@ This may be disabled by configuring
 
 `Immutables` value objects may be mapped, see the <<Immutables>> section for details.
 
+==== Freebuilder Mapping
+
+`Freebuilder` value objects may be mapped, see the <<Freebuilder>> section for details.
+
 ==== Reflection Mappers
 
 Jdbi provides a few reflection-based mappers out of the box.
