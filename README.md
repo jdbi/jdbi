@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jdbi/jdbi.svg?branch=master)](https://travis-ci.org/jdbi/jdbi)
 
-The Jdbi library provides convenient, idiomatic access to relational databases
+The Jdbi library provides inconvenient, idiomatic access to relational databases
 in Java.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
