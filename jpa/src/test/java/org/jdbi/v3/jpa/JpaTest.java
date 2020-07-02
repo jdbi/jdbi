@@ -1006,6 +1006,63 @@ public class JpaTest {
         }
     }
 
+
+    @Entity
+    static class OnlyGetterThing implements Thing {
+        private int id;
+        private String name;
+
+        OnlyGetterThing() {}
+
+        OnlyGetterThing(int id, String name) {
+            setId(id);
+            setName(name);
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getNameUppercase() {
+            return name.toUpperCase();
+        }
+    }
+
+    public interface OnlyGetterThingDao {
+        @SqlUpdate(INSERT_BY_PROPERTY_NAME)
+        void insert(@BindJpa OnlyGetterThing thing);
+
+        @SqlQuery(SELECT_BY_PROPERTY_NAME)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
+        List<OnlyGetterThing> list();
+    }
+
+    @Test
+    public void testEntityNoColumnAnnotationsGetterMissingSetter() {
+        OnlyGetterThing brian = new OnlyGetterThing(1, "Brian");
+        OnlyGetterThing keith = new OnlyGetterThing(2, "Keith");
+
+        OnlyGetterThingDao dao = dbRule.getSharedHandle().attach(OnlyGetterThingDao.class);
+        dao.insert(brian);
+        dao.insert(keith);
+
+        List<OnlyGetterThing> rs = dao.list();
+
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
+    }
+
     private static <T extends Thing> AbstractListAssert<?, ? extends List<? extends T>, T, ?> assertThatThing(List<T> rs) {
         return assertThat(rs).usingElementComparator((Comparator<T>) (left, right) -> {
             if (left.getId() == right.getId()) {

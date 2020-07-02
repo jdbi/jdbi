@@ -108,6 +108,7 @@ public class JpaClass<C> {
                     .filter(property -> !members.containsKey(property.getName()))
                     .filter(property -> !(property instanceof IndexedPropertyDescriptor))
                     .filter(property -> !"class".equals(property.getName()))
+                    .filter(property -> property.getWriteMethod() != null)
                     .forEach(property -> {
                         Method getter = property.getReadMethod();
                         Method setter = property.getWriteMethod();
