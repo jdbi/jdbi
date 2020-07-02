@@ -1006,7 +1006,6 @@ public class JpaTest {
         }
     }
 
-
     @Entity
     static class OnlyGetterThing implements Thing {
         private int id;
