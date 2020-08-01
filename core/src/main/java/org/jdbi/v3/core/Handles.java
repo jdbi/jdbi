@@ -14,17 +14,20 @@
 package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for handles.
  */
 public class Handles implements JdbiConfig<Handles> {
     private boolean forceEndTransactions = true;
+    private boolean checkTransactionUsage = true;
 
     public Handles() {}
 
     private Handles(Handles that) {
         this.forceEndTransactions = that.forceEndTransactions;
+        this.checkTransactionUsage = that.checkTransactionUsage;
     }
 
     /**
@@ -52,6 +55,27 @@ public class Handles implements JdbiConfig<Handles> {
      */
     public void setForceEndTransactions(boolean forceEndTransactions) {
         this.forceEndTransactions = forceEndTransactions;
+    }
+
+    /**
+     * @return should Jdbi do some basic transaction usage checks
+     * @see #setCheckTransactionUsage(boolean)
+     */
+    @Beta
+    public boolean isCheckTransactionUsage() {
+        return checkTransactionUsage;
+    }
+
+    /**
+     * Transactions as implemented by JDBC do not directly map to Jdbi transactions.
+     * For example, nested {@code @Transaction}s are not a driver feature.
+     * Jdbi does some sanity checks.  Sometimes, if you're programming the driver
+     * directly, that gets in the way. This turns them off...
+     * @param checkTransactionUsage
+     */
+    @Beta
+    public void setCheckTransactionUsage(boolean checkTransactionUsage) {
+        this.checkTransactionUsage = checkTransactionUsage;
     }
 
     @Override

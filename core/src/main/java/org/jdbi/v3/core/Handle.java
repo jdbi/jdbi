@@ -137,7 +137,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
 
         boolean wasInTransaction = false;
-        if (forceEndTransactions && localConfig.get().get(Handles.class).isForceEndTransactions()) {
+        Handles handles = localConfig.get().get(Handles.class);
+        if (forceEndTransactions && handles.isForceEndTransactions()) {
             try {
                 wasInTransaction = isInTransaction();
             } catch (Exception e) {
@@ -170,7 +171,7 @@ public class Handle implements Closeable, Configurable<Handle> {
                 suppressed.forEach(original::addSuppressed);
                 throw new CloseException("Failed to clear transaction status on close", original);
             }
-            if (wasInTransaction) {
+            if (wasInTransaction && handles.isCheckTransactionUsage()) {
                 throw new TransactionException("Improper transaction handling detected: A Handle with an open "
                     + "transaction was closed. Transactions must be explicitly committed or rolled back "
                     + "before closing the Handle. "
@@ -452,7 +453,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
-        if (isInTransaction()) {
+        if (getConfig(Handles.class).isCheckTransactionUsage() && isInTransaction()) {
             TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
             if (currentLevel != level && level != TransactionIsolationLevel.UNKNOWN) {
                 throw new TransactionException(
