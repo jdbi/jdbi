@@ -1,6 +1,10 @@
 # 3.14.3
   - fix ThreadLocal leak warning for Tomcat
 
+# 3.14.2
+  - FreeBuilder documentation
+  - jpa: NPE when deserializing read-only properties
+
 # 3.14.1
   - FreeBuilders: fix lookup of builder classes
 
