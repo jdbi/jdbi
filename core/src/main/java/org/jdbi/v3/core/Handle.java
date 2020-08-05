@@ -93,6 +93,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     void setLocalConfig(ThreadLocal<ConfigRegistry> configThreadLocal) {
+        // Without explicit remove the Tomcats thread-local leak detector gives superfluous warnings
+        this.localConfig.remove();
         this.localConfig = configThreadLocal;
     }
 
