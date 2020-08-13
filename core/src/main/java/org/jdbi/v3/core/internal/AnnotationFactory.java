@@ -49,12 +49,15 @@ public class AnnotationFactory {
                         annotationType.getSimpleName()));
         });
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class<?>[] interfaces = {annotationType};
         InvocationHandler invocationHandler = getInvocationHandler(annotationType, values);
 
         @SuppressWarnings("unchecked")
-        T annotation = (T) Proxy.newProxyInstance(classLoader, interfaces, invocationHandler);
+        T annotation = (T) Proxy.newProxyInstance(
+                Optional.ofNullable(annotationType.getClassLoader())
+                        .orElseGet(Thread.currentThread()::getContextClassLoader),
+                interfaces,
+                invocationHandler);
 
         return annotation;
     }

@@ -1,5 +1,6 @@
 # 3.14.3
   - fix ThreadLocal leak warning for Tomcat
+  - AnnotationFactory: try to use class's ClassLoader before going to TCCL
 
 # 3.14.2
   - FreeBuilder documentation
