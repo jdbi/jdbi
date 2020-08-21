@@ -57,7 +57,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Measurement(time = 5)
 @Warmup(time = 2)
 @OutputTimeUnit(TimeUnit.SECONDS)
-@Fork(1)
+@Fork(4)
 public class BeanBindingBenchmark {
     private static final int INNER_LOOPS = 10_000;
     private final Random random = new Random();

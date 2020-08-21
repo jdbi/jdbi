@@ -102,7 +102,16 @@ public interface QualifiedArgumentFactory {
          */
         static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
             return new Preparable() {
-                Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
+                Set<Annotation> qualifiers =
+                        config.get(Qualifiers.class)
+                        .findFor(factory.getClass());
+
+                Collection<QualifiedType<?>> prePreparedTypes = Collections.unmodifiableList(
+                        factory.prePreparedTypes().stream()
+                            .map(QualifiedType::of)
+                            .map(qt -> qt.withAnnotations(qualifiers))
+                            .collect(Collectors.toList()));
+
                 @Override
                 public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
                     return type.getQualifiers().equals(qualifiers)
@@ -119,10 +128,7 @@ public interface QualifiedArgumentFactory {
 
                 @Override
                 public Collection<QualifiedType<?>> prePreparedTypes() {
-                    return factory.prePreparedTypes().stream()
-                            .map(QualifiedType::of)
-                            .map(qt -> qt.withAnnotations(qualifiers))
-                            .collect(Collectors.toList());
+                    return prePreparedTypes;
                 }
 
                 @Override

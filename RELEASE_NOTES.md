@@ -1,3 +1,6 @@
+# 3.14.4
+  - fix performance regression on statement preparation, #1732
+
 # 3.14.3
   - fix ThreadLocal leak warning for Tomcat
   - AnnotationFactory: try to use class's ClassLoader before going to TCCL
