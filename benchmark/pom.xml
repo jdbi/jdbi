@@ -29,7 +29,7 @@
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
         <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
-        <jmh.version>1.21</jmh.version>
+        <jmh.version>1.25</jmh.version>
         <maven.deploy.skip>true</maven.deploy.skip>
         <moduleName>org.jdbi.v3.benchmark</moduleName>
         <uberjar.name>benchmarks</uberjar.name>
@@ -52,12 +52,30 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-postgres</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-testing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi</artifactId>
+            <version>2.78</version>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
 
         <dependency>
@@ -65,12 +83,6 @@
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>${jmh.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
