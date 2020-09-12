@@ -20,8 +20,21 @@ import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcConnectionPool;
 
 class EmbeddedH2JdbiRule extends JdbiRule {
+    private JdbcConnectionPool pool;
+
     @Override
     protected DataSource createDataSource() {
-        return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
+        if (pool != null) {
+            throw new IllegalStateException("already created");
+        }
+        pool = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
+        return pool;
+    }
+
+    @Override
+    public void after() {
+        super.after();
+        pool.dispose();
+        pool = null;
     }
 }
