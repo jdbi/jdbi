@@ -13,12 +13,17 @@
  */
 package org.jdbi.v3.core.config;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -30,13 +35,14 @@ import org.jdbi.v3.core.statement.SqlStatements;
  * @see Configurable
  */
 public final class ConfigRegistry {
-    private final Object createLock = new Object();
     private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
+    private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
     /**
      * Creates a new config registry.
      */
     public ConfigRegistry() {
+        configFactories = new ConcurrentHashMap<>();
         get(JdbiCaches.class);
         get(SqlStatements.class);
         get(Arguments.class);
@@ -47,6 +53,7 @@ public final class ConfigRegistry {
     }
 
     private ConfigRegistry(ConfigRegistry that) {
+        configFactories = that.configFactories;
         that.configs.forEach((type, config) -> {
             JdbiConfig<?> copy = config.createCopy();
             configs.put(type, copy);
@@ -68,21 +75,39 @@ public final class ConfigRegistry {
         if (lookup != null) {
             return configClass.cast(lookup);
         }
-        synchronized (createLock) {
+        C config = configClass.cast(configFactory(configClass).apply(this));
+        return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
+    }
+
+    private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
+        return configFactories.computeIfAbsent(configClass, klass -> {
+            final Exception notFound;
             try {
-                C config;
-                try {
-                    config = configClass.getDeclaredConstructor(ConfigRegistry.class).newInstance(this);
-                } catch (NoSuchMethodException e) {
-                    config = configClass.getDeclaredConstructor().newInstance();
-                    config.setRegistry(this);
-                }
-                return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
+                MethodHandle mh = MethodHandles.publicLookup().findConstructor(klass,
+                        MethodType.methodType(void.class, ConfigRegistry.class))
+                    .asType(MethodType.methodType(JdbiConfig.class, ConfigRegistry.class));
+                return Unchecked.function(registry -> (JdbiConfig<?>) mh.invokeExact(registry));
+            } catch (NoSuchMethodException e) {
+                notFound = e;
             } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Unable to instantiate config class " + configClass
-                    + ". Is there a public no-arg constructor?", e);
+                throw new IllegalStateException("Unable to use constructor taking ConfigRegistry to create " + configClass, e);
             }
-        }
+            try {
+                MethodHandle mh = MethodHandles.publicLookup().findConstructor(klass,
+                        MethodType.methodType(void.class))
+                    .asType(MethodType.methodType(JdbiConfig.class));
+                return Unchecked.function(registry -> {
+                    JdbiConfig<?> result = (JdbiConfig<?>) mh.invokeExact();
+                    result.setRegistry(registry);
+                    return result;
+                });
+            } catch (ReflectiveOperationException e) {
+                IllegalStateException failure = new IllegalStateException("Unable to instantiate config class " + configClass
+                        + ". Is there a public no-arg constructor?", e);
+                failure.addSuppressed(notFound);
+                throw failure;
+            }
+        });
     }
 
     /**
