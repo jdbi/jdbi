@@ -84,7 +84,11 @@ public class AnnotationFactory {
 
             if ("equals".equals(name) && method.getParameterCount() == 1
                 && Object.class.equals(method.getParameterTypes()[0])) {
-                Annotation that = (Annotation) args[0];
+                Object arg = args[0];
+                if (!(arg instanceof Annotation)) {
+                    return false;
+                }
+                Annotation that = (Annotation) arg;
                 return annotationType.equals(that.annotationType()) && valuesEqual(annotationType, proxy, that);
             }
 

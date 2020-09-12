@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -105,7 +106,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      */
     @Beta
     public <T> Optional<RowMapper<T>> findFor(QualifiedType<T> type) {
-        if (type.getQualifiers().isEmpty()) {
+        if (type.qualifiersEqualTo(Collections.emptySet())) {
             Optional<RowMapper<T>> result = rowMappers.findFor(type.getType()).map(m -> (RowMapper<T>) m);
             if (result.isPresent()) {
                 return result;

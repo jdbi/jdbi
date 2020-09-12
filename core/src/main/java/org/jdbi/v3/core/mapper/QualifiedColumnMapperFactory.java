@@ -45,7 +45,7 @@ public interface QualifiedColumnMapperFactory {
      * @param factory the factory to adapt
      */
     static QualifiedColumnMapperFactory adapt(ColumnMapperFactory factory) {
-        return (type, config) -> type.getQualifiers().equals(
+        return (type, config) -> type.qualifiersEqualTo(
                 config.get(Qualifiers.class).findFor(factory.getClass()))
             ? factory.build(type.getType(), config)
             : Optional.empty();
