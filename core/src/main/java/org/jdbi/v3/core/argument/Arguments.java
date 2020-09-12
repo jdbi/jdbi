@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -26,7 +27,6 @@ import java.util.function.Function;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
@@ -40,6 +40,7 @@ import org.jdbi.v3.meta.Beta;
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
     private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
+    private final Set<QualifiedType<?>> didPrepare = ConcurrentHashMap.newKeySet();
 
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
@@ -69,11 +70,6 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
-        if (preparedFactories.isEmpty()) {
-            for (int i = factories.size() - 1; i >= 0; --i) {
-                prePrepareTypes(factories.get(i));
-            }
-        }
     }
 
     private Arguments(Arguments that) {
@@ -101,19 +97,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Beta
     public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
-        prePrepareTypes(factory);
         return this;
-    }
-
-    private void prePrepareTypes(QualifiedArgumentFactory factory) {
-        if (factory instanceof QualifiedArgumentFactory.Preparable) {
-            QualifiedArgumentFactory.Preparable qaf = (QualifiedArgumentFactory.Preparable) factory;
-            qaf.prePreparedTypes()
-                .forEach(t ->
-                    preparedFactories.put(t,
-                        qaf.prepare(t, registry)
-                            .orElseThrow(() -> new IllegalStateException("Preparable " + t + " failed on " + qaf))));
-        }
     }
 
     /**
@@ -140,9 +124,17 @@ public class Arguments implements JdbiConfig<Arguments> {
         if (prepared != null) {
             return Optional.of(prepared.apply(value));
         }
-        return factories.stream()
-            .flatMap(factory -> JdbiOptionals.stream(factory.build(type, value, registry)))
-            .findFirst();
+        for (QualifiedArgumentFactory factory : factories) {
+            Optional<Argument> maybeBuilt = factory.build(type, value, registry);
+            if (maybeBuilt.isPresent()) {
+                if (factory instanceof QualifiedArgumentFactory.Preparable && didPrepare.add(type)) {
+                    ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry)
+                            .ifPresent(argumentFactory -> preparedFactories.putIfAbsent(type, argumentFactory));
+                }
+                return maybeBuilt;
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -167,11 +159,17 @@ public class Arguments implements JdbiConfig<Arguments> {
         if (prepared != null) {
             return Optional.of(prepared);
         }
-        return factories.stream()
-            .filter(QualifiedArgumentFactory.Preparable.class::isInstance)
-            .map(QualifiedArgumentFactory.Preparable.class::cast)
-            .flatMap(factory -> JdbiOptionals.stream(factory.prepare(type, registry)))
-            .findFirst();
+        for (QualifiedArgumentFactory factory : factories) {
+            if (factory instanceof QualifiedArgumentFactory.Preparable) {
+                Optional<Function<Object, Argument>> argumentFactory =
+                        ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry);
+                if (argumentFactory.isPresent()) {
+                    preparedFactories.putIfAbsent(type, argumentFactory.get());
+                    return argumentFactory;
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     @Beta

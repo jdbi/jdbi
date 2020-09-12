@@ -90,6 +90,10 @@ public interface QualifiedArgumentFactory {
     interface Preparable extends QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
+        /**
+         * @deprecated no longer used
+         */
+        @Deprecated
         default Collection<QualifiedType<?>> prePreparedTypes() {
             return Collections.emptyList();
         }

@@ -57,6 +57,10 @@ public interface ArgumentFactory {
 
         Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config);
 
+        /**
+         * @deprecated no longer used
+         */
+        @Deprecated
         default Collection<? extends Type> prePreparedTypes() {
             return Collections.emptyList();
         }
