@@ -15,18 +15,12 @@ package org.jdbi.v3.core.qualifier;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -38,8 +32,7 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public final class QualifiedType<T> {
     private final Type type;
-    // null for no qualifiers, Annotation itself for one qualifier, Set<Annotation> for many
-    private final Object qualifiers;
+    private final QualifierSet qualifiers;
     private int hashCode;
 
     /**
@@ -49,7 +42,7 @@ public final class QualifiedType<T> {
      * @see #with(Annotation...) to then qualify your type
      */
     public static <T> QualifiedType<T> of(Class<T> clazz) {
-        return new QualifiedType<>(clazz, null);
+        return new QualifiedType<>(clazz, QualifierSet.empty());
     }
 
     /**
@@ -59,7 +52,7 @@ public final class QualifiedType<T> {
      * @see #with(Annotation...) to then qualify your type
      */
     public static QualifiedType<?> of(Type type) {
-        return new QualifiedType<>(type, null);
+        return new QualifiedType<>(type, QualifierSet.empty());
     }
 
     /**
@@ -69,21 +62,7 @@ public final class QualifiedType<T> {
      * @return the QualifiedType
      */
     public static <T> QualifiedType<T> of(Type type, Annotation[] qualifiers) {
-        switch (qualifiers.length) {
-        case 0:
-            return new QualifiedType<>(type, null);
-        case 1:
-            return new QualifiedType<>(type, qualifiers[0]);
-        default:
-            Set<Annotation> set = new HashSet<>();
-            for (Annotation qual : qualifiers) {
-                set.add(qual);
-            }
-            if (set.size() == 1) {
-                return new QualifiedType<>(type, qualifiers[0]);
-            }
-            return new QualifiedType<>(type, Collections.unmodifiableSet(set));
-        }
+        return new QualifiedType<>(type, QualifierSet.ofInstances(qualifiers));
     }
 
     /**
@@ -92,12 +71,11 @@ public final class QualifiedType<T> {
      * @return the unqualified QualifiedType
      * @see #with(Annotation...) to then qualify your type
      */
-    @SuppressWarnings("unchecked")
     public static <T> QualifiedType<T> of(GenericType<T> type) {
-        return (QualifiedType<T>) of(type.getType());
+        return new QualifiedType<>(type.getType(), QualifierSet.empty());
     }
 
-    private QualifiedType(Type type, Object qualifiers) {
+    private QualifiedType(Type type, QualifierSet qualifiers) {
         this.type = type;
         this.qualifiers = qualifiers;
     }
@@ -109,7 +87,7 @@ public final class QualifiedType<T> {
      * @return the QualifiedType
      */
     public QualifiedType<T> with(Annotation newQualifier) {
-        return new QualifiedType<>(type, newQualifier);
+        return new QualifiedType<>(type, QualifierSet.ofInstances(newQualifier));
     }
 
     /**
@@ -119,7 +97,7 @@ public final class QualifiedType<T> {
      * @return the QualifiedType
      */
     public QualifiedType<T> with(Annotation... newQualifiers) {
-        return of(type, newQualifiers);
+        return new QualifiedType<>(type, QualifierSet.ofInstances(newQualifiers));
     }
 
     /**
@@ -131,9 +109,7 @@ public final class QualifiedType<T> {
      */
     @SafeVarargs
     public final QualifiedType<T> with(Class<? extends Annotation>... newQualifiers) {
-        return of(type, Arrays.stream(newQualifiers)
-                .map(AnnotationFactory::create)
-                .toArray(Annotation[]::new));
+        return new QualifiedType<>(type, QualifierSet.ofClasses(newQualifiers));
     }
 
     /**
@@ -142,8 +118,7 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> newQualifiers) {
-        return of(type, StreamSupport.stream(newQualifiers.spliterator(), false)
-                .toArray(Annotation[]::new));
+        return new QualifiedType<>(type, QualifierSet.ofInstances(newQualifiers));
     }
 
     /**
@@ -152,9 +127,7 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> newQualifiers) {
-        return of(type, StreamSupport.stream(newQualifiers.spliterator(), false)
-            .map(AnnotationFactory::create)
-            .toArray(Annotation[]::new));
+        return new QualifiedType<>(type, QualifierSet.ofClasses(newQualifiers));
     }
 
     /**
@@ -167,29 +140,12 @@ public final class QualifiedType<T> {
     /**
      * @return the type qualifiers.
      */
-    @SuppressWarnings("unchecked")
     public Set<Annotation> getQualifiers() {
-        if (qualifiers == null) {
-            return Collections.emptySet();
-        } else if (qualifiers instanceof Set<?>) {
-            return (Set<Annotation>) qualifiers;
-        } else {
-            return Collections.singleton((Annotation) qualifiers);
-        }
+        return qualifiers.getQualifiers();
     }
 
     public boolean qualifiersEqualTo(Set<Annotation> annotations) {
-        if (qualifiers == null) {
-            return annotations.isEmpty();
-        }
-        if (qualifiers instanceof Set<?>) {
-            return annotations.equals(qualifiers);
-        } else {
-            Iterator<Annotation> iter = annotations.iterator();
-            return iter.hasNext()
-                    && iter.next().equals(qualifiers)
-                    && !iter.hasNext();
-        }
+        return qualifiers.qualifiersEqualTo(annotations);
     }
 
     /**
@@ -221,7 +177,7 @@ public final class QualifiedType<T> {
      * @return true if this instance contains the given qualifier
      */
     public boolean hasQualifier(Class<? extends Annotation> qualifier) {
-        return getQualifiers().stream().anyMatch(qualifier::isInstance);
+        return qualifiers.contains(qualifier);
     }
 
     @Override
