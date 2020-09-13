@@ -14,6 +14,8 @@
 package org.jdbi.v3.sqlobject.locator;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
@@ -22,9 +24,11 @@ import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
  * Locates SQL on the SQL method annotations like <code>@SqlQuery("foo")</code>. This is the default SqlLocator.
  */
 public class AnnotationSqlLocator implements SqlLocator {
+    private final ConcurrentMap<Method, String> located = new ConcurrentHashMap<>();
+
     @Override
     public String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config) {
-        return SqlAnnotations.getAnnotationValue(method)
-            .orElseThrow(() -> new IllegalStateException("Sql annotation missing query"));
+        return located.computeIfAbsent(method, m -> SqlAnnotations.getAnnotationValue(m)
+            .orElseThrow(() -> new IllegalStateException("Sql annotation missing query")));
     }
 }
