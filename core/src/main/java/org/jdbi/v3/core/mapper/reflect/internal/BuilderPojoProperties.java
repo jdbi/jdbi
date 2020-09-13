@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper.reflect.internal;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -54,7 +55,8 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
     BuilderPojoProperties(BuilderSpec<T, B> spec) {
         this(spec.type, spec.config, spec.defn, null, spec.builder);
         try {
-            builderBuild = MethodHandles.lookup().unreflect(builder.get().getClass().getMethod("build"));
+            builderBuild = MethodHandles.lookup().unreflect(builder.get().getClass().getMethod("build"))
+                    .asType(MethodType.methodType(Object.class, Object.class));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new IllegalArgumentException("Failed to inspect Immutables " + defn, e);
         }
@@ -87,12 +89,12 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
         return new PojoBuilder<T>() {
             @Override
             public void set(String property, Object value) {
-                Unchecked.biFunction(getProperties().get(property).setter::invoke).apply(b, value);
+                Unchecked.biConsumer(getProperties().get(property).setter::invokeExact).accept(b, value);
             }
 
             @Override
             public T build() {
-                return defn.cast(Unchecked.function(builderBuild::invoke).apply(b));
+                return defn.cast(Unchecked.function(builderBuild::invokeExact).apply(b));
             }
         };
     }
@@ -109,9 +111,9 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
             this.name = name;
             this.type = type;
             this.defn = defn;
-            this.isSet = isSet;
-            this.getter = getter;
-            this.setter = setter;
+            this.isSet = isSet.asType(MethodType.methodType(Boolean.class, Object.class));
+            this.getter = getter.asType(MethodType.methodType(Object.class, Object.class));
+            this.setter = setter.asType(MethodType.methodType(void.class, Object.class, Object.class));
         }
 
         @Override
@@ -132,8 +134,8 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
         @Override
         public Object get(T pojo) {
             return Unchecked.callable(() -> {
-                if (Boolean.TRUE.equals(isSet.invoke(pojo))) {
-                    return getter.invoke(pojo);
+                if (Boolean.TRUE.equals((Boolean) isSet.invokeExact(pojo))) {
+                    return getter.invokeExact(pojo);
                 } else {
                     return null;
                 }

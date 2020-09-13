@@ -114,11 +114,13 @@ public class BeanPropertiesFactory {
                 this.qualifiedType = determineQualifiedType();
                 getter = Optional.ofNullable(descriptor.getReadMethod())
                         .map(Unchecked.function(MethodHandles.lookup()::unreflect))
-                        .map(mh -> Unchecked.function(mh::invoke))
+                        .map(mh -> mh.asType(MethodType.methodType(Object.class, Object.class)))
+                        .map(mh -> Unchecked.function(mh::invokeExact))
                         .orElse(null);
                 setter = Optional.ofNullable(descriptor.getWriteMethod())
                         .map(Unchecked.function(MethodHandles.lookup()::unreflect))
-                        .map(mh -> Unchecked.biConsumer(mh::invoke))
+                        .map(mh -> mh.asType(MethodType.methodType(void.class, Object.class, Object.class)))
+                        .map(mh -> Unchecked.biConsumer(mh::invokeExact))
                         .orElse(null);
             }
 
@@ -198,8 +200,8 @@ public class BeanPropertiesFactory {
                 try {
                     MethodHandle ctorMh = MethodHandles.lookup()
                             .findConstructor(clazz, MethodType.methodType(void.class))
-                            .asType(MethodType.methodType(clazz));
-                    myConstructor = Unchecked.supplier(() -> (T) ctorMh.invoke());
+                            .asType(MethodType.methodType(Object.class));
+                    myConstructor = Unchecked.supplier(() -> (T) ctorMh.invokeExact());
                 } catch (ReflectiveOperationException e) {
                     myConstructor = () -> {
                         throw Sneaky.throwAnyway(e);
