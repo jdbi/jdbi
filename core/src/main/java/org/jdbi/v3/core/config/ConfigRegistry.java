@@ -18,7 +18,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.statement.SqlStatements;
 
@@ -29,7 +31,7 @@ import org.jdbi.v3.core.statement.SqlStatements;
  */
 public final class ConfigRegistry {
     private final Object createLock = new Object();
-    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>();
+    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
 
     /**
      * Creates a new config registry.
@@ -40,6 +42,8 @@ public final class ConfigRegistry {
         get(Arguments.class);
         get(RowMappers.class);
         get(ColumnMappers.class);
+        get(Mappers.class);
+        get(JdbiCollectors.class);
     }
 
     private ConfigRegistry(ConfigRegistry that) {
