@@ -85,18 +85,13 @@
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>4.7.2</dep.antlr.version>
-        <dep.checkstyle.version>8.16</dep.checkstyle.version>
         <dep.dokka.version>0.9.18</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.3.61</dep.kotlin.version>
-        <dep.plugin.checkstyle.version>3.0.0</dep.plugin.checkstyle.version>
-        <dep.plugin.pmd.version>3.9.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
-        <dep.plugin.spotbugs.version>3.1.10</dep.plugin.spotbugs.version>
-        <dep.pmd.version>6.14.0</dep.pmd.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
