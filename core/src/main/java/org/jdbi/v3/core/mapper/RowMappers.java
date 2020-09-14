@@ -31,7 +31,7 @@ import org.jdbi.v3.core.statement.Query;
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Type, RowMapper<?>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
     public RowMappers() {
@@ -137,17 +137,17 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        RowMapper<?> cached = cache.get(type);
+        Optional<RowMapper<?>> cached = cache.get(type);
 
         if (cached != null) {
-            return Optional.of(cached);
+            return cached;
         }
 
         Optional<RowMapper<?>> mapper = factories.stream()
                 .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
                 .findFirst();
 
-        mapper.ifPresent(m -> cache.put(type, m));
+        cache.put(type, mapper);
 
         return mapper;
     }

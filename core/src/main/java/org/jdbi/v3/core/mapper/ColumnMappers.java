@@ -33,7 +33,7 @@ import org.jdbi.v3.meta.Beta;
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<QualifiedType<?>, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache = new ConcurrentHashMap<>();
     private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
 
@@ -184,23 +184,22 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     @Beta
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        @SuppressWarnings("unchecked")
-        ColumnMapper<T> cached = (ColumnMapper<T>) cache.get(type);
+        Optional<ColumnMapper<T>> cached = (Optional) cache.get(type);
 
         if (cached != null) {
-            return Optional.of(cached);
+            return cached;
         }
 
-        Optional<ColumnMapper<T>> mapper = factories.stream()
+        Optional<ColumnMapper<T>> mapper = (Optional) factories.stream()
                 .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
-                .findFirst()
-                .map(m -> (ColumnMapper<T>) m);
+                .findFirst();
 
-        mapper.ifPresent(m -> cache.put(type, m));
+        cache.put(type, mapper);
 
         return mapper;
     }
