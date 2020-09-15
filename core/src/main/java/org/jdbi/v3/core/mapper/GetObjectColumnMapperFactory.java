@@ -38,7 +38,7 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     }
 
     protected GetObjectColumnMapperFactory(Collection<Class<?>> types) {
-        supportedTypes = new HashSet<Class<?>>(types);
+        supportedTypes = new HashSet<>(types);
     }
 
     public static ColumnMapperFactory forClasses(Class<?>... types) {

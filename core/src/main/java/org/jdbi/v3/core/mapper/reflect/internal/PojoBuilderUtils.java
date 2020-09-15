@@ -29,7 +29,7 @@ import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 
 public class PojoBuilderUtils {
-    private static final String[] GETTER_PREFIXES = new String[] {"get", "is"};
+    private static final String[] GETTER_PREFIXES = {"get", "is"};
     private PojoBuilderUtils() {
         throw new UtilityClassException();
     }

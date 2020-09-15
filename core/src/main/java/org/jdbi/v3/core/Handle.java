@@ -220,12 +220,13 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the number of rows affected
      */
     public int execute(String sql, Object... args) {
-        Update stmt = createUpdate(sql);
-        int position = 0;
-        for (Object arg : args) {
-            stmt.bind(position++, arg);
+        try (Update stmt = createUpdate(sql)) {
+            int position = 0;
+            for (Object arg : args) {
+                stmt.bind(position++, arg);
+            }
+            return stmt.execute();
         }
-        return stmt.execute();
     }
 
     /**

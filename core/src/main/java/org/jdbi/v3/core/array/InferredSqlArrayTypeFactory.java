@@ -21,7 +21,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
 /**
- * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType SqlArrayType<T>} and maps
+ * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType} and maps
  * only arrays of element type {@code T}. The type parameter {@code T} must be accessible via reflection or an
  * {@link UnsupportedOperationException} will be thrown.
  */

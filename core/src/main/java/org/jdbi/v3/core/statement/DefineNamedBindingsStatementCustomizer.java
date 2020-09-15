@@ -69,14 +69,14 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws SQLException {
-            if (method.getName().equals("unwrap")
+            if ("unwrap".equals(method.getName())
                 && args.length == 1
                 && method.getParameterTypes()[0].equals(Class.class)) {
                 throw new SQLException("The current implementation of DefineNamedBindings is incompatible with "
                     + "arguments that rely on java.sql.Wrapper.unwrap(Class<?>)");
             }
 
-            if (method.getName().equals("getConnection")) {
+            if ("getConnection".equals(method.getName())) {
                 return ctx.getConnection();
             }
 

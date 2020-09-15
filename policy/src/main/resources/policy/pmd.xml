@@ -88,11 +88,13 @@
         <exclude name="AvoidFieldNameMatchingMethodName"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
         <exclude name="BeanMembersShouldSerialize"/>
+        <exclude name="CloseResource"/>
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="EmptyCatchBlock"/>
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
+        <exclude name="UseProperClassLoader"/>
     </rule>
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
