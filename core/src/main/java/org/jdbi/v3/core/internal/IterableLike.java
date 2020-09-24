@@ -45,7 +45,7 @@ public class IterableLike {
     public static boolean isIterable(Object maybeIterable) {
         return maybeIterable instanceof Iterator<?>
             || maybeIterable instanceof Iterable<?>
-            || maybeIterable.getClass().isArray();
+            || maybeIterable != null && maybeIterable.getClass().isArray();
     }
 
     /**

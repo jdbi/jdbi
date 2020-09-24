@@ -68,6 +68,21 @@ public class TestBatching {
     }
 
     @Test
+    public void testBindConstantNull() {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
+
+        b.withConstantValue(ids, null);
+
+        assertThat(b.size()).isEqualTo(5);
+
+        List<String> names = handle.createQuery("select distinct name from something")
+                                   .mapTo(String.class)
+                                   .list();
+        assertThat(names).containsExactly((String) null);
+    }
+
+    @Test
     public void testBindConstantValue() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
