@@ -17,12 +17,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 
 public class MockClock extends Clock {
     private ZonedDateTime now;
 
-    private MockClock(ZonedDateTime now) {
+    private MockClock(final ZonedDateTime now) {
         this.now = now;
     }
 
@@ -32,16 +33,17 @@ public class MockClock extends Clock {
     }
 
     @Override
-    public Clock withZone(ZoneId zone) {
+    public Clock withZone(final ZoneId zone) {
         return new MockClock(now.withZoneSameInstant(zone));
     }
 
     @Override
     public Instant instant() {
-        return now.toInstant();
+        // Databases only store microsecond precision
+        return now.toInstant().truncatedTo(ChronoUnit.MICROS);
     }
 
-    public Instant advance(long amountToAdd, TemporalUnit unit) {
+    public Instant advance(final long amountToAdd, final TemporalUnit unit) {
         now = now.plus(amountToAdd, unit);
         return instant();
     }
@@ -50,7 +52,7 @@ public class MockClock extends Clock {
         return at(ZonedDateTime.now());
     }
 
-    public static MockClock at(ZonedDateTime now) {
+    public static MockClock at(final ZonedDateTime now) {
         return new MockClock(now);
     }
 }

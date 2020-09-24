@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +36,9 @@ public class TestJsr310 {
 
     Handle h;
 
+    // Don't use nanoseconds - they'll get truncated off
+    Clock fixed = Clock.fixed(Instant.ofEpochSecond(123456789), ZoneOffset.UTC);
+
     @Before
     public void setUp() {
         h = dbRule.getSharedHandle();
@@ -43,49 +47,49 @@ public class TestJsr310 {
 
     @Test
     public void instant() {
-        Instant i = Instant.now();
+        Instant i = Instant.now(fixed);
         h.execute("insert into stuff(ts) values (?)", i);
         assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).one()).isEqualTo(i);
     }
 
     @Test
     public void localDate() {
-        LocalDate d = LocalDate.now();
+        LocalDate d = LocalDate.now(fixed);
         h.execute("insert into stuff(d) values (?)", d);
         assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).one()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
-        LocalDateTime d = LocalDateTime.now();
+        LocalDateTime d = LocalDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", d);
         assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).one()).isEqualTo(d);
     }
 
     @Test
     public void offsetDateTime() {
-        OffsetDateTime dt = OffsetDateTime.now();
+        OffsetDateTime dt = OffsetDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isEqualTo(dt);
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
-        OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
+        OffsetDateTime dt = OffsetDateTime.now(fixed).withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one().isEqual(dt)).isTrue();
     }
 
     @Test
     public void zonedDateTime() {
-        ZonedDateTime dt = ZonedDateTime.now();
+        ZonedDateTime dt = ZonedDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).one()).isEqualTo(dt);
     }
 
     @Test
     public void zonedDateTimeLosesZone() {
-        ZonedDateTime dt = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("America/Denver"));
+        ZonedDateTime dt = ZonedDateTime.now(fixed).withZoneSameInstant(ZoneId.of("America/Denver"));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).one().isEqual(dt)).isTrue();
     }
