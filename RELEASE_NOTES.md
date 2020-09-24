@@ -1,3 +1,6 @@
+# 3.14.5
+  - SqlBatch: fix inserting of constant `null` value, #1761
+
 # 3.14.4
   - fix performance regression on statement preparation, #1732
 
