@@ -27,6 +27,11 @@ matrix:
         - LC_ALL=fr_FR.UTF-8
       script:
         - src/build/ci-test.sh
+      jdk: openjdk15
+    - env:
+        - TESTS=Y
+      script:
+        - src/build/ci-test.sh
       jdk: openjdk14
     - env:
         - TESTS=Y
