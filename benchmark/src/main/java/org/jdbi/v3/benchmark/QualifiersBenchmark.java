@@ -13,13 +13,16 @@
  */
 package org.jdbi.v3.benchmark;
 
-import java.lang.annotation.Annotation;
-import java.util.Set;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.qualifier.NVarchar;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifier;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -35,11 +38,11 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode(Mode.Throughput)
 @Measurement(time = 5)
 @Warmup(time = 2)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Fork(1)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+@Fork(4)
 public class QualifiersBenchmark {
 
     private JdbiRule db;
@@ -52,8 +55,12 @@ public class QualifiersBenchmark {
         db.before();
         jdbi = db.getJdbi();
         jdbi.registerRowMapper(BeanMapper.factory(UnqualifiedBean.class));
-        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean.class));
+        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean1.class));
+        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean2.class));
+        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean3.class));
+        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean4.class));
         qualifiers = new Qualifiers();
+        qualifiers.setRegistry(new ConfigRegistry());
     }
 
     @TearDown
@@ -62,13 +69,88 @@ public class QualifiersBenchmark {
     }
 
     @Benchmark
-    public Set<Annotation> getQualifiersUnannotated() {
-        return qualifiers.findFor(UnqualifiedBean.class);
+    public QualifiedType<?> qualifiedType0() {
+        return qualifiers.qualifiedTypeOf(UnqualifiedBean.class);
     }
 
     @Benchmark
-    public Set<Annotation> getQualifiersAnnotated() {
-        return qualifiers.findFor(QualifiedBean.class);
+    public QualifiedType<?> qualifiedType1() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean1.class);
+    }
+
+    @Benchmark
+    public QualifiedType<?> qualifiedType2() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean2.class);
+    }
+
+    @Benchmark
+    public QualifiedType<?> qualifiedType3() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean3.class);
+    }
+
+    @Benchmark
+    public QualifiedType<?> qualifiedType4() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean4.class);
+    }
+
+    @Benchmark
+    public boolean eq0To0() {
+        return qualifiers.qualifiedTypeOf(UnqualifiedBean.class).getQualifiers()
+                .equals(qualifiers.findFor(UnqualifiedBean.class));
+    }
+
+    @Benchmark
+    public boolean neq1To0() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean1.class).getQualifiers()
+                .equals(qualifiers.findFor(UnqualifiedBean.class));
+    }
+
+    @Benchmark
+    public boolean eq1To1() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean1.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean1.class));
+    }
+
+    @Benchmark
+    public boolean neq1To1() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean1.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean1B.class));
+    }
+
+    @Benchmark
+    public boolean eq2To2() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean2.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean2.class));
+    }
+
+    @Benchmark
+    public boolean neq2To2() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean2.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean2B.class));
+    }
+
+    @Benchmark
+    public boolean eq3To3() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean3.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean3.class));
+    }
+
+    @Benchmark
+    public boolean neq3To3() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean3.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean3B.class));
+    }
+
+    @Benchmark
+    public boolean eq4To4() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean4.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean4.class));
+    }
+
+    @Benchmark
+    public boolean neq4To4() {
+        return qualifiers.qualifiedTypeOf(QualifiedBean4.class).getQualifiers()
+                .equals(qualifiers.findFor(QualifiedBean4B.class));
     }
 
     @Benchmark
@@ -77,8 +159,8 @@ public class QualifiersBenchmark {
     }
 
     @Benchmark
-    public QualifiedBean mapQualifiedBean() {
-        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(QualifiedBean.class).one());
+    public QualifiedBean1 mapQualifiedBean() {
+        return jdbi.withHandle(h -> h.createQuery("select 'a' as a, 'b' as b, 'c' as c").mapTo(QualifiedBean1.class).one());
     }
 
     @SuppressWarnings("PMD.DataClass")
@@ -115,5 +197,52 @@ public class QualifiersBenchmark {
     public static class UnqualifiedBean extends BaseBean {}
 
     @NVarchar
-    public static class QualifiedBean extends BaseBean {}
+    public static class QualifiedBean1 extends BaseBean {}
+
+    @Q2(false)
+    public static class QualifiedBean1B extends BaseBean {}
+
+    @NVarchar
+    @Q1
+    public static class QualifiedBean2 extends BaseBean {}
+
+    @NVarchar
+    @Q2(false)
+    public static class QualifiedBean2B extends BaseBean {}
+
+    @NVarchar
+    @Q1
+    @Q2(true)
+    public static class QualifiedBean3 extends BaseBean {}
+
+    @NVarchar
+    @Q1
+    @Q3
+    public static class QualifiedBean3B extends BaseBean {}
+
+    @NVarchar
+    @Q1
+    @Q2(true)
+    @Q3
+    public static class QualifiedBean4 extends BaseBean {}
+
+    @NVarchar
+    @Q1
+    @Q2(false)
+    @Q3
+    public static class QualifiedBean4B extends BaseBean {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Qualifier
+    public @interface Q1 {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Qualifier
+    public @interface Q2 {
+        boolean value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Qualifier
+    public @interface Q3 {}
 }
