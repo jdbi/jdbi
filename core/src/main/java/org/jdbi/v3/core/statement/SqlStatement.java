@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -1074,6 +1076,54 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, URL value) {
         return bindByType(name, value, URL.class);
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final This bind(int position, URI value) {
+        return bindByType(position, value, URI.class);
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final This bind(String name, URI value) {
+        return bindByType(name, value, URI.class);
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final This bind(int position, UUID value) {
+        return bindByType(position, value, UUID.class);
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final This bind(String name, UUID value) {
+        return bindByType(name, value, UUID.class);
     }
 
     /**
