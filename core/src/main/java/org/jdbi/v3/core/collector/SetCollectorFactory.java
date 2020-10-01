@@ -25,8 +25,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.core.internal.CollectionCollectors;
+
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -35,7 +36,7 @@ class SetCollectorFactory implements CollectorFactory {
     private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     SetCollectorFactory() {
-        collectors.put(Set.class, toSet());
+        collectors.put(Set.class, CollectionCollectors.toUnmodifiableSet());
         collectors.put(HashSet.class, toCollection(HashSet::new));
         collectors.put(LinkedHashSet.class, toCollection(LinkedHashSet::new));
         collectors.put(SortedSet.class, toCollection(TreeSet::new));

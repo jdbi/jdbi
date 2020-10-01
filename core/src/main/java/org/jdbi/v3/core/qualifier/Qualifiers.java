@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -27,9 +26,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.CollectionCollectors;
 import org.jdbi.v3.meta.Beta;
-
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
@@ -71,12 +69,12 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     }
 
     private static Set<Annotation> getQualifiers(AnnotatedElement... elements) {
-        return Collections.unmodifiableSet(Arrays.stream(elements)
+        return Arrays.stream(elements)
                 .filter(Objects::nonNull)
                 .map(AnnotatedElement::getAnnotations)
                 .flatMap(Arrays::stream)
                 .filter(anno -> anno.annotationType().isAnnotationPresent(Qualifier.class))
-                .collect(toSet()));
+                .collect(CollectionCollectors.toUnmodifiableSet());
     }
 
     @Override

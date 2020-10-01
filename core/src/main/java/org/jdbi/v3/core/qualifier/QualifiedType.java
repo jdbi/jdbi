@@ -27,8 +27,8 @@ import org.jdbi.v3.core.internal.AnnotationFactory;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.toSet;
+
+import static org.jdbi.v3.core.internal.CollectionCollectors.toUnmodifiableSet;
 
 /**
  * A {@link java.lang.reflect.Type} qualified by a set of qualifier annotations. Two qualified types are equal to each other
@@ -73,9 +73,9 @@ public final class QualifiedType<T> {
         return (QualifiedType<T>) of(type.getType());
     }
 
-    private QualifiedType(Type type, Set<? extends Annotation> qualifiers) {
+    private QualifiedType(Type type, Set<Annotation> qualifiers) {
         this.type = type;
-        this.qualifiers = unmodifiableSet(qualifiers);
+        this.qualifiers = qualifiers;
     }
 
     /**
@@ -85,7 +85,7 @@ public final class QualifiedType<T> {
      * @return the QualifiedType
      */
     public QualifiedType<T> with(Annotation... newQualifiers) {
-        return new QualifiedType<>(type, Arrays.stream(newQualifiers).collect(toSet()));
+        return new QualifiedType<>(type, Arrays.stream(newQualifiers).collect(toUnmodifiableSet()));
     }
 
     /**
@@ -97,9 +97,9 @@ public final class QualifiedType<T> {
      */
     @SafeVarargs
     public final QualifiedType<T> with(Class<? extends Annotation>... newQualifiers) {
-        Set<? extends Annotation> annotations = Arrays.stream(newQualifiers)
+        Set<Annotation> annotations = Arrays.stream(newQualifiers)
             .map(AnnotationFactory::create)
-            .collect(toSet());
+            .collect(toUnmodifiableSet());
         return new QualifiedType<>(type, annotations);
     }
 
@@ -109,7 +109,7 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> newQualifiers) {
-        return new QualifiedType<>(type, StreamSupport.stream(newQualifiers.spliterator(), false).collect(toSet()));
+        return new QualifiedType<>(type, StreamSupport.stream(newQualifiers.spliterator(), false).collect(toUnmodifiableSet()));
     }
 
     /**
@@ -118,9 +118,9 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> newQualifiers) {
-        Set<? extends Annotation> annotations = StreamSupport.stream(newQualifiers.spliterator(), false)
+        Set<Annotation> annotations = StreamSupport.stream(newQualifiers.spliterator(), false)
             .map(AnnotationFactory::create)
-            .collect(toSet());
+            .collect(toUnmodifiableSet());
         return new QualifiedType<>(type, annotations);
     }
 
