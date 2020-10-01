@@ -39,6 +39,8 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
             elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
             (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
+    private static final JdbiCache<AnnotatedElement, QualifiedType<?>> QUALIFIED_TYPE_CACHE = JdbiCaches.declare(
+            type -> QualifiedType.of((Type) type).withAnnotations(getQualifiers(type)));
     private ConfigRegistry registry;
 
     public Qualifiers() {}
@@ -49,7 +51,11 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
     }
 
     public <ELEM extends AnnotatedElement & Type> QualifiedType<?> qualifiedTypeOf(ELEM type) {
-        return QualifiedType.of(type).withAnnotations(findFor(type));
+        if (registry == null) {
+            return QualifiedType.of(type).withAnnotations(getQualifiers(type));
+        } else {
+            return QUALIFIED_TYPE_CACHE.get(type, registry);
+        }
     }
 
     /**
