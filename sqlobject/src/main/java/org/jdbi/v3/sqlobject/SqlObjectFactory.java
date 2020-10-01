@@ -235,11 +235,12 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
 
         Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers =
             methodHandlers.keySet().stream().collect(
-                Collectors.toMap(Function.identity(),
-                method -> buildConfigurers(
-                    Stream.of(method),
-                    (configurer, config, annotation) ->
-                        configurer.configureForMethod(config, annotation, sqlObjectType, method))));
+                Collectors.toMap(
+                        Function.identity(),
+                        method -> buildConfigurers(
+                            Stream.of(method),
+                            (configurer, config, annotation) ->
+                                configurer.configureForMethod(config, annotation, sqlObjectType, method))));
 
         return new SqlObjectInitData(
                 sqlObjectType,

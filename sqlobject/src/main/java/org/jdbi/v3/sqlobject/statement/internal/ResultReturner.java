@@ -21,7 +21,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
@@ -100,7 +103,12 @@ abstract class ResultReturner {
     protected abstract Object mappedResult(ResultIterable<?> iterable, StatementContext ctx);
     protected abstract Object reducedResult(Stream<?> stream, StatementContext ctx);
 
-    protected abstract QualifiedType<?> elementType(StatementContext ctx);
+    protected abstract QualifiedType<?> elementType(ConfigRegistry config);
+
+    protected void warm(ConfigRegistry config) {
+        Optional.ofNullable(elementType(config))
+                .ifPresent(config.get(Mappers.class)::findFor);
+    }
 
     private static Object checkResult(Object result, QualifiedType<?> type) {
         if (result == null && getErasedType(type.getType()).isPrimitive()) {
@@ -122,7 +130,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return null;
         }
     }
@@ -149,7 +157,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
     }
@@ -174,7 +182,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
     }
@@ -199,7 +207,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
     }
@@ -224,7 +232,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
     }
@@ -247,7 +255,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<T> elementType(StatementContext ctx) {
+        protected QualifiedType<T> elementType(ConfigRegistry config) {
             return returnType;
         }
     }
@@ -279,9 +287,15 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected void warm(ConfigRegistry config) {
+            super.warm(config);
+            config.get(JdbiCollectors.class).findFor(returnType.getType());
+        }
+
+        @Override
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return returnType.flatMapType(type -> ctx.findElementTypeFor(type))
+            return returnType.flatMapType(type -> config.get(JdbiCollectors.class).findElementTypeFor(type))
                 .orElse(returnType);
         }
     }
@@ -320,7 +334,7 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected QualifiedType<?> elementType(StatementContext ctx) {
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
     }

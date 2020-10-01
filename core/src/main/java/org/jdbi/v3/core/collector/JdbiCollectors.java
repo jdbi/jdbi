@@ -16,6 +16,8 @@ package org.jdbi.v3.core.collector;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
@@ -27,8 +29,10 @@ import org.jdbi.v3.core.config.JdbiConfig;
  */
 public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
+    private ConcurrentMap<Type, Optional<CollectorFactory>> factoryCache;
 
     public JdbiCollectors() {
+        factoryCache = new ConcurrentHashMap<>();
         register(new MapCollectorFactory());
         register(new OptionalCollectorFactory());
         register(new ListCollectorFactory());
@@ -39,11 +43,13 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     private JdbiCollectors(JdbiCollectors that) {
+        factoryCache = that.factoryCache;
         factories.addAll(that.factories);
     }
 
     public JdbiCollectors register(CollectorFactory factory) {
         factories.add(0, factory);
+        factoryCache = new ConcurrentHashMap<>();
         return this;
     }
 
@@ -70,9 +76,15 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     private Optional<CollectorFactory> findFactoryFor(Type containerType) {
-        return factories.stream()
+        Optional<CollectorFactory> entry = factoryCache.get(containerType);
+        if (entry != null) {
+            return entry;
+        }
+        entry = factories.stream()
                 .filter(f -> f.accepts(containerType))
                 .findFirst();
+        factoryCache.putIfAbsent(containerType, entry);
+        return entry;
     }
 
     @Override

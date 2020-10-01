@@ -119,6 +119,7 @@ public final class SqlObjectInitData {
             ExtensionMethod extensionMethod = new ExtensionMethod(extensionType, method);
             ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
             Handler methodHandler = methodHandlers.get(method);
+            methodHandler.warm(methodConfig);
             return new InContextInvoker() {
                 @Override
                 public Object invoke(Object[] args) {

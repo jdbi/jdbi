@@ -17,10 +17,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -38,11 +42,23 @@ public class BindFactory implements SqlStatementCustomizerFactory {
         String nameFromAnnotation = b == null ? Bind.NO_VALUE : b.value();
         Optional<String> name = ParameterUtil.findParameterName(nameFromAnnotation, param);
 
-        return (stmt, arg) -> {
-            QualifiedType<?> qualifiedType = QualifiedType.of(type).withAnnotations(
-                stmt.getConfig(Qualifiers.class).findFor(param));
-            stmt.bindByType(index, arg, qualifiedType);
-            name.ifPresent(n -> stmt.bindByType(n, arg, qualifiedType));
+        return new SqlStatementParameterCustomizer() {
+            @Override
+            public void apply(SqlStatement<?> stmt, Object arg) throws SQLException {
+                QualifiedType<?> qualifiedType = qualifiedType(stmt.getConfig());
+                stmt.bindByType(index, arg, qualifiedType);
+                name.ifPresent(n -> stmt.bindByType(n, arg, qualifiedType));
+            }
+
+            @Override
+            public void warm(ConfigRegistry config) {
+                config.get(Mappers.class).findFor(qualifiedType(config));
+            }
+
+            private QualifiedType<?> qualifiedType(ConfigRegistry config) {
+                return QualifiedType.of(type).withAnnotations(
+                        config.get(Qualifiers.class).findFor(param));
+            }
         };
     }
 }

@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Implements the contract of a SQL Object method.
@@ -30,4 +32,12 @@ public interface Handler {
      * @throws Exception any exception thrown by the method.
      */
     Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception;
+
+    /**
+     * Called after the method handler is constructed to pre-initialize any important
+     * configuration data structures.
+     * @param config the method configuration to warm
+     */
+    @Beta
+    default void warm(ConfigRegistry config) {}
 }

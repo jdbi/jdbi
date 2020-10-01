@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -30,6 +31,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     private final Function<Update, Object> returner;
+    private final ResultReturner magic;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -45,7 +47,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             .withAnnotations(new Qualifiers().findFor(method));
 
         if (isGetGeneratedKeys) {
-            ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
+            magic = ResultReturner.forMethod(sqlObjectType, method);
 
             String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
 
@@ -61,10 +63,20 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             };
         } else if (isNumeric(method.getReturnType())) {
             this.returner = update -> update.execute();
+            magic = null;
         } else if (isBoolean(method.getReturnType())) {
             this.returner = update -> update.execute() > 0;
+            magic = null;
         } else {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
+        }
+    }
+
+    @Override
+    public void warm(ConfigRegistry config) {
+        super.warm(config);
+        if (magic != null) {
+            magic.warm(config);
         }
     }
 

@@ -31,13 +31,13 @@ public class BindBeanFactory implements SqlStatementCustomizerFactory {
                                                               int index,
                                                               Type type) {
         BindBean bind = (BindBean) annotation;
-        return (stmt, bean) -> {
+        return PojoWarmingCustomizer.of(type, (stmt, bean) -> {
             String prefix = bind.value();
             if (prefix.isEmpty()) {
                 stmt.bindBean(bean);
             } else {
                 stmt.bindBean(prefix, bean);
             }
-        };
+        });
     }
 }

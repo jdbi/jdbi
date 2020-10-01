@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -93,7 +94,18 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
         List<BoundCustomizer> customizers = annotationsFor(parameter)
                 .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, getParameterType(parameter)))
-                .<BoundCustomizer>map(c -> (stmt, args) -> c.apply(stmt, args[i])).collect(Collectors.toList());
+                .<BoundCustomizer>map(c -> new BoundCustomizer() {
+                    @Override
+                    public void warm(ConfigRegistry config) {
+                        c.warm(config);
+                    }
+
+                    @Override
+                    public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
+                        c.apply(stmt, args[i]);
+                    }
+                })
+                .collect(Collectors.toList());
 
         if (!customizers.isEmpty()) {
             return customizers.stream();
@@ -118,17 +130,30 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
      */
     private BoundCustomizer defaultParameterCustomizer(Parameter parameter,
                                                        Integer i) {
-        return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
-                .createForParameter(sqlObjectType, method, parameter, i, getParameterType(parameter))
-                .apply(stmt, args[i]);
+        return new BoundCustomizer() {
+            @Override
+            public void warm(ConfigRegistry config) {
+                create(config).warm(config);
+            }
+
+            @Override
+            public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
+                create(stmt.getConfig()).apply(stmt, args[i]);
+            }
+
+            private SqlStatementParameterCustomizer create(ConfigRegistry config) {
+                return getDefaultParameterCustomizerFactory(config)
+                        .createForParameter(sqlObjectType, method, parameter, i, getParameterType(parameter));
+            }
+        };
     }
 
     Type getParameterType(Parameter parameter) {
         return GenericTypes.resolveType(parameter.getParameterizedType(), sqlObjectType);
     }
 
-    private static ParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
-        return stmt.getConfig(SqlObjects.class).getDefaultParameterCustomizerFactory();
+    private static ParameterCustomizerFactory getDefaultParameterCustomizerFactory(ConfigRegistry config) {
+        return config.get(SqlObjects.class).getDefaultParameterCustomizerFactory();
     }
 
     private static SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {
@@ -198,9 +223,20 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
      */
     private interface BoundCustomizer {
         void apply(SqlStatement<?> stmt, Object[] args) throws SQLException;
+        void warm(ConfigRegistry config);
 
-        static BoundCustomizer of(SqlStatementCustomizer c) {
-            return (stmt, args) -> c.apply(stmt);
+        static BoundCustomizer of(SqlStatementCustomizer inner) {
+            return new BoundCustomizer() {
+                @Override
+                public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
+                    inner.apply(stmt);
+                }
+
+                @Override
+                public void warm(ConfigRegistry config) {
+                    inner.warm(config);
+                }
+            };
         }
     }
 }

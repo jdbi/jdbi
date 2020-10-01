@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
@@ -80,10 +81,16 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                         .iterator();
             } else {
                 batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
-                        .mapTo(magic.elementType(batch.getContext()))
+                        .mapTo(magic.elementType(batch.getConfig()))
                         .iterator();
             }
         }
+    }
+
+    @Override
+    public void warm(ConfigRegistry config) {
+        super.warm(config);
+        magic.warm(config);
     }
 
     private Function<PreparedBatch, ResultIterator<?>> mapToBoolean(Function<PreparedBatch, ResultIterator<?>> modCounts) {

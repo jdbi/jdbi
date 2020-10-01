@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.statement.internal;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
@@ -32,6 +33,12 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     }
 
     @Override
+    public void warm(ConfigRegistry config) {
+        super.warm(config);
+        magic.warm(config);
+    }
+
+    @Override
     void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
         UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
         UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
@@ -42,7 +49,7 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
 
         cfg.setReturner(() -> {
             StatementContext ctx = q.getContext();
-            QualifiedType<?> elementType = magic.elementType(ctx);
+            QualifiedType<?> elementType = magic.elementType(ctx.getConfig());
 
             if (useRowReducer != null) {
                 return magic.reducedResult(q.reduceRows(rowReducerFor(useRowReducer)), ctx);
