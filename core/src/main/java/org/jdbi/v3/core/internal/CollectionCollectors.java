@@ -26,14 +26,11 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 @SuppressWarnings("rawtypes")
 public final class CollectionCollectors {
-    private static final Supplier<Collector> SET_COLLECTOR;
-    static {
-        SET_COLLECTOR = factory();
-    }
+    private static final Supplier<Collector> SET_COLLECTOR = setFactory();
 
     private CollectionCollectors() {}
 
-    private static Supplier<Collector> factory() {
+    private static Supplier<Collector> setFactory() {
         try {
             MethodHandle mh = MethodHandles.publicLookup()
                     .findStatic(Collectors.class, "toUnmodifiableSet", MethodType.methodType(Collector.class));
