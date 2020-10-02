@@ -1,5 +1,6 @@
 # 3.15.0
   - Significant performance improvements for data intensive workloads
+    - new @Beta warm() method on Handler, SqlStatement*Customizer to pre-initialize Config instances
   - bind() overloads for UUID and URI, see #1765
 
 # 3.14.5
