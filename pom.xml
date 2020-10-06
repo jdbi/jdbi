@@ -765,11 +765,6 @@
                     </plugins>
                 </pluginManagement>
             </build>
-            <properties>
-                <basepom.check.skip-coverage>true</basepom.check.skip-coverage>
-                <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
-                <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
-            </properties>
         </profile>
         <profile>
             <id>toolchains</id>
