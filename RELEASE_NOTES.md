@@ -1,3 +1,6 @@
+# 3.15.1
+  - fix LinkageError from ConfigRegistry in multi-classloader environments
+
 # 3.15.0
   - Significant performance improvements for data intensive workloads
     - new @Beta warm() method on Handler, SqlStatement*Customizer to pre-initialize Config instances
