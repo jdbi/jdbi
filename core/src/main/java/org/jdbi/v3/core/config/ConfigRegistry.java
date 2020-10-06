@@ -83,7 +83,7 @@ public final class ConfigRegistry {
         return configFactories.computeIfAbsent(configClass, klass -> {
             final Exception notFound;
             try {
-                MethodHandle mh = MethodHandles.publicLookup().findConstructor(klass,
+                MethodHandle mh = MethodHandles.lookup().findConstructor(klass,
                         MethodType.methodType(void.class, ConfigRegistry.class))
                     .asType(MethodType.methodType(JdbiConfig.class, ConfigRegistry.class));
                 return Unchecked.function(registry -> (JdbiConfig<?>) mh.invokeExact(registry));
@@ -93,7 +93,7 @@ public final class ConfigRegistry {
                 throw new IllegalStateException("Unable to use constructor taking ConfigRegistry to create " + configClass, e);
             }
             try {
-                MethodHandle mh = MethodHandles.publicLookup().findConstructor(klass,
+                MethodHandle mh = MethodHandles.lookup().findConstructor(klass,
                         MethodType.methodType(void.class))
                     .asType(MethodType.methodType(JdbiConfig.class));
                 return Unchecked.function(registry -> {
