@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestTransactional {
@@ -49,6 +50,13 @@ public class TestTransactional {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         @Transaction(TransactionIsolationLevel.SERIALIZABLE)
         int insert(@BindBean Something something);
+    }
+
+    @Transaction
+    public interface AlwaysTransactional extends SqlObject {
+        default boolean isInTransaction() {
+            return getHandle().isInTransaction();
+        }
     }
 
     @Test
@@ -70,6 +78,11 @@ public class TestTransactional {
         // Jdbi should identify this scenario and throw an exception informing the user that they're not managing their
         // transactions correctly.
         assertThatThrownBy(db.onDemand(Transactional.class)::begin).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    public void testTypeDecorator() {
+        assertThat(db.onDemand(AlwaysTransactional.class).isInTransaction()).isTrue();
     }
 
     @Before

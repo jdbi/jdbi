@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -36,7 +37,9 @@ class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
     public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
         Handler handler = base;
 
-        List<Class<? extends Annotation>> annotationTypes = Stream.of(method.getAnnotations())
+        List<Class<? extends Annotation>> annotationTypes = Stream.of(method, sqlObjectType)
+                .map(AnnotatedElement::getAnnotations)
+                .flatMap(Arrays::stream)
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
                 .collect(toList());

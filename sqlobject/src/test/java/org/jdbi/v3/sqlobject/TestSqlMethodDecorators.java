@@ -89,6 +89,14 @@ public class TestSqlMethodDecorators {
     }
 
     @Test
+    public void testTypeWrapsMethod() {
+        TypeDecorator dao = testHandle.attach(TypeDecorator.class);
+        dao.typeWrapsMethod();
+
+        assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
+    }
+
+    @Test
     public void testAbortingDecorator() {
         Dao dao = testHandle.attach(Dao.class);
         dao.abortingDecorator();
@@ -161,6 +169,13 @@ public class TestSqlMethodDecorators {
         @CustomSqlOperation
         @DecoratorOrder({Bar.class, Foo.class})
         void orderedBarFooOnMethod();
+    }
+
+    @Foo
+    public interface TypeDecorator {
+        @Bar
+        @CustomSqlOperation
+        void typeWrapsMethod();
     }
 
     @Retention(RetentionPolicy.RUNTIME)

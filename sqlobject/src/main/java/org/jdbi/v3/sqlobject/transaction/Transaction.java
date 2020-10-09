@@ -31,7 +31,7 @@ import org.jdbi.v3.sqlobject.transaction.internal.TransactionDecorator;
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @SqlMethodDecoratingAnnotation(TransactionDecorator.class)
 public @interface Transaction {
     /**
