@@ -5616,7 +5616,7 @@ public @interface Transaction {
 ----
 <1> All decorating annotations should have a `RUNTIME` retention policy.
 <2> Decorating annotations only work on types and methods. Strictly speaking,
-    the `@Target` annotation is note required, but it's a good practice to
+    the `@Target` annotation is not required, but it's a good practice to
     include it, so that annotations can only be applied where they will actually
     do something.
 
@@ -5676,7 +5676,9 @@ public interface ContactDao {
 ===== Decorator Order
 
 If a SQL object method has two or more decorating annotations applied, and the
-order of decorations is important, use the `@DecoratorOrder` annotation.
+order of decorations is important, use the `@DecoratorOrder` annotation. If no order
+is declared, type decorators apply first, then method decorators, but the order is
+not further specified.
 
 For example, suppose a method were annotated both with `@Cached` and
 `@Transaction` (just go with it..). We would probably want the `@Cached`
