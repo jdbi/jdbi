@@ -1,3 +1,6 @@
+# 3.16.0
+  - SqlObject decorators (and particularly @Transaction) now supported on types
+
 # 3.15.1
   - fix LinkageError from ConfigRegistry in multi-classloader environments
 
