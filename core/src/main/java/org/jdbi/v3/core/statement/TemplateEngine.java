@@ -13,6 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.meta.Beta;
+
 /**
  * Renders an SQL statement from a template.
  *
@@ -37,4 +43,29 @@ public interface TemplateEngine {
      * and which can bind the correct arguments to that prepared statement
      */
     String render(String template, StatementContext ctx);
+
+    /**
+     * Parse a SQL template and return a parsed representation ready to apply to a statement.
+     * @param template the sql template to parse
+     * @param config the Jdbi configuration at prepare time
+     * @return a parsed representation, if available
+     */
+    @Beta
+    default Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config) {
+        return Optional.empty();
+    }
+
+    @FunctionalInterface
+    @Beta
+    interface Parsing extends TemplateEngine {
+        @Override
+        default String render(String template, StatementContext ctx) {
+            return parse(template, ctx.getConfig())
+                    .orElseThrow(() -> new UnableToCreateStatementException("Caching template engine did not prepare"))
+                    .apply(ctx);
+        }
+
+        @Override
+        Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config);
+    }
 }

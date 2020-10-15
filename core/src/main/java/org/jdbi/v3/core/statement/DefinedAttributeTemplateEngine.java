@@ -15,13 +15,13 @@ package org.jdbi.v3.core.statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
 
@@ -39,16 +39,9 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
  * Attribute names may contain letters (a-z, A-Z), digits (0-9), or underscores
  * (<code>_</code>).
  */
-public class DefinedAttributeTemplateEngine implements TemplateEngine {
-    private static final JdbiCache<String, Function<StatementContext, String>> RENDER_CACHE =
-            JdbiCaches.declare(DefinedAttributeTemplateEngine::prepare);
-
+public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
     @Override
-    public String render(String template, StatementContext ctx) {
-        return RENDER_CACHE.get(template, ctx).apply(ctx);
-    }
-
-    private static Function<StatementContext, String> prepare(String template) {
+    public Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config) {
         StringBuilder buf = new StringBuilder();
         List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
         Runnable pushBuf = () -> { // NOPMD
@@ -90,7 +83,7 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
             t = lexer.nextToken();
         }
         pushBuf.run();
-        return ctx -> {
+        return Optional.of(ctx -> {
             try {
                 StringBuilder result = new StringBuilder();
                 preparation.forEach(a -> a.accept(ctx, result));
@@ -98,6 +91,6 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
             } catch (RuntimeException e) {
                 throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
             }
-        };
+        });
     }
 }

@@ -16,14 +16,20 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.meta.Beta;
 
@@ -34,6 +40,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
+    private Cache<Entry<TemplateEngine, String>, Function<StatementContext, String>> templateCache;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
@@ -46,6 +53,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
         queryTimeout = null;
+        templateCache = Caffeine.newBuilder().maximumSize(1_000).build();
     }
 
     private SqlStatements(SqlStatements that) {
@@ -56,6 +64,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
         this.customizers.addAll(that.customizers);
+        this.templateCache = that.templateCache;
     }
 
     /**
@@ -134,6 +143,17 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public SqlStatements setTemplateEngine(TemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
+        return this;
+    }
+
+    /**
+     * Sets the Caffeine cache used to avoid repeatedly parsing SQL statements.
+     * @param caffeineSpec the cache builder to use to cache parsed SQL
+     * @return this
+     */
+    @Beta
+    public SqlStatements setTemplateCache(Caffeine<Object, Object> caffeineSpec) {
+        templateCache = caffeineSpec.build();
         return this;
     }
 
@@ -243,5 +263,19 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     Collection<StatementCustomizer> getCustomizers() {
         return customizers;
+    }
+
+    String preparedRender(String template, StatementContext ctx) {
+        try {
+            return Optional.ofNullable(
+                    templateCache.get(
+                            new AbstractMap.SimpleEntry<>(templateEngine, template),
+                            e -> e.getKey().parse(e.getValue(), ctx.getConfig())
+                                               .orElse(null))) // no parse -> no cache
+                .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
+                .apply(ctx);
+        } catch (final IllegalArgumentException e) {
+            throw new UnableToCreateStatementException("Exception rendering SQL template", e, ctx);
+        }
     }
 }

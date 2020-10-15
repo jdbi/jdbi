@@ -1762,15 +1762,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeTemplating();
 
-        String renderedSql = getConfig(SqlStatements.class)
-                .getTemplateEngine()
-                .render(sql, ctx);
-        ctx.setRenderedSql(renderedSql);
-
-        ParsedSql parsedSql = getConfig(SqlStatements.class)
-                .getSqlParser()
-                .parse(renderedSql, ctx);
-        ctx.setParsedSql(parsedSql);
+        ParsedSql parsedSql = parseSql();
 
         try {
             stmt = createStatement(ctx, parsedSql);
@@ -1809,6 +1801,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
         return handle.getStatementBuilder().create(handle.getConnection(), parsedSql.getSql(), ctx);
+    }
+
+    ParsedSql parseSql() {
+        StatementContext ctx = getContext();
+        SqlStatements statements = getConfig(SqlStatements.class);
+
+        String renderedSql = statements.preparedRender(sql, ctx);
+        ctx.setRenderedSql(renderedSql);
+
+        ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);
+        ctx.setParsedSql(parsedSql);
+
+        return parsedSql;
     }
 
     @SuppressWarnings("unchecked")

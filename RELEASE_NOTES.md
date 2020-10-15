@@ -1,5 +1,7 @@
 # 3.17.0
   - support @BindPojo with properties that vary in generically-typed pojos
+  - factor out TemplateEngine cache into SqlStatements to avoid unbounded memory usage with dynamic SQL
+  - new beta interface TemplateEngine.Parsing for custom template engines that want to use built in caching
 
 # 3.16.0
   - SqlObject decorators (and particularly @Transaction) now supported on types

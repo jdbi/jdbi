@@ -173,17 +173,10 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         beforeTemplating();
 
         final StatementContext ctx = getContext();
-        String renderedSql = getConfig(SqlStatements.class)
-                .getTemplateEngine()
-                .render(getSql(), ctx);
-        ctx.setRenderedSql(renderedSql);
 
-        ParsedSql parsedSql = getConfig(SqlStatements.class)
-                .getSqlParser()
-                .parse(renderedSql, ctx);
+        ParsedSql parsedSql = parseSql();
         String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
-        ctx.setParsedSql(parsedSql);
 
         try {
             try {
