@@ -69,8 +69,8 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected NamedArgumentFinder getNestedArgumentFinder(Object source) {
-        return new ObjectFieldArguments(null, source);
+    protected NamedArgumentFinder getNestedArgumentFinder(TypedValue value) {
+        return new ObjectFieldArguments(null, value.getValue());
     }
 
     @Override

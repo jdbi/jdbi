@@ -188,7 +188,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindBean(String prefix, Object bean) {
         return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.BEAN,
-                prefix, bean,
+                prefix,
+                bean,
+                bean.getClass(),
                 () -> new BeanPropertyArguments(prefix, bean, getConfig()));
     }
 
@@ -220,10 +222,74 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public This bindPojo(String prefix, Object pojo) {
+        return bindPojo(prefix, pojo, pojo.getClass());
+    }
+
+    /**
+     * Binds named parameters from object properties on the argument.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
+     *
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
+     */
+    @Beta
+    public This bindPojo(Object pojo, Type type) {
+        return bindPojo(null, pojo, type);
+    }
+
+    /**
+     * Binds named parameters from object properties on the bean argument, with the given prefix.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
+     */
+    @Beta
+    public This bindPojo(String prefix, Object pojo, Type type) {
         return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.POJO,
-                prefix, pojo,
-                () -> new PojoPropertyArguments(prefix, pojo, getConfig()));
+                prefix,
+                pojo,
+                type,
+                () -> new PojoPropertyArguments(prefix, pojo, type, getConfig()));
+    }
+
+    /**
+     * Binds named parameters from object properties on the argument.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
+     *
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
+     */
+    @Beta
+    public This bindPojo(Object pojo, GenericType<?> type) {
+        return bindPojo(null, pojo, type.getType());
+    }
+
+    /**
+     * Binds named parameters from object properties on the bean argument, with the given prefix.
+     * The type must have been registered with pojo type mapping functionality first, usually
+     * by a plugin or configuration.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param pojo source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     * @see JdbiImmutables an example method of registering a type
+     */
+    @Beta
+    public This bindPojo(String prefix, Object pojo, GenericType<?> type) {
+        return bindPojo(prefix, pojo, type.getType());
     }
 
     /**
@@ -248,7 +314,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindFields(String prefix, Object object) {
         return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.FIELDS,
-                prefix, object,
+                prefix,
+                object,
+                object.getClass(),
                 () -> new ObjectFieldArguments(prefix, object));
     }
 
@@ -274,7 +342,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindMethods(String prefix, Object object) {
         return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.METHODS,
-                prefix, object,
+                prefix,
+                object,
+                object.getClass(),
                 () -> new ObjectMethodArguments(prefix, object));
     }
 
@@ -310,7 +380,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     This bindNamedArgumentFinder(
             NamedArgumentFinderFactory<?> factory,
-            String prefix, Object value,
+            String prefix, 
+            Object value,
+            Type type,
             Supplier<NamedArgumentFinder> namedArgumentFinder) {
         return bindNamedArgumentFinder(namedArgumentFinder.get());
     }

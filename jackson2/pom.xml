@@ -101,5 +101,10 @@
             <artifactId>otj-pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

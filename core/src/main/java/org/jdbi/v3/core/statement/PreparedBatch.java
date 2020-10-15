@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -66,11 +67,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     @Override
-    PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory<?> factory, String prefix, Object value, Supplier<NamedArgumentFinder> backupArgumentFinder) {
+    PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory<?> factory, String prefix, Object value, Type type, Supplier<NamedArgumentFinder> backupArgumentFinder) {
         PreparedBinding binding = getBinding();
         PrepareKey key = factory.keyFor(prefix, value);
         preparedFinders.computeIfAbsent(key,
-                pk -> factory.prepareFor(getConfig(), this::buildArgument, prefix, value));
+                pk -> factory.prepareFor(getConfig(), this::buildArgument, prefix, value, type));
         binding.prepareKeys.put(key, value);
         binding.backupArgumentFinders.add(backupArgumentFinder);
         return this;

@@ -39,7 +39,9 @@ public interface NamedArgumentFinderFactory<T> {
     Function<String, Optional<Function<Object, Argument>>> prepareFor(
             ConfigRegistry config,
             Function<QualifiedType<?>, Function<Object, Argument>> argumentFactoryLookup,
-            String prefix, Object example);
+            String prefix,
+            Object example,
+            Type type);
 
     abstract class Base<T, PrepareData> implements NamedArgumentFinderFactory<T> {
         @Override
@@ -53,8 +55,10 @@ public interface NamedArgumentFinderFactory<T> {
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
                 Function<QualifiedType<?>, Function<Object, Argument>> argumentFactoryLookup,
-                String prefix, Object example) {
-            return forPojoProps(argumentFactoryLookup, new PojoPropertyArguments(prefix, example, config));
+                String prefix,
+                Object example,
+                Type type) {
+            return forPojoProps(argumentFactoryLookup, new PojoPropertyArguments(prefix, example, type, config));
         }
 
         Function<String, Optional<Function<Object, Argument>>> forPojoProps(
@@ -74,7 +78,9 @@ public interface NamedArgumentFinderFactory<T> {
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
                 Function<QualifiedType<?>, Function<Object, Argument>> argumentFactoryLookup,
-                String prefix, Object example) {
+                String prefix,
+                Object example,
+                Type type) {
             return forPojoProps(argumentFactoryLookup, new BeanPropertyArguments(prefix, example, config));
         }
     }
@@ -84,7 +90,9 @@ public interface NamedArgumentFinderFactory<T> {
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
                 Function<QualifiedType<?>, Function<Object, Argument>> argumentFactoryLookup,
-                String prefix, Object example) {
+                String prefix,
+                Object example,
+                Type type) {
             return name -> create().apply(prefix, example).apply(name, config)
                     .map(getter -> {
                         Function<Object, Argument> arg = argumentFactoryLookup.apply(getter.apply(example).getType());
