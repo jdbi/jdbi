@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
 
@@ -38,7 +39,7 @@ public class BeanPropertyArguments extends PojoPropertyArguments {
     }
 
     @Override
-    protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
-        return new BeanPropertyArguments(null, o, config);
+    protected NamedArgumentFinder getNestedArgumentFinder(TypedValue o) {
+        return new BeanPropertyArguments(null, o.getValue(), config);
     }
 }

@@ -1,3 +1,6 @@
+# 3.17.0
+  - support @BindPojo with properties that vary in generically-typed pojos
+
 # 3.16.0
   - SqlObject decorators (and particularly @Transaction) now supported on types
 

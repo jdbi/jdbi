@@ -75,7 +75,7 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
 
     private NamedArgumentFinder getValueNested(TypedValue typedValue, String parentName, String childName) {
         if (Objects.nonNull(typedValue.value)) {
-            return getNestedArgumentFinder(typedValue.value);
+            return getNestedArgumentFinder(typedValue);
         }
         if (parentName.endsWith("?")) {
             return (n, c) -> Optional.of(c.getConfig(Arguments.class).getUntypedNullArgument());
@@ -88,5 +88,5 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
     }
 
     protected abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
-    protected abstract NamedArgumentFinder getNestedArgumentFinder(Object obj);
+    protected abstract NamedArgumentFinder getNestedArgumentFinder(TypedValue obj);
 }

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -32,10 +33,10 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     protected final PojoProperties<?> properties;
     protected final ConfigRegistry config;
 
-    public PojoPropertyArguments(String prefix, Object obj, ConfigRegistry config) {
+    public PojoPropertyArguments(String prefix, Object obj, Type type, ConfigRegistry config) {
         this(prefix,
                 obj,
-                config.get(PojoTypes.class).findFor(obj.getClass())
+                config.get(PojoTypes.class).findFor(type)
                     .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass())),
                 config);
     }
@@ -59,8 +60,8 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected NamedArgumentFinder getNestedArgumentFinder(Object o) {
-        return new PojoPropertyArguments(null, o, config);
+    protected NamedArgumentFinder getNestedArgumentFinder(TypedValue value) {
+        return new PojoPropertyArguments(null, value.getValue(), value.getType().getType(), config);
     }
 
     @Override

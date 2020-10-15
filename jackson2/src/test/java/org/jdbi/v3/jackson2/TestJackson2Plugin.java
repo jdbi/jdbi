@@ -13,17 +13,26 @@
  */
 package org.jdbi.v3.jackson2;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindPojo;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.JdbiRule;
@@ -47,6 +56,8 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
         jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
                 .registerModule(new Jdk8Module()));
+        jdbi.getConfig(JdbiImmutables.class)
+                .registerImmutable(JsonContainer.class);
         h = jdbi.open();
     }
 
@@ -86,7 +97,7 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     public interface Contained {}
 
-    public static class A implements Contained {}
+    public static class A implements Contained, SomeTypeBound {}
 
     public static class B implements Contained {}
 
@@ -163,4 +174,48 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
             return this;
         }
     }
+
+    @Test
+    public void testPolymorphicJsonContainerWithTypeBound() {
+        final ExtendingDao dao = h.attach(ExtendingDao.class);
+
+        dao.table();
+
+        final JsonContainer<A> c1 = JsonContainer.<A>builder()
+                .contained(new A())
+                .build();
+
+        dao.insertBatch(Collections.singletonList(c1));
+
+        assertThat(dao.get().contained()).isInstanceOf(A.class);
+    }
+
+    @Value.Immutable
+    @Value.Style(overshadowImplementation = true)
+    @JsonSerialize(as = ImmutableJsonContainer.class)
+    @JsonDeserialize(as = ImmutableJsonContainer.class)
+    public interface JsonContainer<T extends SomeTypeBound> {
+        @Json
+        T contained();
+
+        static <T extends SomeTypeBound> Builder<T> builder() {
+            return new Builder<>();
+        }
+        class Builder<T extends SomeTypeBound> extends ImmutableJsonContainer.Builder<T> {}
+    }
+
+    interface SomeTypeBound {}
+
+    interface GenericContainingDao<T extends SomeTypeBound> {
+        @SqlUpdate("create table jsoncontainer(contained varchar)")
+        void table();
+
+        @SqlBatch("insert into jsoncontainer(contained) values(:contained)")
+        void insertBatch(@BindPojo Collection<JsonContainer<T>> json);
+
+        @SqlQuery("select contained from jsoncontainer limit 1")
+        JsonContainer<T> get();
+    }
+
+    private interface ExtendingDao extends GenericContainingDao<A> {}
 }

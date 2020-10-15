@@ -34,9 +34,9 @@ public class BindPojoFactory implements SqlStatementCustomizerFactory {
         return PojoWarmingCustomizer.of(type, (stmt, bean) -> {
             String prefix = bind.value();
             if (prefix.isEmpty()) {
-                stmt.bindPojo(bean);
+                stmt.bindPojo(bean, type);
             } else {
-                stmt.bindPojo(prefix, bean);
+                stmt.bindPojo(prefix, bean, type);
             }
         });
     }
