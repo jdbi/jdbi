@@ -46,6 +46,7 @@ public interface TemplateEngine {
 
     /**
      * Parse a SQL template and return a parsed representation ready to apply to a statement.
+     * This allows the parsed representation to be cached and reused.
      * @param template the sql template to parse
      * @param config the Jdbi configuration at prepare time
      * @return a parsed representation, if available
