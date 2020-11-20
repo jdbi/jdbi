@@ -280,7 +280,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param <R>             the generic type of the container
      * @return the container with the query result
      */
-    default <R> R collect(Collector<T, ?, R> collector) {
+    default <R> R collect(Collector<? super T, ?, R> collector) {
         try (Stream<T> stream = stream()) {
             return stream.collect(collector);
         }
