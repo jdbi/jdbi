@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.result;
 
+import java.util.stream.Collectors;
+
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,5 +59,18 @@ public class TestResultIterable {
             b.append(input.charAt(i));
         }
         return b.toString();
+    }
+
+    @Test
+    public void testCollectSuper() {
+        dbRule.getJdbi().useHandle(h -> {
+            h.execute("CREATE TABLE numbers (id INT)");
+            h.execute("INSERT INTO numbers VALUES (1), (2), (3)");
+        });
+
+        assertThat(dbRule.getSharedHandle().createQuery("select * from numbers order by 1")
+            .map((rs, ctx) -> "ID: " + rs.getInt("id"))
+            .collect(Collectors.joining("\n")))
+            .isEqualTo("ID: 1\nID: 2\nID: 3");
     }
 }
