@@ -27,12 +27,10 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.SqlObject;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -45,8 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NonpublicSubclassTest {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withSomething()
-        .withConfig(Extensions.class, c -> c.setAllowProxy(false));
+    public H2DatabaseRule dbRule = GeneratorH2Rule.rule().withSomething();
 
     private Handle handle;
     private AbstractClassDao dao;

@@ -41,7 +41,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
             JdbiCaches.declare((config, beanClass) ->
                 Stream.of(beanClass.getFields())
                     .collect(Collectors.toMap(Field::getName, f -> {
-                        QualifiedType<?> qualifiedType = QualifiedType.of(f.getType())
+                        QualifiedType<?> qualifiedType = QualifiedType.of(f.getGenericType())
                                 .withAnnotations(config.get(Qualifiers.class).findFor(f));
                         Function<Object, Object> getter = Unchecked.function(
                                 Unchecked.function(MethodHandles.lookup()::unreflectGetter).apply(f)::invoke);

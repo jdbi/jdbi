@@ -26,7 +26,18 @@ public class H2DatabasePlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi db) {
         db.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
-        db.registerArrayType(UUID.class, "uuid");
-        db.registerArrayType(int.class, "integer");
+        db.registerArrayType(UUID.class, "uuid")
+            .registerArrayType(short.class, "smallint")
+            .registerArrayType(Short.class, "smallint")
+            .registerArrayType(int.class, "integer")
+            .registerArrayType(Integer.class, "integer")
+            .registerArrayType(long.class, "bigint")
+            .registerArrayType(Long.class, "bigint")
+            .registerArrayType(String.class, "varchar")
+            .registerArrayType(UUID.class, "uuid")
+            .registerArrayType(float.class, "float4")
+            .registerArrayType(Float.class, "float4")
+            .registerArrayType(double.class, "float8")
+            .registerArrayType(Double.class, "float8");
     }
 }

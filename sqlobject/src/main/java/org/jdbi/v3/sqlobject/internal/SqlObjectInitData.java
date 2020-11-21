@@ -29,6 +29,7 @@ import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.Handler;
+import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
 public final class SqlObjectInitData {
@@ -77,6 +78,11 @@ public final class SqlObjectInitData {
                 return klass.getDeclaredMethod(methodName, parameterTypes);
             } catch (Exception x) {
                 e.addSuppressed(x);
+                try {
+                    return SqlObject.class.getMethod(methodName, parameterTypes);
+                } catch (Exception x2) {
+                    e.addSuppressed(x2);
+                }
             }
             throw new IllegalStateException(
                     String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);

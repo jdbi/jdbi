@@ -60,7 +60,7 @@ public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
                         Function.identity(),
                         ObjectMethodArguments::bridgeMethodMerge))
                 .forEach((name, method) -> {
-                    QualifiedType<?> qualifiedType = QualifiedType.of(method.getReturnType())
+                    QualifiedType<?> qualifiedType = QualifiedType.of(method.getGenericReturnType())
                             .withAnnotations(config.get(Qualifiers.class).findFor(method));
                     MethodHandle mh = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method);
                     methodMap.put(name, Unchecked.function(

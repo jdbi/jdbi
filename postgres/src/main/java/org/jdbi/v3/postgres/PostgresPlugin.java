@@ -113,6 +113,8 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArgument(new BlobInputStreamArgumentFactory());
         jdbi.registerArgument(new ClobReaderArgumentFactory());
 
+        jdbi.registerArrayType(short.class, "smallint");
+        jdbi.registerArrayType(Short.class, "smallint");
         jdbi.registerArrayType(int.class, "integer");
         jdbi.registerArrayType(Integer.class, "integer");
         jdbi.registerArrayType(long.class, "bigint");

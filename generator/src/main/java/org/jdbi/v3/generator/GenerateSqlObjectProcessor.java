@@ -113,6 +113,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                    .forEach(implSpec::addMethod);
 
         final TypeSpec.Builder onDemand = TypeSpec.classBuilder("OnDemand");
+        onDemand.addSuperinterface(SqlObject.class);
         onDemand.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         onDemand.addField(Jdbi.class, "db", Modifier.PRIVATE, Modifier.FINAL);
         onDemand.addMethod(MethodSpec.constructorBuilder()
@@ -194,10 +195,11 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
     private MethodSpec generateOnDemand(TypeElement sqlObjectType, ExecutableElement method) {
         return MethodSpec.overriding(method)
                 .addCode(CodeBlock.builder()
-                    .add("$L db.$L($T.class, e -> e.$L($L));\n",
+                    .add("$L db.$L($T.class, e -> (($L) e).$L($L));\n",
                             method.getReturnType().getKind() == TypeKind.VOID ? "" : ("return (" + method.getReturnType().toString() + ")"), // NOPMD
                             method.getReturnType().getKind() == TypeKind.VOID ? "useExtension" : "withExtension",
                             sqlObjectType.asType(),
+                            sqlObjectType.getSimpleName() + "Impl",
                             method.getSimpleName(),
                             paramList(method))
                     .build())
