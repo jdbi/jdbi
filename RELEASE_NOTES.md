@@ -1,3 +1,6 @@
+# 3.18.0
+  - Result collecting now accepts ? super T wildcard
+
 # 3.17.0
   - support @BindPojo with properties that vary in generically-typed pojos
   - factor out TemplateEngine cache into SqlStatements to avoid unbounded memory usage with dynamic SQL
