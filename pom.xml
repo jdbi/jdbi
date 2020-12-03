@@ -84,7 +84,7 @@
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
-        <dep.antlr.version>4.7.2</dep.antlr.version>
+        <dep.antlr.version>4.9</dep.antlr.version>
         <dep.dokka.version>0.9.18</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
