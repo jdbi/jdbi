@@ -1,5 +1,6 @@
 # 3.18.0
   - Result collecting now accepts ? super T wildcard
+  - Field and method Argument binding now uses the generic type, instead of the erased type
 
 # 3.17.0
   - support @BindPojo with properties that vary in generically-typed pojos
