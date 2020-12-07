@@ -53,6 +53,13 @@ public class TestColonPrefixSqlParser {
     }
 
     @Test
+    public void testCommentCharsInQuotes() {
+        String sql = "select '-- // /* */'";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
     public void testEscapedColon() {
         assertThat(parser.parse("select \\:foo", ctx))
             .isEqualTo(ParsedSql.builder().append("select :foo").build());
@@ -128,6 +135,12 @@ public class TestColonPrefixSqlParser {
                 .append("select column# from thetable where id = ")
                 .appendNamedParameter("id")
                 .build());
+    }
+
+    @Test
+    public void testParameterInCommentOkay() {
+        String sql = "select /* :skip */\n-- :skip\n// :skip\n:param";
+        assertThat(parser.parse(sql, ctx).getParameters().getParameterNames()).containsExactly("param");
     }
 
     @Test

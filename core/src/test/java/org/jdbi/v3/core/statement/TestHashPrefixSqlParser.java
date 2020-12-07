@@ -59,6 +59,19 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
+    public void testCommentCharsInQuotes() {
+        String sql = "select '-- // /* */'";
+        assertThat(parser.parse(sql, ctx))
+            .isEqualTo(ParsedSql.builder().append(sql).build());
+    }
+
+    @Test
+    public void testParameterInCommentOkay() {
+        String sql = "select /* #skip */\n-- #skip\n// #skip\n:#param";
+        assertThat(parser.parse(sql, ctx).getParameters().getParameterNames()).containsExactly("param");
+    }
+
+    @Test
     public void testBacktickOkay() {
         ParsedSql parsed = parser.parse("select * from `v$session", ctx);
         assertThat(parsed.getSql()).isEqualTo("select * from `v$session");

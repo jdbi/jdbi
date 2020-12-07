@@ -15,9 +15,9 @@
 lexer grammar SqlScriptLexer;
 
 COMMENT
-    : '--' ~('\n'|'\r')* |
-      '//' ~('\n'|'\r')* |
-      {_input.LA(2) != '>'}? '#' ~('\n'|'\r')* // Exception for Postgres #> and #>> JSON operators
+    : '--' ~('\r' | '\n')* |
+      '//' ~('\r' | '\n')* |
+      {_input.LA(2) != '>'}? '#' ~('\r' | '\n')* // Exception for Postgres #> and #>> JSON operators
      { skip(); }
     ;
 
@@ -30,7 +30,7 @@ NEWLINES
     ;
 
 fragment NEWLINE
-    : ('\n'|'\r')
+    : ('\r' | '\n')
     ;
 
 QUOTED_TEXT
