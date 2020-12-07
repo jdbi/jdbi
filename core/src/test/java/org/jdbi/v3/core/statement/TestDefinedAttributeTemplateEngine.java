@@ -79,6 +79,19 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     @Test
+    public void testIgnoreAngleBracketsInComments() {
+        Map<String, Object> attributes = ImmutableMap.of("foo", "bar");
+        String rendered = render("select /* <skip> */\n-- <skip>\n// <skip>\n<foo>", attributes);
+        assertThat(rendered).isEqualTo("select /* <skip> */\n-- <skip>\n// <skip>\nbar");
+    }
+
+    @Test
+    public void testIgnoreCommentsInAngleBrackets() {
+        String rendered = render("select <this--is//skipped/*>");
+        assertThat(rendered).isEqualTo("select <this--is//skipped/*>");
+    }
+
+    @Test
     public void testCommentQuote() {
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(render(sql)).isEqualTo(sql);
