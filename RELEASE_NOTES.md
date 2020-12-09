@@ -1,5 +1,6 @@
 # 3.18.1
   - Comments like -- and // now recognized and discarded from SQL, thanks @rherrmann!
+  - ANTLR 4.9
 
 # 3.18.0
   - Result collecting now accepts ? super T wildcard
