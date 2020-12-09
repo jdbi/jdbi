@@ -129,15 +129,6 @@ public class TestColonPrefixSqlParser {
     }
 
     @Test
-    public void testHashInColumnNameOkay() {
-        assertThat(parser.parse("select column# from thetable where id = :id", ctx))
-            .isEqualTo(ParsedSql.builder()
-                .append("select column# from thetable where id = ")
-                .appendNamedParameter("id")
-                .build());
-    }
-
-    @Test
     public void testParameterInCommentOkay() {
         String sql = "select /* :skip */\n-- :skip\n// :skip\n:param";
         assertThat(parser.parse(sql, ctx).getParameters().getParameterNames()).containsExactly("param");
