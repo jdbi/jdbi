@@ -1,3 +1,6 @@
+# 3.18.1
+  - Comments like -- and // now recognized and discarded from SQL, thanks @rherrmann!
+
 # 3.18.0
   - Result collecting now accepts ? super T wildcard
   - Field and method Argument binding now uses the generic type, instead of the erased type
