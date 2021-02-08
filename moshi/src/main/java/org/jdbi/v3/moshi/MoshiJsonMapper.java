@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.moshi;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.JsonMapper;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
 
 class MoshiJsonMapper implements JsonMapper {
     @Override
