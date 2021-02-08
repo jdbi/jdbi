@@ -85,6 +85,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-moshi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
