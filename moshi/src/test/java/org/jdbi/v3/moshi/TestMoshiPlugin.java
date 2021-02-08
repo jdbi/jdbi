@@ -65,7 +65,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
                 .one();
 
             assertThat(subuser.name)
-                .describedAs("instead of being bound via getClass(), the object was bound according to the type param")
+                .describedAs("instead of being bound via getClass(), the object was bound according to the qualified type param")
                 .isEqualTo("super");
         });
     }
