@@ -14,11 +14,13 @@
 package org.jdbi.v3.moshi;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Optional;
+import java.util.Set;
 
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.JsonReader;
-import com.squareup.moshi.JsonWriter;
-import com.squareup.moshi.Moshi;
+import com.squareup.moshi.*;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
@@ -38,7 +40,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
     public void before() {
         jdbi = db.getJdbi().installPlugin(new MoshiPlugin())
                 .configure(MoshiConfig.class, c -> c.setMoshi(
-                        new Moshi.Builder().build()));
+                        new Moshi.Builder().add(new OptionalAdapter()).build()));
     }
 
     @Test
@@ -47,6 +49,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
             h.createUpdate("create table users(usr json)").execute();
 
             Moshi moshi = new Moshi.Builder()
+                    .add(new OptionalAdapter())
                     .add(SuperUser.class, new SuperUserAdapter())
                     .add(SubUser.class, new SubUserAdapter())
                     .build();
@@ -100,6 +103,36 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
         @Override
         public SubUser fromJson(JsonReader in) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class OptionalAdapter implements JsonAdapter.Factory {
+        @Override
+        public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Moshi moshi) {
+            Class<?> rawType = Types.getRawType(type);
+            if (rawType == Optional.class && type instanceof ParameterizedType) {
+
+                JsonAdapter<Object> delegate = moshi.adapter(((ParameterizedType) type).getActualTypeArguments()[0]);
+                return new JsonAdapter<Optional<Object>>() {
+                    @Override
+                    public Optional<Object> fromJson(JsonReader reader) throws IOException {
+                        if (reader.peek() == JsonReader.Token.NULL)
+                            return Optional.ofNullable(reader.nextNull());
+                        else
+                            return Optional.of(delegate.fromJson(reader));
+                    }
+
+                    @Override
+                    public void toJson(JsonWriter writer, Optional<Object> value) throws IOException {
+                        if (value != null && value.isPresent())
+                            delegate.toJson(writer, value.get());
+                        else
+                            writer.nullValue();
+                    }
+                };
+            }
+
+            return null;
         }
     }
 }
