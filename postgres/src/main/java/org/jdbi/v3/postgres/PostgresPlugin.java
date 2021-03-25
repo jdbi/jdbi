@@ -15,7 +15,6 @@ package org.jdbi.v3.postgres;
 
 import java.sql.Connection;
 import java.util.Map;
-import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -112,19 +111,6 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArgument(new BitStringEnumSetArgumentFactory());
         jdbi.registerArgument(new BlobInputStreamArgumentFactory());
         jdbi.registerArgument(new ClobReaderArgumentFactory());
-
-        jdbi.registerArrayType(short.class, "smallint");
-        jdbi.registerArrayType(Short.class, "smallint");
-        jdbi.registerArrayType(int.class, "integer");
-        jdbi.registerArrayType(Integer.class, "integer");
-        jdbi.registerArrayType(long.class, "bigint");
-        jdbi.registerArrayType(Long.class, "bigint");
-        jdbi.registerArrayType(String.class, "varchar");
-        jdbi.registerArrayType(UUID.class, "uuid");
-        jdbi.registerArrayType(float.class, "float4");
-        jdbi.registerArrayType(Float.class, "float4");
-        jdbi.registerArrayType(double.class, "float8");
-        jdbi.registerArrayType(Double.class, "float8");
 
         // built-in PGobject types
         jdbi.registerArrayType(PGbox.class, "box");

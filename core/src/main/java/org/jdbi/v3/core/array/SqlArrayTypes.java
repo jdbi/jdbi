@@ -16,6 +16,7 @@ package org.jdbi.v3.core.array;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
@@ -35,6 +36,20 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     public SqlArrayTypes() {
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
 
+        register(boolean.class, "boolean");
+        register(Boolean.class, "boolean");
+        register(short.class, "smallint");
+        register(Short.class, "smallint");
+        register(int.class, "integer");
+        register(Integer.class, "integer");
+        register(long.class, "bigint");
+        register(Long.class, "bigint");
+        register(float.class, "float4");
+        register(Float.class, "float4");
+        register(double.class, "float8");
+        register(Double.class, "float8");
+        register(String.class, "varchar");
+        register(UUID.class, "uuid");
         register(new EnumSqlArrayTypeFactory());
     }
 
