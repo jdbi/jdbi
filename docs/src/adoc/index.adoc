@@ -4719,6 +4719,10 @@ List<Account> accounts = handle.createQuery(sql)
       .list();
 ----
 
+[WARNING]
+Since StringTemplate by default uses the `<` character to mark ST expressions,
+you might need to escape some SQL: `String datePredSql = "<if(datePredicate)> <dateColumn> \\< :dateFilter <endif>"`
+
 Alternatively, SQL templates can be loaded from StringTemplate group files on
 the classpath:
 
