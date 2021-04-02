@@ -20,32 +20,24 @@ jobs:
 # make sure we don't accidentally introduce locale-sensitive tests
         - LC_ALL=fr_FR.UTF-8
       script:
-        - java -version
-        - echo $JAVA_HOME
         - src/build/ci-test.sh 8
       jdk: openjdk8
     - env:
         - TESTS=Y
         - LC_ALL=fr_FR.UTF-8
       script:
-        - java -version
-        - echo $JAVA_HOME
         - src/build/ci-test.sh 11
       jdk: openjdk11
     - env:
         - TESTS=Y
         - LC_ALL=fr_FR.UTF-8
       script:
-        - java -version
-        - echo $JAVA_HOME
         - src/build/ci-test.sh 14
       jdk: openjdk14
     - env:
         - TESTS=Y
         - LC_ALL=fr_FR.UTF-8
       script:
-        - java -version
-        - echo $JAVA_HOME
         - src/build/ci-test.sh 15
       jdk: openjdk15
     - env:
