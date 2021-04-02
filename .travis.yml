@@ -11,7 +11,9 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
-matrix:
+install: skip
+
+jobs:
   include:
     - env:
         - TESTS=Y
