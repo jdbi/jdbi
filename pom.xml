@@ -549,9 +549,13 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <configuration>
-                        <excludes>
+                        <excludes combine.children="append">
                             <exclude>src/build/*</exclude>
                         </excludes>
+                        <mapping combine.children="append">
+                            <g4>SLASHSTAR_STYLE</g4>
+                            <stg>DOUBLESLASH_STYLE</stg>
+                        </mapping>
                     </configuration>
                 </plugin>
                 <plugin>
