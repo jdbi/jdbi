@@ -260,7 +260,6 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
-                            <failOnError>true</failOnError>
                             <includeDependencySources>true</includeDependencySources>
                             <excludePackageNames>*.internal.*</excludePackageNames>
                             <dependencySourceIncludes>

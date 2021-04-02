@@ -13,7 +13,7 @@ Jdbi with it.
 
 ## Prerequisites
 
-Jdbi 3 requires Java 8 or better.
+Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
 
 We run CI tests against Java 8, 11, 14, and 15.  We recommend running the latest GA JDK.
 
