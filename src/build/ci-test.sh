@@ -12,7 +12,8 @@ if [ "$JDK_VERSION" = "8" ]; then
         JAVA_HOME=/usr/local/lib/jvm/openjdk11
         PATH=${JAVA_HOME}/bin:$PATH
         export JAVA_HOME PATH
-        mvn ${OPTS} -DskipTests clean verify
+        # needs to be install as tests pick up deps from the local repo
+        mvn ${OPTS} -DskipTests clean install
 
         # run the tests with JDK8
         PATH=${OLD_PATH}
