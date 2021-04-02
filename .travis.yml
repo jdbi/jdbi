@@ -19,7 +19,9 @@ matrix:
         - LC_ALL=fr_FR.UTF-8
       script:
         - src/build/ci-test.sh 8
-      jdk: openjdk8
+# travis runs a "mvn install" before the actual build which fails with JDK 8
+# the test script does the jdk switching
+      jdk: openjdk11
     - env:
         - TESTS=Y
         - LC_ALL=fr_FR.UTF-8
