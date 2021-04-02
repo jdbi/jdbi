@@ -195,7 +195,7 @@ public final class QualifiedType<T> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        qualifiers.forEach(qualifier -> builder.append(qualifier).append(" "));
+        qualifiers.forEach(qualifier -> builder.append(qualifier).append(' '));
         builder.append(type.getTypeName());
         return builder.toString();
     }
