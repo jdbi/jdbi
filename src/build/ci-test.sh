@@ -19,7 +19,7 @@ if [ "$JDK_VERSION" = "8" ]; then
         PATH=${OLD_PATH}
         JAVA_HOME=${OLD_JAVA_HOME}
         export JAVA_HOME PATH
-        exec mvn -DargLine= surefire:test
+        exec mvn -Ddep.caffeine.version=2.8.0 -DargLine= surefire:test
     fi
 fi
 
