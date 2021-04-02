@@ -38,8 +38,8 @@ jobs:
         - TESTS=Y
         - LC_ALL=fr_FR.UTF-8
       script:
-        - src/build/ci-test.sh 15
-      jdk: openjdk15
+        - src/build/ci-test.sh 16
+      jdk: openjdk16
     - env:
         - DOCUMENTATION=Y
       script:
