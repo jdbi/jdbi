@@ -1885,6 +1885,14 @@ to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
 include::{exampledir}/ResultsTest.java[tags=headlineExample]
 ----
 
+When Jdbi consumes all rows to make the result, like a `List<T>` or single result,
+the underlying `ResultSet` will be closed before returning the result. Otherwise,
+such as with a `Stream<T>` or a `Iterable<T>` result, you are responsible to `close()` the
+result object, which closes the `ResultSet`. Prefer automatic resource management
+like `use` or `with` methods, or use `try-with-resources`. Generally, ending the transaction,
+or closing the Handle (`Connection`) will release all associated result sets.
+Attempting to iterate a closed result set is an error.
+
 ==== ResultBearing
 
 The link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing] interface
