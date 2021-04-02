@@ -15,10 +15,10 @@
 -->
 <html>
 <body>
-<h1>SQL Objects</h1>
+<h2>SQL Objects</h2>
 <p>
-    The sql objects API allows for declarative definition of interfaces which will handle
-    the generation of sql statements and queries on your behalf when needed. Take the following interface:
+    The SQLObject API allows for declarative definition of interfaces which will handle
+    the generation of statements and queries on your behalf when needed. Take the following interface:
 </p>
 <pre>
     public interface TheBasics {
@@ -47,9 +47,9 @@
             the SQL Object instance ends when the lambda returns.
         </p>
         <pre>
-            jdbi.useExtension(TheBasics.class, theBasics -> theBasics.insert(new Something(1, "Alice")));
+            jdbi.useExtension(TheBasics.class, theBasics -&gt; theBasics.insert(new Something(1, "Alice")));
 
-            Something result = jdbi.withExtension(TheBasics.class, theBasics -> theBasics.findById(1));
+            Something result = jdbi.withExtension(TheBasics.class, theBasics -&gt; theBasics.findById(1));
         </pre>
         <p>
             <code>withExtension</code> returns the value returned by the lambda, whereas <code>useExtension</code>
@@ -88,7 +88,7 @@
     </li>
 </ul>
 
-<h1>Default Methods</h1>
+<h2>Default Methods</h2>
 <p>
     You can declare default methods on your interface, which can call other methods of the interface:
 </p>
@@ -108,7 +108,7 @@
     }
 </pre>
 
-<h1>Mixin Interfaces</h1>
+<h2>Mixin Interfaces</h2>
 <p>
     All SQL objects implicitly implement the <code>SqlObject</code> interface (whether you declare it or not), which
     provides a <code>getHandle()</code> method. This is handy when you need to "drop down" to the core API for
@@ -125,8 +125,8 @@
                     "on f.id = d.folder_id " +
                     "where f.id = :folderId")
                 .bind("folderId", id)
-                .reduceRows(Optional.&lt;Folder&gt;empty(), (folder, row) -> {
-                    Folder f = folder.orElseGet(() -> row.getRow(Folder.class));
+                .reduceRows(Optional.&lt;Folder&gt;empty(), (folder, row) -&gt; {
+                    Folder f = folder.orElseGet(() -&gt; row.getRow(Folder.class));
                     if (row.getColumn("d_id", Integer.class) != null) {
                         f.getDocuments().add(row.getRow(Document.class));
                     }
@@ -140,7 +140,7 @@
     have a SQL method annotation (e.g. <code>&#64;SqlQuery</code>, or are interface default methods.
 </p>
 
-<h1>Transactions</h1>
+<h2>Transactions</h2>
 <p>
     Any SQL Object method annotation with <code>&#64;Transaction</code> will be executed within a transaction.
     This is most commonly used on interface default methods to roll up multiple method calls:
@@ -180,7 +180,7 @@
 </p>
 <pre>
     TransactionalWithDefaultMethods dao = jdbi.onDemand(TransactionalWithDefaultMethods.class);
-    dao.inTransaction(self -> {
+    dao.inTransaction(self -&gt; {
       self.insert(folder);
       self.insertDocuments(folder.getId(), folder.getDocuments());
     });

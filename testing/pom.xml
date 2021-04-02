@@ -74,7 +74,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>7.7.2</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

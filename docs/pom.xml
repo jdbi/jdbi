@@ -28,6 +28,8 @@
 
     <properties>
         <basepom.check.skip-license>true</basepom.check.skip-license>
+        <!-- Javadocs refer to jars without actual code references -->
+        <basepom.check.skip-dependency>true</basepom.check.skip-dependency>
         <maven.deploy.skip>true</maven.deploy.skip>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
@@ -122,6 +124,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -129,6 +136,22 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
@@ -145,17 +168,6 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-postgres</artifactId>
             <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
 
