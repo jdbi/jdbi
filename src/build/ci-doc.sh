@@ -1,8 +1,6 @@
 #!/bin/sh
 set -xe
 
-OPTS="-Dbasepom.javadoc.skip=false -DskipTests=true -Dbasepom.check.skip-all=true -B"
+OPTS="-DskipTests=true -Dbasepom.check.skip-all=true -Dbasepom.check.skip-javadoc=false -Dbasepom.check.fail-javadoc=false -B"
 
-PROFILES="toolchains"
-
-exec mvn ${OPTS} -P${PROFILES} verify
+exec mvn ${OPTS} verify

@@ -16,9 +16,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>basepom8-oss</artifactId>
+        <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>33</version>
+        <version>36</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -78,25 +78,24 @@
 
     <properties>
         <basepom.check.fail-all>true</basepom.check.fail-all>
-        <basepom.maven.version>3.2.5</basepom.maven.version>
 
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>4.9</dep.antlr.version>
-        <dep.dokka.version>0.9.18</dep.dokka.version>
+        <dep.dokka.version>1.4.30</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
-        <dep.kotlin.version>1.3.61</dep.kotlin.version>
+        <dep.kotlin.version>1.5.0-M2</dep.kotlin.version>
+
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
-        <project.build.release>8</project.build.release>
-        <project.build.targetJdk>1.${project.build.release}</project.build.targetJdk>
+        <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
@@ -564,7 +563,7 @@
                     <version>${dep.dokka.version}</version>
                     <configuration>
                         <jdkVersion>8</jdkVersion>
-                        <skip>${maven.javadoc.skip}</skip>
+                        <skip>${basepom.check.skip-javadoc}</skip>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -751,48 +750,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>jdk9</id>
-            <activation>
-                <jdk>[1.9,)</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <configuration>
-                                <release>${project.build.release}</release>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>toolchains</id>
-            <activation>
-                <property>
-                    <name>toolchain</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-toolchains-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>toolchain</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <!-- Set a module name for the parent that is explicitly not inherited -->
         <profile>
             <id>in-parent</id>

@@ -16,9 +16,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>basepom8-oss</artifactId>
+        <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>33</version>
+        <version>36</version>
         <relativePath />
     </parent>
 

@@ -11,40 +11,42 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
-install:
-  - src/build/ci-pre-install.sh
+install: skip
 
-matrix:
+jobs:
   include:
-    - env:
-        - TESTS=Y
-      script:
-        - src/build/ci-test.sh
-      jdk: openjdk8
     - env:
         - TESTS=Y
 # make sure we don't accidentally introduce locale-sensitive tests
         - LC_ALL=fr_FR.UTF-8
       script:
-        - src/build/ci-test.sh
-      jdk: openjdk15
+        - src/build/ci-test.sh 8
+      jdk: openjdk8
     - env:
         - TESTS=Y
+        - LC_ALL=fr_FR.UTF-8
       script:
-        - src/build/ci-test.sh
+        - src/build/ci-test.sh 11
+      jdk: openjdk11
+    - env:
+        - TESTS=Y
+        - LC_ALL=fr_FR.UTF-8
+      script:
+        - src/build/ci-test.sh 14
       jdk: openjdk14
     - env:
         - TESTS=Y
+        - LC_ALL=fr_FR.UTF-8
       script:
-        - src/build/ci-test.sh
-      jdk: openjdk11
+        - src/build/ci-test.sh 15
+      jdk: openjdk15
     - env:
         - DOCUMENTATION=Y
       script:
         - src/build/ci-doc.sh
-      jdk: openjdk8
+      jdk: openjdk11
     - env:
         - CODE_STYLE=Y
       script:
         - src/build/ci-code-style.sh
-      jdk: openjdk8
+      jdk: openjdk11
