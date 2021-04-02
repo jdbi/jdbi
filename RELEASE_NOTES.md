@@ -1,3 +1,6 @@
+# 3.19.0
+  - Simple slf4j SqlLogger implementation to debug all statements executed
+
 # 3.18.1
   - Comments like -- and // now recognized and discarded from SQL, thanks @rherrmann!
   - ANTLR 4.9

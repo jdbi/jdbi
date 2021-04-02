@@ -5881,6 +5881,9 @@ and given the current `StatementContext`, to log any relevant information desire
 mainly the query in various compilation stages,
 attributes and bindings, and important timestamps.
 
+There's a simple link:{jdbidocs}/core/statement/Slf4jSqlLogger.html[Slf4jSqlLogger^]
+implementation that logs all executed statements for debugging.
+
 === ResultProducer
 
 A *ResultProducer* takes a lazily supplied *PreparedStatement* and

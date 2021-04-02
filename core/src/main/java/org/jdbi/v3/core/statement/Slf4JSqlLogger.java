@@ -1,0 +1,68 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.v3.core.statement;
+
+import java.sql.SQLException;
+import java.time.Duration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Simple {@link SqlLogger} that emits some diagnostic information about
+ * Jdbi usage. Usually you shouldn't log every database statement made but
+ * it can be helpful for debugging.
+ */
+public class Slf4JSqlLogger implements SqlLogger {
+    private final Logger log;
+
+    public Slf4JSqlLogger() {
+        this(LoggerFactory.getLogger("org.jdbi.sql"));
+    }
+
+    public Slf4JSqlLogger(Logger log) {
+        this.log = log;
+    }
+
+    @Override
+    public void logAfterExecution(StatementContext context) {
+        if (log.isDebugEnabled()) {
+            log.debug("Executed in {} '{}' with parameters '{}'",
+                    format(Duration.between(context.getExecutionMoment(), context.getCompletionMoment())),
+                    context.getParsedSql().getSql(),
+                    context.getBinding());
+        }
+    }
+
+    @Override
+    public void logException(StatementContext context, SQLException ex) {
+        if (log.isErrorEnabled()) {
+            log.error("Exception while executing '{}' with parameters '{}'",
+                    context.getParsedSql().getSql(),
+                    context.getBinding(),
+                    ex);
+        }
+    }
+
+    private static String format(Duration duration) {
+        final long totalSeconds = duration.getSeconds();
+        final long h = totalSeconds / 3600;
+        final long m = (totalSeconds % 3600) / 60;
+        final long s = totalSeconds % 60;
+        final long ms = duration.toMillis() % 1000;
+        return String.format(
+                "%d:%02d:%02d.%03d",
+                h, m, s, ms);
+    }
+}
