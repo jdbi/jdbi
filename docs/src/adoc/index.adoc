@@ -144,6 +144,15 @@ module you want to use:
 Jdbi provides several other modules, which enhance the core API with additional
 features.
 
+=== Java Compatibility
+
+`Jdbi` runs on all Java versions 8 or later. 11 or later is requied to build.
+
+[WARNING]
+Java 8 support is considered deprecated and will be maintained best-effort for now,
+but will be going away soon! In order to run on 8, you might need to dependency-manage your
+`caffeine` version back to 2.x. 3.x is required to run on newer JDKs, but will not run on 8.
+
 === Modules
 
 [glossary]

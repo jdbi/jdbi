@@ -15,10 +15,13 @@ Jdbi with it.
 
 Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
 
-We run CI tests against Java 8, 11, 14, and 15.  We recommend running the latest GA JDK.
+We run CI tests against Java 8, 11, 14, and 15. We recommend running the latest GA JDK.
 
-At this point Java 8 is considered deprecated.  While Jdbi does not (yet) have a specific
+At this point Java 8 is considered deprecated. While Jdbi does not (yet) have a specific
 date to drop support, please chart your path forward to a supported JDK!
+
+NOTE: to run on Java 8, you may need to manage the `caffeine` dependency back to the
+latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
 
 ## Builds
 
