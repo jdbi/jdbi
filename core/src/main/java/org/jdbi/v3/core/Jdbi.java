@@ -301,7 +301,7 @@ public class Jdbi implements Configurable<Jdbi> {
             final long start = System.nanoTime();
             @SuppressWarnings("PMD.CloseResource")
             Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
-                    () -> "Connection factory " + connectionFactory + " returned a null connection");
+                    "Connection factory " + connectionFactory + " returned a null connection");
             final long stop = System.nanoTime();
 
             for (JdbiPlugin p : plugins) {
