@@ -22,6 +22,6 @@ public class TestVersion {
     @Test
     public void thisIsSpring5() {
         assertThat(SpringVersion.getVersion())
-            .isEqualTo("5.1.8.RELEASE");
+            .startsWith("5.");
     }
 }

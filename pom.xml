@@ -93,7 +93,7 @@
 
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
-        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
+        <dep.spring.version>4.3.29.RELEASE</dep.spring.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
