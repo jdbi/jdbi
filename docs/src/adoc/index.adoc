@@ -4053,6 +4053,25 @@ jdbi.installPlugin(new Gson2Plugin());
 jdbi.getConfig(Gson2Config.class).setGson(myGson);
 ----
 
+==== Moshi
+
+This plugin provides JSON backing through Moshi.
+
+[source,xml,subs="specialchars"]
+----
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-moshi</artifactId>
+</dependency>
+----
+
+[source,java]
+----
+jdbi.installPlugin(new MoshiPlugin());
+// optional
+jdbi.getConfig(MoshiConfig.class).setMoshi(myMoshi);
+----
+
 ==== Operation
 
 Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` —

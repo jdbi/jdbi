@@ -2,6 +2,7 @@
   - Simple slf4j SqlLogger implementation to debug all statements executed
   - new RollbackOnlyTransactionHandler rolls back everything for testing
   - upgrade caffeine dep to 3.0.1 for jdk16 (NOTE: jdk8 users will need to manage it back to 2.x)
+  - add support for Moshi JSON mapping (#1809, thanks unoexperto!)
 
 # 3.18.1
   - Comments like -- and // now recognized and discarded from SQL, thanks @rherrmann!
