@@ -1,4 +1,5 @@
 # 3.19.0
+  - Jdbi now requires Java 11+ to build (still runs on 8, for now...)
   - Simple slf4j SqlLogger implementation to debug all statements executed
   - new RollbackOnlyTransactionHandler rolls back everything for testing
   - upgrade caffeine dep to 3.0.1 for jdk16 (NOTE: jdk8 users will need to manage it back to 2.x)
