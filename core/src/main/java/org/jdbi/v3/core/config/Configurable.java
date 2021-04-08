@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
@@ -357,6 +358,19 @@ public interface Configurable<This> {
      */
     default This registerRowMapper(RowMapperFactory factory) {
         return configure(RowMappers.class, c -> c.register(factory));
+    }
+
+
+    /**
+     * Convenience method to register a {@link CodecFactory}.
+     *
+     * @param codecFactory codec factory
+     * @return this
+     */
+    @Beta
+    default This registerCodecFactory(CodecFactory codecFactory) {
+        registerColumnMapper(codecFactory);
+        return registerArgument(codecFactory);
     }
 }
 
