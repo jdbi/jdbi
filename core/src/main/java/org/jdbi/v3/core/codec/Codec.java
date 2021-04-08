@@ -26,14 +26,14 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 public interface Codec<T> {
 
     /**
-     * Returns a {@link ColumnMapper<T>} that creates an attribute value from a database column.
+     * Returns a {@link ColumnMapper} that creates an attribute value from a database column.
      */
     default ColumnMapper<T> getColumnMapper() {
         throw new UnsupportedOperationException("getColumnMapper");
     }
 
     /**
-     * Returns a {@link Function<T, Argument>} that creates an {@link Argument} to map an attribute value onto the database column.
+     * Returns a {@link Function} that creates an {@link Argument} to map an attribute value onto the database column.
      */
     default Function<T, Argument> getArgumentFunction() {
         throw new UnsupportedOperationException("getArgumentFunction");

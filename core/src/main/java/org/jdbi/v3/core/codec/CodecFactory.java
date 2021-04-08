@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.codec;
 
-import static java.util.Objects.requireNonNull;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -35,6 +34,8 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * CodecFactory provides column mappers and arguments for bidirectional mapping types to database columns.
@@ -98,8 +99,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
         private final Map<QualifiedType<?>, Codec<?>> codecMap = new HashMap<>();
 
-        Builder() {
-        }
+        Builder() {}
 
         /**
          * Add a codec for a {@link QualifiedType}.

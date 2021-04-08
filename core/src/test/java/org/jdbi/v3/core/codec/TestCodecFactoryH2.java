@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.codec;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -26,6 +24,8 @@ import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestCodecFactoryH2 {
 

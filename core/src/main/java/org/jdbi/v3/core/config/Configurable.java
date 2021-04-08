@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
@@ -25,6 +24,7 @@ import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypeFactory;
 import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.extension.ExtensionFactory;
@@ -359,7 +359,6 @@ public interface Configurable<This> {
     default This registerRowMapper(RowMapperFactory factory) {
         return configure(RowMappers.class, c -> c.register(factory));
     }
-
 
     /**
      * Convenience method to register a {@link CodecFactory}.
