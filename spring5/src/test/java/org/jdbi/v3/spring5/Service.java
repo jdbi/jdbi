@@ -11,17 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-public class AutoPlugin implements JdbiPlugin {
-    static final String KEY = "auto-plugin";
-    static final String VALUE = "installed";
+public interface Service {
+    void inPropagationRequired(Callback c);
 
-    @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.define(KEY, VALUE);
-    }
+    void inRequiresNew(Callback c);
+
+    void inNested(Callback c);
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
+    void inRequiresNewReadUncommitted(Callback c);
 }

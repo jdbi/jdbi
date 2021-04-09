@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,9 +29,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 /**
  * Utility class which constructs an {@link Jdbi} instance which can conveniently
  * participate in Spring's transaction management system.
- * @deprecated Spring 4 is EOL, please move to Spring 5
  */
-@Deprecated
 public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();

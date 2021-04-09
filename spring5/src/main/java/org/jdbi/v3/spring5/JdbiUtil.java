@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,9 +24,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 /**
  * Utility for working with Jdbi and Spring transaction bound resources
- * @deprecated Spring 4 is EOL, please move to Spring 5
  */
-@Deprecated
 public class JdbiUtil {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
 

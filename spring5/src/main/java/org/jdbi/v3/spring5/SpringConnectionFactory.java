@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,10 +21,6 @@ import javax.sql.DataSource;
 import org.jdbi.v3.core.ConnectionFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
-/**
- * @deprecated Spring 4 is EOL, please move to Spring 5
- */
-@Deprecated
 public class SpringConnectionFactory implements ConnectionFactory {
 
     private final DataSource dataSource;
