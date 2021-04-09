@@ -27,9 +27,9 @@
     <description>Build and deploy jdbi docs, written in AsciiDoc.</description>
 
     <properties>
-        <basepom.check.skip-license>true</basepom.check.skip-license>
         <!-- Javadocs refer to jars without actual code references -->
         <basepom.check.skip-dependency>true</basepom.check.skip-dependency>
+        <basepom.check.skip-license>true</basepom.check.skip-license>
         <maven.deploy.skip>true</maven.deploy.skip>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
