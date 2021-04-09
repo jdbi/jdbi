@@ -183,7 +183,7 @@ jdbi3-vavr::
 === Forethoughts
 
 [TIP]
-You'll probably want to add our annotation `org.jdbi.v3.meta.Beta` to your IDE's "unstable API usage" blacklist.
+You'll probably want to add our annotations `org.jdbi.v3.meta.Beta` and `org.jdbi.v3.meta.Alpha` to your IDE's "unstable API usage" blacklist.
 
 [WARNING]
 Our `org.jdbi.*.internal` packages are not considered public API; their contents may change radically without warning.
