@@ -24,6 +24,7 @@ import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypeFactory;
 import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.extension.ExtensionFactory;
@@ -357,6 +358,18 @@ public interface Configurable<This> {
      */
     default This registerRowMapper(RowMapperFactory factory) {
         return configure(RowMappers.class, c -> c.register(factory));
+    }
+
+    /**
+     * Convenience method to register a {@link CodecFactory}.
+     *
+     * @param codecFactory codec factory
+     * @return this
+     */
+    @Beta
+    default This registerCodecFactory(CodecFactory codecFactory) {
+        registerColumnMapper(codecFactory);
+        return registerArgument(codecFactory);
     }
 }
 

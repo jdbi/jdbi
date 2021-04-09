@@ -1662,6 +1662,57 @@ fails, an exception is thrown.
 Jdbi can be enhanced to support arbitrary container types. See
 <<JdbiCollectors>> for more information.
 
+=== Codecs
+
+[NOTE]
+The Codec API is still unstable and may change.
+
+A codec is a replacement for registering an argument and a column mapper for a type. It is responsible for serializing a typed value into a database column and creating a type from a database column.
+
+Codecs are collected in a codec factory which can be registered with the registerCodecFactory convenience method.
+
+[source,java]
+----
+// register a single codec
+jdbi.registerCodecFactory(CodecFactory.forSingleCodec(type, codec));
+
+// register a few codecs
+jdbi.registerCodecFactory(CodecFactory.builder()
+  // register a codec by qualified type
+  .addCodec(QualifiedType.of(Foo.class), codec1)
+  // register a codec by direct java type
+  .addCodec(Foo.class, codec2)
+  // register a codec by generic type
+  .addCodec(new GenericType<Set<Foo>>() {}. codec3)
+  .build());
+
+// register many codecs
+Map<QualifiedType<?>, Codec<?>> codecs = ...
+jdbi.registerCodecFactory(new CodecFactory(codecs));
+----
+
+
+Codec example:
+
+[source,java,indent=0]
+----
+include::{exampledir}/Counter.java[tags=counterCodec]
+----
+
+JDBI core API:
+
+[source,java,indent=0]
+----
+include::{exampledir}/CodecExampleTest.java[tags=register;load;store]
+----
+
+SQL Object API uses the codecs transparently:
+
+[source,java,indent=0]
+----
+include::{exampledir}/CodecSqlObjectTest.java[tags=dao;register;load;store]
+----
+
 === Templating
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
