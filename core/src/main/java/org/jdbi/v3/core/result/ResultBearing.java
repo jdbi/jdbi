@@ -38,7 +38,6 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.internal.RowViewImpl;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
@@ -126,7 +125,6 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    @Beta
     default <T> ResultIterable<T> mapTo(QualifiedType<T> type) {
         return scanResultSet((supplier, ctx) -> {
             RowMapper<T> mapper = ctx.findMapperFor(type)
@@ -165,7 +163,6 @@ public interface ResultBearing {
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    @Beta
     default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
         return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
@@ -178,7 +175,6 @@ public interface ResultBearing {
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    @Beta
     default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
         return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }

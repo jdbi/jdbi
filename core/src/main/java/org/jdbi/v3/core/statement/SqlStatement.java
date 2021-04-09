@@ -447,7 +447,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    @Beta
     public final This bindNVarchar(int position, String value) {
         return bindByType(position, value, QualifiedType.of(String.class).with(NVarchar.class));
     }
@@ -460,7 +459,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    @Beta
     public final This bindNVarchar(String name, String value) {
         return bindByType(name, value, QualifiedType.of(String.class).with(NVarchar.class));
     }
@@ -1237,7 +1235,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    @Beta
     public final This bindByType(int position, Object value, QualifiedType<?> argumentType) {
         getBinding().addPositional(position, value, argumentType);
         return typedThis;
@@ -1278,7 +1275,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    @Beta
     public final This bindByType(String name, Object value, QualifiedType<?> argumentType) {
         getBinding().addNamed(name, value, argumentType);
         return typedThis;

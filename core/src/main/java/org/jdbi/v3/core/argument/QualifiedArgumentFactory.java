@@ -37,7 +37,6 @@ import org.jdbi.v3.meta.Beta;
  * assume you'll return an instance of {@link NullArgument} when you intend to bind null.
  */
 @FunctionalInterface
-@Beta
 public interface QualifiedArgumentFactory {
     /**
      * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.

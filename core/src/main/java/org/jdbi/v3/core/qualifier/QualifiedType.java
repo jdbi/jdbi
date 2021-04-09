@@ -24,7 +24,6 @@ import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.AnnotationFactory;
-import org.jdbi.v3.meta.Beta;
 
 import static java.util.Collections.emptySet;
 
@@ -36,7 +35,6 @@ import static org.jdbi.v3.core.internal.CollectionCollectors.toUnmodifiableSet;
  *
  * @param <T> the type that is qualified
  */
-@Beta
 public final class QualifiedType<T> {
     private final Type type;
     private final Set<Annotation> qualifiers;

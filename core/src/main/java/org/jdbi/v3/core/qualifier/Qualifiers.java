@@ -27,12 +27,10 @@ import org.jdbi.v3.core.config.JdbiCache;
 import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.CollectionCollectors;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
  */
-@Beta
 public class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
             elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),

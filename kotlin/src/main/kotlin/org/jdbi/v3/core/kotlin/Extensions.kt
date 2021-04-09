@@ -91,7 +91,6 @@ fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callbac
  * @param elements the annotated element. Null elements are ignored.
  * @return the set of qualifying annotations on the given elements.
  */
-@Beta
 fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> {
     return elements.filterNotNull()
         .flatMap { element -> element.annotations }

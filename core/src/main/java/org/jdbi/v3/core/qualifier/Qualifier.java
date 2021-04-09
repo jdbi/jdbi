@@ -18,8 +18,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.meta.Beta;
-
 /**
  * Annotation used to identify type qualifying annotations. Use this to annotate an annotation.
  *
@@ -27,5 +25,4 @@ import org.jdbi.v3.meta.Beta;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@Beta
 public @interface Qualifier {}
