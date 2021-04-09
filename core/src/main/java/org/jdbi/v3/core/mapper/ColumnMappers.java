@@ -26,7 +26,6 @@ import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration registry for {@link ColumnMapperFactory} instances.
@@ -109,7 +108,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param mapper the column mapper
      * @return this
      */
-    @Beta
     public <T> ColumnMappers register(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return this.register(QualifiedColumnMapperFactory.of(type, mapper));
     }
@@ -134,7 +132,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param factory the qualified column mapper factory
      * @return this
      */
-    @Beta
     public ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
@@ -183,7 +180,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
-    @Beta
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.

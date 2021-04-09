@@ -94,7 +94,6 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param factory the qualified factory to add
      * @return this
      */
-    @Beta
     public Arguments register(QualifiedArgumentFactory factory) {
         factories.add(0, factory);
         return this;
@@ -118,7 +117,6 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param value the argument value.
      * @return an Argument for the given value.
      */
-    @Beta
     public Optional<Argument> findFor(QualifiedType<?> type, Object value) {
         Function<Object, Argument> prepared = preparedFactories.get(type);
         if (prepared != null) {
@@ -172,7 +170,6 @@ public class Arguments implements JdbiConfig<Arguments> {
         return Optional.empty();
     }
 
-    @Beta
     public List<QualifiedArgumentFactory> getFactories() {
         return Collections.unmodifiableList(factories);
     }

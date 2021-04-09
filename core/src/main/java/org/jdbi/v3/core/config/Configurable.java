@@ -46,7 +46,6 @@ import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.meta.Alpha;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -153,7 +152,6 @@ public interface Configurable<This> {
      * @param factory qualified argument factory
      * @return this
      */
-    @Beta
     default This registerArgument(QualifiedArgumentFactory factory) {
         return configure(Arguments.class, c -> c.register(factory));
     }
@@ -282,7 +280,6 @@ public interface Configurable<This> {
      * @param mapper the mapper to use on that type
      * @return this
      */
-    @Beta
     default <T> This registerColumnMapper(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
@@ -303,7 +300,6 @@ public interface Configurable<This> {
      * @param factory column mapper factory
      * @return this
      */
-    @Beta
     default This registerColumnMapper(QualifiedColumnMapperFactory factory) {
         return configure(ColumnMappers.class, c -> c.register(factory));
     }
