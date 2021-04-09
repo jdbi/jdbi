@@ -1713,6 +1713,11 @@ SQL Object API uses the codecs transparently:
 include::{exampledir}/CodecSqlObjectTest.java[tags=dao;register;load;store]
 ----
 
+==== Resolving Subtypes
+
+By using the TypeResolvingCodecFactory from the jdbi-guava module , it is possible to provide type safe resolution for subclasses. This is necessary to e.g. map Auto Value classes to database columns.
+
+
 === Templating
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.

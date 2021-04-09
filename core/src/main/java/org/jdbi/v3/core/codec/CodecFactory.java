@@ -48,18 +48,20 @@ import static java.util.Objects.requireNonNull;
 @Alpha
 public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgumentFactory.Preparable {
 
-    // ALPHA: the fact that this is a Map from type to Codec makes it hard to implement Codecs that target wildcard
-    // or varying types e.g. mapping both {@code Sub<T>} and {@code Super<T>} with one codec.
-    // It might be nice to re-imagine this as itself a JdbiPlugin and have it do all registration through the existing flows.
-    private final ConcurrentMap<QualifiedType<?>, Codec<?>> codecMap = new ConcurrentHashMap<>();
+    /**
+     * Map of all known codecs in this factory.
+     *
+     * ALPHA: the fact that this is a Map from type to Codec makes it hard to implement Codecs that target wildcard
+     * or varying types e.g. mapping both {@code Sub<T>} and {@code Super<T>} with one codec.
+     * It might be nice to re-imagine this as itself a JdbiPlugin and have it do all registration through the existing flows.
+     */
+    protected final ConcurrentMap<QualifiedType<?>, Codec<?>> codecMap = new ConcurrentHashMap<>();
 
     /**
      * Returns a builder for fluent API.
-     *
-     * @return Builder for fluent API.
      */
     public static Builder builder() {
-        return new Builder();
+        return new Builder(CodecFactory::new);
     }
 
     public static CodecFactory forSingleCodec(QualifiedType<?> type, Codec<?> codec) {
@@ -68,8 +70,6 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
     /**
      * Create a new CodecFactory.
-     *
-     * @param codecMap
      */
     public CodecFactory(final Map<QualifiedType<?>, Codec<?>> codecMap) {
         requireNonNull(codecMap, "codecMap is null");
@@ -77,23 +77,33 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
-        return Optional.of(type).map(codecMap::get).map(key -> (Function<Object, Argument>) key.getArgumentFunction());
+    public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
+        return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction());
     }
 
     @Override
-    public Collection<QualifiedType<?>> prePreparedTypes() {
+    public final Collection<QualifiedType<?>> prePreparedTypes() {
         return codecMap.keySet();
     }
 
     @Override
-    public Optional<Argument> build(final QualifiedType<?> type, final Object value, final ConfigRegistry config) {
+    public final Optional<Argument> build(final QualifiedType<?> type, final Object value, final ConfigRegistry config) {
         return prepare(type, config).map(f -> f.apply(value));
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(final QualifiedType<?> type, final ConfigRegistry config) {
-        return Optional.of(type).map(codecMap::get).map(Codec::getColumnMapper);
+    public final Optional<ColumnMapper<?>> build(final QualifiedType<?> type, final ConfigRegistry config) {
+        return Optional.of(type).map(this::resolveType).map(Codec::getColumnMapper);
+    }
+
+    /**
+     * Extension point for type resolution.
+     *
+     * @param qualifiedType Requested type
+     * @return A {@link Codec} for the requested type or null if no codec is suitable.
+     */
+    protected Codec<?> resolveType(QualifiedType<?> qualifiedType) {
+        return codecMap.get(qualifiedType);
     }
 
     /**
@@ -105,7 +115,11 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
         private final Map<QualifiedType<?>, Codec<?>> codecMap = new HashMap<>();
 
-        Builder() {}
+        private final Function<Map<QualifiedType<?>, Codec<?>>, CodecFactory> factory;
+
+        public Builder(Function<Map<QualifiedType<?>, Codec<?>>, CodecFactory> factory) {
+            this.factory = requireNonNull(factory, "factory is null");
+        }
 
         /**
          * Add a codec for a {@link QualifiedType}.
@@ -141,7 +155,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
         }
 
         public CodecFactory build() {
-            return new CodecFactory(codecMap);
+            return factory.apply(codecMap);
         }
     }
 
