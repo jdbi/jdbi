@@ -366,7 +366,7 @@ public interface Configurable<This> {
      * @param codecFactory codec factory
      * @return this
      */
-    @Beta
+    @Alpha
     default This registerCodecFactory(CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);

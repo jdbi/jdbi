@@ -33,7 +33,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.meta.Beta;
+import org.jdbi.v3.meta.Alpha;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,11 +41,16 @@ import static java.util.Objects.requireNonNull;
  * CodecFactory provides column mappers and arguments for bidirectional mapping types to database columns.
  * <p>
  * This class is immutable and thread safe.
+ * <p><i>Alpha: this class as public API is redundant with the existing way of managing mappers: we should try to combine them
+ * to make the new public API as small as possible</i>
  */
 @ThreadSafe
-@Beta
+@Alpha
 public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgumentFactory.Preparable {
 
+    // ALPHA: the fact that this is a Map from type to Codec makes it hard to implement Codecs that target wildcard
+    // or varying types e.g. mapping both {@code Sub<T>} and {@code Super<T>} with one codec.
+    // It might be nice to re-imagine this as itself a JdbiPlugin and have it do all registration through the existing flows.
     private final ConcurrentMap<QualifiedType<?>, Codec<?>> codecMap = new ConcurrentHashMap<>();
 
     /**
@@ -95,6 +100,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
      * Fluent Builder for {@link CodecFactory}.
      */
     @NotThreadSafe
+    @Alpha
     public static final class Builder {
 
         private final Map<QualifiedType<?>, Codec<?>> codecMap = new HashMap<>();
