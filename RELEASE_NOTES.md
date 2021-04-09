@@ -7,6 +7,7 @@
   - Register more array types like `boolean` out of the box, #1802
   - add Codec (combination of ArgumentFactory and ColumnMapper) to provide one API for serialization/deserialization.
   - Deprecate Spring 4 support due to upstream EOL (this will be the last release!) Please move to Spring 5
+  - add new @Alpha annotation for even less stable new features
 
 # 3.18.1
   - Comments like -- and // now recognized and discarded from SQL, thanks @rherrmann!
