@@ -33,25 +33,29 @@ import static org.junit.Assert.assertNotSame;
 
 // this test is in doc because it needs guava and sqlobject and sqlobject already imports guava.
 // the only other place it could go to is in sqlobject and it tests a guava class, not a sqlobject class.
-public class InheritedValueTestH2 {
+public class TestInheritedValueH2 {
 
-    // SQL object dao
+    // tag::dao[]
+
+    // SQL object dao using concrete types
     public interface DataDao {
 
         @SqlUpdate("INSERT INTO data (id, value) VALUES (:bean.id, :bean.value)")
-        int storeData(@BindBean("bean") Bean<Value<String>> bean);
+        int storeData(@BindBean("bean") StringBean bean);
 
         @SqlUpdate("INSERT INTO data (id, value) VALUES (:id, :value)")
-        int storeData(@Bind("id") String id, @Bind("value") Value<String> data);
+        int storeData(@Bind("id") String id, @Bind("value") StringValue data);
 
         @SqlQuery("SELECT value from data where id = :id")
-        Value<String> loadData(@Bind("id") String id);
+        StringValue loadData(@Bind("id") String id);
     }
+
+    // end::dao[]
 
     public interface SetDao {
 
         @SqlUpdate("INSERT INTO data (id, value) VALUES (:id, :value)")
-        int storeData(@Bind("id") String id, @Bind("value") Set<AutoValue> data);
+        int storeData(@Bind("id") String id, @Bind("value") ImmutableSet<AutoValue> data);
 
         @SqlUpdate("INSERT INTO data (id, value) VALUES (:bean.id, :bean.value)")
         int storeData(@BindBean("bean") AutoValueBean bean);
@@ -64,7 +68,13 @@ public class InheritedValueTestH2 {
     @Rule
     public DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
+    // tag::type[]
+
+    // generic type representation
     public static final QualifiedType<Value<String>> DATA_TYPE = QualifiedType.of(new GenericType<Value<String>>() {});
+
+    // end::type[]
+
     public static final QualifiedType<Set<AutoValue>> AUTOVALUE_SET_TYPE = QualifiedType.of(new GenericType<Set<AutoValue>>() {});
 
     @Before
@@ -131,7 +141,7 @@ public class InheritedValueTestH2 {
             .build());
 
         String id = UUID.randomUUID().toString();
-        Set<AutoValue> data = ImmutableSet.of(AutoValue.create("one"), AutoValue.create("two"), AutoValue.create("three"));
+        ImmutableSet<AutoValue> data = ImmutableSet.of(AutoValue.create("one"), AutoValue.create("two"), AutoValue.create("three"));
 
         // store object
         int result = jdbi.withExtension(SetDao.class, dao -> dao.storeData(id, data));
@@ -171,6 +181,8 @@ public class InheritedValueTestH2 {
         assertEquals(bean.getValue(), restoredData);
     }
 
+    // tag::codec[]
+
     public static class DataCodec implements Codec<Value<String>> {
 
         @Override
@@ -187,6 +199,8 @@ public class InheritedValueTestH2 {
             };
         }
     }
+
+    // end::codec[]
 
     public static class AutoValueSetCodec implements Codec<Set<AutoValue>> {
 
@@ -211,10 +225,15 @@ public class InheritedValueTestH2 {
         }
     }
 
+    // tag::value[]
+
+    // value interface
     public interface Value<T> {
 
         T getValue();
     }
+
+    // end::value[]
 
     public static class StringValue implements Value<String> {
 
@@ -254,13 +273,16 @@ public class InheritedValueTestH2 {
         T getValue();
     }
 
+    // tag::bean[]
+
+    // bean using concrete types, not interface types.
     public static class StringBean implements Bean<Value<String>> {
 
         private final String id;
 
-        private final Value<String> value;
+        private final StringValue value;
 
-        public StringBean(String id, Value<String> value) {
+        public StringBean(String id, StringValue value) {
             this.id = id;
             this.value = value;
         }
@@ -271,17 +293,19 @@ public class InheritedValueTestH2 {
         }
 
         @Override
-        public Value<String> getValue() {
+        public StringValue getValue() {
             return value;
         }
     }
 
+    // end::bean[]
+
     public static class AutoValueBean {
 
         private final String id;
-        private final Set<AutoValue> value;
+        private final ImmutableSet<AutoValue> value;
 
-        public AutoValueBean(String id, Set<AutoValue> value) {
+        public AutoValueBean(String id, ImmutableSet<AutoValue> value) {
             this.id = id;
             this.value = value;
         }
@@ -290,7 +314,7 @@ public class InheritedValueTestH2 {
             return id;
         }
 
-        public Set<AutoValue> getValue() {
+        public ImmutableSet<AutoValue> getValue() {
             return value;
         }
     }

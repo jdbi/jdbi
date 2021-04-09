@@ -1713,9 +1713,16 @@ SQL Object API uses the codecs transparently:
 include::{exampledir}/CodecSqlObjectTest.java[tags=dao;register;load;store]
 ----
 
-==== Resolving Subtypes
+==== Resolving Types
 
-By using the TypeResolvingCodecFactory from the jdbi-guava module , it is possible to provide type safe resolution for subclasses. This is necessary to e.g. map Auto Value classes to database columns.
+By using the `TypeResolvingCodecFactory` from the link:{jdbidocs}/guava/package-summary.html[guava^] module, it is possible to use codecs that are registered for subclasses or interface types for concrete classes. This is necessary to e.g. map link:https://github.com/google/auto/blob/master/value/userguide/index.md[Auto Value^] generated classes to database columns.
+
+In the following example, there is only a codec for `Value<String>` registered, but the code uses beans and classes that are concrete implementations (`StringBean` contains a `StringValue` and `StringValue` implements the `Value<String>` interface). The `TypeResolvingCodecFactory` will inspect the types to find a codec for an interface or superclass if no perfect match can be found.
+
+[source,java,indent=0]
+----
+include::{exampledir}/TestInheritedValueH2.java[tags=dao;type;codec;value;bean]
+----
 
 
 === Templating
