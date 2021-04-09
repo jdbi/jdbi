@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 public class ForceRollback extends RuntimeException {
     private static final long serialVersionUID = 1L;

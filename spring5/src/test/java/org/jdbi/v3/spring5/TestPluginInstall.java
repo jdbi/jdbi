@@ -11,11 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.jdbi.v3.spring4.TestPluginInstall.Config;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ContextConfiguration(classes = Config.class)
+@ContextConfiguration(classes = TestPluginInstall.Config.class)
 public class TestPluginInstall {
     @ClassRule
     public static final SpringClassRule SPRING_RULE = new SpringClassRule();
@@ -61,7 +60,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginA() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(Jdbi db) {
+                public void customizeJdbi(final Jdbi db) {
                     pluginACalled = true;
                 }
             };
@@ -71,7 +70,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginB() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(Jdbi db) {
+                public void customizeJdbi(final Jdbi db) {
                     pluginBCalled = true;
                 }
             };

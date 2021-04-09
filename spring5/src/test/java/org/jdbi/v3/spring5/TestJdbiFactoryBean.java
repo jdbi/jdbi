@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import javax.sql.DataSource;
 
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/org/jdbi/v3/spring4/test-context.xml")
+@ContextConfiguration("/org/jdbi/v3/spring5/test-context.xml")
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class})
 public class TestJdbiFactoryBean {
 
@@ -39,17 +39,17 @@ public class TestJdbiFactoryBean {
     private Jdbi jdbi;
 
     @Autowired
-    public void setService(Service service) {
+    public void setService(final Service service) {
         this.service = service;
     }
 
     @Autowired
-    public void setDataSource(DataSource dataSource) {
+    public void setDataSource(final DataSource dataSource) {
         this.ds = dataSource;
     }
 
     @Autowired
-    public void setJdbi(Jdbi jdbi) {
+    public void setJdbi(final Jdbi jdbi) {
         this.jdbi = jdbi;
     }
 
@@ -62,7 +62,7 @@ public class TestJdbiFactoryBean {
     public void testFailsViaException() {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(aJdbi -> {
-                Handle h = JdbiUtil.getHandle(aJdbi);
+                final Handle h = JdbiUtil.getHandle(aJdbi);
                 final int count = h.execute("insert into something (id, name) values (7, 'ignored')");
                 if (count == 1) {
                     throw new ForceRollback();
@@ -73,7 +73,7 @@ public class TestJdbiFactoryBean {
         });
 
         try (Handle h = Jdbi.open(ds)) {
-            int count = h.createQuery("select count(*) from something").mapTo(int.class).one();
+            final int count = h.createQuery("select count(*) from something").mapTo(int.class).one();
             assertThat(count).isEqualTo(0);
         }
     }
@@ -108,19 +108,19 @@ public class TestJdbiFactoryBean {
                         final Handle h1 = JdbiUtil.getHandle(inner);
                         h1.execute("insert into something (id, name) values (8, 'ignored again')");
 
-                        int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
+                        final int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
                         assertThat(count).isEqualTo(2);
                         throw new ForceRollback();
                     });
                 });
-                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
+                final int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
                 assertThat(count).isEqualTo(1);
                 throw new ForceRollback();
             });
         });
         service.inPropagationRequired(aJdbi -> {
             final Handle h = JdbiUtil.getHandle(aJdbi);
-            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
+            final int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(0);
         });
     }
@@ -135,14 +135,14 @@ public class TestJdbiFactoryBean {
             assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
                 service.inRequiresNewReadUncommitted(inner -> {
                     final Handle h1 = JdbiUtil.getHandle(inner);
-                    int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
+                    final int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
                     assertThat(count).isEqualTo(1);
                     h1.execute("insert into something (id, name) values (8, 'ignored again')");
                     throw new ForceRollback();
                 });
             });
 
-            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
+            final int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(1);
         });
     }
