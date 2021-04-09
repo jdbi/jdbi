@@ -11,10 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring4;
+package org.jdbi.v3.spring5;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public interface Callback {
-    void call(Jdbi db);
+public class AutoPlugin implements JdbiPlugin {
+    static final String KEY = "auto-plugin";
+    static final String VALUE = "installed";
+
+    @Override
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.define(KEY, VALUE);
+    }
 }
