@@ -44,11 +44,11 @@
         &lt;property name="databaseName" value="testing"/&gt;
     &lt;/bean&gt;
 
-    &lt;bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean"&gt;
+    &lt;bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean"&gt;
         &lt;property name="dataSource" ref="derby"/&gt;
     &lt;/bean&gt;
 
-    &lt;bean id="service" class="org.jdbi.v3.spring4.DummyService"&gt;
+    &lt;bean id="service" class="org.jdbi.v3.spring5.DummyService"&gt;
         &lt;constructor-arg ref="jdbi"/&gt;
     &lt;/bean&gt;
 &lt;/beans&gt;

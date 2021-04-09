@@ -173,7 +173,7 @@ jdbi3-oracle12::
     Support Oracle returning DML statements.
 jdbi3-postgres::
     Support for most data types supported by Postgres driver.
-jdbi3-spring4::
+jdbi3-spring5::
     Provides a factory bean to set up Jdbi singleton.
 jdbi3-stringtemplate4::
     Use the StringTemplate4 template engine, instead of JDBI's built in engine.
@@ -4619,10 +4619,10 @@ Please refer to
 link:https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
 for upstream driver documentation.
 
-=== Spring
+=== Spring5
 
 This module provides `JdbiFactoryBean`, a factory bean which sets up a `Jdbi`
-singleton.
+singleton in a Spring 5 (or Spring Boot) application context.
 
 To use this module, add a Maven dependency:
 
@@ -4630,7 +4630,7 @@ To use this module, add a Maven dependency:
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-spring4</artifactId>
+  <artifactId>jdbi3-spring5</artifactId>
 </dependency>
 ----
 
@@ -4661,7 +4661,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 
   <!--3-->
   <bean id="jdbi"
-    class="org.jdbi.v3.spring4.JdbiFactoryBean">
+    class="org.jdbi.v3.spring5.JdbiFactoryBean">
     <property name="dataSource" ref="db"/>
   </bean>
 
@@ -4681,10 +4681,6 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
     `@Inject` annotations on the target class instead of configuring it in
     your `beans.xml`.
 
-[NOTE]
-This module has been tested to be compatible
-with Spring 5.1.8 (used by Spring Boot 2.1.4) as well.
-
 ==== Installing plugins
 
 Plugins may be automatically installed by scanning the classpath for
@@ -4692,7 +4688,7 @@ link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
 
 [source,xml]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
   <property name="autoInstallPlugins" value="true"/>
 </bean>
@@ -4702,7 +4698,7 @@ Plugins may also be installed explicitly:
 
 [source,xml]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
   <property name="plugins">
     <list>
@@ -4718,7 +4714,7 @@ auto-install some plugins and manually install the rest:
 
 [source,xml]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
   <property name="autoInstallPlugins" value="true"/>
   <property name="plugins">
@@ -4735,7 +4731,7 @@ Global defined attributes may be configured on the factory bean:
 
 [source,xml]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   <property name="dataSource" ref="db"/>
   <property name="globalDefines">
     <map>
