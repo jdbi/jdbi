@@ -56,7 +56,6 @@
         <module>jpa</module>
         <module>json</module>
         <module>postgres</module>
-        <module>spring4</module>
         <module>spring5</module>
         <module>docs</module>
         <module>kotlin</module>
@@ -175,29 +174,6 @@
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${project.version}</version>
                 <classifier>tests</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring4</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring4</artifactId>
-                <version>${project.version}</version>
-                <classifier>tests</classifier>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
