@@ -15,12 +15,10 @@ package org.jdbi.v3.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for Jackson 2 integration.
  */
-@Beta
 public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     private ObjectMapper mapper;
     private Class<?> serializationView;

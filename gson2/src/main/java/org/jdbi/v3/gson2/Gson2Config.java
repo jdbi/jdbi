@@ -15,12 +15,10 @@ package org.jdbi.v3.gson2;
 
 import com.google.gson.Gson;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for Gson 2 integration.
  */
-@Beta
 public class Gson2Config implements JdbiConfig<Gson2Config> {
     private Gson gson;
 

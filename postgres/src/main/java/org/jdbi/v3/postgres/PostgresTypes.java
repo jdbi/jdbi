@@ -20,7 +20,6 @@ import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
-import org.jdbi.v3.meta.Beta;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
 
@@ -68,7 +67,6 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
      * Provide access to Large Object streaming via Postgres specific API.
      * @return the postgres large object api
      */
-    @Beta
     public PgLobApi getLobApi() {
         return lob;
     }
