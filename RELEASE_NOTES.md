@@ -1,3 +1,7 @@
+# 3.19.1
+  - Promote Postgres LOB APIs to stable.
+  - Promote JSON, Jackson, and Gson APIs to stable.
+
 # 3.19.0
   - Jdbi now requires Java 11+ to build (still runs on 8, for now...)
   - Simple slf4j SqlLogger implementation to debug all statements executed

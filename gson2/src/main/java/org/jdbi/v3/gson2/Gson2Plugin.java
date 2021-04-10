@@ -17,7 +17,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.json.JsonConfig;
 import org.jdbi.v3.json.JsonPlugin;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Gson 2 integration plugin.
@@ -26,7 +25,6 @@ import org.jdbi.v3.meta.Beta;
  *
  * @see org.jdbi.v3.json.Json
  */
-@Beta
 public class Gson2Plugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {

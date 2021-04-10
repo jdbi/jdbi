@@ -16,7 +16,6 @@ package org.jdbi.v3.json;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Deserializes JSON to Java objects, and serializes Java objects to JSON.
@@ -26,7 +25,6 @@ import org.jdbi.v3.meta.Beta;
  *
  * jdbi3-jackson2 and jdbi3-gson2 are readily available for this.
  */
-@Beta
 public interface JsonMapper {
     String toJson(Type type, Object value, ConfigRegistry config);
     Object fromJson(Type type, String json, ConfigRegistry config);
