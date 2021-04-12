@@ -7,12 +7,13 @@
   - Jdbi now requires Java 11+ to build (still runs on 8, for now...)
     - upgrade Caffeine dep to 3.0.1 for jdk16 (NOTE: Java8 users will need to manage it back to 2.x)
 
+**Spring 4 support deprecated due to upstream EOL (this will be the last release!) Please move to Spring 5**
+
   - Simple slf4j SqlLogger implementation to debug all statements executed
   - new RollbackOnlyTransactionHandler rolls back everything for testing
   - add support for Moshi JSON mapping (#1809, thanks unoexperto!)
   - Register more array types like `boolean` out of the box, #1802
   - add Codec (combination of ArgumentFactory and ColumnMapper) to provide one API for serialization/deserialization.
-  - Deprecate Spring 4 support due to upstream EOL (this will be the last release!) Please move to Spring 5
   - add new @Alpha annotation for even less stable new features
   - Promote a number of previous Beta APIs to stable.
 
