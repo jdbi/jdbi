@@ -32,7 +32,7 @@ import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
  * &#64;SqlQuery("select * from things where id in (&lt;ids&gt;)")
  * List&lt;Thing&gt; getThings(@BindList int... ids)
  *
- * &#64;SqlQuery("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+ * &#64;SqlUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
  * void insertThings(@DefineList List&lt;String&gt; columnNames, @BindList List&lt;Object&gt; values)
  * </pre>
  * <p>
