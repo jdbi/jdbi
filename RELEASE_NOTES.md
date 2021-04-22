@@ -1,7 +1,8 @@
-# 3.19.1
+# 3.20.0
   - Promote Postgres LOB APIs to stable.
   - Promote JSON, Jackson, and Gson APIs to stable.
   - Actually deploy Spring5 artifacts...
+  - New RowMapper and ColumnMapper init hook
 
 # 3.19.0
 **Java8 compatibility note!**
