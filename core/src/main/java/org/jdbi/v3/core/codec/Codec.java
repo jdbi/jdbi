@@ -16,6 +16,7 @@ package org.jdbi.v3.core.codec;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.meta.Alpha;
 
@@ -31,15 +32,41 @@ public interface Codec<T> {
 
     /**
      * Returns a {@link ColumnMapper} that creates an attribute value from a database column.
+     * <p>
+     * Either this method or {@link #getColumnMapper(ConfigRegistry)} must be implemented.
      */
     default ColumnMapper<T> getColumnMapper() {
         throw new UnsupportedOperationException("getColumnMapper");
     }
 
     /**
+     * Returns a {@link ColumnMapper} that creates an attribute value from a database column.
+     * <p>
+     * This method is optional. If it is not implemented, the result of {@link #getColumnMapper()} is returned.
+     *
+     * @param configRegistry The {@link ConfigRegistry} that this argument belongs to.
+     */
+    default ColumnMapper<T> getColumnMapper(ConfigRegistry configRegistry) {
+        return getColumnMapper();
+    }
+
+    /**
      * Returns a {@link Function} that creates an {@link Argument} to map an attribute value onto the database column.
+     * <p>
+     * Either this method or {@link #getArgumentFunction(ConfigRegistry)} must be implemented.
      */
     default Function<T, Argument> getArgumentFunction() {
         throw new UnsupportedOperationException("getArgumentFunction");
+    }
+
+    /**
+     * Returns a {@link Function} that creates an {@link Argument} to map an attribute value onto the database column.
+     * <p>
+     * This method is optional. If it is not implemented, the result of {@link #getArgumentFunction()} is returned.
+     *
+     * @param configRegistry The {@link ConfigRegistry} that this argument belongs to.
+     */
+    default Function<T, Argument> getArgumentFunction(ConfigRegistry configRegistry) {
+        return getArgumentFunction();
     }
 }

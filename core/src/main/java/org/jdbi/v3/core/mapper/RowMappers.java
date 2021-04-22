@@ -147,6 +147,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
                 .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
                 .findFirst();
 
+        mapper.ifPresent(m -> m.init(registry));
+
         cache.put(type, mapper);
 
         return mapper;

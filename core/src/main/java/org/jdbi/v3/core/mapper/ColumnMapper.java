@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -56,4 +57,12 @@ public interface ColumnMapper<T> {
     default T map(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
         return map(r, r.findColumn(columnLabel), ctx);
     }
+
+    /**
+     * Allows for one-time initialization of the column mapper instance. This method is called once
+     * when the column mapper is first used.
+     *
+     * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
+     */
+    default void init(ConfigRegistry registry) {}
 }
