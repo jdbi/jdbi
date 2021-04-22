@@ -1,6 +1,7 @@
 # 3.19.1
   - Promote Postgres LOB APIs to stable.
   - Promote JSON, Jackson, and Gson APIs to stable.
+  - Actually deploy Spring5 artifacts...
 
 # 3.19.0
 **Java8 compatibility note!**
