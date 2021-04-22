@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -60,4 +61,14 @@ public interface RowMapper<T> {
     default RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         return this;
     }
+
+    /**
+     * Allows for initialization of the row mapper instance within a ConfigRegistry scope. This method is called once when the row mapper is first used from a
+     * ConfigRegistry.
+     * <p>
+     * Note that handles, statements, sql objects etc. all create copies of the registry, and this method will be called for every copy
+     *
+     * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
+     */
+    default void init(ConfigRegistry registry) {}
 }

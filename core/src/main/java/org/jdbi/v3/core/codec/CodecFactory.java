@@ -78,7 +78,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
     @Override
     public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
-        return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction());
+        return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
     @Override
     public final Optional<ColumnMapper<?>> build(final QualifiedType<?> type, final ConfigRegistry config) {
-        return Optional.of(type).map(this::resolveType).map(Codec::getColumnMapper);
+        return Optional.of(type).map(this::resolveType).map(c -> c.getColumnMapper(config));
     }
 
     /**
