@@ -113,7 +113,7 @@ public class TestMapperInit {
 
     @Test
     public void testRowMapper() {
-        final GenericType<Map.Entry<StringValue, Integer>> RESULT_TYPE = new GenericType<Entry<StringValue, Integer>>() {};
+        final GenericType<Map.Entry<StringValue, Integer>> resultType = new GenericType<Entry<StringValue, Integer>>() {};
 
         final StringValueMapper mapper = new StringValueMapper();
         // not yet initialized
@@ -122,7 +122,7 @@ public class TestMapperInit {
 
         Jdbi jdbi = rule.getJdbi();
         jdbi.registerColumnMapper(StringValue.class, mapper);
-        jdbi.registerRowMapper(RESULT_TYPE, new ResultMapper());
+        jdbi.registerRowMapper(resultType, new ResultMapper());
 
         // still not initialized, only at first retrieval
         assertEquals(0, mapper.getInitializedCount());
@@ -130,7 +130,7 @@ public class TestMapperInit {
 
         List<Map.Entry<StringValue, Integer>> values = jdbi.withHandle(h -> {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
-                .mapTo(RESULT_TYPE)
+                .mapTo(resultType)
                 .list();
 
             // has been called once
@@ -140,7 +140,7 @@ public class TestMapperInit {
             assertEquals(value.size(), mapper.getMappedCount());
 
             value = h.createQuery("SELECT * FROM column_mappers")
-                .mapTo(RESULT_TYPE)
+                .mapTo(resultType)
                 .list();
 
             // has been called once
@@ -157,7 +157,7 @@ public class TestMapperInit {
         // redo with another handle
         values = jdbi.withHandle(h -> {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
-                .mapTo(RESULT_TYPE)
+                .mapTo(resultType)
                 .list();
             // called again for the statement
             assertEquals(3, mapper.getInitializedCount());
@@ -168,7 +168,6 @@ public class TestMapperInit {
             return value;
         });
     }
-
 
     public static class StringValue {
 
