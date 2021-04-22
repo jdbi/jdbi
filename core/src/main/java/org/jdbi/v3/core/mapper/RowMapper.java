@@ -63,8 +63,10 @@ public interface RowMapper<T> {
     }
 
     /**
-     * Allows for one-time initialization of the row mapper instance. This method is called once
-     * when the row mapper is first used.
+     * Allows for initialization of the row mapper instance within a ConfigRegistry scope. This method is called once when the row mapper is first used from a
+     * ConfigRegistry.
+     * <p>
+     * Note that handles, statements, sql objects etc. all create copies of the registry, and this method will be called for every copy
      *
      * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
      */
