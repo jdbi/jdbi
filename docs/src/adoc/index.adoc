@@ -4565,6 +4565,18 @@ public interface AccountDao {
 }
 ----
 
+[NOTE]
+The default variant to install the plugin adds unqualified mappings of raw `Map` types from and to the `hstore` Postgres data type. There are situations where this interferes with other mappings of maps. It is recommended to always use the variant with the `@HStore` qualified type.
+
+To avoid binding the unqualified Argument and ColumnMapper bindings, install the plugin using the static factory method:
+
+[source,java,indent=0]
+----
+Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
+                .installPlugin(PostgresPlugin.noUnqualifiedHstoreBindings());
+----
+
+
 [reftext="PostgreSQL-GetGeneratedKeys"]
 ==== @GetGeneratedKeys
 

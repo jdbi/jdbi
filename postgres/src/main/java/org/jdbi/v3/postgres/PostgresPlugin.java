@@ -97,6 +97,26 @@ import org.postgresql.util.PGmoney;
  * interval (and consequently, a column-mapped Period) of <em>-2 years, -10 months</em>, and -1 days.
  */
 public class PostgresPlugin extends JdbiPlugin.Singleton {
+
+    private final boolean installLegacy;
+
+    /**
+     * Do not install the legacy (unqualified) bindings for {@link HStoreArgumentFactory} and {@link HStoreColumnMapper}. When
+     * using the plugin returned by this factory method, any lookup for HStore specific arguments and column mappers must be qualified
+     * with the {@link HStore} annotation.
+     */
+    public static PostgresPlugin noUnqualifiedHstoreBindings() {
+        return new PostgresPlugin(false);
+    }
+
+    public PostgresPlugin() {
+        this(true);
+    }
+
+    protected PostgresPlugin(boolean installLegacy) {
+        this.installLegacy = installLegacy;
+    }
+
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new TypedEnumArgumentFactory());
@@ -133,9 +153,11 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerColumnMapper(new BlobInputStreamColumnMapperFactory());
         jdbi.registerColumnMapper(new ClobReaderColumnMapperFactory());
 
-        // legacy unqualified HSTORE
-        jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
-        jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
+        if (installLegacy) {
+            // legacy unqualified HSTORE
+            jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
+            jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
+        }
 
         // optional integration
         if (JdbiClassUtils.isPresent("org.jdbi.v3.json.JsonConfig")) {
