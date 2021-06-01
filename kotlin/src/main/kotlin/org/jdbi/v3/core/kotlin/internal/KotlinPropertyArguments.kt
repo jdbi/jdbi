@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,6 +57,6 @@ class KotlinPropertyArguments(obj: Any,
     override fun getNestedArgumentFinder(obj: TypedValue): NamedArgumentFinder {
         return KotlinPropertyArguments(obj.getValue())
     }
-    
+
     override fun toString() = obj.toString()
 }
