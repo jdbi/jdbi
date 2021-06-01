@@ -1,3 +1,9 @@
+# Unreleased
+  - Install PostgresPlugin without unqualified HStore bindings (#1875)
+  - Update Kotlin to 1.5.0
+  - Update Caffeine dependency to 3.0.2
+  - Add missing jdbi3-spring5 to the JDBI bom
+
 # 3.20.0
   - Promote Postgres LOB APIs to stable.
   - Promote JSON, Jackson, and Gson APIs to stable.
