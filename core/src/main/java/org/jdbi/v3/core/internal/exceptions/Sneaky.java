@@ -55,14 +55,11 @@ public class Sneaky {
             throw throwAnyway(t.getCause());
         }
 
-        throwEvadingChecks(t);
-
-        // never reached
-        return null;
+        throw throwEvadingChecks(t);
     }
 
     @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void throwEvadingChecks(Throwable throwable) throws E {
+    private static <E extends Throwable> E throwEvadingChecks(Throwable throwable) throws E {
         throw (E) throwable;
     }
 }
