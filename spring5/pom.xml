@@ -26,7 +26,7 @@
     <url>http://jdbi.org/</url>
 
     <properties>
-        <dep.spring.version>5.3.5</dep.spring.version>
+        <dep.spring.version>5.3.7</dep.spring.version>
         <moduleName>org.jdbi.v3.spring5</moduleName>
     </properties>
 

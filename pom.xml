@@ -88,7 +88,7 @@
         <dep.dokka.version>1.4.30</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
-        <dep.jackson2.version>2.10.1</dep.jackson2.version>
+        <dep.jackson2.version>2.10.5.20201202</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.5.0</dep.kotlin.version>
 
@@ -225,7 +225,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>21.0</version>
+                <version>24.1.1-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
@@ -325,13 +325,13 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.8</version>
+                <version>42.2.20</version>
             </dependency>
 
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>0.13.1</version>
+                <version>0.13.4</version>
             </dependency>
 
             <dependency>
@@ -709,6 +709,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <ignoredDependencies combine.children="append">
+                        <ignoredDependency>com.google.errorprone:error_prone_annotations</ignoredDependency>
+                    </ignoredDependencies>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
