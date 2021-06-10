@@ -50,6 +50,7 @@
         <module>freemarker</module>
         <module>gson2</module>
         <module>moshi</module>
+        <module>guice</module>
         <module>guava</module>
         <module>jackson2</module>
         <module>jodatime2</module>
@@ -125,6 +126,11 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-guice</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -225,7 +231,12 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>21.0</version>
+                <version>30.1.1-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
@@ -416,6 +427,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.8.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.12.0</version>
             </dependency>
 
             <dependency>
@@ -706,6 +723,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <ignoredDependencies combine.children="append">
+                        <ignoredDependency>com.google.errorprone:error_prone_annotations</ignoredDependency>
+                    </ignoredDependencies>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
