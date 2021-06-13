@@ -146,7 +146,7 @@ features.
 
 === Java Compatibility
 
-`Jdbi` runs on all Java versions 8 or later. 11 or later is requied to build.
+`Jdbi` runs on all Java versions 8 or later. 11 or later is required to build.
 
 [WARNING]
 Java 8 support is considered deprecated and will be maintained best-effort for now,
