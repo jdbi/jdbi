@@ -18,7 +18,7 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>38</version>
+        <version>39</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -516,6 +516,7 @@
                         <tagNameFormat>v@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -541,10 +542,6 @@
                         <excludes combine.children="append">
                             <exclude>src/build/*</exclude>
                         </excludes>
-                        <mapping combine.children="append">
-                            <g4>SLASHSTAR_STYLE</g4>
-                            <stg>DOUBLESLASH_STYLE</stg>
-                        </mapping>
                     </configuration>
                 </plugin>
                 <plugin>

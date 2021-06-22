@@ -27,6 +27,9 @@
     <description>Unit tests for scenarios where javac compiles without -parameters flag</description>
 
     <properties>
+        <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+        <basepom.compiler.parameters>false</basepom.compiler.parameters>
+
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
         <moduleName>org.jdbi.v3.noparameters</moduleName>
@@ -62,16 +65,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -31,6 +31,7 @@
         <exclude name="LooseCoupling"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
+        <exclude name="LiteralsFirstInComparisons" />
     </rule>
 
     <rule ref="category/java/codestyle.xml">
@@ -62,6 +63,7 @@
         <exclude name="AvoidCatchingGenericException"/>
         <exclude name="AvoidThrowingRawExceptionTypes"/>
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+        <exclude name="CognitiveComplexity"/>
         <exclude name="CouplingBetweenObjects"/>
         <exclude name="CyclomaticComplexity"/>
         <exclude name="ExcessiveImports"/>
