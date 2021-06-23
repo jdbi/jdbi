@@ -24,8 +24,10 @@ import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.Batch;
 import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.MetaData;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Script;
@@ -290,6 +292,39 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Update createUpdate(String sql) {
         return new Update(this, sql);
+    }
+
+    /**
+     * Access database metadata that returns a {@link java.sql.ResultSet}. All methods of {@link org.jdbi.v3.core.result.ResultBearing} can be used to format
+     * and map the returned results.
+     *
+     * <pre>
+     *     List&lt;String&gt; catalogs = h.queryMetadata(DatabaseMetaData::getCatalogs)
+     *                                      .mapTo(String.class)
+     *                                      .list();
+     * </pre>
+     * <p>
+     * returns the list of catalogs from the current database.
+     *
+     * @param metadataFunction Maps the provided {@link java.sql.DatabaseMetaData} object onto a {@link java.sql.ResultSet} object.
+     * @return The metadata builder.
+     */
+    public ResultBearing queryMetadata(MetaData.MetaDataResultSetProvider metadataFunction) {
+        return new MetaData(this, metadataFunction);
+    }
+
+    /**
+     * Access all database metadata that returns simple values.
+     *
+     * <pre>
+     *     boolean supportsTransactions = handle.queryMetadata(DatabaseMetaData::supportsTransactions);
+     * </pre>
+     *
+     * @param metadataFunction Maps the provided {@link java.sql.DatabaseMetaData} object to a response object.
+     * @return The response object.
+     */
+    public <T> T queryMetadata(MetaData.MetaDataValueProvider<T> metadataFunction) {
+        return new MetaData(this, metadataFunction).execute();
     }
 
     /**
