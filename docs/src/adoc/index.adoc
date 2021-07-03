@@ -1798,6 +1798,23 @@ handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<end
 
 Also see the section about <<TemplateEngine>>.
 
+==== ClasspathSqlLocator
+
+You may find it helpful to store your SQL templates in individual files on the
+classpath, rather than in string inside Java code.
+
+The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
+and then reads, parses, and caches the loaded statements.
+
+[source,java]
+----
+// reads classpath resource com/foo/BarDao/query.sql
+ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
+----
+
 === SQL Arrays
 
 Jdbi can bind/map Java arrays to/from SQL arrays:
@@ -2575,23 +2592,6 @@ serial execution of the transactions!
 With serializable isolation, one of the two transactions is forced to abort and
 retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30
 from the other, we get 30 + 60 = 90 and the assertion succeeds.
-
-=== ClasspathSqlLocator
-
-You may find it helpful to store your SQL templates in individual files on the
-classpath, rather than in string inside Java code.
-
-The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
-and then reads, parses, and caches the loaded statements.
-
-[source,java]
-----
-// reads classpath resource com/foo/BarDao/query.sql
-ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
-
-// same resource as above
-ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
-----
 
 == Configuration
 
