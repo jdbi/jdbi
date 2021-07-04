@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
+import org.assertj.core.api.Assertions;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -57,6 +58,8 @@ public class ImmutablesTest {
         jdbi = dbRule.getJdbi();
         h = dbRule.getSharedHandle();
         h.execute("create table immutables (t int, x varchar)");
+
+        Assertions.setExtractBareNamePropertyMethods(true);
     }
 
     // tag::example[]
