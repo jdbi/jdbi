@@ -590,19 +590,6 @@
                     <version>1.1</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-toolchains-plugin</artifactId>
-                    <version>1.1</version>
-                    <configuration>
-                        <toolchains>
-                            <jdk>
-                                <version>1.8</version>
-                                <vendor>openjdk</vendor>
-                            </jdk>
-                        </toolchains>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>com.github.ekryd.sortpom</groupId>
                     <artifactId>sortpom-maven-plugin</artifactId>
                     <version>${dep.plugin.sortpom.version}</version>
