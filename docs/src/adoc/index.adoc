@@ -2593,6 +2593,30 @@ With serializable isolation, one of the two transactions is forced to abort and
 retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30
 from the other, we get 30 + 60 = 90 and the assertion succeeds.
 
+=== Metadata
+
+Jdbi allows access to the Database Metadata through `queryMetadata` methods on the link:{jdbidocs}/core/Handle.html[Handle^].
+
+Simple values can be queried directly using a method reference:
+
+[source, java]
+----
+String url = h.queryMetadata(DatabaseMetaData::getURL);
+boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
+----
+
+Many methods on the link:{jdkdocs}/java/sql/DatabaseMetaData.html[DatabaseMetaData^] return a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^]. These can be used with the `queryMetadata` method that returns a <<ResultBearing>>.
+
+All JDBI <<Row Mappers>> and <<Column Mappers>> are available to map these results:
+
+[source, java]
+----
+List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
+            .mapTo(String.class)
+            .list();
+----
+
+
 == Configuration
 
 `Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
