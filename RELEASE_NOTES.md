@@ -1,3 +1,9 @@
+# Unreleased
+  - Updates to build and compilation (e.g. treat parameters/noparameters correctly)
+  - Add a local `mvnw` binary to build without a local maven installation
+  - Documentation updates and deploy fixes (kotlin docs work again)
+  - Add a Metadata API to allow Database metadata access through the Handle (#1889)
+
 # 3.20.1
   - Allow installation of the PostgresPlugin without unqualified HStore bindings (#1875)
   - Update Kotlin to 1.5.0
