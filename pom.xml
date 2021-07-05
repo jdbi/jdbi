@@ -85,7 +85,7 @@
 
         <dep.antlr.version>4.9</dep.antlr.version>
         <dep.caffeine.version>3.0.2</dep.caffeine.version>
-        <dep.dokka.version>1.4.30</dep.dokka.version>
+        <dep.dokka.version>1.4.32</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
