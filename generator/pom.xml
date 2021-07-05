@@ -87,18 +87,12 @@
                     <execution>
                         <id>default-compile</id>
                         <configuration>
-                            <compilerArgs>
-                                <arg>-parameters</arg>
-                                <arg>-proc:none</arg>
-                            </compilerArgs>
+                            <proc>none</proc>
                         </configuration>
                     </execution>
                     <execution>
                         <id>default-testCompile</id>
                         <configuration>
-                            <compilerArgs>
-                                <arg>-parameters</arg>
-                            </compilerArgs>
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
                                     <groupId>org.jdbi</groupId>
