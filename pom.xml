@@ -552,11 +552,6 @@
                     <version>${dep.antlr.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                </plugin>
-                <plugin>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <version>${dep.kotlin.version}</version>
