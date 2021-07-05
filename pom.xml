@@ -85,7 +85,7 @@
 
         <dep.antlr.version>4.9</dep.antlr.version>
         <dep.caffeine.version>3.0.2</dep.caffeine.version>
-        <dep.dokka.version>1.4.30</dep.dokka.version>
+        <dep.dokka.version>1.4.32</dep.dokka.version>
         <dep.freebuilder.version>2.6.1</dep.freebuilder.version>
         <dep.immutables.version>2.7.1</dep.immutables.version>
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
@@ -498,14 +498,6 @@
         </dependency>
     </dependencies>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -517,24 +509,6 @@
                     </configuration>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <annotationProcessorPaths>
-                            <annotationProcessorPath>
-                                <groupId>org.immutables</groupId>
-                                <artifactId>value</artifactId>
-                                <version>${dep.immutables.version}</version>
-                            </annotationProcessorPath>
-                            <annotationProcessorPath>
-                                <groupId>org.inferred</groupId>
-                                <artifactId>freebuilder</artifactId>
-                                <version>${dep.freebuilder.version}</version>
-                            </annotationProcessorPath>
-                        </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
@@ -568,11 +542,6 @@
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${dep.antlr.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jetbrains.kotlin</groupId>
