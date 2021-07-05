@@ -80,6 +80,7 @@
 
     <build>
         <plugins>
+            <!-- skip annotation processing while compiling, otherwise the build will fail -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -88,21 +89,6 @@
                         <id>default-compile</id>
                         <configuration>
                             <proc>none</proc>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <configuration>
-                            <annotationProcessorPaths>
-                                <annotationProcessorPath>
-                                    <groupId>org.jdbi</groupId>
-                                    <artifactId>jdbi3-generator</artifactId>
-                                    <version>${project.version}</version>
-                                </annotationProcessorPath>
-                            </annotationProcessorPaths>
-                            <annotationProcessors>
-                                <annotationProcessor>org.jdbi.v3.generator.GenerateSqlObjectProcessor</annotationProcessor>
-                            </annotationProcessors>
                         </configuration>
                     </execution>
                 </executions>
