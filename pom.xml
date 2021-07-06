@@ -708,31 +708,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-            <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>org.asciidoctor</groupId>
-                                    <artifactId>asciidoctor-maven-plugin</artifactId>
-                                    <versionRange>[1.5.3,)</versionRange>
-                                    <goals>
-                                        <goal>process-asciidoc</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore />
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -748,6 +723,59 @@
             <properties>
                 <moduleName>org.jdbi.v3</moduleName>
             </properties>
+        </profile>
+        <profile>
+            <id>maven-eclipse</id>
+            <activation>
+                <property>
+                    <!-- see https://newbedev.com/get-rid-of-pom-not-found-warning-for-org-eclipse-m2e-lifecycle-mapping -->
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.asciidoctor</groupId>
+                                                <artifactId>asciidoctor-maven-plugin</artifactId>
+                                                <versionRange>[1.5.3,)</versionRange>
+                                                <goals>
+                                                    <goal>process-asciidoc</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore />
+                                            </action>
+                                        </pluginExecution>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>com.github.ekryd.sortpom</groupId>
+                                                <artifactId>sortpom-maven-plugin</artifactId>
+                                                <versionRange>[0,)</versionRange>
+                                                <goals>
+                                                    <goal>sort</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore />
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
     </profiles>
 </project>
