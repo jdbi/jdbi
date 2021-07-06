@@ -178,14 +178,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <configuration>
-                    <flattenMode>bom</flattenMode>
-                    <pomElements>
-                        <properties>remove</properties>
-                        <distributionManagement>remove</distributionManagement>
-                    </pomElements>
-                </configuration>
                 <executions>
                     <execution>
                         <id>flatten</id>

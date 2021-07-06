@@ -91,6 +91,7 @@
         <dep.jackson2.version>2.10.1</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
         <dep.kotlin.version>1.5.0</dep.kotlin.version>
+        <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
 
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.25</dep.slf4j.version>
@@ -627,6 +628,18 @@
                     <configuration combine.children="append">
                         <includeFilterFile>policy/spotbugs-include.xml</includeFilterFile>
                         <excludeFilterFile>policy/spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${dep.plugin.flatten.version}</version>
+                    <configuration>
+                        <flattenMode>bom</flattenMode>
+                        <pomElements>
+                            <properties>remove</properties>
+                            <distributionManagement>remove</distributionManagement>
+                        </pomElements>
                     </configuration>
                 </plugin>
             </plugins>
