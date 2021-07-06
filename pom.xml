@@ -639,6 +639,7 @@
                         <pomElements>
                             <properties>remove</properties>
                             <distributionManagement>remove</distributionManagement>
+                            <repositories>remove</repositories>
                         </pomElements>
                     </configuration>
                 </plugin>
