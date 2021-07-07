@@ -1831,7 +1831,7 @@ Multiple comment styles are supported:
 
 * C-style (`/* ... */` and `//` to the end of the line)
 * SQL style (`--` to the end of the line)
-* shell style (`#` to the end of the line; except if followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
+* shell style (`\#` to the end of the line; except when followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
 
 
 === SQL Arrays
@@ -3677,10 +3677,10 @@ interface BarDao {
 }
 ----
 
-*@UseClasspathSqlLocator* is implemented with <<ClasspathSqlLocator>>, as described above.
+*@UseClasspathSqlLocator* is implemented using the <<ClasspathSqlLocator>>, as described above.
 
 [WARNING]
-Unlike the <<ClasspathSqlLocator>>, which loads files unchanged by default, the `@UseClasspathSqlLocator` will strip out comments! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` attribute.
+<<ClasspathSqlLocator>> loads files unchanged by default. Using the `@UseClasspathSqlLocator` annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
 
 [source,java]
 ----
