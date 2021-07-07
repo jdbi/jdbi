@@ -1809,11 +1809,30 @@ and then reads, parses, and caches the loaded statements.
 [source,java]
 ----
 // reads classpath resource com/foo/BarDao/query.sql
-ClasspathSqlLocator.findSqlOnClasspath(com.foo.BarDao.class, "query");
+ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
 
 // same resource as above
-ClasspathSqlLocator.findSqlOnClasspath("com.foo.BarDao.query");
+ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
 ----
+
+By default, any comments in the loaded file are left untouched. Comments can be stripped out by
+instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
+
+[source,java]
+----
+// reads classpath resource com/foo/BarDao/query.sql, stripping all comments
+ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.removingComments().locate("com.foo.BarDao.query");
+----
+
+Multiple comment styles are supported:
+
+* C-style (`/* ... */` and `//` to the end of the line)
+* SQL style (`--` to the end of the line)
+* shell style (`#` to the end of the line; except if followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
+
 
 === SQL Arrays
 
@@ -3659,6 +3678,21 @@ interface BarDao {
 ----
 
 *@UseClasspathSqlLocator* is implemented with <<ClasspathSqlLocator>>, as described above.
+
+[WARNING]
+Unlike the <<ClasspathSqlLocator>>, which loads files unchanged by default, the `@UseClasspathSqlLocator` will strip out comments! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` attribute.
+
+[source,java]
+----
+package com.foo;
+@UseClasspathSqlLocator(stripComments=false)
+interface BarDao {
+    // loads classpath resource com/foo/BarDao/query.sql without stripping comment lines
+    @SqlQuery
+    void query();
+}
+----
+
 
 If you like StringTemplate, the <<StringTemplate 4>> module also provides a
 SqlLocator, which can load SQL templates from StringTemplate 4 files on the
