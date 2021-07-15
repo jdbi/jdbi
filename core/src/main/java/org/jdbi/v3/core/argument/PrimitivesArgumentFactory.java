@@ -28,7 +28,7 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
         register(char.class, Types.CHAR, new ToStringBinder<>(PreparedStatement::setString));
         register(short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(int.class, Types.INTEGER, PreparedStatement::setInt);
-        register(long.class, Types.INTEGER, PreparedStatement::setLong);
+        register(long.class, Types.BIGINT, PreparedStatement::setLong);
         register(float.class, Types.FLOAT, PreparedStatement::setFloat);
         register(double.class, Types.DOUBLE, PreparedStatement::setDouble);
     }
