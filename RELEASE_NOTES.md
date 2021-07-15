@@ -1,4 +1,5 @@
-# Unreleased
+# 3.20.2
+  - Fix sending Long types as INT8 instead of INT4 (#1902)
   - Updates to build and compilation (e.g. treat parameters/noparameters correctly)
   - Add a local `mvnw` binary to build without a local maven installation
   - Documentation updates and deploy fixes (kotlin docs work again)
