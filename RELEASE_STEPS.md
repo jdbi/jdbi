@@ -15,7 +15,7 @@ Example:
 ```bash
 $ git checkout master
 $ git pull
-$ git checkout -b jdbi-<version>-release 
+$ git checkout -b jdbi-<version>-release
 ```
 
 ## Update release notes
@@ -79,7 +79,16 @@ $ cd docs
 $ ./publish-docs.sh
 ```
 
-## Publish release announcement
+## Add a release announcement to github
+
+- open https://github.com/jdbi/jdbi, click on "Releases"
+- "Draft a new Release"
+- Select the just pushed Tag, use Release title "JDBI <version>"
+- paste the line items from the Release notes into the "Describe this release" text box
+- Click "Publish release"
+
+
+## Publish release announcement to the mailing list
 
 Write up a release announcement (similar to past announcements on the mailing list) and hit Send
 
