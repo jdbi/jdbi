@@ -21,4 +21,8 @@
     <Match>
         <Package name="~.*\.generated" />
     </Match>
+    <!-- spotbugs 4.3.0 made this very aggressive and less useful -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+    </Match>
 </FindBugsFilter>
