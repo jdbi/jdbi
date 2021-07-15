@@ -23,7 +23,7 @@ class BoxedArgumentFactory extends DelegatingArgumentFactory {
         register(Character.class, Types.CHAR, new ToStringBinder<>(PreparedStatement::setString));
         register(Short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(Integer.class, Types.INTEGER, PreparedStatement::setInt);
-        register(Long.class, Types.INTEGER, PreparedStatement::setLong);
+        register(Long.class, Types.BIGINT, PreparedStatement::setLong);
         register(Float.class, Types.FLOAT, PreparedStatement::setFloat);
         register(Double.class, Types.DOUBLE, PreparedStatement::setDouble);
     }

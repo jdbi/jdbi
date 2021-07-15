@@ -51,5 +51,9 @@ public class PrimitivesArgumentFactoryTest {
         assertThat(handle.createQuery("select :foo").bindByType("foo", null, Integer.class).mapTo(Integer.class).one())
             .describedAs("binding a null to a boxed type is fine")
             .isNull();
+
+        assertThat(handle.createQuery("select :foo").bindByType("foo", null, Long.class).mapTo(Long.class).one())
+            .describedAs("binding a null to a boxed type is fine")
+            .isNull();
     }
 }
