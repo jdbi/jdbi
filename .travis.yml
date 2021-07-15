@@ -1,6 +1,6 @@
 language: java
 
-sudo: false
+os: linux
 dist: xenial
 
 # No much sense in keeping jdbi artifacts cached
@@ -44,9 +44,9 @@ jobs:
         - DOCUMENTATION=Y
       script:
         - src/build/ci-doc.sh
-      jdk: openjdk11
+      jdk: openjdk16
     - env:
         - CODE_STYLE=Y
       script:
         - src/build/ci-code-style.sh
-      jdk: openjdk11
+      jdk: openjdk16

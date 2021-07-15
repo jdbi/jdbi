@@ -261,7 +261,6 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <additionalJOption>--no-module-directories</additionalJOption>
                                     <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
                                     <excludePackageNames>*.internal.*</excludePackageNames>

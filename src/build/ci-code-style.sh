@@ -3,4 +3,4 @@ set -xe
 
 OPTS="-DskipTests=true -B"
 
-exec mvn ${OPTS} verify
+exec mvn ${OPTS} install
