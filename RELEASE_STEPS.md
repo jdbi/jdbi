@@ -83,7 +83,7 @@ $ ./publish-docs.sh
 
 - open https://github.com/jdbi/jdbi, click on "Releases"
 - "Draft a new Release"
-- Select the just pushed Tag, use Release title "JDBI <version>"
+- Select the just pushed Tag, use Release title "JDBI &lt;version&gt;"
 - paste the line items from the Release notes into the "Describe this release" text box
 - Click "Publish release"
 
