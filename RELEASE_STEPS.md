@@ -25,6 +25,7 @@ Double check that release notes contain all the most important changes for the r
 ## Build the release on your workstation
 
 Create the release artifacts in Maven, and deploy them to Sonatype staging repository
+Note that on Java 16, you must specify `--illegal-access=warn` as a `MAVEN_OPTS` otherwise Kotlin fails to build
 
 ```bash
 $ mvn release:prepare release:perform
