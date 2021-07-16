@@ -204,6 +204,25 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>timestamp-property</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>timestamp-property</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <name>doc.timestamp</name>
+                    <pattern>MM/dd/yyyy HH:mm ZZ</pattern>
+                    <locale>en_US</locale>
+                    <timeZone>America/Los_Angeles</timeZone>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
                 <executions>
@@ -219,10 +238,13 @@
                 <configuration>
                     <sourceDirectory>src/adoc</sourceDirectory>
                     <sourceDocumentName>index.adoc</sourceDocumentName>
-                    <backend>html</backend>
+                    <backend>html5</backend>
                     <sourceHighlighter>coderay</sourceHighlighter>
                     <attributes>
                         <project_version>${project.version}</project_version>
+                        <revnumber>${project.version}</revnumber>
+                        <revdate>${doc.timestamp}</revdate>
+                        <docdatetime>${doc.timestamp}</docdatetime>
                     </attributes>
                 </configuration>
             </plugin>
