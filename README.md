@@ -1,6 +1,6 @@
 ![Jdbi Logo](docs/src/adoc/images/logo.svg)
 
-[![Build Status](https://travis-ci.org/jdbi/jdbi.svg?branch=master)](https://travis-ci.org/jdbi/jdbi)
+[![Build Status](https://api.travis-ci.com/jdbi/jdbi.svg?branch=master)](https://travis-ci.com/github/jdbi/jdbi)
 
 The Jdbi library provides convenient, idiomatic access to relational databases
 in Java.
