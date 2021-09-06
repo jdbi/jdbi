@@ -5173,7 +5173,7 @@ Check the string concatenation syntax of your database before doing this.
 === High Availability
 
 Jdbi can be combined with connection pools and high-availability features in your database driver.
-We've used link:https://brettwooldridge.github.io/HikariCP/[HikariCP^] in combination
+We've used link:https://github.com/brettwooldridge/HikariCP[HikariCP^] in combination
 with the link:https://jdbc.postgresql.org/documentation/head/connect.html[PgJDBC connection load balancing^]
 features with good success.
 
