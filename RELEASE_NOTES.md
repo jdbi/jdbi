@@ -1,3 +1,7 @@
+# 3.22.0
+  - Guice support for Jdbi creation and injection (#1888)
+  - documentation fixes
+  - update CI to build with post-11 JDK (currently 16)
 # 3.21.0
   - Fix sending Long types as INT8 instead of INT4 (#1902)
   - Updates to build and compilation (e.g. treat parameters/noparameters correctly)
