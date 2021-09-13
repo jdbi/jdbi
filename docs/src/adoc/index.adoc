@@ -4324,6 +4324,438 @@ Then install the plugin into your `Jdbi` instance:
 jdbi.installPlugin(new JodaTimePlugin());
 ----
 
+=== Google Guice
+
+[WARNING]
+Guice support is experimental.
+
+The Guice module adds support for configuring and injecting `Jdbi` instances in applications and services that use the link:https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
+
+Guice support for Jdbi is split into two module types:
+
+* *Jdbi definition modules* extend the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] class. Each of these modules creates a new `Jdbi` instance which is exposed into the Guice binding process using an annotation.
+* *Jdbi element configuration modules* extend the link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^]. These modules contribute elements that are referenced in Jdbi definition modules.
+
+[NOTE]
+Jdbi definition modules are by far more common. Element configuration modules are completely optional. They are most useful in larger projects.
+
+==== Definition modules
+
+Every `Jdbi` instance is defined in its own Guice module which extends the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] base class.
+
+The  annotation instance or class used on the constructor is used to bind the resulting Jdbi object:
+
+[source,java]
+----
+class GuiceJdbiModule extends AbstractJdbiDefinitionModule {
+
+    public GuiceJdbiModule() {
+        super(GuiceJdbi.class);
+    }
+
+    @Override
+    protected void configureJdbi() {
+        // bind a custom row mapper
+        bindRowMapper().to(CustomRowMapper.class);
+
+        // bind a custom column mapper
+        bindColumnMapper().toInstance(new CustomColumnMapper());
+
+        // bind a Codec
+        bindCodec(String.class).to(Key.get(CustomStringCodec.class, Custom.class));
+
+        // bind a custom array type
+        bindArrayType(CustomArrayType.class).toInstance("custom_array");
+
+        // bind a jdbi plugin
+        bindPlugin().toInstance(new SqlObjectPlugin());
+
+        // bind a customizer
+        bindCustomizer().to(SpecialCustomizer.class);
+    }
+}
+
+class Application {
+    @Inject
+    @GuiceJdbi
+    private Jdbi jdbi;
+
+    public static void main(String ... args) {
+        Injector inj = Guice.createInjector(
+            new GuiceJdbiModule(),
+)           binder -> binder.bind(DataSource.class).annotatedWith(GuiceJdbi.class).toInstance(... data source instance ...);
+        );
+        inj.injectMembers(this);
+    }
+}
+----
+
+In this example, a new `Jdbi` is defined using specific mappers and other customizations. The `Jdbi` object is exposed to Guice using the annotation passed on the module constructor (`GuiceJdbi` in the example). The link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] supports both annotation instances and classes, similar to Guice itself.
+
+[WARNING]
+A Jdbi definition module requires that a DataSource object is bound within Guice using the same annotation or annotation class as is passed into the module constructor. *Creating this data source is outside the scope of a Jdbi definition module!*
+
+When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jdbiBinder()[configureJdbi()^] method, a number of convenience methods are available as shown above. These methods return Guice LinkedBindingBuilder instances and allow the full range of bindings that guice supports (classes, instances, providers etc).
+
+[%header, cols=3*]
+.Supported bindings
+|=====
+| Method | Type of binding | JDBI function
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper()[bindRowMapper()^]
+.3+| link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<?>^]
+.3+| <<Row Mappers>>
+| link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper(org.jdbi.v3.core.generic.GenericType)[bindRowMapper(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper(java.lang.reflect.Type)[bindRowMapper(Type)^]
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper()[bindColumnMapper()^]
+.4+|  link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper<?>^]
+.4+| <<Column Mappers>>
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.v3.core.qualifier.QualifiedType)[bindColumnMapper(QualifiedType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.v3.core.generic.GenericType)[bindColumnMapper(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(java.lang.reflect.Type)[bindColumnMapper(Type)^]
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.v3.core.qualifier.QualifiedType)[bindCodec(QualifiedType<?>)^]
+.3+| link:{jdbidocs}/core/codec/Codec.html[Codec<?>^]
+.3+| <<Codecs>>
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.v3.core.generic.GenericType)[bindCodec(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(java.lang.reflect.Type)[bindCodec(Type)^]
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindArrayType(java.lang.Class)[bindArrayType(Class<?>)^] | `String` | <<Registering array types>>
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindPlugin()[bindPlugin()^]
+| link:{jdbidocs}/core/spi/JdbiPlugin.html[JdbiPlugin^]
+| <<Installing plugins>>
+
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCustomizer()[bindCustomizer()^]
+| link:{jdbidocs}/guice/GuiceJdbiCustomizer.html[GuiceJdbiCustomizer^]
+| <<Jdbi customization using Guice>>
+|=====
+
+Each Jdbi definition module is completely independent and all definitions within the module only apply to the specific `Jdbi` instance.
+
+==== Using Guice injection in Jdbi classes
+
+The Jdbi related guice modules store the various related elements (mappers, codecs etc.) using link:https://github.com/google/guice/wiki/Multibindings[Multibindings^]. As a result, it is not possible to use injection directly when constructing mapper instances.
+
+The following example *does not work*:
+
+[source,java]
+----
+class JdbiModule extends AbstractJdbiDefinitionModule {
+
+    public JdbiModule() {
+        super(Names.named("data"));
+    }
+
+    @Override
+    protected void configureJdbi() {
+        bindRowMapper().to(BrokenRowMapper.class);
+        bindColumnMapper().to(CustomStringMapper.class);
+    }
+}
+
+class CustomStringMapper implements ColumnMapper<String> {
+
+    @Override
+    public String map(ResultSet r, int columnNumber, StatementContext ctx) {
+        long x = r.getLong(columnNumber);
+        return (x > 1000) ? "Huge" : "Small";
+    }
+}
+
+class BrokenRowMapper implements RowMapper<DataRow> {
+
+    private final ColumnMapper<String> stringMapper;
+
+    @Inject
+    public BrokenRowMapper(CustomStringMapper stringMapper) {
+        this.stringMapper = stringMapper;
+    }
+
+    @Override
+    public DataRow map(ResultSet rs, StatementContext ctx) {
+        return new DataRow(rs.getInt("intValue"),
+                stringMapper.map(rs, "longValue", ctx));
+    }
+}
+----
+
+Guice will report an error that it can not locate the `CustomStringMapper` instance. The Guice Jdbi integration manages mappers etc. as groups and the separate instances are not directly accessible for injection. The right way to compose mappers is using the Jdbi configuration (see <<JdbiConfig>>), which is configured through Guice:
+
+[source,java]
+----
+class JdbiModule extends AbstractJdbiDefinitionModule {
+
+    public JdbiModule() {
+        super(Names.named("data"));
+    }
+
+    @Override
+    protected void configureJdbi() {
+        bindRowMapper().to(WorkingRowMapper.class);
+        bindColumnMapper(CustomStringMapper.TYPE).to(CustomStringMapper.class);
+    }
+}
+
+class CustomStringMapper implements ColumnMapper<String> {
+
+    public static QualifiedType<String> TYPE = QualifiedType.of(String.class).with(Names.named("data"));
+
+    @Override
+    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        long x = r.getLong(columnNumber);
+        return (x > 1000) ? "Huge" : "Small";
+    }
+}
+
+class WorkingRowMapper implements RowMapper<DataRow> {
+
+    private ColumnMapper<String> stringMapper;
+
+    @Override
+    public void init(ConfigRegistry registry) {
+        this.stringMapper = registry.get(ColumnMappers.class).findFor(CustomStringMapper.TYPE)
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    @Override
+    public DataRow map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return new DataRow(rs.getInt("intValue"),
+            stringMapper.map(rs, "longValue", ctx));
+    }
+}
+----
+
+This limitation *only* applies to bindings that are made in through the various `bindXXX()` methods in Jdbi specific modules. Any other binding is available for injection into Jdbi elements:
+
+[source, java]
+----
+class ThresholdMapper implements ColumnMapper<String> {
+
+    public static QualifiedType<String> TYPE = QualifiedType.of(String.class).with(Threshold.class);
+
+    private final long threshold;
+
+    // Injection of a named constant here.
+    @Inject
+    ThresholdMapper(@Threshold long threshold) {
+        this.threshold = threshold;
+    }
+
+    @Override
+    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        long x = r.getLong(columnNumber);
+        return (x > threshold) ? "Huge" : "Small";
+    }
+}
+
+class JdbiModule extends AbstractJdbiDefinitionModule {
+
+    public JdbiModule() {
+        super(Data.class);
+    }
+
+    @Override
+    protected void configureJdbi() {
+        bindColumnMapper(CustomStringMapper.TYPE).to(CustomStringMapper.class);
+    }
+}
+
+Injector inj = Guice.createInjector(
+    new JdbiModule(),
+    // define injected constant here
+    binder -> binder.bindConstant().annotatedWith(Threshold.class).to(5000L);
+)
+----
+
+==== Jdbi customization using Guice
+
+Many Jdbi specific settings can be configured through the `bindXXX()` methods available on Jdbi modules (row mappers, column mappers, codecs, plugins etc.)
+
+However, there are additional features that may not be available through these methods. For these use cases, the  link:{jdbidocs}/guice/GuiceJdbiCustomizer.html[GuiceJdbiCustomizer^] interface can be used.
+
+Instances that implement this interface can be added to Jdbi modules using the link:{jdbidocs}/guice/JdbiBinder.html#bindCustomizer()[bindCustomizer()^] method.
+
+Every customizer will get the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance passed at construction time and may modify any aspect before it gets exposed to other parts of the application.
+
+[source,java,indent=0]
+----
+class GuiceCustomizationModule extends AbstractJdbiDefinitionModule {
+
+    public GuiceCustomizationModule() {
+        super(Custom.class);
+    }
+
+    @Override
+    protected void configureJdbi() {
+        bindCustomizer().to(MyCustomizer.class);
+    }
+}
+
+class MyCustomizer implements GuiceJdbiCustomizer {
+
+    @Override
+    public void customize(Jdbi jdbi) {
+        // set the logger to use Slf4j
+        jdbi.setSqlLogger(new Slf4JSqlLogger());
+    }
+}
+----
+
+In combination with Jdbi configuration modules, these customizers allow easy enforcement of standard configurations for all Jdbi instances in larger projects.
+
+==== Element configuration modules
+
+[NOTE]
+Element configuration modules are completely optional and should not be used when only a single Jdbi instance is required. They are intended to help with code organization in larger projects that have more complex needs.
+
+All bindings in a Jdbi module that defines a `Jdbi` object are local to that module. This is useful if all Jdbi related code can be grouped around the module. In larger projects, some parts of the code (and their Jdbi related elements such as row and column mappers) may be located in different part of the code base.
+
+In larger projects, generic mappers should be available for multiple Jdbi instances. This leads often to a proliferation of small modules that only contain such generic code and is in turn imported into every code module that wants to use them.
+
+To support modular code design, any part of a code base that wants to contribute Jdbi specific classes such as mappers to the overall system can use an element configuration module to expose these to all Jdbi instances in a project.
+
+Jdbi element configuration modules extend link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] and can define mappers, plugins etc. similar to a Jdbi definition module. Anything that is registered in such a module is global and will be applied to all instances even if they are defined in another module.
+
+
+[source,java]
+----
+class DomainModule extends AbstractJdbiConfigurationModule {
+
+    @Override
+    protected void configureJdbi() {
+        bindRowMapper().to(DomainMapper.class);
+    }
+}
+
+class DomainMapper implements RowMapper<DomainObject> {
+
+    private ColumnMapper<UUID> uuidMapper;
+
+    @Override
+    public void init(ConfigRegistry registry) {
+        this.uuidMapper = registry.get(ColumnMappers.class).findFor(UUID.class)
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    @Override
+    public DomainObject map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return new DomainObject(
+            uuidMapper.map(rs, "id", ctx),
+            rs.getString("name"),
+            rs.getString("data"),
+            rs.getInt("value"),
+            rs.getBoolean("flag"));
+    }
+}
+----
+
+If the `DomainModule` is bound within Guice, then all configured `Jdbi` instances will be able to map DomainObject instances without having to configure them explicitly as a row mapper.
+
+Multiple modules extending link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] can be installed in a single injector; the resulting bindings will be aggregated.
+
+==== Advanced Topics
+
+===== Exposing additional bindings
+
+Each module that defines a `Jdbi` instance keeps all bindings private and exposes only the actual `Jdbi` object itself. This allows the installation of multiple modules where each definition is completely independent. Sometimes it is useful to attach additional objects and expose them using the same annotations. The most common use cases are data access objects.
+
+Consider a use case where two DataSource instances exist, one annotated as `Writer` and the other as `Reader`. Both are accessing databases with the same schema, and it makes sense to have two data access objects that are identical except that they are using the different data sources (this is often referred to as the "robot legs" problem of dependency injection).
+
+[source, java]
+----
+interface DatabaseAccess {
+    @SqlUpdate("INSERT INTO data_table ....")
+    int insert(...);
+
+    @SqlQuery("SELECT * FROM data_table")
+    Data select();
+}
+----
+
+To bind two instances of this data access object and connect each to the appropriate Jdbi instance, add the binding to the Jdbi definition module and expose it with  link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#exposeBinding(java.lang.Class)[exposeBinding(Class<?>)^] or link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#exposeBinding(com.google.inject.TypeLiteral)[exposeBinding(TypeLiteral<?>)^]:
+
+[source,java]
+----
+class DatabaseModule extends AbstractJdbiDefinitionModule {
+    public DatabaseModule(Class<? extends Annotation> a) {
+        super(a);
+    }
+
+    @Provides
+    @Singleton
+    DatabaseAccess createDatabaseAccess(Jdbi jdbi) {
+        return jdbi.onDemand(DatabaseAccess.class);
+    }
+
+    @Override
+    public void configureJdbi() {
+        ... bind mappers, plugins etc. ...
+
+        exposeBinding(DatabaseAccess.class);
+    }
+}
+----
+
+Now install the module multiple times with different annotation classes:
+
+[source,java]
+----
+Injector injector = Guice.createInjector(
+    // bind existing data sources
+    binder -> binder.bind(DataSource.class).annotatedWith(Reader.class).toInstance(...);
+    binder -> binder.bind(DataSource.class).annotatedWith(Writer.class).toInstance(...);
+
+    new DatabaseModule(Reader.class),
+    new DatabaseModule(Writer.class)
+);
+
+// fetch object directly from the injector
+DatabaseAccess readerAccess = injector.getInstance(Key.get(DatabaseAccess.class, Reader.class));
+DatabaseAccess writerAccess = injector.getInstance(Key.get(DatabaseAccess.class, Writer.class));
+----
+
+===== Custom element configuration modules
+
+In larger projects, <<Element configuration modules>> help to organize the various Jdbi related elements. By default, all modules contribute their configuration to a single, global configuration that is used in all Jdbi definition modules.
+
+Sometimes it is useful to create separate configurations that only affect a subset of Jdbi definitions. This can be done by using a custom annotation for both the Jdbi element configuration and the Jdbi definition modules:
+
+[source,java]
+----
+class CustomConfigurationModule extends AbstractJdbiConfigurationModule {
+
+    CustomModule() {
+        super(CustomConfiguration.class); // definition modules must use this annotation explictly
+    }
+
+    @Override
+    public void configureJdbi() {
+        bindColumnMapper().to(CustomColumnMapper.class);
+        bindPlugin().to(SpecialDatabaseModule.class);
+    }
+}
+
+class SpecialDatabaseModule extends AbstractJdbiDefinitionModule {
+
+    SpecialDatabaseModule() {
+        super(
+            SpecialDatabase.class,     // The Jdbi instance is bound using this annotation class
+            CustomConfiguration.class  // Use an explicit configuration
+        );
+    }
+
+    @Override
+    public void configureJdbi() {
+        ...
+    }
+}
+----
+
+The Jdbi element bound with the `SpecialDatabase` annotation will have the `SpecialDatabaseModule` loaded and can use the `CustomColumnMapper`.
+
+
 === JPA
 
 Using the JPA plugin is a great way to trick your boss into letting you try
