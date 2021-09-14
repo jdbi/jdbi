@@ -22,17 +22,20 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer;
 import org.jdbi.v3.guice.internal.InternalGuiceJdbiFactory;
+import org.jdbi.v3.guice.internal.InternalImportBindingBuilder;
 import org.jdbi.v3.guice.internal.InternalJdbiBinder;
-import org.jdbi.v3.guice.internal.InternalOptionalCustomizerProvider;
+import org.jdbi.v3.guice.internal.InternalLooseImportBindingBuilder;
 import org.jdbi.v3.guice.internal.JdbiGlobal;
 import org.jdbi.v3.guice.internal.JdbiInternal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.jdbi.v3.guice.internal.InternalLooseImportBindingBuilder.createLooseBinding;
 
 /**
  * Base module class to define {@link Jdbi} instances. This is a {@link PrivateModule} which will by default only expose the constructed {@link Jdbi} object as
@@ -68,8 +71,8 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
     /**
      * Create a Jdbi definition module with a custom annotation for element configuration.
      * <p>
-     * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the
-     * same annotation as this constructor.
+     * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the same
+     * annotation as this constructor.
      *
      * @param annotation            The resulting @{link Jdbi} instance will be exposed using this annotation.
      * @param globalAnnotationClass Custom annotation class used to look up global settings for this {@link Jdbi} instance.
@@ -93,8 +96,8 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
     /**
      * Create a Jdbi definition module with a custom annotation for element configuration.
      * <p>
-     * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the
-     * same annotation as this constructor.
+     * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the same
+     * annotation as this constructor.
      *
      * @param annotationClass       The resulting @{link Jdbi} instance will be exposed using this annotation.
      * @param globalAnnotationClass Custom annotation class used to look up global settings for this {@link Jdbi} instance.
@@ -124,13 +127,15 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
 
             if (globalAnnotationClass != null) {
                 // binding for optional global settings; this provider returns it if it exists, otherwise just an empty dummy customizer.
-                customizers.addBinding().toProvider(new InternalOptionalCustomizerProvider(globalAnnotationClass));
+                createLooseBinding(customizers.addBinding(), Key.get(GuiceJdbiCustomizer.class, globalAnnotationClass))
+                    .withDefault(GuiceJdbiCustomizer.NOP)
+                    .in(Scopes.SINGLETON);
             }
 
             customizers.addBinding().to(InternalGuiceJdbiCustomizer.class).in(Scopes.SINGLETON);
 
             // bring externally bound data source into the module namespace
-            importBinding(DataSource.class);
+            importBinding(DataSource.class).in(Scopes.SINGLETON);
 
             bind(Jdbi.class).toProvider(InternalGuiceJdbiFactory.class).in(Scopes.SINGLETON);
 
@@ -164,32 +169,113 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
     @Override
     public final JdbiBinder jdbiBinder() {
         checkState(jdbiBinder != null, "The jdbiBinder can only be used inside configureJdbi()");
+
         return jdbiBinder;
     }
 
     /**
-     * Pulls an existing binding (made outside this module) that uses the annotation or annotation class into the module scope (without annotations).
+     * Pulls an outside binding into the module scope if it exists. If it does not exist, bind a null value or a default. An outside binding uses the same
+     * annotation or annotation class as the module.
      */
-    public final <T> void importBinding(Class<T> clazz) {
-        checkNotNull(clazz, "clazz is null");
-        importBinding(TypeLiteral.get(clazz));
+    public final <T> InternalLooseImportBindingBuilder<T> importBindingLoosely(TypeLiteral<T> type) {
+        checkNotNull(type, "type is null");
+
+        return createLooseBinding(binder().bind(type), createKey(type));
     }
 
     /**
-     * Pulls an existing binding (made outside this module) that uses the annotation or annotation class into the module scope (without annotations).
+     * Pulls an outside binding into the module scope if it exists. If it does not exist, bind a null value or a default. An outside binding uses the same
+     * annotation or annotation class as the module.
      */
-    @SuppressWarnings("PMD.ConfusingTernary")
-    public final <T> void importBinding(TypeLiteral<T> type) {
+    public final <T> InternalLooseImportBindingBuilder<T> importBindingLoosely(Class<T> clazz) {
+        checkNotNull(clazz, "clazz is null");
+
+        return createLooseBinding(binder().bind(clazz), createKey(clazz));
+    }
+
+    /**
+     * Pulls an outside binding into the module scope if it exists using the binder given. If it does not exist, bind a null value or a default. An outside
+     * binding uses the same annotation or annotation class as the module.
+     */
+    public final <T> InternalLooseImportBindingBuilder<T> importBindingLoosely(LinkedBindingBuilder<T> binder, TypeLiteral<T> type) {
+        checkNotNull(binder, "binder is null");
         checkNotNull(type, "type is null");
 
-        Key<T> key = null;
+        return createLooseBinding(binder, createKey(type));
+    }
+
+    /**
+     * Pulls an outside binding into the module scope if it exists using the binder given. If it does not exist, bind a null value or a default. An outside
+     * binding uses the same annotation or annotation class as the module.
+     */
+    public final <T> InternalLooseImportBindingBuilder<T> importBindingLoosely(LinkedBindingBuilder<T> binder, Class<T> clazz) {
+        checkNotNull(binder, "binder is null");
+        checkNotNull(clazz, "clazz is null");
+
+        return createLooseBinding(binder, createKey(clazz));
+    }
+
+    /**
+     * Pulls an existing outside binding into the module scope. An outside binding uses the same annotation or annotation class as the module.
+     */
+    public final <T> InternalImportBindingBuilder<T> importBinding(Class<T> clazz) {
+        checkNotNull(clazz, "clazz is null");
+
+        return new InternalImportBindingBuilder<>(binder().bind(clazz), createKey(clazz));
+    }
+
+    /**
+     * Pulls an existing outside binding into the module scope. An outside binding uses the same annotation or annotation class as the module.
+     */
+    public final <T> InternalImportBindingBuilder<T> importBinding(TypeLiteral<T> type) {
+        checkNotNull(type, "type is null");
+
+        return new InternalImportBindingBuilder<>(binder().bind(type), createKey(type));
+    }
+
+    /**
+     * Pulls an existing outside binding into the module scope using the specified binder. An outside binding uses the same annotation or annotation class as
+     * the module.
+     */
+    public final <T> InternalImportBindingBuilder<T> importBinding(LinkedBindingBuilder<T> binder, TypeLiteral<T> type) {
+        checkNotNull(binder, "binder is null");
+        checkNotNull(type, "type is null");
+
+        return new InternalImportBindingBuilder<>(binder, createKey(type));
+    }
+
+    /**
+     * Pulls an existing outside binding into the module scope using the specified binder. An outside binding uses the same annotation or annotation class as
+     * the module.
+     */
+    public final <T> InternalImportBindingBuilder<T> importBinding(LinkedBindingBuilder<T> binder, Class<T> clazz) {
+        checkNotNull(binder, "binder is null");
+        checkNotNull(clazz, "clazz is null");
+
+        return new InternalImportBindingBuilder<>(binder, createKey(clazz));
+    }
+
+    /**
+     * Creates a {@link Key} object for a class that uses the annotation or annotation class used to construct this module.
+     */
+    public final <T> Key<T> createKey(Class<T> clazz) {
+        checkNotNull(clazz, "clazz is null");
+        return createKey(TypeLiteral.get(clazz));
+    }
+
+    /**
+     * Creates a {@link Key} object for a {@link TypeLiteral} that uses the annotation or annotation class used to construct this module.
+     */
+    @SuppressWarnings("PMD.ConfusingTernary")
+    public final <T> Key<T> createKey(TypeLiteral<T> type) {
+        checkNotNull(type, "type is null");
+
         if (annotation != null) {
-            key = Key.get(type, annotation);
+            return Key.get(type, annotation);
         } else if (annotationClass != null) {
-            key = Key.get(type, annotationClass);
-        }
-        if (key != null) {
-            bind(type).to(key).in(Scopes.SINGLETON);
+            return Key.get(type, annotationClass);
+        } else {
+            throw new IllegalStateException("Neither annotation or annotation class found!");
         }
     }
 
@@ -211,12 +297,8 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
     public final <T> void exposeBinding(TypeLiteral<T> type) {
         checkNotNull(type, "type is null");
 
-        if (annotation != null) {
-            bind(type).annotatedWith(annotation).to(type).in(Scopes.SINGLETON);
-            expose(type).annotatedWith(annotation);
-        } else if (annotationClass != null) {
-            bind(type).annotatedWith(annotationClass).to(type).in(Scopes.SINGLETON);
-            expose(type).annotatedWith(annotationClass);
-        }
+        Key<T> key = createKey(type);
+        bind(key).to(type).in(Scopes.SINGLETON);
+        expose(key);
     }
 }
