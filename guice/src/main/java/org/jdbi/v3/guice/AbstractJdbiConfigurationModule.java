@@ -76,6 +76,9 @@ public abstract class AbstractJdbiConfigurationModule extends AbstractModule imp
         }
     }
 
+    /**
+     * Override this method to create bindings that will be used in Jdbi definition modules.
+     */
     public abstract void configureJdbi();
 
     /**

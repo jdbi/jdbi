@@ -21,6 +21,9 @@ import org.jdbi.v3.core.Jdbi;
 @FunctionalInterface
 public interface GuiceJdbiCustomizer {
 
+    /** Does not modify the Jdbi instance. */
+    GuiceJdbiCustomizer NOP = jdbi -> {};
+
     /**
      * Customize the {@link Jdbi} instance passed in.
      *
