@@ -23,5 +23,5 @@ import java.lang.annotation.Target
 
 @Retention(RetentionPolicy.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMappersImpl::class)
-@Target(ElementType.TYPE, ElementType.METHOD)
+@Target(ElementType.CLASS, ElementType.FUNCTION)
 annotation class RegisterKotlinMappers(vararg val value: RegisterKotlinMapper)
