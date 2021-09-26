@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
-@Target(ElementType.CLASS, ElementType.FUNCTION)
+@Target(ElementType.class, ElementType.fun)
 @Repeatable
 @java.lang.annotation.Repeatable(RegisterKotlinMappers::class)
 annotation class RegisterKotlinMapper(
