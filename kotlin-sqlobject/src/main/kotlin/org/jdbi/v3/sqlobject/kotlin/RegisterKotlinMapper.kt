@@ -16,16 +16,16 @@ package org.jdbi.v3.sqlobject.kotlin
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
 import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
+// import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 import kotlin.reflect.KClass
 
 /**
  * Registers a KotlinMapper for a specific kotlin class
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
-@Target(ElementType.class, ElementType.fun)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.METHOD)
 @Repeatable
 @java.lang.annotation.Repeatable(RegisterKotlinMappers::class)
 annotation class RegisterKotlinMapper(
