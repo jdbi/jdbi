@@ -1,3 +1,7 @@
+# unreleased
+  - Rework and document importing bindings in guice definition modules
+  - expose createKey() method in guice definition modules
+  - Add no-op GuiceJdbiCustomizer
 # 3.22.0
   - Guice support for Jdbi creation and injection (#1888)
   - documentation fixes
