@@ -19,8 +19,14 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
+import org.jdbi.v3.core.qualifier.Reversed;
+import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
+import org.jdbi.v3.sqlobject.customizer.AllowUnusedBindings;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -68,6 +74,13 @@ public class TestInheritedAnnotations {
         assertThat(dao.findById(1)).isEmpty();
     }
 
+    @Test
+    public void testNonDirect() {
+        ChildDao dao = dbRule.getJdbi().onDemand(ChildDao.class);
+
+        assertThat(dao.reversed("what")).isEqualTo("tahw");
+    }
+
     @UseClasspathSqlLocator // configuring annotation
     @BindTime // sql statement customizing annotation
     public interface CrudDao<T, ID> {
@@ -86,6 +99,17 @@ public class TestInheritedAnnotations {
 
     @RegisterConstructorMapper(Character.class)
     public interface CharacterDao extends CrudDao<Character, Integer> {}
+
+    @RegisterArgumentFactory(ReversedStringArgumentFactory.class) // configuring annotation
+    @BindTime // sql statement customizing annotation
+    public interface GrandParentDao {
+        @SqlQuery("SELECT :name, :now")
+        String reversed(@Reversed String name);
+    }
+
+    public interface ParentDao extends GrandParentDao {}
+
+    public interface ChildDao extends ParentDao {}
 
     public static class Character {
         public final int id;

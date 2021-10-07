@@ -228,7 +228,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
 
         UnaryOperator<ConfigRegistry> instanceConfigurer = buildConfigurers(
                 Stream.concat(
-                    Arrays.stream(sqlObjectType.getInterfaces()),
+                    superTypes(sqlObjectType),
                     Stream.of(sqlObjectType)),
                 (configurer, config, annotation) ->
                     configurer.configureForType(config, annotation, sqlObjectType));
@@ -247,6 +247,14 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                 instanceConfigurer,
                 methodConfigurers,
                 methodHandlers);
+    }
+
+    // duplicate implementation in CustomizingStatementHandler
+    private static Stream<Class<?>> superTypes(Class<?> type) {
+        Class<?>[] interfaces = type.getInterfaces();
+        return Stream.concat(
+            Arrays.stream(interfaces).flatMap(SqlObjectFactory::superTypes),
+            Arrays.stream(interfaces));
     }
 
     interface ConfigurerMethod {
