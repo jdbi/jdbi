@@ -4655,11 +4655,16 @@ If the `DomainModule` is bound within Guice, then all configured `Jdbi` instance
 
 Multiple modules extending link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] can be installed in a single injector; the resulting bindings will be aggregated.
 
+[WARNING]
+It is not possible to install a configuration module from within the `configureJdbi` method of a definition module using the `install()` or `binder().install()` methods!
+Definition modules are Guice private modules and anything defined within them will not be exposed to the general dependency tree. This is a limitation due to the way Guice works.
+
+
 ==== Advanced Topics
 
 ===== Exposing additional bindings
 
-Each module that defines a `Jdbi` instance keeps all bindings private and exposes only the actual `Jdbi` object itself. This allows the installation of multiple modules where each definition is completely independent. Sometimes it is useful to attach additional objects and expose them using the same annotations. The most common use cases are data access objects.
+Each definition module that defines a `Jdbi` instance keeps all bindings private and exposes only the actual `Jdbi` object itself. This allows the installation of multiple modules where each definition is completely independent. Sometimes it is useful to attach additional objects and expose them using the same annotations. The most common use cases are data access objects.
 
 Consider a use case where two DataSource instances exist, one annotated as `Writer` and the other as `Reader`. Both are accessing databases with the same schema, and it makes sense to have two data access objects that are identical except that they are using the different data sources (this is often referred to as the "robot legs" problem of dependency injection).
 
@@ -4715,6 +4720,220 @@ Injector injector = Guice.createInjector(
 DatabaseAccess readerAccess = injector.getInstance(Key.get(DatabaseAccess.class, Reader.class));
 DatabaseAccess writerAccess = injector.getInstance(Key.get(DatabaseAccess.class, Writer.class));
 ----
+
+===== Importing external bindings
+
+The main use case of guice is code modularization and code reuse. Jdbi definition modules can pull dependencies out of the global dependency definitions and using the `importBinding` and `importBindingLoosely` methods.
+
+`importBinding` requires a dependency to exist and pulls it into the definition module. The dependency must be defined using the same annotation or annotation class as the definition module uses.
+
+This example shows how to define an external dependency (`SpecialLogger`, annotated with `Store`) in a different module and then pull it into the definition module using `importBinding`:
+[source,java]
+----
+
+//
+// This is logging code that can be located e.g. in a specific part of the code base that
+// deals with all aspects of logging. The Logging module creates the binding for the special
+// logger depending on the environment that the code has been deployed in.
+class LoggingModule extends AbstractModule {
+
+    private final boolean production;
+    private final Class<? extends Annotation> annotation;
+
+    LoggingModule(boolean production, Class<? extends Annotation> annotation) {
+        this.production = production;
+        this.annotation = annotation;
+    }
+
+    @Override
+    public void configure() {
+        if (production) {
+            bind(SpecialLogger.class).annotatedWith(annotation).toInstance(new MaskingLogger());
+        } else {
+            bind(SpecialLogger.class).annotatedWith(annotation).toInstance(new DebugLogger());
+        }
+    }
+}
+
+//
+// This is Jdbi code that deals with the data store. It can be located in a different part of the
+// application. It requires the "SpecialLogger" dependency to be bound somewhere.
+//
+@Singleton
+class JdbiSpecialLogging implements GuiceJdbiCustomizer {
+
+    private final SpecialLogger logger;
+
+    @Inject
+    JdbiSpecialLogging(SpecialLogger logger) {
+        this.logger = logger;
+    }
+
+    @Override
+    public void customize(Jdbi jdbi) {
+        jdbi.setSqlLogger(new SpecialSqlLogger(logger));
+    }
+}
+
+class DatabaseModule extends AbstractJdbiDefinitionModule {
+    public DatabaseModule(Class<? extends Annotation> a) {
+        super(a);
+    }
+
+    @Override
+    public void configureJdbi() {
+        ... bind mappers, plugins etc. ...
+
+        // pull the "SpecialLogger" annotated with Store into the module scope
+        importBinding(SpecialLogger.class).in(Scopes.SINGLETON);
+        bindCustomizer().to(JdbiSpecialLogging.class);
+    }
+}
+
+
+Injector injector = Guice.createInjector(
+        new LoggingModule(production, Store.class),
+        new DatabaseModule(Store.class)
+)
+----
+
+`importBinding` returns a binding builder, that allows different binding styles:
+
+[source,java]
+----
+class DatabaseModule extends AbstractJdbiDefinitionModule {
+    @Override
+    public void configureJdbi() {
+         // simplest use case, pull in Foo.class using the same annotation
+        importBinding(Foo.class);
+
+         // supports everything that a ScopedBindingBuilder does
+        importBinding(Foo.class).in(Scopes.SINGLETON);
+
+         // supports "to()" to bind interfaces to implementation
+        importBinding(Foo.class).to(FooImpl.class);
+
+         // supports type literals
+        importBinding(new TypeLiteral<Set<Foo>>() {}).to(FooSet.class);
+
+        // supports binding into the various binder methods as well
+
+        // pull SpecialCustomizer using the same annotation as the module and add it to the set of customizers
+        importBinding(bindCustomizer(), SpecialCustomizer.class).in(Scopes.SINGLETON);
+
+        // bind column mapper using a type literal
+        importBinding(bindColumnMapper(), new TypeLiteral<Map<String, Object>>() {}).to(JsonMapper.class);
+    }
+}
+----
+
+Static bindings require that the dependency is always defined. However, it is often desirable to have optional bindings that do not need to exist. This is supported using the `importLooseBinding` mechanism.
+
+[source,java]
+----
+class DropwizardStoreModule extends AbstractModule {
+
+    @Store
+    @Provides
+    @Singleton
+    DropwizardJdbiSupport getDropwizardJdbiSupport(@Dropwizard DataSourcConfiguration configuration, @Dropwizard Environment environment) {
+            return new DropwizardJdbiSupport("store", configuration, environment);
+    }
+
+    static class DropwizardJdbiSupport implements GuiceJdbiCustomizer {
+        private final String name;
+        private final Environment environment;
+        private final DataSourceConfiguration<?> configuration;
+
+
+    DropwizardJdbiSupport(String name, DataSourceConfiguration configuration, Environment environment) {
+        this.name = name;
+        this.configuration = configuration;
+        this.environment = environment;
+    }
+
+    @Override
+    public void customize(final Jdbi jdbi) {
+        final String validationQuery = configuration.getValidationQuery();
+        environment.healthChecks().register(name, new JdbiHealthCheck(
+                environment.getHealthCheckExecutorService(),
+                configuration.getValidationQueryTimeout().orElse(Duration.seconds(5)),
+                jdbi,
+                Optional.of(validationQuery)));
+    }
+}
+
+class StoreJdbiModule extends AbstractJdbiDefinitionModule {
+        @Override
+        public void configureJdbi() {
+            ... other JDBI code bindings for the store ...
+
+            importBindingLoosely(bindCustomizer(), GuiceJdbiCustomizer.class)
+                    .withDefault(GuiceJdbiCustomizer.NOP)
+                    .to(DropwizardJdbiSupport.class);
+        }
+}
+
+// production code (running in dropwizard framework)
+Injector injector = Guice.createInjector(
+                        new DropwizardModule(),      // binds @Dropwizard stuff
+                        new DropwizardStoreModule(), // binds dropwizard support for store jdbi
+                        new StoreDataSourceModule(), // binds @Store DataSource
+                        new StoreJdbiModule()        // Store Jdbi code
+);
+
+// test code
+Injector injector = Guice.createInjector(
+                        new StoreTestingDataSourceModule(), // testing datasource for store
+                        new StoreJdbiModule()               // store Jdbi code
+);
+----
+
+In this example there is code specific to the dropwizard framework that would not work in unit tests (that are not run within the framework). This code is only bound in the production environment using the `DropwizardStoreModule` and not present in testing.
+
+The `StoreJdbiModule` uses `importBindingLoosely` to pull in the `DropwizardJdbiSupport` binding using the `Store` annotation if it exists or uses a No-Op otherwise.
+
+`importBindingLoosely` allows for full decoupling of optional dependencies without having to resort to conditionals or separate testing modules.
+
+[source, java]
+----
+class DatabaseModule extends AbstractJdbiDefinitionModule {
+    @Override
+    public void configureJdbi() {
+         // simplest use case, pull in Foo.class using the same annotation
+        importBindingLoosely(Foo.class);
+
+         // supports everything that a ScopedBindingBuilder does
+        importBindingLoosely(Foo.class).in(Scopes.SINGLETON);
+
+         // supports "to()" to bind interfaces to implementation
+        importBindingLoosely(Foo.class).to(FooImpl.class);
+
+        // supports default value that is used if the binding
+        // is not present
+        importBindingLoosely(Foo.class)
+            .withDefault(new Foo("default"));
+
+         // supports type literals
+        importBindingLoosely(new TypeLiteral<Set<Foo>>() {}).to(FooSet.class);
+
+        // supports binding into the various binder methods as well
+
+        // pull SpecialCustomizer using the same annotation as the module and add it to the set of customizers
+        importBindingLoosely(bindCustomizer(), SpecialCustomizer.class).in(Scopes.SINGLETON);
+
+        // bind column mapper using a type literal
+        importBindingLoosely(bindColumnMapper(), new TypeLiteral<Map<String, Object>>() {}).to(JsonMapper.class);
+
+        // full example
+        importBindingLoosely(bindCustomizer(), GuiceJdbiCustomizer.class)
+            .withDefault(GuiceJdbiCustomizer.NOP)
+            .to(SpecialCustomizer.class)
+            .asEagerSingleton();
+    }
+}
+----
+
 
 ===== Custom element configuration modules
 
