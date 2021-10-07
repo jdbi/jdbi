@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -60,7 +61,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         this.method = method;
 
         // Include annotations on the interface's supertypes
-        final Stream<BoundCustomizer> typeCustomizers = concat(Stream.of(type.getInterfaces()), Stream.of(type))
+        final Stream<BoundCustomizer> typeCustomizers = concat(superTypes(type), Stream.of(type))
             .flatMap(CustomizingStatementHandler::annotationsFor)
             .map(a -> instantiateFactory(a).createForType(a, type))
             .map(BoundCustomizer::of);
@@ -72,6 +73,14 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers())
             .reduce(Stream.empty(), Stream::concat)
             .collect(Collectors.toList());
+    }
+
+    // duplicate implementation in SqlObjectFactory
+    private static Stream<Class<?>> superTypes(Class<?> type) {
+        Class<?>[] interfaces = type.getInterfaces();
+        return concat(
+            Arrays.stream(interfaces).flatMap(CustomizingStatementHandler::superTypes),
+            Arrays.stream(interfaces));
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {
