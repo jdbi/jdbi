@@ -14,25 +14,35 @@
 package org.jdbi.v3.guice.internal;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
+import org.jdbi.v3.core.codec.Codec;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.guice.GuiceJdbiCustomizer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.ARRAY_TYPES_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.CODECS_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.COLUMN_MAPPER_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.CUSTOMIZER_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.PLUGINS_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.QUALIFIED_COLUMN_MAPPER_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.QUALIFIED_ROW_MAPPER_TYPE_LITERAL;
-import static org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer.ROW_MAPPER_TYPE_LITERAL;
 
 public final class InternalGlobalJdbiModule extends PrivateModule {
+
+    private static final TypeLiteral<Set<RowMapper<?>>> ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<RowMapper<?>>>() {};
+    private static final TypeLiteral<Map<Type, RowMapper<?>>> QUALIFIED_ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<Type, RowMapper<?>>>() {};
+    private static final TypeLiteral<Set<ColumnMapper<?>>> COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<ColumnMapper<?>>>() {};
+    private static final TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>> QUALIFIED_COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>>() {};
+    private static final TypeLiteral<Set<GuiceJdbiCustomizer>> CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<Set<GuiceJdbiCustomizer>>() {};
+    private static final TypeLiteral<Map<Class<?>, String>> ARRAY_TYPES_TYPE_LITERAL = new TypeLiteral<Map<Class<?>, String>>() {};
+    private static final TypeLiteral<Set<JdbiPlugin>> PLUGINS_TYPE_LITERAL = new TypeLiteral<Set<JdbiPlugin>>() {};
+    private static final TypeLiteral<Map<QualifiedType<?>, Codec<?>>> CODECS_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, Codec<?>>>() {};
 
     private static final ConcurrentHashMap<Class<? extends Annotation>, InternalGlobalJdbiModule> REGISTRY = new ConcurrentHashMap<>();
 

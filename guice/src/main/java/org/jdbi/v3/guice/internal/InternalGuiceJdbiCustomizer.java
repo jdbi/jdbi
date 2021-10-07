@@ -21,7 +21,6 @@ import javax.inject.Singleton;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.TypeLiteral;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;
@@ -39,15 +38,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @Singleton
 public class InternalGuiceJdbiCustomizer implements GuiceJdbiCustomizer {
-
-    static final TypeLiteral<Set<RowMapper<?>>> ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<RowMapper<?>>>() {};
-    static final TypeLiteral<Map<Type, RowMapper<?>>> QUALIFIED_ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<Type, RowMapper<?>>>() {};
-    static final TypeLiteral<Set<ColumnMapper<?>>> COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<ColumnMapper<?>>>() {};
-    static final TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>> QUALIFIED_COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>>() {};
-    static final TypeLiteral<Set<GuiceJdbiCustomizer>> CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<Set<GuiceJdbiCustomizer>>() {};
-    static final TypeLiteral<Map<Class<?>, String>> ARRAY_TYPES_TYPE_LITERAL = new TypeLiteral<Map<Class<?>, String>>() {};
-    static final TypeLiteral<Set<JdbiPlugin>> PLUGINS_TYPE_LITERAL = new TypeLiteral<Set<JdbiPlugin>>() {};
-    static final TypeLiteral<Map<QualifiedType<?>, Codec<?>>> CODECS_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, Codec<?>>>() {};
 
     private final Set<RowMapper<?>> rowMappers;
     private final Map<Type, RowMapper<?>> qualifiedRowMappers;
