@@ -1,0 +1,25 @@
+name: Documentation build
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  doc:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v2
+      id: baseline_java
+      with:
+        # can not use 17 yet, Kotlin docs plugin requires illegal-access=permit
+        java-version: 16
+        distribution: adopt
+    - name: docs
+      run: |
+          ./src/build/gh-action-doc.sh
