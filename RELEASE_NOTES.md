@@ -1,7 +1,8 @@
-# unreleased
+# 3.23.0
   - Rework and document importing bindings in guice definition modules
   - expose createKey() method in guice definition modules
   - Add no-op GuiceJdbiCustomizer
+  - Fix annotation inheritance for non-direct supertypes (#1920)
 # 3.22.0
   - Guice support for Jdbi creation and injection (#1888)
   - documentation fixes
