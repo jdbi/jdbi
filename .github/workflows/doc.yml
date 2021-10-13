@@ -17,8 +17,7 @@ jobs:
     - uses: actions/setup-java@v2
       id: baseline_java
       with:
-        # can not use 17 yet, Kotlin docs plugin requires illegal-access=permit
-        java-version: 16
+        java-version: 17
         distribution: adopt
     - name: docs
       run: |
