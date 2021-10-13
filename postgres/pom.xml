@@ -95,6 +95,12 @@
         </dependency>
 
         <dependency>
+            <groupId>de.softwareforge.testing</groupId>
+            <artifactId>pg-embedded</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>test</scope>

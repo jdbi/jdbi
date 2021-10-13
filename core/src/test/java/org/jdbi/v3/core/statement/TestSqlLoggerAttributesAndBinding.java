@@ -22,31 +22,33 @@ import java.util.Objects;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlLoggerAttributesAndBinding {
+
     private static final String CREATE = "create table <x>(bar int primary key not null)";
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
     private TalkativeSqlLogger logger;
 
-    @Before
+    @BeforeEach
     public void before() {
         logger = new TalkativeSqlLogger();
-        dbRule.getJdbi().getConfig(SqlStatements.class).setSqlLogger(logger);
-        h = dbRule.getJdbi().open();
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(logger);
+        h = h2Extension.getJdbi().open();
     }
 
-    @After
+    @AfterEach
     public void after() {
         h.close();
     }
@@ -102,6 +104,7 @@ public class TestSqlLoggerAttributesAndBinding {
     }
 
     private static class TalkativeSqlLogger implements SqlLogger {
+
         private final List<Map<String, Object>> attributes = new ArrayList<>();
         private final List<String> bindings = new ArrayList<>();
 

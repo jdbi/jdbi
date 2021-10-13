@@ -14,32 +14,35 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUpdateGeneratedKeys {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @Before
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
     public void setUp() throws Exception {
-        try (Connection conn = dbRule.getConnectionFactory().openConnection();
-             Statement create = conn.createStatement()) {
+        try (Connection conn = DriverManager.getConnection(h2Extension.getUri());
+            Statement create = conn.createStatement()) {
             create.execute("create table something_else (id integer not null generated always as identity, name varchar(50))");
         }
     }
 
     @Test
     public void testInsert() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
@@ -57,7 +60,7 @@ public class TestUpdateGeneratedKeys {
 
     @Test
     public void testUpdate() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
@@ -75,7 +78,7 @@ public class TestUpdateGeneratedKeys {
 
     @Test
     public void testDelete() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");

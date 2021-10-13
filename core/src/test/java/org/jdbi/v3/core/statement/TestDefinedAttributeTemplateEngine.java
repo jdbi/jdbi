@@ -17,8 +17,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Collections.singletonMap;
 
@@ -29,7 +29,7 @@ public class TestDefinedAttributeTemplateEngine {
     private TemplateEngine templateEngine;
     private StatementContext ctx;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         templateEngine = new DefinedAttributeTemplateEngine();
         ctx = new StatementContext();

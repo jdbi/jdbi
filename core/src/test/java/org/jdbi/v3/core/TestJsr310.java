@@ -23,30 +23,25 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestJsr310 {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    Handle h;
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> h.execute("create table stuff (ts timestamp, d date)"));
 
     // Don't use nanoseconds - they'll get truncated off
     Clock fixed = Clock.fixed(Instant.ofEpochSecond(123456789), ZoneOffset.UTC);
 
-    @Before
-    public void setUp() {
-        h = dbRule.getSharedHandle();
-        h.execute("create table stuff (ts timestamp, d date)");
-    }
-
     @Test
     public void instant() {
+        Handle h = h2Extension.getSharedHandle();
+
         Instant i = Instant.now(fixed);
         h.execute("insert into stuff(ts) values (?)", i);
         assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).one()).isEqualTo(i);
@@ -54,6 +49,8 @@ public class TestJsr310 {
 
     @Test
     public void localDate() {
+        Handle h = h2Extension.getSharedHandle();
+
         LocalDate d = LocalDate.now(fixed);
         h.execute("insert into stuff(d) values (?)", d);
         assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).one()).isEqualTo(d);
@@ -61,6 +58,8 @@ public class TestJsr310 {
 
     @Test
     public void localDateTime() {
+        Handle h = h2Extension.getSharedHandle();
+
         LocalDateTime d = LocalDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", d);
         assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).one()).isEqualTo(d);
@@ -68,6 +67,8 @@ public class TestJsr310 {
 
     @Test
     public void offsetDateTime() {
+        Handle h = h2Extension.getSharedHandle();
+
         OffsetDateTime dt = OffsetDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isEqualTo(dt);
@@ -75,6 +76,8 @@ public class TestJsr310 {
 
     @Test
     public void offsetDateTimeLosesOffset() {
+        Handle h = h2Extension.getSharedHandle();
+
         OffsetDateTime dt = OffsetDateTime.now(fixed).withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one().isEqual(dt)).isTrue();
@@ -82,6 +85,8 @@ public class TestJsr310 {
 
     @Test
     public void zonedDateTime() {
+        Handle h = h2Extension.getSharedHandle();
+
         ZonedDateTime dt = ZonedDateTime.now(fixed);
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).one()).isEqualTo(dt);
@@ -89,6 +94,8 @@ public class TestJsr310 {
 
     @Test
     public void zonedDateTimeLosesZone() {
+        Handle h = h2Extension.getSharedHandle();
+
         ZonedDateTime dt = ZonedDateTime.now(fixed).withZoneSameInstant(ZoneId.of("America/Denver"));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).one().isEqual(dt)).isTrue();
@@ -96,6 +103,8 @@ public class TestJsr310 {
 
     @Test
     public void localTime() {
+        Handle h = h2Extension.getSharedHandle();
+
         h.execute("create table schedule (start time, end time)");
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime end = LocalTime.of(10, 30, 0);

@@ -18,18 +18,19 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.freebuilder.JdbiFreeBuilders;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FreeBuildersTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule()
+
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
         .withConfig(JdbiFreeBuilders.class, c -> c
             .registerFreeBuilder(
                 ByteArray.class,
@@ -46,10 +47,10 @@ public class FreeBuildersTest {
     private Jdbi jdbi;
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        jdbi = dbRule.getJdbi();
-        h = dbRule.getSharedHandle();
+        jdbi = h2Extension.getJdbi();
+        h = h2Extension.getSharedHandle();
         h.execute("create table free_builders (t int, x varchar)");
     }
 

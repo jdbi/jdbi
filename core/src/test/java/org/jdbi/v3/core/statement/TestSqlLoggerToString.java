@@ -23,29 +23,30 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlLoggerToString {
+
     private static final String INSERT_POSITIONAL = "insert into foo(bar) values(?)";
     private static final String INSERT_NAMED = "insert into foo(bar) values(:x)";
     private static final String NAME = "x";
 
-    @Rule
-    public DatabaseRule db = new SqliteDatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle handle;
     private String positional = null;
     private String named = null;
 
-    @Before
+    @BeforeEach
     public void before() {
-        handle = db.getJdbi().open();
+        handle = sqliteExtension.getJdbi().open();
 
         handle.execute("create table foo(bar binary)");
 
@@ -146,6 +147,7 @@ public class TestSqlLoggerToString {
     }
 
     public static class StringBean {
+
         private final String x;
 
         private StringBean(String x) {
@@ -160,6 +162,7 @@ public class TestSqlLoggerToString {
     private static class Foo {}
 
     private static class ToStringFoo extends Foo {
+
         @Override
         public String toString() {
             return "I'm a Foo";
@@ -167,6 +170,7 @@ public class TestSqlLoggerToString {
     }
 
     private static class FooArgumentFactory implements ArgumentFactory {
+
         @Override
         public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
             if (value instanceof Foo) {
@@ -178,6 +182,7 @@ public class TestSqlLoggerToString {
     }
 
     private static class ToStringFooArgumentFactory implements ArgumentFactory {
+
         @Override
         public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
             if (value instanceof Foo) {

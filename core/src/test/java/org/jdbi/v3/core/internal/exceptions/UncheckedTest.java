@@ -16,7 +16,7 @@ package org.jdbi.v3.core.internal.exceptions;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

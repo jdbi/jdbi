@@ -15,21 +15,27 @@ package org.jdbi.v3.core.argument;
 
 import java.util.Collections;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestCollectionArguments {
-    @Rule
-    public PgDatabaseRule db = new PgDatabaseRule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
 
     @Test
     public void testBindTypeErased() {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = pgExtension.openHandle()) {
             assertThatThrownBy(() ->
                 h.execute("SELECT * FROM something WHERE id = ANY(?)", Collections.singleton(1)))
                     .isInstanceOf(UnableToCreateStatementException.class)

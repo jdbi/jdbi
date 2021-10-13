@@ -14,40 +14,28 @@
 package org.jdbi.v3.core;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.ResultIterator;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestClosingHandle {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
-
-    private Handle h;
-
-    @Before
-    public void setUp() {
-        h = dbRule.openHandle();
-    }
-
-    @After
-    public void doTearDown() {
-        if (h != null) {
-            h.close();
-        }
-    }
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testNotClosing() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -59,6 +47,8 @@ public class TestClosingHandle {
 
     @Test
     public void testClosing() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -74,6 +64,8 @@ public class TestClosingHandle {
 
     @Test
     public void testIterateKeepHandle() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -87,6 +79,8 @@ public class TestClosingHandle {
 
     @Test
     public void testIterateAllTheWay() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -101,6 +95,8 @@ public class TestClosingHandle {
 
     @Test
     public void testIteratorBehaviour() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -125,6 +121,8 @@ public class TestClosingHandle {
 
     @Test
     public void testIteratorClose() {
+        Handle h = h2Extension.openHandle();
+
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
         h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
@@ -147,6 +145,8 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenTransaction() {
+        Handle h = h2Extension.openHandle();
+
         h.begin();
 
         assertThatThrownBy(h::close).isInstanceOf(TransactionException.class);
@@ -155,6 +155,8 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenTransactionCheckDisabled() {
+        Handle h = h2Extension.openHandle();
+
         h.getConfig(Handles.class).setForceEndTransactions(false);
 
         h.begin();
@@ -165,7 +167,7 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenContainerManagedTransaction() throws Exception {
-        try (Connection conn = dbRule.getConnectionFactory().openConnection()) {
+        try (Connection conn = DriverManager.getConnection(h2Extension.getUri())) {
             conn.setAutoCommit(false); // open transaction
 
             Handle handle = Jdbi.open(conn);

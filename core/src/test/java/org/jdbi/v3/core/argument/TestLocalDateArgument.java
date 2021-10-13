@@ -19,11 +19,10 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -32,10 +31,8 @@ import static org.mockito.Mockito.verify;
  * Check that {@link java.time.LocalDate} arguments are bound to corresponding
  * {@link java.sql.Date} values.
  */
+@ExtendWith(MockitoExtension.class)
 public class TestLocalDateArgument {
-
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
     PreparedStatement stmt;

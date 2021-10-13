@@ -15,43 +15,45 @@ package org.jdbi.v3.core;
 
 import java.sql.Connection;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TestPlugins {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testCustomizeHandle() {
         Handle h = mock(Handle.class);
 
-        dbRule.getJdbi().installPlugin(new JdbiPlugin() {
+        h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
                 return h;
             }
         });
 
-        assertThat(h).isSameAs(dbRule.getJdbi().open());
+        assertThat(h).isSameAs(h2Extension.getJdbi().open());
     }
 
     @Test
     public void testCustomizeConnection() {
         Connection c = mock(Connection.class);
 
-        dbRule.getJdbi().installPlugin(new JdbiPlugin() {
+        h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Connection customizeConnection(Connection conn) {
                 return c;
             }
         });
 
-        assertThat(c).isSameAs(dbRule.getJdbi().open().getConnection());
+        assertThat(c).isSameAs(h2Extension.getJdbi().open().getConnection());
     }
 }

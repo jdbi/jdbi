@@ -14,31 +14,33 @@
 package org.jdbi.v3.core.transaction;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class RollbackOnlyTransactionHandlerTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void doubleInsert() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                    txn.execute("create table pk (id integer primary key)"));
+                txn.execute("create table pk (id integer primary key)"));
         }
 
-        dbRule.getJdbi().setTransactionHandler(new RollbackOnlyTransactionHandler());
+        h2Extension.getJdbi().setTransactionHandler(new RollbackOnlyTransactionHandler());
 
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                    txn.execute("insert into pk values(1)"));
+                txn.execute("insert into pk values(1)"));
         }
 
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                    txn.execute("insert into pk values(1)"));
+                txn.execute("insert into pk values(1)"));
         }
     }
 }

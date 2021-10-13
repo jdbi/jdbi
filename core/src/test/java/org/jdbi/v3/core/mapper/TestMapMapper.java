@@ -16,23 +16,25 @@ package org.jdbi.v3.core.mapper;
 import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMapMapper {
-    @Rule
+
     // h2 makes column names uppercase
-    public SqliteDatabaseRule db = new SqliteDatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void before() {
-        h = db.getSharedHandle();
+        h = sqliteExtension.getSharedHandle();
 
         h.execute("create table Foo (Id int primary key, FirstName varchar)");
         h.execute("insert into Foo(Id, FirstName) values(1, 'No one')");

@@ -17,20 +17,21 @@ import java.net.InetAddress;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInetAddressH2 {
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testInetAddress() throws Exception {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE addrs (addr " + getInetType() + " PRIMARY KEY)");
 
             String insert = "INSERT INTO addrs VALUES(?)";
@@ -46,8 +47,8 @@ public class TestInetAddressH2 {
                 .execute();
 
             Set<InetAddress> addrs = h.createQuery("SELECT * FROM addrs")
-                    .mapTo(InetAddress.class)
-                    .collect(Collectors.toSet());
+                .mapTo(InetAddress.class)
+                .collect(Collectors.toSet());
             assertThat(addrs).containsOnly(ipv4, ipv6);
         });
     }

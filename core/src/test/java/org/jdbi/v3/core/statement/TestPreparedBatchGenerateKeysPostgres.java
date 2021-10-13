@@ -16,41 +16,31 @@ package org.jdbi.v3.core.statement;
 import java.util.Date;
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.JdbiPreparer;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPreparedBatchGenerateKeysPostgres {
 
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
-        @Override
-        protected void prepare(Handle handle) {
-            handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");
-        }
-    });
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    private Handle h;
-
-    @Before
-    public void getHandle() {
-        h = dbRule.getJdbi().open();
-    }
-
-    @After
-    public void close() {
-        h.close();
-    }
+    @RegisterExtension
+    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
+        handle -> handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
+    );
 
     @Test
     public void testBatchInsertWithKeyGenerationAndExplicitColumnNames() {
+        Handle h = pgExtension.openHandle();
+
         PreparedBatch batch = h.prepareBatch("insert into something (name) values (?) ");
         batch.add("Brian");
         batch.add("Thom");
@@ -59,20 +49,22 @@ public class TestPreparedBatchGenerateKeysPostgres {
         assertThat(ids).containsExactly(1, 2);
 
         List<Something> somethings = h.createQuery("select id, name from something")
-                .mapToBean(Something.class)
-                .list();
+            .mapToBean(Something.class)
+            .list();
         assertThat(somethings).containsExactly(new Something(1, "Brian"), new Something(2, "Thom"));
     }
 
     @Test
     public void testBatchInsertWithKeyGenerationAndExplicitSeveralColumnNames() {
+        Handle h = pgExtension.openHandle();
+
         PreparedBatch batch = h.prepareBatch("insert into something (name) values (?) ");
         batch.add("Brian");
         batch.add("Thom");
 
         List<IdCreateTime> ids = batch.executeAndReturnGeneratedKeys("id", "create_time")
-                .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getDate("create_time")))
-                .list();
+            .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getDate("create_time")))
+            .list();
 
         assertThat(ids).hasSize(2);
         assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2);

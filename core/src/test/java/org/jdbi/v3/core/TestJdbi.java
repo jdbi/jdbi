@@ -18,21 +18,23 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementCustomizers;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestJdbi {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testDataSourceConstructor() {
-        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        Jdbi db = Jdbi.create(h2Extension.getUri());
         try (Handle h = db.open()) {
             assertThat(h).isNotNull();
         }
@@ -40,7 +42,8 @@ public class TestJdbi {
 
     @Test
     public void testConnectionConstructor() throws SQLException {
-        Connection connection = this.dbRule.getConnectionFactory().openConnection();
+        ConnectionFactory cf = () -> DriverManager.getConnection(h2Extension.getUri());
+        Connection connection = cf.openConnection();
 
         Jdbi db = Jdbi.create(connection);
 
@@ -55,7 +58,7 @@ public class TestJdbi {
     public void testConnectionFactoryCtor() {
         Jdbi db = Jdbi.create(() -> {
             try {
-                return DriverManager.getConnection(this.dbRule.getConnectionString());
+                return DriverManager.getConnection(h2Extension.getUri());
             } catch (SQLException e) {
                 throw new ConnectionException(e);
             }
@@ -76,7 +79,7 @@ public class TestJdbi {
 
     @Test
     public void testWithHandle() {
-        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        Jdbi db = Jdbi.create(h2Extension.getUri());
         String value = db.withHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
@@ -86,7 +89,7 @@ public class TestJdbi {
 
     @Test
     public void testUseHandle() {
-        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        Jdbi db = Jdbi.create(h2Extension.getUri());
         db.useHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
@@ -96,14 +99,14 @@ public class TestJdbi {
 
     @Test
     public void testGlobalStatementCustomizers() {
-        dbRule.getJdbi().addCustomizer(StatementCustomizers.maxRows(1))
+        h2Extension.getJdbi().addCustomizer(StatementCustomizers.maxRows(1))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
                 handle.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
                 List<Something> rs = handle.createQuery("select id, name from something")
-                        .mapToBean(Something.class)
-                        .list();
+                    .mapToBean(Something.class)
+                    .list();
 
                 assertThat(rs).hasSize(1);
             });

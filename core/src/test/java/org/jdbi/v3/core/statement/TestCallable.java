@@ -17,24 +17,26 @@ import java.sql.Types;
 
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestCallable {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getJdbi().open();
+        h = h2Extension.getSharedHandle();
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
         h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.core.statement.TestCallable.testProcedure\"");
     }
@@ -42,9 +44,9 @@ public class TestCallable {
     @Test
     public void testStatement() {
         OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
-                .registerOutParameter(0, Types.DOUBLE)
-                .bind(1, 100.0d)
-                .invoke();
+            .registerOutParameter(0, Types.DOUBLE)
+            .bind(1, 100.0d)
+            .invoke();
 
         Double expected = Math.toDegrees(100.0d);
         assertThat(ret.getDouble(0)).isEqualTo(expected, Offset.offset(0.001));
@@ -60,9 +62,9 @@ public class TestCallable {
     @Test
     public void testStatementWithNamedParam() {
         OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
-                .registerOutParameter("x", Types.DOUBLE)
-                .bind("y", 100.0d)
-                .invoke();
+            .registerOutParameter("x", Types.DOUBLE)
+            .bind("y", 100.0d)
+            .invoke();
 
         Double expected = Math.toDegrees(100.0d);
         assertThat(ret.getDouble("x")).isEqualTo(expected, Offset.offset(0.001));
@@ -76,24 +78,24 @@ public class TestCallable {
     }
 
     @Test
-    @Ignore // TODO(scs): how do we test out parameters with h2?
+    @Disabled // TODO(scs): how do we test out parameters with h2?
     public void testWithNullReturn() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
-                .bind(0, (String) null)
-                .registerOutParameter(1, Types.VARCHAR)
-                .invoke();
+            .bind(0, (String) null)
+            .registerOutParameter(1, Types.VARCHAR)
+            .invoke();
 
         String out = ret.getString(1);
         assertThat(out).isNull();
     }
 
     @Test
-    @Ignore // TODO(scs): how do we test out parameters with h2?
+    @Disabled // TODO(scs): how do we test out parameters with h2?
     public void testWithNullReturnWithNamedParam() {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
-                .bind("x", (String) null)
-                .registerOutParameter("y", Types.VARCHAR)
-                .invoke();
+            .bind("x", (String) null)
+            .registerOutParameter("y", Types.VARCHAR)
+            .invoke();
 
         String out = ret.getString("y");
         assertThat(out).isNull();

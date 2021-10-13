@@ -18,12 +18,14 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.JdbiPreparer;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -31,20 +33,19 @@ import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspath;
 
 public class TestScript {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    @Rule
-    public PgDatabaseRule postgresDbRule = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
-        @Override
-        protected void prepare(Handle handle) {
-            handle.execute("create table something (id serial, data json)");
-        }
-    });
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(h -> h.execute("create table something (id serial, data json)"));
 
     @Test
     public void testScriptStuff() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
 
@@ -53,7 +54,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithComments() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-script-with-comments.sql"));
         script.execute();
 
@@ -62,7 +63,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithStringSemicolon() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-with-string-semicolons.sql"));
         script.execute();
 
@@ -71,33 +72,33 @@ public class TestScript {
 
     @Test
     public void testFuzzyScript() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/fuzzy-script.sql"));
         script.executeAsSeparateStatements();
 
         List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
         assertThat(rows).isEqualTo(ImmutableList.of(
-                ImmutableMap.of("id", 1L, "name", "eric"),
-                ImmutableMap.of("id", 2L, "name", "sally;ann"),
-                ImmutableMap.of("id", 3L, "name", "bob"),
-                ImmutableMap.of("id", 12L, "name", "sally;ann;junior")));
+            ImmutableMap.of("id", 1L, "name", "eric"),
+            ImmutableMap.of("id", 2L, "name", "sally;ann"),
+            ImmutableMap.of("id", 3L, "name", "bob"),
+            ImmutableMap.of("id", 12L, "name", "sally;ann;junior")));
     }
 
     @Test
     public void testScriptAsSetOfSeparateStatements() {
         assertThatExceptionOfType(StatementException.class)
-                .isThrownBy(() -> {
-                    Handle h = dbRule.openHandle();
-                    Script script = h.createScript(getResourceOnClasspath("script/malformed-sql-script.sql"));
-                    script.executeAsSeparateStatements();
-                })
-                .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
-                        .isEqualTo("insert into something(id, name) values (2, eric)"));
+            .isThrownBy(() -> {
+                Handle h = h2Extension.openHandle();
+                Script script = h.createScript(getResourceOnClasspath("script/malformed-sql-script.sql"));
+                script.executeAsSeparateStatements();
+            })
+            .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
+                .isEqualTo("insert into something(id, name) values (2, eric)"));
     }
 
     @Test
     public void testPostgresJsonExtractTextOperator() {
-        Handle h = postgresDbRule.getJdbi().open();
+        Handle h = pgExtension.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/postgres-json-operator.sql"));
         script.execute();
 

@@ -17,47 +17,46 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.StatementExceptions;
 import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestClasspathSqlLocator {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testLocateNamed() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testPositionalParamsInPrepared() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedParamsInExternal() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
@@ -67,34 +66,34 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testUsefulExceptionForBackTracing() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
-        exception.expect(StatementException.class);
-        exception.expectMessage("Missing named parameter 'name'");
-        exception.expectMessage("id:1");
-        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+        assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
-                .execute();
+                .execute())
+            .isInstanceOf(StatementException.class)
+            .hasMessageContaining("Missing named parameter 'name'")
+            .hasMessageContaining("id:1");
     }
 
     @Test
     public void testDetailExceptionForBackTracing() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.getConfig(StatementExceptions.class).setMessageRendering(MessageRendering.DETAIL);
 
-        exception.expect(StatementException.class);
-        exception.expectMessage("insert into something(id, name) values (:id, :name)");
-        exception.expectMessage("insert into something(id, name) values (?, ?)");
-        exception.expectMessage("id:1");
-        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+        assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
-                .execute();
+                .execute())
+            .isInstanceOf(StatementException.class)
+            .hasMessageContaining("insert into something(id, name) values (:id, :name)")
+            .hasMessageContaining("insert into something(id, name) values (?, ?)")
+            .hasMessageContaining("id:1");
     }
 
     @Test
     public void testNonExistentResource() {
-        exception.expect(IllegalArgumentException.class);
-        ClasspathSqlLocator.findSqlOnClasspath("this-does-not-exist");
+        assertThatThrownBy(() -> ClasspathSqlLocator.findSqlOnClasspath("this-does-not-exist"))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

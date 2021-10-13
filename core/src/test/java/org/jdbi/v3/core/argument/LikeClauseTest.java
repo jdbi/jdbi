@@ -15,25 +15,26 @@ package org.jdbi.v3.core.argument;
 
 import java.util.List;
 
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LikeClauseTest {
-    @Rule
-    public SqliteDatabaseRule db = new SqliteDatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
-    @Before
+    @BeforeEach
     public void before() {
-        db.getSharedHandle().createUpdate("create table foo(bar varchar)").execute();
-        db.getSharedHandle().prepareBatch("insert into foo(bar) values(:bar)")
+        sqliteExtension.getSharedHandle().createUpdate("create table foo(bar varchar)").execute();
+        sqliteExtension.getSharedHandle().prepareBatch("insert into foo(bar) values(:bar)")
             .bind("bar", "bam").add()
             .bind("bar", "gamma").add()
             .bind("bar", ":hello").add()
@@ -42,7 +43,7 @@ public class LikeClauseTest {
 
     @Test
     public void concatenationWorks() {
-        List<String> names = db.getSharedHandle().createQuery("select bar from foo where bar like '%' || :hello || '%'")
+        List<String> names = sqliteExtension.getSharedHandle().createQuery("select bar from foo where bar like '%' || :hello || '%'")
             .bind("hello", "am")
             .mapTo(String.class)
             .list();
@@ -52,7 +53,7 @@ public class LikeClauseTest {
 
     @Test
     public void theIntuitiveWayDoesntWork() {
-        Query query = db.getSharedHandle().createQuery("select bar from foo where bar like '%:hello%'")
+        Query query = sqliteExtension.getSharedHandle().createQuery("select bar from foo where bar like '%:hello%'")
             .bind("hello", "am");
 
         assertThatThrownBy(() -> query.mapTo(String.class).one())

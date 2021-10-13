@@ -14,19 +14,21 @@
 package org.jdbi.v3.core.statement;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestStatementContext {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testFoo() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")

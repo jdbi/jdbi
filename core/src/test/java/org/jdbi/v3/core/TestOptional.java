@@ -25,32 +25,30 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
+
     private static final String SELECT_BY_NAME = "select * from something "
         + "where :name is null or name = :name "
         + "order by id";
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     Handle handle;
 
-    @Before
+    @BeforeEach
     public void createTestData() {
-        handle = dbRule.openHandle();
+        handle = h2Extension.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }
@@ -140,9 +138,9 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
-                .mapToBean(Something.class)
-                .one();
+            .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(new Something(1, "eric"));
     }
@@ -150,9 +148,9 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
-                .mapToBean(Something.class)
-                .list();
+            .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
@@ -161,26 +159,25 @@ public class TestOptional {
     public void testDynamicBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
-                .mapToBean(Something.class)
-                .list();
+            .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+            .mapToBean(Something.class)
+            .list();
     }
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnableToCreateStatementException.class);
-        handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
-                .mapToBean(Something.class)
-                .list();
+        assertThatThrownBy(() -> handle.createQuery(SELECT_BY_NAME)
+            .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+            .mapToBean(Something.class)
+            .list()).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.of("brian"))
-                .mapToBean(Something.class)
-                .one();
+            .bind("name", Optional.of("brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(new Something(2, "brian"));
     }
@@ -188,9 +185,9 @@ public class TestOptional {
     @Test
     public void testBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.empty())
-                .mapToBean(Something.class)
-                .list();
+            .bind("name", Optional.empty())
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
@@ -199,62 +196,62 @@ public class TestOptional {
     public void testBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.of(new Name("eric")))
-                .mapToBean(Something.class)
-                .list();
+            .bind("name", Optional.of(new Name("eric")))
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"));
     }
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnableToCreateStatementException.class);
-        handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.of(new Name("eric")))
-                .mapToBean(Something.class)
-                .list();
+        assertThatThrownBy(() -> handle.createQuery(SELECT_BY_NAME)
+            .bind("name", Optional.of(new Name("eric")))
+            .mapToBean(Something.class)
+            .list()).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testBindOptionalInt() {
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalInt.empty())
-                .collectInto(OptionalInt.class))
-                .isEmpty();
+            .bind("value", OptionalInt.empty())
+            .collectInto(OptionalInt.class))
+            .isEmpty();
 
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalInt.of(123))
-                .collectInto(OptionalInt.class))
-                .hasValue(123);
+            .bind("value", OptionalInt.of(123))
+            .collectInto(OptionalInt.class))
+            .hasValue(123);
     }
 
     @Test
     public void testBindOptionalLong() {
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalLong.empty())
-                .collectInto(OptionalLong.class))
-                .isEmpty();
+            .bind("value", OptionalLong.empty())
+            .collectInto(OptionalLong.class))
+            .isEmpty();
 
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalLong.of(123))
-                .collectInto(OptionalLong.class))
-                .hasValue(123);
+            .bind("value", OptionalLong.of(123))
+            .collectInto(OptionalLong.class))
+            .hasValue(123);
     }
 
     @Test
     public void testBindOptionalDouble() {
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalDouble.empty())
-                .collectInto(OptionalDouble.class))
-                .isEmpty();
+            .bind("value", OptionalDouble.empty())
+            .collectInto(OptionalDouble.class))
+            .isEmpty();
 
         assertThat(handle.createQuery("SELECT :value")
-                .bind("value", OptionalDouble.of(123.45))
-                .collectInto(OptionalDouble.class))
-                .hasValue(123.45);
+            .bind("value", OptionalDouble.of(123.45))
+            .collectInto(OptionalDouble.class))
+            .hasValue(123.45);
     }
 
     class Name {
+
         final String value;
 
         Name(String value) {
@@ -277,6 +274,7 @@ public class TestOptional {
     }
 
     class NameArgumentFactory implements ArgumentFactory {
+
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class) {

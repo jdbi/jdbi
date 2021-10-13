@@ -19,14 +19,14 @@ import java.util.List;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,24 +37,24 @@ import static org.mockito.Mockito.when;
 public class TestNVarchar {
     private static final QualifiedType<String> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().useHandle(handle ->
+        h2Extension.getJdbi().useHandle(handle ->
             handle.execute("create table nvarchars (id int primary key, name nvarchar not null)"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
-        dbRule.getJdbi().useHandle(handle ->
+        h2Extension.getJdbi().useHandle(handle ->
             handle.execute("drop table nvarchars"));
     }
 
     @Test
     public void sqlStatementBindNVarchar() {
-        dbRule.getJdbi().useHandle(handle -> {
+        h2Extension.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO nvarchars (id, name) VALUES (?, ?)")
                 .bind(0, 1)
                 .bindNVarchar(1, "foo")
@@ -105,7 +105,7 @@ public class TestNVarchar {
 
     @Test
     public void findNVarcharArgument() throws Exception {
-        dbRule.getJdbi().useHandle(handle -> {
+        h2Extension.getJdbi().useHandle(handle -> {
             String value = "foo";
 
             PreparedStatement stmt = mock(PreparedStatement.class);
@@ -129,7 +129,7 @@ public class TestNVarchar {
 
     @Test
     public void findNVarcharMapper() throws Exception {
-        dbRule.getJdbi().useHandle(handle -> {
+        h2Extension.getJdbi().useHandle(handle -> {
             ResultSet rs = mock(ResultSet.class);
             when(rs.getNString(anyInt())).thenReturn("value");
 

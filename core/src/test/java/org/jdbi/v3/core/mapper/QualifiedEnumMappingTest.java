@@ -18,23 +18,24 @@ import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualifiedEnumMappingTest {
-    @Rule
-    public SqliteDatabaseRule db = new SqliteDatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void before() {
-        h = db.getSharedHandle();
+        h = sqliteExtension.getSharedHandle();
     }
 
     @Test

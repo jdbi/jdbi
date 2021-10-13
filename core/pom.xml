@@ -94,6 +94,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>test</scope>
@@ -128,6 +134,13 @@
             <artifactId>sqlite-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>de.softwareforge.testing</groupId>
+            <artifactId>pg-embedded</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

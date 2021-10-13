@@ -18,21 +18,23 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestTransactions {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     int begin, commit, rollback;
 
@@ -58,13 +60,13 @@ public class TestTransactions {
         }
     };
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().setTransactionHandler(txSpy);
-        h = dbRule.openHandle();
+        h2Extension.getJdbi().setTransactionHandler(txSpy);
+        h = h2Extension.openHandle();
     }
 
-    @After
+    @AfterEach
     public void close() {
         h.close();
     }
@@ -96,11 +98,11 @@ public class TestTransactions {
     @Test
     public void testExceptionAbortsTransaction() {
         assertThatThrownBy(() ->
-                h.inTransaction(handle -> {
-                    handle.execute("insert into something (id, name) values (?, ?)", 0, "Keith");
-                    throw new IOException();
-                }))
-                .isInstanceOf(IOException.class);
+            h.inTransaction(handle -> {
+                handle.execute("insert into something (id, name) values (?, ?)", 0, "Keith");
+                throw new IOException();
+            }))
+            .isInstanceOf(IOException.class);
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertThat(r).isEmpty();
@@ -126,13 +128,13 @@ public class TestTransactions {
         h.savepoint("first");
         h.execute("insert into something (id, name) values (?, ?)", 2, "Martin");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
-                .isEqualTo(Integer.valueOf(2));
+            .isEqualTo(Integer.valueOf(2));
         h.rollbackToSavepoint("first");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
-                .isEqualTo(Integer.valueOf(1));
+            .isEqualTo(Integer.valueOf(1));
         h.commit();
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).one())
-                .isEqualTo(Integer.valueOf(1));
+            .isEqualTo(Integer.valueOf(1));
     }
 
     @Test
@@ -144,7 +146,7 @@ public class TestTransactions {
         h.release("first");
 
         assertThatExceptionOfType(TransactionException.class)
-                .isThrownBy(() -> h.rollbackToSavepoint("first"));
+            .isThrownBy(() -> h.rollbackToSavepoint("first"));
 
         h.rollback();
     }
@@ -165,6 +167,7 @@ public class TestTransactions {
     }
 
     static class BoomEngine implements TemplateEngine {
+
         @Override
         public String render(String template, StatementContext ctx) {
             throw new Error("boom");

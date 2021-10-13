@@ -21,11 +21,10 @@ import java.util.Map;
 
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 
@@ -33,9 +32,8 @@ import static org.mockito.Mockito.verify;
  * @deprecated now we just bind arguments directly as named
  */
 @Deprecated
+@ExtendWith(MockitoExtension.class)
 public class TestMapArguments {
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
     PreparedStatement stmt;

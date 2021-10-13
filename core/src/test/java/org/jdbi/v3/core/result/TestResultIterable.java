@@ -15,24 +15,26 @@ package org.jdbi.v3.core.result;
 
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestResultIterable {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testMapIntToDouble() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE numbers (u INT)");
             h.execute("INSERT INTO numbers VALUES (0), (1), (2), (3), (4)");
         });
 
-        assertThat(dbRule.getSharedHandle().createQuery("select * from numbers")
+        assertThat(h2Extension.getSharedHandle().createQuery("select * from numbers")
             .mapTo(int.class)
             .map(i -> i * 1.5)
             .list())
@@ -41,12 +43,12 @@ public class TestResultIterable {
 
     @Test
     public void testMapStringToReverse() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE strings (v TEXT)");
             h.execute("INSERT INTO strings VALUES ('foo'), ('bar'), ('baz'), ('buz'), ('qux')");
         });
 
-        assertThat(dbRule.getSharedHandle().createQuery("select * from strings")
+        assertThat(h2Extension.getSharedHandle().createQuery("select * from strings")
             .mapTo(String.class)
             .map(this::reverse)
             .list())
@@ -63,12 +65,12 @@ public class TestResultIterable {
 
     @Test
     public void testCollectSuper() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE numbers (id INT)");
             h.execute("INSERT INTO numbers VALUES (1), (2), (3)");
         });
 
-        assertThat(dbRule.getSharedHandle().createQuery("select * from numbers order by 1")
+        assertThat(h2Extension.getSharedHandle().createQuery("select * from numbers order by 1")
             .map((rs, ctx) -> "ID: " + rs.getInt("id"))
             .collect(Collectors.joining("\n")))
             .isEqualTo("ID: 1\nID: 2\nID: 3");

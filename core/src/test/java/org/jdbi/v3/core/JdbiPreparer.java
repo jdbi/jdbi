@@ -27,6 +27,7 @@ public abstract class JdbiPreparer implements DatabasePreparer {
     protected abstract void prepare(Handle handle);
 
     public static class None extends JdbiPreparer {
+
         @Override
         protected void prepare(Handle handle) {}
     }

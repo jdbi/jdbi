@@ -20,14 +20,15 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -35,11 +36,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class ByteArrayTest {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
     @Mock
     private PreparedStatement stmt;
 
@@ -47,7 +49,7 @@ public class ByteArrayTest {
 
     @Test
     public void byteArrayIsTypedAsVarbinary() throws SQLException {
-        Argument nullByteArrayArg = db.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, new byte[] {1})).get();
+        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, new byte[]{1})).get();
 
         nullByteArrayArg.apply(0, stmt, ctx);
 
@@ -57,7 +59,7 @@ public class ByteArrayTest {
 
     @Test
     public void nullByteArrayIsTypedAsVarbinary() throws SQLException {
-        Argument nullByteArrayArg = db.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, null)).get();
+        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, null)).get();
 
         nullByteArrayArg.apply(0, stmt, ctx);
 

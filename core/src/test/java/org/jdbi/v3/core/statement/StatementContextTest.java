@@ -21,7 +21,7 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

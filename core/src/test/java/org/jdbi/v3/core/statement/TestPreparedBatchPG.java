@@ -13,45 +13,37 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPreparedBatchPG {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule();
 
-    private Handle h;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    @Before
-    public void openHandle() {
-        h = dbRule.openHandle();
-        h.execute("create table something (id int primary key, name varchar not null)");
-    }
-
-    @After
-    public void closeHandle() {
-        h.close();
-    }
+    @RegisterExtension
+    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
 
     @Test
     public void emptyBatch() {
-        assertThat(h.prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
+        assertThat(pgExtension.openHandle().prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
     }
 
     // This would be a test in `TestPreparedBatch` but H2 has a bug (?) that returns a generated key even when there wasn't one.
     @Test
     public void emptyBatchGeneratedKeys() {
         assertThat(
-                h.prepareBatch("insert into something (id, name) values (:id, :name)")
-                 .executeAndReturnGeneratedKeys("id")
-                 .mapTo(int.class)
-                 .list())
+            pgExtension.openHandle()
+                .prepareBatch("insert into something (id, name) values (:id, :name)")
+                .executeAndReturnGeneratedKeys("id")
+                .mapTo(int.class)
+                .list())
             .isEmpty();
     }
 }

@@ -18,40 +18,41 @@ import java.util.stream.Stream;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.JoinRow;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest.Article;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest.User;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterJoinRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisterJoinRowMapper {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
+
+    @BeforeEach
     public void setUp() {
         JoinRowMapperTest t = new JoinRowMapperTest();
-        t.dbRule = dbRule;
+        t.h2Extension = h2Extension;
         t.setUp();
     }
 
     @Test
     public void testSqlObjectJoinRow() {
-        Handle handle = dbRule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
 
         // tag::joinrowusage[]
         Multimap<User, Article> joined = HashMultimap.create();
 
         handle.attach(UserArticleDao.class)
-                .getAuthorship()
-                .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
+            .getAuthorship()
+            .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
 
         assertThat(joined).isEqualTo(JoinRowMapperTest.getExpected());
         // end::joinrowusage[]
@@ -59,6 +60,7 @@ public class TestRegisterJoinRowMapper {
 
     // tag::joinrowdao[]
     public interface UserArticleDao {
+
         @RegisterJoinRowMapper({User.class, Article.class})
         @SqlQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
         Stream<JoinRow> getAuthorship();

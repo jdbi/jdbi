@@ -13,26 +13,28 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PrimitiveMapperFactoryTest {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void defaultConfiguration() {
-        assertThat(db.getJdbi().getConfig(ColumnMappers.class).getCoalesceNullPrimitivesToDefaults()).isTrue();
+        assertThat(h2Extension.getJdbi().getConfig(ColumnMappers.class).getCoalesceNullPrimitivesToDefaults()).isTrue();
     }
 
     @Test
     public void primitivesToDefaults() {
-        int value = db.getJdbi().withHandle(h ->
+        int value = h2Extension.getJdbi().withHandle(h ->
             h.createQuery("select null")
                 .mapTo(int.class)
                 .one()
@@ -43,7 +45,7 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void forbidNullPrimitives() {
-        assertThatThrownBy(() -> db.getJdbi().withHandle(h ->
+        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(h ->
             h.configure(ColumnMappers.class, mappers -> mappers.setCoalesceNullPrimitivesToDefaults(false))
                 .createQuery("select null as foo")
                 .mapTo(int.class)
@@ -56,7 +58,7 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void doesntApplyToBoxed() {
-        Integer value = db.getJdbi().withHandle(h ->
+        Integer value = h2Extension.getJdbi().withHandle(h ->
             h.configure(ColumnMappers.class, mappers -> mappers.setCoalesceNullPrimitivesToDefaults(false))
                 .createQuery("select null")
                 .mapTo(Integer.class)
