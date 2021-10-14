@@ -18,26 +18,23 @@ import java.util.Calendar;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TestRegisteredMappers {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
-    private Jdbi db;
 
-    @Before
-    public void setUp() {
-        db = dbRule.getJdbi();
-    }
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testRegisterInferredOnJdbi() {
+        Jdbi db = h2Extension.getJdbi();
+
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (18, 'Sam')");
@@ -53,6 +50,8 @@ public class TestRegisteredMappers {
 
     @Test
     public void registerByGenericType() {
+        Jdbi db = h2Extension.getJdbi();
+
         @SuppressWarnings("unchecked")
         RowMapper<Iterable<Calendar>> mapper = mock(RowMapper.class);
         GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};

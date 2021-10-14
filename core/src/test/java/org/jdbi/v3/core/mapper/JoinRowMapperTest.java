@@ -19,23 +19,25 @@ import java.util.stream.IntStream;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoinRowMapperTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
         h.execute("CREATE TABLE user ("
             + "uid INTEGER NOT NULL,"
             + "name VARCHAR NOT NULL"

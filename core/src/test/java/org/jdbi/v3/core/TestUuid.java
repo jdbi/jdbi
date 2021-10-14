@@ -15,30 +15,32 @@ package org.jdbi.v3.core;
 
 import java.util.UUID;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUuid {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     public Jdbi db;
     public Handle h;
 
-    @Before
+    @BeforeEach
     public void setupDbi() {
-        db = dbRule.getJdbi();
+        db = h2Extension.getJdbi();
 
         h = db.open();
         h.execute("CREATE TABLE foo (bar UUID)");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         h.close();
     }

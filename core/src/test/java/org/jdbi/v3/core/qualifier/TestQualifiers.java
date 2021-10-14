@@ -15,7 +15,7 @@ package org.jdbi.v3.core.qualifier;
 
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Bar;
 import org.jdbi.v3.core.qualifier.SampleQualifiers.Foo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;

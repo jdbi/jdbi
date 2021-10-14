@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,7 +23,7 @@ public class TestColonPrefixSqlParser {
     private SqlParser parser;
     private StatementContext ctx;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parser = new ColonPrefixSqlParser();
         ctx = StatementContextAccess.createContext();

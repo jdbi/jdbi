@@ -15,12 +15,12 @@ package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.transaction.TransactionException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,12 +28,12 @@ import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMIT
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 
 public class TestJdbiNestedCallBehavior {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule()
-        .withPlugin(new TestPlugin())
-        .withSomething();
+
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething().withPlugin(new TestPlugin());
 
     static class TestPlugin implements JdbiPlugin {
+
         @Override
         public void customizeJdbi(Jdbi jdbi) {
             jdbi.registerExtension(new TestExtensionFactory());
@@ -41,6 +41,7 @@ public class TestJdbiNestedCallBehavior {
     }
 
     static class TestExtensionFactory implements ExtensionFactory {
+
         @Override
         public boolean accepts(Class<?> extensionType) {
             return TestExtension.class.equals(extensionType);
@@ -53,6 +54,7 @@ public class TestJdbiNestedCallBehavior {
     }
 
     public interface TestExtension {
+
         Handle getHandle();
 
         default void run(Runnable runnable) {
@@ -61,6 +63,7 @@ public class TestJdbiNestedCallBehavior {
     }
 
     public static class TestExtensionImpl implements TestExtension {
+
         private final HandleSupplier handleSupplier;
 
         TestExtensionImpl(HandleSupplier handleSupplier) {
@@ -76,9 +79,9 @@ public class TestJdbiNestedCallBehavior {
     private Jdbi jdbi;
     private TestExtension onDemand;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        jdbi = dbRule.getJdbi();
+        jdbi = h2Extension.getJdbi();
         onDemand = jdbi.onDemand(TestExtension.class);
     }
 

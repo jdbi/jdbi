@@ -16,20 +16,17 @@ package org.jdbi.v3.core.transaction;
 import java.sql.Connection;
 
 import org.jdbi.v3.core.Handle;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@ExtendWith(MockitoExtension.class)
 public class TestLocalTransactionHandler {
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
-
     @Mock
     Handle h;
 

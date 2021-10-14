@@ -18,24 +18,26 @@ import java.util.Objects;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 public class MapEntryMapperTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
     }
 
     @Test
@@ -130,7 +132,7 @@ public class MapEntryMapperTest {
 
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
             + "from user u left join phone p on u.id = p.user_id";
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
                 .setMapKeyColumn("foo")
                 .setMapValueColumn("bar")
                 .useHandle(handle -> {

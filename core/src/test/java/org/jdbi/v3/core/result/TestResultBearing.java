@@ -14,20 +14,22 @@
 package org.jdbi.v3.core.result;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestResultBearing {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @Before
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
     public void setUp() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("CREATE TABLE reduce (u INT)");
         for (int u = 0; u < 5; u++) {
             h.execute("INSERT INTO reduce VALUES (?)", u);
@@ -37,7 +39,7 @@ public class TestResultBearing {
     @Test
     public void testReduceBiFunction() {
         assertThat(
-            dbRule.getSharedHandle().createQuery("SELECT * FROM reduce")
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM reduce")
                 .mapTo(Integer.class)
                 .reduce(0, TestResultBearing::add))
             .isEqualTo(10);

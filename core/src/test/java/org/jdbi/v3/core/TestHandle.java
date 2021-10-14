@@ -13,26 +13,28 @@
  */
 package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestHandle {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testInTransaction() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         String value = h.inTransaction(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
@@ -43,12 +45,12 @@ public class TestHandle {
 
     @Test
     public void testSillyNumberOfCallbacks() throws Exception {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Keith')");
         }
 
         // strangely enough, the compiler can't infer this and thinks the throws is redundant
-        String value = dbRule.getJdbi().<String, Exception>withHandle(handle ->
+        String value = h2Extension.getJdbi().<String, Exception>withHandle(handle ->
                 handle.inTransaction(handle1 ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).one()));
 
@@ -58,7 +60,7 @@ public class TestHandle {
     @SuppressWarnings("resource")
     @Test
     public void testIsClosed() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();
         assertThat(h.isClosed()).isTrue();
@@ -66,13 +68,13 @@ public class TestHandle {
 
     @Test
     public void testMrWinter() {
-        final Handle h = dbRule.getSharedHandle();
+        final Handle h = h2Extension.getSharedHandle();
         h.execute("CREATE TABLE \"\u2603\" (pk int primary key)");
     }
 
     @Test
     public void unknownTransactionLevelIsOk() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThatThrownBy(() -> h.setTransactionIsolation(Integer.MIN_VALUE))
             .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class);
@@ -84,8 +86,8 @@ public class TestHandle {
     @Test
     public void testAutocommitFailDoesntLeak() {
         final BoomHandler handler = new BoomHandler();
-        dbRule.getJdbi().setTransactionHandler(handler);
-        final Handle h = dbRule.openHandle();
+        h2Extension.getJdbi().setTransactionHandler(handler);
+        final Handle h = h2Extension.openHandle();
 
         assertThat(h.isClosed()).isFalse();
 
@@ -99,8 +101,8 @@ public class TestHandle {
     @Test
     public void testRollbackFailDoesntLeak() throws Exception {
         final BoomHandler handler = new BoomHandler();
-        dbRule.getJdbi().setTransactionHandler(handler);
-        final Handle h = dbRule.openHandle();
+        h2Extension.getJdbi().setTransactionHandler(handler);
+        final Handle h = h2Extension.openHandle();
 
         assertThat(h.isClosed()).isFalse();
 

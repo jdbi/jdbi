@@ -15,20 +15,22 @@ package org.jdbi.v3.core;
 
 import java.net.URI;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUri {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testUri() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();
 

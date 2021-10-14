@@ -20,26 +20,28 @@ import java.util.Optional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestArgumentFactory {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testRegisterOnJdbi() {
-        final Jdbi db = dbRule.getJdbi();
+        final Jdbi db = h2Extension.getJdbi();
         db.registerArgument(new NameAF());
         try (Handle h = db.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
-              .bind("id", 7)
-              .bind("name", new Name("Brian", "McCallister"))
-              .execute();
+                .bind("id", 7)
+                .bind("name", new Name("Brian", "McCallister"))
+                .execute();
 
             String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).one();
 
@@ -49,12 +51,12 @@ public class TestArgumentFactory {
 
     @Test
     public void testRegisterOnHandle() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
-             .bind("id", 7)
-             .bind("name", new Name("Brian", "McCallister"))
-             .execute();
+                .bind("id", 7)
+                .bind("name", new Name("Brian", "McCallister"))
+                .execute();
 
             String fullName = h.createQuery("select name from something where id = 7").mapTo(String.class).one();
 
@@ -64,16 +66,17 @@ public class TestArgumentFactory {
 
     @Test
     public void testRegisterOnStatement() {
-        dbRule.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
-         .registerArgument(new NameAF())
-         .bind("id", 1)
-         .bind("name", new Name("Brian", "McCallister"))
-         .execute();
+        h2Extension.getSharedHandle()
+            .createUpdate("insert into something (id, name) values (:id, :name)")
+            .registerArgument(new NameAF())
+            .bind("id", 1)
+            .bind("name", new Name("Brian", "McCallister"))
+            .execute();
     }
 
     @Test
     public void testOnPreparedBatch() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());
 
@@ -82,13 +85,14 @@ public class TestArgumentFactory {
         batch.execute();
 
         List<String> rs = h.createQuery("select name from something order by id")
-                           .mapTo(String.class)
-                           .list();
+            .mapTo(String.class)
+            .list();
 
         assertThat(rs).containsExactly("Brian McCallister", "Henning S");
     }
 
     public static class NameAF implements ArgumentFactory {
+
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
@@ -100,6 +104,7 @@ public class TestArgumentFactory {
     }
 
     public static class Name {
+
         private final String first;
         private final String last;
 

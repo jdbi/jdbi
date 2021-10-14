@@ -17,20 +17,21 @@ import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualifiedEnumArgumentTest {
-    @Rule
-    public SqliteDatabaseRule db = new SqliteDatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
@@ -48,7 +49,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallCanBeAnnotatedAsByOrdinal() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
             h.createUpdate("insert into enums (id, ordinal) values (1, :ordinal)")
@@ -64,7 +65,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
@@ -82,7 +83,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void enumCanBeAnnotatedAsByOrdinal() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
             h.createUpdate("insert into enums(id, ordinal) values(1, :ordinal)")
@@ -98,7 +99,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallOverridesClassForName() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, name varchar)").execute();
@@ -116,7 +117,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallOverridesClassForOrdinal() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
             h.createUpdate("insert into enums(id, ordinal) values(1, :ordinal)")

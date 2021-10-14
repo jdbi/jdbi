@@ -19,21 +19,23 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestNamedParams {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testInsert() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
@@ -43,27 +45,27 @@ public class TestNamedParams {
 
     @Test
     public void testDemo() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.createUpdate("insert into something (id, name) values (:id, :name)")
-                .bind("id", 1)
-                .bind("name", "Brian")
-                .execute();
+            .bind("id", 1)
+            .bind("name", "Brian")
+            .execute();
         h.execute("insert into something (id, name) values (?, ?)", 2, "Eric");
         h.execute("insert into something (id, name) values (?, ?)", 3, "Erin");
 
         List<Something> r = h.createQuery("select id, name from something "
-            + "where name like :name "
-            + "order by id")
-                .bind("name", "Eri%")
-                .mapToBean(Something.class)
-                .list();
+                + "where name like :name "
+                + "order by id")
+            .bind("name", "Eri%")
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(r).extracting(Something::getId).containsExactly(2, 3);
     }
 
     @Test
     public void testBeanPropertyBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Something original = new Something(0, "Keith");
 
         assertThat(h
@@ -81,7 +83,7 @@ public class TestNamedParams {
 
     @Test
     public void testBeanPropertyPrefixBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Something original = new Something(0, "Keith");
 
         assertThat(h
@@ -99,7 +101,7 @@ public class TestNamedParams {
 
     @Test
     public void testBeanPropertyNestedBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         Something thing = new Something(0, "Keith");
 
@@ -116,6 +118,7 @@ public class TestNamedParams {
     }
 
     public static class NestsSomething {
+
         private final Something nested;
 
         NestsSomething(Something nested) {
@@ -129,7 +132,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:id, :name)")
@@ -146,7 +149,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsPrefixBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
@@ -163,13 +166,13 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsNestedBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
             .bindFields("my", new Object() {
                 @SuppressWarnings("unused")
-                public PublicFields nested = new PublicFields(0, "Keith");
+                public final PublicFields nested = new PublicFields(0, "Keith");
             })
             .execute())
             .isEqualTo(1);
@@ -182,12 +185,14 @@ public class TestNamedParams {
     }
 
     public class FunctionsNestedBinding {
+
         public NoArgFunctions nested() {
             return new NoArgFunctions(0, "Keith");
         }
     }
 
     public static class PublicFields {
+
         public int id = 0;
         public String name = "Keith";
 
@@ -200,7 +205,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:id, :name)")
@@ -217,7 +222,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsPrefixBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
@@ -234,7 +239,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsNestedBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
@@ -250,6 +255,7 @@ public class TestNamedParams {
     }
 
     public static class NoArgFunctions {
+
         private final int i;
         private final String s;
 
@@ -266,9 +272,10 @@ public class TestNamedParams {
             return s;
         }
     }
+
     @Test
     public void testMapKeyBinding() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
@@ -285,7 +292,7 @@ public class TestNamedParams {
 
     @Test
     public void testCascadedLazyArgs() {
-        Handle h = dbRule.openHandle();
+        Handle h = h2Extension.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
@@ -298,6 +305,7 @@ public class TestNamedParams {
     }
 
     public static class Keith {
+
         public String getName() {
             return "Keith";
         }

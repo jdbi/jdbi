@@ -13,38 +13,31 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import java.sql.SQLException;
-
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.SampleBean;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class FieldMapperTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    Handle handle;
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     RowMapper<SampleBean> mapper = FieldMapper.of(SampleBean.class);
 
-    @Before
-    public void openHandle() throws SQLException {
-        handle = dbRule.getSharedHandle();
-    }
-
     static class ColumnNameThing {
+
         @ColumnName("id")
         int i;
 
@@ -54,11 +47,13 @@ public class FieldMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         ColumnNameThing thing = handle.createQuery("select * from something")
-                .map(FieldMapper.of(ColumnNameThing.class))
-                .one();
+            .map(FieldMapper.of(ColumnNameThing.class))
+            .one();
 
         assertThat(thing.i).isEqualTo(1);
         assertThat(thing.s).isEqualTo("foo");
@@ -66,6 +61,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNested() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         assertThat(handle
@@ -79,6 +76,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedStrict() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(FieldMapper.factory(NestedThing.class));
 
@@ -101,12 +100,15 @@ public class FieldMapperTest {
     }
 
     static class NestedThing {
+
         @Nested
         ColumnNameThing nested;
     }
 
     @Test
     public void testNestedPresent() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, 2 as i, '3' as s")
@@ -118,6 +120,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedHalfPresent() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, '3' as s")
@@ -129,6 +133,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedAbsent() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue")
@@ -140,6 +146,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNullableColumnAbsentButNestedPresent() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 's' s, 1 i")
@@ -151,6 +159,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNoRecognizedColumns() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThatThrownBy(() -> handle
             .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 'foo' bar")
@@ -160,6 +170,7 @@ public class FieldMapperTest {
     }
 
     static class NullableNestedThing {
+
         @Nullable
         Integer testValue;
 
@@ -169,6 +180,7 @@ public class FieldMapperTest {
     }
 
     static class NullableThing {
+
         @Nullable
         String s;
 
@@ -178,6 +190,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedPrefix() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         assertThat(handle
@@ -191,6 +205,8 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedPrefixStrict() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
 
@@ -219,6 +235,7 @@ public class FieldMapperTest {
     }
 
     static class NestedPrefixThing {
+
         Integer integerValue;
 
         @Nested("nested")
@@ -227,6 +244,8 @@ public class FieldMapperTest {
 
     @Test
     public void propagateNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .select("SELECT null as testValue, 'foo' as s")
@@ -237,6 +256,8 @@ public class FieldMapperTest {
 
     @Test
     public void propagateNotNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .select("SELECT 42 as testValue, 'foo' as s")
@@ -248,6 +269,8 @@ public class FieldMapperTest {
 
     @Test
     public void nestedPropagateNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
@@ -259,6 +282,8 @@ public class FieldMapperTest {
 
     @Test
     public void nestedPropagateNotNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
@@ -270,22 +295,27 @@ public class FieldMapperTest {
 
     @Test
     public void classPropagateNull() {
-            assertThat(handle.select("select 42 as value, null as fk")
-                    .map(FieldMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .isNull();
+        Handle handle = h2Extension.getSharedHandle();
+
+        assertThat(handle.select("select 42 as value, null as fk")
+            .map(FieldMapper.of(ClassPropagateNullThing.class))
+            .one())
+            .isNull();
     }
 
     @Test
     public void classPropagateNotNull() {
-            assertThat(handle.select("select 42 as value, 'a' as fk")
-                    .map(FieldMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .extracting(cpnt -> cpnt.value)
-                .isEqualTo(42);
+        Handle handle = h2Extension.getSharedHandle();
+
+        assertThat(handle.select("select 42 as value, 'a' as fk")
+            .map(FieldMapper.of(ClassPropagateNullThing.class))
+            .one())
+            .extracting(cpnt -> cpnt.value)
+            .isEqualTo(42);
     }
 
     static class NestedPropagateNullThing {
+
         Integer integerValue;
 
         @Nested
@@ -293,6 +323,7 @@ public class FieldMapperTest {
     }
 
     static class PropagateNullThing {
+
         @PropagateNull
         int testValue;
 

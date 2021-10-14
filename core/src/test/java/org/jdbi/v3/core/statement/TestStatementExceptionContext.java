@@ -13,22 +13,24 @@
  */
 package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestStatementExceptionContext {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testFoo() {
 
         assertThatExceptionOfType(StatementException.class)
-                .isThrownBy(() -> dbRule.openHandle().execute("WOOF", 7, "Tom"))
-                .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
+            .isThrownBy(() -> h2Extension.openHandle().execute("WOOF", 7, "Tom"))
+            .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
     }
 }

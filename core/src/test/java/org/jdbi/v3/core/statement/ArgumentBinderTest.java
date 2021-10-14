@@ -18,22 +18,23 @@ import java.util.Arrays;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.qualifier.Qualifiers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ArgumentBinderTest {
     private static final Argument NOP = (position, statement, ctx) -> {};
 
-    @Rule
-    public MethodRule mockito = MockitoJUnit.rule();
     @Mock
     private PreparedStatement stmt;
     @Mock
@@ -41,7 +42,7 @@ public class ArgumentBinderTest {
 
     private SqlStatements statements = new SqlStatements();
 
-    @Before
+    @BeforeEach
     public void before() {
         when(ctx.getConfig(Qualifiers.class)).thenReturn(new Qualifiers());
         when(ctx.getConfig(SqlStatements.class)).thenReturn(statements);

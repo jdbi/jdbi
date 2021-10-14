@@ -14,24 +14,26 @@
 package org.jdbi.v3.core.result;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.meta.Beta;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestRowView {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    @Before
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
     public void setUp() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("CREATE TABLE test (a INT)");
         for (int a = 0; a < 5; a++) {
             h.execute("INSERT INTO test VALUES (?)", a);
@@ -41,7 +43,7 @@ public class TestRowView {
     @Test
     public void testRowViewClass() {
         assertThat(
-            dbRule.getSharedHandle().createQuery("SELECT * FROM test")
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
                 .reduceRows(0, (a, rv) -> a + rv.getColumn("a", Integer.class)))
             .isEqualTo(10);
     }
@@ -49,7 +51,7 @@ public class TestRowView {
     @Test
     public void testRowViewQualifiedType() {
         assertThatThrownBy(() ->
-            dbRule.getSharedHandle().createQuery("SELECT * FROM test")
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
                 .reduceRows(0, (a, rv) -> a + rv.getColumn("a", QualifiedType.of(int.class).with(Beta.class))))
             .isInstanceOf(NoSuchMapperException.class);
     }

@@ -19,32 +19,27 @@ import javax.annotation.Nullable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BeanMapperTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    private Handle handle;
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     RowMapper<SampleBean> mapper = BeanMapper.of(SampleBean.class);
 
-    @Before
-    public void getHandle() {
-        handle = dbRule.getSharedHandle();
-    }
-
     public static class ColumnNameBean {
+
         int i;
         String s;
 
@@ -69,13 +64,15 @@ public class BeanMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         ColumnNameBean bean = handle.createQuery("select * from something")
-                .mapTo(ColumnNameBean.class)
-                .one();
+            .mapTo(ColumnNameBean.class)
+            .one();
 
         assertThat(bean.getI()).isEqualTo(1);
         assertThat(bean.getS()).isEqualTo("foo");
@@ -83,6 +80,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNested() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
@@ -97,6 +96,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedStrict() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
 
@@ -119,6 +120,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedNotReturned() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
         assertThat(handle
             .createQuery("select 42 as testValue")
@@ -129,6 +132,7 @@ public class BeanMapperTest {
     }
 
     public static class NestedBean {
+
         private Integer testValue;
         private Something nested;
 
@@ -152,6 +156,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedPrefix() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
@@ -166,6 +172,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedPrefixStrict() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
 
@@ -195,6 +203,8 @@ public class BeanMapperTest {
 
     @Test
     public void testNestedPrefixNotReturned() {
+        Handle handle = h2Extension.getSharedHandle();
+
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
         assertThat(handle
             .createQuery("select 42 as integerValue")
@@ -205,6 +215,7 @@ public class BeanMapperTest {
     }
 
     public static class NestedPrefixBean {
+
         private Integer integerValue;
         private Something nested;
 
@@ -228,6 +239,8 @@ public class BeanMapperTest {
 
     @Test
     public void propagateNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .select("SELECT null as testValue, 'foo' as s")
@@ -238,6 +251,8 @@ public class BeanMapperTest {
 
     @Test
     public void propagateNotNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .select("SELECT 42 as testValue, 'foo' as s")
@@ -249,6 +264,8 @@ public class BeanMapperTest {
 
     @Test
     public void nestedPropagateNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
@@ -260,6 +277,8 @@ public class BeanMapperTest {
 
     @Test
     public void nestedPropagateNotNull() {
+        Handle handle = h2Extension.getSharedHandle();
+
         assertThat(handle
             .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
@@ -271,22 +290,27 @@ public class BeanMapperTest {
 
     @Test
     public void classPropagateNull() {
-            assertThat(handle.select("select 42 as value, null as fk")
-                    .map(BeanMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .isNull();
+        Handle handle = h2Extension.getSharedHandle();
+
+        assertThat(handle.select("select 42 as value, null as fk")
+            .map(BeanMapper.of(ClassPropagateNullThing.class))
+            .one())
+            .isNull();
     }
 
     @Test
     public void classPropagateNotNull() {
-            assertThat(handle.select("select 42 as value, 'a' as fk")
-                    .map(BeanMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .extracting(cpnt -> cpnt.value)
-                .isEqualTo(42);
+        Handle handle = h2Extension.getSharedHandle();
+
+        assertThat(handle.select("select 42 as value, 'a' as fk")
+            .map(BeanMapper.of(ClassPropagateNullThing.class))
+            .one())
+            .extracting(cpnt -> cpnt.value)
+            .isEqualTo(42);
     }
 
     public static class NestedPropagateNullThing {
+
         private Integer integerValue;
         private PropagateNullThing nested;
 
@@ -310,6 +334,7 @@ public class BeanMapperTest {
     }
 
     public static class PropagateNullThing {
+
         private int testValue;
         private String s;
 

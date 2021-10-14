@@ -18,43 +18,31 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    private Handle h;
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     private TTC tc;
 
     protected Handle openHandle() {
         tc = new TTC();
 
-        dbRule.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
-        return dbRule.getJdbi().open();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        h = openHandle();
-    }
-
-    @After
-    public void doTearDown() {
-        if (h != null) {
-            h.close();
-        }
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
+        return h2Extension.getJdbi().open();
     }
 
     @Test
     public void testInsert() {
+        Handle h = openHandle();
+
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
         assertThat(c).isEqualTo(1);
@@ -66,6 +54,8 @@ public class TestTimingCollector {
 
     @Test
     public void testUpdate() {
+        Handle h = openHandle();
+
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
         String stmt2 = "update something set name = :name where id = :id";
         String stmt3 = "select * from something where id = :id";
@@ -73,31 +63,33 @@ public class TestTimingCollector {
         h.execute(stmt1);
 
         h.createUpdate(stmt2)
-                .bind("id", 1)
-                .bind("name", "ERIC")
-                .execute();
+            .bind("id", 1)
+            .bind("name", "ERIC")
+            .execute();
 
         Something eric = h.createQuery(stmt3)
-                .bind("id", 1)
-                .mapToBean(Something.class)
-                .list().get(0);
+            .bind("id", 1)
+            .mapToBean(Something.class)
+            .list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
 
         assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
         assertThat(tc.getRenderedStatements()).containsExactly(stmt1, stmt2, stmt3);
         assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
-                stmt1,
-                "update something set name = ? where id = ?",
-                "select * from something where id = ?");
+            stmt1,
+            "update something set name = ? where id = ?",
+            "select * from something where id = ?");
     }
 
     @Test
     public void testBatch() {
+        Handle h = openHandle();
+
         String insert = "insert into something (id, name) values (:id, :name)";
         h.prepareBatch(insert)
-                .bind("id", 1).bind("name", "Eric").add()
-                .bind("id", 2).bind("name", "Brian").add()
-                .execute();
+            .bind("id", 1).bind("name", "Eric").add()
+            .bind("id", 2).bind("name", "Brian").add()
+            .execute();
 
         String select = "select * from something order by id";
         List<Something> r = h.createQuery(select).mapToBean(Something.class).list();
@@ -106,11 +98,12 @@ public class TestTimingCollector {
         assertThat(tc.getRawStatements()).containsExactly(insert, select);
         assertThat(tc.getRenderedStatements()).containsExactly(insert, select);
         assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
-                "insert into something (id, name) values (?, ?)",
-                select);
+            "insert into something (id, name) values (?, ?)",
+            select);
     }
 
     private static class TTC implements TimingCollector {
+
         private final List<String> rawStatements = new ArrayList<>();
         private final List<String> renderedStatements = new ArrayList<>();
         private final List<ParsedSql> parsedStatements = new ArrayList<>();

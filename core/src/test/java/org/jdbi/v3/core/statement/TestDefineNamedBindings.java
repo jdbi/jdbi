@@ -16,30 +16,33 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 
 import org.h2.jdbc.JdbcPreparedStatement;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class TestDefineNamedBindings {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testDefineStrings() {
         assertThat(
-            db.getSharedHandle().createQuery("select <a> from values(:a) union all select <b> from values(:b)")
+            h2Extension.getSharedHandle().createQuery("select <a> from values(:a) union all select <b> from values(:b)")
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .bind("checkConn", (p, s, c) -> assertThat(s.getConnection()).isEqualTo(c.getConnection()))
                 .mapTo(boolean.class)
                 .list())
-        .containsExactly(true, false);
+            .containsExactly(true, false);
     }
 
     public static class DefinedBean {
+
         public String getA() {
             return "x";
         }
@@ -52,7 +55,7 @@ public class TestDefineNamedBindings {
     @Test
     public void testIncompatibleWithUnwrap() {
         Throwable thrown = catchThrowable(() ->
-            db.getSharedHandle().createQuery("select <a> from values (:a)")
+            h2Extension.getSharedHandle().createQuery("select <a> from values (:a)")
                 .defineNamedBindings()
                 .bind("a", (p, s, c) -> s.unwrap(JdbcPreparedStatement.class).setString(p, "x"))
                 .mapTo(boolean.class)

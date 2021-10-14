@@ -26,25 +26,25 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestMapperInit {
 
-    @Rule
-    public H2DatabaseRule rule = new H2DatabaseRule();
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        Handle handle = rule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
 
         handle.execute("create table column_mappers (string_value varchar, long_value integer)");
         handle.execute("insert into column_mappers (string_value, long_value) values (?, ?)", "foo", 1L);
@@ -59,7 +59,7 @@ public class TestMapperInit {
         assertEquals(0, mapper.getInitializedCount());
         assertEquals(0, mapper.getMappedCount());
 
-        Jdbi jdbi = rule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
         jdbi.registerColumnMapper(StringValue.class, mapper);
 
         // still not initialized, only at first retrieval
@@ -120,7 +120,7 @@ public class TestMapperInit {
         assertEquals(0, mapper.getInitializedCount());
         assertEquals(0, mapper.getMappedCount());
 
-        Jdbi jdbi = rule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
         jdbi.registerColumnMapper(StringValue.class, mapper);
         jdbi.registerRowMapper(resultType, new ResultMapper());
 

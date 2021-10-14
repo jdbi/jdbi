@@ -17,27 +17,29 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 public class MapOptionalTest {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testMapOptional() {
-        final Handle h = db.getSharedHandle();
+        final Handle h = h2Extension.getSharedHandle();
         h.execute("insert into something(intValue, name) values(1, 'Duke')");
         h.execute("insert into something(intValue, name) values(null, null)");
 
         assertThat(h.createQuery("select * from something order by id")
-                .map(ConstructorMapper.of(OptionalBean.class))
-                .list())
+            .map(ConstructorMapper.of(OptionalBean.class))
+            .list())
             .extracting("intValue", "name")
             .containsExactly(
                 tuple(OptionalInt.of(1), Optional.of("Duke")),
@@ -45,8 +47,10 @@ public class MapOptionalTest {
     }
 
     public static class OptionalBean {
+
         public final OptionalInt intValue;
         public final Optional<String> name;
+
         public OptionalBean(OptionalInt intValue, Optional<String> name) {
             this.intValue = intValue;
             this.name = name;

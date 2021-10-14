@@ -15,27 +15,34 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestBatchExceptionRewrite {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule();
 
-    @Before
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+
+    @BeforeEach
     public void createTable() {
-        dbRule.getJdbi().useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
+        pgExtension.getJdbi().useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
     }
 
     @Test
     public void testSimpleBatch() {
-        Batch b = dbRule.openHandle().createBatch();
+        Batch b = pgExtension.openHandle().createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (0, 'Keith')");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
@@ -45,7 +52,7 @@ public class TestBatchExceptionRewrite {
 
     @Test
     public void testPreparedBatch() {
-        PreparedBatch b = dbRule.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
+        PreparedBatch b = pgExtension.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)

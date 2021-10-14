@@ -18,35 +18,21 @@ import java.util.List;
 import java.util.Locale;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlMetaData {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
-
-    private Handle h;
-
-    @Before
-    public void setUp() {
-        h = dbRule.openHandle();
-    }
-
-    @After
-    public void doTearDown() {
-        if (h != null) {
-            h.close();
-        }
-    }
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testQueryCatalogs() {
+        Handle h = h2Extension.openHandle();
 
         List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
             .mapTo(String.class)
@@ -55,7 +41,7 @@ public class TestSqlMetaData {
         assertThat(catalogNames).hasSize(1);
         String catalog = catalogNames.iterator().next().toLowerCase(Locale.ROOT);
 
-        String dbConnectionString = dbRule.getConnectionString().toLowerCase(Locale.ROOT);
+        String dbConnectionString = h2Extension.getUri().toLowerCase(Locale.ROOT);
 
         assertThat(dbConnectionString).endsWith(catalog);
 
@@ -63,14 +49,18 @@ public class TestSqlMetaData {
 
     @Test
     public void testSimple() {
+        Handle h = h2Extension.openHandle();
+
         String url = h.queryMetadata(DatabaseMetaData::getURL);
-        String dbConnectionString = dbRule.getConnectionString().toLowerCase(Locale.ROOT);
+        String dbConnectionString = h2Extension.getUri().toLowerCase(Locale.ROOT);
 
         assertThat(dbConnectionString).isEqualTo(url);
     }
 
     @Test
     public void testTransactions() {
+        Handle h = h2Extension.openHandle();
+
         boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
 
         assertThat(supportsTransactions).isTrue();

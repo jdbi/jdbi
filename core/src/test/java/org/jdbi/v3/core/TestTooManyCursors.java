@@ -18,28 +18,30 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
- * Oracle was getting angry about too many open cursors because of the large number
- * of prepared statements being created and cached indefinitely.
+ * Oracle was getting angry about too many open cursors because of the large number of prepared statements being created and cached indefinitely.
  */
 public class TestTooManyCursors {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testFoo() {
-        ConnectionFactory cf = dbRule.getConnectionFactory();
+        ConnectionFactory cf = () -> DriverManager.getConnection(h2Extension.getUri());
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
         Jdbi db = Jdbi.create(errorCf);
 
@@ -52,6 +54,7 @@ public class TestTooManyCursors {
     }
 
     private static class ErrorProducingConnectionFactory implements ConnectionFactory {
+
         private final ConnectionFactory target;
         private final int connCount;
 
@@ -67,14 +70,15 @@ public class TestTooManyCursors {
     }
 
     private static class ConnectionInvocationHandler implements InvocationHandler {
+
         private final Connection connection;
         private final int numSuccessfulStatements;
         private int numStatements = 0;
 
         static Connection newInstance(Connection connection, int numSuccessfulStatements) {
             return (Connection) Proxy.newProxyInstance(connection.getClass().getClassLoader(),
-                                                       new Class[]{Connection.class},
-                                                       new ConnectionInvocationHandler(connection, numSuccessfulStatements));
+                new Class[]{Connection.class},
+                new ConnectionInvocationHandler(connection, numSuccessfulStatements));
         }
 
         ConnectionInvocationHandler(Connection connection, int numSuccessfulStatements) {
@@ -106,6 +110,7 @@ public class TestTooManyCursors {
     }
 
     private static class StatementInvocationHandler implements InvocationHandler {
+
         private final Statement stmt;
         private final ConnectionInvocationHandler connectionHandler;
 
@@ -119,8 +124,8 @@ public class TestTooManyCursors {
             }
 
             return (Statement) Proxy.newProxyInstance(stmt.getClass().getClassLoader(),
-                                                      interfaces.toArray(new Class[0]),
-                                                      new StatementInvocationHandler(stmt, connectionHandler));
+                interfaces.toArray(new Class[0]),
+                new StatementInvocationHandler(stmt, connectionHandler));
         }
 
         StatementInvocationHandler(Statement stmt, ConnectionInvocationHandler connectionHandler) {

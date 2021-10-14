@@ -21,28 +21,30 @@ import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.internal.EnumStrategies;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EnumsConfigTest {
-    @Rule
-    public SqliteDatabaseRule db = new SqliteDatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     @Test
     public void byNameIsDefault() {
-        assertThat(db.getJdbi().getConfig(Enums.class).getDefaultStrategy())
+        assertThat(sqliteExtension.getJdbi().getConfig(Enums.class).getDefaultStrategy())
             .isEqualTo(EnumStrategy.BY_NAME);
     }
 
     @Test
     public void namesAreBoundCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums (id, name) values (1, :name)")
@@ -60,7 +62,7 @@ public class EnumsConfigTest {
 
     @Test
     public void namesAreMappedCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             Foobar name = h.createQuery("select :name")
                 .bind("name", Foobar.FOO.name())
                 .mapTo(Foobar.class)
@@ -73,50 +75,50 @@ public class EnumsConfigTest {
 
     @Test
     public void customizedNamesAreBoundCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums (id, name) values (1, :name)")
-                    .bind("name", Foobar.CUSTOM)
-                    .execute();
+                .bind("name", Foobar.CUSTOM)
+                .execute();
 
             final String databaseString = h.createQuery("select name from enums")
-                    .mapTo(String.class)
-                    .one();
+                .mapTo(String.class)
+                .one();
 
             assertThat(databaseString)
-                    .isEqualTo("CUST");
+                .isEqualTo("CUST");
         });
     }
 
     @Test
     public void customizedNamesAreMappedCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             Foobar mappedEnum = h.createQuery("select :name")
-                    .bind("name", "CUST")
-                    .mapTo(Foobar.class)
-                    .one();
+                .bind("name", "CUST")
+                .mapTo(Foobar.class)
+                .one();
 
             assertThat(mappedEnum)
-                    .isEqualTo(Foobar.CUSTOM);
+                .isEqualTo(Foobar.CUSTOM);
         });
     }
 
     @Test
     public void customizedNamesAreNotMappedToEnumName() {
         assertThatThrownBy(() -> {
-            db.getJdbi().useHandle(h -> {
+            sqliteExtension.getJdbi().useHandle(h -> {
                 h.createQuery("select :name")
-                        .bind("name", Foobar.CUSTOM.name())
-                        .mapTo(Foobar.class)
-                        .findOne();
+                    .bind("name", Foobar.CUSTOM.name())
+                    .mapTo(Foobar.class)
+                    .findOne();
             });
         }).isInstanceOf(UnableToProduceResultException.class);
     }
 
     @Test
     public void ordinalsAreBoundCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.createUpdate("create table enums(id int, ordinal int)").execute();
@@ -136,7 +138,7 @@ public class EnumsConfigTest {
 
     @Test
     public void ordinalsAreMappedCorrectly() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             Foobar name = h.createQuery("select :ordinal")
@@ -151,7 +153,7 @@ public class EnumsConfigTest {
 
     @Test
     public void badNameThrows() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             assertThatThrownBy(h.createQuery("select 'xxx'").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)
                 .hasMessageContaining("no Foobar value could be matched to the name xxx");
@@ -160,7 +162,7 @@ public class EnumsConfigTest {
 
     @Test
     public void badOrdinalThrows() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             assertThatThrownBy(h.createQuery("select 3").mapTo(Foobar.class)::one)
@@ -171,7 +173,7 @@ public class EnumsConfigTest {
 
     @Test
     public void testNull() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table enums(value varchar)").execute();
 
             h.createUpdate("insert into enums(value) values(:enum)")
@@ -199,13 +201,13 @@ public class EnumsConfigTest {
     public void testConflictingQualifiers() {
         QualifiedType<RetentionPolicy> type = QualifiedType.of(RetentionPolicy.class).with(EnumByName.class, EnumByOrdinal.class);
 
-        assertThatThrownBy(() -> db.getJdbi().getConfig(EnumStrategies.class).findStrategy(type))
+        assertThatThrownBy(() -> sqliteExtension.getJdbi().getConfig(EnumStrategies.class).findStrategy(type))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testConflictingSourceAnnotations() {
-        assertThatThrownBy(() -> db.getJdbi().getConfig(EnumStrategies.class).findStrategy(QualifiedType.of(BiPolar.class)))
+        assertThatThrownBy(() -> sqliteExtension.getJdbi().getConfig(EnumStrategies.class).findStrategy(QualifiedType.of(BiPolar.class)))
             .isInstanceOf(IllegalArgumentException.class);
     }
 

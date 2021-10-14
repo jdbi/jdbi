@@ -15,22 +15,23 @@ package org.jdbi.v3.core.argument;
 
 import java.util.Optional;
 
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptionalArgumentH2 {
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
 
-    @Before
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
     public void createTable() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE test (id BIGINT PRIMARY KEY, value TEXT)");
         });
     }
@@ -69,14 +70,14 @@ public class TestOptionalArgumentH2 {
     }
 
     private void insert(String binding, Object bean) {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             String insert = String.format("INSERT INTO test VALUES(:id, :%s)", binding);
             h.createUpdate(insert).bindBean(bean).execute();
         });
     }
 
     private Optional<IdValue> select() {
-        return dbRule.getJdbi().withHandle(
+        return h2Extension.getJdbi().withHandle(
             h -> h.createQuery("SELECT id, value FROM test")
                 .map((rs, ctx) -> new IdValue(rs.getLong("id"), rs.getString("value")))
                 .findFirst());

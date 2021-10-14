@@ -27,36 +27,26 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestPreparedBatch {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    private Handle h;
-
-    @Before
-    public void openHandle() {
-        h = dbRule.openHandle();
-    }
-
-    @After
-    public void closeHandle() {
-        h.close();
-    }
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void emptyBatch() {
+        Handle h = h2Extension.openHandle();
+
         final PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         assertThat(batch.execute()).isEmpty();
         assertThat(batch.getContext().isClosed()).isTrue();
@@ -64,6 +54,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindBatch() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -78,6 +70,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testBigishBatch() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -94,6 +88,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindProperties() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -109,6 +105,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindMaps() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -125,6 +123,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testMixedModeBatch() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -137,6 +137,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testPositionalBinding() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -147,6 +149,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testForgotFinalAdd() {
+        Handle h = h2Extension.openHandle();
+
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -165,6 +169,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testContextGetsBinding() {
+        Handle h = h2Extension.openHandle();
+
         try {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 0)
@@ -183,6 +189,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBindBean() {
+        Handle h = h2Extension.openHandle();
+
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bindBean(new Something(1, "Eric")).add();
@@ -201,6 +209,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBind() {
+        Handle h = h2Extension.openHandle();
+
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -219,6 +229,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBindFields() {
+        Handle h = h2Extension.openHandle();
+
         h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -237,6 +249,8 @@ public class TestPreparedBatch {
 
     @Test
     public void testNestedNotPrepareable() {
+        Handle h = h2Extension.openHandle();
+
         h.registerArgument(new WrappedIntArgumentFactory());
         h.registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class));
         h.registerColumnMapper(new WrappedIntColumnMapperFactory());

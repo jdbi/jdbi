@@ -20,20 +20,22 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RowViewMapperTest {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testRowViewMap() {
-        Handle h = db.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         final Map<Integer, String> expected = new HashMap<>();
         expected.put(1, "SFO");
         expected.put(2, "OAK");
@@ -43,8 +45,8 @@ public class RowViewMapperTest {
         expected.forEach((id, code) -> batch.bind("id", id).bind("code", code).add());
         batch.execute();
         assertThat(h.createQuery("select id, code from airport")
-                .map(rowView -> new AbstractMap.SimpleEntry<>(rowView.getColumn("id", Integer.class), rowView.getColumn("code", String.class)))
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
+            .map(rowView -> new AbstractMap.SimpleEntry<>(rowView.getColumn("id", Integer.class), rowView.getColumn("code", String.class)))
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
             .isEqualTo(expected);
     }
 }

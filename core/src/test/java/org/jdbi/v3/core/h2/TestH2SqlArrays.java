@@ -21,16 +21,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestH2SqlArrays {
+
     private static final GenericType<List<UUID>> UUID_LIST = new GenericType<List<UUID>>() {};
     private static final GenericType<ArrayList<UUID>> UUID_ARRAYLIST = new GenericType<ArrayList<UUID>>() {};
     private static final GenericType<Set<UUID>> UUID_SET = new GenericType<Set<UUID>>() {};
@@ -40,33 +40,29 @@ public class TestH2SqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:u)";
 
-    @ClassRule
-    public static H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new H2DatabasePlugin());
-
-    private Handle h;
-
-    @Before
-    public void setUp() {
-        h = dbRule.getSharedHandle();
+    @RegisterExtension
+    public static DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u ARRAY)");
         });
-    }
+    });
 
-    private final UUID[] testUuids = new UUID[] {
+    private final UUID[] testUuids = new UUID[]{
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
     };
 
     @Test
     public void testUuidArray() {
         assertThat(
-            h.createUpdate(U_INSERT)
+            h2Extension.openHandle()
+                .createUpdate(U_INSERT)
                 .bindArray("u", testUuids)
                 .execute())
             .isEqualTo(1);
         assertThat(
-            h.createQuery(U_SELECT)
+            h2Extension.openHandle()
+                .createQuery(U_SELECT)
                 .mapTo(UUID[].class)
                 .one())
             .containsExactly(testUuids);
@@ -75,12 +71,14 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidList() {
         assertThat(
-            h.createUpdate(U_INSERT)
+            h2Extension.openHandle()
+                .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, Arrays.asList(testUuids))
                 .execute())
             .isEqualTo(1);
         assertThat(
-            h.createQuery(U_SELECT)
+            h2Extension.openHandle()
+                .createQuery(U_SELECT)
                 .mapTo(UUID_LIST)
                 .one())
             .containsExactly(testUuids);
@@ -89,12 +87,14 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidArrayList() {
         assertThat(
-            h.createUpdate(U_INSERT)
+            h2Extension.openHandle()
+                .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, new ArrayList<>(Arrays.asList(testUuids)))
                 .execute())
             .isEqualTo(1);
         assertThat(
-            h.createQuery(U_SELECT)
+            h2Extension.openHandle()
+                .createQuery(U_SELECT)
                 .mapTo(UUID_ARRAYLIST)
                 .one())
             .containsExactly(testUuids);
@@ -103,12 +103,14 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidHashSet() {
         assertThat(
-            h.createUpdate(U_INSERT)
+            h2Extension.openHandle()
+                .createUpdate(U_INSERT)
                 .bindByType("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isEqualTo(1);
         assertThat(
-            h.createQuery(U_SELECT)
+            h2Extension.openHandle()
+                .createQuery(U_SELECT)
                 .mapTo(UUID_HASHSET)
                 .one())
             .containsExactlyInAnyOrder(testUuids);
@@ -117,12 +119,14 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidLinkedHashSet() {
         assertThat(
-            h.createUpdate(U_INSERT)
+            h2Extension.openHandle()
+                .createUpdate(U_INSERT)
                 .bindByType("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isEqualTo(1);
         assertThat(
-            h.createQuery(U_SELECT)
+            h2Extension.openHandle()
+                .createQuery(U_SELECT)
                 .mapTo(UUID_LINKEDHASHSET)
                 .one())
             .isInstanceOf(LinkedHashSet.class)
@@ -133,7 +137,8 @@ public class TestH2SqlArrays {
     public void testEnumArrays() {
         GenericType<List<TestEnum>> testEnumList = new GenericType<List<TestEnum>>() {};
 
-        assertThat(h.select("select ?")
+        assertThat(h2Extension.openHandle()
+            .select("select ?")
             .bindByType(0, Arrays.asList(TestEnum.values()), testEnumList)
             .mapTo(testEnumList).one())
             .containsExactly(TestEnum.values());

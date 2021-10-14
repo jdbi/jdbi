@@ -24,27 +24,22 @@ import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class FieldMapperMockTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
     @Mock
     ResultSet resultSet;
@@ -57,7 +52,7 @@ public class FieldMapperMockTest {
 
     RowMapper<SampleBean> mapper = FieldMapper.of(SampleBean.class);
 
-    @Before
+    @BeforeEach
     public void setUpMocks() throws SQLException {
         handle = HandleAccess.createHandle();
         ctx = StatementContextAccess.createContext(handle);
@@ -193,6 +188,7 @@ public class FieldMapperMockTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void shouldNotThrowOnMismatchedColumns() throws Exception {
         mockColumns("longField", "extraColumn");
 

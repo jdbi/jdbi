@@ -23,28 +23,28 @@ import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 
 public class TestCustomQualifier {
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void registerArgumentFactory() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
@@ -61,7 +61,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configArgumentsRegister() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
@@ -78,7 +78,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapper() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'abc')");
@@ -93,7 +93,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegister() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'abc')");
@@ -108,7 +108,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapperByQualifiedType() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(
                 QualifiedType.of(String.class).with(Reversed.class),
                 (r, c, ctx) -> reverse(r.getString(c)))
@@ -125,7 +125,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegisterByQualifiedType() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .configure(ColumnMappers.class, config -> config.register(
                 QualifiedType.of(String.class).with(Reversed.class),
                 (r, c, ctx) -> reverse(r.getString(c))))
@@ -142,7 +142,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapperFactory() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapperFactory())
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'xyz')");
@@ -157,7 +157,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegisterFactory() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory()))
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (1, 'xyz')");
@@ -172,7 +172,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedGetter() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
@@ -188,7 +188,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedGetter() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .registerRowMapper(BeanMapper.factory(QualifiedGetterThing.class))
             .useHandle(handle -> {
@@ -203,7 +203,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedSetter() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
@@ -219,7 +219,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedSetter() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .registerRowMapper(BeanMapper.factory(QualifiedSetterThing.class))
             .useHandle(handle -> {
@@ -234,7 +234,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedSetterParam() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
@@ -250,7 +250,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedSetterParam() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .registerRowMapper(BeanMapper.factory(QualifiedSetterParamThing.class))
             .useHandle(handle -> {
@@ -265,7 +265,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindMethodsQualifiedMethod() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
@@ -281,7 +281,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapConstructorQualifiedParam() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .registerRowMapper(ConstructorMapper.factory(QualifiedConstructorParamThing.class))
             .useHandle(handle -> {
@@ -296,7 +296,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindFieldsQualified() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())
             .useHandle(handle -> {
                 handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
@@ -312,7 +312,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapFieldsQualified() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             .registerColumnMapper(new ReversedStringMapper())
             .registerRowMapper(FieldMapper.factory(QualifiedFieldThing.class))
             .useHandle(handle -> {
@@ -331,6 +331,7 @@ public class TestCustomQualifier {
 
     @UpperCase
     static class UpperCaseArgumentFactory extends AbstractArgumentFactory<String> {
+
         UpperCaseArgumentFactory() {
             super(Types.VARCHAR);
         }
@@ -343,6 +344,7 @@ public class TestCustomQualifier {
 
     @UpperCase
     static class UpperCaseStringMapper implements ColumnMapper<String> {
+
         @Override
         public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             return r.getString(columnNumber).toUpperCase();
@@ -352,6 +354,7 @@ public class TestCustomQualifier {
     @Reversed
     @UpperCase
     static class ReversedUpperCaseStringArgumentFactory extends AbstractArgumentFactory<String> {
+
         ReversedUpperCaseStringArgumentFactory() {
             super(Types.VARCHAR);
         }
@@ -365,6 +368,7 @@ public class TestCustomQualifier {
     @Reversed
     @UpperCase
     static class ReversedUpperCaseStringMapper implements ColumnMapper<String> {
+
         @Override
         public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             return reverse(r.getString(columnNumber)).toUpperCase();
@@ -373,7 +377,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindMultipleQualifiers() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             // should use this one - register first so it's consulted last
             .registerArgument(new ReversedUpperCaseStringArgumentFactory())
             .registerArgument(new ReversedStringArgumentFactory())
@@ -392,7 +396,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapMultipleQualifiers() {
-        dbRule.getJdbi()
+        h2Extension.getJdbi()
             // should use this one - register first so it's consulted last
             .registerColumnMapper(new ReversedUpperCaseStringMapper())
             .registerColumnMapper(new ReversedStringMapper())

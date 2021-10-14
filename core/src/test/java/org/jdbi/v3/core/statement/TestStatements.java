@@ -18,50 +18,42 @@ import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultProducers;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatements {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    private Handle h;
-
-    @Before
-    public void setUp() {
-        h = dbRule.openHandle();
-    }
-
-    @After
-    public void doTearDown() {
-        if (h != null) {
-            h.close();
-        }
-    }
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testStatement() {
+        Handle h = h2Extension.openHandle();
+
         int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isEqualTo(1);
     }
 
     @Test
     public void testSimpleInsert() {
+        Handle h = h2Extension.openHandle();
+
         int c = h.execute("insert into something (id, name) values (1, 'eric')");
         assertThat(c).isEqualTo(1);
     }
 
     @Test
     public void testUpdate() {
+        Handle h = h2Extension.openHandle();
+
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.createUpdate("update something set name = 'ERIC' where id = 1").execute();
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
@@ -70,6 +62,8 @@ public class TestStatements {
 
     @Test
     public void testSimpleUpdate() {
+        Handle h = h2Extension.openHandle();
+
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("update something set name = 'cire' where id = 1");
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
@@ -78,29 +72,39 @@ public class TestStatements {
 
     @Test
     public void testStatementWithRequiredResults() {
+        Handle h = h2Extension.openHandle();
+
         assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst()).isInstanceOf(NoResultsException.class);
     }
 
     @Test
     public void testStatementWithOptionalResults() {
+        Handle h = h2Extension.openHandle();
+
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
     }
 
     @Test
     public void testStatementWithOptionalBeanResults() {
+        Handle h = h2Extension.openHandle();
+
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
     }
 
     @Test
     public void testStatementWithOptionalMapResults() {
+        Handle h = h2Extension.openHandle();
+
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
     }
 
     @Test
     public void testUnusedBinding() {
+        Handle h = h2Extension.openHandle();
+
         assertThatThrownBy(() -> h.createQuery("select * from something")
             .bind("id", 1)
             .collectRows(Collectors.counting())
@@ -109,14 +113,18 @@ public class TestStatements {
 
     @Test
     public void testPermittedUnusedBinding() {
-       assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
-           .createQuery("select * from something")
-           .bind("id", 1)
-           .collectRows(Collectors.counting())).doesNotThrowAnyException();
+        Handle h = h2Extension.openHandle();
+
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
+            .createQuery("select * from something")
+            .bind("id", 1)
+            .collectRows(Collectors.counting())).doesNotThrowAnyException();
     }
 
     @Test
     public void testPermittedUsedAndUnusedBinding() {
+        Handle h = h2Extension.openHandle();
+
         assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
             .createQuery("select * from something where id = :id")
             .bind("id", 1)
@@ -127,6 +135,8 @@ public class TestStatements {
     @Test
     // TODO it would be nice if this failed in the future
     public void testUsedAndUnusedNamed() {
+        Handle h = h2Extension.openHandle();
+
         assertThatCode(() -> h.createQuery("select * from something where id = :id")
             .bind("id", 1)
             .bind("name", "jack")
@@ -136,6 +146,8 @@ public class TestStatements {
 
     @Test
     public void testFarAwayPositional() {
+        Handle h = h2Extension.openHandle();
+
         assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
             .bind(0, 1)
             .bind(2, "jack")
@@ -145,6 +157,8 @@ public class TestStatements {
 
     @Test
     public void testUnusedBindingWithOutParameter() {
+        Handle h = h2Extension.openHandle();
+
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
 
         Call call = h.createCall("? = CALL TO_DEGREES(?)")
@@ -157,6 +171,8 @@ public class TestStatements {
 
     @Test
     public void testPermittedUnusedBindingWithOutParameter() {
+        Handle h = h2Extension.openHandle();
+
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
 
         Call call = h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true))

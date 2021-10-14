@@ -18,25 +18,25 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestCodecFactoryH2 {
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testCodecFactory() throws Exception {
         QualifiedType<TestValue> testType = QualifiedType.of(TestValue.class);
 
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         jdbi.registerCodecFactory(CodecFactory.forSingleCodec(testType, new TestValueCodec()));
 

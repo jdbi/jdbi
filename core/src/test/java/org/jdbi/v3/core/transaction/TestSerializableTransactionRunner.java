@@ -20,13 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -37,23 +38,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@ExtendWith(MockitoExtension.class)
 public class TestSerializableTransactionRunner {
     private static final int MAX_RETRIES = 5;
 
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
     private Consumer<List<Exception>> onFailure;
     @Mock
     private Consumer<List<Exception>> onSuccess;
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
-        dbRule.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
+        h2Extension.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
+        h2Extension.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
             .setMaxRetries(MAX_RETRIES)
             .setOnFailure(onFailure)
             .setOnSuccess(onSuccess);
@@ -62,7 +62,7 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testEventuallyFails() {
         final AtomicInteger attempts = new AtomicInteger(0);
-        Handle handle = dbRule.getJdbi().open();
+        Handle handle = h2Extension.getJdbi().open();
 
         assertThatExceptionOfType(SQLException.class)
             .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
@@ -83,7 +83,7 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testEventuallySucceeds() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
-        Handle handle = dbRule.getJdbi().open();
+        Handle handle = h2Extension.getJdbi().open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             if (remaining.decrementAndGet() == 0) {
@@ -97,7 +97,7 @@ public class TestSerializableTransactionRunner {
 
     @Test
     public void testNonsenseRetryCount() {
-        assertThatThrownBy(() -> dbRule.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(-1)))
+        assertThatThrownBy(() -> h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(-1)))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Set a number >= 0");
     }
@@ -123,7 +123,7 @@ public class TestSerializableTransactionRunner {
             return null;
         }).when(onSuccess).accept(anyList());
 
-        dbRule.getJdbi().open().inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
+        h2Extension.getJdbi().open().inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             if (remainingAttempts.decrementAndGet() == 0) {
                 return null;
             }

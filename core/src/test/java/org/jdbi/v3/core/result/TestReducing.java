@@ -22,23 +22,25 @@ import java.util.stream.Collector;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.junit5.DatabaseExtension;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.stream.Collectors.toList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestReducing {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
 
-    @Before
+    @RegisterExtension
+    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+
+    @BeforeEach
     public void setUp() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("CREATE TABLE something_location (id int, location varchar)");
         h.execute("INSERT INTO something (id, name) VALUES (1, 'tree')");
         h.execute("INSERT INTO something (id, name) VALUES (2, 'apple')");
@@ -50,13 +52,13 @@ public class TestReducing {
 
     @Test
     public void testReduceRowsWithSeed() {
-        Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
+        Map<Integer, SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceRows(new HashMap<Integer, SomethingWithLocations>(), (map, rr) -> {
                 map.computeIfAbsent(rr.getColumn("id", Integer.class),
                         id -> new SomethingWithLocations(rr.getRow(Something.class)))
-                   .locations
-                   .add(rr.getColumn("location", String.class));
+                    .locations
+                    .add(rr.getColumn("location", String.class));
                 return map;
             });
 
@@ -67,19 +69,19 @@ public class TestReducing {
 
     @Test
     public void testCollectRows() {
-        Iterable<SomethingWithLocations> result = dbRule.getSharedHandle()
+        Iterable<SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .collectRows(Collector.<RowView, Map<Integer, SomethingWithLocations>, Iterable<SomethingWithLocations>>of(
-                    LinkedHashMap::new,
-                    (Map<Integer, SomethingWithLocations> map, RowView rv) ->
-                        map.computeIfAbsent(rv.getColumn("id", Integer.class),
-                                            id -> new SomethingWithLocations(rv.getRow(Something.class)))
-                           .locations
-                           .add(rv.getColumn("location", String.class)),
-                    (a, b) -> {
-                        throw new UnsupportedOperationException("shouldn't use combiner");
-                    },
-                    Map::values));
+                LinkedHashMap::new,
+                (Map<Integer, SomethingWithLocations> map, RowView rv) ->
+                    map.computeIfAbsent(rv.getColumn("id", Integer.class),
+                            id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                        .locations
+                        .add(rv.getColumn("location", String.class)),
+                (a, b) -> {
+                    throw new UnsupportedOperationException("shouldn't use combiner");
+                },
+                Map::values));
 
         assertThat(result).containsExactly(
             new SomethingWithLocations(new Something(1, "tree")).at("outside"),
@@ -88,13 +90,13 @@ public class TestReducing {
 
     @Test
     public void testReduceRows() {
-        List<SomethingWithLocations> result = dbRule.getSharedHandle()
+        List<SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceRows((Map<Integer, SomethingWithLocations> map, RowView rv) ->
                 map.computeIfAbsent(rv.getColumn("id", Integer.class),
-                                    id -> new SomethingWithLocations(rv.getRow(Something.class)))
-                   .locations
-                   .add(rv.getColumn("location", String.class)))
+                        id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                    .locations
+                    .add(rv.getColumn("location", String.class)))
             .collect(toList());
 
         assertThat(result).containsExactly(
@@ -104,7 +106,7 @@ public class TestReducing {
 
     @Test
     public void testReduceResultSet() {
-        Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
+        Map<Integer, SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceResultSet(new HashMap<Integer, SomethingWithLocations>(), (map, rs, ctx) -> {
                 final String name = rs.getString("name");
@@ -120,6 +122,7 @@ public class TestReducing {
     }
 
     static class SomethingWithLocations {
+
         final Something something;
         final List<String> locations = new ArrayList<>();
 

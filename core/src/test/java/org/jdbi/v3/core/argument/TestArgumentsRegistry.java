@@ -23,20 +23,18 @@ import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class TestArgumentsRegistry {
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
 
     private static final String I_AM_A_STRING = "I am a String";
 
@@ -46,7 +44,7 @@ public class TestArgumentsRegistry {
     @Mock
     public PreparedStatement stmt;
 
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         handle = HandleAccess.createHandle();
         ctx = StatementContextAccess.createContext(handle);

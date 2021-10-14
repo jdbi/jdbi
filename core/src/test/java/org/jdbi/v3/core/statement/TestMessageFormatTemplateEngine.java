@@ -16,8 +16,8 @@ package org.jdbi.v3.core.statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,7 +29,7 @@ public class TestMessageFormatTemplateEngine {
     private StatementContext ctx;
     private Map<String, Object> attributes;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         templateEngine = new MessageFormatTemplateEngine();
         attributes = new HashMap<>();
