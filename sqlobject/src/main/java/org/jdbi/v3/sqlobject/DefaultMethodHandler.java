@@ -86,6 +86,7 @@ class DefaultMethodHandler implements Handler {
         return PRIVATE_LOOKUPS.computeIfAbsent(clazz, Unchecked.function(DefaultMethodHandler::getConstructorLookup));
     }
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     private static MethodHandles.Lookup getConstructorLookup(Class<?> type) throws ReflectiveOperationException {
         Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
 

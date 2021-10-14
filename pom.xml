@@ -18,7 +18,7 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>40</version>
+        <version>41</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -511,7 +511,7 @@
             <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
-                <version>${dep.plugin.spotbugs.version}</version>
+                <version>${dep.spotbugs.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
