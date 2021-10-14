@@ -13,12 +13,16 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.util.regex.Pattern;
+
 /**
  * Matches snake case column names to java camel case names, ignoring case.
  * <p>
  * Example: column names {@code first_name} or {@code FIRST_NAME} would match java name {@code firstName}.
  */
 public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
+    private static final Pattern REPLACE_PATTERN = Pattern.compile("_");
+
     @Override
     public boolean columnNameMatches(String columnName, String javaName) {
         return removeUnderscores(columnName).equalsIgnoreCase(removeUnderscores(javaName));
@@ -31,7 +35,7 @@ public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
     }
 
     private String removeUnderscores(String string) {
-        return string.replace("_", "");
+        return REPLACE_PATTERN.matcher(string).replaceAll("");
     }
 
     @Override
