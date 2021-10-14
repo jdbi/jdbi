@@ -15,26 +15,31 @@ Jdbi with it.
 
 Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
 
-We run CI tests against Java 8, 11, 14, and 16. We recommend running the latest GA JDK.
+We run CI tests against Java 11 and 17 and still support Java 8 for testing on a best-effort basis. 
 
-At this point Java 8 is considered deprecated. While Jdbi does not (yet) have a specific
-date to drop support, please chart your path forward to a supported JDK!
+### Java 8 compatibility
+
+Java 8 is considered deprecated. While Jdbi does not (yet) have a specific date to drop support, 
+please chart your path forward to a supported JDK! We recommend running the latest LTS JDK.
+
+Jdbi 3 is compiled to Java 8 byte code and is considered stable on Java 8. 
+
+However, we now require Java 11 or better to compile as the tool chain no longer runs on Java 8. 
+
+We run CI tests on Java 8 on a best effort basis as some of the tests require Java 11+ only dependencies.
 
 NOTE: to run on Java 8, you may need to manage the `caffeine` dependency back to the
 latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
 
 ## Builds
 
-Jdbi is built with Maven:
+Jdbi is built with Apache Maven, requiring version 3.6.0 or newer.
 
 ```bash
-$ mvn clean install
+$ ./mvnw clean install
 ```
 
-The tests use real Postgres and H2 databases.
-
-You do not need to install anything--the tests will spin up
-temporary database servers as needed.
+The unit tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed).
 
 ## Contributing
 
