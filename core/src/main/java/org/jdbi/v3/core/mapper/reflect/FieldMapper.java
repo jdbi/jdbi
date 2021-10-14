@@ -217,6 +217,7 @@ public class FieldMapper<T> implements RowMapper<T> {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     private void writeField(T obj, Field field, Object value) {
         try {
             field.setAccessible(true);

@@ -41,6 +41,7 @@ public class JpaMember {
     private final Getter accessor;
     private final Setter mutator;
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
@@ -50,6 +51,7 @@ public class JpaMember {
         this.mutator = field::set;
     }
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     JpaMember(Class<?> clazz, Column column, PropertyDescriptor property) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, property.getName());

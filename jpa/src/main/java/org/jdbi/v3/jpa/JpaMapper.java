@@ -42,6 +42,7 @@ public class JpaMapper<C> implements RowMapper<C> {
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     public RowMapper<C> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         Constructor<C> constructor;
         try {
