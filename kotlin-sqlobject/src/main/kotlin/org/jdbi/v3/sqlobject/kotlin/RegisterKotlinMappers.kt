@@ -14,14 +14,8 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
-import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
-import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMappersImpl
-import java.lang.annotation.ElementType
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-import java.lang.annotation.Target
 
-@Retention(RetentionPolicy.RUNTIME)
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMappersImpl::class)
-@Target(ElementType.TYPE, ElementType.METHOD)
+@kotlin.annotation.Target
 annotation class RegisterKotlinMappers(vararg val value: RegisterKotlinMapper)
