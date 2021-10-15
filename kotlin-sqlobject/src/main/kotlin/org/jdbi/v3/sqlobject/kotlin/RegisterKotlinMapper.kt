@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
  */
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
-@kotlin.annotation.Target
+@kotlin.annotation.Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 @Repeatable
 annotation class RegisterKotlinMapper(
     /**
