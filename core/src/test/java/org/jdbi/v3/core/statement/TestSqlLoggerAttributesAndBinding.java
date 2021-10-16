@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,7 @@ public class TestSqlLoggerAttributesAndBinding {
     private static final String CREATE = "create table <x>(bar int primary key not null)";
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
     private TalkativeSqlLogger logger;

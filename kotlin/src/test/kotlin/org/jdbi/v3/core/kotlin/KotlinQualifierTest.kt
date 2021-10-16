@@ -16,30 +16,29 @@ package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
+import org.jdbi.v3.core.junit5.DatabaseExtension
+import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.qualifier.Reversed
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.v3.core.qualifier.ReversedStringMapper
-import org.jdbi.v3.core.rule.H2DatabaseRule
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.RegisterExtension
+import org.mockito.junit.jupiter.MockitoExtension
 
+@ExtendWith(MockitoExtension::class)
 class KotlinQualifierTest {
-    @Rule
-    @JvmField
-    val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
-    @Rule
+    @RegisterExtension
     @JvmField
-    val dbRule: H2DatabaseRule = H2DatabaseRule().withSomething().withPlugin(KotlinPlugin())
+    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withSomething().withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 
-    @Before
+    @BeforeEach
     fun setup() {
-        handle = dbRule.sharedHandle
+        handle = h2Extension.sharedHandle
             .registerArgument(ReversedStringArgumentFactory())
             .registerColumnMapper(ReversedStringMapper())
     }
@@ -91,8 +90,9 @@ class KotlinQualifierTest {
             .isEqualTo(DataClassQualifiedLateInitProperty(1).also { it.name = "cba" })
     }
 
-    data class DataClassQualifiedLateInitProperty(val id:Int) {
-        @Reversed lateinit var name: String
+    data class DataClassQualifiedLateInitProperty(val id: Int) {
+        @Reversed
+        lateinit var name: String
     }
 
     @Test
@@ -117,7 +117,8 @@ class KotlinQualifierTest {
             .isEqualTo(DataClassQualifiedVarProperty(1).also { it.name = "cba" })
     }
 
-    data class DataClassQualifiedVarProperty(val id:Int) {
-        @Reversed var name: String? = null
+    data class DataClassQualifiedVarProperty(val id: Int) {
+        @Reversed
+        var name: String? = null
     }
 }

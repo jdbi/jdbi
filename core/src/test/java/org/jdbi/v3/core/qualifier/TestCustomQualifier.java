@@ -23,7 +23,6 @@ import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -40,7 +39,7 @@ import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 public class TestCustomQualifier {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void registerArgumentFactory() {

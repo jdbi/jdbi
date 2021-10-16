@@ -15,33 +15,36 @@ package jdbi.doc;
 
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GeneratedKeysTest {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule()
-        .withPlugin(new SqlObjectPlugin())
-        .withPlugin(new PostgresPlugin());
-    private Jdbi db;
 
-    @Before
-    public void getHandle() {
-        db = dbRule.getJdbi();
-    }
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+        .withPlugin(new PostgresPlugin())
+        .withPlugin(new SqlObjectPlugin());
+
+    private Jdbi db;
 
     // tag::setup[]
     public static class User {
+
         final int id;
         final String name;
 
@@ -51,8 +54,10 @@ public class GeneratedKeysTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        db = pgExtension.getJdbi();
+
         db.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
         db.registerRowMapper(ConstructorMapper.factory(User.class));
     }

@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class PrimitiveMapperFactoryTest {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void defaultConfiguration() {

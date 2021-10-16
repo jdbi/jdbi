@@ -15,12 +15,13 @@ package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.rule.H2DatabaseRule
+import org.jdbi.v3.core.junit5.DatabaseExtension
+import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 import org.jdbi.v3.sqlobject.statement.SqlQuery
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaMethod
 
@@ -30,21 +31,24 @@ class Jdbi858ExtensionsTest {
         fun getOnlyName(): String
     }
 
-    @Rule @JvmField
-    val dbRule = H2DatabaseRule().withPlugins()
+    @RegisterExtension
+    @JvmField
+    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withPlugins()
 
     lateinit var jdbi: Jdbi
 
-    @Before fun setUp() {
-        jdbi = dbRule.jdbi
+    @BeforeEach
+    fun setUp() {
+        jdbi = h2Extension.jdbi
 
-        dbRule.openHandle().apply {
+        h2Extension.openHandle().apply {
             execute("CREATE TABLE $TABLE_NAME ($ID_COLUMN INTEGER PRIMARY KEY AUTO_INCREMENT, $NAME_COLUMN VARCHAR)")
             execute("INSERT INTO $TABLE_NAME ($NAME_COLUMN) VALUES (?)", EXPECTED_NAME)
         }
     }
 
-    @Test fun testWithHandleUnchecked() {
+    @Test
+    fun testWithHandleUnchecked() {
         val name = jdbi.withHandleUnchecked { handle ->
             handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
@@ -52,7 +56,8 @@ class Jdbi858ExtensionsTest {
         assertThat(name).isEqualTo(EXPECTED_NAME)
     }
 
-    @Test fun testUseHandleUnchecked() {
+    @Test
+    fun testUseHandleUnchecked() {
         jdbi.useHandleUnchecked { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
@@ -60,7 +65,8 @@ class Jdbi858ExtensionsTest {
         }
     }
 
-    @Test fun testInTransactionUnchecked() {
+    @Test
+    fun testInTransactionUnchecked() {
         val name = jdbi.inTransactionUnchecked { handle ->
             handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
@@ -68,7 +74,8 @@ class Jdbi858ExtensionsTest {
         assertThat(name).isEqualTo(EXPECTED_NAME)
     }
 
-    @Test fun testUseTransactionUnchecked() {
+    @Test
+    fun testUseTransactionUnchecked() {
         jdbi.useTransactionUnchecked { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
@@ -76,7 +83,8 @@ class Jdbi858ExtensionsTest {
         }
     }
 
-    @Test fun testInTransactionUncheckedWithLevel() {
+    @Test
+    fun testInTransactionUncheckedWithLevel() {
         val name = jdbi.inTransactionUnchecked(TransactionIsolationLevel.READ_COMMITTED) { handle ->
             handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
         }
@@ -84,7 +92,8 @@ class Jdbi858ExtensionsTest {
         assertThat(name).isEqualTo(EXPECTED_NAME)
     }
 
-    @Test fun testUseTransactionUncheckedWithLevel() {
+    @Test
+    fun testUseTransactionUncheckedWithLevel() {
         jdbi.useTransactionUnchecked(TransactionIsolationLevel.READ_COMMITTED) { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
@@ -92,7 +101,8 @@ class Jdbi858ExtensionsTest {
         }
     }
 
-    @Test fun testWithExtensionUnchecked() {
+    @Test
+    fun testWithExtensionUnchecked() {
         val name = jdbi.withExtensionUnchecked(FooDao::class.java) { dao ->
             dao.getOnlyName()
         }
@@ -100,7 +110,8 @@ class Jdbi858ExtensionsTest {
         assertThat(name).isEqualTo(EXPECTED_NAME)
     }
 
-    @Test fun testUseExtensionUnchecked() {
+    @Test
+    fun testUseExtensionUnchecked() {
         jdbi.useExtensionUnchecked(FooDao::class.java) { dao ->
             val name = dao.getOnlyName()
 
@@ -108,7 +119,8 @@ class Jdbi858ExtensionsTest {
         }
     }
 
-    @Test fun testWithExtensionUncheckedKClass() {
+    @Test
+    fun testWithExtensionUncheckedKClass() {
         val name = jdbi.withExtensionUnchecked(FooDao::class) { dao ->
             dao.getOnlyName()
         }
@@ -116,7 +128,8 @@ class Jdbi858ExtensionsTest {
         assertThat(name).isEqualTo(EXPECTED_NAME)
     }
 
-    @Test fun testUseExtensionUncheckedKClass() {
+    @Test
+    fun testUseExtensionUncheckedKClass() {
         jdbi.useExtensionUnchecked(FooDao::class) { dao ->
             val name = dao.getOnlyName()
 
@@ -124,7 +137,8 @@ class Jdbi858ExtensionsTest {
         }
     }
 
-    @Test fun javaAnnotationsEqualToKotlinAnnotations() {
+    @Test
+    fun javaAnnotationsEqualToKotlinAnnotations() {
         val kotlinAnnotation = FooDao::getOnlyName.findAnnotation<SqlQuery>()
         val javaAnnotation = FooDao::getOnlyName.javaMethod?.getAnnotation(SqlQuery::class.java)
         assertThat(kotlinAnnotation)

@@ -19,7 +19,7 @@ import org.jdbi.v3.core.argument.TestInetAddressH2;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestInetAddressPg extends TestInetAddressH2 { { h2Extension = PgDatabaseExtension.instance(pg).withPlugin(new PostgresPlugin()); }
+public class TestInetAddressPg extends TestInetAddressH2 { { dbExtension = PgDatabaseExtension.instance(pg).withPlugin(new PostgresPlugin()); }
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();

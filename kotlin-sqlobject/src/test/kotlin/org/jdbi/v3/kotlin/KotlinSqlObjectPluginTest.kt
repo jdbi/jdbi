@@ -14,13 +14,15 @@
 package org.jdbi.v3.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
+import org.jdbi.v3.core.junit5.DatabaseExtension
+import org.jdbi.v3.core.junit5.H2DatabaseExtension
+import org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 import org.jdbi.v3.core.qualifier.Reversed
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.v3.core.qualifier.ReversedStringMapper
-import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.SqlObject
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
@@ -31,14 +33,15 @@ import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
 class KotlinSqlObjectPluginTest {
-    @Rule @JvmField
-    val db = H2DatabaseRule().withSomething().withPlugins()
+    @RegisterExtension
+    @JvmField
+    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withPlugins().withInitializer(SOMETHING_INITIALIZER)
 
     data class Thing(val id: Int, val name: String,
                      val nullable: String?,
@@ -52,8 +55,8 @@ class KotlinSqlObjectPluginTest {
 
         fun list(): List<Thing> {
             return handle.createQuery("select id, name from something")
-                    .mapTo(Thing::class.java)
-                    .list()
+                .mapTo(Thing::class.java)
+                .list()
         }
 
         @SqlQuery("select id, name, null as nullable, null as nullableDefaultedNull, null as nullableDefaultedNotNull, 'test' as defaulted from something")
@@ -103,27 +106,27 @@ class KotlinSqlObjectPluginTest {
 
     @Test
     fun testDaoCanAttachViaDbiOnDemand() {
-        commonTest(db.jdbi.onDemand<ThingDao>())
+        commonTest(h2Extension.jdbi.onDemand<ThingDao>())
     }
 
     @Test
     fun testDaoCanAttachViaDbiOnDemandWithKClassArgument() {
-        commonTest(db.jdbi.onDemand(ThingDao::class))
+        commonTest(h2Extension.jdbi.onDemand(ThingDao::class))
     }
 
     @Test
     fun testDaoCanAttachViaHandleAttach() {
-        commonTest(db.sharedHandle.attach<ThingDao>())
+        commonTest(h2Extension.sharedHandle.attach<ThingDao>())
     }
 
     @Test
     fun testDaoCanAttachViaHandleAttachWithKClassArgument() {
-        commonTest(db.sharedHandle.attach(ThingDao::class))
+        commonTest(h2Extension.sharedHandle.attach(ThingDao::class))
     }
 
     @Test
     fun testDefaultMethod() {
-        val dao = db.jdbi.onDemand<ThingDao>()
+        val dao = h2Extension.jdbi.onDemand<ThingDao>()
         val brian = Thing(1, "Brian", null)
 
         val found = dao.insertAndFind(brian)
@@ -132,7 +135,7 @@ class KotlinSqlObjectPluginTest {
 
     @Test
     fun testDefaultMethodShouldPropagateException() {
-        val dao = db.jdbi.onDemand<ThingDao>()
+        val dao = h2Extension.jdbi.onDemand<ThingDao>()
         val exception = UnsupportedOperationException("Testing exception propagation")
         val actualException = assertFails { dao.throwsException(exception) }
         assertEquals(exception, actualException)
@@ -140,15 +143,15 @@ class KotlinSqlObjectPluginTest {
 
     @Test
     fun qualifiedBindParameter() {
-        val dao = db.jdbi.onDemand<QualifiedDao>()
+        val dao = h2Extension.jdbi.onDemand<QualifiedDao>()
         dao.insert(1, "abc")
-        assertThat(db.sharedHandle
+        assertThat(h2Extension.sharedHandle
             .select("SELECT name FROM something WHERE id = 1")
             .mapTo<String>()
             .one())
             .isEqualTo("cba")
 
-        db.sharedHandle.execute("insert into something (id, name) values (2, 'xyz')")
+        h2Extension.sharedHandle.execute("insert into something (id, name) values (2, 'xyz')")
 
         assertThat(dao.select(2)).isEqualTo("zyx")
     }
@@ -174,11 +177,11 @@ class KotlinSqlObjectPluginTest {
 
     @Test
     fun testDataClassWithJdbiConstructor() {
-        db.sharedHandle.execute("CREATE TABLE bean (s varchar, i integer)")
+        h2Extension.sharedHandle.execute("CREATE TABLE bean (s varchar, i integer)")
 
-        db.sharedHandle.execute("INSERT INTO bean VALUES('x', 2)")
+        h2Extension.sharedHandle.execute("INSERT INTO bean VALUES('x', 2)")
 
-        val dao = db.jdbi.onDemand(TestDao::class.java)
+        val dao = h2Extension.jdbi.onDemand(TestDao::class.java)
 
         val result = dao.findOne("x")
 

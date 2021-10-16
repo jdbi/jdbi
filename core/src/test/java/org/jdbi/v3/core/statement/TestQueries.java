@@ -22,7 +22,6 @@ import java.util.Optional;
 import com.google.common.collect.Maps;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultIterable;
@@ -41,7 +40,7 @@ import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 public class TestQueries {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testCreateQueryObject() {

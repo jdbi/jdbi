@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestHandle {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testInTransaction() {

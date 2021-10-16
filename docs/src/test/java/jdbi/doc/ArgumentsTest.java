@@ -22,23 +22,24 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArgumentsTest {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void getHandle() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
     }
 
     @Test

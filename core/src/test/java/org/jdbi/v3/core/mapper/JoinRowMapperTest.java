@@ -19,7 +19,6 @@ import java.util.stream.IntStream;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JoinRowMapperTest {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
 

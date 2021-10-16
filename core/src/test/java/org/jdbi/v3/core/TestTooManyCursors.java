@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class TestTooManyCursors {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testFoo() {

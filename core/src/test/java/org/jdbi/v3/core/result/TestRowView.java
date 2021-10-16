@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.result;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestRowView {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @BeforeEach
     public void setUp() {

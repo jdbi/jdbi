@@ -18,7 +18,6 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestCodecFactoryH2 {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void testCodecFactory() throws Exception {

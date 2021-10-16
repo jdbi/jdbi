@@ -16,7 +16,6 @@ package org.jdbi.v3.core.mapper;
 import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ public class TestMapMapper {
 
     // h2 makes column names uppercase
     @RegisterExtension
-    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
+    public SqliteDatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle h;
 

@@ -14,31 +14,32 @@
 
 package org.jdbi.v3.core.kotlin
 
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
-import org.jdbi.v3.core.Handle
-import org.jdbi.v3.core.qualifier.Reversed
-import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
-import org.jdbi.v3.core.qualifier.ReversedStringMapper
-import org.jdbi.v3.core.rule.H2DatabaseRule
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
 import org.jdbi.v3.core.generic.GenericType
-import org.jdbi.v3.testing.JdbiRule
+import org.jdbi.v3.core.junit5.DatabaseExtension
+import org.jdbi.v3.core.junit5.PgDatabaseExtension
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
 class KotlinBindTest {
-    @Rule
+
+    companion object {
+        @RegisterExtension
+        val pg = MultiDatabaseBuilder.instanceWithDefaults().build()!!
+    }
+
+    @RegisterExtension
     @JvmField
-    val dbRule: JdbiRule = JdbiRule.embeddedPostgres().withPlugin(KotlinPlugin())
+    val pgExtension: PgDatabaseExtension = PgDatabaseExtension.instance(pg).withPlugin(KotlinPlugin())
 
     @Test
     fun bindEnumKotlinList() {
-        assertThat(dbRule.handle.createQuery("select :echo")
-                .bindArray("echo", MyEnum::class.java, listOf(MyEnum.A, MyEnum.B))
-                .mapTo(object : GenericType<List<MyEnum>>() {})
-                .one())
+        assertThat(pgExtension.openHandle()
+            .createQuery("select :echo")
+            .bindArray("echo", MyEnum::class.java, listOf(MyEnum.A, MyEnum.B))
+            .mapTo(object : GenericType<List<MyEnum>>() {})
+            .one())
             .containsExactly(MyEnum.A, MyEnum.B)
     }
 

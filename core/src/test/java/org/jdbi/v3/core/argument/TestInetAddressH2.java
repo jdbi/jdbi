@@ -27,11 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestInetAddressH2 {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public DatabaseExtension<?> dbExtension = H2DatabaseExtension.instance();
 
     @Test
     public void testInetAddress() throws Exception {
-        h2Extension.getJdbi().useHandle(h -> {
+        dbExtension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE addrs (addr " + getInetType() + " PRIMARY KEY)");
 
             String insert = "INSERT INTO addrs VALUES(?)";

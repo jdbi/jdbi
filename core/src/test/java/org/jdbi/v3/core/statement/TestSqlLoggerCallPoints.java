@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +39,7 @@ public class TestSqlLoggerCallPoints {
     private static final Predicate<Long> IS_POSITIVE = x -> x >= 0;
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
     private TalkativeSqlLogger logger;

@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
@@ -31,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestNamedParams {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testInsert() {

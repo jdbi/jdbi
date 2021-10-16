@@ -15,7 +15,6 @@
 package org.jdbi.v3.core.argument;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class PrimitivesArgumentFactoryTest {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle handle;
 

@@ -22,30 +22,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.JoinRow;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class ResultsTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
-    private Handle handle;
 
-    @Before
-    public void getHandle() {
-        handle = dbRule.getSharedHandle();
-    }
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    private Handle handle;
 
     // tag::headlineExample[]
     public static class User {
@@ -60,8 +57,10 @@ public class ResultsTest {
         // end::userConstructor[]
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        handle = h2Extension.getSharedHandle();
+
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR)");
         for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
             handle.execute("INSERT INTO user(name) VALUES (?)", name);

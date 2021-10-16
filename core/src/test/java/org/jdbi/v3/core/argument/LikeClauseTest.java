@@ -15,7 +15,6 @@ package org.jdbi.v3.core.argument;
 
 import java.util.List;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LikeClauseTest {
     @RegisterExtension
-    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
+    public SqliteDatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     @BeforeEach
     public void before() {

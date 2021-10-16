@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +40,7 @@ public class TestH2SqlArrays {
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:u)";
 
     @RegisterExtension
-    public static DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
+    public static H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u ARRAY)");
