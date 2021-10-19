@@ -19,9 +19,9 @@ import kotlin.reflect.KClass
 /**
  * Registers a KotlinMapper for a specific kotlin class
  */
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
-@kotlin.annotation.Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS)
+@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 @Repeatable
 annotation class RegisterKotlinMapper(
     /**
