@@ -6,23 +6,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatementsTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
         handle.execute("INSERT INTO user VALUES (1, 'Alice')");
         handle.execute("INSERT INTO user VALUES (2, 'Bob')");

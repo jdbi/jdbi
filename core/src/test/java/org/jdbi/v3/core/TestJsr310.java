@@ -23,7 +23,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestJsr310 {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> h.execute("create table stuff (ts timestamp, d date)"));
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> h.execute("create table stuff (ts timestamp, d date)"));
 
     // Don't use nanoseconds - they'll get truncated off
     Clock fixed = Clock.fixed(Instant.ofEpochSecond(123456789), ZoneOffset.UTC);

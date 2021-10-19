@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.StatementExceptions;
@@ -31,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestClasspathSqlLocator {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testLocateNamed() {

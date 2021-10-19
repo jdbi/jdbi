@@ -18,7 +18,6 @@ import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.transaction.TransactionException;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestClosingHandle {
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @Test
     public void testNotClosing() {

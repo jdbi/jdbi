@@ -16,33 +16,32 @@ package org.jdbi.v3.core.kotlin
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jdbi.v3.core.Handle
+import org.jdbi.v3.core.junit5.DatabaseExtension
+import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.mapper.Nested
+import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
-import org.jdbi.v3.core.rule.H2DatabaseRule
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.RegisterExtension
+import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
-import org.jdbi.v3.core.mapper.PropagateNull
 
+@ExtendWith(MockitoExtension::class)
 class KotlinMapperTest {
-    @Rule
-    @JvmField
-    val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
-    @Rule
+    @RegisterExtension
     @JvmField
-    val dbRule: H2DatabaseRule = H2DatabaseRule().withPlugin(KotlinPlugin())
+    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.instance().withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 
-    @Before
+    @BeforeEach
     fun setup() {
-        handle = dbRule.sharedHandle
+        handle = h2Extension.sharedHandle
         handle.execute("CREATE TABLE the_things(id integer, first text, second text, third text, fourth text)")
         handle.execute("CREATE TABLE the_other_things(id integer, other text)")
     }

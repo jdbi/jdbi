@@ -6,34 +6,33 @@ import java.util.concurrent.ThreadLocalRandom;
 import jdbi.doc.Counter.CounterCodec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.CodecFactory;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CodecExampleTest {
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule();
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     public static final QualifiedType<Counter> COUNTER_TYPE = QualifiedType.of(Counter.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, value INT)");
         });
     }
 
     @Test
     public void testCounter() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // tag::register[]
 

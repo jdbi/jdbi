@@ -13,24 +13,25 @@
  */
 package jdbi.doc
 
+import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.kotlin.useSequence
 import org.jdbi.v3.core.mapper.Nested
-import org.jdbi.v3.core.rule.H2DatabaseRule
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
 
 class KotlinPluginTest {
-    @Rule @JvmField
-    val db = H2DatabaseRule()
+    @RegisterExtension
+    @JvmField
+    val h2Extension: H2DatabaseExtension = H2DatabaseExtension
         .withSomething()
         .withPlugin(SqlObjectPlugin())
         .withPlugin(KotlinPlugin())
@@ -60,8 +61,9 @@ class KotlinPluginTest {
     val keith = Thing(IdAndName(2, "Keith"), null)
 
     // tag::setUp[]
-    @Before fun setUp() {
-        val dao = db.jdbi.onDemand<ThingDao>()
+    @BeforeEach
+    fun setUp() {
+        val dao = h2Extension.jdbi.onDemand<ThingDao>()
 
         val brian = Thing(IdAndName(1, "Brian"), null)
         val keith = Thing(IdAndName(2, "Keith"), null)
@@ -72,8 +74,9 @@ class KotlinPluginTest {
     // end::setUp[]
 
     // tag::testQuery[]
-    @Test fun testFindById() {
-        val qry = db.sharedHandle.createQuery("select id, name from something where id = :id")
+    @Test
+    fun testFindById() {
+        val qry = h2Extension.sharedHandle.createQuery("select id, name from something where id = :id")
         val things: List<Thing> = qry.bind("id", brian.idAndName.id).mapTo<Thing>().list()
         assertEquals(1, things.size)
         assertEquals(brian, things[0])
@@ -81,9 +84,10 @@ class KotlinPluginTest {
     // end::testQuery[]
 
 
-    @Test fun testFindAll() {
+    @Test
+    fun testFindAll() {
 
-        val qryAll = db.sharedHandle.createQuery("select id, name from something")
+        val qryAll = h2Extension.sharedHandle.createQuery("select id, name from something")
         qryAll.mapTo<Thing>().useSequence {
             assertEquals(keith, it.drop(1).first())
         }
@@ -91,8 +95,9 @@ class KotlinPluginTest {
     }
 
     // tag::testDao[]
-    @Test fun testDao() {
-        val dao = db.jdbi.onDemand<ThingDao>()
+    @Test
+    fun testDao() {
+        val dao = h2Extension.jdbi.onDemand<ThingDao>()
 
         val rs = dao.list()
 

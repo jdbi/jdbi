@@ -21,7 +21,6 @@ import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.internal.EnumStrategies;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class EnumsConfigTest {
 
     @RegisterExtension
-    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
+    public SqliteDatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     @Test
     public void byNameIsDefault() {

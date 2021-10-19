@@ -4,26 +4,28 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlObjectTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething().withPlugin(new SqlObjectPlugin());
 
     // tag::defn[]
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao {
+
         @SqlUpdate("INSERT INTO something (id, name) VALUES (:s.id, :s.name)")
         int insert(@BindBean("s") Something s);
 
@@ -34,9 +36,9 @@ public class SqlObjectTest {
 
     SomethingDao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        final Handle handle = dbRule.getSharedHandle();
+        final Handle handle = h2Extension.getSharedHandle();
         dao = handle.attach(SomethingDao.class);
     }
 

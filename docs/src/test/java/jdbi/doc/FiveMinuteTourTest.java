@@ -21,9 +21,9 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -32,7 +32,7 @@ public class FiveMinuteTourTest {
     private Jdbi jdbi;
     private Handle handle;
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("checkstyle:hiddenfield")
     public void setUp() {
         // tag::createJdbi[]
@@ -61,7 +61,7 @@ public class FiveMinuteTourTest {
         // end::withHandle[]
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handle.close();
     }

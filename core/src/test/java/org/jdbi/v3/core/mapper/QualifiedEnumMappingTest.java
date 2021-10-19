@@ -18,7 +18,6 @@ import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
 import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualifiedEnumMappingTest {
     @RegisterExtension
-    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
+    public SqliteDatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle h;
 

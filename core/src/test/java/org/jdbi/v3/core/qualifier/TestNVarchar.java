@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
@@ -38,7 +37,7 @@ public class TestNVarchar {
     private static final QualifiedType<String> NVARCHAR_STRING = QualifiedType.of(String.class).with(NVarchar.class);
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @BeforeEach
     public void setUp() {

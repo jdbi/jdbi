@@ -22,47 +22,48 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import jdbi.doc.ResultsTest.User;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-import org.jdbi.v3.postgres.PostgresDbRule;
+import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObject;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TransactionTest {
 
-    @ClassRule
-    public static JdbiRule dbRule = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+        .withPlugin(new PostgresPlugin())
+        .withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private Jdbi db;
 
-    @Before
-    public void getHandle() {
-        db = dbRule.getJdbi();
-        handle = dbRule.getHandle();
-        handle.registerRowMapper(ConstructorMapper.factory(User.class));
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
+        db = pgExtension.getJdbi();
+        handle = pgExtension.openHandle();
+        handle.registerRowMapper(ConstructorMapper.factory(User.class));
+
         handle.useTransaction(h -> {
             h.execute("DROP TABLE IF EXISTS users");
             h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");
@@ -123,8 +124,8 @@ public class TransactionTest {
         dao.outerMethodCallsInnerWithSameLevel();
         dao.outerMethodWithLevelCallsInnerMethodWithNoLevel();
 
-        exception.expect(TransactionException.class);
-        dao.outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel();
+        assertThatThrownBy(dao::outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel)
+            .isInstanceOf(TransactionException.class);
     }
 
     public interface NestedTransactionDao extends SqlObject {

@@ -23,7 +23,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ public class TestSqlLoggerToString {
     private static final String NAME = "x";
 
     @RegisterExtension
-    public DatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
+    public SqliteDatabaseExtension sqliteExtension = SqliteDatabaseExtension.instance();
 
     private Handle handle;
     private String positional = null;

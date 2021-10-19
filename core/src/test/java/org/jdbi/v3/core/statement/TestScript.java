@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.Test;
@@ -35,13 +34,13 @@ import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspat
 public class TestScript {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(h -> h.execute("create table something (id serial, data json)"));
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(h -> h.execute("create table something (id serial, data json)"));
 
     @Test
     public void testScriptStuff() {

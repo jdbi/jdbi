@@ -4,27 +4,28 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.Batch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchTest {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
+
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void getHandle() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE fruit (id INT PRIMARY KEY, name VARCHAR)");
     }
 

@@ -15,7 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -28,7 +27,7 @@ public class TestPreparedBatchPG {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
 
     @Test
     public void emptyBatch() {

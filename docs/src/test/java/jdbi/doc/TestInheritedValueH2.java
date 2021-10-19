@@ -13,10 +13,9 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.guava.codec.TypeResolvingCodecFactory;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -24,12 +23,12 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 // this test is in doc because it needs guava and sqlobject and sqlobject already imports guava.
 // the only other place it could go to is in sqlobject and it tests a guava class, not a sqlobject class.
@@ -65,8 +64,8 @@ public class TestInheritedValueH2 {
         Set<AutoValue> loadData(@Bind("id") String id);
     }
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
 
     // tag::type[]
 
@@ -77,16 +76,16 @@ public class TestInheritedValueH2 {
 
     public static final QualifiedType<Set<AutoValue>> AUTOVALUE_SET_TYPE = QualifiedType.of(new GenericType<Set<AutoValue>>() {});
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE data (id VARCHAR PRIMARY KEY, value VARCHAR)");
         });
     }
 
     @Test
     public void testType() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // register the codec with JDBI
         jdbi.registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()));
@@ -111,7 +110,7 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testBean() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // register the codec with JDBI
         jdbi.registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()));
@@ -132,7 +131,7 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testCollection() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // register codec
         jdbi.registerCodecFactory(TypeResolvingCodecFactory.builder()
@@ -157,7 +156,7 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testCollectionBean() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // register codec
         jdbi.registerCodecFactory(TypeResolvingCodecFactory.builder()

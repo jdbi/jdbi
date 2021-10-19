@@ -6,20 +6,19 @@ import java.util.concurrent.ThreadLocalRandom;
 import jdbi.doc.Counter.CounterCodec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.CodecFactory;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CodecSqlObjectTest {
 
@@ -27,6 +26,7 @@ public class CodecSqlObjectTest {
 
     // SQL object dao
     public interface CounterDao {
+
         @SqlUpdate("INSERT INTO counters (id, value) VALUES (:id, :value)")
         int storeCounter(@Bind("id") String id, @Bind("value") Counter counter);
 
@@ -36,21 +36,22 @@ public class CodecSqlObjectTest {
 
     // end::dao[]
 
-    @Rule
-    public DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withPlugin(new SqlObjectPlugin());
 
     public static final QualifiedType<Counter> COUNTER_TYPE = QualifiedType.of(Counter.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, value INT)");
         });
     }
 
     @Test
     public void testCounter() {
-        Jdbi jdbi = dbRule.getJdbi();
+        Jdbi jdbi = h2Extension.getJdbi();
 
         // tag::register[]
 

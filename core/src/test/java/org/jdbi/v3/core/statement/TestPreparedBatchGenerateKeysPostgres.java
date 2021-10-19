@@ -20,7 +20,6 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -33,7 +32,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public DatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
         handle -> handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
     );
 

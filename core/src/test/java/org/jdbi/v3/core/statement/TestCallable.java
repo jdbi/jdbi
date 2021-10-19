@@ -17,7 +17,6 @@ import java.sql.Types;
 
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class TestCallable {
 
     @RegisterExtension
-    public DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     private Handle h;
 
