@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.Types;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import com.google.common.collect.Maps;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultIterable;
@@ -455,5 +457,15 @@ public class TestQueries {
 
         assertThat(rs).hasSize(2);
         assertThat(rs).hasOnlyElementsOfType(LinkedHashMap.class);
+    }
+
+    @Test
+    public void testBindPrimitiveWithExplicitNull() {
+        Handle h = h2Extension.openHandle();
+        assertThat(h.createQuery("select :bool")
+                .bindByType("bool", new NullArgument(Types.BOOLEAN), boolean.class)
+                .mapTo(Boolean.class)
+                .one())
+            .isNull();
     }
 }

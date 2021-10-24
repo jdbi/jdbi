@@ -1,4 +1,5 @@
 # Unreleased
+  - Fix batch binding with mixed null and non-null primitives (#1901)
   - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
   - Add JUnit 5 support to the testing package.
   - Add interceptors for type inference for Row Mappers, Column Mappers and SQL Array types

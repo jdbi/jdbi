@@ -44,10 +44,14 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     }
 
     private Object checkForNull(ConfigRegistry cfg, Type type, Object value) {
-        if (value == null && !cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
-            throw new IllegalArgumentException(String.format(
-                    "binding null to a primitive %s is forbidden by configuration, declare a boxed type instead", type
-            ));
+        if (value == null || value instanceof NullArgument) {
+            if (cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
+                return null;
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "binding null to a primitive %s is forbidden by configuration, declare a boxed type instead", type
+                ));
+            }
         }
         return value;
     }

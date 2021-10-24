@@ -17,6 +17,7 @@ import java.beans.ConstructorProperties;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -261,6 +262,17 @@ public class TestPreparedBatch {
 
         final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id").mapTo(WrappedIntPublicSomething.class).list();
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(new WrappedInt(2), "Sally"), tuple(new WrappedInt(3), "Erica"));
+    }
+
+    @Test
+    public void testBindNull() {
+        Handle handle = h2Extension.getSharedHandle();
+        handle.execute("CREATE TABLE record (b bool)");
+        handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
+            .bind("bVal", false).add()
+            .bindNull("bVal", Types.BOOLEAN).add()
+            .bindByType("bVal", null, boolean.class).add()
+            .execute();
     }
 
     public static class PublicSomething {
