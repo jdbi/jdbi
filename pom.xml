@@ -721,7 +721,7 @@
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>
-                    <configuration combine.children="append">
+                    <configuration>
                         <includeFilterFile>policy/spotbugs-include.xml</includeFilterFile>
                         <excludeFilterFile>policy/spotbugs-exclude.xml</excludeFilterFile>
                     </configuration>
