@@ -828,9 +828,6 @@
                     <name>m2e.version</name>
                 </property>
             </activation>
-            <properties>
-                <build.output>target-ide</build.output>
-            </properties>
             <build>
                 <pluginManagement>
                     <plugins>
@@ -875,6 +872,9 @@
                     </plugins>
                 </pluginManagement>
             </build>
+            <properties>
+                <build.output>target-ide</build.output>
+            </properties>
         </profile>
         <profile>
             <id>jdk8</id>
