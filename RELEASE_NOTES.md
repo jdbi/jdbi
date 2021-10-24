@@ -1,4 +1,5 @@
 # 3.24.0
+  - Fix batch binding with mixed null and non-null primitives
   - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
 
 # 3.23.0
