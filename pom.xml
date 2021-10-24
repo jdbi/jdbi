@@ -828,6 +828,9 @@
                     <name>m2e.version</name>
                 </property>
             </activation>
+            <properties>
+                <build.output>target-ide</build.output>
+            </properties>
             <build>
                 <pluginManagement>
                     <plugins>
