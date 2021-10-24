@@ -158,9 +158,13 @@ public class BeanPropertiesFactory {
                     .orElse(null);
 
                 return QualifiedType.of(
-                    Optional.ofNullable(descriptor.getReadMethod())
-                        .map(m -> GenericTypeReflector.getExactReturnType(m, actualBeanType))
-                        .orElseGet(() -> GenericTypeReflector.getExactParameterTypes(descriptor.getWriteMethod(), actualBeanType)[0]))
+                        GenericTypeReflector.reduceBounded(GenericTypeReflector.annotate(
+                            GenericTypeReflector.resolveExactType(
+                                Optional.ofNullable(descriptor.getReadMethod())
+                                    .map(m -> GenericTypeReflector.getExactReturnType(m, actualBeanType))
+                                    .orElseGet(() -> GenericTypeReflector.getExactParameterTypes(descriptor.getWriteMethod(), actualBeanType)[0]),
+                            actualBeanType)))
+                        .getType())
                     .withAnnotations(
                         new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
@@ -191,7 +195,7 @@ public class BeanPropertiesFactory {
                 try {
                     properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
-                            .map(p -> new BeanPojoProperty<>(p, type))
+                            .map(p -> new BeanPojoProperty<>(p, addMissingWildcards(type)))
                             .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
@@ -208,6 +212,14 @@ public class BeanPropertiesFactory {
                     };
                 }
                 constructor = myConstructor;
+            }
+
+            private Type addMissingWildcards(Type type) {
+                if (GenericTypeReflector.isMissingTypeParameters(type)) {
+                    return GenericTypeReflector.addWildcardParameters(
+                            GenericTypeReflector.erase(type));
+                }
+                return type;
             }
         }
     }

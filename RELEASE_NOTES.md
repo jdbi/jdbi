@@ -1,4 +1,5 @@
 # Unreleased
+  - fix Bean property arguments type being erased on generic beans
 
 # 3.24.0
   - Fix batch binding with mixed null and non-null primitives (#1901)

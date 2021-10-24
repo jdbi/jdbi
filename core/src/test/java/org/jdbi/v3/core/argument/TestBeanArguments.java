@@ -16,7 +16,12 @@ package org.jdbi.v3.core.argument;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
+import java.util.Collections;
+import java.util.List;
 
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
+import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -25,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
@@ -249,6 +255,22 @@ public class TestBeanArguments {
         @Override
         public String name() {
             return name;
+        }
+    }
+
+    @Test
+    public void testGenericPropertyType() {
+        final PojoProperties<?> props = BeanPropertiesFactory.propertiesFor(GenericBean.class, ctx.getConfig());
+        assertThat(props.getProperties()
+                .get("property")
+                .getQualifiedType()
+                .getType())
+            .isEqualTo(new GenericType<List<String>>() {}.getType());
+    }
+
+    public class GenericBean<T extends String> {
+        public List<T> getProperty() {
+            return Collections.emptyList();
         }
     }
 }
