@@ -1,3 +1,6 @@
+# 3.24.0
+  - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
+
 # 3.23.0
   - Rework and document importing bindings in guice definition modules
   - expose createKey() method in guice definition modules

@@ -538,6 +538,9 @@ as the entire chain of argument factories must be consulted for each batch of ar
 To address this issue, implement `ArgumentFactory.Preparable` which promises to handle all values
 of a given `Type`.  Most built in argument factories now implement the Preparable interface.
 
+Preparable argument factories are consulted before traditional argument factories. If you'd prefer
+to keep the old behavior, you may disable this feature with `getConfig(Arguments.class).setPreparedArgumentsEnabled(false)`.
+
 ===== Arguments Registry
 
 When you register an `ArgumentFactory`, the registration is stored in an

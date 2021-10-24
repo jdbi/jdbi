@@ -45,8 +45,9 @@ public class Arguments implements JdbiConfig<Arguments> {
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
     private boolean bindingNullToPrimitivesPermitted = true;
+    private boolean preparedArgumentsEnabled = true;
 
-    public Arguments(ConfigRegistry registry) {
+    public Arguments(final ConfigRegistry registry) {
         this.registry = registry;
 
         // the null factory must be interrogated last to preserve types!
@@ -68,14 +69,15 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     @Override
-    public void setRegistry(ConfigRegistry registry) {
+    public void setRegistry(final ConfigRegistry registry) {
         this.registry = registry;
     }
 
-    private Arguments(Arguments that) {
+    private Arguments(final Arguments that) {
         factories.addAll(that.factories);
         untypedNullArgument = that.untypedNullArgument;
         bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
+        preparedArgumentsEnabled = that.preparedArgumentsEnabled;
     }
 
     /**
@@ -84,7 +86,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param factory the factory to add
      * @return this
      */
-    public Arguments register(ArgumentFactory factory) {
+    public Arguments register(final ArgumentFactory factory) {
         return register(QualifiedArgumentFactory.adapt(registry, factory));
     }
 
@@ -94,7 +96,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param factory the qualified factory to add
      * @return this
      */
-    public Arguments register(QualifiedArgumentFactory factory) {
+    public Arguments register(final QualifiedArgumentFactory factory) {
         factories.add(0, factory);
         return this;
     }
@@ -106,7 +108,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param value the argument value.
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, Object value) {
+    public Optional<Argument> findFor(final Type type, final Object value) {
         return findFor(QualifiedType.of(type), value);
     }
 
@@ -117,13 +119,13 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param value the argument value.
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(QualifiedType<?> type, Object value) {
-        Function<Object, Argument> prepared = preparedFactories.get(type);
+    public Optional<Argument> findFor(final QualifiedType<?> type, final Object value) {
+        final Function<Object, Argument> prepared = preparedFactories.get(type);
         if (prepared != null) {
             return Optional.of(prepared.apply(value));
         }
-        for (QualifiedArgumentFactory factory : factories) {
-            Optional<Argument> maybeBuilt = factory.build(type, value, registry);
+        for (final QualifiedArgumentFactory factory : factories) {
+            final Optional<Argument> maybeBuilt = factory.build(type, value, registry);
             if (maybeBuilt.isPresent()) {
                 if (factory instanceof QualifiedArgumentFactory.Preparable && didPrepare.add(type)) {
                     ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry)
@@ -141,7 +143,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param type  the type of the argument.
      * @return an Argument factory function for the given value.
      */
-    public Optional<Function<Object, Argument>> prepareFor(Type type) {
+    public Optional<Function<Object, Argument>> prepareFor(final Type type) {
         return prepareFor(QualifiedType.of(type));
     }
 
@@ -152,14 +154,17 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument factory function for the given value.
      */
     @Beta
-    public Optional<Function<Object, Argument>> prepareFor(QualifiedType<?> type) {
-        Function<Object, Argument> prepared = preparedFactories.get(type);
+    public Optional<Function<Object, Argument>> prepareFor(final QualifiedType<?> type) {
+        if (!isPreparedArgumentsEnabled()) {
+            return Optional.empty();
+        }
+        final Function<Object, Argument> prepared = preparedFactories.get(type);
         if (prepared != null) {
             return Optional.of(prepared);
         }
-        for (QualifiedArgumentFactory factory : factories) {
+        for (final QualifiedArgumentFactory factory : factories) {
             if (factory instanceof QualifiedArgumentFactory.Preparable) {
-                Optional<Function<Object, Argument>> argumentFactory =
+                final Optional<Function<Object, Argument>> argumentFactory =
                         ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry);
                 if (argumentFactory.isPresent()) {
                     preparedFactories.putIfAbsent(type, argumentFactory.get());
@@ -179,7 +184,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * we don't have a type for.
      * @param untypedNullArgument the argument to bind
      */
-    public void setUntypedNullArgument(Argument untypedNullArgument) {
+    public void setUntypedNullArgument(final Argument untypedNullArgument) {
         if (untypedNullArgument == null) {
             throw new IllegalArgumentException("the Argument itself may not be null");
         }
@@ -203,8 +208,24 @@ public class Arguments implements JdbiConfig<Arguments> {
     /**
      * @param bindingNullToPrimitivesPermitted if binding {@code null} to a variable declared as a primitive type should be allowed
      */
-    public void setBindingNullToPrimitivesPermitted(boolean bindingNullToPrimitivesPermitted) {
+    public void setBindingNullToPrimitivesPermitted(final boolean bindingNullToPrimitivesPermitted) {
         this.bindingNullToPrimitivesPermitted = bindingNullToPrimitivesPermitted;
+    }
+
+    /**
+     * @return true if prepared arguments binding (improves performance) is enabled
+     */
+    public boolean isPreparedArgumentsEnabled() {
+        return preparedArgumentsEnabled;
+    }
+
+    /**
+     * Configure whether {@link ArgumentFactory.Preparable} factories will be processed before regular {@link ArgumentFactory}
+     * instances are. This improves speed at a small cost to backwards compatibility. Please disable it if you require the old semantics.
+     * @param preparedArgumentsEnabled whether to enable preparable argument factories
+     */
+    public void setPreparedArgumentsEnabled(final boolean preparedArgumentsEnabled) {
+        this.preparedArgumentsEnabled = preparedArgumentsEnabled;
     }
 
     @Override
