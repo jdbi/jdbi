@@ -20,7 +20,7 @@ SAVED_PATH=${PATH}
 JAVA_HOME=${BASELINE_JAVA_HOME}
 PATH=${BASELINE_JAVA_HOME}/bin:$PATH
 export JAVA_HOME PATH
-mvn -q ${OPTS} -DskipTests clean install
+mvn ${OPTS} -DskipTests clean install
 
 # switch back to the requested JDK
 PATH=${SAVED_PATH}

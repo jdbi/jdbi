@@ -5,4 +5,4 @@
 
 OPTS="-DskipTests=true -Dbasepom.check.skip-all=true -Dbasepom.check.skip-javadoc=false -Dbasepom.check.fail-javadoc=true -B"
 
-mvn -q ${OPTS} -Ppublish-docs clean install
+mvn ${OPTS} -Ppublish-docs clean install
