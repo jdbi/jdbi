@@ -43,12 +43,9 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
         return super.build(expectedType, checkForNull(config, expectedType, value), config);
     }
 
-    private Object checkForNull(ConfigRegistry cfg, Type type, Object valueIn) {
-        Object value;
-        if (valueIn instanceof NullArgument) {
+    private Object checkForNull(ConfigRegistry cfg, Type type, Object value) {
+        if (value instanceof NullArgument) {
             value = null;
-        } else {
-            value = valueIn;
         }
         if (value == null && !cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
             throw new IllegalArgumentException(String.format(
