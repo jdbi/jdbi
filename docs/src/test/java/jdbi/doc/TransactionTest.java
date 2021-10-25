@@ -27,7 +27,6 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import jdbi.doc.ResultsTest.User;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionException;
@@ -38,6 +37,7 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -51,7 +51,7 @@ public class TransactionTest {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugin(new PostgresPlugin())
         .withPlugin(new SqlObjectPlugin());
 

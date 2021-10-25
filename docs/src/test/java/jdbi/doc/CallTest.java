@@ -5,8 +5,8 @@ import java.sql.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.statement.OutParameters;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -19,7 +19,7 @@ public class CallTest {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg);
 
     @Test
     public void testCall() {
