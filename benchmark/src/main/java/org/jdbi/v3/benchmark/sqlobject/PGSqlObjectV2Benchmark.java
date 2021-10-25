@@ -13,16 +13,27 @@
  */
 package org.jdbi.v3.benchmark.sqlobject;
 
-import com.opentable.db.postgres.embedded.PreparedDbProvider;
+import java.io.IOException;
+
+import de.softwareforge.testing.postgres.embedded.EmbeddedPostgres;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.skife.jdbi.v2.DBI;
 
 public class PGSqlObjectV2Benchmark extends BaseSqlObjectV2Benchmark {
-    static final PreparedDbProvider PROVIDER = PreparedDbProvider.forPreparer(p -> {});
+
+    static {
+        try {
+            PROVIDER = EmbeddedPostgres.builderWithDefaults().build();
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    static final EmbeddedPostgres PROVIDER;
 
     @Override
-    protected DBI createJdbi() {
-        return Unchecked.supplier(() -> new DBI(PROVIDER.createDataSource())).get();
+    protected DBI createJdbi() throws Exception {
+        return Unchecked.supplier(() -> new DBI(PROVIDER.createDefaultDataSource())).get();
     }
 
     @Override

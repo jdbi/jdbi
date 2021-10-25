@@ -20,7 +20,6 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -28,9 +27,12 @@ import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.Collections.emptySet;
 
@@ -38,13 +40,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBatching {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
     }
 
     @Test
@@ -129,34 +132,38 @@ public class TestBatching {
     public void testChunkedBatchingOnParam() {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
-                                               new Something(2, "Henri"),
-                                               new Something(3, "Patrick"),
-                                               new Something(4, "Robert"),
-                                               new Something(5, "Maniax"));
+            new Something(2, "Henri"),
+            new Something(3, "Patrick"),
+            new Something(4, "Robert"),
+            new Something(5, "Maniax"));
         int[] counts = b.insertChunked(3, things);
         assertThat(counts).hasSize(5).containsOnly(1);
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(5)
     public void testNoIterable() {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(() -> b.insertBeans(new Something(1, "x"))).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(5)
     public void testNoParameterAtAll() {
         BadBatch b = handle.attach(BadBatch.class);
         assertThatThrownBy(b::insertBeans).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(5)
     public void testForgotIterableInt() {
         handle.execute("CREATE TABLE test (id int)");
         UsesBatching b = handle.attach(UsesBatching.class);
         assertThatThrownBy(() -> b.invalidInsertInt(1)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(5)
     public void testForgotIterableString() {
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);

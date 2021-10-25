@@ -11,24 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
-
-import javax.sql.DataSource;
-
-import com.opentable.db.postgres.embedded.DatabasePreparer;
-
-public abstract class JdbiPreparer implements DatabasePreparer {
-
-    @Override
-    public void prepare(DataSource ds) {
-        Jdbi.create(ds).useHandle(this::prepare);
-    }
-
-    protected abstract void prepare(Handle handle);
-
-    public static class None extends JdbiPreparer {
-
-        @Override
-        protected void prepare(Handle handle) {}
-    }
-}
+/**
+ * JUnit 4 testing support.
+ *
+ * @see org.jdbi.v3.testing.JdbiRule
+ */
+package org.jdbi.v3.testing;

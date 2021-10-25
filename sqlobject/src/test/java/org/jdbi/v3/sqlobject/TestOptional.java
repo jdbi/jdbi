@@ -21,25 +21,24 @@ import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOptional {
-    @Rule
-    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
 
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.something());
     private DAO dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getHandle().execute(
-                "create table something (id identity primary key, name varchar(50))");
-        dao = dbRule.attach(DAO.class);
+        dao = h2Extension.openHandle().attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

@@ -14,29 +14,29 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.rule.DatabaseRule;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.jdbi.v3.core.statement.DefinedAttributeTemplateEngine;
 import org.jdbi.v3.core.statement.MessageFormatTemplateEngine;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUseTemplateEngine {
-    @Rule
-    public DatabaseRule db = new SqliteDatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin());
 
     private Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void before() {
-        jdbi = db.getJdbi().setTemplateEngine(TemplateEngine.NOP);
+        jdbi = sqliteExtension.getJdbi().setTemplateEngine(TemplateEngine.NOP);
     }
 
     @Test

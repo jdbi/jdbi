@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3.noparameters;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestModuleCompilation {
 
     @Test
     public void testCompiledCorrectly() throws Exception {
-        assertFalse("Module was incorrectly compiled with -parameters enabled!",
-            Foo.class.getMethod("bar", String.class).getParameters()[0].isNamePresent());
+        Assertions.assertFalse(Foo.class.getMethod("bar", String.class).getParameters()[0].isNamePresent(),
+            "Module was incorrectly compiled with -parameters enabled!");
     }
 
     public interface Foo {

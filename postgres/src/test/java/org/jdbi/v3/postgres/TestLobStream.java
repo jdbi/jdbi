@@ -19,34 +19,40 @@ import java.io.Reader;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.postgresql.PGConnection;
-import org.postgresql.largeobject.LargeObjectManager;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestLobStream {
+
     private static final int BIG_DATA = 1024 * 1024 * 64;
 
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
+    private Lobject lob;
+    private Handle h;
 
-    static Handle h;
-    static LargeObjectManager mgr;
-    static Lobject lob;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> {
+            Jdbi.create(ds).withHandle(h -> h.execute("CREATE TABLE lob (id int, lob oid)"));
+        }).build();
 
-    @BeforeClass
-    public static void setup() throws SQLException {
-        h = db.getHandle();
-        h.execute("CREATE TABLE lob (id int, lob oid)");
-        mgr = h.getConnection().unwrap(PGConnection.class).getLargeObjectAPI();
-        lob = h.attach(Lobject.class);
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin());
+
+    @BeforeEach
+    public void setUp() throws SQLException {
+        this.h = pgExtension.getSharedHandle();
+        this.lob = h.attach(Lobject.class);
     }
 
     @Test

@@ -21,8 +21,8 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +30,7 @@ public class TestSqlObjectMethodBehavior {
     private UselessDao dao;
     private UselessDao anotherDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         HandleSupplier handleSupplier = new HandleSupplier() {
             @Override

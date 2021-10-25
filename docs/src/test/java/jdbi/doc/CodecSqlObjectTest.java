@@ -6,12 +6,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import jdbi.doc.Counter.CounterCodec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.CodecFactory;
-import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,7 +37,7 @@ public class CodecSqlObjectTest {
     // end::dao[]
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+    public JdbiExtension h2Extension = JdbiExtension.h2()
         .withPlugin(new SqlObjectPlugin());
 
     public static final QualifiedType<Counter> COUNTER_TYPE = QualifiedType.of(Counter.class);

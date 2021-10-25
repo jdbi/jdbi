@@ -1,5 +1,6 @@
 # 3.24.0
   - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
+  - Add JUnit 5 support to the testing package.
 
 # 3.23.0
   - Rework and document importing bindings in guice definition modules

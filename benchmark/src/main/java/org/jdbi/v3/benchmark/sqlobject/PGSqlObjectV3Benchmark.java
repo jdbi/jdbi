@@ -20,8 +20,8 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 public class PGSqlObjectV3Benchmark extends BaseSqlObjectV3Benchmark {
     @Override
     protected Jdbi createJdbi() {
-        return Unchecked.supplier(() -> Jdbi.create(PGSqlObjectV2Benchmark.PROVIDER.createDataSource())
-                .installPlugin(new PostgresPlugin())).get();
+        return Unchecked.supplier(() -> Jdbi.create(PGSqlObjectV2Benchmark.PROVIDER.createDefaultDataSource())
+            .installPlugin(new PostgresPlugin())).get();
     }
 
     @Override

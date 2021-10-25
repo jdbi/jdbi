@@ -32,8 +32,8 @@ import io.vavr.control.Option;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +41,7 @@ public class TestVavrTupleRowMapperFactory {
 
     private VavrTupleRowMapperFactory unit;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         unit = new VavrTupleRowMapperFactory() {
             // mock the resolution of column mappers in jdbi

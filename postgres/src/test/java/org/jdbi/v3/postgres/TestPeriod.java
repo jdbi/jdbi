@@ -17,49 +17,56 @@ import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestPeriod {
-    @ClassRule
-    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
 
-    private Handle handle;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
+            th.execute("drop table if exists intervals");
+            th.execute("create table intervals(id int not null, foo interval)");
+
+            // Can be periods.
+            th.execute("insert into intervals(id, foo) values(1, interval '2 years -3 months 40 days')");
+            th.execute("insert into intervals(id, foo) values(2, interval '7 days')");
+
+            // Can't be.
+            th.execute("insert into intervals(id, foo) values(3, interval '10 years -3 months 100 seconds')");
+        }));
 
     private final Period testPeriod = Period.of(1776, 7, 4);
 
-    @Before
+    private Handle handle;
+
+    @BeforeEach
     public void setUp() {
-        handle = postgresDbRule.getHandle();
-        handle.useTransaction(h -> {
-            h.execute("drop table if exists intervals");
-            h.execute("create table intervals(id int not null, foo interval)");
-
-            // Can be periods.
-            h.execute("insert into intervals(id, foo) values(1, interval '2 years -3 months 40 days')");
-            h.execute("insert into intervals(id, foo) values(2, interval '7 days')");
-
-            // Can't be.
-            h.execute("insert into intervals(id, foo) values(3, interval '10 years -3 months 100 seconds')");
-        });
+        this.handle = pgExtension.getSharedHandle();
     }
 
     @Test
     public void testReadsViaFluentAPI() {
         List<Period> periods = handle.createQuery("select foo from intervals where id = 1 or id = 2 order by id")
-                .mapTo(Period.class)
-                .list();
+            .mapTo(Period.class)
+            .list();
 
         assertThat(periods).isEqualTo(ImmutableList.of(
-                Period.of(1, 9, 40),
-                Period.of(0, 0, 7)
-       ));
+            Period.of(1, 9, 40),
+            Period.of(0, 0, 7)
+        ));
     }
 
     @Test

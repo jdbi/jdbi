@@ -18,52 +18,51 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.sqlobject.SingleValue;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestQualifiedHStore {
 
     private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {};
 
-    @ClassRule
-    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
+        .build();
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
+            th.execute("drop table if exists campaigns");
+            th.execute("create table campaigns(id int not null, caps hstore)");
+            th.execute("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");
+            th.execute("insert into campaigns(id, caps) values (2, 'yearly=>1000, monthly=>200, daily=>20'::hstore)");
+        }));
 
     private Handle handle;
     private final Map<String, String> caps = ImmutableMap.of("yearly", "6000", "monthly", "1500", "daily", "100");
 
-    @BeforeClass
-    public static void staticSetUp() {
-        postgresDbRule.getHandle().execute("create extension hstore");
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = postgresDbRule.getHandle();
-        handle.useTransaction(h -> {
-            h.execute("drop table if exists campaigns");
-            h.execute("create table campaigns(id int not null, caps hstore)");
-            h.execute("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");
-            h.execute("insert into campaigns(id, caps) values (2, 'yearly=>1000, monthly=>200, daily=>20'::hstore)");
-        });
+        handle = pgExtension.openHandle();
     }
 
     @Test
@@ -99,12 +98,11 @@ public class TestQualifiedHStore {
 
     @Test
     public void testRaisesExceptionWhenReadsWithWrongType() {
-        expectedException.expect(NoSuchMapperException.class);
-        expectedException.expectMessage("No mapper registered for type @org.jdbi.v3.postgres.HStore() java.util.Map<java.lang.String, java.lang.Object>");
-
-        handle.createQuery("select caps from campaigns order by id")
+        assertThatThrownBy(() -> handle.createQuery("select caps from campaigns order by id")
                 .mapTo(QualifiedType.of(new GenericType<Map<String, Object>>() {}).with(HStore.class))
-                .list();
+                .list())
+            .isInstanceOf(NoSuchMapperException.class)
+            .hasMessageContaining("No mapper registered for type @org.jdbi.v3.postgres.HStore() java.util.Map<java.lang.String, java.lang.Object>");
     }
 
     @Test

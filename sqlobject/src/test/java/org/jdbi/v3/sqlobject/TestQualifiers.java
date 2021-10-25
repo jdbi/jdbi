@@ -36,7 +36,6 @@ import org.jdbi.v3.core.qualifier.ReversedStringMapper;
 import org.jdbi.v3.core.qualifier.Reverser;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -50,12 +49,14 @@ import org.jdbi.v3.sqlobject.statement.MapTo;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static java.util.stream.Collectors.toList;
 
@@ -63,12 +64,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@ExtendWith(MockitoExtension.class)
 public class TestQualifiers {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Mock
     private Consumer<String> consumer;
@@ -76,15 +76,16 @@ public class TestQualifiers {
     private Handle handle;
     private Dao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         dao = handle.attach(Dao.class);
     }
 
     @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
     @RegisterColumnMapper(ReversedStringMapper.class)
     public interface Dao {
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(int id, @Reversed String name);
 
@@ -205,6 +206,7 @@ public class TestQualifiers {
     @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
     @RegisterColumnMapper(ReversedStringMapper.class)
     public interface BeanDao {
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insertBeanQualifiedGetter(@BindBean QualifiedGetterThing bean);
 
@@ -252,6 +254,7 @@ public class TestQualifiers {
     @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
     @RegisterColumnMapper(ReversedStringMapper.class)
     public interface FluentDao {
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insertBindMethods(@BindMethods QualifiedMethodThing obj);
 
@@ -285,6 +288,7 @@ public class TestQualifiers {
     @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
     @RegisterColumnMapper(ReversedStringMapper.class)
     public interface FieldDao {
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insertBindFields(@BindFields QualifiedFieldThing obj);
 
@@ -319,6 +323,7 @@ public class TestQualifiers {
     @RegisterConstructorMapper(QualifiedConstructorParamThing.class)
     @RegisterFieldMapper(QualifiedFieldThing.class)
     public interface MapToDao {
+
         @SqlQuery("select * from something where id = :id")
         <T> T get(int id, @MapTo Class<T> mapTo);
     }
@@ -341,6 +346,7 @@ public class TestQualifiers {
     @Reversed
     // split comma separated list and reverse each element
     public static class ReversedListStringMapper implements ColumnMapper<List<String>> {
+
         @Override
         public List<String> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             return Splitter.on(",")
@@ -354,6 +360,7 @@ public class TestQualifiers {
     @RegisterColumnMapper(ReversedStringMapper.class)
     @RegisterColumnMapper(ReversedListStringMapper.class)
     public interface SingleValueDao {
+
         @SqlQuery("select name from stuff order by id")
         @Reversed
         List<String> multipleRows();

@@ -15,32 +15,39 @@ package org.jdbi.v3.sqlobject.locator;
 
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlLocator {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Test
-    public void testLocateConfigDriven() throws Exception {
-        Jdbi jdbi = dbRule.getJdbi();
-        jdbi.useHandle(h -> {
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new SqlObjectPlugin())
+        .withInitializer((ds, h) -> {
             h.execute("create table something (id int, name text)");
 
             h.execute("insert into something (id, name) values (?, ?)", 2, "Alice");
             h.execute("insert into something (id, name) values (?, ?)", 1, "Bob");
         });
+
+    @Test
+    public void testLocateConfigDriven() throws Exception {
+        Jdbi jdbi = pgExtension.getJdbi();
 
         jdbi.getConfig(SqlObjects.class).setSqlLocator(
             (type, method, config) -> config.get(TestConfig.class).sql);

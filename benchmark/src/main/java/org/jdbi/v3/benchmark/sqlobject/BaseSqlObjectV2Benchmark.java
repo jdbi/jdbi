@@ -38,7 +38,8 @@ public abstract class BaseSqlObjectV2Benchmark extends AbstractSqlObjectBenchmar
     private DaoV2 dao;
     private long rowOne;
 
-    protected abstract DBI createJdbi();
+    protected abstract DBI createJdbi() throws Exception;
+
     protected abstract void createTable();
 
     @Setup(Level.Iteration)

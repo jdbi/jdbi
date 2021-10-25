@@ -13,27 +13,29 @@
  */
 package org.jdbi.v3.postgres;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMacAddr {
-    @Rule
-    public JdbiRule db = PostgresDbRule.rule();
 
-    @Before
-    public void setUp() {
-        db.getJdbi().useHandle(handle -> handle.execute("create table macaddrs (id int, address macaddr)"));
-    }
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.execute("create table macaddrs (id int, address macaddr)"));
 
     @Test
     public void macAddr() {
-        MacAddrDao dao = db.getJdbi().onDemand(MacAddrDao.class);
+        MacAddrDao dao = pgExtension.attach(MacAddrDao.class);
 
         dao.insert(1, "deadbeef1234");
         assertThat(dao.select(1)).isEqualTo("de:ad:be:ef:12:34");

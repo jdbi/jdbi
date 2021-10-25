@@ -23,27 +23,28 @@ import org.jdbi.v3.core.mapper.CaseStrategy;
 import org.jdbi.v3.core.mapper.GenericMapMapperFactory;
 import org.jdbi.v3.core.mapper.MapMappers;
 import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.rule.SqliteDatabaseRule;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class GenericMapMapperFactoryTest {
+
     private static final String QUERY = "select 1.0 as one, 2.0 as two, 3.0 as three";
 
-    @Rule
-    public SqliteDatabaseRule db = new SqliteDatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin());
 
     private Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void before() {
-        jdbi = db.getJdbi().registerRowMapper(new GenericMapMapperFactory());
+        jdbi = sqliteExtension.getJdbi().registerRowMapper(new GenericMapMapperFactory());
     }
 
     @Test

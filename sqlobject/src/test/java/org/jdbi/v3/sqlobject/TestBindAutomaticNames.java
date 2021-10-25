@@ -16,24 +16,27 @@ package org.jdbi.v3.sqlobject;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindAutomaticNames {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.execute("insert into something (id, name) values (7, 'Tim')");
     }
 
@@ -46,7 +49,7 @@ public class TestBindAutomaticNames {
 
     @Test
     public void testNoAnnotation() {
-        Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy spiffy = h2Extension.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertThat(s.getName()).isEqualTo("Tim");
     }

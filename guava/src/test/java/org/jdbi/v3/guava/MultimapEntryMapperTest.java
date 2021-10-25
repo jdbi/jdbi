@@ -20,22 +20,23 @@ import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.guava.api.Assertions.assertThat;
 
 public class MultimapEntryMapperTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new GuavaPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new GuavaPlugin());
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
     }
 
     @Test

@@ -14,35 +14,43 @@
 package org.jdbi.v3.sqlobject;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestReentrancy {
-    private Jdbi db;
-    private Handle handle;
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+
+    private Jdbi jdbi;
+
+    @BeforeEach
+    public void setUp() {
+        this.jdbi = h2Extension.getJdbi();
+    }
 
     private interface TheBasics extends SqlObject {
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);
     }
 
     @Test
     public void testGetHandleProvidesSeperateHandle() {
-        final TheBasics dao = db.onDemand(TheBasics.class);
+        final TheBasics dao = jdbi.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
         assertThatThrownBy(() -> h.execute("insert into something (id, name) values (1, 'Stephen')"))
@@ -51,7 +59,7 @@ public class TestReentrancy {
 
     @Test
     public void testHandleReentrant() {
-        final TheBasics dao = db.onDemand(TheBasics.class);
+        final TheBasics dao = jdbi.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             dao.insert(new Something(7, "Martin"));
@@ -64,7 +72,7 @@ public class TestReentrancy {
 
     @Test
     public void testTxnReentrant() {
-        final TheBasics dao = db.onDemand(TheBasics.class);
+        final TheBasics dao = jdbi.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             handle1.useTransaction(h -> {
@@ -80,25 +88,5 @@ public class TestReentrancy {
 
             return null;
         });
-    }
-
-    @Before
-    public void setUp() {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
-
-        db = Jdbi.create(ds);
-        db.installPlugin(new SqlObjectPlugin());
-        db.registerRowMapper(new SomethingMapper());
-
-        handle = db.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() {
-        handle.execute("drop table something");
-        handle.close();
     }
 }

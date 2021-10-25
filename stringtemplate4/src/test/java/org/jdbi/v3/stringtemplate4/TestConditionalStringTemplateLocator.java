@@ -16,24 +16,25 @@ package org.jdbi.v3.stringtemplate4;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestConditionalStringTemplateLocator {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        Handle handle = dbRule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'Martin')");
         handle.execute("insert into something (id, name) values (3, 'David')");
         handle.execute("insert into something (id, name) values (2, 'Joe')");
@@ -41,25 +42,25 @@ public class TestConditionalStringTemplateLocator {
 
     @Test
     public void testLocateFindAndSortByName() {
-        List<Integer> ids = dbRule.getSharedHandle().attach(Dao.class).findLocated(true, "name");
+        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findLocated(true, "name");
         assertThat(ids).containsExactly(3, 2, 1);
     }
 
     @Test
     public void testLocateFindWithoutSorting() {
-        List<Integer> ids = dbRule.getSharedHandle().attach(Dao.class).findLocated(false, "");
+        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findLocated(false, "");
         assertThat(ids).containsExactly(1, 2, 3);
     }
 
     @Test
     public void testInlineFindAndSortByName() {
-        List<Integer> ids = dbRule.getSharedHandle().attach(Dao.class).findInline(true, "name");
+        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findInline(true, "name");
         assertThat(ids).containsExactly(3, 2, 1);
     }
 
     @Test
     public void testInlineFindWithoutSorting() {
-        List<Integer> ids = dbRule.getSharedHandle().attach(Dao.class).findInline(false, "");
+        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findInline(false, "");
         assertThat(ids).containsExactly(1, 2, 3);
     }
 

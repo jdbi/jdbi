@@ -22,26 +22,31 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 public class TestJavaTime {
 
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg);
 
     Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = db.getHandle();
+        h = pgExtension.openHandle();
         h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
             th.execute("create table stuff (ts timestamp, d date, z text)");

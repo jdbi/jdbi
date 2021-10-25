@@ -18,19 +18,20 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.MapMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestMaxRows {
+
     private static final String QUERY = "select bar from foo";
     private static final String CREATE_INSERT = "create table foo(bar int primary key);"
         + "insert into foo(bar) values(1);"
@@ -38,13 +39,14 @@ public class TestMaxRows {
         + "insert into foo(bar) values(3);";
     private static final int ROWS = 1;
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.openHandle();
+        handle = h2Extension.openHandle();
     }
 
     @Test

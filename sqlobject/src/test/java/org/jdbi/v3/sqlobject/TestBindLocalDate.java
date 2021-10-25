@@ -17,41 +17,40 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Check that {@code LocalDate} values are correctly bound both as parameters
- * and result set values.
+ * Check that {@code LocalDate} values are correctly bound both as parameters and result set values.
  */
 public class TestBindLocalDate {
-    @Rule
-    public H2DatabaseRule rule = new H2DatabaseRule()
-        .withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     private Dao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = rule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         dao = handle.attach(Dao.class);
         handle.execute("create table bind_local_date_test ("
             + " id int auto_increment primary key,"
             + " date_column timestamp not null)");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handle.execute("drop table bind_local_date_test");
     }

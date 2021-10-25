@@ -16,24 +16,25 @@ package org.jdbi.v3.sqlobject.config;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisterObjectArgumentFactory {
-    @Rule
-    public H2DatabaseRule rule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = rule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
 
         // h2 "other" data type with setObject / getObject uses Java serialization
         handle.execute("create table serialized_types (string_value other, long_value other)");

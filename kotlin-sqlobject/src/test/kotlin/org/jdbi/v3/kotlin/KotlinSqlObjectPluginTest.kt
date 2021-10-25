@@ -14,9 +14,6 @@
 package org.jdbi.v3.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
-import org.jdbi.v3.core.junit5.DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
@@ -33,6 +30,8 @@ import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
+import org.jdbi.v3.testing.junit5.JdbiExtension
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
@@ -41,7 +40,7 @@ import kotlin.test.assertFails
 class KotlinSqlObjectPluginTest {
     @RegisterExtension
     @JvmField
-    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withPlugins().withInitializer(SOMETHING_INITIALIZER)
+    val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something())
 
     data class Thing(val id: Int, val name: String,
                      val nullable: String?,

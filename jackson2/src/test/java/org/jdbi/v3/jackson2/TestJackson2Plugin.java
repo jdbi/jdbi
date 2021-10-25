@@ -23,49 +23,47 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
-import org.jdbi.v3.postgres.PostgresDbRule;
+import org.jdbi.v3.postgres.PostgresPlugin;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestJackson2Plugin extends AbstractJsonMapperTest {
 
-    @Rule
-    public JdbiRule db = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Jackson2Plugin())
+        .withConfig(Jackson2Config.class, c -> c.setMapper(new ObjectMapper()
+            .registerModule(new ParameterNamesModule())
+            .registerModule(new Jdk8Module())))
+        .withConfig(JdbiImmutables.class, i -> i.registerImmutable(JsonContainer.class));
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void before() {
-        jdbi = db.getJdbi().installPlugin(new Jackson2Plugin());
-        jdbi.getConfig(Jackson2Config.class).setMapper(new ObjectMapper()
-                .registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module()));
-        jdbi.getConfig(JdbiImmutables.class)
-                .registerImmutable(JsonContainer.class);
-        h = jdbi.open();
-    }
-
-    @After
-    public void close() {
-        if (h != null) {
-            h.close();
-        }
+        this.jdbi = pgExtension.getJdbi();
+        this.h = pgExtension.openHandle();
     }
 
     @Test

@@ -18,36 +18,38 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDefaultMethods {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testDefaultMethod() {
-        Spiffy dao = dbRule.getJdbi().onDemand(Spiffy.class);
+        Spiffy dao = h2Extension.getJdbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertThat(test).isEqualTo(new Something(3, "test"));
     }
 
     @Test
     public void testOverride() {
-        SpiffyOverride dao = dbRule.getJdbi().onDemand(SpiffyOverride.class);
+        SpiffyOverride dao = h2Extension.getJdbi().onDemand(SpiffyOverride.class);
         assertThat(dao.insertAndReturn(123, "fake")).isNull();
     }
 
     @Test
     public void testOverrideWithDefault() {
-        SpiffyOverrideWithDefault dao = dbRule.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
+        SpiffyOverrideWithDefault dao = h2Extension.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
@@ -81,7 +83,7 @@ public class TestDefaultMethods {
 
     @Test
     public void testHandleHasExtensionMethodSet() throws Exception {
-        dbRule.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
+        h2Extension.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
     }
 
     private interface StatementContextExtensionMethodDao extends SqlObject {

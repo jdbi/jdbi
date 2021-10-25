@@ -15,13 +15,13 @@ package org.jdbi.v3.json;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,18 +29,19 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class JsonPluginTest {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new JsonPlugin());
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new JsonPlugin());
+
     @Mock
     public JsonMapper jsonMapper;
 
-    @Before
+    @BeforeEach
     public void before() {
-        db.getJdbi().getConfig(JsonConfig.class).setJsonMapper(jsonMapper);
-        db.getJdbi().useHandle(h -> h.createUpdate("create table foo(bar varchar)").execute());
+        h2Extension.getJdbi().getConfig(JsonConfig.class).setJsonMapper(jsonMapper);
+        h2Extension.getJdbi().useHandle(h -> h.createUpdate("create table foo(bar varchar)").execute());
     }
 
     @Test
@@ -51,7 +52,7 @@ public class JsonPluginTest {
         when(jsonMapper.toJson(eq(Foo.class), eq(instance), any(ConfigRegistry.class))).thenReturn(json);
         when(jsonMapper.fromJson(eq(Foo.class), eq(json), any(ConfigRegistry.class))).thenReturn(instance);
 
-        Object result = db.getJdbi().withHandle(h -> {
+        Object result = h2Extension.getJdbi().withHandle(h -> {
             h.createUpdate("insert into foo(bar) values(:foo)")
                 .bindByType("foo", instance, QualifiedType.of(Foo.class).with(Json.class))
                 .execute();
@@ -70,6 +71,7 @@ public class JsonPluginTest {
     }
 
     public static class Foo {
+
         @Override
         public String toString() {
             return "I am Foot.";

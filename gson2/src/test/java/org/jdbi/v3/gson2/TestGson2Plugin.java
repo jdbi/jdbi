@@ -20,34 +20,42 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
-import org.jdbi.v3.postgres.PostgresDbRule;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.postgres.PostgresPlugin;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGson2Plugin extends AbstractJsonMapperTest {
-    @Rule
-    public JdbiRule db = PostgresDbRule.rule();
 
-    @Before
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Gson2Plugin())
+        .withConfig(Gson2Config.class, g -> g.setGson(
+            new GsonBuilder()
+                .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+                .create()));
+
+    @BeforeEach
     public void before() {
-        jdbi = db.getJdbi().installPlugin(new Gson2Plugin())
-                .configure(Gson2Config.class, c -> c.setGson(
-                    new GsonBuilder()
-                        .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
-                        .create()));
+        jdbi = pgExtension.getJdbi();
     }
 
     @Test
     public void typeCanBeOverridden() {
-        db.getJdbi().useHandle(h -> {
+        pgExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table users(usr json)").execute();
 
             Gson gson = new GsonBuilder()

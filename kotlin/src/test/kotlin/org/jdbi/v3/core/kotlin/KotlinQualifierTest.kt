@@ -16,11 +16,11 @@ package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
-import org.jdbi.v3.core.junit5.DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.qualifier.Reversed
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.v3.core.qualifier.ReversedStringMapper
+import org.jdbi.v3.testing.junit5.JdbiExtension
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,7 +32,7 @@ class KotlinQualifierTest {
 
     @RegisterExtension
     @JvmField
-    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withSomething().withPlugin(KotlinPlugin())
+    val h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 

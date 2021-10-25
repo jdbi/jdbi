@@ -18,20 +18,22 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisteredGenericReturnAndParam {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testRegisterGenericRowMapperAnnotationWorks() {
@@ -40,7 +42,7 @@ public class TestRegisteredGenericReturnAndParam {
     }
 
     private <T, R, P extends FoodProvider<T, R, ? extends Food<T, R>>> void testFoodToppingRestrictions(P provider, int id) {
-        Food<T, R> food = dbRule.getJdbi().onDemand(provider.getDao());
+        Food<T, R> food = h2Extension.getJdbi().onDemand(provider.getDao());
         T topping = provider.getTopping();
         R restriction = provider.getRestriction();
         food.insertTopping(id, topping);

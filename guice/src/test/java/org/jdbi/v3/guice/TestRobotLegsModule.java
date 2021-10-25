@@ -21,8 +21,8 @@ import javax.sql.DataSource;
 
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guice.util.GuiceTestSupport;
 import org.jdbi.v3.guice.util.JsonCodec;
@@ -33,17 +33,26 @@ import org.jdbi.v3.guice.util.table.TableDao;
 import org.jdbi.v3.guice.util.table.TableModule;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class TestRobotLegsModule {
 
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
+    @RegisterExtension
+    public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+            "CREATE EXTENSION IF NOT EXISTS hstore",
+            "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"",
+            "DROP TABLE IF EXISTS left_data",
+            "CREATE TABLE left_data (u UUID, s VARCHAR, j JSONB)",
+            "DROP TABLE IF EXISTS right_data",
+            "CREATE TABLE right_data (u UUID, s VARCHAR, j JSONB)"
+        )).build();
 
     @Inject
     @Named("left")
@@ -61,32 +70,25 @@ public class TestRobotLegsModule {
     @Right
     private Jdbi rightJdbi;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        DataSource dsLeft = pg.createDataSource();
+        DataSource dsRight = pg.createDataSource();
+
         Injector inj = GuiceTestSupport.createTestInjector(
             new JdbiPluginModule(),
             new JdbiMapperModule(),
 
-            binder -> binder.bind(DataSource.class).annotatedWith(Names.named("left")).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(Names.named("left")).toInstance(dsLeft),
             new TableModule(Names.named("left"), "left_data"),
 
-            binder -> binder.bind(DataSource.class).annotatedWith(Right.class).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(Right.class).toInstance(dsRight),
             new TableModule(Right.class, "right_data"));
 
         inj.injectMembers(this);
 
-        createDb();
-    }
-
-    private void createDb() throws Exception {
-        GuiceTestSupport.executeSql(pg.getEmbeddedPostgres().getPostgresDatabase(),
-            "CREATE EXTENSION IF NOT EXISTS hstore",
-            "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"",
-            "DROP TABLE IF EXISTS left_data",
-            "CREATE TABLE left_data (u UUID, s VARCHAR, j JSONB)",
-            "DROP TABLE IF EXISTS right_data",
-            "CREATE TABLE right_data (u UUID, s VARCHAR, j JSONB)"
-        );
+        assertNotSame(leftJdbi, rightJdbi);
+        assertNotSame(leftDao, rightDao);
     }
 
     @Test

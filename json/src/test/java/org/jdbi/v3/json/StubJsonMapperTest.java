@@ -18,19 +18,20 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StubJsonMapperTest {
-    @Rule
-    public final JdbiRule h2 = JdbiRule.h2().withPlugin(new SqlObjectPlugin()).withPlugin(new JsonPlugin());
+
+    @RegisterExtension
+    public final JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withPlugin(new JsonPlugin());
 
     @Test
     public void defaultFactoriesAreWorkingForSqlObject() {
-        h2.getJdbi().useHandle(h -> {
+        h2Extension.getJdbi().useHandle(h -> {
             FooDao dao = h.attach(FooDao.class);
 
             dao.table();

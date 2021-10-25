@@ -18,30 +18,33 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestCreateSqlObjectAnnotation {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().registerRowMapper(new SomethingMapper());
-        handle = dbRule.getSharedHandle();
+        h2Extension.getJdbi().registerRowMapper(new SomethingMapper());
+        handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
@@ -62,7 +65,7 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testTransactionPropagates() {
-        Foo foo = dbRule.getJdbi().open().attach(Foo.class);
+        Foo foo = h2Extension.getJdbi().open().attach(Foo.class);
 
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
 
@@ -72,7 +75,7 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void subObjectIsSqlObject() throws Exception {
-        assertThat(dbRule.getJdbi().withExtension(Foo.class, Foo::createBar)).isInstanceOf(SqlObject.class);
+        assertThat(h2Extension.getJdbi().withExtension(Foo.class, Foo::createBar)).isInstanceOf(SqlObject.class);
     }
 
     public interface Foo {
@@ -105,16 +108,12 @@ public class TestCreateSqlObjectAnnotation {
 
     }
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() {
-        expectedException.expect(UnableToCreateSqlObjectException.class);
-        expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
-            + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
-
-        dbRule.getJdbi().open().attach(BogusSqlUpdateDao.class);
+        UnableToCreateSqlObjectException e = assertThrows(UnableToCreateSqlObjectException.class,
+            () -> h2Extension.getJdbi().open().attach(BogusSqlUpdateDao.class));
+        assertEquals("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
+            + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>", e.getMessage());
     }
 
     public interface BogusSqlUpdateDao {
@@ -124,11 +123,11 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() {
-        expectedException.expect(UnableToCreateSqlObjectException.class);
-        expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
+        UnableToCreateSqlObjectException e = assertThrows(UnableToCreateSqlObjectException.class,
+            () -> h2Extension.getJdbi().open().attach(BogusSqlBatchDao.class));
+        assertThat(e.getMessage()).contains("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
             + "so should return void, int[], or boolean[] but is returning: int");
 
-        dbRule.getJdbi().open().attach(BogusSqlBatchDao.class);
     }
 
     public interface BogusSqlBatchDao {

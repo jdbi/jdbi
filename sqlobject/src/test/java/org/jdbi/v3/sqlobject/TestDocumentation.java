@@ -25,7 +25,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -34,8 +33,10 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.Arrays.asList;
 
@@ -43,12 +44,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class TestDocumentation {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFiveMinuteFluentApi() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
 
             String name = h.createQuery("select name from something where id = :id")
@@ -69,7 +71,7 @@ public class TestDocumentation {
 
     @Test
     public void testFiveMinuteSqlObjectExample() {
-        dbRule.getJdbi().useExtension(MyDAO.class, dao -> {
+        h2Extension.getJdbi().useExtension(MyDAO.class, dao -> {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
@@ -81,7 +83,7 @@ public class TestDocumentation {
     @Test
     public void testObtainHandleViaOpen() {
         assertThatCode(() -> {
-            try (Handle h = dbRule.getJdbi().open()) {
+            try (Handle h = h2Extension.getJdbi().open()) {
                 // nop
             }
         }).doesNotThrowAnyException();
@@ -95,17 +97,17 @@ public class TestDocumentation {
 
     @Test
     public void testExecuteSomeStatements() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
             List<Map<String, Object>> rs = h.select("select id, name from something").mapToMap().list();
             assertThat(rs).containsExactlyElementsOf(ImmutableList.of(ImmutableMap.of("id", 3L, "name", "Patrick")));
-         }
+        }
     }
 
     @Test
     public void testFluentUpdate() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
                 .bind("name", "Martin")
@@ -115,7 +117,7 @@ public class TestDocumentation {
 
     @Test
     public void testMappingExampleChainedIterator2() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
@@ -131,7 +133,7 @@ public class TestDocumentation {
 
     @Test
     public void testMappingExampleChainedIterator3() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
@@ -142,7 +144,7 @@ public class TestDocumentation {
 
     @Test
     public void testAttachToObject() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             MyDAO dao = h.attach(MyDAO.class);
             dao.insert(1, "test");
         }
@@ -150,7 +152,7 @@ public class TestDocumentation {
 
     @Test
     public void testOnDemandDao() {
-        MyDAO dao = dbRule.getJdbi().onDemand(MyDAO.class);
+        MyDAO dao = h2Extension.getJdbi().onDemand(MyDAO.class);
         dao.insert(2, "test");
     }
 
@@ -167,7 +169,7 @@ public class TestDocumentation {
 
     @Test
     public void testSomeQueriesWorkCorrectly() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1).bind("name", "Brian").add()
                 .bind("id", 2).bind("name", "Robert").add()
@@ -203,10 +205,10 @@ public class TestDocumentation {
 
     @Test
     public void testAnotherCoupleInterfaces() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
-                    new Something(3, "Patrick"),
-                    new Something(2, "Robert"));
+                new Something(3, "Patrick"),
+                new Something(2, "Robert"));
 
             AnotherQuery aq = h.attach(AnotherQuery.class);
             YetAnotherQuery yaq = h.attach(YetAnotherQuery.class);
@@ -223,10 +225,10 @@ public class TestDocumentation {
 
     @Test
     public void testFoo() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
-                                                 new Something(3, "Patrick"),
-                                                 new Something(2, "Robert"));
+                new Something(3, "Patrick"),
+                new Something(2, "Robert"));
 
             QueryReturningResultIterable qrri = h.attach(QueryReturningResultIterable.class);
 
@@ -245,7 +247,7 @@ public class TestDocumentation {
 
     @Test
     public void testUpdateAPI() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             Update u = h.attach(Update.class);
             u.insert(17, "David");
             u.update(new Something(17, "David P."));
@@ -269,7 +271,7 @@ public class TestDocumentation {
 
     @Test
     public void testBatchExample() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             BatchExample b = h.attach(BatchExample.class);
 
             List<Integer> ids = asList(1, 2, 3, 4, 5);

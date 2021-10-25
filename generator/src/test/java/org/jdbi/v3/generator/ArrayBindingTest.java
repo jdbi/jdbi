@@ -19,28 +19,34 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.customizer.BindFields;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArrayBindingTest {
-    @Rule
-    public H2DatabaseRule dbRule = GeneratorH2Rule.rule();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        .withPlugins(new H2DatabasePlugin(), new SqlObjectPlugin())
+        .withConfig(Extensions.class, c -> c.setAllowProxy(false));
 
     private Handle handle;
     private BazDao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.execute("create table baz (baz array)");
         dao = handle.attach(BazDao.class);
     }

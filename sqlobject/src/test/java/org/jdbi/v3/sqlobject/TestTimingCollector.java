@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TimingCollector;
@@ -34,24 +33,26 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
 
     private final CustomTimingCollector timingCollector = new CustomTimingCollector();
     private DAO dao;
     private Jdbi db;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        db = dbRule.getJdbi();
+        db = h2Extension.getJdbi();
         db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR "
             + "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));
         db.setTimingCollector(timingCollector);

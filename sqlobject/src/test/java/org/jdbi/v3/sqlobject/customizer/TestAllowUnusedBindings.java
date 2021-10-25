@@ -13,27 +13,29 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestAllowUnusedBindings {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+
     private UnusedBindingDao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dao = dbRule.getJdbi().onDemand(UnusedBindingDao.class);
+        dao = h2Extension.getJdbi().onDemand(UnusedBindingDao.class);
     }
 
     @Test
@@ -51,7 +53,7 @@ public class TestAllowUnusedBindings {
 
     @Test
     public void testUnannotated() {
-        dbRule.getJdbi().getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
         assertThat(dao.unannotated("42")).isTrue();
     }
 

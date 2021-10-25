@@ -24,24 +24,26 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TestColumnMappers {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     public static class SomeBean {
+
         int primitiveInt;
         Long wrapperLong;
         String string;
@@ -130,9 +132,9 @@ public class TestColumnMappers {
     Handle h;
     SomeBeanDao dao;
 
-    @Before
+    @BeforeEach
     public void createTable() {
-        h = dbRule.openHandle();
+        h = h2Extension.openHandle();
         h.createUpdate(
             "create table someBean ("
                 + " primitiveInt integer, wrapperLong bigint, "
@@ -143,7 +145,7 @@ public class TestColumnMappers {
         dao = h.attach(SomeBeanDao.class);
     }
 
-    @After
+    @AfterEach
     public void dropTable() {
         h.createUpdate("drop table someBean").execute();
     }

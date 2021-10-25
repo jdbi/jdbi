@@ -4044,9 +4044,16 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 
 == Testing
 
-The `jdbi3-testing` artifact provides a link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
-class which provides helpers for writing JUnit tests integrated with a managed database
-instance.  This makes writing unit tests quick and easy!  You must remember to include
+[NOTE]
+The official test support from JDBI is in the `jdbi-testing` package. There are a number of additional JUnit 5 extensions in the `jdbi-core` test artifact. These are only intended for JDBI internal use and not part of the official, public API.
+
+=== JUnit 4
+
+The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
+class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule] and can be used with the link:https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule] and link:https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule] annotations.
+
+It provides helpers for writing JUnit 4 tests integrated with a managed database
+instance. This makes writing unit tests quick and easy!  You must remember to include
 the database dependency itself, for example to get a pure H2 Java database:
 
 [source,xml]
@@ -4054,22 +4061,65 @@ the database dependency itself, for example to get a pure H2 Java database:
 <dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
-    <version>1.4.197</version>
+    <version>1.4.200</version>
     <scope>test</scope>
 </dependency>
 ----
 
-If you want to test against Postgres, you'd instead include:
+JUnit 4 supports the OTJ embedded postgres component, which needs to be included when
+using Postgres:
 
 [source,xml]
 ----
 <dependency>
     <groupId>com.opentable.components</groupId>
     <artifactId>otj-pg-embedded</artifactId>
-    <version>0.11.3</version>
+    <version>0.13.4</version>
     <scope>test</scope>
 </dependency>
 ----
+
+=== JUnit 5
+
+The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension] for JUnit 5 based tests.
+
+It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension] and link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith] annotations.
+
+When using `@RegisterExtension`, the extensions can be customized further:
+
+[source,java]
+----
+public class Test {
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        withPlugin(new SqlObjectPlugin());
+
+    @Test
+    public void testWithJunit5() {
+        Jdbi jdbi = h2Extension.getJdbi();
+        Handle handle = h2Extension.openHandle();
+        [...]
+    }
+}
+----
+
+When using the `@ExtendWith` declarative extension, test methods can access the `Jdbi` and `Handle` objects through method parameters:
+
+[source,java]
+----
+@ExtendWith(JdbiH2Extension.class)
+public class Test {
+    @Test
+    public void testWithJunit5(Jdbi jdbi, Handle handle) {
+        [...]
+    }
+}
+----
+
+The instances injected are the same instances as returned by `getJdbi()` and `getSharedHandle()`.
+
+The javadoc for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension] contains further information on how to customize a programmatically registered instance.
+
 
 == Third-Party Integration
 

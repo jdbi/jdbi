@@ -28,8 +28,8 @@ import javax.sql.DataSource;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -43,29 +43,33 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestJdbiBinder {
 
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
+    @RegisterExtension
+    public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+            "DROP TABLE IF EXISTS binder_test",
+            "CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp)"
+        )).build();
 
     @Inject
     @BinderTest
     public Jdbi jdbi = null;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
         Module testModule = new AbstractJdbiDefinitionModule(BinderTest.class) {
             @Override
             public void configureJdbi() {
@@ -80,32 +84,28 @@ public class TestJdbiBinder {
             }
         };
 
+        DataSource ds = pg.createDataSource();
         Injector inj = GuiceTestSupport.createTestInjector(
-            binder -> binder.bind(DataSource.class).annotatedWith(BinderTest.class).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(BinderTest.class).toInstance(ds),
             testModule
         );
 
         inj.injectMembers(this);
 
         assertNotNull(jdbi);
-        createDb();
+
+        populateDb(jdbi);
     }
 
-    private void createDb() {
-        GuiceTestSupport.executeSql(pg.getEmbeddedPostgres().getPostgresDatabase(),
-            "DROP TABLE IF EXISTS binder_test",
-            "CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp)"
-        );
-
+    private void populateDb(Jdbi db) {
         for (int c = 0; c < 100; c++) {
             final int i = c;
             final String s = "xxx" + c;
             final UUID u = UUID.randomUUID();
 
-            int result = jdbi.withExtension(Dao.class, dao -> dao.createRow(i, u, s));
+            int result = db.withExtension(Dao.class, dao -> dao.createRow(i, u, s));
             assertEquals(1, result);
         }
-
     }
 
     @Test

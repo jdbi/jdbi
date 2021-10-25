@@ -19,29 +19,29 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.ImmutableTrain;
 import org.jdbi.v3.core.mapper.ImmutablesTest.Train;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindProperties {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule()
-        .withPlugin(new SqlObjectPlugin())
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
         .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Train.class));
 
     private Handle h;
 
     private Dao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
         h.execute("create table train (name varchar, carriages int, observation_car boolean)");
 
         dao = h.attach(Dao.class);

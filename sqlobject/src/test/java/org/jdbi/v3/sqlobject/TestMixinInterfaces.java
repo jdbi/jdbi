@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -26,31 +23,26 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMixinInterfaces {
-    private Jdbi db;
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+
     private Handle handle;
+    private Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
-        db = Jdbi.create(ds);
-        db.installPlugin(new SqlObjectPlugin());
-        handle = db.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() {
-        handle.execute("drop table something");
-        handle.close();
+        jdbi = h2Extension.getJdbi();
+        handle = h2Extension.openHandle();
     }
 
     @Test
@@ -125,7 +117,7 @@ public class TestMixinInterfaces {
     @Test
     public void testTransactionIsolationActuallyHappens() {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
-        db.useExtension(TransactionStuff.class, tx2 -> {
+        jdbi.useExtension(TransactionStuff.class, tx2 -> {
             txl.insert(8, "Mike");
 
             txl.begin();
@@ -142,8 +134,8 @@ public class TestMixinInterfaces {
 
     @Test
     public void testJustJdbiTransactions() {
-        try (Handle h1 = db.open();
-             Handle h2 = db.open()) {
+        try (Handle h1 = jdbi.open();
+             Handle h2 = jdbi.open()) {
             h1.execute("insert into something (id, name) values (8, 'Mike')");
 
             h1.begin();

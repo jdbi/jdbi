@@ -13,22 +13,23 @@
  */
 package org.jdbi.v3.sqlobject.statement;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlScripts {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testCreateTable() {
-        final Scriptacular scripts = db.getSharedHandle().attach(Scriptacular.class);
+        final Scriptacular scripts = h2Extension.getSharedHandle().attach(Scriptacular.class);
         scripts.createTable("cool_table");
         assertThat(scripts.doSomeUpdates()).containsExactly(3, 2);
         assertThat(scripts.externalScript()).containsExactly(0, 3, 1);

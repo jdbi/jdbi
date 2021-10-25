@@ -39,8 +39,8 @@ import io.vavr.collection.TreeMultimap;
 import io.vavr.collection.TreeSet;
 import io.vavr.collection.Vector;
 import org.jdbi.v3.core.generic.GenericType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +48,7 @@ public class TestVavrCollectorFactory {
 
     private VavrCollectorFactory unit;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         unit = new VavrCollectorFactory();
     }

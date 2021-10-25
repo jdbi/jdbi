@@ -16,46 +16,52 @@ package org.jdbi.v3.postgres;
 import java.util.Set;
 import java.util.UUID;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SingleValue;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUuid {
 
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    public Handle h;
-
-    @Before
-    public void setupDbi() {
-        h = db.getHandle();
-        h.useTransaction(th -> {
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS foo");
             th.execute("CREATE TABLE foo (bar UUID, ary UUID[])");
-        });
+        }));
+
+    public Handle handle;
+
+    @BeforeEach
+    public void setupDbi() {
+        handle = pgExtension.openHandle();
     }
 
     @Test
     public void testUuid() {
         UUID u = UUID.randomUUID();
-        h.createUpdate("INSERT INTO foo VALUES (:uuid)")
+        handle.createUpdate("INSERT INTO foo VALUES (:uuid)")
             .bind("uuid", u)
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM foo").mapTo(UUID.class).one()).isEqualTo(u);
+        assertThat(handle.createQuery("SELECT * FROM foo").mapTo(UUID.class).one()).isEqualTo(u);
     }
 
     @Test
     public void testUuidObject() {
-        final UuidObject uo = h.attach(UuidObject.class);
+        final UuidObject uo = handle.attach(UuidObject.class);
 
         assertThat(uo.getUuids()).isEmpty();
 
@@ -73,7 +79,7 @@ public class TestUuid {
 
     @Test
     public void testNull() {
-        final UuidObject uo = h.attach(UuidObject.class);
+        final UuidObject uo = handle.attach(UuidObject.class);
 
         uo.insert(null);
 
@@ -82,7 +88,7 @@ public class TestUuid {
 
     @Test
     public void testUuidArray() {
-        final UuidObject uo = h.attach(UuidObject.class);
+        final UuidObject uo = handle.attach(UuidObject.class);
 
         UUID[] ary = new UUID[] {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
 

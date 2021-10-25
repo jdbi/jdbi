@@ -16,12 +16,11 @@ package org.jdbi.v3.core.kotlin
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jdbi.v3.core.Handle
-import org.jdbi.v3.core.junit5.DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
+import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,7 +34,7 @@ class KotlinMapperTest {
 
     @RegisterExtension
     @JvmField
-    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.instance().withPlugin(KotlinPlugin())
+    val h2Extension: JdbiExtension = JdbiExtension.h2().withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 

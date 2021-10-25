@@ -89,12 +89,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>de.softwareforge.testing</groupId>
             <artifactId>pg-embedded</artifactId>
             <scope>test</scope>
@@ -124,7 +118,24 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration combine.children="append">
                             <excludes>
-                                <exclude>**/TestInetAddressPg.java</exclude>
+                                <exclude>**/TestBatchGeneratedKeys.*</exclude>
+                                <exclude>**/TestJsonOperator.*</exclude>
+                                <exclude>**/TestDuration.*</exclude>
+                                <exclude>**/TestEnumSets.*</exclude>
+                                <exclude>**/TestHStore.*</exclude>
+                                <exclude>**/TestImmutablesHStore.*</exclude>
+                                <exclude>**/TestInetAddressPg.*</exclude>
+                                <exclude>**/TestJavaTime.*</exclude>
+                                <exclude>**/TestJsonOperator.*</exclude>
+                                <exclude>**/TestLobStream.*</exclude>
+                                <exclude>**/TestMacAddr.*</exclude>
+                                <exclude>**/TestPeriod.*</exclude>
+                                <exclude>**/TestPostgresTypes.*</exclude>
+                                <exclude>**/TestQualifiedHStore.*</exclude>
+                                <exclude>**/TestSqlArrays.*</exclude>
+                                <exclude>**/TestStatementsTimeout.*</exclude>
+                                <exclude>**/TestTypedEnum.*</exclude>
+                                <exclude>**/TestUuid.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

@@ -22,9 +22,9 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -34,7 +34,7 @@ public class TestBindListParameter {
     private Handle handle;
     private MyDAO dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         db.installPlugin(new SqlObjectPlugin());
@@ -45,7 +45,7 @@ public class TestBindListParameter {
         dao = db.onDemand(MyDAO.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handle.execute("drop table foo");
         handle.close();

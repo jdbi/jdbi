@@ -21,8 +21,7 @@ import javax.sql.DataSource;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -31,34 +30,32 @@ import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.guice.util.GuiceTestSupport;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.google.inject.name.Names.named;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TestOverrides {
 
     public static final String GLOBAL = "global";
     public static final String LOCAL = "local";
 
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
-
     @Inject
     @Named("test")
     public Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        DataSource ds = new JdbcDataSource();
+
         Injector inj = GuiceTestSupport.createTestInjector(
             new GlobalModule(),
 
-            binder -> binder.bind(DataSource.class).annotatedWith(named("test")).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(named("test")).toInstance(ds),
             new InstanceModule());
         inj.injectMembers(this);
     }

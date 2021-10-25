@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.spring5;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.SpringVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;

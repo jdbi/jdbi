@@ -27,30 +27,38 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.SqlObject;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NonpublicSubclassTest {
-    @Rule
-    public H2DatabaseRule dbRule = GeneratorH2Rule.rule().withSomething();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        .withPlugins(new H2DatabasePlugin(), new SqlObjectPlugin())
+        .withInitializer(TestingInitializers.something())
+        .withConfig(Extensions.class, c -> c.setAllowProxy(false));
 
     private Handle handle;
     private AbstractClassDao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         dao = handle.attach(AbstractClassDao.class);
     }
@@ -78,8 +86,8 @@ public class NonpublicSubclassTest {
 
     @Test
     public void onDemandDefaultMethod() {
-        assertThat(dbRule.getJdbi().onDemand(InterfaceDao.class)
-                .defaultMethod()).isEqualTo(2288);
+        assertThat(h2Extension.getJdbi().onDemand(InterfaceDao.class)
+            .defaultMethod()).isEqualTo(2288);
     }
 
     @GenerateSqlObject

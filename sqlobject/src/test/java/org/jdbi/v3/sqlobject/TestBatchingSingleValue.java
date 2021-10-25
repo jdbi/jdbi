@@ -19,28 +19,30 @@ import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.Arrays.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBatchingSingleValue {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new H2DatabasePlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withPlugin(new H2DatabasePlugin());
+
     private Handle handle;
     private SingleValueBatching b;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
         handle.execute("create table batching (id integer, vals array)");
         b = handle.attach(SingleValueBatching.class);
     }

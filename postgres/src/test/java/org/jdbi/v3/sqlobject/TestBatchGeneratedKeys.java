@@ -16,35 +16,41 @@ package org.jdbi.v3.sqlobject;
 import java.util.Arrays;
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 // This test arguably should be in jdbi-sqlobject but it needs Postgres
 // features to test generated keys
 public class TestBatchGeneratedKeys {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule()
-            .withPlugin(new SqlObjectPlugin())
-            .withPlugin(new PostgresPlugin());
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new SqlObjectPlugin())
+        .withPlugin(new PostgresPlugin());
     private Handle handle;
     private UsesBatching b;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.openHandle();
+        handle = pgExtension.openHandle();
         handle.execute("create table something (id serial primary key, name varchar)");
         b = handle.attach(UsesBatching.class);
     }

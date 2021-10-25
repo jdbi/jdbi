@@ -11,22 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.rule;
+package org.jdbi.v3.testing.junit5;
 
-import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.config.ConfiguringPlugin;
-import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.junit.rules.TestRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public interface DatabaseRule<Self> extends TestRule {
-    Jdbi getJdbi();
+public class JdbiH2ExtensionTest {
 
-    Self withPlugin(JdbiPlugin plugin);
+    @RegisterExtension
+    public JdbiExtension h2 = JdbiExtension.h2();
 
-    default <C extends JdbiConfig<C>> Self withConfig(Class<C> configClass, Consumer<C> configurer) {
-        return withPlugin(ConfiguringPlugin.of(configClass, configurer));
+    @Test
+    public void testIsAlive() {
+        Integer one = h2.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
+
+        assertThat(one).isEqualTo(1);
     }
 }

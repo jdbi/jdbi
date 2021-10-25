@@ -16,32 +16,33 @@ package org.jdbi.v3.postgres;
 import java.util.EnumSet;
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SingleValue;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestEnumSets {
+
     private static final GenericType<EnumSet<Platform>> PLATFORM_SET = new GenericType<EnumSet<Platform>>() {};
 
-    // postgres is kinda slow so this test is set up to reuse a single instance
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    private VideoDao videoDao;
-
-    @Before
-    public void setupDbi() {
-        db.getHandle().useTransaction(h -> {
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, handle) -> handle.useTransaction(h -> {
             h.execute("drop table if exists videos");
             h.execute("create table videos (id int primary key, supported_platforms bit(5))");
 
@@ -71,9 +72,13 @@ public class TestEnumSets {
                 .bindByType("supported_platforms", null, PLATFORM_SET)
                 .add();
             batch.execute();
-        });
+        }));
 
-        videoDao = db.getHandle().attach(VideoDao.class);
+    private VideoDao videoDao;
+
+    @BeforeEach
+    public void setupDbi() {
+        videoDao = pgExtension.attach(VideoDao.class);
     }
 
     @Test
@@ -152,7 +157,7 @@ public class TestEnumSets {
 
     @Test
     public void throwsOnNonBitChars() {
-        Handle handle = db.getHandle();
+        Handle handle = pgExtension.openHandle();
         // redefine column to varchar type
         handle.execute("drop table if exists videos");
         handle.execute("create table videos (id int primary key, supported_platforms varchar)");
@@ -172,7 +177,7 @@ public class TestEnumSets {
     }
 
     private EnumSet<Platform> getSupportedPlatforms(int id) {
-        return db.getHandle()
+        return pgExtension.openHandle()
             .createQuery("select supported_platforms from videos where id=:id")
             .bind("id", id)
             .mapTo(PLATFORM_SET)

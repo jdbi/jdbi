@@ -25,13 +25,14 @@ import javax.annotation.Nullable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,15 +41,16 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 public class BindListTest {
-    @Rule
-    public final H2DatabaseRule h2 = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private List<Something> expectedSomethings;
 
-    @Before
+    @BeforeEach
     public void before() {
-        handle = h2.getJdbi()
+        handle = h2Extension.getJdbi()
             .registerRowMapper(new SomethingMapper())
             .open();
 

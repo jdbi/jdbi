@@ -11,19 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.generator;
+package org.jdbi.v3.testing.junit5;
 
-import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.h2.H2DatabasePlugin;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public final class GeneratorH2Rule {
-    private GeneratorH2Rule() {}
-    public static H2DatabaseRule rule() {
-        return new H2DatabaseRule()
-                .withPlugin(new H2DatabasePlugin())
-                .withPlugin(new SqlObjectPlugin())
-                .withConfig(Extensions.class, c -> c.setAllowProxy(false));
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class JdbiSqliteExtensionTest {
+
+    @RegisterExtension
+    public JdbiExtension sqlite = JdbiExtension.sqlite();
+
+    @Test
+    public void isAlive() {
+        Integer one = sqlite.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
+
+        assertThat(one).isEqualTo(1);
     }
 }

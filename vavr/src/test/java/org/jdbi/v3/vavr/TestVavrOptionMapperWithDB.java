@@ -21,31 +21,32 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestVavrOptionMapperWithDB {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
 
-    @Before
+    @BeforeEach
     public void addData() {
-        Handle handle = dbRule.openHandle();
+        Handle handle = h2Extension.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id) values (2)").execute();
     }
 
     @Test
     public void testOptionMappedShouldSucceed() {
-        final Set<Option<String>> result = dbRule.getSharedHandle()
-                .createQuery("select name from something")
-                .collectInto(new GenericType<Set<Option<String>>>() {});
+        final Set<Option<String>> result = h2Extension.getSharedHandle()
+            .createQuery("select name from something")
+            .collectInto(new GenericType<Set<Option<String>>>() {});
 
         assertThat(result).hasSize(2);
         assertThat(result).contains(Option.none(), Option.of("eric"));
@@ -53,30 +54,30 @@ public class TestVavrOptionMapperWithDB {
 
     @Test
     public void testOptionMappedWithoutGenericParameterShouldFail() {
-        assertThatThrownBy(() -> dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
-                .createQuery("select name from something")
-                .collectInto(new GenericType<Set<Option>>() {}))
+        assertThatThrownBy(() -> h2Extension.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
+            .createQuery("select name from something")
+            .collectInto(new GenericType<Set<Option>>() {}))
                 .isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("raw");
     }
 
     @Test
     public void testOptionMappedWithoutNestedMapperShouldFail() {
-        assertThatThrownBy(() -> dbRule.getSharedHandle()
-                .createQuery("select id, name from something")
-                .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
+        assertThatThrownBy(() -> h2Extension.getSharedHandle()
+            .createQuery("select id, name from something")
+            .collectInto(new GenericType<Set<Option<SomethingWithOption>>>() {}))
                 .isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("nested");
     }
 
     @Test
     public void testOptionMappedWithinObjectIfPresentShouldContainValue() {
-        final SomethingWithOption result = dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
-                .createQuery("select id, name from something where id = 1")
-                .mapTo(SomethingWithOption.class)
-                .one();
+        final SomethingWithOption result = h2Extension.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
+            .createQuery("select id, name from something where id = 1")
+            .mapTo(SomethingWithOption.class)
+            .one();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
         assertThat(result).isEqualTo(new SomethingWithOption(1, Option.of("eric")));
@@ -84,11 +85,11 @@ public class TestVavrOptionMapperWithDB {
 
     @Test
     public void testOptionWithinObjectIfMissingShouldBeNone() {
-        final SomethingWithOption result = dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
-                .createQuery("select id, name from something where id = 2")
-                .mapTo(SomethingWithOption.class)
-                .one();
+        final SomethingWithOption result = h2Extension.getSharedHandle()
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
+            .createQuery("select id, name from something where id = 2")
+            .mapTo(SomethingWithOption.class)
+            .one();
 
         assertThat(result.getName()).isInstanceOf(Option.class);
         assertThat(result).isEqualTo(new SomethingWithOption(2, Option.none()));

@@ -15,9 +15,10 @@ package org.jdbi.v3.sqlobject;
 
 import java.io.IOException;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -25,35 +26,36 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresBugs {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Before
-    public void setUp() {
-        dbRule.getJdbi().useHandle(handle -> {
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new SqlObjectPlugin())
+        .withInitializer((ds, handle) -> {
             handle.execute("create table if not exists something (id int primary key, name varchar(100))");
             handle.execute("delete from something");
         });
-    }
 
     @Test
     public void testConnected() {
-        int four = dbRule.getJdbi().withHandle(handle ->
-                handle.createQuery("select 2 + 2").mapTo(Integer.class).one());
+        int four = pgExtension.getJdbi().withHandle(handle ->
+            handle.createQuery("select 2 + 2").mapTo(Integer.class).one());
 
         assertThat(four).isEqualTo(4);
     }
 
     @Test
     public void testTransactions() {
-        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
+        Dao dao = pgExtension.getJdbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
         assertThat(s).isEqualTo(new Something(1, "Brian"));
@@ -61,7 +63,7 @@ public class TestPostgresBugs {
 
     @Test
     public void testExplicitTransaction() {
-        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
+        Dao dao = pgExtension.getJdbi().onDemand(Dao.class);
 
         Something s = dao.inTransaction(transactional -> {
             transactional.insert(1, "Brian");

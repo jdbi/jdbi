@@ -14,20 +14,21 @@
 package org.jdbi.v3.jodatime2;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.joda.time.DateTime;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DateTimeTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new JodaTimePlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new JodaTimePlugin());
 
     @Test
     public void dateTime() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("create table stuff(ts timestamp)");
 
         DateTime dt = new DateTime();

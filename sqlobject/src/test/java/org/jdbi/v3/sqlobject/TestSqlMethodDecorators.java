@@ -21,30 +21,27 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.Arrays.asList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlMethodDecorators {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     private Handle testHandle;
 
     private static final ThreadLocal<List<String>> INVOCATIONS = ThreadLocal.withInitial(ArrayList::new);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        testHandle = dbRule.getSharedHandle();
+        testHandle = h2Extension.getSharedHandle();
         INVOCATIONS.get().clear();
     }
 

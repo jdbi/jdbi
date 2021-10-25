@@ -15,24 +15,26 @@ package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestCustomBinder {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFoo() {
-        dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
-        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
+        h2Extension.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
+        h2Extension.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
             assertThat(s.getName()).isEqualTo("Martin");
         });
@@ -40,7 +42,7 @@ public class TestCustomBinder {
 
     @Test
     public void testCustomBindingAnnotation() {
-        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = h2Extension.getSharedHandle().attach(Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
 

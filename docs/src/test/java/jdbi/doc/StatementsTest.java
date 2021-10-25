@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StatementsTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public JdbiExtension h2Extension = JdbiExtension.h2();
 
     private Handle handle;
 

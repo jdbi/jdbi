@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisterJoinRowMapper {
 
+    // Do not replace with JdbiExtension, this uses a core tests (JoinRowMapperTest) which uses the H2DatabaseExtension
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
 

@@ -15,32 +15,24 @@ package org.jdbi.v3.sqlobject;
 
 import java.sql.Connection;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Jdbi;
-import org.junit.Before;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class TestOnDemandObjectMethodBehavior {
-    private Jdbi db;
     private UselessDao dao;
 
     public interface UselessDao extends SqlObject {
         void finalize();
     }
 
-    @Before
-    public void setUp() {
-        final JdbcDataSource ds = new JdbcDataSource() {
-            private static final long serialVersionUID = 1L;
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
-            @Override
-            public Connection getConnection() {
-                throw new UnsupportedOperationException();
-            }
-        };
-        db = Jdbi.create(ds);
-        db.installPlugin(new SqlObjectPlugin());
-        dao = db.onDemand(UselessDao.class);
+    @BeforeEach
+    public void setUp() {
+        dao = h2Extension.attach(UselessDao.class);
     }
 
     /**

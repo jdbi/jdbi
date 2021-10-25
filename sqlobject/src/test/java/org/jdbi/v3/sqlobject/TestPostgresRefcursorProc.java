@@ -16,27 +16,33 @@ package org.jdbi.v3.sqlobject;
 import java.sql.Types;
 import java.util.function.Function;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresRefcursorProc {
-    @Rule
-    public JdbiRule dbRule = JdbiRule.embeddedPostgres().withPlugins();
 
-    Handle handle;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    @Before
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).installPlugins();
+
+    private Handle handle;
+
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getHandle();
+        handle = pgExtension.openHandle();
     }
 
     @Test
