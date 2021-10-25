@@ -5,4 +5,4 @@
 
 OPTS="-DskipTests=true -B"
 
-mvn -q ${OPTS} clean install
+mvn ${OPTS} clean install
