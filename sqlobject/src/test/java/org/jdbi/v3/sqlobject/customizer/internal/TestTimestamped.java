@@ -37,10 +37,10 @@ import org.jdbi.v3.sqlobject.customizer.TimestampedConfig;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,11 +48,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for the {@link Timestamped} annotation
  */
 public class TestTimestamped {
+
     private static final ZoneOffset GMT_PLUS_2 = ZoneOffset.ofHours(2);
     private static final OffsetDateTime UTC_MOMENT = OffsetDateTime.of(LocalDate.of(2018, Month.JANUARY, 1), LocalTime.NOON, ZoneOffset.UTC);
 
-    @Rule
-    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+
     private PersonDAO personDAO;
 
     private static ThreadLocal<String> logNext = new ThreadLocal<>();
@@ -60,10 +62,10 @@ public class TestTimestamped {
 
     private final MockClock clock = MockClock.at(UTC_MOMENT.toZonedDateTime());
 
-    @Before
+    @BeforeEach
     public void before() {
         TimestampedFactory.setTimeSource(clock::withZone);
-        final Jdbi db = dbRule.getJdbi();
+        final Jdbi db = h2Extension.getJdbi();
         db.getConfig(TimestampedConfig.class).setTimezone(GMT_PLUS_2);
 
         db.setSqlLogger(new SqlLogger() {

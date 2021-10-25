@@ -16,27 +16,33 @@ package org.jdbi.v3.guava;
 import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGuavaMappers {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new GuavaPlugin());
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new GuavaPlugin());
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi()
+        pgExtension.getJdbi()
                 .registerArrayType(Integer.class, "integer")
                 .registerArrayType(UUID.class, "uuid");
-        h = dbRule.openHandle();
+        h = pgExtension.openHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS arrays");
             th.execute("CREATE TABLE arrays (u UUID[], i INT[])");

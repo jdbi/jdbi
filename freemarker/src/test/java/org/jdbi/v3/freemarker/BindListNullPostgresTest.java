@@ -17,30 +17,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.freemarker.FreemarkerSqlLocatorTest.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BindListNullPostgresTest {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void init() {
-        handle = dbRule.openHandle();
+        handle = pgExtension.openHandle();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
         handle.execute("insert into something(id, name) values(1, null)");
@@ -49,7 +55,7 @@ public class BindListNullPostgresTest {
         handle.execute("insert into something(id, name) values(4, '')");
     }
 
-    @After
+    @AfterEach
     public void exit() {
         handle.execute("drop table something");
         handle.close();

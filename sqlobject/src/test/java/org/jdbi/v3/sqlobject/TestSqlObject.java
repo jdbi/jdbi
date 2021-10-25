@@ -20,7 +20,6 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -35,10 +34,11 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 import static java.util.Collections.emptyList;
@@ -47,22 +47,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class TestSqlObject {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
     }
 
     @Test
@@ -76,18 +75,18 @@ public class TestSqlObject {
 
     @Test
     public void testUnimplementedMethod() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Method UnimplementedDao.totallyBroken must have an implementation "
-            + "or be annotated with a SQL method annotation.");
-        handle.attach(UnimplementedDao.class);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(UnimplementedDao.class));
+
+        assertThat(e.getMessage())
+            .contains("Method UnimplementedDao.totallyBroken must have an implementation or be annotated with a SQL method annotation.");
     }
 
     @Test
     public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Default method RedundantDao.list has @SqlQuery annotation. "
-            + "SQL object methods may be default, or have a SQL method annotation, but not both.");
-        handle.attach(RedundantDao.class);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantDao.class));
+
+        assertThat(e.getMessage()).contains(
+            "Default method RedundantDao.list has @SqlQuery annotation. SQL object methods may be default, or have a SQL method annotation, but not both.");
     }
 
     @Test
@@ -106,20 +105,20 @@ public class TestSqlObject {
 
     @Test
     public void testSimpleTransactionsSucceed() {
-        SomethingDao dao = dbRule.getJdbi().onDemand(SomethingDao.class);
+        SomethingDao dao = h2Extension.getJdbi().onDemand(SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
 
     @Test
     public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() {
-        Dao dao = dbRule.getSharedHandle().attach(Dao.class);
+        Dao dao = h2Extension.getSharedHandle().attach(Dao.class);
         assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }
 
     @Test
     public void testNestedTransactionsCollapseIntoSingleTransaction() {
-        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
         Dao dao = spyHandle.attach(Dao.class);
 
         dao.threeNestedTransactions();
@@ -133,7 +132,7 @@ public class TestSqlObject {
 
     @Test
     public void testNestedTransactionWithSameIsolation() {
-        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
         Dao dao = spyHandle.attach(Dao.class);
 
         dao.nestedTransactionWithSameIsolation();
@@ -143,7 +142,7 @@ public class TestSqlObject {
 
     @Test
     public void testNestedTransactionWithDifferentIsoltion() {
-        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
         Dao dao = spyHandle.attach(Dao.class);
 
         assertThatThrownBy(dao::nestedTransactionWithDifferentIsolation).isInstanceOf(TransactionException.class);
@@ -151,7 +150,7 @@ public class TestSqlObject {
 
     @Test
     public void testSqlUpdateWithTransaction() {
-        Handle spyHandle = Mockito.spy(dbRule.getSharedHandle());
+        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
         Dao dao = spyHandle.attach(Dao.class);
 
         dao.insert(1, "foo");
@@ -165,26 +164,23 @@ public class TestSqlObject {
 
     @Test
     public void testRedundantMethodCustomizingAnnotation() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Statement customizing annotations don't work on default methods.");
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantMethodStatementCustomizingAnnotation.class));
 
-        handle.attach(RedundantMethodStatementCustomizingAnnotation.class);
+        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
     }
 
     @Test
     public void testRedundantParameterCustomizingAnnotation() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Statement customizing annotations don't work on default methods.");
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantParameterStatementCustomizingAnnotation.class));
 
-        handle.attach(RedundantParameterStatementCustomizingAnnotation.class);
+        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
     }
 
     @Test
     public void testRedundantParameterBindingAnnotation() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Statement customizing annotations don't work on default methods.");
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantParameterBindingAnnotation.class));
 
-        handle.attach(RedundantParameterBindingAnnotation.class);
+        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
     }
 
     @Test

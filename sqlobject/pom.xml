@@ -68,6 +68,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>test</scope>
@@ -98,8 +104,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
+            <groupId>de.softwareforge.testing</groupId>
+            <artifactId>pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -128,7 +134,14 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration combine.children="append">
                             <excludes>
-                                <exclude>**/TestRegisterJoinRowMapper.java</exclude>
+                                <exclude>**/TestReadOnly.*</exclude>
+                                <exclude>**/TestSqlLocator.*</exclude>
+                                <exclude>**/TestPostgresBugs.*</exclude>
+                                <exclude>**/TestPostgresRefcursorProc.*</exclude>
+                                <exclude>**/TestOutParameterAnnotation.*</exclude>
+                                <exclude>**/TestGetGeneratedKeysPostgres$*.*</exclude>
+                                <exclude>**/TestGetGeneratedKeysPostgres.*</exclude>
+                                <exclude>**/TestRegisterJoinRowMapper.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

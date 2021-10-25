@@ -16,6 +16,8 @@ package org.jdbi.v3.postgres;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.apache.commons.lang3.SystemUtils;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -24,12 +26,10 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.postgresql.geometric.PGbox;
 import org.postgresql.geometric.PGcircle;
 import org.postgresql.geometric.PGline;
@@ -44,59 +44,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPostgresTypes {
 
-    @ClassRule
-    public static JdbiRule postgresDBRule = PostgresDbRule.rule(builder -> {
-        // We need to force the locale for the 'testReadWriteMoney' test
-        final String locale;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withCustomizer(builder -> {
+            // We need to force the locale for the 'testReadWriteMoney' test
+            final String locale;
 
-        if (SystemUtils.IS_OS_WINDOWS) {
-            locale = "English_United States";
-        } else {
-            locale = "en_US.UTF-8";
-        }
+            if (SystemUtils.IS_OS_WINDOWS) {
+                locale = "English_United States";
+            } else {
+                locale = "en_US.UTF-8";
+            }
 
-        builder.setLocaleConfig("locale", locale);
-    });
+            builder.addLocaleConfiguration("locale", locale);
+        })
+        .withPreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
+        .build();
 
-    private static Jdbi jdbi;
-    private Handle handle;
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withConfig(PostgresTypes.class, pt -> pt.registerCustomType(FooBarPGType.class, "foo_bar_type"))
+        .withInitializer((ds, h) -> {
+            h.useTransaction(th -> {
+                th.execute("drop table if exists postgres_custom_types");
+                th.execute("create table postgres_custom_types(id integer not null, foo text, bar text, created_on timestamp)");
 
-    @BeforeClass
-    public static void beforeClass() {
-        jdbi = postgresDBRule.getJdbi()
-            .installPlugin(new SqlObjectPlugin())
-            .installPlugin(new PostgresPlugin())
-            .configure(PostgresTypes.class, pt -> pt.registerCustomType(FooBarPGType.class, "foo_bar_type"));
-    }
+                // create custom type
+                th.execute("drop function if exists get_foo_bars()");
+                th.execute("drop function if exists get_foo_bar(integer)");
+                th.execute("drop function if exists insert_foo_bar(foo_bar_type)");
+                th.execute("drop function if exists insert_foo_bars(foo_bar_type[])");
+                th.execute("drop type if exists foo_bar_type");
 
-    @Before
-    public void before() {
-        handle = jdbi.open();
-        handle.useTransaction(h -> {
-            h.execute("drop table if exists postgres_custom_types");
-            h.execute("create table postgres_custom_types(id integer not null, foo text, bar text, created_on timestamp)");
+                th.execute("CREATE TYPE foo_bar_type AS (id integer, foo text, bar text);");
 
-            // create custom type
-            h.execute("drop function if exists get_foo_bars()");
-            h.execute("drop function if exists get_foo_bar(integer)");
-            h.execute("drop function if exists insert_foo_bar(foo_bar_type)");
-            h.execute("drop function if exists insert_foo_bars(foo_bar_type[])");
-            h.execute("drop type if exists foo_bar_type");
-
-            h.execute("CREATE TYPE foo_bar_type AS (id integer, foo text, bar text);");
-
-            //create functions using custom types
-            h.execute("CREATE OR REPLACE FUNCTION get_foo_bars() RETURNS SETOF foo_bar_type AS \n"
+                //create functions using custom types
+                th.execute("CREATE OR REPLACE FUNCTION get_foo_bars() RETURNS SETOF foo_bar_type AS \n"
                     + "$$ \n"
                     + "SELECT id, foo, bar FROM postgres_custom_types;\n"
                     + "$$ LANGUAGE sql;");
 
-            h.execute("CREATE OR REPLACE FUNCTION get_foo_bar(aId integer) RETURNS foo_bar_type AS \n"
+                th.execute("CREATE OR REPLACE FUNCTION get_foo_bar(aId integer) RETURNS foo_bar_type AS \n"
                     + "$$ \n"
                     + "SELECT id, foo, bar FROM postgres_custom_types WHERE id = aId;\n"
                     + "$$ LANGUAGE sql;");
 
-            h.execute("CREATE OR REPLACE FUNCTION insert_foo_bar(aFooBar foo_bar_type) RETURNS void AS \n"
+                th.execute("CREATE OR REPLACE FUNCTION insert_foo_bar(aFooBar foo_bar_type) RETURNS void AS \n"
                     + "$$\n"
                     + "DECLARE\n"
                     + "\n"
@@ -106,7 +99,7 @@ public class TestPostgresTypes {
                     + "END;\n"
                     + "$$ LANGUAGE plpgsql;");
 
-            h.execute("CREATE OR REPLACE FUNCTION insert_foo_bars(aFooBars foo_bar_type[]) RETURNS void AS \n"
+                th.execute("CREATE OR REPLACE FUNCTION insert_foo_bars(aFooBars foo_bar_type[]) RETURNS void AS \n"
                     + "$$\n"
                     + "DECLARE\n"
                     + "qFooBarType foo_bar_type;\n"
@@ -118,21 +111,24 @@ public class TestPostgresTypes {
                     + "END;\n"
                     + "$$ LANGUAGE plpgsql;");
 
-            handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(1, 'foo1', 'bar1', current_timestamp)");
-            handle.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(2, 'foo2', 'bar2', current_timestamp)");
-        });
-    }
+            });
 
-    @After
-    public void after() {
-        handle.close();
+            h.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(1, 'foo1', 'bar1', current_timestamp)");
+            h.execute("INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(2, 'foo2', 'bar2', current_timestamp)");
+        });
+
+    private Handle handle;
+
+    @BeforeEach
+    public void before() {
+        this.handle = pgExtension.openHandle();
     }
 
     @Test
     public void testReadViaFluentAPI() {
         FooBarPGType result = handle.createQuery("SELECT get_foo_bar(1)")
-                .mapTo(FooBarPGType.class)
-                .one();
+            .mapTo(FooBarPGType.class)
+            .one();
 
         assertThat(result).isEqualTo(new FooBarPGType(1, "foo1", "bar1"));
     }

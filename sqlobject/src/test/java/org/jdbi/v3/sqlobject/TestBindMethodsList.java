@@ -20,40 +20,41 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.TestBindBeanList;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMethodsList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBindMethodsList {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+
+    @BeforeEach
     public void setUp() {
-        Handle handle = dbRule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(FieldMapper.factory(TestBindBeanList.Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
     }
 
     @Test
     public void bindMethodsListWithNoValue() {
-        assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("insert into thing (id, foo, bar, baz) VALUES <items>")
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().createQuery("insert into thing (id, foo, bar, baz) VALUES <items>")
             .bindMethodsList("items", Collections.emptyList(), Arrays.asList("getFoo", "getBar"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void bindMethodsListWithNoMethods() {
         Thing thing = new Thing(1, "foo", "bar", "baz");
-        assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("insert into (id, foo, bar, baz) VALUES <items>")
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().createQuery("insert into (id, foo, bar, baz) VALUES <items>")
             .bindMethodsList("items", Collections.singletonList(thing), Collections.emptyList())).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -64,7 +65,7 @@ public class TestBindMethodsList {
 
         List<Thing> things = Arrays.asList(thing1, thing2);
 
-        final ThingDAO dao = this.dbRule.getJdbi().onDemand(ThingDAO.class);
+        final ThingDAO dao = this.h2Extension.getJdbi().onDemand(ThingDAO.class);
 
         assertThat(dao.insert(things)).isEqualTo(things.size());
         assertThat(dao.getBazById(2)).isEqualTo("baz2");

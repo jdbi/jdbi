@@ -20,10 +20,10 @@ import io.vavr.Tuple3;
 import io.vavr.collection.List;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,30 +31,30 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 // TODO consider removing this since its mostly redunant with other test class
 public class TestVavrTupleMapperWithDB {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins();
 
     private List<Integer> expected = List.range(0, 9);
 
-    @Before
+    @BeforeEach
     public void addData() {
-        dbRule.getSharedHandle().execute("create table tuples ("
-                + "t1 int, "
-                + "t2 varchar(10), "
-                + "t3 varchar(255) "
-                + ")");
+        h2Extension.getSharedHandle().execute("create table tuples ("
+            + "t1 int, "
+            + "t2 varchar(10), "
+            + "t3 varchar(255) "
+            + ")");
         for (Integer i : expected) {
-            dbRule.getSharedHandle().execute("insert into tuples values (?, ?, ?)",
-                    i, "t2" + i, "t3" + (i + 1));
+            h2Extension.getSharedHandle().execute("insert into tuples values (?, ?, ?)",
+                i, "t2" + i, "t3" + (i + 1));
         }
     }
 
     @Test
     public void testMapToTuple1ShouldSucceed() {
-        Tuple1<String> tupleProjection = dbRule.getSharedHandle()
-                .createQuery("select t2 from tuples order by t1 asc")
-                .mapTo(new GenericType<Tuple1<String>>() {})
-                .first();
+        Tuple1<String> tupleProjection = h2Extension.getSharedHandle()
+            .createQuery("select t2 from tuples order by t1 asc")
+            .mapTo(new GenericType<Tuple1<String>>() {})
+            .first();
 
         assertThat(tupleProjection).isEqualTo(Tuple.of("t20"));
     }
@@ -62,9 +62,9 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testTuple1CollectorWithSingleSelectShouldSucceed() {
         List<Tuple1<String>> expectedTuples = expected.map(i -> new Tuple1<>("t2" + i));
-        List<Tuple1<String>> tupleProjection = dbRule.getSharedHandle()
-                .createQuery("select t2 from tuples")
-                .collectInto(new GenericType<List<Tuple1<String>>>() {});
+        List<Tuple1<String>> tupleProjection = h2Extension.getSharedHandle()
+            .createQuery("select t2 from tuples")
+            .collectInto(new GenericType<List<Tuple1<String>>>() {});
 
         assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
     }
@@ -72,9 +72,9 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testTuple1CollectorWithMultiSelectShouldSucceed() {
         List<Tuple1<Integer>> firstColumnTuples = expected.map(Tuple1::new);
-        List<Tuple1<Integer>> tupleProjection = dbRule.getSharedHandle()
-                .createQuery("select * from tuples")
-                .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
+        List<Tuple1<Integer>> tupleProjection = h2Extension.getSharedHandle()
+            .createQuery("select * from tuples")
+            .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
 
         assertThat(tupleProjection).containsOnlyElementsOf(firstColumnTuples);
     }
@@ -82,7 +82,7 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testTuple1CollectorWithMultiSelectShouldFail() {
         // first selection is not projectable to tuple param
-        assertThatThrownBy(() -> dbRule.getSharedHandle()
+        assertThatThrownBy(() -> h2Extension.getSharedHandle()
             .createQuery("select t2, t3 from tuples")
             .collectInto(new GenericType<List<Tuple1<Integer>>>() {})).isInstanceOf(ResultSetException.class);
     }
@@ -90,9 +90,9 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testMapToTuple2ListShouldSucceed() {
         List<Tuple2<Integer, String>> expectedTuples = expected.map(i -> new Tuple2<>(i, "t2" + i));
-        java.util.List<Tuple2<Integer, String>> tupleProjection = dbRule.getSharedHandle()
-                .createQuery("select t1, t2 from tuples")
-                .mapTo(new GenericType<Tuple2<Integer, String>>() {}).list();
+        java.util.List<Tuple2<Integer, String>> tupleProjection = h2Extension.getSharedHandle()
+            .createQuery("select t1, t2 from tuples")
+            .mapTo(new GenericType<Tuple2<Integer, String>>() {}).list();
 
         assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
     }
@@ -100,9 +100,9 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testTuple3CollectorWithSelectedKeyValueShouldSucceed() {
         List<Tuple3<Integer, String, String>> expectedTuples = expected.map(i -> new Tuple3<>(i, "t2" + i, "t3" + (i + 1)));
-        List<Tuple3<Integer, String, String>> tupleProjection = dbRule.getSharedHandle()
-                .createQuery("select t1, t2, t3 from tuples")
-                .collectInto(new GenericType<List<Tuple3<Integer, String, String>>>() {});
+        List<Tuple3<Integer, String, String>> tupleProjection = h2Extension.getSharedHandle()
+            .createQuery("select t1, t2, t3 from tuples")
+            .collectInto(new GenericType<List<Tuple3<Integer, String, String>>>() {});
 
         assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
     }

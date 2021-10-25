@@ -19,40 +19,42 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestCollectorFactory {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withPlugin(new GuavaPlugin());
 
     @Test
     public void testExists() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
-                .bind("id", 1)
-                .mapTo(String.class)
-                .collect(GuavaCollectors.toOptional());
+            .bind("id", 1)
+            .mapTo(String.class)
+            .collect(GuavaCollectors.toOptional());
 
         assertThat(rs).contains("Coda");
     }
 
     @Test
     public void testDoesNotExist() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -65,7 +67,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testOnList() {
-        Handle h = dbRule.getSharedHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
@@ -79,7 +81,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObject() {
-        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
+        Dao dao = h2Extension.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -89,7 +91,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSingleValue() {
-        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
+        Dao dao = h2Extension.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -105,7 +107,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSetReturnValue() {
-        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
+        Dao dao = h2Extension.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 

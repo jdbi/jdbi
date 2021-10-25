@@ -39,26 +39,27 @@ import io.vavr.collection.TreeSet;
 import io.vavr.collection.Vector;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestVavrCollectorFactoryWithDB {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
 
     private Seq<Integer> expected = List.range(0, 10);
     private Map<Integer, String> expectedMap = expected.toMap(i -> new Tuple2<>(i, i + "asString"));
 
-    @Before
+    @BeforeEach
     public void addData() {
         for (Integer i : expected) {
-            dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i) + "asString", i);
+            h2Extension.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i) + "asString", i);
         }
     }
 
@@ -76,8 +77,8 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     private <T extends Iterable<Integer>> void testType(GenericType<T> containerType) {
-        T values = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .collectInto(containerType);
+        T values = h2Extension.getSharedHandle().createQuery("select intValue from something")
+            .collectInto(containerType);
         assertThat(values).containsOnlyElementsOf(expected);
     }
 
@@ -103,16 +104,16 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     private <T extends Traversable<Tuple2<Integer, String>>> void testMapType(GenericType<T> containerType) {
-        T values = dbRule.getSharedHandle().createQuery("select intValue, name from something")
-                .collectInto(containerType);
+        T values = h2Extension.getSharedHandle().createQuery("select intValue, name from something")
+            .collectInto(containerType);
         assertThat(values).containsOnlyElementsOf(expectedMap);
     }
 
     @Test
     public void testMapCollectorReversedShouldFail() {
-        assertThatThrownBy(() -> dbRule.getSharedHandle()
-                .createQuery("select intValue, name from something")
-                .collectInto(new GenericType<HashMap<String, Integer>>() {}))
+        assertThatThrownBy(() -> h2Extension.getSharedHandle()
+            .createQuery("select intValue, name from something")
+            .collectInto(new GenericType<HashMap<String, Integer>>() {}))
                 .isInstanceOf(ResultSetException.class);
     }
 
@@ -120,11 +121,11 @@ public class TestVavrCollectorFactoryWithDB {
     public void testMultimapValuesAddAnotherDataSetShouldHave2ValuesForEachKey() {
         final int offset = 10;
         for (Integer i : expected) {
-            dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i + offset) + "asString", i);
+            h2Extension.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i + offset) + "asString", i);
         }
 
-        Multimap<Integer, String> result = dbRule.getSharedHandle().createQuery("select intValue, name from something")
-                .collectInto(new GenericType<Multimap<Integer, String>>() {});
+        Multimap<Integer, String> result = h2Extension.getSharedHandle().createQuery("select intValue, name from something")
+            .collectInto(new GenericType<Multimap<Integer, String>>() {});
 
         assertThat(result).hasSize(expected.size() * 2);
         expected.forEach(i -> assertThat(result.apply(i))

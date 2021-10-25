@@ -23,42 +23,51 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.SingleValue;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlArrays {
+
     private static final String U_SELECT = "SELECT u FROM uuids";
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:uuids, NULL)";
     private static final String I_SELECT = "SELECT i FROM uuids";
     private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints)";
 
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    private Handle h;
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> {
+            h.useTransaction(th -> {
+                th.execute("DROP TABLE IF EXISTS uuids");
+                th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+            });
+        });
+
+    private Handle handle;
     private ArrayObject ao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = db.getHandle();
-        h.useTransaction(th -> {
-            th.execute("DROP TABLE IF EXISTS uuids");
-            th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
-        });
-        ao = h.attach(ArrayObject.class);
+        handle = pgExtension.openHandle();
+        ao = pgExtension.attach(ArrayObject.class);
     }
 
     private final UUID[] testUuids = new UUID[] {
@@ -150,7 +159,7 @@ public class TestSqlArrays {
     @Test
     public void testFloatArray() {
         final float[] expected = new float[] {1, 2, 3};
-        assertThat(h.createQuery("select :array")
+        assertThat(handle.createQuery("select :array")
                 .bind("array", expected)
                 .mapTo(float[].class)
                 .one())
@@ -160,7 +169,7 @@ public class TestSqlArrays {
     @Test
     public void testDoubleArray() {
         final double[] expected = new double[] {1, 2, 3};
-        assertThat(h.createQuery("select :array")
+        assertThat(handle.createQuery("select :array")
                 .bind("array", expected)
                 .mapTo(double[].class)
                 .one())
@@ -169,8 +178,8 @@ public class TestSqlArrays {
 
     @Test
     public void testReusedArrayWithString() throws Exception {
-        h.registerArrayType(String.class, "text");
-        assertThat(h.createQuery("select :array = :array")
+        handle.registerArrayType(String.class, "text");
+        assertThat(handle.createQuery("select :array = :array")
                 .bindArray("array", String.class, Collections.singletonList("element"))
                 .mapTo(boolean.class)
                 .one()).isTrue();
@@ -231,7 +240,7 @@ public class TestSqlArrays {
 
     @Test
     public void testWhereInArray() {
-        WhereInDao dao = h.attach(WhereInDao.class);
+        WhereInDao dao = handle.attach(WhereInDao.class);
         dao.createTable();
         Something a = new Something(1, "Alice");
         Something b = new Something(2, "Bob");

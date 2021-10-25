@@ -13,27 +13,28 @@ package org.jdbi.v3.core.statement;
  * limitations under the License.
  */
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDefineNamedBindingsST {
-    @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2();
 
     @Test
     public void testDefineBoolean() {
-        db.getSharedHandle().setTemplateEngine(new StringTemplateEngine());
+        h2Extension.getSharedHandle().setTemplateEngine(new StringTemplateEngine());
         assertThat(
-            db.getSharedHandle().createQuery("select <a> from values(:a) <if(b)>where false=:b<endif>")
+            h2Extension.getSharedHandle().createQuery("select <a> from values(:a) <if(b)>where false=:b<endif>")
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)
                 .one())
-        .isTrue();
+            .isTrue();
     }
 
     public static class DefinedBean {

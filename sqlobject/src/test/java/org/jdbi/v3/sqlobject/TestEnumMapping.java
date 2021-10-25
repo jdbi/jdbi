@@ -19,26 +19,21 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEnumMapping {
-    @Rule
-    public JdbiRule dbRule = JdbiRule.h2().withPlugin(new SqlObjectPlugin());
 
-    @Before
-    public void create() {
-        dbRule.getHandle().execute(
-                "create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
-    }
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.something());
 
     @Test
     public void testEnums() {
-        Spiffy spiffy = dbRule.attach(Spiffy.class);
+        Spiffy spiffy = h2Extension.openHandle().attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);

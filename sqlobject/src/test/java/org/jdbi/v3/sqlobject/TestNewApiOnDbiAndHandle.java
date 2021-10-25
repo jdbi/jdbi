@@ -14,52 +14,42 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.Connection;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestNewApiOnDbiAndHandle {
-    private Jdbi db;
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+
     private Handle handle;
+    private Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        db = Jdbi.create(ds);
-        db.installPlugin(new SqlObjectPlugin());
-        db.registerRowMapper(new SomethingMapper());
-        handle = db.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() {
-        handle.execute("drop table something");
-        handle.close();
+        jdbi = h2Extension.getJdbi();
+        handle = h2Extension.openHandle();
     }
 
     @Test
     public void testOpenNewSpiffy() throws Exception {
         final AtomicReference<Connection> c = new AtomicReference<>();
 
-        db.useExtension(Spiffy.class, spiffy -> {
+        jdbi.useExtension(Spiffy.class, spiffy -> {
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
@@ -72,7 +62,7 @@ public class TestNewApiOnDbiAndHandle {
 
     @Test
     public void testOnDemandSpiffy() {
-        Spiffy spiffy = db.onDemand(Spiffy.class);
+        Spiffy spiffy = jdbi.onDemand(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));

@@ -22,10 +22,11 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,102 +39,102 @@ public class TestVavrValueArgumentFactoryWithDB {
     private static final Something ERICSOMETHING = new Something(1, "eric");
     private static final Something BRIANSOMETHING = new Something(2, "brian");
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
 
-    @Before
+    @BeforeEach
     public void createTestData() {
-        Handle handle = dbRule.openHandle();
+        Handle handle = h2Extension.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }
 
     @Test
     public void testGetOptionShouldReturnCorrectRow() {
-        Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Option.of("eric"))
-                .mapToBean(Something.class)
-                .one();
+        Something result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Option.of("eric"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(ERICSOMETHING);
     }
 
     @Test
     public void testGetOptionEmptyShouldReturnAllRows() {
-        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Option.none())
-                .mapToBean(Something.class)
-                .list();
+        List<Something> result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Option.none())
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     public void testGetLazyShouldReturnCorrectRow() {
-        Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Lazy.of(() -> "brian"))
-                .mapToBean(Something.class)
-                .one();
+        Something result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Lazy.of(() -> "brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
     public void testGetTrySuccessShouldReturnCorrectRow() {
-        Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Try.success("brian"))
-                .mapToBean(Something.class)
-                .one();
+        Something result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Try.success("brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
     public void testGetTryFailureShouldReturnAllRows() {
-        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Try.failure(new Throwable()))
-                .mapToBean(Something.class)
-                .list();
+        List<Something> result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Try.failure(new Throwable()))
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     public void testGetEitherRightShouldReturnCorrectRow() {
-        Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Either.right("brian"))
-                .mapToBean(Something.class)
-                .one();
+        Something result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Either.right("brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
     public void testGetEitherLeftShouldReturnAllRows() {
-        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Either.left("eric"))
-                .mapToBean(Something.class)
-                .list();
+        List<Something> result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Either.left("eric"))
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     public void testGetValidationValidShouldReturnCorrectRow() {
-        Something result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Validation.valid("brian"))
-                .mapToBean(Something.class)
-                .one();
+        Something result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Validation.valid("brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(BRIANSOMETHING);
     }
 
     @Test
     public void testGetValidationInvalidShouldReturnAllRows() {
-        List<Something> result = dbRule.getSharedHandle().createQuery(SELECT_BY_NAME)
-                .bind("name", Validation.invalid("eric"))
-                .mapToBean(Something.class)
-                .list();
+        List<Something> result = h2Extension.getSharedHandle().createQuery(SELECT_BY_NAME)
+            .bind("name", Validation.invalid("eric"))
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).hasSize(2);
     }

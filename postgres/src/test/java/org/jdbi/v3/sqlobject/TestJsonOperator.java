@@ -17,36 +17,35 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.jdbi.v3.postgres.PostgresDbRule;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestJsonOperator {
-    @Rule
-    public JdbiRule db = PostgresDbRule.rule();
 
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule()
-        .withPlugin(new SqlObjectPlugin())
-        .withPlugin(new PostgresPlugin());
-    private Handle handle;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> {
+            h.execute("create table something (id serial primary key, value jsonb)");
+        });
+
     private KeyValueStore kvs;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.openHandle();
-        handle.execute("create table something (id serial primary key, value jsonb)");
-        kvs = handle.attach(KeyValueStore.class);
+        kvs = pgExtension.attach(KeyValueStore.class);
     }
 
     @Test

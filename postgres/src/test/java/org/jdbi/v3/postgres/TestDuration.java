@@ -17,37 +17,44 @@ import java.time.Duration;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestDuration {
-    @ClassRule
-    public static JdbiRule postgresDbRule = PostgresDbRule.rule();
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
+            th.execute("drop table if exists intervals");
+            th.execute("create table intervals(id int not null, foo interval)");
+
+            // Can be durations.
+            th.execute("insert into intervals(id, foo) values(1, interval '1 day 15:00:00')");
+            th.execute("insert into intervals(id, foo) values(2, interval '40 days 22 minutes')");
+
+            // Can't be.
+            th.execute("insert into intervals(id, foo) values(3, interval '10 years -3 months 100 seconds')");
+        }));
 
     private Handle handle;
 
     private final Duration testDuration = Duration.ofDays(39).plusHours(23).plusMinutes(59).plusSeconds(1);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = postgresDbRule.getHandle();
-        handle.useTransaction(h -> {
-            h.execute("drop table if exists intervals");
-            h.execute("create table intervals(id int not null, foo interval)");
-
-            // Can be durations.
-            h.execute("insert into intervals(id, foo) values(1, interval '1 day 15:00:00')");
-            h.execute("insert into intervals(id, foo) values(2, interval '40 days 22 minutes')");
-
-            // Can't be.
-            h.execute("insert into intervals(id, foo) values(3, interval '10 years -3 months 100 seconds')");
-        });
+        handle = pgExtension.openHandle();
     }
 
     @Test

@@ -38,10 +38,11 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.stream.Collectors.toList;
 
@@ -51,39 +52,40 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.entry;
 
 public class TestGuavaCollectors {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
 
     private Collection<Integer> expected;
 
-    @Before
+    @BeforeEach
     public void addData() {
         expected = IntStream.range(0, 10)
-            .peek(i -> dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i))
+            .peek(i -> h2Extension.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i))
             .boxed()
             .collect(toList());
     }
 
     @Test
     public void immutableList() {
-        ImmutableList<Integer> list = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .collectInto(new GenericType<ImmutableList<Integer>>(){});
+        ImmutableList<Integer> list = h2Extension.getSharedHandle().createQuery("select intValue from something")
+            .collectInto(new GenericType<ImmutableList<Integer>>() {});
 
         assertThat(list).containsOnlyElementsOf(expected);
     }
 
     @Test
     public void immutableSet() {
-        ImmutableSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .collectInto(new GenericType<ImmutableSet<Integer>>(){});
+        ImmutableSet<Integer> set = h2Extension.getSharedHandle().createQuery("select intValue from something")
+            .collectInto(new GenericType<ImmutableSet<Integer>>() {});
 
         assertThat(set).containsOnlyElementsOf(expected);
     }
 
     @Test
     public void immutableSortedSet() {
-        ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .collectInto(new GenericType<ImmutableSortedSet<Integer>>(){});
+        ImmutableSortedSet<Integer> set = h2Extension.getSharedHandle().createQuery("select intValue from something")
+            .collectInto(new GenericType<ImmutableSortedSet<Integer>>() {});
 
         assertThat(set).containsExactlyElementsOf(expected);
     }
@@ -91,9 +93,9 @@ public class TestGuavaCollectors {
     @Test
     public void immutableSortedSetWithComparator() {
         Comparator<Integer> comparator = Comparator.<Integer>naturalOrder().reversed();
-        ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
-                .mapTo(int.class)
-                .collect(ImmutableSortedSet.toImmutableSortedSet(comparator));
+        ImmutableSortedSet<Integer> set = h2Extension.getSharedHandle().createQuery("select intValue from something")
+            .mapTo(int.class)
+            .collect(ImmutableSortedSet.toImmutableSortedSet(comparator));
 
         assertThat(set).containsExactlyElementsOf(expected.stream()
                 .sorted(comparator)
@@ -102,21 +104,21 @@ public class TestGuavaCollectors {
 
     @Test
     public void optionalPresent() {
-        Optional<Integer> shouldBePresent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 1")
-                .collectInto(new GenericType<Optional<Integer>>(){});
+        Optional<Integer> shouldBePresent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 1")
+            .collectInto(new GenericType<Optional<Integer>>() {});
         assertThat(shouldBePresent).contains(1);
     }
 
     @Test
     public void optionalAbsent() {
-        Optional<Integer> shouldBeAbsent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 100")
-                .collectInto(new GenericType<Optional<Integer>>(){});
+        Optional<Integer> shouldBeAbsent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 100")
+            .collectInto(new GenericType<Optional<Integer>>() {});
         assertThat(shouldBeAbsent).isAbsent();
     }
 
     @Test
     public void optionalMultiple() {
-        assertThatThrownBy(() -> dbRule.getSharedHandle().createQuery("select intValue from something")
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().createQuery("select intValue from something")
             .collectInto(new GenericType<Optional<Integer>>() {})).isInstanceOf(IllegalStateException.class);
     }
 
@@ -128,7 +130,7 @@ public class TestGuavaCollectors {
 
     @SuppressWarnings("unchecked")
     private <M extends Map<Long, String>> void testMapCollector(Class<? extends Map> erasedType, GenericType<M> genericType) {
-        JdbiCollectors registry = dbRule.getJdbi().getConfig(JdbiCollectors.class);
+        JdbiCollectors registry = h2Extension.getJdbi().getConfig(JdbiCollectors.class);
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
                 .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());
@@ -159,7 +161,7 @@ public class TestGuavaCollectors {
 
     @SuppressWarnings("unchecked")
     private <M extends Multimap<Long, String>> void testMultimapCollector(Class<? extends Multimap> erasedType, GenericType<M> genericType) {
-        JdbiCollectors registry = dbRule.getJdbi().getConfig(JdbiCollectors.class);
+        JdbiCollectors registry = h2Extension.getJdbi().getConfig(JdbiCollectors.class);
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
                 .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());

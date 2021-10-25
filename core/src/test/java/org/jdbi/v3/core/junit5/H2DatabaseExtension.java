@@ -25,6 +25,10 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+/**
+ * H2 Test Support for core tests. Do NOT use this outside the core tests (or tests that use core tests), use the JdbiExtension from the
+ * jdbi3-testing module instead!
+ */
 public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseExtension>, BeforeEachCallback, AfterEachCallback {
 
     public static final DatabaseInitializer SOMETHING_INITIALIZER =

@@ -26,33 +26,33 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBindMethods {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        final Handle h = this.dbRule.getSharedHandle();
+        final Handle h = this.h2Extension.getSharedHandle();
         h.execute("CREATE TABLE bind_methods (id IDENTITY PRIMARY KEY, value BIGINT)");
     }
 
     @Test
     public void testBindMethodsDirect() {
-        final PairRowDAO dao = this.dbRule.getJdbi().onDemand(PairRowDAO.class);
+        final PairRowDAO dao = this.h2Extension.getJdbi().onDemand(PairRowDAO.class);
         final long testValue = 709L;
         final int testId = 5;
 
@@ -65,7 +65,7 @@ public class TestBindMethods {
 
     @Test
     public void testBindMethodsImplicitOverride() {
-        final PairRowDAO dao = this.dbRule.getJdbi().onDemand(PairRowDAO.class);
+        final PairRowDAO dao = this.h2Extension.getJdbi().onDemand(PairRowDAO.class);
         final long testValue = 708L;
         final int testId = 6;
 
@@ -78,7 +78,7 @@ public class TestBindMethods {
 
     @Test
     public void testBindMethodsImplicit() {
-        final PairRowDAO dao = this.dbRule.getJdbi().onDemand(PairRowDAO.class);
+        final PairRowDAO dao = this.h2Extension.getJdbi().onDemand(PairRowDAO.class);
         final long testValue = 707L;
         final int testId = 7;
 

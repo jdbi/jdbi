@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

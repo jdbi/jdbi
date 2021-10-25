@@ -17,32 +17,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDefineNull {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2();
 
     private Handle h;
 
     private ByteArrayOutputStream err = new ByteArrayOutputStream();
     private PrintStream savedErr;
 
-    @Before
+    @BeforeEach
     public void setup() {
         savedErr = System.err;
         System.setErr(new PrintStream(err));
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
         h.setTemplateEngine(new StringTemplateEngine());
     }
 
-    @After
+    @AfterEach
     public void restore() {
         System.setErr(savedErr);
     }

@@ -18,20 +18,24 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugins(new SqlObjectPlugin(), new JpaPlugin());
 
     @Entity
     static class Thing {
+
         private int id;
         private String name;
 
@@ -86,7 +90,7 @@ public class PluginTest {
         Thing brian = new Thing(1, "Brian");
         Thing keith = new Thing(2, "Keith");
 
-        ThingDao dao = dbRule.getSharedHandle().attach(ThingDao.class);
+        ThingDao dao = h2Extension.getSharedHandle().attach(ThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 

@@ -13,47 +13,54 @@
  */
 package org.jdbi.v3.postgres;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTypedEnum {
-    @ClassRule
-    public static JdbiRule db = PostgresDbRule.rule();
 
-    public Handle h;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    @Before
-    public void setupDbi() {
-        h = db.getHandle();
-        h.useTransaction(th -> {
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS values");
             th.execute("DROP TYPE IF EXISTS enum_t");
             th.execute("CREATE TYPE enum_t AS ENUM ('FOO', 'BAR', 'BAZ')");
             th.execute("CREATE TABLE values (value enum_t)");
-        });
+        }));
+
+    public Handle handle;
+
+    @BeforeEach
+    public void setupDbi() {
+        handle = pgExtension.openHandle();
     }
 
     @Test
     public void testBind() {
-        h.createUpdate("INSERT INTO values VALUES(:value)")
+        handle.createUpdate("INSERT INTO values VALUES(:value)")
             .bind("value", EnumT.BAR)
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM values").mapTo(String.class).one())
+        assertThat(handle.createQuery("SELECT * FROM values").mapTo(String.class).one())
             .isEqualTo("BAR");
     }
 
     @Test
     public void testMap() {
-        h.createUpdate("INSERT INTO values VALUES('BAZ')")
+        handle.createUpdate("INSERT INTO values VALUES('BAZ')")
             .execute();
 
-        assertThat(h.createQuery("SELECT * FROM values").mapTo(EnumT.class).one())
+        assertThat(handle.createQuery("SELECT * FROM values").mapTo(EnumT.class).one())
             .isEqualTo(EnumT.BAZ);
     }
 

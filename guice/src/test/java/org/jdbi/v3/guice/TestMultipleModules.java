@@ -22,14 +22,14 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import com.opentable.db.postgres.embedded.PreparedDbProvider;
+import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guice.util.GuiceTestSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestMultipleModules {
 
@@ -41,12 +41,10 @@ public class TestMultipleModules {
     @Named("db2")
     public Jdbi jdbiDb2 = null;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-
-        PreparedDbProvider provider = PreparedDbProvider.forPreparer(p -> {});
-        DataSource ds1 = provider.createDataSource();
-        DataSource ds2 = provider.createDataSource();
+        DataSource ds1 = new JdbcDataSource();
+        DataSource ds2 = new JdbcDataSource();
 
         assertNotEquals(ds1, ds2);
 

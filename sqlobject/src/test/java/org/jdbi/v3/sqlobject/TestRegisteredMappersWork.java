@@ -25,7 +25,6 @@ import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -33,24 +32,28 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestRegisteredMappersWork {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     public interface BooleanDao {
+
         @SqlQuery("select 1+1 = 2")
         boolean fetchABoolean();
     }
 
     @Test
     public void testFoo() {
-        boolean worldIsRight = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
+        boolean worldIsRight = h2Extension.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(worldIsRight).isTrue();
     }
 
@@ -97,7 +100,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testBeanMapperFactory() {
-        BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
+        BeanMappingDao bdb = h2Extension.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -113,7 +116,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testBeanMapperFactoryDefaultMethod() {
-        BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
+        BeanMappingDao bdb = h2Extension.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -131,9 +134,9 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testRegistered() {
-        dbRule.getSharedHandle().registerRowMapper(new SomethingMapper());
+        h2Extension.getSharedHandle().registerRowMapper(new SomethingMapper());
 
-        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = h2Extension.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -143,7 +146,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testBuiltIn() {
-        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = h2Extension.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -152,7 +155,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testRegisterRowMapperAnnotationWorks() {
-        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
+        Kabob bob = h2Extension.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -162,7 +165,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testNoRootRegistrations() {
-        try (Handle h = dbRule.openHandle()) {
+        try (Handle h = h2Extension.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Henning')");
             assertThatThrownBy(() -> h.createQuery("select id, name from something where id = 1")
                 .mapTo(Something.class)
@@ -172,7 +175,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testNoErrorOnNoData() {
-        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
+        Kabob bob = h2Extension.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning).isNull();
@@ -184,7 +187,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testIteratorCloses() {
-        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
+        Kabob bob = h2Extension.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
         assertThatThrownBy(itty::hasNext).isInstanceOf(ResultSetException.class);

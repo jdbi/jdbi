@@ -20,17 +20,18 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.ColonPrefixSqlParser;
 import org.jdbi.v3.core.statement.ParsedSql;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL_STRING;
@@ -39,12 +40,12 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 public class BindListNullTest {
     private Handle handle;
 
-    @Rule
-    public final H2DatabaseRule dbRule = new H2DatabaseRule().withSomething();
+    @RegisterExtension
+    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something());
 
-    @Before
+    @BeforeEach
     public void before() {
-        final Jdbi db = dbRule.getJdbi();
+        final Jdbi db = h2Extension.getJdbi();
         db.registerRowMapper(new SomethingMapper());
         db.installPlugin(new SqlObjectPlugin());
         handle = db.open();
@@ -59,7 +60,7 @@ public class BindListNullTest {
         handle.execute("insert into something(id, name) values(7, '')");
     }
 
-    @After
+    @AfterEach
     public void after() {
         handle.close();
     }

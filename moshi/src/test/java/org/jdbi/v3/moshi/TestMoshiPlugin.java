@@ -25,38 +25,45 @@ import com.squareup.moshi.JsonReader;
 import com.squareup.moshi.JsonWriter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
-import org.jdbi.v3.postgres.PostgresDbRule;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.postgres.PostgresPlugin;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMoshiPlugin extends AbstractJsonMapperTest {
-    @Rule
-    public JdbiRule db = PostgresDbRule.rule();
 
-    @Before
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new MoshiPlugin());
+
+    @BeforeEach
     public void before() {
-        jdbi = db.getJdbi().installPlugin(new MoshiPlugin())
-                .configure(MoshiConfig.class, c -> c.setMoshi(
-                        new Moshi.Builder().add(new OptionalAdapter()).build()));
+        jdbi = pgExtension.getJdbi().installPlugin(new MoshiPlugin())
+            .configure(MoshiConfig.class, c -> c.setMoshi(
+                new Moshi.Builder().add(new OptionalAdapter()).build()));
     }
 
     @Test
     public void typeCanBeOverridden() {
-        db.getJdbi().useHandle(h -> {
+        pgExtension.getJdbi().useHandle(h -> {
             h.createUpdate("create table users(usr json)").execute();
 
             Moshi moshi = new Moshi.Builder()
-                    .add(new OptionalAdapter())
-                    .add(SuperUser.class, new SuperUserAdapter())
-                    .add(SubUser.class, new SubUserAdapter())
-                    .build();
+                .add(new OptionalAdapter())
+                .add(SuperUser.class, new SuperUserAdapter())
+                .add(SubUser.class, new SubUserAdapter())
+                .build();
             h.getConfig(MoshiConfig.class).setMoshi(moshi);
 
             h.createUpdate("insert into users(usr) values(:user)")

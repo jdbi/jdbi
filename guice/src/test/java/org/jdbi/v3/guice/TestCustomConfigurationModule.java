@@ -24,17 +24,15 @@ import javax.inject.Qualifier;
 import javax.sql.DataSource;
 
 import com.google.inject.Injector;
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.guice.util.GuiceTestSupport;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -42,8 +40,8 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import static com.google.inject.name.Names.named;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestCustomConfigurationModule {
 
@@ -51,17 +49,16 @@ public class TestCustomConfigurationModule {
     public static final String LOCAL = "local";
     public static final String CUSTOM = "custom";
 
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
-
     @Inject
     @Named("test")
     public Jdbi jdbi;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        DataSource ds = new JdbcDataSource();
+
         Injector inj = GuiceTestSupport.createTestInjector(
-            binder -> binder.bind(DataSource.class).annotatedWith(named("test")).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(named("test")).toInstance(ds),
 
             new InstanceModule(),
             new CustomModule(),

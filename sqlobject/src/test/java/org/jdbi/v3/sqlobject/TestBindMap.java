@@ -19,37 +19,36 @@ import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestBindMap {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     private Dao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        handle = dbRule.getSharedHandle();
+        handle = h2Extension.getSharedHandle();
 
         dao = handle.attach(Dao.class);
     }
@@ -103,9 +102,7 @@ public class TestBindMap {
     @Test
     public void testBindMapKeyNotInMapOrKeys() {
         handle.execute("insert into something(id, name) values (3, 'Carol')");
-        exception.expect(UnableToCreateStatementException.class);
-
-        dao.update(3, emptyMap());
+        assertThrows(UnableToCreateStatementException.class, () -> dao.update(3, emptyMap()));
     }
 
     @Test
@@ -129,9 +126,8 @@ public class TestBindMap {
     @Test
     public void testBindMapNonStringKeys() {
         handle.execute("insert into something(id, name) values (5, 'Edward')");
-        exception.expect(IllegalArgumentException.class);
 
-        dao.update(5, singletonMap(new MapKey("name"), "Jacob"));
+        assertThrows(IllegalArgumentException.class, () -> dao.update(5, singletonMap(new MapKey("name"), "Jacob")));
     }
 
     public static class MapKey {

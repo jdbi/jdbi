@@ -17,8 +17,7 @@ package org.jdbi.v3.core.kotlin
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.generic.GenericType
-import org.jdbi.v3.core.junit5.DatabaseExtension
-import org.jdbi.v3.core.junit5.PgDatabaseExtension
+import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -31,7 +30,7 @@ class KotlinBindTest {
 
     @RegisterExtension
     @JvmField
-    val pgExtension: PgDatabaseExtension = PgDatabaseExtension.instance(pg).withPlugin(KotlinPlugin())
+    val pgExtension: JdbiExtension = JdbiExtension.postgres(pg).withPlugin(KotlinPlugin())
 
     @Test
     fun bindEnumKotlinList() {

@@ -24,31 +24,30 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestGuavaOptional {
+
     private static final String SELECT_BY_NAME = "select * from something "
         + "where :name is null or name = :name "
         + "order by id";
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugins();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
 
     Handle handle;
 
-    @Before
+    @BeforeEach
     public void createTestData() {
-        handle = dbRule.openHandle();
+        handle = h2Extension.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }
@@ -83,11 +82,12 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnableToCreateStatementException.class);
-        handle.createQuery(SELECT_BY_NAME)
+
+        assertThrows(UnableToCreateStatementException.class,
+            () -> handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
-                .list();
+                .list());
     }
 
     @Test
@@ -123,11 +123,11 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        exception.expect(UnableToCreateStatementException.class);
-        handle.createQuery(SELECT_BY_NAME)
+        assertThrows(UnableToCreateStatementException.class,
+            () -> handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
-                .list();
+                .list());
     }
 
     class Name {

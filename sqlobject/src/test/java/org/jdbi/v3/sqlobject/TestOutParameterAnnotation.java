@@ -15,30 +15,37 @@ package org.jdbi.v3.sqlobject;
 
 import java.sql.Types;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOutParameterAnnotation {
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private Jdbi db;
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
-    @Before
-    public void setUp() {
-        db = dbRule.getJdbi();
-        db.useHandle(h -> {
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new SqlObjectPlugin())
+        .withInitializer((ds, h) -> {
             h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql");
             h.execute("CREATE FUNCTION swap(IN a INT, IN b INT, OUT c INT, OUT d INT) AS $$ BEGIN c := b; d := a; END; $$ LANGUAGE plpgsql");
         });
+
+    private Jdbi db;
+
+    @BeforeEach
+    public void setUp() {
+        db = pgExtension.getJdbi();
     }
 
     @Test

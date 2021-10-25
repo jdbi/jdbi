@@ -15,24 +15,30 @@ package org.jdbi.v3.sqlobject;
 
 import java.sql.SQLException;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestReadOnly {
-    // H2 does not support the readOnly connection hint.
-    @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testHandleReadOnly() throws Exception {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = pgExtension.openHandle()) {
             assertThat(h.isReadOnly()).isFalse();
             assertThat(h.getConnection().isReadOnly()).isFalse();
 
@@ -45,7 +51,7 @@ public class TestReadOnly {
 
     @Test
     public void testSqlObjectReadOnly() throws Exception {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = pgExtension.openHandle()) {
             RODao dao = h.attach(RODao.class);
 
             assertThat(h.isReadOnly()).isFalse();
@@ -56,7 +62,7 @@ public class TestReadOnly {
 
     @Test
     public void testReadOnlyInner() {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = pgExtension.openHandle()) {
             RODao dao = h.attach(RODao.class);
             dao.writeTxn(() -> dao.readTxn(() -> {}));
         }
@@ -64,7 +70,7 @@ public class TestReadOnly {
 
     @Test
     public void testReadOnlyOuter() {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = pgExtension.openHandle()) {
             RODao dao = h.attach(RODao.class);
 
             assertThatThrownBy(() -> dao.readTxn(() -> dao.writeTxn(() -> {}))).isInstanceOf(TransactionException.class);

@@ -23,29 +23,28 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestVariousOddities {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withSomething().withPlugin(new SqlObjectPlugin());
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testAttach() {
-        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = h2Extension.getSharedHandle().attach(Spiffy.class);
         s.insert(new Something(14, "Tom"));
 
         Something tom = s.byId(14);
@@ -54,8 +53,8 @@ public class TestVariousOddities {
 
     @Test
     public void testEquals() {
-        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = h2Extension.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = h2Extension.getSharedHandle().attach(Spiffy.class);
         assertThat(s1).isEqualTo(s1);
         assertThat(s1).isNotSameAs(s2);
         assertThat(s1).isNotEqualTo(s2);
@@ -63,8 +62,8 @@ public class TestVariousOddities {
 
     @Test
     public void testToString() {
-        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = h2Extension.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = h2Extension.getSharedHandle().attach(Spiffy.class);
         assertThat(s1.toString()).isNotNull();
         assertThat(s2.toString()).isNotNull();
         assertThat(s1.toString()).isNotEqualTo(s2.toString());
@@ -72,8 +71,8 @@ public class TestVariousOddities {
 
     @Test
     public void testHashCode() {
-        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = h2Extension.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = h2Extension.getSharedHandle().attach(Spiffy.class);
         assertThat(s1.hashCode()).isNotZero();
         assertThat(s2.hashCode()).isNotZero();
         assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
@@ -82,7 +81,7 @@ public class TestVariousOddities {
     @Test
     public void testConcurrentHashCode() throws ExecutionException, InterruptedException {
         Callable<SpiffyConcurrent> callable = () ->
-                dbRule.getSharedHandle().attach(SpiffyConcurrent.class);
+            h2Extension.getSharedHandle().attach(SpiffyConcurrent.class);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         Future<SpiffyConcurrent> f1 = pool.submit(callable);
@@ -98,12 +97,10 @@ public class TestVariousOddities {
 
     @Test
     public void testNullQueryReturn() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage(
-                "Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing "
-                    + "is annotated as if it should return a value, but the method is void.");
 
-        dbRule.getSharedHandle().attach(SpiffyBoom.class);
+        IllegalStateException e = Assertions.assertThrows(IllegalStateException.class, () -> h2Extension.getSharedHandle().attach(SpiffyBoom.class));
+
+        assertThat(e.getMessage()).contains("returnNothing is annotated as if it should return a value, but the method is void.");
     }
 
     public interface Spiffy {
@@ -129,14 +126,14 @@ public class TestVariousOddities {
     @Test
     public void testInterfaceAmbiguousMethods() {
         assertThatThrownBy(() ->
-                dbRule.getSharedHandle().attach(AmbiguousMethods.class))
+            h2Extension.getSharedHandle().attach(AmbiguousMethods.class))
             .isInstanceOf(UnableToCreateSqlObjectException.class)
             .hasMessageContaining("AmbiguousMethods has ambiguous methods");
     }
 
     @Test
     public void testAbiguityResolved() {
-        dbRule.getSharedHandle().attach(ResolvedMethods.class);
+        h2Extension.getSharedHandle().attach(ResolvedMethods.class);
     }
 
     public interface VersionA {
@@ -161,7 +158,8 @@ public class TestVariousOddities {
     }
 
     public class DecoratedOnDemandOddities implements OnDemandOddities {
-        private OnDemandOddities onDemand = dbRule.getJdbi().onDemand(OnDemandOddities.class);
+
+        private OnDemandOddities onDemand = h2Extension.getJdbi().onDemand(OnDemandOddities.class);
 
         @Override
         public Handle getHandle() {
@@ -181,7 +179,7 @@ public class TestVariousOddities {
 
     @Test
     public void onDemandCreateSqlObject() throws Exception {
-        assertThat(dbRule.getJdbi().onDemand(OnDemandOddities.class).versionA().value())
+        assertThat(h2Extension.getJdbi().onDemand(OnDemandOddities.class).versionA().value())
                 .isEqualTo("intriguing");
     }
 

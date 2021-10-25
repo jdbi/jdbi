@@ -20,9 +20,9 @@ import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -30,7 +30,7 @@ public class TestUrls {
 
     Handle handle;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
         jdbi.installPlugin(new SQLitePlugin());
@@ -38,7 +38,7 @@ public class TestUrls {
         handle.useTransaction(h -> h.execute("CREATE TABLE foo(url URL);"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handle.close();
     }

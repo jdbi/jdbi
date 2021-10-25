@@ -21,32 +21,33 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 import org.jdbi.v3.core.qualifier.Reversed;
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInheritedAnnotations {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     private final MockClock mockClock = MockClock.now();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        dbRule.getJdbi().getConfig(BindTimeConfig.class).setClock(mockClock);
+        h2Extension.getJdbi().getConfig(BindTimeConfig.class).setClock(mockClock);
 
-        Handle handle = dbRule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE characters (id INT, name VARCHAR, created TIMESTAMP, modified TIMESTAMP)");
     }
 
@@ -54,7 +55,7 @@ public class TestInheritedAnnotations {
     public void testCrud() {
         Instant inserted = mockClock.instant();
 
-        CharacterDao dao = dbRule.getJdbi().onDemand(CharacterDao.class);
+        CharacterDao dao = h2Extension.getJdbi().onDemand(CharacterDao.class);
 
         dao.insert(new Character(1, "Moiraine Sedai"));
 
@@ -73,7 +74,7 @@ public class TestInheritedAnnotations {
 
     @Test
     public void testNonDirect() {
-        ChildDao dao = dbRule.getJdbi().onDemand(ChildDao.class);
+        ChildDao dao = h2Extension.getJdbi().onDemand(ChildDao.class);
 
         assertThat(dao.reversed("what")).isEqualTo("tahw");
     }

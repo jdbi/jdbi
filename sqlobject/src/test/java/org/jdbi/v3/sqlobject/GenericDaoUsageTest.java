@@ -14,36 +14,37 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class GenericDaoUsageTest {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+
+    @BeforeEach
     public void setUp() {
-        Handle handle = dbRule.getSharedHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE usermodel (id identity primary key, name VARCHAR)");
         handle.attach(UserDao.class).insert(new UserModel(1));
     }
 
     @Test
     public void testSqlObjectUseGenericDaoInterface() {
-        Dao<UserModel, Integer> dao = dbRule.getJdbi().onDemand(UserDao.class); // widening conversion
+        Dao<UserModel, Integer> dao = h2Extension.getJdbi().onDemand(UserDao.class); // widening conversion
         dao.getById(1);
     }
 
     @Test
     public void testSqlObjectUseConcreteDaoInterface() {
-        UserDao userDao = dbRule.getJdbi().onDemand(UserDao.class);
+        UserDao userDao = h2Extension.getJdbi().onDemand(UserDao.class);
         UserModel entity = userDao.getById(1);
     }
 

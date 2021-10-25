@@ -16,46 +16,45 @@ package org.jdbi.v3.postgres;
 import java.util.List;
 import java.util.Map;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
-import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestImmutablesHStore {
 
-    @Rule
-    public PgDatabaseRule dbRule = new PgDatabaseRule()
-        .withPlugin(new PostgresPlugin())
-        .withPlugin(new SqlObjectPlugin())
-        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Mappy.class));
+    @RegisterExtension
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
+        .build();
 
-    private Handle h;
+    @RegisterExtension
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Mappy.class))
+        .withInitializer((ds, h) -> h.execute("create table mappy (numbers hstore not null)"));
 
-    @Before
+    MappyDao dao;
+
+    @BeforeEach
     public void setup() {
-        h = dbRule.openHandle();
-        h.execute("create extension if not exists \"hstore\"");
-        h.execute("create table mappy (numbers hstore not null)");
-    }
-
-    @After
-    public void close() {
-        h.close();
+        dao = pgExtension.attach(MappyDao.class);
     }
 
     @Value.Immutable
     @Value.Style(overshadowImplementation = true)
     public interface Mappy {
+
         @HStore
         Map<String, String> numbers();
 
@@ -68,8 +67,6 @@ public class TestImmutablesHStore {
 
     @Test
     public void testMap() {
-        final MappyDao dao = h.attach(MappyDao.class);
-
         final Mappy row1 = Mappy.builder()
                 .putNumbers("one", "1")
                 .putNumbers("two", "2")

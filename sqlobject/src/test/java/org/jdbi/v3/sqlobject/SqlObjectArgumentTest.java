@@ -18,34 +18,34 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlObjectArgumentTest {
-    private static final String INSERT_QUERY
-            = "INSERT INTO something (id, integerValue)"
-            + "\n VALUES (:id, :status)";
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule()
-            .withPlugin(new SqlObjectPlugin())
-            .withSomething();
+    private static final String INSERT_QUERY
+        = "INSERT INTO something (id, integerValue)"
+        + "\n VALUES (:id, :status)";
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testInsertClass() {
-        final Handle h = dbRule.openHandle();
+        final Handle h = h2Extension.openHandle();
         final StatusDao dao = h.attach(StatusDao.class);
 
         // test Argument
         int count = h.createUpdate(INSERT_QUERY)
-                .bind("id", 11)
-                .bind("status", StatusClass.ONLINE)
+            .bind("id", 11)
+            .bind("status", StatusClass.ONLINE)
                 .execute();
         assertThat(count).isEqualTo(1);
 
@@ -65,7 +65,7 @@ public class SqlObjectArgumentTest {
 
     @Test
     public void testInsertEnum() {
-        final Handle h = dbRule.openHandle();
+        final Handle h = h2Extension.openHandle();
         final StatusDao dao = h.attach(StatusDao.class);
 
         // test Argument

@@ -18,9 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -38,9 +36,11 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -51,35 +51,29 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class TestOnDemandSqlObject {
-    private Jdbi db;
-    private Handle metaHandle;
+
     private final HandleTracker tracker = new HandleTracker();
-    private JdbcDataSource ds;
 
-    @Before
-    public void setUp() {
-        ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
-        db = Jdbi.create(ds);
-        db.installPlugin(new SqlObjectPlugin());
-        metaHandle = db.open();
-        metaHandle.execute("create table something (id int primary key, name varchar(100))");
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
-        db.installPlugin(tracker);
-    }
+    private Jdbi jdbi;
 
-    @After
-    public void tearDown() {
-        metaHandle.close();
+    @BeforeEach
+    public void setUp() throws Exception {
+        jdbi = h2Extension.getJdbi();
+        // do not pull into the extension clause, otherwise the shared handle counts!
+        jdbi.installPlugin(tracker);
+        assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
     @Test
     public void testAPIWorks() {
-        Spiffy s = db.onDemand(Spiffy.class);
+        Spiffy s = jdbi.onDemand(Spiffy.class);
 
         s.insert(7, "Bill");
 
-        String bill = db.open().createQuery("select name from something where id = 7").mapTo(String.class).one();
+        String bill = jdbi.open().createQuery("select name from something where id = 7").mapTo(String.class).one();
 
         assertThat(bill).isEqualTo("Bill");
     }
@@ -95,15 +89,15 @@ public class TestOnDemandSqlObject {
                 return spyHandle;
             }
         };
-        db.installPlugin(plugin);
+        jdbi.installPlugin(plugin);
 
-        Spiffy s = db.onDemand(Spiffy.class);
+        Spiffy s = jdbi.onDemand(Spiffy.class);
         assertThatThrownBy(() -> s.insert(1, "Tom")).isInstanceOf(TransactionException.class);
     }
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        Spiffy s = db.onDemand(Spiffy.class);
+        Spiffy s = jdbi.onDemand(Spiffy.class);
         assertThatExceptionOfType(JdbiException.class).isThrownBy(s::crashNow);
 
         assertThat(tracker.hasOpenedHandle()).isFalse();
@@ -111,7 +105,7 @@ public class TestOnDemandSqlObject {
 
     @Test
     public void testIteratorClosedOnReadError() throws Exception {
-        Spiffy spiffy = db.onDemand(Spiffy.class);
+        Spiffy spiffy = jdbi.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         Iterator<Something> i = spiffy.crashOnFirstRead();
@@ -122,7 +116,7 @@ public class TestOnDemandSqlObject {
 
     @Test
     public void testIteratorClosedIfEmpty() throws Exception {
-        Spiffy spiffy = db.onDemand(Spiffy.class);
+        Spiffy spiffy = jdbi.onDemand(Spiffy.class);
 
         spiffy.findAll();
 
@@ -131,7 +125,7 @@ public class TestOnDemandSqlObject {
 
     @Test
     public void testIteratorPrepatureClose() throws Exception {
-        Spiffy spiffy = db.onDemand(Spiffy.class);
+        Spiffy spiffy = jdbi.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         try (ResultIterator<Something> all = spiffy.findAll()) {
@@ -143,8 +137,8 @@ public class TestOnDemandSqlObject {
 
     @Test
     public void testSqlFromExternalFileWorks() {
-        Spiffy spiffy = db.onDemand(Spiffy.class);
-        ExternalSql external = db.onDemand(ExternalSql.class);
+        Spiffy spiffy = jdbi.onDemand(Spiffy.class);
+        ExternalSql external = jdbi.onDemand(ExternalSql.class);
 
         spiffy.insert(1, "Tom");
         spiffy.insert(2, "Sam");

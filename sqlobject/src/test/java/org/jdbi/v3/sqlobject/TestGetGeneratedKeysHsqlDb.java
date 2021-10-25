@@ -22,8 +22,8 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ public class TestGetGeneratedKeysHsqlDb {
 
     private Jdbi db;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
                 .installPlugin(new SqlObjectPlugin());

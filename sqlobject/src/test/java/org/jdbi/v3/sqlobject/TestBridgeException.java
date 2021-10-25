@@ -14,27 +14,27 @@
 package org.jdbi.v3.sqlobject;
 
 import org.assertj.core.api.Assertions;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class TestBridgeException {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        this.dbRule.getSharedHandle().execute("CREATE TABLE uniq (id INTEGER PRIMARY KEY)");
+        this.h2Extension.getSharedHandle().execute("CREATE TABLE uniq (id INTEGER PRIMARY KEY)");
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testBridgeExceptionPassthru() {
-        final ExceptionalBridge dao = this.dbRule.getSharedHandle().attach(ExceptionallyTypedBridge.class);
+        final ExceptionalBridge dao = this.h2Extension.getSharedHandle().attach(ExceptionallyTypedBridge.class);
         final Object arg = 3;
         Assertions.assertThatThrownBy(() -> {
             for (int i = 0; i < 2; i++) {

@@ -19,7 +19,6 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.KeyColumn;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.config.ValueColumn;
@@ -27,23 +26,25 @@ import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestReturningMap {
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins();
 
     private Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
     }
 
     @Test

@@ -24,6 +24,10 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+/**
+ * SQLite Test Support for core tests. Do NOT use this outside the core tests (or tests that use core tests), use the JdbiExtension from the
+ * jdbi3-testing module instead!
+ */
 public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDatabaseExtension>, BeforeEachCallback, AfterEachCallback {
 
     private static final DatabaseInitializer SOMETHING_INITIALIZER =

@@ -15,11 +15,10 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.extension.ExtensionCallback
 import org.jdbi.v3.core.extension.ExtensionConsumer
-import org.jdbi.v3.core.junit5.DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension
-import org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
+import org.jdbi.v3.testing.junit5.JdbiExtension
+import org.jdbi.v3.testing.junit5.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -28,7 +27,7 @@ import kotlin.test.assertEquals
 class KotlinPluginTest {
     @RegisterExtension
     @JvmField
-    val h2Extension: H2DatabaseExtension = H2DatabaseExtension.withPlugins().withInitializer(SOMETHING_INITIALIZER);
+    val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
 
     data class Thing(val id: Int, val name: String,
                      val nullable: String?,

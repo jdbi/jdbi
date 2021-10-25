@@ -20,19 +20,20 @@ import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.sqlobject.config.UseEnumStrategy;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.JdbiRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlObjectEnumQualifierTest {
-    @Rule
-    public JdbiRule db = JdbiRule.sqlite().withPlugin(new SqlObjectPlugin());
+
+    @RegisterExtension
+    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void byOrdinalOverridesDefaultInBindingAndMapping() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.execute("create table enums(ordinal int)");
 
             FooByOrdinalDao dao = h.attach(FooByOrdinalDao.class);
@@ -47,7 +48,7 @@ public class SqlObjectEnumQualifierTest {
 
     @Test
     public void byNameOverridesDefaultInBindingAndMapping() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
 
             h.execute("create table enums(name varchar)");
@@ -64,7 +65,7 @@ public class SqlObjectEnumQualifierTest {
 
     @Test
     public void useEnumStrategyOrdinalAnnotation() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_NAME); // dao annotations will override
 
             h.execute("create table enums(ordinal int)");
@@ -81,7 +82,7 @@ public class SqlObjectEnumQualifierTest {
 
     @Test
     public void useEnumStrategyNameAnnotation() {
-        db.getJdbi().useHandle(h -> {
+        sqliteExtension.getJdbi().useHandle(h -> {
             h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL); // dao annotations will override
 
             h.execute("create table enums(name varchar)");

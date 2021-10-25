@@ -25,32 +25,36 @@ import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
-import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.guice.util.GuiceTestSupport;
 import org.jdbi.v3.guice.util.MyString;
 import org.jdbi.v3.guice.util.MyString.MyStringColumnMapper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestJdbiModule {
 
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
+    @RegisterExtension
+    public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
+        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+            "DROP TABLE IF EXISTS arrays",
+            "CREATE TABLE arrays (u UUID, i INT[])"
+        )).build();
 
     @Inject
     @Named("test")
     public Jdbi jdbi = null;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
         Annotation a = Names.named("test");
         Module testModule = new AbstractJdbiDefinitionModule(a) {
             @Override
@@ -61,21 +65,14 @@ public class TestJdbiModule {
             }
         };
 
+        DataSource ds = pg.createDataSource();
         Injector inj = GuiceTestSupport.createTestInjector(
-            binder -> binder.bind(DataSource.class).annotatedWith(a).toInstance(pg.getEmbeddedPostgres().getPostgresDatabase()),
+            binder -> binder.bind(DataSource.class).annotatedWith(a).toInstance(ds),
             testModule);
 
         inj.injectMembers(this);
 
         assertNotNull(jdbi);
-        createDb();
-    }
-
-    private void createDb() {
-        GuiceTestSupport.executeSql(pg.getEmbeddedPostgres().getPostgresDatabase(),
-            "DROP TABLE IF EXISTS arrays",
-            "CREATE TABLE arrays (u UUID, i INT[])"
-        );
     }
 
     @Test

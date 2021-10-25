@@ -15,25 +15,20 @@ package org.jdbi.v3.spring5;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestPluginInstall.Config.class)
 public class TestPluginInstall {
-    @ClassRule
-    public static final SpringClassRule SPRING_RULE = new SpringClassRule();
-    @Rule
-    public final SpringMethodRule springRule = new SpringMethodRule();
 
     @Autowired
     private Config config;
@@ -49,6 +44,7 @@ public class TestPluginInstall {
 
     @Configuration
     public static class Config {
+
         boolean pluginACalled, pluginBCalled;
 
         @Bean

@@ -17,27 +17,27 @@ import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestGuavaCollectors {
 
-    @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     Handle h;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        h = dbRule.getSharedHandle();
+        h = h2Extension.getSharedHandle();
         h.execute("create table users (id int, name varchar)");
         h.execute("insert into users (id, name) values (?, ?)", 1, "Alice");
         h.execute("insert into users (id, name) values (?, ?)", 2, "Bob");
