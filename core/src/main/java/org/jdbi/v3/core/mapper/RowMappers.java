@@ -69,6 +69,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * <p>
      * The parameter must be concretely parameterized, we use the type argument T to
      * determine if it applies to a given type.
+     * <p>
+     * {@link java.lang.Object} is not supported as a concrete parameter type.
      *
      * @param mapper the row mapper
      * @return this
