@@ -13,19 +13,6 @@
  */
 package org.jdbi.v3.core.kotlin
 
-import org.jdbi.v3.core.mapper.Nested
-import org.jdbi.v3.core.mapper.RowMapper
-import org.jdbi.v3.core.mapper.ColumnMapper
-import org.jdbi.v3.core.mapper.SingleColumnMapper
-import org.jdbi.v3.core.mapper.reflect.ColumnName
-import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
-import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
-import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix
-import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex
-import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames
-import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
-import org.jdbi.v3.core.qualifier.QualifiedType
-import org.jdbi.v3.core.statement.StatementContext
 import java.sql.ResultSet
 import java.util.Optional
 import java.util.OptionalInt
@@ -41,17 +28,25 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
+import org.jdbi.v3.core.mapper.ColumnMapper
+import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.PropagateNull
+import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.SingleColumnMapper
+import org.jdbi.v3.core.mapper.reflect.ColumnName
+import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex
+import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames
+import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper
-import java.lang.reflect.AnnotatedElement
-import java.sql.Statement
-import kotlin.reflect.KAnnotatedElement
-import java.util.Arrays
+import org.jdbi.v3.core.qualifier.QualifiedType
+import org.jdbi.v3.core.statement.StatementContext
 
 private val nullValueRowMapper = RowMapper<Any?> { _, _ -> null }
 
-class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper<Any> {
-    private val kClass: KClass<*> = clazz.kotlin
+class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : RowMapper<Any> {
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
     private val memberProperties = kClass.memberProperties
@@ -62,6 +57,9 @@ class KotlinMapper(clazz: Class<*>, private val prefix: String = "") : RowMapper
 
     private val nestedMappers = ConcurrentHashMap<KParameter, KotlinMapper>()
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
+
+    constructor(clazz: Class<*>, prefix: String = "") : this(clazz.kotlin, prefix)
+
 
     override fun map(rs: ResultSet, ctx: StatementContext): Any? {
         return specialize(rs, ctx).map(rs, ctx)

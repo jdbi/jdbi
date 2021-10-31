@@ -20,6 +20,15 @@ import org.jdbi.v3.core.mapper.RowMapperFactory
 import java.lang.reflect.Type
 import java.util.*
 
+/**
+ * This {@link RowMapperFactory} creates a new, generic {@link KotlinMapper} for every data class
+ * used. By installing this factory, any Kotlin data class will have an automatic, implicit row mapper.
+ *
+ * While this sounds attractive, it does not support prefix mapping which leads to problems in more complex
+ * scenarios.
+ *
+ * In general, registering explicit mappers using {@link Handle#registerRowMapper} is much preferred.
+ */
 class KotlinMapperFactory : RowMapperFactory {
 
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {

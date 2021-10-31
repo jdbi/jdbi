@@ -14,11 +14,28 @@
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.mapper.RowMappers
 import org.jdbi.v3.core.spi.JdbiPlugin
 
-class KotlinPlugin : JdbiPlugin {
+/**
+ * Installs Kotlin specific functionality.
+ *
+ * <ul>
+ *     <li>Kotlin inference interceptor that handles the {@link KotlinMapper} for registered types</li>
+ *     <li>Kotlin mapper factory that creates implicit mappers for any data class</li>
+ * <ul>
+ *
+ *     @property installKotlinMapperFactory If true, install the {@link KotlinMapperFactory}.
+ */
+class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true) : JdbiPlugin {
 
     override fun customizeJdbi(jdbi: Jdbi) {
-        jdbi.registerRowMapper(KotlinMapperFactory())
+        jdbi.configure(RowMappers::class.java) {
+            it.interceptorChain.addFirst(KotlinRowMapperInterceptor())
+        }
+
+        if (installKotlinMapperFactory) {
+            jdbi.registerRowMapper(KotlinMapperFactory())
+        }
     }
 }
