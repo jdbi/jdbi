@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.inference.JdbiInterceptorChain;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
@@ -30,8 +31,12 @@ import org.jdbi.v3.core.statement.Query;
  * Configuration registry for {@link RowMapperFactory} instances.
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
+
+    private final JdbiInterceptorChain<RowMapper<?>, RowMapperFactory> inferenceInterceptors = new JdbiInterceptorChain<>(InferredRowMapperFactory::new);
+
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
+
     private ConfigRegistry registry;
 
     public RowMappers() {
@@ -42,11 +47,20 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private RowMappers(RowMappers that) {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
+        inferenceInterceptors.copy(that.inferenceInterceptors);
     }
 
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
+    }
+
+    /**
+     * Returns the {@link JdbiInterceptorChain} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
+     * inference for the {@link RowMappers#register(RowMapper)} method.
+     */
+    public JdbiInterceptorChain<RowMapper<?>, RowMapperFactory> getInterceptorChain() {
+        return inferenceInterceptors;
     }
 
     /**
@@ -61,7 +75,9 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
     public RowMappers register(RowMapper<?> mapper) {
-        return this.register(new InferredRowMapperFactory(mapper));
+        RowMapperFactory factory = inferenceInterceptors.process(mapper);
+
+        return this.register(factory);
     }
 
     /**

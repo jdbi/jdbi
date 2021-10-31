@@ -24,6 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.inference.JdbiInterceptorChain;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
@@ -31,8 +32,13 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
  * Configuration registry for {@link ColumnMapperFactory} instances.
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
+
+    private final JdbiInterceptorChain<ColumnMapper<?>, QualifiedColumnMapperFactory> inferenceInterceptors =
+        new JdbiInterceptorChain<>(InferredColumnMapperFactory::new);
+
     private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache = new ConcurrentHashMap<>();
+
     private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
 
@@ -54,9 +60,18 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         this.registry = registry;
     }
 
+    /**
+     * Returns the {@link JdbiInterceptorChain} for the ColumnMapper inference. This chain allows registration of custom interceptors to change the standard
+     * type inference for the {@link ColumnMappers#register(ColumnMapper)} method.
+     */
+    public JdbiInterceptorChain<ColumnMapper<?>, QualifiedColumnMapperFactory> getInterceptorChain() {
+        return inferenceInterceptors;
+    }
+
     private ColumnMappers(ColumnMappers that) {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
+        inferenceInterceptors.copy(that.inferenceInterceptors);
         coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
 
@@ -72,7 +87,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      */
     public ColumnMappers register(ColumnMapper<?> mapper) {
-        return this.register(new InferredColumnMapperFactory(mapper));
+        QualifiedColumnMapperFactory factory = inferenceInterceptors.process(mapper);
+
+        return this.register(factory);
     }
 
     /**

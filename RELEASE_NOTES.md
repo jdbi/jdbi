@@ -1,6 +1,7 @@
-# 3.24.0
+# Unreleased
   - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
   - Add JUnit 5 support to the testing package.
+  - Add interceptors for type inference for Row Mappers, Column Mappers and SQL Array types
 
 # 3.23.0
   - Rework and document importing bindings in guice definition modules
