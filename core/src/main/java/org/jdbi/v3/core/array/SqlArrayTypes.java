@@ -23,7 +23,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.enums.internal.EnumSqlArrayTypeFactory;
-import org.jdbi.v3.core.inference.JdbiInterceptorChain;
+import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
@@ -31,8 +31,8 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
-    private final JdbiInterceptorChain<SqlArrayType<?>, SqlArrayTypeFactory> inferenceInterceptors = new JdbiInterceptorChain<>(
-        InferredSqlArrayTypeFactory::new);
+    private final JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> inferenceInterceptors =
+        new JdbiInterceptionChainHolder<>(InferredSqlArrayTypeFactory::new);
 
     private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
     private SqlArrayArgumentStrategy argumentStrategy;
@@ -142,10 +142,10 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     }
 
     /**
-     * Returns the {@link JdbiInterceptorChain} for the SqlArrayType inference. This chain allows registration of custom interceptors to change the standard
+     * Returns the {@link JdbiInterceptionChainHolder} for the SqlArrayType inference. This chain allows registration of custom interceptors to change the standard
      * type inference for the {@link SqlArrayTypes#register(SqlArrayType)} method.
      */
-    public JdbiInterceptorChain<SqlArrayType<?>, SqlArrayTypeFactory> getInterceptorChain() {
+    public JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> getInterceptorChain() {
         return inferenceInterceptors;
     }
 

@@ -13,16 +13,18 @@
  */
 package org.jdbi.v3.core.kotlin
 
-import org.jdbi.v3.core.inference.JdbiInterceptor
+import org.jdbi.v3.core.interceptor.JdbiInterceptionChain
+import org.jdbi.v3.core.interceptor.JdbiInterceptor
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.mapper.RowMapperFactory
 
 class KotlinRowMapperInterceptor : JdbiInterceptor<RowMapper<*>, RowMapperFactory> {
 
-    override fun intercept(source: RowMapper<*>?): RowMapperFactory {
-        requireNotNull(source) { "source is null" }
-        return RowMapperFactory.of((source as KotlinMapper).kClass.java, source)
+    override fun intercept(source: RowMapper<*>?, chain: JdbiInterceptionChain<RowMapper<*>, RowMapperFactory>): RowMapperFactory {
+        return if (source is KotlinMapper) {
+            RowMapperFactory.of(source.kClass.java, source)
+        } else {
+            chain.next()
+        }
     }
-
-    override fun accept(source: RowMapper<*>?): Boolean = source is KotlinMapper
 }

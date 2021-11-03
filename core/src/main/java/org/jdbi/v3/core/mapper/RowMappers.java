@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.inference.JdbiInterceptorChain;
+import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
@@ -32,7 +32,8 @@ import org.jdbi.v3.core.statement.Query;
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
 
-    private final JdbiInterceptorChain<RowMapper<?>, RowMapperFactory> inferenceInterceptors = new JdbiInterceptorChain<>(InferredRowMapperFactory::new);
+    private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors =
+        new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
 
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
@@ -56,10 +57,10 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     }
 
     /**
-     * Returns the {@link JdbiInterceptorChain} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
+     * Returns the {@link JdbiInterceptionChainHolder} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
      * inference for the {@link RowMappers#register(RowMapper)} method.
      */
-    public JdbiInterceptorChain<RowMapper<?>, RowMapperFactory> getInterceptorChain() {
+    public JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> getInterceptorChain() {
         return inferenceInterceptors;
     }
 

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.inference;
+package org.jdbi.v3.core.interceptor;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -26,21 +26,28 @@ import javax.annotation.Nullable;
 public interface JdbiInterceptor<S, T> {
 
     /**
-     * Intercept the source type and return the destination type.
+     * Process a given source object.
+     * <ul>
+     *     <li>If the interceptor wants to process the object, return the result directly.</li>
+     *     <li>If the interceptor passes on processing, it must return {@link JdbiInterceptionChain#next()}</li>
+     * </ul>
+     *
+     * <pre>{@code
+     *  class SomeInterceptor implements JdbiInterceptor<Foo, Bar> {
+     *      @Override
+     *      public Bar intercept(Foo source, JdbiInterceptionChain<Foo, Bar> chain) {
+     *          if (source != null && source.isBarCompatible()) {
+     *              return new Bar(source);
+     *          } else {
+     *              return chain.next();
+     *          }
+     *      }
+     *  }
+     * }</pre>
      *
      * @param source A source object.
      * @return The destination type.
      */
     @CheckForNull
-    T intercept(@Nullable S source);
-
-    /**
-     * Returns true if this interceptor can handle the source object.
-     *
-     * @param source A source object.
-     * @return True when the interceptor can handle the source object.
-     */
-    default boolean accept(@Nullable S source) {
-        return true;
-    }
+    T intercept(@Nullable S source, JdbiInterceptionChain<S, T> chain);
 }
