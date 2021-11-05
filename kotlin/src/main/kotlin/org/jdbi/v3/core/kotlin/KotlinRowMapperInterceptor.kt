@@ -18,7 +18,7 @@ import org.jdbi.v3.core.interceptor.JdbiInterceptor
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.mapper.RowMapperFactory
 
-class KotlinRowMapperInterceptor : JdbiInterceptor<RowMapper<*>, RowMapperFactory> {
+internal class KotlinRowMapperInterceptor : JdbiInterceptor<RowMapper<*>, RowMapperFactory> {
 
     override fun intercept(source: RowMapper<*>?, chain: JdbiInterceptionChain<RowMapper<*>, RowMapperFactory>): RowMapperFactory {
         return if (source is KotlinMapper) {

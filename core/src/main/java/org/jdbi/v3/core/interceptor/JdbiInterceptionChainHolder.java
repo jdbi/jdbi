@@ -21,6 +21,8 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jdbi.v3.meta.Alpha;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -29,6 +31,7 @@ import static java.util.Objects.requireNonNull;
  * @param <S> The source type.
  * @param <T> The target type.
  */
+@Alpha
 public final class JdbiInterceptionChainHolder<S, T> {
 
     private static final Function<?, ?> DEFAULT_TRANSFORMER = source -> {

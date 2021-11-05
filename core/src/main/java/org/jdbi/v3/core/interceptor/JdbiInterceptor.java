@@ -16,12 +16,15 @@ package org.jdbi.v3.core.interceptor;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import org.jdbi.v3.meta.Alpha;
+
 /**
  * Generic interface to allow transformation operation interception. Used to manage the various inferred data types that may need special treatment.
  *
  * @param <S> A generic source type.
  * @param <T> A generic destination type.
  */
+@Alpha
 @FunctionalInterface
 public interface JdbiInterceptor<S, T> {
 
