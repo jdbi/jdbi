@@ -22,16 +22,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.meta.Alpha;
 
 /**
  * Configuration registry for {@link RowMapperFactory} instances.
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
+
+    private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors =
+        new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
+
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
+
     private ConfigRegistry registry;
 
     public RowMappers() {
@@ -42,6 +49,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private RowMappers(RowMappers that) {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
+        inferenceInterceptors.copy(that.inferenceInterceptors);
     }
 
     @Override
@@ -50,18 +58,31 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     }
 
     /**
+     * Returns the {@link JdbiInterceptionChainHolder} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
+     * inference for the {@link RowMappers#register(RowMapper)} method.
+     */
+    @Alpha
+    public JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> getInferenceInterceptors() {
+        return inferenceInterceptors;
+    }
+
+    /**
      * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      * <p>
      * The parameter must be concretely parameterized, we use the type argument T to
      * determine if it applies to a given type.
+     * <p>
+     * {@link java.lang.Object} is not supported as a concrete parameter type.
      *
      * @param mapper the row mapper
      * @return this
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
     public RowMappers register(RowMapper<?> mapper) {
-        return this.register(new InferredRowMapperFactory(mapper));
+        RowMapperFactory factory = inferenceInterceptors.process(mapper);
+
+        return this.register(factory);
     }
 
     /**

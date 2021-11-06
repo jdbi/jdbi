@@ -32,9 +32,15 @@ class InferredRowMapperFactory implements RowMapperFactory {
     private final RowMapper<?> mapper;
 
     InferredRowMapperFactory(RowMapper<?> mapper) {
-        this.maps = findGenericParameter(mapper.getClass(), RowMapper.class)
-                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));
+        this.maps = detectType(mapper)
+            .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));
         this.mapper = mapper;
+    }
+
+    static Optional<Type> detectType(RowMapper<?> mapper) {
+        Optional<Type> type = findGenericParameter(mapper.getClass(), RowMapper.class);
+
+        return type.filter(t -> t != Object.class);
     }
 
     @Override

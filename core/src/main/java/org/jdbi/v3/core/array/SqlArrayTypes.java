@@ -23,14 +23,21 @@ import java.util.function.Function;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.enums.internal.EnumSqlArrayTypeFactory;
+import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.meta.Alpha;
 
 /**
  * Configuration class for SQL array binding and mapping.
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
+
+    private final JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> inferenceInterceptors =
+        new JdbiInterceptionChainHolder<>(InferredSqlArrayTypeFactory::new);
+
     private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
     private SqlArrayArgumentStrategy argumentStrategy;
+
     private ConfigRegistry registry;
 
     public SqlArrayTypes() {
@@ -56,6 +63,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     private SqlArrayTypes(SqlArrayTypes that) {
         factories.addAll(that.factories);
         argumentStrategy = that.argumentStrategy;
+        inferenceInterceptors.copy(that.inferenceInterceptors);
     }
 
     /**
@@ -100,7 +108,9 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
      */
     public SqlArrayTypes register(SqlArrayType<?> arrayType) {
-        return register(new InferredSqlArrayTypeFactory(arrayType));
+        SqlArrayTypeFactory factory = inferenceInterceptors.process(arrayType);
+
+        return register(factory);
     }
 
     /**
@@ -130,6 +140,15 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     @Override
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
+    }
+
+    /**
+     * Returns the {@link JdbiInterceptionChainHolder} for the SqlArrayType inference. This chain allows registration of custom interceptors to change the standard
+     * type inference for the {@link SqlArrayTypes#register(SqlArrayType)} method.
+     */
+    @Alpha
+    public JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> getInferenceInterceptors() {
+        return inferenceInterceptors;
     }
 
     @Override
