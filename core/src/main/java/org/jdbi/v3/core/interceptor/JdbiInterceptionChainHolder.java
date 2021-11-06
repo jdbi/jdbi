@@ -36,7 +36,7 @@ public final class JdbiInterceptionChainHolder<S, T> {
 
     private static final Function<?, ?> DEFAULT_TRANSFORMER = source -> {
         if (source == null) {
-            throw new UnsupportedOperationException("null value is not supported!");
+            throw new UnsupportedOperationException("null value is not supported");
         } else {
             throw new UnsupportedOperationException("object type '" + source.getClass().getSimpleName() + "' is not supported");
         }

@@ -26,6 +26,7 @@ import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.meta.Alpha;
 
 /**
  * Configuration registry for {@link RowMapperFactory} instances.
@@ -60,7 +61,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * Returns the {@link JdbiInterceptionChainHolder} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
      * inference for the {@link RowMappers#register(RowMapper)} method.
      */
-    public JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> getInterceptorChain() {
+    @Alpha
+    public JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> getInferenceInterceptors() {
         return inferenceInterceptors;
     }
 

@@ -27,6 +27,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Alpha;
 
 /**
  * Configuration registry for {@link ColumnMapperFactory} instances.
@@ -64,7 +65,8 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Returns the {@link JdbiInterceptionChainHolder} for the ColumnMapper inference. This chain allows registration of custom interceptors to change the standard
      * type inference for the {@link ColumnMappers#register(ColumnMapper)} method.
      */
-    public JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> getInterceptorChain() {
+    @Alpha
+    public JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> getInferenceInterceptors() {
         return inferenceInterceptors;
     }
 
