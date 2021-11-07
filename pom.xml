@@ -86,8 +86,6 @@
 
         <dep.antlr.version>4.9.2</dep.antlr.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
-        <!-- required until https://github.com/checkstyle/checkstyle/issues/10355 is resolved -->
-        <dep.checkstyle.version>8.43</dep.checkstyle.version>
         <dep.dokka.version>1.5.31</dep.dokka.version>
         <dep.freebuilder.version>2.7.0</dep.freebuilder.version>
         <dep.hsqldb.version>2.6.0</dep.hsqldb.version>
