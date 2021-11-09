@@ -40,11 +40,13 @@ class KotlinPluginTest {
 
     // tag::dataClass[]
     data class IdAndName(val id: Int, val name: String)
-    data class Thing(@Nested val idAndName: IdAndName,
-                     val nullable: String?,
-                     val nullableDefaultedNull: String? = null,
-                     val nullableDefaultedNotNull: String? = "not null",
-                     val defaulted: String = "default value")
+    data class Thing(
+        @Nested val idAndName: IdAndName,
+        val nullable: String?,
+        val nullableDefaultedNull: String? = null,
+        val nullableDefaultedNotNull: String? = "not null",
+        val defaulted: String = "default value"
+    )
     // end::dataClass[]
 
     // tag::sqlObject[]
@@ -56,7 +58,6 @@ class KotlinPluginTest {
         fun list(): List<Thing>
     }
     // end::sqlObject[]
-
 
     val brian = Thing(IdAndName(1, "Brian"), null)
     val keith = Thing(IdAndName(2, "Keith"), null)
@@ -84,15 +85,12 @@ class KotlinPluginTest {
     }
     // end::testQuery[]
 
-
     @Test
     fun testFindAll() {
-
         val qryAll = h2Extension.sharedHandle.createQuery("select id, name from something")
         qryAll.mapTo<Thing>().useSequence {
             assertEquals(keith, it.drop(1).first())
         }
-
     }
 
     // tag::testDao[]
@@ -105,8 +103,6 @@ class KotlinPluginTest {
         assertEquals(2, rs.size.toLong())
         assertEquals(brian, rs[0])
         assertEquals(keith, rs[1])
-
     }
     // end::testDao[]
-
 }

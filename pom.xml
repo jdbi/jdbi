@@ -95,11 +95,19 @@
         <dep.junit5.version>5.8.1</dep.junit5.version>
         <dep.kotlin.version>1.5.31</dep.kotlin.version>
         <dep.mockito.version>3.11.2</dep.mockito.version>
+        <dep.plugin.detekt.version>1.18.1.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
+        <dep.plugin.ktlint.version>1.11.0</dep.plugin.ktlint.version>
         <dep.plugin.scm-publish.version>3.1.0</dep.plugin.scm-publish.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.31</dep.slf4j.version>
         <dep.spring.version>5.3.8</dep.spring.version>
+        <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
+        <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
+        <jdbi.check.fail-ktlint>${jdbi.check.fail-kotlin}</jdbi.check.fail-ktlint>
+        <jdbi.check.skip-detekt>${jdbi.check.skip-kotlin}</jdbi.check.skip-detekt>
+        <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
+        <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
@@ -652,6 +660,10 @@
                     <groupId>org.jetbrains.kotlin</groupId>
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <version>${dep.kotlin.version}</version>
+                    <configuration>
+                        <!-- remove the '1.' once we move past JDK8 compatibility -->
+                        <jvmTarget>1.${project.build.targetJdk}</jvmTarget>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.asciidoctor</groupId>
@@ -670,6 +682,38 @@
                         <nrOfIndentSpace>4</nrOfIndentSpace>
                         <sortDependencies>scope</sortDependencies>
                         <sortProperties>true</sortProperties>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.github.gantsign.maven</groupId>
+                    <artifactId>ktlint-maven-plugin</artifactId>
+                    <version>${dep.plugin.ktlint.version}</version>
+                    <configuration>
+                        <failOnViolation>${jdbi.check.fail-ktlint}</failOnViolation>
+                        <skip>${jdbi.check.skip-ktlint}</skip>
+                        <verbose>false</verbose>
+                        <experimental>false</experimental>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.ozsie</groupId>
+                    <artifactId>detekt-maven-plugin</artifactId>
+                    <version>${dep.plugin.detekt.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jdbi</groupId>
+                            <artifactId>jdbi3-policy</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+
+                    <configuration>
+                        <skip>${jdbi.check.skip-detekt}</skip>
+                        <!-- remove the '1.' once we move past JDK8 compatibility -->
+                        <jvmTarget>1.${project.build.targetJdk}</jvmTarget>
+                        <failBuildOnMaxIssuesReached>${jdbi.check.fail-detekt}</failBuildOnMaxIssuesReached>
+                        <configResource>policy/detekt.yml</configResource>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -884,6 +928,163 @@
                 <dep.caffeine.version>2.9.2</dep.caffeine.version>
                 <dep.hsqldb.version>2.5.2</dep.hsqldb.version>
             </properties>
+        </profile>
+        <profile>
+            <id>kotlin</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/kotlin</exists>
+                </file>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>kotlin</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.basedir}/src/main/kotlin</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>test-kotlin</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.basedir}/src/test/kotlin</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>compile</id>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+
+                            <execution>
+                                <id>test-compile</id>
+                                <goals>
+                                    <goal>test-compile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <!-- replace default compilations, to ensure kotlin runs before java -->
+                            <execution>
+                                <id>default-compile</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>none</phase>
+                            </execution>
+                            <!-- add new compilation executions for java -->
+                            <execution>
+                                <id>java-compile</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>java-test-compile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                    <goal>dokka</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.github.gantsign.maven</groupId>
+                        <artifactId>ktlint-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.ozsie</groupId>
+                        <artifactId>detekt-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-reflect</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-test</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

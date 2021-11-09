@@ -28,5 +28,5 @@ annotation class BindKotlin(
      *
      * @return the prefix
      */
-    val value:String = ""
+    val value: String = ""
 )

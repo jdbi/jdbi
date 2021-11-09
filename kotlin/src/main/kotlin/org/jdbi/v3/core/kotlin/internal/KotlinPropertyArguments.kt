@@ -18,45 +18,45 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder
 import org.jdbi.v3.core.argument.internal.TypedValue
 import org.jdbi.v3.core.kotlin.getQualifiers
-import org.jdbi.v3.core.statement.StatementContext
 import org.jdbi.v3.core.qualifier.QualifiedType
-import java.util.*
+import org.jdbi.v3.core.statement.StatementContext
+import java.util.Optional
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
-import java.util.function.UnaryOperator
 
-class KotlinPropertyArguments(obj: Any,
-                              prefix: String = "") : ObjectPropertyNamedArgumentFinder(prefix, obj) {
+class KotlinPropertyArguments(
+    obj: Any,
+    prefix: String = ""
+) : ObjectPropertyNamedArgumentFinder(prefix, obj) {
 
     private val kClass: KClass<*> = obj.javaClass.kotlin
     private val properties = kClass.memberProperties
         .associateBy { it.name }
 
-    override fun getNames(): Collection<String> {
-        return properties.keys;
-    }
+    override fun getNames(): Collection<String> = properties.keys
 
     override fun getValue(name: String, ctx: StatementContext): Optional<TypedValue> {
         val property: KProperty1<*, *> = properties[name] ?: return Optional.empty()
         val mutableProperty = property as? KMutableProperty1
         val type = QualifiedType.of(property.returnType.javaType)
-            .withAnnotations(getQualifiers(
-                kClass.primaryConstructor?.parameters?.find { it.name == name },
-                property,
-                property.getter,
-                mutableProperty?.setter,
-                mutableProperty?.setter?.parameters?.getOrNull(0)))
+            .withAnnotations(
+                getQualifiers(
+                    kClass.primaryConstructor?.parameters?.find { it.name == name },
+                    property,
+                    property.getter,
+                    mutableProperty?.setter,
+                    mutableProperty?.setter?.parameters?.getOrNull(0)
+                )
+            )
         val value = property.getter.call(obj)
         return Optional.of(TypedValue(type, value))
     }
 
-    override fun getNestedArgumentFinder(obj: TypedValue): NamedArgumentFinder {
-        return KotlinPropertyArguments(obj.getValue())
-    }
+    override fun getNestedArgumentFinder(obj: TypedValue): NamedArgumentFinder = KotlinPropertyArguments(obj.value)
 
     override fun toString() = obj.toString()
 }

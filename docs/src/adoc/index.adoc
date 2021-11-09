@@ -17,6 +17,7 @@
 
 :projecthome: https://github.com/jdbi/jdbi
 :exampledir: ../test/java/jdbi/doc
+:kotlinexampledir: ../test/kotlin/jdbi/doc
 :exampleresourcedir: ../test/resources
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
@@ -5121,7 +5122,7 @@ An example from the test class:
 
 [source,kotlin,indent=0]
 ----
-include::{exampledir}/KotlinPluginTest.kt[tags=dataClass;testQuery]
+include::{kotlinexampledir}/KotlinPluginTest.kt[tags=dataClass;testQuery]
 ----
 
 There are two extensions to help:
@@ -5178,7 +5179,7 @@ An example from the test class:
 
 [source,kotlin,indent=0]
 ----
-include::{exampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
+include::{kotlinexampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
 
 === Lombok

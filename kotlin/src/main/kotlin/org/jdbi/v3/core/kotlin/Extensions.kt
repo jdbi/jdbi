@@ -26,15 +26,11 @@ import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
-private val metadataFqName = "kotlin.Metadata"
+private const val METADATA_FQ_NAME = "kotlin.Metadata"
 
-fun Class<*>.isKotlinClass(): Boolean {
-    return this.annotations.singleOrNull { it.annotationClass.java.name == metadataFqName } != null
-}
+fun Class<*>.isKotlinClass() = this.annotations.singleOrNull { it.annotationClass.java.name == METADATA_FQ_NAME } != null
 
-inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> {
-    return this.mapTo(T::class.java)
-}
+inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> = this.mapTo(T::class.java)
 
 inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit) {
     this.iterator().use {
@@ -43,14 +39,10 @@ inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit)
 }
 
 @Beta
-fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj: Any): This {
-    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, name))
-}
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj: Any): This = this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, name))
 
 @Beta
-fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This {
-    return this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
-}
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This = this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 
 /**
  * A convenience method which opens an extension of the given type, yields it to a callback, and returns the result
@@ -66,9 +58,8 @@ fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This {
  * is registered which supports the given extension type.
  * @throws X                        if thrown by the callback.
  */
-fun <E : Any, R, X : Exception> Jdbi.withExtension(extensionType: KClass<E>, callback: ExtensionCallback<R, E, X>): R {
-    return withExtension(extensionType.java, callback)
-}
+fun <E : Any, R, X : Exception> Jdbi.withExtension(extensionType: KClass<E>, callback: ExtensionCallback<R, E, X>): R =
+    withExtension(extensionType.java, callback)
 
 /**
  * A convenience method which opens an extension of the given type, and yields it to a callback. A handle is opened

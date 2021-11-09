@@ -49,9 +49,11 @@ class KotlinQualifierTest {
             .bindKotlin(DataClassQualifiedConstructorParam(1, "abc"))
             .execute()
 
-        assertThat(handle.select("select name from something")
-            .mapTo<String>()
-            .one())
+        assertThat(
+            handle.select("select name from something")
+                .mapTo<String>()
+                .one()
+        )
             .isEqualTo("cba")
     }
 
@@ -59,14 +61,18 @@ class KotlinQualifierTest {
     fun mapDataClassWithQualifiedConstructorParam() {
         handle.execute("insert into something (id, name) values (1, 'abc')")
 
-        assertThat(handle.select("select * from something")
-            .mapTo<DataClassQualifiedConstructorParam>()
-            .one())
+        assertThat(
+            handle.select("select * from something")
+                .mapTo<DataClassQualifiedConstructorParam>()
+                .one()
+        )
             .isEqualTo(DataClassQualifiedConstructorParam(1, "cba"))
     }
 
-    data class DataClassQualifiedConstructorParam(val id: Int,
-                                                  @Reversed val name: String)
+    data class DataClassQualifiedConstructorParam(
+        val id: Int,
+        @Reversed val name: String
+    )
 
     @Test
     fun bindDataClassWithQualifiedLateInitProperty() {
@@ -74,9 +80,11 @@ class KotlinQualifierTest {
             .bindKotlin(DataClassQualifiedLateInitProperty(1).also { it.name = "abc" })
             .execute()
 
-        assertThat(handle.select("select name from something")
-            .mapTo<String>()
-            .one())
+        assertThat(
+            handle.select("select name from something")
+                .mapTo<String>()
+                .one()
+        )
             .isEqualTo("cba")
     }
 
@@ -84,9 +92,11 @@ class KotlinQualifierTest {
     fun mapDataClassWithQualifiedLateInitProperty() {
         handle.execute("insert into something (id, name) values (1, 'abc')")
 
-        assertThat(handle.select("select * from something")
-            .mapTo<DataClassQualifiedLateInitProperty>()
-            .one())
+        assertThat(
+            handle.select("select * from something")
+                .mapTo<DataClassQualifiedLateInitProperty>()
+                .one()
+        )
             .isEqualTo(DataClassQualifiedLateInitProperty(1).also { it.name = "cba" })
     }
 
@@ -101,9 +111,11 @@ class KotlinQualifierTest {
             .bindKotlin(DataClassQualifiedVarProperty(1).also { it.name = "abc" })
             .execute()
 
-        assertThat(handle.select("select name from something")
-            .mapTo<String>()
-            .one())
+        assertThat(
+            handle.select("select name from something")
+                .mapTo<String>()
+                .one()
+        )
             .isEqualTo("cba")
     }
 
@@ -111,9 +123,11 @@ class KotlinQualifierTest {
     fun mapDataClassWithQualifiedVarProperty() {
         handle.execute("insert into something (id, name) values (1, 'abc')")
 
-        assertThat(handle.select("select * from something")
-            .mapTo<DataClassQualifiedVarProperty>()
-            .one())
+        assertThat(
+            handle.select("select * from something")
+                .mapTo<DataClassQualifiedVarProperty>()
+                .one()
+        )
             .isEqualTo(DataClassQualifiedVarProperty(1).also { it.name = "cba" })
     }
 

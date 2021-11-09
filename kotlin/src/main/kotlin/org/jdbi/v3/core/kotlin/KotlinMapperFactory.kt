@@ -18,7 +18,7 @@ import org.jdbi.v3.core.generic.GenericTypes.getErasedType
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.mapper.RowMapperFactory
 import java.lang.reflect.Type
-import java.util.*
+import java.util.Optional
 
 /**
  * This {@link RowMapperFactory} creates a new, generic {@link KotlinMapper} for every data class
@@ -34,7 +34,7 @@ class KotlinMapperFactory : RowMapperFactory {
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
         val erasedType = getErasedType(type)
 
-        //TODO: Validate if we should only handle 'data' classes with the Kotlin mapper
+        // TODO: Validate if we should only handle 'data' classes with the Kotlin mapper
         // Switching this might cause issues for users, might be better to do it for a major release
         // See https://github.com/jdbi/jdbi/issues/1218 for more info
         return if (erasedType.isKotlinClass() && !Enum::class.java.isAssignableFrom(erasedType)) {

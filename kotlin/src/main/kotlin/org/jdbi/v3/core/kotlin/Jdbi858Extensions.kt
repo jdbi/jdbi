@@ -39,9 +39,9 @@ import kotlin.reflect.KClass
  * @see [Jdbi.withHandle]
  */
 inline fun <R> Jdbi.withHandleUnchecked(crossinline block: (Handle) -> R): R {
-    return withHandle(HandleCallback<R, RuntimeException> { handle ->
-        block(handle)
-    })
+    return withHandle(
+        HandleCallback<R, RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -54,9 +54,9 @@ inline fun <R> Jdbi.withHandleUnchecked(crossinline block: (Handle) -> R): R {
  * @see [Jdbi.useHandle]
  */
 inline fun Jdbi.useHandleUnchecked(crossinline block: (Handle) -> Unit) {
-    useHandle(HandleConsumer<RuntimeException> { handle ->
-        block(handle)
-    })
+    useHandle(
+        HandleConsumer<RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -69,9 +69,9 @@ inline fun Jdbi.useHandleUnchecked(crossinline block: (Handle) -> Unit) {
  * @see [Jdbi.inTransaction]
  */
 inline fun <R> Jdbi.inTransactionUnchecked(crossinline block: (Handle) -> R): R {
-    return inTransaction(HandleCallback<R, RuntimeException> { handle ->
-        block(handle)
-    })
+    return inTransaction(
+        HandleCallback<R, RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -84,9 +84,9 @@ inline fun <R> Jdbi.inTransactionUnchecked(crossinline block: (Handle) -> R): R 
  * @see [Jdbi.useTransaction]
  */
 inline fun Jdbi.useTransactionUnchecked(crossinline block: (Handle) -> Unit) {
-    useTransaction(HandleConsumer<RuntimeException> { handle ->
-        block(handle)
-    })
+    useTransaction(
+        HandleConsumer<RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -99,9 +99,10 @@ inline fun Jdbi.useTransactionUnchecked(crossinline block: (Handle) -> Unit) {
  * @see [Jdbi.inTransaction]
  */
 inline fun <R> Jdbi.inTransactionUnchecked(level: TransactionIsolationLevel, crossinline block: (Handle) -> R): R {
-    return inTransaction(level, HandleCallback<R, RuntimeException> { handle ->
-        block(handle)
-    })
+    return inTransaction(
+        level,
+        HandleCallback<R, RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -114,9 +115,10 @@ inline fun <R> Jdbi.inTransactionUnchecked(level: TransactionIsolationLevel, cro
  * @see [Jdbi.useTransaction]
  */
 inline fun Jdbi.useTransactionUnchecked(level: TransactionIsolationLevel, crossinline block: (Handle) -> Unit) {
-    useTransaction(level, HandleConsumer<RuntimeException> { handle ->
-        block(handle)
-    })
+    useTransaction(
+        level,
+        HandleConsumer<RuntimeException> { handle -> block(handle) }
+    )
 }
 
 /**
@@ -129,9 +131,10 @@ inline fun Jdbi.useTransactionUnchecked(level: TransactionIsolationLevel, crossi
  * @see [Jdbi.withExtension]
  */
 inline fun <E, R> Jdbi.withExtensionUnchecked(extensionType: Class<E>, crossinline callback: (E) -> R): R {
-    return withExtension(extensionType, ExtensionCallback<R, E, RuntimeException> { dao ->
-        callback(dao)
-    })
+    return withExtension(
+        extensionType,
+        ExtensionCallback<R, E, RuntimeException> { dao -> callback(dao) }
+    )
 }
 
 /**
@@ -143,10 +146,11 @@ inline fun <E, R> Jdbi.withExtensionUnchecked(extensionType: Class<E>, crossinli
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
  * @see [Jdbi.withExtension]
  */
-inline fun <E: Any, R> Jdbi.withExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> R): R {
-    return withExtension(extensionType, ExtensionCallback<R, E, RuntimeException> { dao ->
-        callback(dao)
-    })
+inline fun <E : Any, R> Jdbi.withExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> R): R {
+    return withExtension(
+        extensionType,
+        ExtensionCallback<R, E, RuntimeException> { dao -> callback(dao) }
+    )
 }
 
 /**
@@ -159,9 +163,10 @@ inline fun <E: Any, R> Jdbi.withExtensionUnchecked(extensionType: KClass<E>, cro
  * @see [Jdbi.useExtension]
  */
 inline fun <E> Jdbi.useExtensionUnchecked(extensionType: Class<E>, crossinline callback: (E) -> Unit) {
-    useExtension(extensionType, ExtensionConsumer<E, RuntimeException> { dao ->
-        callback(dao)
-    })
+    useExtension(
+        extensionType,
+        ExtensionConsumer<E, RuntimeException> { dao -> callback(dao) }
+    )
 }
 
 /**
@@ -173,8 +178,9 @@ inline fun <E> Jdbi.useExtensionUnchecked(extensionType: Class<E>, crossinline c
  * @see <a href="https://youtrack.jetbrains.com/issue/KT-5464">Kotlin issue</a>
  * @see [Jdbi.useExtension]
  */
-inline fun <E: Any> Jdbi.useExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> Unit) {
-    useExtension(extensionType, ExtensionConsumer<E, RuntimeException> { dao ->
-        callback(dao)
-    })
+inline fun <E : Any> Jdbi.useExtensionUnchecked(extensionType: KClass<E>, crossinline callback: (E) -> Unit) {
+    useExtension(
+        extensionType,
+        ExtensionConsumer<E, RuntimeException> { dao -> callback(dao) }
+    )
 }

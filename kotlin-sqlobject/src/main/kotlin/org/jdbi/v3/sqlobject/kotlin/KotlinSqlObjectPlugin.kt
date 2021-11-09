@@ -16,12 +16,12 @@ package org.jdbi.v3.sqlobject.kotlin
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.spi.JdbiPlugin
 import org.jdbi.v3.sqlobject.Handlers
-import org.jdbi.v3.sqlobject.SqlObjects
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
+import org.jdbi.v3.sqlobject.SqlObjects
 
 class KotlinSqlObjectPlugin : JdbiPlugin.Singleton() {
     override fun customizeJdbi(jdbi: Jdbi) {
-        jdbi.installPlugin(SqlObjectPlugin());
+        jdbi.installPlugin(SqlObjectPlugin())
         jdbi.configure(SqlObjects::class.java, { c -> c.defaultParameterCustomizerFactory = KotlinSqlStatementCustomizerFactory() })
         jdbi.configure(Handlers::class.java, { c -> c.register(KotlinDefaultMethodHandlerFactory()) })
     }

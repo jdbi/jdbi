@@ -22,12 +22,14 @@ import java.lang.reflect.Parameter
 import java.lang.reflect.Type
 
 class BindKotlinFactory : SqlStatementCustomizerFactory {
-    override fun createForParameter(annotation: Annotation,
-                                    sqlObjectType: Class<*>,
-                                    method: Method,
-                                    param: Parameter,
-                                    index: Int,
-                                    paramType: Type): SqlStatementParameterCustomizer {
+    override fun createForParameter(
+        annotation: Annotation,
+        sqlObjectType: Class<*>,
+        method: Method,
+        param: Parameter,
+        index: Int,
+        paramType: Type
+    ): SqlStatementParameterCustomizer {
         val bindKotlin = annotation as BindKotlin
         return SqlStatementParameterCustomizer { stmt, arg ->
             // would prefer stmt.bindKotlin() but type checker doesn't like that stmt is wildcard

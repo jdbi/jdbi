@@ -34,13 +34,15 @@ class Issue1944Test {
     var h2Extension: JdbiExtension = JdbiExtension.h2()
         .withPlugins(SqlObjectPlugin(), KotlinSqlObjectPlugin())
         .withInitializer { _, handle ->
-            handle.inTransaction(HandleCallback<Any?, RuntimeException> { h ->
-                h.execute("CREATE TABLE Tag (id integer primary key, name VARCHAR(50))")
-                h.execute("CREATE TABLE Product (id integer primary key, primaryName varchar(50), tagId integer)")
+            handle.inTransaction(
+                HandleCallback<Any?, RuntimeException> { h ->
+                    h.execute("CREATE TABLE Tag (id integer primary key, name VARCHAR(50))")
+                    h.execute("CREATE TABLE Product (id integer primary key, primaryName varchar(50), tagId integer)")
 
-                h.execute("INSERT INTO Tag (id, name) VALUES (1, 'foo')")
-                h.execute("INSERT INTO Product (id, primaryName, tagId) VALUES (2, 'stuff', 1)")
-            })
+                    h.execute("INSERT INTO Tag (id, name) VALUES (1, 'foo')")
+                    h.execute("INSERT INTO Product (id, primaryName, tagId) VALUES (2, 'stuff', 1)")
+                }
+            )
         }
 
     data class Tag(
@@ -51,7 +53,7 @@ class Issue1944Test {
     data class Product(
         val id: Int?,
         val primaryName: String?,
-        val tagId: Int?,
+        val tagId: Int?
     )
 
     @Test
@@ -84,7 +86,6 @@ class Issue1944Test {
         doTest(jdbi)
     }
 
-
     fun doTest(jdbi: Jdbi) {
         val sql = """
             SELECT
@@ -93,9 +94,9 @@ class Issue1944Test {
             FROM Tag t JOIN Product P ON t.id = p.TagId
         """.trimIndent()
 
-        val rows = jdbi.withHandle(HandleCallback<List<JoinRow>, RuntimeException> { handle ->
-                handle.createQuery(sql).mapTo<JoinRow>().list()
-            })
+        val rows = jdbi.withHandle(
+            HandleCallback<List<JoinRow>, RuntimeException> { handle -> handle.createQuery(sql).mapTo<JoinRow>().list() }
+        )
 
         assertNotNull(rows)
         assertEquals(1, rows.size)
