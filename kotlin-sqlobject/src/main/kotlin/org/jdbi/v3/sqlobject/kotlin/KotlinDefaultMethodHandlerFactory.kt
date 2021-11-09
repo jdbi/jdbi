@@ -18,7 +18,9 @@ import org.jdbi.v3.sqlobject.Handler
 import org.jdbi.v3.sqlobject.HandlerFactory
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Collections
+import java.util.Optional
+import java.util.WeakHashMap
 
 class KotlinDefaultMethodHandlerFactory : HandlerFactory {
 
@@ -27,14 +29,17 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
     override fun buildHandler(sqlObjectType: Class<*>, method: Method): Optional<Handler> {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
-        return Optional.of(Handler { t, a, _ ->
-            try {
-                implementation.invoke(null, *(listOf(t).plus(a).toTypedArray()))
-            } catch (e: InvocationTargetException) {
-                throw e.targetException
+        return Optional.of(
+            Handler { t, a, _ ->
+                @Suppress("SwallowedException")
+                try {
+                    @Suppress("SpreadOperator")
+                    implementation.invoke(null, t, *a)
+                } catch (e: InvocationTargetException) {
+                    throw e.targetException
+                }
             }
-        })
-
+        )
     }
 
     fun getImplementation(type: Class<*>, method: Method): Method? {
@@ -48,7 +53,7 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
     }
 
     private fun findImplMethod(type: Class<*>, method: Method, implMethods: Map<MethodKey, Method>): Method? {
-        //default method is generated as static method that takes target interface as first parameter
+        // default method is generated as static method that takes target interface as first parameter
         val paramTypes = listOf(type) + method.parameters.map { it.type }
 
         return implMethods[MethodKey(method.name, paramTypes, method.returnType)]

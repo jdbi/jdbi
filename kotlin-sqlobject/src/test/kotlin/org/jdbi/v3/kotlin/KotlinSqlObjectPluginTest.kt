@@ -42,11 +42,14 @@ class KotlinSqlObjectPluginTest {
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something())
 
-    data class Thing(val id: Int, val name: String,
-                     val nullable: String?,
-                     val nullableDefaultedNull: String? = null,
-                     val nullableDefaultedNotNull: String? = "not null",
-                     val defaulted: String = "default value")
+    data class Thing(
+        val id: Int,
+        val name: String,
+        val nullable: String?,
+        val nullableDefaultedNull: String? = null,
+        val nullableDefaultedNotNull: String? = "not null",
+        val defaulted: String = "default value"
+    )
 
     interface ThingDao : SqlObject {
         @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
@@ -144,10 +147,12 @@ class KotlinSqlObjectPluginTest {
     fun qualifiedBindParameter() {
         val dao = h2Extension.jdbi.onDemand<QualifiedDao>()
         dao.insert(1, "abc")
-        assertThat(h2Extension.sharedHandle
-            .select("SELECT name FROM something WHERE id = 1")
-            .mapTo<String>()
-            .one())
+        assertThat(
+            h2Extension.sharedHandle
+                .select("SELECT name FROM something WHERE id = 1")
+                .mapTo<String>()
+                .one()
+        )
             .isEqualTo("cba")
 
         h2Extension.sharedHandle.execute("insert into something (id, name) values (2, 'xyz')")

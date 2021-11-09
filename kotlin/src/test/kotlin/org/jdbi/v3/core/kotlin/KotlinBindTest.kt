@@ -34,11 +34,13 @@ class KotlinBindTest {
 
     @Test
     fun bindEnumKotlinList() {
-        assertThat(pgExtension.openHandle()
-            .createQuery("select :echo")
-            .bindArray("echo", MyEnum::class.java, listOf(MyEnum.A, MyEnum.B))
-            .mapTo(object : GenericType<List<MyEnum>>() {})
-            .one())
+        assertThat(
+            pgExtension.openHandle()
+                .createQuery("select :echo")
+                .bindArray("echo", MyEnum::class.java, listOf(MyEnum.A, MyEnum.B))
+                .mapTo(object : GenericType<List<MyEnum>>() {})
+                .one()
+        )
             .containsExactly(MyEnum.A, MyEnum.B)
     }
 

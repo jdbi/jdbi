@@ -141,7 +141,7 @@ class Jdbi858ExtensionsTest {
         val kotlinAnnotation = FooDao::getOnlyName.findAnnotation<SqlQuery>()
         val javaAnnotation = FooDao::getOnlyName.javaMethod?.getAnnotation(SqlQuery::class.java)
         assertThat(kotlinAnnotation)
-            .isNotNull()
+            .isNotNull
             .isEqualTo(javaAnnotation)
     }
 

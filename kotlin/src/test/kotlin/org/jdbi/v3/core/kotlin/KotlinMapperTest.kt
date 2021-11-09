@@ -52,12 +52,12 @@ class KotlinMapperTest {
         val expected = DataClassWithOnlyPrimaryConstructor(1, "does this work?")
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<DataClassWithOnlyPrimaryConstructor>()
-                .single()
+            .mapTo<DataClassWithOnlyPrimaryConstructor>()
+            .single()
 
         assertThat(result).isEqualTo(expected)
     }
@@ -69,12 +69,12 @@ class KotlinMapperTest {
         val expected = DataClassWithAnnotatedValParameter(1, "does this work?")
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :n)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<DataClassWithAnnotatedValParameter>()
-                .single()
+            .mapTo<DataClassWithAnnotatedValParameter>()
+            .single()
 
         assertThat(result).isEqualTo(expected)
     }
@@ -86,12 +86,12 @@ class KotlinMapperTest {
         val expected = DataClassWithAnnotatedVarParameter(1, "does this work?")
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :n)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<DataClassWithAnnotatedVarParameter>()
-                .single()
+            .mapTo<DataClassWithAnnotatedVarParameter>()
+            .single()
 
         assertThat(result).isEqualTo(expected)
     }
@@ -103,16 +103,16 @@ class KotlinMapperTest {
         val expected = ClassWithOnlyPrimaryConstructor(1, "does this work?")
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<ClassWithOnlyPrimaryConstructor>()
-                .single()
+            .mapTo<ClassWithOnlyPrimaryConstructor>()
+            .single()
 
         assertThat(result)
-                .extracting("id", "first")
-                .containsExactly(expected.id, expected.first)
+            .extracting("id", "first")
+            .containsExactly(expected.id, expected.first)
     }
 
     class ClassWithOnlySecondaryConstructor {
@@ -130,16 +130,16 @@ class KotlinMapperTest {
         val expected = ClassWithOnlySecondaryConstructor(1, "does this work?")
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<ClassWithOnlySecondaryConstructor>()
-                .single()
+            .mapTo<ClassWithOnlySecondaryConstructor>()
+            .single()
 
         assertThat(result)
-                .extracting("id", "first")
-                .containsExactly(expected.id, expected.first)
+            .extracting("id", "first")
+            .containsExactly(expected.id, expected.first)
     }
 
     class ClassWithWritableProperty(val id: Int) {
@@ -152,16 +152,16 @@ class KotlinMapperTest {
         expected.first = "does this work?"
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bindBean(expected)
-                .execute()
+            .bindBean(expected)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<ClassWithWritableProperty>()
-                .single()
+            .mapTo<ClassWithWritableProperty>()
+            .single()
 
         assertThat(result)
-                .extracting("id", "first")
-                .containsExactly(expected.id, expected.first)
+            .extracting("id", "first")
+            .containsExactly(expected.id, expected.first)
     }
 
     class ClassWithAnnotatedWritableProperty(val id: Int) {
@@ -175,17 +175,17 @@ class KotlinMapperTest {
         expected.foo = "does this work?"
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
-                .bind("id", expected.id)
-                .bind("first", expected.foo)
-                .execute()
+            .bind("id", expected.id)
+            .bind("first", expected.foo)
+            .execute()
 
         val result = handle.createQuery("SELECT * from the_things")
-                .mapTo<ClassWithAnnotatedWritableProperty>()
-                .single()
+            .mapTo<ClassWithAnnotatedWritableProperty>()
+            .single()
 
         assertThat(result)
-                .extracting("id", "foo")
-                .containsExactly(expected.id, expected.foo)
+            .extracting("id", "foo")
+            .containsExactly(expected.id, expected.foo)
     }
 
     private data class TheNestedDataClass(val other: String)
@@ -196,16 +196,16 @@ class KotlinMapperTest {
         val expected = TheDataClass("something", TheNestedDataClass("something else"))
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
-                .bind("value", expected.first)
-                .execute()
+            .bind("value", expected.first)
+            .execute()
         handle.createUpdate("INSERT INTO the_other_things(id, other) VALUES(1, :other)")
-                .bind("other", expected.nested.other)
-                .execute()
+            .bind("other", expected.nested.other)
+            .execute()
 
         val result = handle
-                .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
-                .mapTo<TheDataClass>()
-                .single()
+            .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
+            .mapTo<TheDataClass>()
+            .single()
 
         assertThat(result).isEqualTo(expected)
     }
@@ -234,20 +234,20 @@ class KotlinMapperTest {
         val expected = TheClass("something", TheNestedClass("something else"))
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
-                .bind("value", expected.first)
-                .execute()
+            .bind("value", expected.first)
+            .execute()
         handle.createUpdate("INSERT INTO the_other_things(id, other) VALUES(1, :other)")
-                .bind("other", expected.nested.other)
-                .execute()
+            .bind("other", expected.nested.other)
+            .execute()
 
         val result = handle
-                .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
-                .mapTo<TheClass>()
-                .single()
+            .createQuery("SELECT a.first AS first, b.other AS nested_other FROM the_things a JOIN the_other_things b ON a.id = b.id")
+            .mapTo<TheClass>()
+            .single()
 
         assertThat(result)
-                .extracting("first", "nested.other")
-                .containsExactly(expected.first, expected.nested.other)
+            .extracting("first", "nested.other")
+            .containsExactly(expected.first, expected.nested.other)
     }
 
     class TestSkipMemberIfSetViaConstructor(@ColumnName("first") foo: String) {
@@ -262,12 +262,12 @@ class KotlinMapperTest {
         val expected = "it works!"
 
         handle.createUpdate("INSERT INTO the_things(id, first) VALUES(1, :value)")
-                .bind("value", expected)
-                .execute()
+            .bind("value", expected)
+            .execute()
 
         val result = handle.createQuery("SELECT first FROM the_things")
-                .mapTo<TestSkipMemberIfSetViaConstructor>()
-                .first()
+            .mapTo<TestSkipMemberIfSetViaConstructor>()
+            .first()
 
         assertThat(result.fromCtor).isEqualTo(expected)
     }
@@ -278,7 +278,6 @@ class KotlinMapperTest {
     private val four = "four"
 
     private fun oneTwoThreeFourSetup() {
-
         handle.createUpdate("INSERT INTO the_things(id, first, second, third, fourth) VALUES(1, :one, :two, :three, :four)")
             .bind("one", one)
             .bind("two", two)
@@ -289,10 +288,10 @@ class KotlinMapperTest {
 
     private val oneTwoThreeFourQuery = "SELECT id, first, second, third, fourth FROM the_things"
 
-    class ClassWithUnusedWriteableVariable(val first : String) {
-        lateinit var second : String
-        var third : String = "I still get written"
-        var extraField : String = "unchanged"
+    class ClassWithUnusedWriteableVariable(val first: String) {
+        lateinit var second: String
+        var third: String = "I still get written"
+        var extraField: String = "unchanged"
     }
 
     @Test
@@ -324,7 +323,7 @@ class KotlinMapperTest {
             this.first = first
         }
 
-        constructor(id : Int, first : String, second : String) {
+        constructor(id: Int, first: String, second: String) {
             this.id = id
             this.first = first + second
         }
@@ -340,13 +339,13 @@ class KotlinMapperTest {
         }
     }
 
-    class ClassWithPrimaryAndMultipleSecondaryConstructors(val id : Int, val first : String) {
+    class ClassWithPrimaryAndMultipleSecondaryConstructors(val id: Int, val first: String) {
 
-        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+        constructor(id: Int, first: String, second: String) : this(id, first + second) {
             throw UnsupportedOperationException("Should not be called.")
         }
 
-        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third) {
+        constructor(id: Int, first: String, second: String, third: String) : this(id, first + second + third) {
             throw UnsupportedOperationException("Should not be called.")
         }
     }
@@ -363,14 +362,14 @@ class KotlinMapperTest {
         assertThat(result.first).isEqualTo(expected)
     }
 
-    class ClassWithPrimaryAndSecondaryConstructorsWithAnnotation(val id: Int, val calculated : String) {
+    class ClassWithPrimaryAndSecondaryConstructorsWithAnnotation(val id: Int, val calculated: String) {
 
-        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+        constructor(id: Int, first: String, second: String) : this(id, first + second) {
             throw UnsupportedOperationException("Should never be called")
         }
 
         @JdbiConstructor
-        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+        constructor(id: Int, first: String, second: String, third: String) : this(id, first + second + third)
     }
 
     @Test
@@ -388,14 +387,14 @@ class KotlinMapperTest {
 
     class ClassWithTooManyAnnotations
     @JdbiConstructor
-    constructor (val id: Int, val calculated : String) {
+    constructor(val id: Int, val calculated: String) {
 
-        constructor(id : Int, first : String, second : String) : this( id, first + second) {
+        constructor(id: Int, first: String, second: String) : this(id, first + second) {
             throw UnsupportedOperationException("Should never be called")
         }
 
         @JdbiConstructor
-        constructor(id : Int, first : String, second : String, third : String) : this (id, first+second+third)
+        constructor(id: Int, first: String, second: String, third: String) : this(id, first + second + third)
     }
 
     @Test
@@ -408,7 +407,7 @@ class KotlinMapperTest {
     }
 
     enum class KotlinTestEnum {
-        A,B,C
+        A, B, C
     }
 
     @Test
@@ -431,24 +430,30 @@ class KotlinMapperTest {
         assertThat(result).containsAll(values.asList())
     }
 
-    data class DataClassWithNullableConstructorParameter(val id:Int,
-                                                         val name:String?)
+    data class DataClassWithNullableConstructorParameter(
+        val id: Int,
+        val name: String?
+    )
 
     @Test
     fun testDataClassWithNullableConstructorParameter() {
-        assertThat(handle.select("select 1 as id")
-            .mapTo<DataClassWithNullableConstructorParameter>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id")
+                .mapTo<DataClassWithNullableConstructorParameter>()
+                .first()
+        )
             .isEqualTo(DataClassWithNullableConstructorParameter(1, null))
 
-        assertThat(handle.select("select 1 as id, 'foo' as name")
-            .mapTo<DataClassWithNullableConstructorParameter>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as name")
+                .mapTo<DataClassWithNullableConstructorParameter>()
+                .first()
+        )
             .isEqualTo(DataClassWithNullableConstructorParameter(1, "foo"))
     }
 
     class ClassWithNullableProperty(val id: Int) {
-        var name:String? = null
+        var name: String? = null
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -468,50 +473,63 @@ class KotlinMapperTest {
             return result
         }
 
-        override fun toString(): String {
-            return "DataClassWithNullableProperty(id=$id, name=$name)"
-        }
+        override fun toString() = "DataClassWithNullableProperty(id=$id, name=$name)"
     }
 
     @Test
     fun testClassWithNullableProperty() {
-        assertThat(handle.select("select 1 as id")
-            .mapTo<ClassWithNullableProperty>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id")
+                .mapTo<ClassWithNullableProperty>()
+                .first()
+        )
             .isEqualTo(ClassWithNullableProperty(1))
 
-        assertThat(handle.select("select 1 as id, 'foo' as name")
-            .mapTo<ClassWithNullableProperty>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as name")
+                .mapTo<ClassWithNullableProperty>()
+                .first()
+        )
             .isEqualTo(ClassWithNullableProperty(1).also { it.name = "foo" })
     }
 
-    data class NestedDataClass(val foo:String,
-                               val bar:String?)
+    data class NestedDataClass(
+        val foo: String,
+        val bar: String?
+    )
 
-    data class DataClassWithNullableNestedConstructorParameter(val id: Int,
-                                                               @Nested val nested: NestedDataClass?)
+    data class DataClassWithNullableNestedConstructorParameter(
+        val id: Int,
+        @Nested val nested: NestedDataClass?
+    )
 
     @Test
     fun testDataClassWithNullableNestedConstructorParameter() {
-        assertThat(handle.select("select 1 as id")
-            .mapTo<DataClassWithNullableNestedConstructorParameter>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id")
+                .mapTo<DataClassWithNullableNestedConstructorParameter>()
+                .first()
+        )
             .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, null))
 
-        assertThat(handle.select("select 1 as id, 'foo' as foo")
-            .mapTo<DataClassWithNullableNestedConstructorParameter>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as foo")
+                .mapTo<DataClassWithNullableNestedConstructorParameter>()
+                .first()
+        )
             .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", null)))
 
-        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
-            .mapTo<DataClassWithNullableNestedConstructorParameter>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+                .mapTo<DataClassWithNullableNestedConstructorParameter>()
+                .first()
+        )
             .isEqualTo(DataClassWithNullableNestedConstructorParameter(1, NestedDataClass("foo", "bar")))
     }
 
     class ClassWithNullableNestedProperty(val id: Int) {
-        @Nested var nested: NestedDataClass? = null
+        @Nested
+        var nested: NestedDataClass? = null
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -531,62 +549,72 @@ class KotlinMapperTest {
             return result
         }
 
-        override fun toString(): String {
-            return "ClassWithNullableNestedProperty(id='$id', nested=$nested)"
-        }
+        override fun toString() = "ClassWithNullableNestedProperty(id='$id', nested=$nested)"
     }
 
     @Test
     fun testClassWithNullableNestedProperty() {
-        assertThat(handle.select("select 1 as id")
-            .mapTo<ClassWithNullableNestedProperty>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id")
+                .mapTo<ClassWithNullableNestedProperty>()
+                .first()
+        )
             .isEqualTo(ClassWithNullableNestedProperty(1))
 
-        assertThat(handle.select("select 1 as id, 'foo' as foo")
-            .mapTo<ClassWithNullableNestedProperty>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as foo")
+                .mapTo<ClassWithNullableNestedProperty>()
+                .first()
+        )
             .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", null) })
 
-        assertThat(handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
-            .mapTo<ClassWithNullableNestedProperty>()
-            .first())
+        assertThat(
+            handle.select("select 1 as id, 'foo' as foo, 'bar' as bar")
+                .mapTo<ClassWithNullableNestedProperty>()
+                .first()
+        )
             .isEqualTo(ClassWithNullableNestedProperty(1).also { it.nested = NestedDataClass("foo", "bar") })
     }
 
     @PropagateNull("name")
     class ClassWithPropagateNull(val id: Int) {
-        var name:String? = null
+        var name: String? = null
     }
 
     @Test
     fun classPropagateNull() {
-        assertThat(handle.select("select 1 as id, null as name")
+        assertThat(
+            handle.select("select 1 as id, null as name")
                 .mapTo<ClassWithPropagateNull>()
-                .one())
+                .one()
+        )
             .isNull()
     }
 
     class MemberWithPropagateNull(val id: Int) {
         @PropagateNull
-        var name:String? = null
+        var name: String? = null
     }
 
     @Test
     fun memberPropagateNull() {
-        assertThat(handle.select("select 1 as id, null as name")
+        assertThat(
+            handle.select("select 1 as id, null as name")
                 .mapTo<MemberWithPropagateNull>()
-                .one())
+                .one()
+        )
             .isNull()
     }
 
-    data class ConstructorWithPropagateNull(val id: Int, @PropagateNull var name:String?)
+    data class ConstructorWithPropagateNull(val id: Int, @PropagateNull var name: String?)
 
     @Test
     fun constructorPropagateNull() {
-        assertThat(handle.select("select 1 as id, null as name")
+        assertThat(
+            handle.select("select 1 as id, null as name")
                 .mapTo<ConstructorWithPropagateNull>()
-                .one())
+                .one()
+        )
             .isNull()
     }
 
@@ -594,14 +622,18 @@ class KotlinMapperTest {
 
     @Test
     fun constructorWithDefaultParameter() {
-        assertThat(handle.select("select 1 as id, null as other")
+        assertThat(
+            handle.select("select 1 as id, null as other")
                 .mapTo<ConstructorWithDefaultParameter>()
-                .one())
+                .one()
+        )
             .isEqualTo(ConstructorWithDefaultParameter(1))
 
-        assertThat(handle.select("select 1 as id, 'non-default' as other")
+        assertThat(
+            handle.select("select 1 as id, 'non-default' as other")
                 .mapTo<ConstructorWithDefaultParameter>()
-                .one())
+                .one()
+        )
             .isEqualTo(ConstructorWithDefaultParameter(1, "non-default"))
     }
 }

@@ -26,26 +26,29 @@ import kotlin.reflect.jvm.kotlinFunction
 
 class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
 
-    override fun createForParameter(sqlObjectType: Class<*>,
-                                    method: Method,
-                                    parameter: Parameter,
-                                    paramIdx: Int,
-                                    type: Type): SqlStatementParameterCustomizer {
+    override fun createForParameter(
+        sqlObjectType: Class<*>,
+        method: Method,
+        parameter: Parameter,
+        paramIdx: Int,
+        type: Type
+    ): SqlStatementParameterCustomizer {
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
             method.kotlinFunction
-                    ?.parameters
-                    ?.dropWhile { it.kind != KParameter.Kind.VALUE }
-                    ?.toList()
-                    ?.get(paramIdx)?.name
+                ?.parameters
+                ?.dropWhile { it.kind != KParameter.Kind.VALUE }
+                ?.toList()
+                ?.get(paramIdx)?.name
         } ?: throw UnsupportedOperationException(
-                "A parameter was not given a name, and parameter name data is not present in the class file, for: " +
-                "${parameter.declaringExecutable} :: $parameter")
+            "A parameter was not given a name, and parameter name data is not present in the class file, for: " +
+                "${parameter.declaringExecutable} :: $parameter"
+        )
 
         return SqlStatementParameterCustomizer { stmt, arg ->
-            val qualifiedType = QualifiedType.of(type).withAnnotations(stmt.getConfig(Qualifiers::class.java).findFor(parameter));
-            val maybeArgument = stmt.getContext().findArgumentFor(qualifiedType, arg)
+            val qualifiedType = QualifiedType.of(type).withAnnotations(stmt.getConfig(Qualifiers::class.java).findFor(parameter))
+            val maybeArgument = stmt.context.findArgumentFor(qualifiedType, arg)
             if (maybeArgument.isPresent) {
                 val argument = maybeArgument.get()
                 stmt.bind(bindName, argument)

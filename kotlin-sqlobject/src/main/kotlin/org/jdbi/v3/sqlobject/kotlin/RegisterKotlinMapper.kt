@@ -17,7 +17,7 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
 import kotlin.reflect.KClass
 
 /**
- * Registers a KotlinMapper for a specific kotlin class
+ * Registers a KotlinMapper for a specific kotlin class.
  */
 @Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
@@ -34,4 +34,5 @@ annotation class RegisterKotlinMapper(
      *
      * @return Column name prefix for the kotlin type.
      */
-    val prefix: String = "")
+    val prefix: String = ""
+)
