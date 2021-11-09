@@ -4,6 +4,7 @@
   - Add interceptors for type inference for Row Mappers, Column Mappers and SQL Array types
   - Fix mapper lookup for Kotlin data types. Ensure that registered prefixes are used. Fixes #1944
   - `RowMappers#register(RowMapper<?>)` no longer allows `Object` as concrete parameter type.
+  - Run ktlint and detekt on Kotlin code to improve code quality
 
 # 3.23.0
   - Rework and document importing bindings in guice definition modules
