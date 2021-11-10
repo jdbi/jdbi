@@ -1,4 +1,6 @@
 # Unreleased
+
+# 3.24.0
   - Fix batch binding with mixed null and non-null primitives (#1901)
   - Add Arguments.setPreparedArgumentsEnabled to disable new preparable arguments feature
   - Add JUnit 5 support to the testing package.
