@@ -223,12 +223,12 @@
                     <sourceDirectory>src/adoc</sourceDirectory>
                     <sourceDocumentName>index.adoc</sourceDocumentName>
                     <backend>html5</backend>
-                    <sourceHighlighter>coderay</sourceHighlighter>
                     <attributes>
                         <project_version>${project.version}</project_version>
                         <revnumber>${project.version}</revnumber>
                         <revdate>${doc.timestamp}</revdate>
                         <docdatetime>${doc.timestamp}</docdatetime>
+                        <source-highlighter>coderay</source-highlighter>
                     </attributes>
                 </configuration>
             </plugin>
@@ -341,7 +341,7 @@
                         </executions>
                         <configuration>
                             <pubScmUrl>scm:git:git@github.com:jdbi/jdbi.github.io.git</pubScmUrl>
-                            <scmPubCheckoutDirectory>/tmp/gh-pages-publish</scmPubCheckoutDirectory>
+                            <checkoutDirectory>${java.io.tmpdir}/gh-pages-publish/${project.name}/}</checkoutDirectory>
                             <content>${project.build.directory}/generated-docs</content>
                             <localCheckout>true</localCheckout>
                         </configuration>
