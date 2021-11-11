@@ -1019,6 +1019,11 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                        	<fork>true</fork>
+                        	<useIncrementalCompilation>true</useIncrementalCompilation>
+
+                        </configuration>\n
                     </plugin>
 
                     <plugin>
