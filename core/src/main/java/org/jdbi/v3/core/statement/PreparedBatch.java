@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -99,9 +100,12 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     /**
-     * Execute the batch
+     * Execute the batch and return the number of rows affected for each batch part.
+     * Note that some database drivers might return special values like {@link Statement#SUCCESS_NO_INFO}
+     * or {@link Statement#EXECUTE_FAILED}.
      *
-     * @return the number of rows modified or inserted per batch part.
+     * @return the number of rows affected per batch part
+     * @see Statement#executeBatch()
      */
     public int[] execute() {
         try {
@@ -111,6 +115,13 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         }
     }
 
+    /**
+     * Execute the batch and return the mod counts as in {@code execute}, but as a
+     * Jdbi result iterator instead of an array.
+     * @return the number of rows affected per batch part
+     * @see #execute()
+     * @see Statement#executeBatch()
+     */
     public ResultIterator<Integer> executeAndGetModCount() {
         StatementContext ctx = getContext();
         final int[] modCount = execute();

@@ -2430,6 +2430,10 @@ The statements are sent to the database in bulk, but each statement is executed 
 There are no parameters.  Each statement returns a modification count, as with an Update, and
 those counts are then returned in an `int[]` array.  In common cases all elements will be `1`.
 
+Some database drivers might return special values in conditions where modification counts are not available.
+See the
+link:{jdkdocs}/java/sql/Statement.html#executeBatch--[executeBatch^] documentation for details.
+
 === Prepared Batches
 
 A *PreparedBatch* sends one statement to the server with many argument sets.

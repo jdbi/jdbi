@@ -46,9 +46,12 @@ public class Batch extends BaseStatement<Batch> {
     }
 
     /**
-     * Execute all the queued up statements
+     * Execute the batch and return the number of rows affected for each batch part.
+     * Note that some database drivers might return special values like {@link Statement#SUCCESS_NO_INFO}
+     * or {@link Statement#EXECUTE_FAILED}.
      *
-     * @return an array of integers representing the return values from each statement's execution
+     * @return the number of rows affected per batch part
+     * @see Statement#executeBatch()
      */
     public int[] execute() {
         // short circuit empty batch
