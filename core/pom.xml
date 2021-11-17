@@ -170,6 +170,7 @@
                                 <exclude>**/TestPreparedBatchGenerateKeysPostgres.java</exclude>
                                 <exclude>**/TestPreparedBatchPG.java</exclude>
                                 <exclude>**/TestScript.java</exclude>
+                                <exclude>**/ConstructorMapperPgTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

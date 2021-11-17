@@ -187,13 +187,13 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
-            .orElseThrow(() -> new IllegalArgumentException(String.format(
+            .orElseGet(() -> new UnmatchedConstructorMapper<T>(String.format(
                 UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
-            throw new IllegalArgumentException(
+            return new UnmatchedConstructorMapper<T>(
                 String.format(UNMATCHED_COLUMNS_STRICT, factory, unmatchedColumns));
         }
 
@@ -329,5 +329,18 @@ public class ConstructorMapper<T> implements RowMapper<T> {
         final RowMapper<?> mapper;
         final boolean propagateNull;
         final boolean isPrimitive;
+    }
+
+    static class UnmatchedConstructorMapper<T> implements RowMapper<T> {
+        private final String message;
+
+        UnmatchedConstructorMapper(String message) {
+            this.message = message;
+        }
+
+        @Override
+        public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+            throw new IllegalArgumentException(message);
+        }
     }
 }
