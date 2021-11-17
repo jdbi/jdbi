@@ -1,4 +1,6 @@
 # Unreleased
+
+# 3.24.1
   - fix Bean property arguments type being erased on generic beans
 
 # 3.24.0
