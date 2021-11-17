@@ -5182,6 +5182,17 @@ An example from the test class:
 include::{kotlinexampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
 
+==== Jackson JSON Processing
+
+Jackson needs a specialized ObjectMapper instance in order to understand deserialization
+of Kotlin types. Make sure to configure your Jackson plugin:
+
+[source,kotlin]
+----
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+jdbi.getConfig(Jackson2Config::class.java).mapper = jacksonObjectMapper()
+----
+
 === Lombok
 
 Lombok is a great tool for cutting the boilerplate out of POJO classes.
