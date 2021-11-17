@@ -18,9 +18,9 @@ import java.sql.Types;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.json.Json;
+import org.jdbi.v3.json.EncodedJson;
 
-@Json
+@EncodedJson
 class JsonArgumentFactory extends AbstractArgumentFactory<String> {
     JsonArgumentFactory() {
         super(Types.OTHER);

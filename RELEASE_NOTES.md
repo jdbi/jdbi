@@ -1,4 +1,5 @@
 # Unreleased
+  - *SPI change* `@Json String` database type mappers now use `@EncodedJson String` instead (#1953)
 
 # 3.24.1
   - fix Bean property arguments type being erased on generic beans

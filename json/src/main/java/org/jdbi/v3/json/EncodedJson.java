@@ -21,9 +21,9 @@ import java.lang.annotation.Target;
 import org.jdbi.v3.core.qualifier.Qualifier;
 
 /**
- * Type qualifying annotation for converting Java types to {@code json} data type.
+ * Type qualifying annotation for pre-encoded {@code json} data.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Qualifier
-public @interface Json {}
+public @interface EncodedJson {}

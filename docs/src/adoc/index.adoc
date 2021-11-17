@@ -4249,19 +4249,20 @@ jdbi.getConfig(MoshiConfig.class).setMoshi(myMoshi);
 
 ==== Operation
 
-Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^] — except `String` —
+Any bound object qualified as link:{jdbidocs}/json/Json.html[@Json^]
 will be converted by the link:{jdbidocs}/json/JsonConfig.html[registered^]
-link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_ as `@Json String`.
-A correspondingly qualified `ArgumentFactory` will then be called to store the JSON data,
+link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] and _requalified_ as
+link:{jdbidocs}/json/EncodedJson.html[@EncodedJson^] `String`.
+A corresponding `@EncodedJson ArgumentFactory` will then be called to store the JSON data,
 allowing special JSON handling for your database to be implemented.
 If none are found, a factory for plain `String` will be used instead, to handle the JSON as plaintext.
 
 Mapping works just the same way, but in reverse: an output type qualified as `@Json T` will be fetched from a
-`@Json String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
+`@EncodedJson String` or `String` ColumnMapper, and then passed through the `JsonMapper`.
 
 [TIP]
 Our PostgresPlugin provides qualified factories that will
-bind/map the `@Json String` to/from `json` or `jsonb`-typed columns.
+bind/map the `@EncodedJson String` to/from `json` or `jsonb`-typed columns.
 
 ==== Usage
 

@@ -15,6 +15,7 @@ package org.jdbi.v3.jackson2;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -27,6 +28,7 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
@@ -216,4 +218,14 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
     }
 
     private interface ExtendingDao extends GenericContainingDao<A> {}
+
+    @Test
+    public void jsonbSet() {
+        assertThat(
+                h.createQuery("select jsonb_set('{}', '{val}', :val)")
+                    .bindByType("val", "testing", QualifiedType.of(String.class).with(Json.class))
+                    .mapTo(QualifiedType.of(new GenericType<Map<String, String>>() {}).with(Json.class))
+                    .one())
+            .isEqualTo(Collections.singletonMap("val", "testing"));
+    }
 }
