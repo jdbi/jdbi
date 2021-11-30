@@ -59,7 +59,7 @@ public class TestJdbiBinder {
 
     @RegisterExtension
     public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+        .withDatabasePreparer(ds -> GuiceTestSupport.executeSql(ds,
             "DROP TABLE IF EXISTS binder_test",
             "CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp)"
         )).build();

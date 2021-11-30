@@ -95,12 +95,13 @@
         <dep.junit5.version>5.8.1</dep.junit5.version>
         <dep.kotlin.version>1.5.31</dep.kotlin.version>
         <dep.mockito.version>3.11.2</dep.mockito.version>
+        <dep.pg-embedded.version>4.0</dep.pg-embedded.version>
         <dep.plugin.detekt.version>1.18.1.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
         <dep.plugin.ktlint.version>1.11.0</dep.plugin.ktlint.version>
         <dep.plugin.scm-publish.version>3.1.0</dep.plugin.scm-publish.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
-        <dep.slf4j.version>1.7.31</dep.slf4j.version>
+        <dep.slf4j.version>1.7.32</dep.slf4j.version>
         <dep.spring.version>5.3.8</dep.spring.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
@@ -363,7 +364,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.22</version>
+                <version>42.3.1</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>checker-qual</artifactId>
@@ -381,7 +382,7 @@
             <dependency>
                 <groupId>de.softwareforge.testing</groupId>
                 <artifactId>pg-embedded</artifactId>
-                <version>3.0</version>
+                <version>${dep.pg-embedded.version}</version>
             </dependency>
 
             <dependency>
@@ -393,6 +394,11 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
                 <version>${dep.slf4j.version}</version>
             </dependency>
             <dependency>

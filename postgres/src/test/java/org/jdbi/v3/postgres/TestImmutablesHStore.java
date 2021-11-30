@@ -36,7 +36,7 @@ public class TestImmutablesHStore {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withPreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
+        .withDatabasePreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
         .build();
 
     @RegisterExtension

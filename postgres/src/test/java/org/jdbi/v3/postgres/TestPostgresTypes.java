@@ -46,7 +46,7 @@ public class TestPostgresTypes {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withCustomizer(builder -> {
+        .withInstancePreparer(builder -> {
             // We need to force the locale for the 'testReadWriteMoney' test
             final String locale;
 
@@ -56,9 +56,9 @@ public class TestPostgresTypes {
                 locale = "en_US.UTF-8";
             }
 
-            builder.addLocaleConfiguration("locale", locale);
+            builder.addInitDbConfiguration("locale", locale);
         })
-        .withPreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
+        .withDatabasePreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
         .build();
 
     @RegisterExtension
