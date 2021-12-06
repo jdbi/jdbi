@@ -41,8 +41,8 @@ class ExternalPostgresJdbiRule extends JdbiRule {
     @Override
     protected DataSource createDataSource() {
         final PGSimpleDataSource datasource = new PGSimpleDataSource();
-        datasource.setServerName(hostname);
-        datasource.setPortNumber(port);
+        datasource.setServerNames(new String[]{hostname});
+        datasource.setPortNumbers(new int[]{port});
         datasource.setUser(username);
         datasource.setPassword(password);
         datasource.setDatabaseName(database);

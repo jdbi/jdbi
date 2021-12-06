@@ -44,7 +44,7 @@ public class TestJdbiModule {
 
     @RegisterExtension
     public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+        .withDatabasePreparer(ds -> GuiceTestSupport.executeSql(ds,
             "DROP TABLE IF EXISTS arrays",
             "CREATE TABLE arrays (u UUID, i INT[])"
         )).build();

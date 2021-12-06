@@ -42,7 +42,7 @@ public class TestLobStream {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withPreparer(ds -> {
+        .withDatabasePreparer(ds -> {
             Jdbi.create(ds).withHandle(h -> h.execute("CREATE TABLE lob (id int, lob oid)"));
         }).build();
 

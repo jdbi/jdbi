@@ -45,7 +45,7 @@ public class TestRobotLegsModule {
 
     @RegisterExtension
     public EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withPreparer(ds -> GuiceTestSupport.executeSql(ds,
+        .withDatabasePreparer(ds -> GuiceTestSupport.executeSql(ds,
             "CREATE EXTENSION IF NOT EXISTS hstore",
             "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"",
             "DROP TABLE IF EXISTS left_data",
