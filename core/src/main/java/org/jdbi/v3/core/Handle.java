@@ -37,6 +37,7 @@ import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -355,6 +356,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         final long start = System.nanoTime();
         transactions.commit(this);
         LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
+        getConfig(Handles.class).drainCallbacks()
+                .forEach(TransactionCallback::afterCommit);
         return this;
     }
 
@@ -367,6 +370,46 @@ public class Handle implements Closeable, Configurable<Handle> {
         final long start = System.nanoTime();
         transactions.rollback(this);
         LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
+        getConfig(Handles.class).drainCallbacks()
+                .forEach(TransactionCallback::afterRollback);
+        return this;
+    }
+
+    /**
+     * Execute an action the next time this Handle commits, unless it is rolled back first.
+     * @param afterCommit the action to execute after commit
+     * @return this Handle
+     */
+    @Beta
+    public Handle afterCommit(Runnable afterCommit) {
+        return addTransactionCallback(new TransactionCallback() {
+            @Override
+            public void afterCommit() {
+                afterCommit.run();
+            }
+        });
+    }
+
+    /**
+     * Execute an action the next time this Handle rolls back, unless it is committed first.
+     * @param onCommit the action to execute after rollback
+     * @return this Handle
+     */
+    @Beta
+    public Handle afterRollback(Runnable afterRollback) {
+       return addTransactionCallback(new TransactionCallback() {
+            @Override
+            public void afterRollback() {
+                afterRollback.run();
+            }
+        });
+    }
+
+    Handle addTransactionCallback(TransactionCallback cb) {
+        if (!isInTransaction()) {
+            throw new IllegalStateException("Handle must be in transaction");
+        }
+        getConfig(Handles.class).addCallback(cb);
         return this;
     }
 

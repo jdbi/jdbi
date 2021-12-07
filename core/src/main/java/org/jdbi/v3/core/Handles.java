@@ -13,6 +13,11 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.concurrent.GuardedBy;
+
 import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
@@ -20,6 +25,9 @@ import org.jdbi.v3.core.config.JdbiConfig;
  */
 public class Handles implements JdbiConfig<Handles> {
     private boolean forceEndTransactions = true;
+
+    @GuardedBy("transactionCallbacks")
+    private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
 
     public Handles() {}
 
@@ -57,5 +65,19 @@ public class Handles implements JdbiConfig<Handles> {
     @Override
     public Handles createCopy() {
         return new Handles(this);
+    }
+
+    void addCallback(TransactionCallback transactionCallback) {
+        synchronized (transactionCallbacks) {
+            transactionCallbacks.add(transactionCallback);
+        }
+    }
+
+    List<TransactionCallback> drainCallbacks() {
+        synchronized (transactionCallbacks) {
+            List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
+            transactionCallbacks.clear();
+            return result;
+        }
     }
 }

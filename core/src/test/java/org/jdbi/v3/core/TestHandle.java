@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
@@ -115,6 +117,45 @@ public class TestHandle {
             .isInstanceOf(CloseException.class);
         assertThat(h.isClosed()).isTrue();
         assertThat(h.getConnection().isClosed()).isTrue();
+    }
+
+    @Test
+    public void testCommitCallback() throws Exception {
+        final AtomicBoolean onCommit = new AtomicBoolean();
+        final AtomicBoolean onRollback = new AtomicBoolean();
+        try (Handle h = h2Extension.openHandle()) {
+            h.useTransaction(inner -> {
+                inner.afterCommit(() -> onCommit.set(true));
+                inner.afterRollback(() -> onRollback.set(true));
+            });
+            assertThat(onCommit.get()).isTrue();
+            assertThat(onRollback.get()).isFalse();
+
+            onCommit.set(false);
+            h.useTransaction(inner -> {});
+            assertThat(onCommit.get()).isFalse();
+        }
+    }
+
+    @Test
+    public void testCommitRollback() throws Exception {
+        final AtomicBoolean onCommit = new AtomicBoolean();
+        final AtomicBoolean onRollback = new AtomicBoolean();
+        try (Handle h = h2Extension.openHandle()) {
+            h.useTransaction(inner -> {
+                inner.afterCommit(() -> onCommit.set(true));
+                inner.afterRollback(() -> onRollback.set(true));
+                inner.rollback();
+            });
+            assertThat(onCommit.get()).isFalse();
+            assertThat(onRollback.get()).isTrue();
+
+            onRollback.set(false);
+            h.useTransaction(inner -> {
+                inner.rollback();
+            });
+            assertThat(onRollback.get()).isFalse();
+        }
     }
 
     static class BoomHandler extends LocalTransactionHandler {
