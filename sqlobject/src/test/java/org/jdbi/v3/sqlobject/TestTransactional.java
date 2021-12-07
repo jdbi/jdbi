@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,10 +28,13 @@ import com.google.common.collect.ImmutableSet;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
@@ -129,6 +133,26 @@ public class TestTransactional {
     @Test
     public void testTypeDecorator() {
         assertThat(jdbi.onDemand(AlwaysTransactional.class).isInTransaction()).isTrue();
+    }
+
+    @Test
+    public void testUseAttachRollback() {
+        assertThatThrownBy(() -> jdbi.useTransaction(handle -> {
+            handle.attach(InserterDao.class).insert();
+            throw new Exception();
+        })).isOfAnyClassIn(Exception.class);
+        assertThat(jdbi.<List<Something>, RuntimeException>inTransaction(handle ->
+                handle.attach(InserterDao.class).list()))
+            .isEmpty();
+    }
+
+    @RegisterRowMapper(SomethingMapper.class)
+    public interface InserterDao {
+        @SqlUpdate("insert into something(id, name) values(1, 'test')")
+        int insert();
+
+        @SqlQuery("select * from something")
+        List<Something> list();
     }
 
     private static final Set<Method> CHECKED_METHODS;

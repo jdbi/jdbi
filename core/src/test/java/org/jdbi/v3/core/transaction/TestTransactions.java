@@ -108,6 +108,19 @@ public class TestTransactions {
     }
 
     @Test
+    public void testExceptionAbortsUseTransaction() {
+        assertThatThrownBy(() ->
+            h.useTransaction(handle -> {
+                handle.execute("insert into something (id, name) values (?, ?)", 0, "Keith");
+                throw new IOException();
+            }))
+            .isInstanceOf(IOException.class);
+
+        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
+        assertThat(r).isEmpty();
+    }
+
+    @Test
     public void testRollbackDoesntCommit() {
         assertThat(begin).isEqualTo(0);
         h.useTransaction(th -> {
