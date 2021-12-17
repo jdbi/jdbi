@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RequirePostgresVersion(atLeast = "10")
 public class TestJsonOperator {
 
     @RegisterExtension
