@@ -1,0 +1,35 @@
+name: Test Postgres versions
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        postgres-version: [ 9.6, 10, 11, 12, 13, 14 ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install locales on runner
+      run: sudo apt-get install -y locales-all
+
+    - uses: actions/setup-java@v2
+      id: setup_jdk
+      name: Setup JDK
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Build
+      run: |
+          ./mvnw -B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }} clean install

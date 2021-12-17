@@ -95,7 +95,7 @@
         <dep.junit5.version>5.8.1</dep.junit5.version>
         <dep.kotlin.version>1.5.31</dep.kotlin.version>
         <dep.mockito.version>3.11.2</dep.mockito.version>
-        <dep.pg-embedded.version>4.0</dep.pg-embedded.version>
+        <dep.pg-embedded.version>4.1</dep.pg-embedded.version>
         <dep.plugin.detekt.version>1.18.1.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
         <dep.plugin.ktlint.version>1.11.0</dep.plugin.ktlint.version>
