@@ -41,14 +41,14 @@ public class MapEntryMapperTest {
 
     @Test
     public void keyValueColumns() {
-        h.execute("create table config (key varchar, value varchar)");
-        h.prepareBatch("insert into config (key, value) values (?, ?)")
+        h.execute("create table config (\"key\" varchar, \"value\" varchar)");
+        h.prepareBatch("insert into config (\"key\", \"value\") values (?, ?)")
                 .add("foo", "123")
                 .add("bar", "xyz")
                 .execute();
 
         // tag::keyValue[]
-        Map<String, String> map = h.createQuery("select key, value from config")
+        Map<String, String> map = h.createQuery("select \"key\", \"value\" from config")
                 .setMapKeyColumn("key")
                 .setMapValueColumn("value")
                 .collectInto(new GenericType<Map<String, String>>() {});
@@ -61,8 +61,8 @@ public class MapEntryMapperTest {
 
     @Test
     public void uniqueIndex() {
-        h.execute("create table user (id int, name varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.execute("create table \"user\" (id int, name varchar)");
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .add(3, "cathy")
@@ -70,7 +70,7 @@ public class MapEntryMapperTest {
                 .execute();
 
         // tag::uniqueIndex[]
-        Map<Integer, User> map = h.createQuery("select * from user")
+        Map<Integer, User> map = h.createQuery("select * from \"user\"")
                 .setMapKeyColumn("id")
                 .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Map<Integer, User>>() {});
@@ -85,9 +85,9 @@ public class MapEntryMapperTest {
 
     @Test
     public void joinRow() {
-        h.execute("create table user (id int, name varchar)");
+        h.execute("create table \"user\" (id int, name varchar)");
         h.execute("create table phone (id int, user_id int, phone varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .add(3, "cathy")
@@ -101,7 +101,7 @@ public class MapEntryMapperTest {
         // tag::joinRow[]
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
 
-            + "from user u left join phone p on u.id = p.user_id";
+            + "from \"user\" u left join phone p on u.id = p.user_id";
         Map<User, Phone> map = h.createQuery(sql)
                 .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
                 .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
@@ -116,9 +116,9 @@ public class MapEntryMapperTest {
 
     @Test
     public void overrideKeyValueColumnAtJdbiLevelWithNullAtStatement() {
-        h.execute("create table user (id int, name varchar)");
+        h.execute("create table \"user\" (id int, name varchar)");
         h.execute("create table phone (id int, user_id int, phone varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .add(3, "cathy")
@@ -130,7 +130,7 @@ public class MapEntryMapperTest {
                 .execute();
 
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
-            + "from user u left join phone p on u.id = p.user_id";
+            + "from \"user\" u left join phone p on u.id = p.user_id";
         h2Extension.getJdbi()
                 .setMapKeyColumn("foo")
                 .setMapValueColumn("bar")

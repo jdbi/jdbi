@@ -70,7 +70,6 @@ public class JdbiH2Extension extends JdbiExtension {
     protected DataSource createDataSource() {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(getUrl());
-
         return ds;
     }
 }

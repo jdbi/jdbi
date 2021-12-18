@@ -43,7 +43,7 @@ public class TestBatchingSingleValue {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.execute("create table batching (id integer, vals array)");
+        handle.execute("create table batching (id integer, vals integer array)");
         b = handle.attach(SingleValueBatching.class);
     }
 

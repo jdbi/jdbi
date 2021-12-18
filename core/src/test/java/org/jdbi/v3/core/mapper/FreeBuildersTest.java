@@ -171,8 +171,8 @@ public class FreeBuildersTest {
     @Test
     public void testByteArray() {
         final byte[] value = new byte[] {(byte) 42, (byte) 24};
-        h.execute("create table bytearr(value bytea)");
-        h.createUpdate("insert into bytearr(value) values(:value)")
+        h.execute("create table bytearr(\"value\" bytea)");
+        h.createUpdate("insert into bytearr(\"value\") values(:value)")
             .bindPojo(new ByteArray.Builder().value(value).build())
             .execute();
         assertThat(h.createQuery("select * from bytearr")

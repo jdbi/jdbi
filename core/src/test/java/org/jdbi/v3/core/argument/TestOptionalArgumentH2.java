@@ -31,40 +31,40 @@ public class TestOptionalArgumentH2 {
     @BeforeEach
     public void createTable() {
         h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE test (id BIGINT PRIMARY KEY, value TEXT)");
+            h.execute("CREATE TABLE test (id BIGINT PRIMARY KEY, val TEXT)");
         });
     }
 
     @Test
     public void testNotOptional() {
-        assertThatThrownBy(() -> insert("value.text", new EmptyBean())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> insert("val.text", new EmptyBean())).isInstanceOf(IllegalArgumentException.class);
         assertThat(select().isPresent()).isFalse();
     }
 
     @Test
     public void testOptional() {
-        insert("value?.text", new EmptyBean());
+        insert("val?.text", new EmptyBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
-        assertThat(op.get().value).isNull();
+        assertThat(op.get().val).isNull();
         assertThat(op.get().id).isEqualTo(1);
     }
 
     @Test
     public void testNotOptionalFullBean() {
-        insert("value.text", new FullBean());
+        insert("val.text", new FullBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
-        assertThat(op.get().value).isEqualTo("TEST");
+        assertThat(op.get().val).isEqualTo("TEST");
         assertThat(op.get().id).isEqualTo(1);
     }
 
     @Test
     public void testOptionalFullBean() {
-        insert("value?.text", new FullBean());
+        insert("val?.text", new FullBean());
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
-        assertThat(op.get().value).isEqualTo("TEST");
+        assertThat(op.get().val).isEqualTo("TEST");
         assertThat(op.get().id).isEqualTo(1);
     }
 
@@ -77,8 +77,8 @@ public class TestOptionalArgumentH2 {
 
     private Optional<IdValue> select() {
         return h2Extension.getJdbi().withHandle(
-            h -> h.createQuery("SELECT id, value FROM test")
-                .map((rs, ctx) -> new IdValue(rs.getLong("id"), rs.getString("value")))
+            h -> h.createQuery("SELECT id, val FROM test")
+                .map((rs, ctx) -> new IdValue(rs.getLong("id"), rs.getString("val")))
                 .findFirst());
     }
 
@@ -87,7 +87,7 @@ public class TestOptionalArgumentH2 {
             return 1;
         }
 
-        public Object getValue() {
+        public Object getVal() {
             return new NestedBean();
         }
     }
@@ -103,18 +103,18 @@ public class TestOptionalArgumentH2 {
             return 1;
         }
 
-        public Object getValue() {
+        public Object getVal() {
             return null;
         }
     }
 
     private class IdValue {
         private long id;
-        private String value;
+        private String val;
 
-        IdValue(long id, String value) {
+        IdValue(long id, String val) {
             this.id = id;
-            this.value = value;
+            this.val = val;
         }
     }
 }

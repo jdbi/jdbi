@@ -24,9 +24,9 @@ public class StatementsTest {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
-        handle.execute("INSERT INTO user VALUES (1, 'Alice')");
-        handle.execute("INSERT INTO user VALUES (2, 'Bob')");
+        handle.execute("CREATE TABLE \"user\" (id INTEGER PRIMARY KEY, \"name\" VARCHAR)");
+        handle.execute("INSERT INTO \"user\" VALUES (1, 'Alice')");
+        handle.execute("INSERT INTO \"user\" VALUES (2, 'Bob')");
     }
 
     @SuppressWarnings("unchecked")
@@ -34,7 +34,7 @@ public class StatementsTest {
     public void testQuery() {
         // tag::query[]
         List<Map<String, Object>> users =
-            handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+            handle.createQuery("SELECT id, \"name\" FROM \"user\" ORDER BY id ASC")
                 .mapToMap()
                 .list();
 
@@ -47,7 +47,7 @@ public class StatementsTest {
     @Test
     public void testUpdate() {
         // tag::update[]
-        int count = handle.createUpdate("INSERT INTO user(id, name) VALUES(:id, :name)")
+        int count = handle.createUpdate("INSERT INTO \"user\" (id, \"name\") VALUES(:id, :name)")
             .bind("id", 3)
             .bind("name", "Charlie")
             .execute();
@@ -55,7 +55,7 @@ public class StatementsTest {
         // end::update[]
 
         // tag::execute[]
-        count = handle.execute("INSERT INTO user(id, name) VALUES(?, ?)", 4, "Alice");
+        count = handle.execute("INSERT INTO \"user\" (id, \"name\") VALUES(?, ?)", 4, "Alice");
         assertThat(count).isEqualTo(1);
         // end::execute[]
     }
@@ -64,8 +64,8 @@ public class StatementsTest {
     public void testScript() {
         // tag::script[]
         int[] results = handle.createScript(
-                "INSERT INTO user VALUES(3, 'Charlie');"
-                + "UPDATE user SET name='Bobby Tables' WHERE id=2;")
+                "INSERT INTO \"user\" VALUES(3, 'Charlie');"
+                + "UPDATE \"user\" SET \"name\"='Bobby Tables' WHERE id=2;")
             .execute();
 
         assertThat(results).containsExactly(1, 1);
@@ -75,7 +75,7 @@ public class StatementsTest {
     @Test
     public void testBatch() {
         // tag::batch[]
-        PreparedBatch batch = handle.prepareBatch("INSERT INTO user(id, name) VALUES(:id, :name)");
+        PreparedBatch batch = handle.prepareBatch("INSERT INTO \"user\" (id, \"name\") VALUES(:id, :name)");
         for (int i = 100; i < 5000; i++) {
             batch.bind("id", i).bind("name", "User:" + i).add();
         }

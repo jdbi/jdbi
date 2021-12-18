@@ -43,7 +43,7 @@ public class TestH2SqlArrays {
     public static H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
-            th.execute("CREATE TABLE uuids (u ARRAY)");
+            th.execute("CREATE TABLE uuids (u UUID ARRAY)");
         });
     });
 

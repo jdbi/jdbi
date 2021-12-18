@@ -114,15 +114,15 @@ public class TestVavrMapCollectorWithDB {
     @Test
     public void uniqueIndex() {
         Handle h = h2Extension.getSharedHandle();
-        h.execute("create table user (id int, name varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.execute("create table \"user\" (id int, name varchar)");
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .add(3, "cathy")
                 .add(4, "dilbert")
                 .execute();
 
-        Map<Integer, User> map = h.createQuery("select * from user")
+        Map<Integer, User> map = h.createQuery("select * from \"user\"")
                 .setMapKeyColumn("id")
                 .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Map<Integer, User>>() {});
@@ -137,14 +137,14 @@ public class TestVavrMapCollectorWithDB {
     @Test
     public void testNonUniqueIndexWithMultimap() {
         Handle h = h2Extension.getSharedHandle();
-        h.execute("create table user (id int, name varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.execute("create table \"user\" (id int, name varchar)");
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .add(3, "alice")
                 .execute();
 
-        Multimap<String, User> usersByName = h.createQuery("select * from user")
+        Multimap<String, User> usersByName = h.createQuery("select * from \"user\"")
                 .setMapKeyColumn("name")
                 .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Multimap<String, User>>() {});

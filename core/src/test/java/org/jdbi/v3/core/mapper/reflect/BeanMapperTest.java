@@ -291,7 +291,7 @@ public class BeanMapperTest {
     public void classPropagateNull() {
         Handle handle = h2Extension.getSharedHandle();
 
-        assertThat(handle.select("select 42 as value, null as fk")
+        assertThat(handle.select("select 42 as \"value\", null as fk")
             .map(BeanMapper.of(ClassPropagateNullThing.class))
             .one())
             .isNull();
@@ -301,7 +301,7 @@ public class BeanMapperTest {
     public void classPropagateNotNull() {
         Handle handle = h2Extension.getSharedHandle();
 
-        assertThat(handle.select("select 42 as value, 'a' as fk")
+        assertThat(handle.select("select 42 as \"value\", 'a' as fk")
             .map(BeanMapper.of(ClassPropagateNullThing.class))
             .one())
             .extracting(cpnt -> cpnt.value)

@@ -41,15 +41,15 @@ public class MultimapEntryMapperTest {
 
     @Test
     public void keyValueColumns() {
-        h.execute("create table config (key varchar, value varchar)");
-        h.prepareBatch("insert into config (key, value) values (?, ?)")
+        h.execute("create table config (\"key\" varchar, \"value\" varchar)");
+        h.prepareBatch("insert into config (\"key\", \"value\") values (?, ?)")
                 .add("foo", "123")
                 .add("foo", "456")
                 .add("bar", "xyz")
                 .execute();
 
         // tag::keyValue[]
-        Multimap<String, String> map = h.createQuery("select key, value from config")
+        Multimap<String, String> map = h.createQuery("select \"key\", \"value\" from config")
                 .setMapKeyColumn("key")
                 .setMapValueColumn("value")
                 .collectInto(new GenericType<Multimap<String, String>>() {});
@@ -64,8 +64,8 @@ public class MultimapEntryMapperTest {
 
     @Test
     public void index() {
-        h.execute("create table user (id int, manager_id int, name varchar)");
-        h.prepareBatch("insert into user (id, manager_id, name) values (?, ?, ?)")
+        h.execute("create table \"user\" (id int, manager_id int, name varchar)");
+        h.prepareBatch("insert into \"user\" (id, manager_id, name) values (?, ?, ?)")
                 .add(1, 0, "alice")
                 .add(2, 1, "bob")
                 .add(3, 1, "cathy")
@@ -73,7 +73,7 @@ public class MultimapEntryMapperTest {
                 .execute();
 
         // tag::index[]
-        Multimap<Integer, User> map = h.createQuery("select id, manager_id, name from user")
+        Multimap<Integer, User> map = h.createQuery("select id, manager_id, name from \"user\"")
                 .setMapKeyColumn("manager_id")
                 .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Multimap<Integer, User>>() {});
@@ -89,9 +89,9 @@ public class MultimapEntryMapperTest {
 
     @Test
     public void joinRow() {
-        h.execute("create table user (id int, name varchar)");
+        h.execute("create table \"user\" (id int, name varchar)");
         h.execute("create table phone (id int, user_id int, phone varchar)");
-        h.prepareBatch("insert into user (id, name) values (?, ?)")
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
                 .add(1, "alice")
                 .add(2, "bob")
                 .execute();
@@ -103,7 +103,7 @@ public class MultimapEntryMapperTest {
 
         // tag::joinRow[]
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
-            + "from user u left join phone p on u.id = p.user_id";
+            + "from \"user\" u left join phone p on u.id = p.user_id";
         Multimap<User, Phone> map = h.createQuery(sql)
                 .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
                 .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))

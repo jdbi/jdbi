@@ -47,7 +47,7 @@ public class ArrayBindingTest {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.execute("create table baz (baz array)");
+        handle.execute("create table baz (baz integer array)");
         dao = handle.attach(BazDao.class);
     }
 

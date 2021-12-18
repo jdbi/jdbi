@@ -41,7 +41,7 @@ class KotlinMapperTest {
     @BeforeEach
     fun setup() {
         handle = h2Extension.sharedHandle
-        handle.execute("CREATE TABLE the_things(id integer, first text, second text, third text, fourth text)")
+        handle.execute("CREATE TABLE the_things(id integer, first text, \"second\" text, third text, fourth text)")
         handle.execute("CREATE TABLE the_other_things(id integer, other text)")
     }
 
@@ -278,7 +278,7 @@ class KotlinMapperTest {
     private val four = "four"
 
     private fun oneTwoThreeFourSetup() {
-        handle.createUpdate("INSERT INTO the_things(id, first, second, third, fourth) VALUES(1, :one, :two, :three, :four)")
+        handle.createUpdate("INSERT INTO the_things(id, first, \"second\", third, fourth) VALUES(1, :one, :two, :three, :four)")
             .bind("one", one)
             .bind("two", two)
             .bind("three", three)
@@ -286,7 +286,7 @@ class KotlinMapperTest {
             .execute()
     }
 
-    private val oneTwoThreeFourQuery = "SELECT id, first, second, third, fourth FROM the_things"
+    private val oneTwoThreeFourQuery = "SELECT id, first, \"second\", third, fourth FROM the_things"
 
     class ClassWithUnusedWriteableVariable(val first: String) {
         lateinit var second: String

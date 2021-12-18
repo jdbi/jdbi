@@ -348,7 +348,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void classPropagateNull() {
-            assertThat(handle.select("select 42 as value, null as fk")
+            assertThat(handle.select("select 42 as \"value\", null as fk")
                     .map(ConstructorMapper.of(ClassPropagateNullThing.class))
                     .one())
                 .isNull();
@@ -356,7 +356,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void classPropagateNotNull() {
-            assertThat(handle.select("select 42 as value, 'a' as fk")
+            assertThat(handle.select("select 42 as \"value\", 'a' as fk")
                     .map(ConstructorMapper.of(ClassPropagateNullThing.class))
                     .one())
                 .extracting(cpnt -> cpnt.value)
