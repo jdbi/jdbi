@@ -93,9 +93,9 @@
         <dep.immutables.version>2.8.8</dep.immutables.version>
         <dep.jackson2.version>2.10.5</dep.jackson2.version>
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
-        <dep.junit5.version>5.8.1</dep.junit5.version>
+        <dep.junit5.version>5.8.2</dep.junit5.version>
         <dep.kotlin.version>1.5.31</dep.kotlin.version>
-        <dep.mockito.version>3.11.2</dep.mockito.version>
+        <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.1</dep.pg-embedded.version>
         <dep.plugin.detekt.version>1.18.1.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
@@ -103,7 +103,7 @@
         <dep.plugin.scm-publish.version>3.1.0</dep.plugin.scm-publish.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
-        <dep.spring.version>5.3.8</dep.spring.version>
+        <dep.spring.version>5.3.12</dep.spring.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
         <jdbi.check.fail-ktlint>${jdbi.check.fail-kotlin}</jdbi.check.fail-ktlint>
@@ -429,7 +429,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.20.2</version>
+                <version>3.21.0</version>
             </dependency>
 
             <dependency>
@@ -508,7 +508,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.12.0</version>
+                <version>3.15.0</version>
             </dependency>
 
             <dependency>
