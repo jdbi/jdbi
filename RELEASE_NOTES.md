@@ -1,4 +1,6 @@
 # Unreleased
+
+# 3.25.0
   - *SPI change* `@Json String` database type mappers now use `@EncodedJson String` instead (#1953)
   - Sql4JSqlLogger: fix NPE when using Script
   - fix using ConstructorMapper on empty generated keys results (#1955)
