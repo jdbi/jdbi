@@ -104,11 +104,11 @@ public class TestJsr310 {
     public void localTime() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.execute("create table schedule (start time, end time)");
+        h.execute("create table schedule (start_time time, end_time time)");
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime end = LocalTime.of(10, 30, 0);
-        h.execute("insert into schedule (start, end) values (?,?)", start, end);
-        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).one()).isEqualTo(start);
-        assertThat(h.createQuery("select end from schedule").mapTo(LocalTime.class).one()).isEqualTo(end);
+        h.execute("insert into schedule (start_time, end_time) values (?,?)", start, end);
+        assertThat(h.createQuery("select start_time from schedule").mapTo(LocalTime.class).one()).isEqualTo(start);
+        assertThat(h.createQuery("select end_time from schedule").mapTo(LocalTime.class).one()).isEqualTo(end);
     }
 }

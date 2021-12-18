@@ -37,7 +37,7 @@ public class JoinRowMapperTest {
     @BeforeEach
     public void setUp() {
         h = h2Extension.getSharedHandle();
-        h.execute("CREATE TABLE user ("
+        h.execute("CREATE TABLE \"user\" ("
             + "uid INTEGER NOT NULL,"
             + "name VARCHAR NOT NULL"
             + ")");
@@ -51,7 +51,7 @@ public class JoinRowMapperTest {
             + ")");
 
         IntStream.rangeClosed(1, 3).forEach(u ->
-            h.execute("INSERT INTO user (uid, name) VALUES (?, ?)", u, "u" + u));
+            h.execute("INSERT INTO \"user\" (uid, name) VALUES (?, ?)", u, "u" + u));
 
         IntStream.rangeClosed(1, 3).forEach(a ->
             h.execute("INSERT INTO article (aid, title) VALUES (?, ?)", a, "a" + a));
@@ -71,7 +71,7 @@ public class JoinRowMapperTest {
     @Test
     public void testCartesianProduct() {
         Multimap<User, Article> product = HashMultimap.create();
-        h.createQuery("SELECT * FROM user, article")
+        h.createQuery("SELECT * FROM \"user\", article")
             .map(JoinRowMapper.forTypes(User.class, Article.class))
             .forEach(jr -> product.put(jr.get(User.class), jr.get(Article.class)));
 
@@ -87,7 +87,7 @@ public class JoinRowMapperTest {
     public void testJoin() {
        // tag::multimap[]
         Multimap<User, Article> joined = HashMultimap.create();
-        h.createQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
+        h.createQuery("SELECT * FROM \"user\" NATURAL JOIN author NATURAL JOIN article")
             .map(JoinRowMapper.forTypes(User.class, Article.class))
             .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
        // end::multimap[]

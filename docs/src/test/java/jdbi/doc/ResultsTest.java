@@ -61,9 +61,9 @@ public class ResultsTest {
     public void setUp() {
         handle = h2Extension.getSharedHandle();
 
-        handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR)");
+        handle.execute("CREATE TABLE \"user\" (id INTEGER PRIMARY KEY AUTO_INCREMENT, \"name\" VARCHAR)");
         for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
-            handle.execute("INSERT INTO user(name) VALUES (?)", name);
+            handle.execute("INSERT INTO \"user\" (\"name\") VALUES (?)", name);
         }
     }
 
@@ -77,7 +77,7 @@ public class ResultsTest {
     public Optional<User> findUserById(long id) {
         RowMapper<User> userMapper =
                 (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name"));
-        return handle.createQuery("SELECT * FROM user WHERE id=:id")
+        return handle.createQuery("SELECT * FROM \"user\" WHERE id=:id")
             .bind("id", id)
             .map(userMapper)
             .findFirst();
@@ -96,7 +96,7 @@ public class ResultsTest {
     @Test
     public void rowMapper() {
         // tag::rowMapper[]
-        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+        List<User> users = handle.createQuery("SELECT id, \"name\" FROM \"user\" ORDER BY id ASC")
             .map(new UserMapper())
             .list();
         // end::rowMapper[]
@@ -108,7 +108,7 @@ public class ResultsTest {
     @Test
     public void inlineRowMapper() {
         // tag::inlineRowMapper[]
-        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+        List<User> users = handle.createQuery("SELECT id, \"name\" FROM \"user\" ORDER BY id ASC")
                 .map((rs, ctx) -> new User(rs.getInt("id"), rs.getString("name")))
                 .list();
         // end::inlineRowMapper[]
@@ -122,7 +122,7 @@ public class ResultsTest {
         // tag::rowMapperFactory[]
         handle.registerRowMapper(User.class, new UserMapper());
 
-        handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+        handle.createQuery("SELECT id, \"name\" FROM \"user\" ORDER BY id ASC")
               .mapTo(User.class)
               .useStream(stream -> {
                   Optional<String> first = stream
@@ -138,7 +138,7 @@ public class ResultsTest {
     public void constructorMapper() {
         // tag::constructorMapper[]
         handle.registerRowMapper(ConstructorMapper.factory(User.class));
-        Set<User> userSet = handle.createQuery("SELECT * FROM user ORDER BY id ASC")
+        Set<User> userSet = handle.createQuery("SELECT * FROM \"user\" ORDER BY id ASC")
             .mapTo(User.class)
             .collect(Collectors.toSet());
 
@@ -172,7 +172,7 @@ public class ResultsTest {
         handle.registerColumnMapper(userNameFactory);
         handle.registerRowMapper(ConstructorMapper.factory(NamedUser.class));
 
-        NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
+        NamedUser bob = handle.createQuery("SELECT id, \"name\" FROM \"user\" WHERE \"name\" = :name")
             .bind("name", "Bob")
             .mapTo(NamedUser.class)
             .one();
@@ -187,7 +187,7 @@ public class ResultsTest {
         handle.registerRowMapper(BeanMapper.factory(UserBean.class));
 
         List<UserBean> users = handle
-                .createQuery("select id, name from user")
+                .createQuery("select id, \"name\" from \"user\"")
                 .mapTo(UserBean.class)
                 .list();
         // end::beanMapper[]
@@ -199,7 +199,7 @@ public class ResultsTest {
     public void mapToBean() {
         // tag::mapToBean[]
         List<UserBean> users = handle
-                .createQuery("select id, name from user")
+                .createQuery("select id, \"name\" from \"user\"")
                 .mapToBean(UserBean.class)
                 .list();
         // end::mapToBean[]
@@ -209,13 +209,13 @@ public class ResultsTest {
 
     @Test
     public void beanMapperPrefix() {
-        handle.execute("create table contacts (id int, name text)");
-        handle.execute("create table phones (id int, contact_id int, name text, number text)");
+        handle.execute("create table contacts (id int, \"name\" text)");
+        handle.execute("create table phones (id int, contact_id int, \"name\" text, \"number\" text)");
 
-        handle.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
-        handle.execute("insert into phones (id, contact_id, name, number) values (?, ?, ?, ?)",
+        handle.execute("insert into contacts (id, \"name\") values (?, ?)", 1, "Alice");
+        handle.execute("insert into phones (id, contact_id, \"name\", \"number\") values (?, ?, ?, ?)",
                 100, 1, "Home", "555-1212");
-        handle.execute("insert into phones (id, contact_id, name, number) values (?, ?, ?, ?)",
+        handle.execute("insert into phones (id, contact_id, \"name\", \"number\") values (?, ?, ?, ?)",
                 101, 1, "Work", "555-9999");
 
         // tag::beanMapperPrefix[]
@@ -223,8 +223,8 @@ public class ResultsTest {
         handle.registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"));
         handle.registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class));
         List<JoinRow> contactPhones = handle.select("select "
-                + "c.id cid, c.name cname, "
-                + "p.id pid, p.name pname, p.number pnumber "
+                + "c.id cid, c.\"name\" cname, "
+                + "p.id pid, p.\"name\" pname, p.\"number\" pnumber "
                 + "from contacts c left join phones p on c.id = p.contact_id")
                 .mapTo(JoinRow.class)
                 .list();

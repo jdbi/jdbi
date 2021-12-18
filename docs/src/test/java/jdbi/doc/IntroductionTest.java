@@ -35,30 +35,30 @@ public class IntroductionTest {
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test"); // (H2 in-memory database)
 
         List<User> users = jdbi.withHandle(handle -> {
-            handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
+            handle.execute("CREATE TABLE \"user\" (id INTEGER PRIMARY KEY, \"name\" VARCHAR)");
 
             // Inline positional parameters
-            handle.execute("INSERT INTO user(id, name) VALUES (?, ?)", 0, "Alice");
+            handle.execute("INSERT INTO \"user\" (id, \"name\") VALUES (?, ?)", 0, "Alice");
 
             // Positional parameters
-            handle.createUpdate("INSERT INTO user(id, name) VALUES (?, ?)")
+            handle.createUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (?, ?)")
                     .bind(0, 1) // 0-based parameter indexes
                     .bind(1, "Bob")
                     .execute();
 
             // Named parameters
-            handle.createUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
+            handle.createUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (:id, :name)")
                     .bind("id", 2)
                     .bind("name", "Clarice")
                     .execute();
 
             // Named parameters from bean properties
-            handle.createUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
+            handle.createUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (:id, :name)")
                     .bindBean(new User(3, "David"))
                     .execute();
 
             // Easy mapping to any type
-            return handle.createQuery("SELECT * FROM user ORDER BY name")
+            return handle.createQuery("SELECT * FROM \"user\" ORDER BY \"name\"")
                     .mapToBean(User.class)
                     .list();
         });
@@ -74,19 +74,19 @@ public class IntroductionTest {
     // tag::sqlobject-declaration[]
     // Define your own declarative interface
     public interface UserDao {
-        @SqlUpdate("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)")
+        @SqlUpdate("CREATE TABLE \"user\" (id INTEGER PRIMARY KEY, \"name\" VARCHAR)")
         void createTable();
 
-        @SqlUpdate("INSERT INTO user(id, name) VALUES (?, ?)")
+        @SqlUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (?, ?)")
         void insertPositional(int id, String name);
 
-        @SqlUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
+        @SqlUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (:id, :name)")
         void insertNamed(@Bind("id") int id, @Bind("name") String name);
 
-        @SqlUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
+        @SqlUpdate("INSERT INTO \"user\" (id, \"name\") VALUES (:id, :name)")
         void insertBean(@BindBean User user);
 
-        @SqlQuery("SELECT * FROM user ORDER BY name")
+        @SqlQuery("SELECT * FROM \"user\" ORDER BY \"name\"")
         @RegisterBeanMapper(User.class)
         List<User> listUsers();
     }

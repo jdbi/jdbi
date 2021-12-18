@@ -26,7 +26,7 @@ public class CodecExampleTest {
     @BeforeEach
     public void setUp() {
         h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, value INT)");
+            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, \"value\" INT)");
         });
     }
 
@@ -51,7 +51,7 @@ public class CodecExampleTest {
         // tag::store[]
 
         // store object
-        int result = jdbi.withHandle(h -> h.createUpdate("INSERT INTO counters (id, value) VALUES (:id, :value)")
+        int result = jdbi.withHandle(h -> h.createUpdate("INSERT INTO counters (id, \"value\") VALUES (:id, :value)")
             .bind("id", counterId)
             .bindByType("value", counter, COUNTER_TYPE)
             .execute());
@@ -68,7 +68,7 @@ public class CodecExampleTest {
         // tag::load[]
 
         // load object
-        Counter restoredCounter = jdbi.withHandle(h -> h.createQuery("SELECT value from counters where id = :id")
+        Counter restoredCounter = jdbi.withHandle(h -> h.createQuery("SELECT \"value\" from counters where id = :id")
             .bind("id", counterId)
             .mapTo(COUNTER_TYPE).first());
 

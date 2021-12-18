@@ -139,10 +139,10 @@ public class ImmutablesTest {
 
     @Test
     public void testModifiable() {
-        h.execute("create table fbb (id serial, foo varchar, bar int, baz real)");
+        h.execute("create table fbb (id int not null, foo varchar, bar int, baz real)");
 
         assertThat(h.createUpdate("insert into fbb (id, foo, bar, baz) values (:id, :foo, :bar, :baz)")
-            .bindPojo(ModifiableFooBarBaz.create().setFoo("foo").setBar(42).setBaz(1.0))
+            .bindPojo(ModifiableFooBarBaz.create().setId(1).setFoo("foo").setBar(42).setBaz(1.0))
             .execute())
             .isEqualTo(1);
 
@@ -198,8 +198,8 @@ public class ImmutablesTest {
     @Test
     public void testByteArray() {
         final byte[] value = new byte[]{(byte) 42, (byte) 24};
-        h.execute("create table bytearr(value bytea)");
-        h.createUpdate("insert into bytearr(value) values(:value)")
+        h.execute("create table bytearr(\"value\" bytea)");
+        h.createUpdate("insert into bytearr(\"value\") values(:value)")
             .bindPojo(ImmutableByteArray.builder().value(value).build())
             .execute();
         assertThat(h.createQuery("select * from bytearr")

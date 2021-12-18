@@ -47,7 +47,7 @@ public class TestBindMethods {
     @BeforeEach
     public void setUp() {
         final Handle h = this.h2Extension.getSharedHandle();
-        h.execute("CREATE TABLE bind_methods (id IDENTITY PRIMARY KEY, value BIGINT)");
+        h.execute("CREATE TABLE bind_methods (id IDENTITY PRIMARY KEY, \"value\" BIGINT)");
     }
 
     @Test
@@ -120,11 +120,11 @@ public class TestBindMethods {
 
     public interface PairRowDAO {
 
-        @SqlUpdate("INSERT INTO bind_methods (id, value) VALUES(:row.getKey, :row.getValue.getColumnValue)")
+        @SqlUpdate("INSERT INTO bind_methods (id, \"value\") VALUES(:row.getKey, :row.getValue.getColumnValue)")
         @RegisterArgumentFactory(BigIntNumberArgumentFactory.class)
         int insert(@BindMethods("row") PairRow pairRow);
 
-        @SqlQuery("SELECT value FROM bind_methods WHERE id = :id")
+        @SqlQuery("SELECT \"value\" FROM bind_methods WHERE id = :id")
         Long getById(@Bind("id") int dbid);
     }
 

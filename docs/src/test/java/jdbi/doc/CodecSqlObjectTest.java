@@ -27,10 +27,10 @@ public class CodecSqlObjectTest {
     // SQL object dao
     public interface CounterDao {
 
-        @SqlUpdate("INSERT INTO counters (id, value) VALUES (:id, :value)")
+        @SqlUpdate("INSERT INTO counters (id, \"value\") VALUES (:id, :value)")
         int storeCounter(@Bind("id") String id, @Bind("value") Counter counter);
 
-        @SqlQuery("SELECT value from counters where id = :id")
+        @SqlQuery("SELECT \"value\" from counters where id = :id")
         Counter loadCounter(@Bind("id") String id);
     }
 
@@ -45,7 +45,7 @@ public class CodecSqlObjectTest {
     @BeforeEach
     public void setUp() {
         h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, value INT)");
+            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, \"value\" INT)");
         });
     }
 

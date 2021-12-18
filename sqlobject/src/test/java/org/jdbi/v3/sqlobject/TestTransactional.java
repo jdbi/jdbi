@@ -13,19 +13,22 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
 import com.google.common.collect.ImmutableSet;
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -55,17 +58,7 @@ public class TestTransactional {
     public JdbiExtension h2Extension = new JdbiH2Extension() {
         @Override
         protected DataSource createDataSource() {
-            final JdbcDataSource ds = new JdbcDataSource() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Connection getConnection() throws SQLException {
-                    return createProxyHandler(super.getConnection());
-                }
-            };
-            ds.setURL(getUrl());
-
-            return ds;
+            return new DataSourceWrapper(super.createDataSource(), c -> createProxyHandler(c));
         }
     }.withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
@@ -185,6 +178,62 @@ public class TestTransactional {
                 throw new SQLException("PostgreSQL would not let you set the transaction isolation here");
             }
             return method.invoke(real, args);
+        }
+    }
+
+    class DataSourceWrapper implements DataSource {
+
+        private final DataSource delegate;
+        private final Function<Connection, Connection> transformer;
+
+        DataSourceWrapper(DataSource delegate, Function<Connection, Connection> transformer) {
+            this.delegate = delegate;
+            this.transformer = transformer;
+        }
+
+        @Override
+        public Connection getConnection() throws SQLException {
+            return transformer.apply(delegate.getConnection());
+        }
+
+        @Override
+        public Connection getConnection(String username, String password) throws SQLException {
+            return transformer.apply(delegate.getConnection(username, password));
+        }
+
+        @Override
+        public PrintWriter getLogWriter() throws SQLException {
+            return delegate.getLogWriter();
+        }
+
+        @Override
+        public void setLogWriter(PrintWriter out) throws SQLException {
+            delegate.setLogWriter(out);
+        }
+
+        @Override
+        public void setLoginTimeout(int seconds) throws SQLException {
+            delegate.setLoginTimeout(seconds);
+        }
+
+        @Override
+        public int getLoginTimeout() throws SQLException {
+            return delegate.getLoginTimeout();
+        }
+
+        @Override
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            return delegate.getParentLogger();
+        }
+
+        @Override
+        public <T> T unwrap(Class<T> iface) throws SQLException {
+            return delegate.unwrap(iface);
+        }
+
+        @Override
+        public boolean isWrapperFor(Class<?> iface) throws SQLException {
+            return delegate.isWrapperFor(iface);
         }
     }
 }

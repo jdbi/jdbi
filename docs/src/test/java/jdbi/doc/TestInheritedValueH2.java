@@ -39,13 +39,13 @@ public class TestInheritedValueH2 {
     // SQL object dao using concrete types
     public interface DataDao {
 
-        @SqlUpdate("INSERT INTO data (id, value) VALUES (:bean.id, :bean.value)")
+        @SqlUpdate("INSERT INTO data (id, \"value\") VALUES (:bean.id, :bean.value)")
         int storeData(@BindBean("bean") StringBean bean);
 
-        @SqlUpdate("INSERT INTO data (id, value) VALUES (:id, :value)")
+        @SqlUpdate("INSERT INTO data (id, \"value\") VALUES (:id, :value)")
         int storeData(@Bind("id") String id, @Bind("value") StringValue data);
 
-        @SqlQuery("SELECT value from data where id = :id")
+        @SqlQuery("SELECT \"value\" from data where id = :id")
         StringValue loadData(@Bind("id") String id);
     }
 
@@ -53,13 +53,13 @@ public class TestInheritedValueH2 {
 
     public interface SetDao {
 
-        @SqlUpdate("INSERT INTO data (id, value) VALUES (:id, :value)")
+        @SqlUpdate("INSERT INTO data (id, \"value\") VALUES (:id, :value)")
         int storeData(@Bind("id") String id, @Bind("value") ImmutableSet<AutoValue> data);
 
-        @SqlUpdate("INSERT INTO data (id, value) VALUES (:bean.id, :bean.value)")
+        @SqlUpdate("INSERT INTO data (id, \"value\") VALUES (:bean.id, :bean.value)")
         int storeData(@BindBean("bean") AutoValueBean bean);
 
-        @SqlQuery("SELECT value from data where id = :id")
+        @SqlQuery("SELECT \"value\" from data where id = :id")
         @SingleValue
         Set<AutoValue> loadData(@Bind("id") String id);
     }
@@ -79,7 +79,7 @@ public class TestInheritedValueH2 {
     @BeforeEach
     public void setUp() {
         h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE data (id VARCHAR PRIMARY KEY, value VARCHAR)");
+            h.execute("CREATE TABLE data (id VARCHAR PRIMARY KEY, \"value\" VARCHAR)");
         });
     }
 
@@ -100,7 +100,7 @@ public class TestInheritedValueH2 {
         assertEquals(1, result);
 
         // load object
-        Value<String> restoredData = jdbi.withHandle(h -> h.createQuery("SELECT value from data where id = :id")
+        Value<String> restoredData = jdbi.withHandle(h -> h.createQuery("SELECT \"value\" from data where id = :id")
             .bind("id", dataId)
             .mapTo(DATA_TYPE).first());
 

@@ -63,7 +63,7 @@ public class TestRegisterJoinRowMapper {
     public interface UserArticleDao {
 
         @RegisterJoinRowMapper({User.class, Article.class})
-        @SqlQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
+        @SqlQuery("SELECT * FROM \"user\" NATURAL JOIN author NATURAL JOIN article")
         Stream<JoinRow> getAuthorship();
     }
     // end::joinrowdao[]
