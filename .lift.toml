@@ -1,0 +1,2 @@
+build = "mvnw -B -fae clean install"
+jdk11 = true
