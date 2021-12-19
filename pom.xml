@@ -86,7 +86,7 @@
 
         <dep.antlr.version>4.9.2</dep.antlr.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
-        <dep.dokka.version>1.5.31</dep.dokka.version>
+        <dep.dokka.version>1.6.0</dep.dokka.version>
         <dep.freebuilder.version>2.7.0</dep.freebuilder.version>
         <dep.guava.version>30.1.1-jre</dep.guava.version>
         <dep.h2.version>2.0.202</dep.h2.version>
@@ -96,10 +96,10 @@
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.junit5.version>5.8.2</dep.junit5.version>
-        <dep.kotlin.version>1.5.31</dep.kotlin.version>
+        <dep.kotlin.version>1.6.10</dep.kotlin.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.1</dep.pg-embedded.version>
-        <dep.plugin.detekt.version>1.18.1.1</dep.plugin.detekt.version>
+        <dep.plugin.detekt.version>1.19.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
         <dep.plugin.ktlint.version>1.11.2</dep.plugin.ktlint.version>
         <dep.plugin.scm-publish.version>3.1.0</dep.plugin.scm-publish.version>

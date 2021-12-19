@@ -25,7 +25,7 @@ class KotlinBindTest {
 
     companion object {
         @RegisterExtension
-        val pg = MultiDatabaseBuilder.instanceWithDefaults().build()!!
+        val pg = MultiDatabaseBuilder.instanceWithDefaults().build()
     }
 
     @RegisterExtension
