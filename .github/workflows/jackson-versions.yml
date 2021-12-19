@@ -1,0 +1,33 @@
+name: Test Jackson versions
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  ci:
+    name: Test Jackson Versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        jackson-version: [ 2.13.1, 2.12.6, 2.11.4, 2.10.5.20201202, 2.10.5 ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-java@v2
+      id: setup_jdk
+      name: Setup JDK
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Build
+      run: |
+          ./mvnw -B -fae -am -pl :jdbi3-jackson -Ddep.jackson2.version=${{ matrix.jackson-version }} clean install
