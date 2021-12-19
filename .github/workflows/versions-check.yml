@@ -9,7 +9,7 @@ on:
     - master
 
 jobs:
-  guava:
+  antlr:
     name: Test antlr runtime versions
     runs-on: ubuntu-latest
 
