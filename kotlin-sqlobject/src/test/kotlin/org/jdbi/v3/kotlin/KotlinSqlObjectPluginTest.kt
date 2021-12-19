@@ -26,6 +26,7 @@ import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers
 import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
+import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMappers
 import org.jdbi.v3.sqlobject.kotlin.attach
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -191,5 +192,27 @@ class KotlinSqlObjectPluginTest {
 
         assertThat(result.s).isEqualTo("x")
         assertThat(result.i).isEqualTo(2)
+    }
+
+    @RegisterKotlinMappers(
+        RegisterKotlinMapper(Thing::class, "t")
+    )
+    interface YetAnotherThingDao : SqlObject {
+        @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
+        fun insert(something: Thing)
+
+        @SqlQuery("select id as t_id, name as t_name from something where id=:id")
+        fun findById(id: Int): Thing
+    }
+
+    @Test
+    fun testRegisterMappersAtInterfaceLevel() {
+        val dao = h2Extension.jdbi.onDemand(YetAnotherThingDao::class.java)
+
+        dao.insert(Thing(42, "Douglas", null))
+        val result = dao.findById(42)
+
+        assertThat(result.id).isEqualTo(42)
+        assertThat(result.name).isEqualTo("Douglas")
     }
 }
