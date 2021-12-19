@@ -30,4 +30,4 @@ jobs:
 
     - name: Build
       run: |
-          ./mvnw -B -fae -am -pl :jdbi3-jackson -Ddep.jackson2.version=${{ matrix.jackson-version }} clean install
+          ./mvnw -B -fae -am -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.jackson-version }} clean install
