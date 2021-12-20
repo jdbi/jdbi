@@ -17,5 +17,5 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
 
 @Retention(AnnotationRetention.RUNTIME)
 @ConfiguringAnnotation(RegisterKotlinMappersImpl::class)
-@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class RegisterKotlinMappers(vararg val value: RegisterKotlinMapper)
