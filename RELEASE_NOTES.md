@@ -1,4 +1,7 @@
 # Unreleased
+  - change annotation targets for Kotlin annotations to `CLASS` (fixes #1971)
+  - use h2 2.x for unit tests (prevents spurious "security" reports)
+  - run more integration tests for postgres and dependency compatibility 
 
 # 3.25.0
   - *SPI change* `@Json String` database type mappers now use `@EncodedJson String` instead (#1953)
