@@ -14,6 +14,15 @@ Example:
 
 ```bash
 $ git clone git@github.com:jdbi/jdbi
+$ cd jdbi
+$ git checkout -b jdbi-<version>-release master
+```
+
+or
+
+```bash
+$ cd jdbi
+$ git pull
 $ git checkout -b jdbi-<version>-release master
 ```
 
