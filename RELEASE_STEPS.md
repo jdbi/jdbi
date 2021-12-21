@@ -13,9 +13,8 @@ Name it `jdbi-<version>-release`.
 Example:
 
 ```bash
-$ git checkout master
-$ git pull
-$ git checkout -b jdbi-<version>-release
+$ git clone git@github.com:jdbi/jdbi
+$ git checkout -b jdbi-<version>-release master
 ```
 
 ## Update release notes
@@ -24,22 +23,20 @@ Double check that release notes contain all the most important changes for the r
 
 ## Build the release on your workstation
 
-Create the release artifacts in Maven, and deploy them to Sonatype staging repository
-Note that on Java 16, you must specify `--illegal-access=warn` as a `MAVEN_OPTS` otherwise Kotlin fails to build
+Create the release artifacts in Maven, and deploy them to Sonatype staging repository.
+Use the latest Java LTS version (currently 17) to build the artifacts.
 
 ```bash
-$ MAVEN_OPTS="--illegal-access=warn" mvn release:prepare release:perform
+$ ./mvnw release:prepare release:perform
 ```
 
 Change the release version if needed, or just press Enter if the suggested version is good.
 
 Accept the release tag and snapshot versions suggested by Maven.
 
-Go to lunch.
+Grab a coffee. A release build takes about six minutes on a reasonably current laptop.
 
-When you get back, you will see if the release succeeded.
-
-If so, you will see two new commits on your branch:
+If the release succeeds, there will be two new commits on the branch:
 
 - a release commit with the release version
 - a snapshot commit with the next snapshot version
@@ -62,21 +59,25 @@ It also creates a release tag, pointing to the release commit.
 - Click Refresh until the repository status changes again, which will make
   it disappear from the search.
 
-## Push release release branch and tag to Github
+## Release code changes to github
+
+Push release release branch and tag to Github, then merge the release branch back to the master:
 
 ```bash
 $ git push -u origin jdbi-<version>-release
 $ git push --tags
+$ git checkout master
+$ git merge --ff-only jdbi-<version>-release
+$ git push master
 ```
 
 ## Publish the docs
 
-Check out the release tag from Git, and run the `publishDocs.sh` script to send doc updates to jdbi.org
+Check out the release tag from Git, and run the `publish-docs.sh` script to send doc updates to jdbi.org:
 
 ```bash
 $ git checkout v<version>
-$ cd docs
-$ ./publish-docs.sh
+$ ./docs/publish-docs.sh
 ```
 
 ## Add a release announcement to github
