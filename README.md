@@ -8,23 +8,24 @@ in Java.
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
 Jdbi with it.
 
-* [Developer Guide and API Docs](https://jdbi.github.io/)
+* [Developer Guide](https://jdbi.github.io/)
+* [Javadoc](https://jdbi.org/apidocs/)
 * [Mailing List](http://groups.google.com/group/jdbi)
 
 ## Prerequisites
 
 Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
 
-We run CI tests against Java 11 and 17 and still support Java 8 for testing on a best-effort basis. 
+We run CI tests against Java 11 and 17 and still support Java 8 for testing on a best-effort basis.
 
 ### Java 8 compatibility
 
-Java 8 is considered deprecated. While Jdbi does not (yet) have a specific date to drop support, 
+Java 8 is considered deprecated. While Jdbi does not (yet) have a specific date to drop support,
 please chart your path forward to a supported JDK! We recommend running the latest LTS JDK.
 
-Jdbi 3 is compiled to Java 8 byte code and is considered stable on Java 8. 
+Jdbi 3 is compiled to Java 8 byte code and is considered stable on Java 8.
 
-However, we now require Java 11 or better to compile as the tool chain no longer runs on Java 8. 
+However, we now require Java 11 or better to compile as the tool chain no longer runs on Java 8.
 
 We run CI tests on Java 8 on a best effort basis as some of the tests require Java 11+ only dependencies.
 
