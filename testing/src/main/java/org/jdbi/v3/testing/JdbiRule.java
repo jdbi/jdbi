@@ -45,8 +45,8 @@ public abstract class JdbiRule extends ExternalResource {
 
     private DataSource getDataSource() {
         if (dataSource == null) {
+            lock.lock();
             try {
-                lock.lock();
                 if (dataSource == null) {
                     dataSource = createDataSource();
                 }
