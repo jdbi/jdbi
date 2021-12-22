@@ -30,7 +30,7 @@ public class RegisterArgumentFactoryImpl implements Configurer {
         try {
             arguments.register(registerArgumentFactory.value().getDeclaredConstructor().newInstance());
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Unable to instantiate configurer factory class " + registerArgumentFactory.value(), e);
+            throw new IllegalStateException("Unable to instantiate argument factory class " + registerArgumentFactory.value(), e);
         }
     }
 
