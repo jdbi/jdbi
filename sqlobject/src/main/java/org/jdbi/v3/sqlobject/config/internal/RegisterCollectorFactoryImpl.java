@@ -34,9 +34,9 @@ public class RegisterCollectorFactoryImpl implements Configurer {
         JdbiCollectors collectors = registry.get(JdbiCollectors.class);
         Class<? extends CollectorFactory> type = registerCollectorFactory.value();
         try {
-            collectors.register(type.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new IllegalStateException("Unable to instantiate container factory", e);
+            collectors.register(type.getDeclaredConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to instantiate collector factory class " + registerCollectorFactory.value(), e);
         }
     }
 }

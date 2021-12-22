@@ -211,8 +211,8 @@ public class FieldMapper<T> implements RowMapper<T> {
 
     private T construct() {
         try {
-            return type.newInstance();
-        } catch (Exception e) {
+            return type.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException(String.format(TYPE_NOT_INSTANTIABLE, type.getName()), e);
         }
     }

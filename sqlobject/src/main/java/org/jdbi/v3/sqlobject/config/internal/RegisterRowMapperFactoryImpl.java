@@ -33,9 +33,9 @@ public class RegisterRowMapperFactoryImpl implements Configurer {
         RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
         try {
-            mappers.register(registerRowMapperFactory.value().newInstance());
-        } catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified row mapper factory", e);
+            mappers.register(registerRowMapperFactory.value().getDeclaredConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to instantiate row mapper factory class " + registerRowMapperFactory.value(), e);
         }
     }
 }
