@@ -27,6 +27,8 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandl
 
     private final Jdbi db;
     private final ThreadLocal<ConfigRegistry> localConfig;
+
+    @SuppressWarnings("ThreadLocalUsage")
     private final ThreadLocal<ExtensionMethod> localExtensionMethod = new ThreadLocal<>();
 
     private volatile Handle handle;

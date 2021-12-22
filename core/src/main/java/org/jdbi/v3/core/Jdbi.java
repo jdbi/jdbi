@@ -63,6 +63,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
+    @SuppressWarnings("ThreadLocalUsage")
     private final ThreadLocal<HandleSupplier> threadHandleSupplier = new ThreadLocal<>();
 
     private Jdbi(ConnectionFactory connectionFactory) {
