@@ -15,7 +15,7 @@ package org.jdbi.v3.benchmark.sqlobject;
 
 import java.util.StringJoiner;
 
-public class TestContent {
+public final class TestContent {
     public static final TestContent TEST_CONTENT = new TestContent("test name", "test description");
 
     private final String name;

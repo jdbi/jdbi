@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * The SQL and parameters parsed from an SQL statement.
  */
-public class ParsedSql {
+public final class ParsedSql {
     static final String POSITIONAL_PARAM = "?";
 
     private final String sql;
