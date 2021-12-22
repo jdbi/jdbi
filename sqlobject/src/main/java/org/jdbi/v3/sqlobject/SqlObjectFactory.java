@@ -214,8 +214,8 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
 
     private static Configurer getConfigurer(Class<? extends Configurer> factoryClass) {
         try {
-            return factoryClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return factoryClass.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Unable to instantiate configurer factory class " + factoryClass, e);
         }
     }
