@@ -189,7 +189,7 @@ public class FieldMapper<T> implements RowMapper<T> {
 
             for (FieldData f : fields) {
                 Object value = f.mapper.map(r, ctx);
-                if (f.propagateNull && (value == null || f.isPrimitive && r.wasNull())) {
+                if (f.propagateNull && (value == null || (f.isPrimitive && r.wasNull()))) {
                     return null;
                 }
                 writeField(obj, f.field, value);
