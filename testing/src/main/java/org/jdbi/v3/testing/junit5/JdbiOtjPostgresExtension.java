@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
-import com.opentable.db.postgres.embedded.EmbeddedPostgres.Builder;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
@@ -89,7 +88,7 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
         return pg.getPostgresDatabase();
     }
 
-    public JdbiOtjPostgresExtension customize(Consumer<Builder> customizer) {
+    public JdbiOtjPostgresExtension customize(Consumer<EmbeddedPostgres.Builder> customizer) {
         this.builderCustomizers.add(customizer);
 
         return this;
@@ -127,7 +126,7 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
 
     private EmbeddedPostgres createEmbeddedPostgres() throws IOException {
 
-        final Builder builder = EmbeddedPostgres.builder();
+        final EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
         this.builderCustomizers.forEach((c) -> {
             c.accept(builder);
         });
