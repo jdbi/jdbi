@@ -92,7 +92,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
 
         private static Predicate<Enum<?>> enumValueMatches(String name, BiPredicate<String, String> comparer) {
             return e -> Optional.ofNullable(
-                Unchecked.function(e.getClass()::getField)
+                Unchecked.function(e.getDeclaringClass()::getField)
                     .apply(e.name())
                     .getAnnotation(DatabaseValue.class))
                 .map(DatabaseValue::value)
