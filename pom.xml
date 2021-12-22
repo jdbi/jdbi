@@ -80,6 +80,7 @@
     <properties>
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
+        <basepom.release.profiles>basepom.oss-release,jdbi-release</basepom.release.profiles>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
@@ -843,10 +844,6 @@
                             <rules>
                                 <!-- Ensure consistency -->
                                 <dependencyConvergence />
-                                <requireJavaVersion>
-                                    <!-- post java 11 for correct javadoc build -->
-                                    <version>[12,)</version>
-                                </requireJavaVersion>
                                 <requireProperty>
                                     <property>moduleName</property>
                                     <message>This module must set a moduleName.</message>
@@ -1095,6 +1092,33 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>jdbi-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-java17</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <!-- releases must be built with Java 17 or better -->
+                                        <requireJavaVersion>
+                                            <version>[17,)</version>
+                                        </requireJavaVersion>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
