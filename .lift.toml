@@ -1,2 +1,2 @@
-build = "mvnw -B -fae clean install"
+build = "mvn -B -fae clean install"
 jdk11 = true
