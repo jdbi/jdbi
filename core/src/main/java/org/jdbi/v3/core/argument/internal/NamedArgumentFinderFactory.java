@@ -116,7 +116,7 @@ public interface NamedArgumentFinderFactory<T> {
         }
     }
 
-    class PrepareKey {
+    final class PrepareKey {
         final Class<?> factoryClass;
         final Type type;
         final String prefix;
