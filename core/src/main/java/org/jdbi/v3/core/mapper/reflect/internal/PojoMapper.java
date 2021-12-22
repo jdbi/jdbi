@@ -142,7 +142,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
             for (PropertyData<T> p : propList) {
                 Object value = p.mapper.map(r, ctx);
-                if (p.propagateNull && (value == null || p.isPrimitive && r.wasNull())) {
+                if (p.propagateNull && (value == null || (p.isPrimitive && r.wasNull()))) {
                     return null;
                 }
 

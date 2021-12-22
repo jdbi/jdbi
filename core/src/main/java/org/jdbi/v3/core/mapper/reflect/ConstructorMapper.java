@@ -279,7 +279,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
             for (ParameterData p : paramData) {
                 params[p.index] = p.mapper.map(r, c);
-                if (p.propagateNull && (params[p.index] == null || p.isPrimitive && r.wasNull())) {
+                if (p.propagateNull && (params[p.index] == null || (p.isPrimitive && r.wasNull()))) {
                     return null;
                 }
             }
