@@ -93,10 +93,8 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        ConfigRegistry instanceConfig = handle.getConfig().createCopy();
-
-        SqlObjectInitData data = sqlObjectCache.get(extensionType, handle.getConfig());
-        data.configureInstance(instanceConfig);
+        final SqlObjectInitData data = sqlObjectCache.get(extensionType, handle.getConfig());
+        final ConfigRegistry instanceConfig = data.configureInstance(handle.getConfig().createCopy());
 
         if (data.isConcrete()) {
             return data.instantiate(extensionType, handle, instanceConfig);

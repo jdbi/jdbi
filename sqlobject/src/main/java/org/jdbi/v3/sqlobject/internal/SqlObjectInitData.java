@@ -112,8 +112,8 @@ public final class SqlObjectInitData {
         }
     }
 
-    public void configureInstance(ConfigRegistry config) {
-        instanceConfigurer.apply(config);
+    public ConfigRegistry configureInstance(ConfigRegistry config) {
+        return instanceConfigurer.apply(config);
     }
 
     public void forEachMethodHandler(BiConsumer<Method, Handler> action) {
