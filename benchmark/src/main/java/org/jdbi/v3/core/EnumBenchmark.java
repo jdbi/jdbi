@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.testing.JdbiRule;
@@ -40,20 +41,21 @@ public class EnumBenchmark {
     private JdbiRule db;
     private Jdbi jdbi;
 
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
+
     @Setup
     public void setup() throws Throwable {
         db = JdbiRule.h2();
         db.before();
         jdbi = db.getJdbi();
-        Random r = new Random();
         jdbi.useHandle(h -> {
             h.execute("create table sensitive (value varchar)");
             h.execute("create table insensitive (value varchar)");
             SwedishChef[] values = SwedishChef.values();
             for (int i = 0; i < 1000; i++) {
-                SwedishChef element = values[r.nextInt(values.length)];
+                SwedishChef element = values[random.nextInt(values.length)];
                 h.execute("insert into sensitive(value) values(?)", element);
-                h.execute("insert into insensitive(value) values(?)", randomizeCase(r, element.name()));
+                h.execute("insert into insensitive(value) values(?)", randomizeCase(random, element.name()));
             }
         });
     }

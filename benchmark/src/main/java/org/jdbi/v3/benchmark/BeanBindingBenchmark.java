@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,7 +60,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Fork(4)
 public class BeanBindingBenchmark {
     private static final int INNER_LOOPS = 10_000;
-    private final Random random = new Random();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private JdbiRule db;
     private Dao dao;
     private List<SampleBean> sampleList;
