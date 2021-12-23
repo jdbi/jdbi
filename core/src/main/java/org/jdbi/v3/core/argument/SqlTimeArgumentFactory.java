@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 class SqlTimeArgumentFactory extends DelegatingArgumentFactory {
+    @SuppressWarnings("JavaUtilDate")
     SqlTimeArgumentFactory() {
         register(java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
         register(java.sql.Date.class, Types.DATE, PreparedStatement::setDate);

@@ -302,6 +302,7 @@ public class OutParameters {
     }
 
     @CheckForNull
+    @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(String name) {
         Object obj = map.get(name);
 
@@ -321,6 +322,7 @@ public class OutParameters {
     }
 
     @CheckForNull
+    @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
