@@ -116,6 +116,7 @@ public abstract class JdbiRule extends ExternalResource {
      * @return this
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester")
     public JdbiRule migrateWithFlyway(String... locations) {
         return withMigration(Migration.before().withPaths(locations));
     }
