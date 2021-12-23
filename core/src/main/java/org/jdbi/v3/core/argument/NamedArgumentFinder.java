@@ -28,7 +28,9 @@ public interface NamedArgumentFinder {
     Optional<Argument> find(String name, StatementContext ctx);
 
     /**
-     * @return the names this named argument finder can find, if known, otherwise an empty collection
+     * Returns the names this named argument finder can find. Returns an empty collection otherwise.
+     *
+     * @return the names this named argument finder can find. Returns an empty collection otherwise.
      */
     @Beta
     default Collection<String> getNames() {

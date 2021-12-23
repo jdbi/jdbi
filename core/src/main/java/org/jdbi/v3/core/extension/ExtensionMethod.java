@@ -35,14 +35,16 @@ public final class ExtensionMethod {
     }
 
     /**
-     * @return the type the method was invoked on
+     * @return the type the method was invoked on.
      */
     public Class<?> getType() {
         return type;
     }
 
     /**
-     * @return the method invoked
+     * Returns the method invoked.
+     *
+     * @return the method invoked.
      */
     public Method getMethod() {
         return method;

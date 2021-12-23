@@ -34,14 +34,18 @@ public final class ParsedParameters {
     }
 
     /**
-     * @return true if the SQL statement uses positional parameters, false if
-     * the statement uses named parameters, or has no parameters at all.
+     * Whether the the SQL statement uses positional parameters. False means that
+     *  the statement either uses named parameters, or has no parameters at all.
+     *
+     * @return true if the statemetnt uses positional parameters.
      */
     public boolean isPositional() {
         return positional;
     }
 
     /**
+     * The number of parameters from the SQL statement.
+     *
      * @return the number of parameters from the SQL statement.
      */
     public int getParameterCount() {
@@ -49,6 +53,8 @@ public final class ParsedParameters {
     }
 
     /**
+     * The parameter names from the SQL statement.
+     *
      * @return the parameter names from the SQL statement.
      */
     public List<String> getParameterNames() {

@@ -25,14 +25,14 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 public interface CollectorFactory {
     /**
-     * @param containerType the container type
+     * @param containerType the container type.
      *
      * @return whether this factory can produce a collector for the given container type.
      */
     boolean accepts(Type containerType);
 
     /**
-     * @param containerType the container type
+     * @param containerType the container type.
      *
      * @return the container element type if it can be discovered through reflection; empty otherwise.
      * @see StatementContext#findElementTypeFor(Type)
@@ -40,7 +40,7 @@ public interface CollectorFactory {
     Optional<Type> elementType(Type containerType);
 
     /**
-     * @param containerType the type of the container
+     * @param containerType the container type.
      *
      * @return a {@link Collector} for the given container type.
      *

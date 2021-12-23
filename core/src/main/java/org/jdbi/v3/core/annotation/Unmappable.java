@@ -28,7 +28,9 @@ import org.jdbi.v3.meta.Beta;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Unmappable {
     /**
-     * @return whether this property is unmappable (skipped when read from the database into a pojo)
+     * Returns true if the property is unmappable. It will be skipped when read from the database into a pojo.
+     *
+     * @return True if the property is unmappable. It will be skipped when read from the database into a pojo.
      */
     boolean value() default true;
 }

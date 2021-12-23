@@ -22,6 +22,8 @@ import java.sql.Connection;
  */
 public interface StatementBuilderFactory {
     /**
+     * Creates a new {@link StatementBuilder} from a {@link Connection} object.
+     *
      * @param conn the connection to create a statement builder for
      * @return a StatementBuilder, called when a new handle is opened
      */

@@ -280,7 +280,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     /**
-     * @return the number of bindings which are in this batch
+     * Returns the number of bindings in this batch.
+     *
+     * @return the number of bindings in this batch.
      */
     public int size() {
         return bindings.size();

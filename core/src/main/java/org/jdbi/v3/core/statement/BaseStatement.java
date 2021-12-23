@@ -43,7 +43,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     }
 
     /**
-     * @return the statement context associated with this statement
+     * @return the statement context associated with this statement.
      */
     public final StatementContext getContext() {
         return ctx;

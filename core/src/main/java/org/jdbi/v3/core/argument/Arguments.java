@@ -192,28 +192,36 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     /**
-     * @return the untyped null argument
+     * Returns the untyped null argument.
+     *
+     * @return the untyped null argument.
      */
     public Argument getUntypedNullArgument() {
         return untypedNullArgument;
     }
 
     /**
-     * @return if binding {@code null} to a variable declared as a primitive type is allowed
+     * Returns true if binding {@code null} to a variable declared as a primitive type is allowed.
+     *
+     * @return true if binding {@code null} to a variable declared as a primitive type is allowed.
      */
     public boolean isBindingNullToPrimitivesPermitted() {
         return bindingNullToPrimitivesPermitted;
     }
 
     /**
-     * @param bindingNullToPrimitivesPermitted if binding {@code null} to a variable declared as a primitive type should be allowed
+     * Whether binding {@code null} to a variable declared as a primitive type should be allowed.
+     *
+     * @param bindingNullToPrimitivesPermitted if true, {@code null} can be bound to a variable declared as a primitive type.
      */
     public void setBindingNullToPrimitivesPermitted(final boolean bindingNullToPrimitivesPermitted) {
         this.bindingNullToPrimitivesPermitted = bindingNullToPrimitivesPermitted;
     }
 
     /**
-     * @return true if prepared arguments binding (improves performance) is enabled
+     * Returns true if prepared arguments binding is enabled. Settings this improves performance.
+     *
+     * @return true if prepared arguments binding is enabled.
      */
     public boolean isPreparedArgumentsEnabled() {
         return preparedArgumentsEnabled;
@@ -222,6 +230,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     /**
      * Configure whether {@link ArgumentFactory.Preparable} factories will be processed before regular {@link ArgumentFactory}
      * instances are. This improves speed at a small cost to backwards compatibility. Please disable it if you require the old semantics.
+     *
      * @param preparedArgumentsEnabled whether to enable preparable argument factories
      */
     public void setPreparedArgumentsEnabled(final boolean preparedArgumentsEnabled) {

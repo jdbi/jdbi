@@ -33,7 +33,9 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
     Handle getHandle();
 
     /**
-     * @return the owning Jdbi instance
+     * Returns the owning Jdbi instance.
+     *
+     * @return the owning Jdbi instance.
      */
     Jdbi getJdbi();
 

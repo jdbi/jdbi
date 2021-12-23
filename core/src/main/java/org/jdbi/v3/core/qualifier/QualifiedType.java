@@ -102,6 +102,8 @@ public final class QualifiedType<T> {
     }
 
     /**
+     * Creates a QualifiedType with the same type as this instance and new qualifiers. Old qualifiers are discarded.
+     *
      * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
      * @param newQualifiers the qualifiers for the new qualified type.
@@ -111,6 +113,8 @@ public final class QualifiedType<T> {
     }
 
     /**
+     * Creates a QualifiedType with the same type as this instance and new qualifiers. Old qualifiers are discarded.
+     *
      * @return a QualifiedType that has the same type as this instance, but with <b>only</b> the given qualifiers.
      *
      * @param newQualifiers the qualifiers for the new qualified type.
@@ -123,13 +127,17 @@ public final class QualifiedType<T> {
     }
 
     /**
-     * @return the type being qualified
+     * Returns the qualified type.
+     *
+     * @return the type being qualified.
      */
     public Type getType() {
         return type;
     }
 
     /**
+     * Returns a set of qualifying annotations.
+     *
      * @return the type qualifiers.
      */
     public Set<Annotation> getQualifiers() {
@@ -161,8 +169,10 @@ public final class QualifiedType<T> {
     }
 
     /**
-     * @param qualifier qualifier to check for
-     * @return true if this instance contains the given qualifier
+     * Returns true if this type contains the given qualifier.
+     *
+     * @param qualifier qualifier to check for.
+     * @return true if this instance contains the given qualifier.
      */
     public boolean hasQualifier(Class<? extends Annotation> qualifier) {
         return qualifiers.stream().anyMatch(qualifier::isInstance);

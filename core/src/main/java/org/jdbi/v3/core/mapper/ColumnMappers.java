@@ -222,9 +222,11 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     /**
-     * @return {@code true} if database {@code null}s should translate to the Java defaults for primitives, or throw an exception otherwise
+     * Returns true if database {@code null} values should be transformed to the default value for primitives.
      *
-     * Default value is true: nulls will be coalesced to defaults
+     * @return {@code true} if database {@code null}s should translate to the Java defaults for primitives, or throw an exception otherwise.
+     *
+     * Default value is true: nulls will be coalesced to defaults.
      */
     public boolean getCoalesceNullPrimitivesToDefaults() {
         return coalesceNullPrimitivesToDefaults;

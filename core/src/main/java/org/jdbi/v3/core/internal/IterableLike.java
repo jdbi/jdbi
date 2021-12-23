@@ -39,8 +39,10 @@ public class IterableLike {
     }
 
     /**
-     * @param maybeIterable the object that might be iterable
-     * @return whether {@code IterableLike} can iterate over the given object
+     * Returns true if the given object is iterable.
+     *
+     * @param maybeIterable the object that might be iterable.
+     * @return whether {@code IterableLike} can iterate over the given object.
      */
     public static boolean isIterable(Object maybeIterable) {
         return maybeIterable instanceof Iterator<?>
