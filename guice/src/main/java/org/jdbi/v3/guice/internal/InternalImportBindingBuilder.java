@@ -43,11 +43,8 @@ public final class InternalImportBindingBuilder<T> implements ScopedBindingBuild
 
         this.concreteType = checkNotNull(concreteType, "concreteType is null");
 
-        checkNotNull(binder, "binder is null");
-
         this.provider = new InternalBindingProvider<>(concreteType);
         this.binder = binder.toProvider(provider);
-
     }
 
     /**
