@@ -27,6 +27,7 @@ import org.jdbi.v3.meta.Beta;
  * @see DefinedAttributeTemplateEngine
  */
 @FunctionalInterface
+@SuppressWarnings("FunctionalInterfaceMethodChanged") // this is a false positive b/c a lambda can only be casted to TemplateEngine or Parsing, not both
 public interface TemplateEngine {
     /**
      * Convenience constant that returns the input template.
