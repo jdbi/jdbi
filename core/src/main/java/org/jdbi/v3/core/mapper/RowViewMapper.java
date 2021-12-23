@@ -24,7 +24,7 @@ import org.jdbi.v3.meta.Beta;
 /**
  * Higher level cousin of {@link RowMapper} that operates over {@link RowView}s rather than
  * the bare {@link ResultSet}.
- * @param <T>
+ * @param <T> the mapped type.
  */
 @FunctionalInterface
 @Beta

@@ -41,10 +41,10 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 abstract class ResultReturner {
     /**
      * If the return type is {@code void}, swallow results.
-     * @param extensionType
-     * @param method
+     * @param extensionType The extension type to use.
+     * @param method The method to use.
      * @see ResultReturner#forMethod(Class, Method) if the return type is not void
-     * @return
+     * @return A {@link ResultReturner}
      */
     static ResultReturner forOptionalReturn(Class<?> extensionType, Method method) {
         if (method.getReturnType() == void.class) {
