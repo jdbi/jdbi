@@ -16,7 +16,6 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -27,7 +26,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
-    private final Map<Class<?>, Function<Object, Argument>> builders = new IdentityHashMap<>();
+    private final IdentityHashMap<Class<?>, Function<Object, Argument>> builders = new IdentityHashMap<>();
 
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {

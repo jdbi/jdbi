@@ -26,7 +26,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -46,7 +45,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class JavaTimeMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
+    private final IdentityHashMap<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     JavaTimeMapperFactory() {
         mappers.put(Instant.class, new GetterMapper<>(JavaTimeMapperFactory::getInstant));

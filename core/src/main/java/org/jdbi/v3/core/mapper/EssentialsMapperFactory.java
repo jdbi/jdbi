@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class EssentialsMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
+    private final IdentityHashMap<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     EssentialsMapperFactory() {
         mappers.put(BigDecimal.class, new GetterMapper<>(ResultSet::getBigDecimal));
