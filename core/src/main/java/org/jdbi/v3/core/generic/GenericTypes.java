@@ -79,17 +79,17 @@ public class GenericTypes {
      * </p>
      * <ul>
      * <li>if {@code type} is {@code ArrayList<String>},
-     * {@code parameterizedSuperType} is {@code List.class},
+     * {@code parameterizedSupertype} is {@code List.class},
      * and {@code n} is {@code 0},
      * returns {@code Optional.of(String.class)}.</li>
      *
      * <li>if {@code type} is {@code Map<String, Integer>},
-     * {@code parameterizedSuperType} is {@code Map.class},
+     * {@code parameterizedSupertype} is {@code Map.class},
      * and {@code n} is {@code 1},
      * returns {@code Optional.of(Integer.class)}.</li>
      *
      * <li>if {@code type} is {@code ArrayList.class} (raw),
-     * {@code parameterizedSuperType} is {@code List.class},
+     * {@code parameterizedSupertype} is {@code List.class},
      * and {@code n} is {@code 0},
      * returns {@code Optional.empty()}.</li>
      * </ul>

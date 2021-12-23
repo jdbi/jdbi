@@ -392,7 +392,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle rolls back, unless it is committed first.
-     * @param onCommit the action to execute after rollback
+     * @param afterRollback the action to execute after rollback
      * @return this Handle
      */
     @Beta
