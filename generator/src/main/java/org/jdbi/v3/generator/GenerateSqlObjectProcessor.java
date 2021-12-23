@@ -66,7 +66,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         final TypeElement gens = annotations.iterator().next();
         final Set<? extends Element> annoTypes = roundEnv.getElementsAnnotatedWith(gens);
         annoTypes.forEach(this::tryGenerate);
-        return true;
+        return false;
     }
 
     private void tryGenerate(Element sqlObj) {
