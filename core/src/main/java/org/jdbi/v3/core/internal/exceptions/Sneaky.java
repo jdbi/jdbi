@@ -58,7 +58,7 @@ public class Sneaky {
         throw throwEvadingChecks(t);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     private static <E extends Throwable> E throwEvadingChecks(Throwable throwable) throws E {
         throw (E) throwable;
     }

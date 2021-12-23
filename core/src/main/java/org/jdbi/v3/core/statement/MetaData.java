@@ -43,6 +43,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
             .scanResultSet(mapper);
     }
 
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public <R> R execute() {
         try {
             Connection connection = handle.getConnection();
