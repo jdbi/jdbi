@@ -34,6 +34,7 @@ import static java.util.Objects.requireNonNull;
 @Alpha
 public final class JdbiInterceptionChainHolder<S, T> {
 
+    @SuppressWarnings("UnnecessaryLambda") // constant for readablity
     private static final Function<?, ?> DEFAULT_TRANSFORMER = source -> {
         if (source == null) {
             throw new UnsupportedOperationException("null value is not supported");

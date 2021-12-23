@@ -123,6 +123,8 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      */
     public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
+
+        @SuppressWarnings("UnnecessaryLambda") // constant for readablity
         private static final Consumer<List<Exception>> NOP = list -> {};
 
         private int maxRetries = DEFAULT_MAX_RETRIES;

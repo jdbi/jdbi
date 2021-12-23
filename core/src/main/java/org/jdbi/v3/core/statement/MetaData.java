@@ -53,6 +53,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
         }
     }
 
+    @SuppressWarnings("UnnecessaryLambda") // factored out for readablity
     private Supplier<ResultSet> getResultSetSupplier() {
         return () -> {
             ResultSet rs = execute();
