@@ -13,14 +13,21 @@
  */
 package org.jdbi.v3.core.argument.internal;
 
+import java.util.Objects;
+
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
-public class TypedValue {
-    final QualifiedType<?> type;
-    final Object value;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * A container to combine a value with a specific type.
+ */
+public final class TypedValue {
+    private final QualifiedType<?> type;
+    private final Object value;
 
     public TypedValue(QualifiedType<?> qualifiedType, Object value) {
-        this.type = qualifiedType;
+        this.type = requireNonNull(qualifiedType, "qualifiedType is null");
         this.value = value;
     }
 
@@ -35,5 +42,22 @@ public class TypedValue {
     @Override
     public String toString() {
         return "(" + type + ") " + value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TypedValue that = (TypedValue) o;
+        return type.equals(that.type) && Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, value);
     }
 }

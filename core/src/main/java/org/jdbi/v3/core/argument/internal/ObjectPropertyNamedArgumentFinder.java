@@ -61,10 +61,10 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
             }
 
             return getValue(actualName, ctx)
-                .map(tv -> ctx.findArgumentFor(tv.type, tv.value)
+                .map(tv -> ctx.findArgumentFor(tv.getType(), tv.getValue())
                     .orElseThrow(() -> new UnableToCreateStatementException(
                         String.format("No argument factory registered for type [%s] for element [%s] on [%s]",
-                            tv.type,
+                            tv.getType(),
                             name,
                             obj),
                         ctx)));
@@ -74,14 +74,14 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
     }
 
     private NamedArgumentFinder getValueNested(TypedValue typedValue, String parentName, String childName) {
-        if (Objects.nonNull(typedValue.value)) {
+        if (Objects.nonNull(typedValue.getValue())) {
             return getNestedArgumentFinder(typedValue);
         }
         if (parentName.endsWith("?")) {
             return (n, c) -> Optional.of(c.getConfig(Arguments.class).getUntypedNullArgument());
         }
         throw new IllegalArgumentException(
-            String.format("Trying to bind nested argument [%s], but found nullpointer at [%s], may mark it as an optional with [%s]",
+            String.format("Trying to bind nested argument [%s], but found null value at [%s], may mark it as an optional with [%s]",
                 childName,
                 parentName,
                 parentName + '?'));

@@ -183,6 +183,26 @@ public class TestNamedParams {
             .isEqualTo(new Something(0, "Keith"));
     }
 
+    @Test
+    public void testFieldsNestedBindingToNull() {
+        Handle h = h2Extension.openHandle();
+
+        assertThat(h
+            .createUpdate("insert into something (id, name) values (0, :my.nested?.name)")
+            .bindFields("my", new Object() {
+                @SuppressWarnings("unused")
+                public final PublicFields nested = null;
+            })
+            .execute())
+            .isEqualTo(1);
+
+        assertThat(h
+            .select("select * from something where id = ?", 0)
+            .mapToBean(Something.class)
+            .one())
+            .isEqualTo(new Something(0, null));
+    }
+
     public class FunctionsNestedBinding {
 
         public NoArgFunctions nested() {
