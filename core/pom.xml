@@ -171,6 +171,7 @@
                                 <exclude>**/TestPreparedBatchPG.java</exclude>
                                 <exclude>**/TestScript.java</exclude>
                                 <exclude>**/ConstructorMapperPgTest.java</exclude>
+                                <exclude>**/TestArgumentBinder.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
