@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.Types;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestBatch {
 
@@ -48,6 +50,44 @@ public class TestBatch {
         try (Handle h = h2Extension.openHandle()) {
             final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
             assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet
+        }
+    }
+
+    @Test
+    public void testPreparedBatch() throws Exception {
+        int batchCount = 50;
+        try (Handle h = h2Extension.openHandle()) {
+            PreparedBatch batch = h.prepareBatch("INSERT INTO something (id, name) VALUES(:id, :name)");
+            for (int i = 1; i <= batchCount; i++) {
+                batch.bind("id", i)
+                    .bind("name", "User:" + i)
+                    .add();
+            }
+            int[] counts = batch.execute();
+
+            assertEquals(batchCount, counts.length);
+            for (int i = 0; i < batchCount; i++) {
+                assertEquals(1, counts[i]);
+            }
+        }
+    }
+
+    @Test
+    public void testPreparedBatchWithNull() throws Exception {
+        int batchCount = 5;
+        try (Handle h = h2Extension.openHandle()) {
+            PreparedBatch batch = h.prepareBatch("INSERT INTO something (id, name) VALUES(:id, :name)");
+            for (int i = 1; i <= batchCount; i++) {
+                batch.bind("id", i)
+                    .bindNull("name", Types.OTHER)
+                    .add();
+            }
+            int[] counts = batch.execute();
+
+            assertEquals(batchCount, counts.length);
+            for (int i = 0; i < batchCount; i++) {
+                assertEquals(1, counts[i]);
+            }
         }
     }
 }
