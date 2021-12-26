@@ -62,7 +62,7 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
      * A Jdbi definition module that uses this constructor will use the default element configuration from {@link AbstractJdbiConfigurationModule}s that do not
      * use any custom annotation.
      *
-     * @param annotation The resulting @{link Jdbi} instance will be exposed using this annotation.
+     * @param annotation The resulting {@link Jdbi} instance will be exposed using this annotation.
      */
     public AbstractJdbiDefinitionModule(Annotation annotation) {
         this(checkNotNull(annotation, "annotation is null"), null, JdbiGlobal.class);
@@ -74,7 +74,7 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
      * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the same
      * annotation as this constructor.
      *
-     * @param annotation            The resulting @{link Jdbi} instance will be exposed using this annotation.
+     * @param annotation            The resulting {@link Jdbi} instance will be exposed using this annotation.
      * @param globalAnnotationClass Custom annotation class used to look up global settings for this {@link Jdbi} instance.
      */
     public AbstractJdbiDefinitionModule(Annotation annotation, Class<? extends Annotation> globalAnnotationClass) {
@@ -87,7 +87,7 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
      * A Jdbi definition module that uses this constructor will use the default element configuration from {@link AbstractJdbiConfigurationModule}s that do not
      * use any custom annotation.
      *
-     * @param annotationClass The resulting @{link Jdbi} instance will be exposed using this annotation class.
+     * @param annotationClass The resulting {@link Jdbi} instance will be exposed using this annotation class.
      */
     public AbstractJdbiDefinitionModule(Class<? extends Annotation> annotationClass) {
         this(null, checkNotNull(annotationClass, "annotationClass is null"), JdbiGlobal.class);
@@ -99,7 +99,7 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
      * A Jdbi definition module that uses this constructor will use the element configuration from {@link AbstractJdbiConfigurationModule}s that use the same
      * annotation as this constructor.
      *
-     * @param annotationClass       The resulting @{link Jdbi} instance will be exposed using this annotation.
+     * @param annotationClass       The resulting {@link Jdbi} instance will be exposed using this annotation.
      * @param globalAnnotationClass Custom annotation class used to look up global settings for this {@link Jdbi} instance.
      */
     public AbstractJdbiDefinitionModule(Class<? extends Annotation> annotationClass, Class<? extends Annotation> globalAnnotationClass) {

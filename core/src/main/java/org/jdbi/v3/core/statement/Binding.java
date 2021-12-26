@@ -177,7 +177,9 @@ public class Binding {
     }
 
     /**
-     * @return true if there are no bindings yet
+     * Returns whether any bindings exist.
+     *
+     * @return True if there are no bindings.
      */
     public boolean isEmpty() {
         return positionals.isEmpty() && named.isEmpty() && namedArgumentFinder.isEmpty();

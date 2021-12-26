@@ -15,7 +15,7 @@ package org.jdbi.v3.benchmark.sqlobject;
 
 import java.util.StringJoiner;
 
-public class TestData {
+public final class TestData {
 
     private final long id;
 

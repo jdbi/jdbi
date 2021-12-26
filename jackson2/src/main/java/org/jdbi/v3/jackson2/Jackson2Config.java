@@ -45,7 +45,9 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * @return the object mapper to use for json conversion
+     * Returns the object mapper to use for json conversion.
+     *
+     * @return the object mapper to use for json conversion.
      */
     public ObjectMapper getMapper() {
         return mapper;
@@ -71,7 +73,9 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * @return the current {@code @JsonView} used for serialization
+     * Returns the current {@code @JsonView} used for serialization.
+     *
+     * @return The current {@code @JsonView} used for serialization.
      */
     public Class<?> getSerializationView() {
         return serializationView;
@@ -88,7 +92,9 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * @return the current {@code @JsonView} used for deserialization
+     * Returns the current {@code @JsonView} used for deserialization.
+     *
+     * @return the current {@code @JsonView} used for deserialization.
      */
     public Class<?> getDeserializationView() {
         return deserializationView;

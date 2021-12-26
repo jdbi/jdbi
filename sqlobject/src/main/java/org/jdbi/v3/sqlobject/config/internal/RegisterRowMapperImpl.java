@@ -31,9 +31,9 @@ public class RegisterRowMapperImpl implements Configurer {
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
         try {
-            registry.get(RowMappers.class).register(registerRowMapper.value().newInstance());
-        } catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified row mapper", e);
+            registry.get(RowMappers.class).register(registerRowMapper.value().getDeclaredConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to instantiate row mapper class " + registerRowMapper.value(), e);
         }
     }
 }

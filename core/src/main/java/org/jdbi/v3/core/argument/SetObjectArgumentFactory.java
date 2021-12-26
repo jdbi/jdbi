@@ -35,7 +35,9 @@ public class SetObjectArgumentFactory implements ArgumentFactory.Preparable {
     }
 
     /**
-     * @param types the Java {@link Class}es to handle with the {@link java.sql.Types} they bind to
+     * Creates a new {@link ArgumentFactory} that maps objects to {@link java.sql.Types} values.
+     *
+     * @param types the Java {@link Class}es to handle with the {@link java.sql.Types} they bind to.
      * @return an {@link ArgumentFactory} that handles only the given {@link Class}es.
      */
     public static ArgumentFactory forClasses(Map<Class<?>, Integer> types) {

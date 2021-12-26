@@ -62,7 +62,7 @@ public class OptionalCollectors {
    * 2 or more elements are present in a stream. Null elements are mapped to
    * {@code OptionalLong.empty()}.
    *
-   * @return a {@code Collector} which collects 0 or 1 input @{code Long} elements into an
+   * @return a {@code Collector} which collects 0 or 1 input {@code Long} elements into an
    * {@code OptionalLong}.
    */
   public static Collector<Long, ?, OptionalLong> toOptionalLong() {
@@ -75,7 +75,7 @@ public class OptionalCollectors {
    * whenever 2 or more elements are present in a stream. Null elements are mapped to
    * {@code OptionalDouble.empty()}.
    *
-   * @return a {@code Collector} which collects 0 or 1 input @{code Double} elements into an
+   * @return a {@code Collector} which collects 0 or 1 input {@code Double} elements into an
    * {@code OptionalDouble}.
    */
   public static Collector<Double, ?, OptionalDouble> toOptionalDouble() {

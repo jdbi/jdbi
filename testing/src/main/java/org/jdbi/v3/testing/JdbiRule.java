@@ -45,8 +45,8 @@ public abstract class JdbiRule extends ExternalResource {
 
     private DataSource getDataSource() {
         if (dataSource == null) {
+            lock.lock();
             try {
-                lock.lock();
                 if (dataSource == null) {
                     dataSource = createDataSource();
                 }
@@ -116,6 +116,7 @@ public abstract class JdbiRule extends ExternalResource {
      * @return this
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester")
     public JdbiRule migrateWithFlyway(String... locations) {
         return withMigration(Migration.before().withPaths(locations));
     }

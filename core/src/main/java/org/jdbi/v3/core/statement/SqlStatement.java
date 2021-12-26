@@ -90,14 +90,16 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
-     * @return the un-translated SQL used to create this statement
+     * Returns the un-translated SQL used to create this statement.
+     *
+     * @return the un-translated SQL used to create this statement.
      */
     protected String getSql() {
         return sql;
     }
 
     /**
-     * Set the query timeout, in seconds, on the prepared statement
+     * Set the query timeout, in seconds, on the prepared statement.
      *
      * @param seconds number of seconds before timing out
      *

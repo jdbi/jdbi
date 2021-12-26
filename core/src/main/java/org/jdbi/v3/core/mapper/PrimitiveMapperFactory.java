@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -39,7 +38,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class PrimitiveMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
+    private final IdentityHashMap<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
     PrimitiveMapperFactory() {
         mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));

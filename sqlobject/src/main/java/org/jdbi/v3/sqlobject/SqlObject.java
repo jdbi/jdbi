@@ -25,7 +25,9 @@ import org.jdbi.v3.core.HandleConsumer;
  */
 public interface SqlObject {
     /**
-     * @return the handle open in the current sql object context.
+     * Returns the handle used in the current sql object context.
+     *
+     * @return the handle used in the current sql object context.
      */
     Handle getHandle();
 

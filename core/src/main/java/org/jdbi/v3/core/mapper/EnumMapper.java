@@ -44,6 +44,8 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
 
     /**
+     * Map database string values to enum names.
+     *
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#name()}
@@ -53,6 +55,8 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     }
 
     /**
+     * Map database integer values to enum ordinal values.
+     *
      * @param <E> the enum type to map
      * @param type the enum type to map
      * @return an enum mapper that matches on {@link Enum#ordinal()}
@@ -92,7 +96,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
 
         private static Predicate<Enum<?>> enumValueMatches(String name, BiPredicate<String, String> comparer) {
             return e -> Optional.ofNullable(
-                Unchecked.function(e.getClass()::getField)
+                Unchecked.function(e.getDeclaringClass()::getField)
                     .apply(e.name())
                     .getAnnotation(DatabaseValue.class))
                 .map(DatabaseValue::value)

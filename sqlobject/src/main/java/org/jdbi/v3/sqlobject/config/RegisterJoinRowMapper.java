@@ -30,7 +30,9 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterJoinRowMapperImpl;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper {
     /**
-     * @return the types that will be available on the JoinRows returned.
+     * Returns the types that will be available on the JoinRows returned.
+     *
+     * @return The types that will be available on the JoinRows returned.
      */
     Class<?>[] value();
 }

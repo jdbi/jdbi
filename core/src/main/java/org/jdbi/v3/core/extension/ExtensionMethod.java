@@ -26,6 +26,7 @@ public final class ExtensionMethod {
     private final Method method;
 
     /**
+     * Creates a new extension method.
      * @param type the type the method was invoked on
      * @param method the method invoked
      */
@@ -35,14 +36,18 @@ public final class ExtensionMethod {
     }
 
     /**
-     * @return the type the method was invoked on
+     * Returns the type the method was invoked on.
+     *
+     * @return the type the method was invoked on.
      */
     public Class<?> getType() {
         return type;
     }
 
     /**
-     * @return the method invoked
+     * Returns the method invoked.
+     *
+     * @return the method invoked.
      */
     public Method getMethod() {
         return method;

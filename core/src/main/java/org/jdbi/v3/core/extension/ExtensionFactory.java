@@ -18,13 +18,17 @@ package org.jdbi.v3.core.extension;
  */
 public interface ExtensionFactory {
     /**
-     * @param extensionType the extension type
+     * Returns true if the factory can attach the given extension type.
      *
-     * @return whether the factory can produce an extension of the given type
+     * @param extensionType the extension type.
+     *
+     * @return whether the factory can produce an extension of the given type.
      */
     boolean accepts(Class<?> extensionType);
 
     /**
+     * Attaches an extension type.
+     *
      * @param extensionType the extension type.
      * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
      *                      invocation. Extension implementors should take care not to fetch the handle before it is

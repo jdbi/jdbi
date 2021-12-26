@@ -1,2 +1,4 @@
-build = "mvnw -B -fae clean install"
+build = "mvn -B -fae clean install"
 jdk11 = true
+ignoreRules = [ "UnrecognisedJavadocTag", "HidingField", "UnescapedEntity", "InvalidBlockTag", "PREDICTABLE_RANDOM" ]
+disableTools = [ "infer" ]

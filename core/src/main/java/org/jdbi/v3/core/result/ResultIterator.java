@@ -49,7 +49,9 @@ public interface ResultIterator<T> extends Iterator<T>, Closeable {
     void close();
 
     /**
-     * @return the current statement context
+     * Returns the current {@link StatementContext}.
+     *
+     * @return the current {@link StatementContext}.
      */
     StatementContext getContext();
 }

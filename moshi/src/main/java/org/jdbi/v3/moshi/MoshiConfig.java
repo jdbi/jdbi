@@ -43,7 +43,9 @@ public class MoshiConfig implements JdbiConfig<MoshiConfig> {
     }
 
     /**
-     * @return the {@link Moshi} to use for json conversion
+     * Returns the {@link Moshi} to use for json conversion.
+     *
+     * @return the {@link Moshi} to use for json conversion.
      */
     public Moshi getMoshi() {
         return moshi;

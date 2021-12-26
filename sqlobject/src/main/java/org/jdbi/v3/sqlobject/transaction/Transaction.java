@@ -35,7 +35,9 @@ import org.jdbi.v3.sqlobject.transaction.internal.TransactionDecorator;
 @SqlMethodDecoratingAnnotation(TransactionDecorator.class)
 public @interface Transaction {
     /**
-     * @return the transaction isolation level.  If not specified, invoke with the default isolation level.
+     * The transaction isolation level.
+     *
+     * @return the transaction isolation level. If not specified, invoke with the default isolation level.
      */
     TransactionIsolationLevel value() default TransactionIsolationLevel.UNKNOWN;
     /**

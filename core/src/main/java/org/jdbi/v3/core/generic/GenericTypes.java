@@ -79,17 +79,17 @@ public class GenericTypes {
      * </p>
      * <ul>
      * <li>if {@code type} is {@code ArrayList<String>},
-     * {@code parameterizedSuperType} is {@code List.class},
+     * {@code parameterizedSupertype} is {@code List.class},
      * and {@code n} is {@code 0},
      * returns {@code Optional.of(String.class)}.</li>
      *
      * <li>if {@code type} is {@code Map<String, Integer>},
-     * {@code parameterizedSuperType} is {@code Map.class},
+     * {@code parameterizedSupertype} is {@code Map.class},
      * and {@code n} is {@code 1},
      * returns {@code Optional.of(Integer.class)}.</li>
      *
      * <li>if {@code type} is {@code ArrayList.class} (raw),
-     * {@code parameterizedSuperType} is {@code List.class},
+     * {@code parameterizedSupertype} is {@code List.class},
      * and {@code n} is {@code 0},
      * returns {@code Optional.empty()}.</li>
      * </ul>
@@ -117,14 +117,18 @@ public class GenericTypes {
     }
 
     /**
+     * Checks whether a given {@link Type} is an Array Type.
+     *
      * @param type a type
-     * @return whether the given {@code Type} is an Array type.
+     * @return whether the given {@link Type} is an Array type.
      */
     public static boolean isArray(Type type) {
         return type instanceof Class<?> && ((Class<?>) type).isArray();
     }
 
     /**
+     * Returns the element type for an Array Type.
+     *
      * @param type the array's element type
      * @return the array Type
      */

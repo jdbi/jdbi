@@ -110,7 +110,9 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * @return the {@code ConfigRegistry} this context owns
+     * Returns the {@code ConfigRegistry}.
+     *
+     * @return the {@code ConfigRegistry} used by this context.
      */
     public ConfigRegistry getConfig() {
         return config;
@@ -168,6 +170,8 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Returns the strategy used by this context to bind array-type arguments to SQL statements.
+     *
      * @return the strategy used to bind array-type arguments to SQL statements
      */
     public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
@@ -406,7 +410,9 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * @return the statement binding
+     * Returns the statement binding.
+     *
+     * @return The statement binding.
      */
     public Binding getBinding() {
         return binding;
@@ -425,6 +431,8 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Whether the statement being generated is expected to return generated keys.
+     *
      * @return whether the statement being generated is expected to return generated keys.
      */
     public boolean isReturningGeneratedKeys() {
@@ -432,7 +440,9 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * @return the generated key column names, if any
+     * Returns the generated key column names or empty if none were generated.
+     *
+     * @return the generated key column names. Returns an empty array if none exist.
      */
     public String[] getGeneratedKeysColumnNames() {
         return Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
@@ -477,6 +487,8 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Returns the query execution start as an {@link Instant}.
+     *
      * @return the {@link Instant} at which query execution began
      */
     @Nullable
@@ -485,13 +497,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * for jdbi-internal use only
+     * Sets the query execution start. This is not part of the Jdbi API and should not be called by
+     * code outside JDBI.
+     *
+     * @param executionMoment Sets the start of query execution.
      */
     public void setExecutionMoment(Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
     /**
+     * If query execution was successful, returns the query execution end as an {@link Instant}.
+     *
      * @return the {@link Instant} at which query execution ended, if it did so successfully
      */
     @Nullable
@@ -500,13 +517,18 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * for jdbi-internal use only
+     * Sets the query execution end. This is not part of the Jdbi API and should not be called by
+     * code outside JDBI.
+     *
+     * @param completionMoment Sets the end of query execution.
      */
     public void setCompletionMoment(Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
     /**
+     * If query execution failed, returns the query execution end as an {@link Instant}.
+     *
      * @return the {@link Instant} at which query execution ended, if it did so with an exception
      */
     @Nullable
@@ -515,7 +537,10 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * for jdbi-internal use only
+     * Sets the query execution end. This is not part of the Jdbi API and should not be called by
+     * code outside JDBI.
+     *
+     * @param exceptionMoment Sets the end of query execution.
      */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
@@ -545,7 +570,7 @@ public class StatementContext implements Closeable {
     }
 
     @Override
-    @SuppressWarnings("PMD.DoNotThrowExceptionInFinally")
+    @SuppressWarnings({"PMD.DoNotThrowExceptionInFinally", "Finally"})
     public void close() {
         SQLException exception = null;
         try {

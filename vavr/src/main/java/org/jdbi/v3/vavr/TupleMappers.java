@@ -20,8 +20,8 @@ import org.jdbi.v3.core.mapper.MapEntryConfig;
 import org.jdbi.v3.core.mapper.MapEntryMappers;
 
 /**
- * similar to {@link org.jdbi.v3.core.mapper.MapEntryMappers} but map entries in vavr are in fact
- * of type Tuple2
+ * Mappers similar to {@link org.jdbi.v3.core.mapper.MapEntryMappers} but map entries in vavr are in fact
+ * of type {@link io.vavr.Tuple2}.
  */
 public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<TupleMappers> {
 
@@ -69,6 +69,8 @@ public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<Tu
     }
 
     /**
+     * Names a specific column in the mapper.
+     *
      * @param tupleIndex the 1 based index of the TupleX. as in _1, _2 etc.
      * @param name       the column name to be mapped explicitly
      * @return Config object for chaining
@@ -79,6 +81,8 @@ public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<Tu
     }
 
     /**
+     * Returns the name for a column.
+     *
      * @param tupleIndex the 1 based index of the TupleX. as in _1, _2 etc.
      * @return the column name to be mapped explicitly
      */
@@ -95,5 +99,4 @@ public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<Tu
     public void setRegistry(ConfigRegistry registry) {
         this.registry = registry;
     }
-
 }

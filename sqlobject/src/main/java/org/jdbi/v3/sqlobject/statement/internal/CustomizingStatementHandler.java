@@ -166,12 +166,12 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     private static SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {
-        SqlStatementCustomizingAnnotation sca = annotation.annotationType()
+        SqlStatementCustomizingAnnotation sqlStatementCustomizingAnnotation = annotation.annotationType()
                 .getAnnotation(SqlStatementCustomizingAnnotation.class);
         try {
-            return sca.value().getConstructor().newInstance();
+            return sqlStatementCustomizingAnnotation.value().getConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
+            throw new IllegalStateException("Unable to instantiate sql statement customizer factory class " + sqlStatementCustomizingAnnotation.value(), e);
         }
     }
 
@@ -212,7 +212,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         Class<? extends RowMapper<?>> mapperClass = annotation.value();
         try {
             return mapperClass.getConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new UnableToCreateStatementException("Could not create mapper " + mapperClass.getName(), e, null);
         }
     }
@@ -221,7 +221,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         Class<? extends RowReducer<?, ?>> reducerClass = annotation.value();
         try {
             return reducerClass.getConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new UnableToCreateStatementException("Could not create reducer " + reducerClass.getName(), e, null);
         }
     }

@@ -79,7 +79,9 @@ public class GuavaCollectors {
     }
 
     /**
-     * @return a {@code CollectorFactory} which knows how to create all supported Guava types
+     * Returns a {@code CollectorFactory} which knows how to create all supported Guava types.
+     *
+     * @return A {@code CollectorFactory} which knows how to create all supported Guava types
      */
     public static CollectorFactory factory() {
         return new Factory();

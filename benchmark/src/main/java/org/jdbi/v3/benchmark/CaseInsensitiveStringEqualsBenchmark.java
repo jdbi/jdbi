@@ -15,7 +15,7 @@ package org.jdbi.v3.benchmark;
 
 import java.text.Collator;
 import java.util.Locale;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -50,7 +50,7 @@ public class CaseInsensitiveStringEqualsBenchmark {
         new Runner(options).run();
     }
 
-    private Random random;
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
     private String original;
     private String copy;
     private String randomizedCase;
@@ -60,7 +60,6 @@ public class CaseInsensitiveStringEqualsBenchmark {
 
     @Setup
     public void setup() {
-        random = new Random();
         original = randomAlphabetic(10);
         copy = new String(original);
         randomizedCase = randomizeCase(original);

@@ -110,7 +110,9 @@ public final class ClasspathSqlLocator {
     }
 
     /**
-     * @return a new ClasspathSqlLocator that returns SQL with comments removed
+     * Return a new ClasspathSqlLocator that returns SQL with comments removed.
+     *
+     * @return A new ClasspathSqlLocator that returns SQL with comments removed.
      */
     public static ClasspathSqlLocator removingComments() {
         final SqlScriptParser commentStripper =
@@ -120,7 +122,9 @@ public final class ClasspathSqlLocator {
     }
 
     /**
-     * @return a new ClasspathSqlLocator that returns SQL without modifying it
+     * Return a new ClasspathSqlLocator that returns SQL without modifying it.
+     *
+     * @return A new ClasspathSqlLocator that returns SQL without modifying it.
      */
     public static ClasspathSqlLocator create() {
         return new ClasspathSqlLocator(ClasspathSqlLocator::readAsString);

@@ -34,7 +34,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
     }
 
     /**
-     * @return the limit hint to use to shorten strings
+     * Returns the limit hint to use to shorten strings.
+     *
+     * @return the limit hint to use to shorten strings.
      */
     public int getLengthLimit() {
         return lengthLimit;
@@ -42,7 +44,8 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
 
     /**
      * Set a hint on how long you'd like to shorten various variable-length strings to.
-     * @param lengthLimit the limit hint
+     *
+     * @param lengthLimit the limit hint.
      * @return this
      */
     public StatementExceptions setLengthLimit(int lengthLimit) {
@@ -51,7 +54,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
     }
 
     /**
-     * @return the statement exception message rendering strategy
+     * Returns the statement exception message rendering strategy.
+     *
+     * @return the statement exception message rendering strategy.
      */
     public MessageRendering getMessageRendering() {
         return messageRendering;

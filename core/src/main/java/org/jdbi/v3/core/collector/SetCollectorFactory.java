@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -33,7 +32,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 class SetCollectorFactory implements CollectorFactory {
-    private final Map<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
+    private final IdentityHashMap<Class<?>, Collector<?, ?, ?>> collectors = new IdentityHashMap<>();
 
     SetCollectorFactory() {
         collectors.put(Set.class, CollectionCollectors.toUnmodifiableSet());

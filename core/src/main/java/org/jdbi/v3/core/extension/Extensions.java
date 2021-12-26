@@ -53,8 +53,10 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     /**
-     * @param extensionType the type to query
-     * @return true if a registered extension handles the type
+     * Returns true if an extension is registered for the given type.
+     *
+     * @param extensionType the type to query.
+     * @return true if a registered extension handles the type.
      */
     public boolean hasExtensionFor(Class<?> extensionType) {
         return findFactoryFor(extensionType).isPresent();
@@ -104,7 +106,9 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     /**
-     * @return whether Proxy classes are allowed to be used
+     * Returns whether Proxy classes are allowed to be used.
+     *
+     * @return whether Proxy classes are allowed to be used.
      */
     @Beta
     public boolean isAllowProxy() {

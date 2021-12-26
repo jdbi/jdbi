@@ -44,7 +44,9 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
-     * @return the registered column name mappers
+     * Returns the registered column name mappers.
+     *
+     * @return the registered column name mappers.
      */
     public List<ColumnNameMatcher> getColumnNameMatchers() {
         return Collections.unmodifiableList(columnNameMatchers);
@@ -61,7 +63,9 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
-     * @return if strict column name matching is enabled
+     * Returns whether strict column name matching is enabled.
+     *
+     * @return True if strict column name matching is enabled.
      */
     public boolean isStrictMatching() {
         return this.strictMatching;

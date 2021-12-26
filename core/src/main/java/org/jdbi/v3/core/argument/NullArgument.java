@@ -50,7 +50,9 @@ public class NullArgument implements Argument {
     }
 
     /**
-     * @return the SQL type of the null
+     * Returns the {@link java.sql.Types} value that is used.
+     *
+     * @return the SQL type of the null.
      * @see java.sql.Types
      */
     public Integer getSqlType() {

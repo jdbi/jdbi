@@ -19,7 +19,11 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jdbi.v3.core.result.ResultBearing;
+
+import static java.lang.String.format;
 
 /**
  * Represents output from a Call (CallableStatement).
@@ -42,6 +46,7 @@ public class OutParameters {
      * @param <T> the output parameter type
      * @return the output of name as type T
      */
+    @CheckForNull
     public <T> T getObject(String name, Class<T> type) {
         return type.cast(getObject(name));
     }
@@ -53,6 +58,7 @@ public class OutParameters {
      * @param name The out parameter name
      * @return the output of name as type T
      */
+    @CheckForNull
     public Object getObject(String name) {
         return map.get(name);
     }
@@ -64,6 +70,7 @@ public class OutParameters {
      * @param position The out parameter name
      * @return the output of name as type T
      */
+    @CheckForNull
     public Object getObject(int position) {
         return map.get(position);
     }
@@ -77,15 +84,17 @@ public class OutParameters {
      * @param <T> the output parameter type
      * @return the output of name as type T
      */
+    @CheckForNull
     public <T> T getObject(int pos, Class<T> type) {
         return type.cast(getObject(pos));
     }
 
+    @CheckForNull
     public String getString(String name) {
         Object obj = map.get(name);
         if (obj == null) {
             if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(String.format("Parameter %s does not exist", name));
+                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
             }
 
             return null;
@@ -94,12 +103,13 @@ public class OutParameters {
         return obj.toString();
     }
 
+    @CheckForNull
     public String getString(int pos) {
         Object obj = map.get(pos);
 
         if (obj == null) {
             if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(String.format("Parameter at %d does not exist", pos));
+                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
             }
 
             return null;
@@ -108,11 +118,12 @@ public class OutParameters {
         return obj.toString();
     }
 
+    @CheckForNull
     public byte[] getBytes(String name) {
         Object obj = map.get(name);
         if (obj == null) {
             if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(String.format("Parameter %s does not exist", name));
+                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
            }
 
             return null;
@@ -120,15 +131,16 @@ public class OutParameters {
         if (obj instanceof byte[]) {
             return (byte[]) obj;
         } else {
-            throw new IllegalArgumentException(String.format("Parameter %s is not byte[] but %s", name, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a byte[]", name, obj.getClass()));
         }
     }
 
+    @CheckForNull
     public byte[] getBytes(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
             if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(String.format("Parameter at %d does not exist", pos));
+                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
            }
 
             return null;
@@ -137,34 +149,47 @@ public class OutParameters {
         if (obj instanceof byte[]) {
             return (byte[]) obj;
         } else {
-            throw new IllegalArgumentException(String.format("Parameter at %d is not byte[] but %s", pos, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter at %d is a %s, not a byte[]", pos, obj.getClass()));
         }
     }
 
+    @CheckForNull
     public Integer getInt(String name) {
-        return getNumber(name).intValue();
+        final Number n = getNumber(name);
+        return n == null ? null : n.intValue();
     }
 
+    @CheckForNull
     public Integer getInt(int pos) {
-        return getNumber(pos).intValue();
+        final Number n = getNumber(pos);
+        return n == null ? null : n.intValue();
     }
 
+    @CheckForNull
     public Long getLong(String name) {
-        return getNumber(name).longValue();
+        final Number n = getNumber(name);
+        return n == null ? null : n.longValue();
     }
 
+    @CheckForNull
     public Long getLong(int pos) {
-        return getNumber(pos).longValue();
+        final Number n = getNumber(pos);
+        return n == null ? null : n.longValue();
     }
 
+    @CheckForNull
     public Short getShort(String name) {
-        return getNumber(name).shortValue();
+        final Number n = getNumber(name);
+        return n == null ? null : n.shortValue();
     }
 
+    @CheckForNull
     public Short getShort(int pos) {
-        return getNumber(pos).shortValue();
+        final Number n = getNumber(pos);
+        return n == null ? null : n.shortValue();
     }
 
+    @CheckForNull
     public Date getDate(String name) {
         Long epoch = getEpoch(name);
 
@@ -175,6 +200,7 @@ public class OutParameters {
         return new Date(epoch);
     }
 
+    @CheckForNull
     public Date getDate(int pos) {
         Long epoch = getEpoch(pos);
 
@@ -185,6 +211,7 @@ public class OutParameters {
         return new Date(epoch);
     }
 
+    @CheckForNull
     public Timestamp getTimestamp(String name) {
         Long epoch = getEpoch(name);
 
@@ -195,6 +222,7 @@ public class OutParameters {
         return new Timestamp(epoch);
     }
 
+    @CheckForNull
     public Timestamp getTimestamp(int pos) {
         Long epoch = getEpoch(pos);
 
@@ -205,69 +233,82 @@ public class OutParameters {
         return new Timestamp(epoch);
     }
 
+    @CheckForNull
     public Double getDouble(String name) {
-        return getNumber(name).doubleValue();
+        final Number n = getNumber(name);
+        return n == null ? null : n.doubleValue();
     }
 
+    @CheckForNull
     public Double getDouble(int pos) {
-        return getNumber(pos).doubleValue();
+        final Number n = getNumber(pos);
+        return n == null ? null : n.doubleValue();
     }
 
+    @CheckForNull
     public Float getFloat(String name) {
-        return getNumber(name).floatValue();
+        final Number n = getNumber(name);
+        return n == null ? null : n.floatValue();
     }
 
+    @CheckForNull
     public Float getFloat(int pos) {
-        return getNumber(pos).floatValue();
+        final Number n = getNumber(pos);
+        return n == null ? null : n.floatValue();
     }
 
+    @NonNull
     public ResultBearing getRowSet(String name) {
         return ResultBearing.of(() -> getObject(name, ResultSet.class), ctx);
     }
 
+    @NonNull
     public ResultBearing getRowSet(int pos) {
         return ResultBearing.of(() -> getObject(pos, ResultSet.class), ctx);
     }
 
+    @CheckForNull
     private Number getNumber(String name) {
         Object obj = map.get(name);
         if (obj == null) {
             if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(String.format("Parameter %s does not exist", name));
+                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
             }
-
             return null;
         }
 
         if (obj instanceof Number) {
             return (Number) obj;
         } else {
-            throw new IllegalArgumentException(String.format("Parameter %s is not a number but %s", name, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a number", name, obj.getClass()));
         }
     }
 
+    @CheckForNull
     private Number getNumber(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
             if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(String.format("Parameter at %d does not exist", pos));
+                throw new IllegalArgumentException(format("Parameter %d does not exist", pos));
             }
-
             return null;
         }
+
         if (obj instanceof Number) {
             return (Number) obj;
         } else {
-            throw new IllegalArgumentException(String.format("Parameter at %d is not a number but %s", pos, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter %d is a %s, not a number", pos, obj.getClass()));
         }
     }
 
+    @CheckForNull
+    @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(String name) {
         Object obj = map.get(name);
 
         if (obj == null) {
             if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(String.format("Parameter %s does not exist", name));
+                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
             }
 
             return null;
@@ -276,15 +317,17 @@ public class OutParameters {
         if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
         } else {
-            throw new IllegalArgumentException(String.format("Parameter %s is not Date but %s", name, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a Date", name, obj.getClass()));
         }
     }
 
+    @CheckForNull
+    @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
             if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(String.format("Parameter at %d does not exist", pos));
+                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
             }
 
             return null;
@@ -293,10 +336,11 @@ public class OutParameters {
         if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
         } else {
-            throw new IllegalArgumentException(String.format("Parameter at %d is not Date but %s", pos, obj.getClass()));
+            throw new IllegalArgumentException(format("Parameter at %d is a %s, not a Date", pos, obj.getClass()));
         }
     }
 
+    @NonNull
     Map<Object, Object> getMap() {
         return map;
     }

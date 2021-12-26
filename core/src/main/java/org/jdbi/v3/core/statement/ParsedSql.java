@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * The SQL and parameters parsed from an SQL statement.
  */
-public class ParsedSql {
+public final class ParsedSql {
     static final String POSITIONAL_PARAM = "?";
 
     private final String sql;
@@ -32,14 +32,17 @@ public class ParsedSql {
     }
 
     /**
-     * @return an SQL string suitable for use with a JDBC
-     * {@link java.sql.PreparedStatement}.
+     * Returns a SQL string suitable for use with a JDBC {@link java.sql.PreparedStatement}.
+     *
+     * @return a SQL string suitable for use with a JDBC {@link java.sql.PreparedStatement}.
      */
     public String getSql() {
         return sql;
     }
 
     /**
+     * The set of parameters parsed from the input SQL string.
+     *
      * @return the set of parameters parsed from the input SQL string.
      */
     public ParsedParameters getParameters() {
@@ -93,7 +96,9 @@ public class ParsedSql {
     }
 
     /**
-     * @return a new ParsedSql builder.
+     * Creates a new ParsedSql builder.
+     *
+     * @return a builder instance.
      */
     public static Builder builder() {
         return new Builder();
@@ -147,6 +152,8 @@ public class ParsedSql {
         }
 
         /**
+         * Returns the finalized {@link ParsedSql} object.
+         *
          * @return the finalized {@link ParsedSql} object.
          */
         public ParsedSql build() {

@@ -65,7 +65,9 @@ public class ClasspathBuilder {
     }
 
     /**
-     * @return the current path string
+     * Returns the current classpath.
+     *
+     * @return the current classpath.
      */
     public String build() {
         if (parts.isEmpty()) {

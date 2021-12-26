@@ -98,9 +98,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     /**
-     * @param expectedSqlState the expected SQL state
-     * @param throwable the Throwable to test
-     * @return whether the Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
+     * Checks whether a given exception is in a specific SQL state.
+     *
+     * @param expectedSqlState The expected SQL state.
+     * @param throwable The Throwable to test.
+     * @return True if Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
      */
     protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
         Throwable t = throwable;
@@ -119,10 +121,12 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     /**
-     * Configuration for serializable transaction runner
+     * Configuration for serializable transaction runner.
      */
     public static class Configuration implements JdbiConfig<Configuration> {
         private static final int DEFAULT_MAX_RETRIES = 5;
+
+        @SuppressWarnings("UnnecessaryLambda") // constant for readablity
         private static final Consumer<List<Exception>> NOP = list -> {};
 
         private int maxRetries = DEFAULT_MAX_RETRIES;
@@ -140,7 +144,9 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         }
 
         /**
-         * @param maxRetries number of retry attempts before aborting
+         * Sets the maximum number of retry attempts before aborting.
+         *
+         * @param maxRetries The maximum number of retry attempts before aborting.
          * @return this
          */
         public Configuration setMaxRetries(int maxRetries) {
@@ -153,7 +159,9 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         }
 
         /**
-         * @param serializationFailureSqlState the SQL state to consider as a serialization failure
+         * Sets the SQL state to consider as a serialization failure.
+         *
+         * @param serializationFailureSqlState the SQL state to consider as a serialization failure.
          * @return this
          */
         public Configuration setSerializationFailureSqlState(String serializationFailureSqlState) {
@@ -162,7 +170,10 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         }
 
         /**
-         * @param onFailure consumer to handle the list of failures so far (e.g. for logging). Will not be called with an empty list, nor with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * Set a consumer that is called with a list of exceptions during a run. Will not be called with any exceptions that are not the configured
+         * serialization failure. These will simply be thrown, aborting the operation. Can be used e.g. for logging.
+         *
+         * @param onFailure A consumer to handle failures. Will never be called with Exceptions that have not been configured.
          * @return this
          */
         public Configuration setOnFailure(Consumer<List<Exception>> onFailure) {
@@ -171,7 +182,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         }
 
         /**
-         * @param onSuccess consumer to handle the list of failures that occurred during a transaction run, after the run has completed successfully (e.g. for logging). Will hopefully be called with an empty list, but with the same list of exceptions as the one passed to onFailure otherwise. Will not be called with any exceptions that are not the configured serialization failure — the latter will simply be thrown, aborting the operation.
+         * Sets a consumer that is called after a run has completed successfully. The consumer will received any exceptions that happened during the run. Will
+         * not be called with any exceptions that are not the configured serialization failure. This can be used to e.g. log all exceptions after a successful
+         * run.
+         *
+         * @param onSuccess A consumer to handle the list of failures after the run has been completed successfully.
          * @return this
          */
         public Configuration setOnSuccess(Consumer<List<Exception>> onSuccess) {

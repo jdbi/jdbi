@@ -32,9 +32,9 @@ public class RegisterColumnMapperImpl implements Configurer {
         RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
         ColumnMappers mappers = registry.get(ColumnMappers.class);
         try {
-            mappers.register(registerColumnMapper.value().newInstance());
-        } catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified column mapper", e);
+            mappers.register(registerColumnMapper.value().getDeclaredConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to instantiate column mapper class " + registerColumnMapper.value(), e);
         }
     }
 }

@@ -78,7 +78,7 @@ public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
             return new PojoBuilder<T>() {
                 @Override
                 public void set(String property, Object value) {
-                    Unchecked.biFunction(getProperties().get(property).setter::invoke).apply(instance, value);
+                    Unchecked.biConsumer(getProperties().get(property).setter::invoke).accept(instance, value);
                 }
 
                 @SuppressWarnings("unchecked")

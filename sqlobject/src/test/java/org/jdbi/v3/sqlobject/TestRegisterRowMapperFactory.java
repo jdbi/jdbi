@@ -72,7 +72,7 @@ public class TestRegisterRowMapperFactory {
             MapWith mapWith = erasedType.getAnnotation(MapWith.class);
             return mapWith == null
                 ? Optional.empty()
-                : Optional.of(Unchecked.supplier(mapWith.value()::newInstance).get());
+                : Optional.of(Unchecked.supplier(() -> mapWith.value().getDeclaredConstructor().newInstance()).get());
         }
     }
 

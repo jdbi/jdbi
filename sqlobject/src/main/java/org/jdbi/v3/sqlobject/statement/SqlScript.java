@@ -31,7 +31,9 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlScriptsHandler;
 @Repeatable(SqlScripts.class)
 public @interface SqlScript {
     /**
-     * @return the SQL string (or name)
+     * Returns the SQL string (or name).
+     *
+     * @return The SQL string (or name).
      */
     String value() default "";
 }

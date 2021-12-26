@@ -51,6 +51,8 @@ public interface TransactionHandler {
     void rollback(Handle handle);
 
     /**
+     * Returns whether a given Handle is in the transaction.
+     *
      * @param handle the handle to test
      * @return whether the given handle is in a transaction
      */

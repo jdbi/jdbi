@@ -15,7 +15,6 @@ package org.jdbi.v3.core.collector;
 
 import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -27,8 +26,8 @@ import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalInt;
 import static org.jdbi.v3.core.collector.OptionalCollectors.toOptionalLong;
 
 class OptionalPrimitiveCollectorFactory implements CollectorFactory {
-    private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTORS = new IdentityHashMap<>();
-    private static final Map<Class<?>, Class<?>> ELEMENT_TYPES = new IdentityHashMap<>();
+    private static final IdentityHashMap<Class<?>, Collector<?, ?, ?>> COLLECTORS = new IdentityHashMap<>();
+    private static final IdentityHashMap<Class<?>, Class<?>> ELEMENT_TYPES = new IdentityHashMap<>();
 
     static {
         COLLECTORS.put(OptionalInt.class, toOptionalInt());

@@ -36,9 +36,9 @@ public final class InternalGuiceJdbiFactory implements Provider<Jdbi> {
     private final Set<GuiceJdbiCustomizer> moduleCustomizers;
 
     @Inject
-    InternalGuiceJdbiFactory(final DataSource datasource,
+    InternalGuiceJdbiFactory(final DataSource dataSource,
         @JdbiInternal final Set<GuiceJdbiCustomizer> moduleCustomizers) {
-        this.dataSource = checkNotNull(datasource, "datasource is null");
+        this.dataSource = checkNotNull(dataSource, "dataSource is null");
         this.moduleCustomizers = checkNotNull(moduleCustomizers, "moduleCustomizers is null");
     }
 

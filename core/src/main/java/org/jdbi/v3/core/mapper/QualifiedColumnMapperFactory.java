@@ -56,7 +56,7 @@ public interface QualifiedColumnMapperFactory {
      * @param type the mapped type
      * @param mapper the mapper
      * @param <T> the mapped type
-     * @return
+     * @return A {@link QualifiedColumnMapperFactory}
      */
     static <T> QualifiedColumnMapperFactory of(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return (t, config) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();

@@ -22,6 +22,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface GetGeneratedKeys {
     /**
+     * Sets the column names of the generated key(s) from a SQL statement.
+     *
      * @return column names of the generated key(s) from a SQL statement.
      */
     String[] value() default {};

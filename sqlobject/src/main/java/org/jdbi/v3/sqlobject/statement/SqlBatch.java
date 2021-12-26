@@ -40,11 +40,15 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlBatchHandler;
 @SqlOperation(SqlBatchHandler.class)
 public @interface SqlBatch {
     /**
-     * @return the SQL string (or name)
+     * Returns the SQL string (or name) used for the batch.
+     *
+     * @return the SQL string (or name) used for the batch.
      */
     String value() default "";
 
     /**
+     * Controls whether to execute the batch chunks in a transaction. Default is true.
+     *
      * @return whether to execute the batch chunks in a transaction. Default is true (and it will be strange if you
      * want otherwise).
      */

@@ -28,6 +28,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -135,7 +138,8 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
         }
     }
 
-    QualifiedType<?> typeOf(Object value) {
+    @NonNull
+    QualifiedType<?> typeOf(@Nullable Object value) {
         return value instanceof TypedValue
                 ? ((TypedValue) value).getType()
                 : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
@@ -193,7 +197,8 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
         return new UnableToCreateStatementException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType, ctx);
     }
 
-    static Object unwrap(Object maybeTypedValue) {
+    @CheckForNull
+    static Object unwrap(@Nullable Object maybeTypedValue) {
         return maybeTypedValue instanceof TypedValue ? ((TypedValue) maybeTypedValue).getValue() : maybeTypedValue;
     }
 

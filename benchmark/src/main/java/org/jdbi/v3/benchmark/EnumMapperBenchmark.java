@@ -14,7 +14,7 @@
 package org.jdbi.v3.benchmark;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.core.Jdbi;
@@ -42,14 +42,12 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(1)
 public class EnumMapperBenchmark {
 
-    private Random random;
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
     private JdbiRule db;
     private Jdbi jdbi;
 
     @Setup
     public void setup() throws Throwable {
-        random = new Random();
-
         db = JdbiRule.h2();
         db.before();
         jdbi = db.getJdbi();

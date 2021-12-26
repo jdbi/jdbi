@@ -27,7 +27,9 @@ class DescribedArgument implements Argument {
                 try {
                     return type.getMethod("toString")
                                .getDeclaringClass() != Object.class;
-                } catch (ReflectiveOperationException ignored) {}
+                } catch (ReflectiveOperationException ignored) {
+                    // this can be ignored, in this case just don't have a descriptive string in that case.
+                }
                 return false;
             });
     private final Argument arg;

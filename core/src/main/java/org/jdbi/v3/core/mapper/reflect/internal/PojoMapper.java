@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +48,6 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
 /** This class is the future home of BeanMapper functionality. */
 public class PojoMapper<T> implements RowMapper<T> {
 
-    private static final String NO_MATCHING_COLUMNS =
-        "Mapping bean %s didn't find any matching columns in result set";
-
-    private static final String UNMATCHED_COLUMNS_STRICT =
-        "Mapping bean %s could not match properties for columns: %s";
-
     protected boolean strictColumnTypeMapping = true; // this should be default (only?) behavior but that's a breaking change
     protected final Type type;
     protected final String prefix;
@@ -78,13 +71,13 @@ public class PojoMapper<T> implements RowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> result = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
-            .orElseThrow(() -> new IllegalArgumentException(String.format(NO_MATCHING_COLUMNS, type)));
+            .orElseThrow(() -> new IllegalArgumentException(String.format("Mapping bean %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
             throw new IllegalArgumentException(
-                String.format(UNMATCHED_COLUMNS_STRICT, type, unmatchedColumns));
+                String.format("Mapping bean %s could not match properties for columns: %s", type, unmatchedColumns));
         }
 
         return result;
@@ -129,7 +122,7 @@ public class PojoMapper<T> implements RowMapper<T> {
         if (propList.isEmpty() && !columnNames.isEmpty()) {
             return Optional.empty();
         }
-        Collections.sort(propList, Comparator.comparing(p -> p.propagateNull ? 1 : 0));
+        propList.sort(Comparator.comparing(p -> p.propagateNull ? 1 : 0));
 
         final Optional<String> nullMarkerColumn =
                 Optional.ofNullable(GenericTypes.getErasedType(type).getAnnotation(PropagateNull.class))
@@ -142,7 +135,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
             for (PropertyData<T> p : propList) {
                 Object value = p.mapper.map(r, ctx);
-                if (p.propagateNull && (value == null || p.isPrimitive && r.wasNull())) {
+                if (p.propagateNull && (value == null || (p.isPrimitive && r.wasNull()))) {
                     return null;
                 }
 
