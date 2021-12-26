@@ -174,70 +174,88 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     }
 
     @Override
+    @SuppressWarnings("PMD.ExcessiveMethodLength")
     public Object invoke(Object target, Object[] args, HandleSupplier h) {
         final Handle handle = h.getHandle();
         final String sql = locateSql(handle);
         final int chunkSize = batchChunkSize.call(args);
         final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
 
+        final class BatchChunkIterator implements ResultIterator<Object> {
+            private ResultIterator<?> batchResult = null;
+            private boolean closed = false;
+
+            BatchChunkIterator() {
+                if (batchArgs.hasNext()) {
+                    // if arguments are present, preload the next result chunk
+                    batchResult = loadChunk();
+                }
+            }
+
+            private ResultIterator<?> loadChunk() {
+                // execute a single chunk and buffer
+                PreparedBatch batch = handle.prepareBatch(sql);
+                for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
+                    applyCustomizers(batch, batchArgs.next());
+                    batch.add();
+                }
+                return executeBatch(handle, batch);
+            }
+
+            @Override
+            public boolean hasNext() {
+                if (closed) {
+                    throw new IllegalStateException("closed");
+                }
+                // first, any elements already buffered?
+                if (batchResult != null) {
+                    if (batchResult.hasNext()) {
+                        return true;
+                    }
+                    // no more in this chunk, release resources
+                    batchResult.close();
+                }
+                // more chunks?
+                if (batchArgs.hasNext()) {
+                    // preload the next result chunk
+                    batchResult = loadChunk();
+
+                    // recurse to ensure we actually got elements
+                    return hasNext();
+                }
+
+                return false;
+            }
+
+            @Override
+            public Object next() {
+                if (closed) {
+                    throw new IllegalStateException("closed");
+                }
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return batchResult.next();
+            }
+
+            @Override
+            public StatementContext getContext() {
+                return batchResult.getContext();
+            }
+
+            @Override
+            public void close() {
+                closed = true;
+                batchResult.close();
+            }
+        }
+
         ResultIterator<Object> result;
 
         if (batchArgs.hasNext()) {
-            result = new ResultIterator<Object>() {
-                private ResultIterator<?> batchResult;
-                private boolean closed = false;
-
-                @Override
-                public boolean hasNext() {
-                    if (closed) {
-                        throw new IllegalStateException("closed");
-                    }
-                    // first, any elements already buffered?
-                    if (batchResult != null) {
-                        if (batchResult.hasNext()) {
-                            return true;
-                        }
-                        // no more in this chunk, release resources
-                        batchResult.close();
-                    }
-                    // more chunks?
-                    if (!batchArgs.hasNext()) {
-                        return false;
-                    }
-                    // execute a single chunk and buffer
-                    PreparedBatch batch = handle.prepareBatch(sql);
-                    for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                        applyCustomizers(batch, batchArgs.next());
-                        batch.add();
-                    }
-                    batchResult = executeBatch(handle, batch);
-                    return hasNext(); // recurse to ensure we actually got elements
-                }
-
-                @Override
-                public Object next() {
-                    if (closed) {
-                        throw new IllegalStateException("closed");
-                    }
-                    if (!hasNext()) {
-                        throw new NoSuchElementException();
-                    }
-                    return batchResult.next();
-                }
-
-                @Override
-                public StatementContext getContext() {
-                    return batchResult.getContext();
-                }
-
-                @Override
-                public void close() {
-                    closed = true;
-                    batchResult.close();
-                }
-            };
-            result.hasNext(); // Ensure our batchResult is prepared, so we can get its context
+            result = new BatchChunkIterator();
         } else {
+            // only created to get access to the context.
             PreparedBatch dummy = handle.prepareBatch(sql);
             result = new ResultIterator<Object>() {
                 @Override
