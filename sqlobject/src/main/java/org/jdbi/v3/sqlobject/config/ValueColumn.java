@@ -35,6 +35,8 @@ import org.jdbi.v3.sqlobject.config.internal.ValueColumnImpl;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValueColumn {
     /**
+     * Returns the column name to use for map values.
+     *
      * @return the column name to use for map values.
      */
     String value();

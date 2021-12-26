@@ -51,7 +51,11 @@ public @interface BindList {
     String value() default "";
 
     /**
-     * @return what to do when the argument is null or empty
+     * What to do when the argument is null or empty.
+     *
+     * @return The strategy for handling an empty list. By default, throw an {@link IllegalArgumentException}.
+     *
+     * @see EmptyHandling
      */
     EmptyHandling onEmpty() default BindList.EmptyHandling.THROW;
 

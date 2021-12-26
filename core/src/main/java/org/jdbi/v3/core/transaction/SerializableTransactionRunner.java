@@ -98,9 +98,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     /**
-     * @param expectedSqlState the expected SQL state
-     * @param throwable the Throwable to test
-     * @return whether the Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
+     * Checks whether a given exception is in a specific SQL state.
+     *
+     * @param expectedSqlState The expected SQL state.
+     * @param throwable The Throwable to test.
+     * @return True if Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
      */
     protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
         Throwable t = throwable;

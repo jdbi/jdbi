@@ -124,6 +124,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
+     * Returns the {@link TemplateEngine} which renders the SQL template.
+     *
      * @return the template engine which renders the SQL template prior to
      * parsing parameters.
      */

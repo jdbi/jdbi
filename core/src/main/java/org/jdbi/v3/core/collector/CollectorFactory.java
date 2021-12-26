@@ -25,6 +25,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 public interface CollectorFactory {
     /**
+     * Accept a {@link Type} as a collector.
+     *
      * @param containerType the container type.
      *
      * @return whether this factory can produce a collector for the given container type.
@@ -32,6 +34,8 @@ public interface CollectorFactory {
     boolean accepts(Type containerType);
 
     /**
+     * Returns the element type for a given container type.
+
      * @param containerType the container type.
      *
      * @return the container element type if it can be discovered through reflection; empty otherwise.
@@ -40,6 +44,8 @@ public interface CollectorFactory {
     Optional<Type> elementType(Type containerType);
 
     /**
+     * Creates a collector for a given container type.
+     *
      * @param containerType the container type.
      *
      * @return a {@link Collector} for the given container type.

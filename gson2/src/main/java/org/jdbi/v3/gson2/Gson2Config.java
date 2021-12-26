@@ -41,7 +41,9 @@ public class Gson2Config implements JdbiConfig<Gson2Config> {
     }
 
     /**
-     * @return the {@link Gson} to use for json conversion
+     * Returns the {@link Gson} object used for json conversion.
+     *
+     * @return the {@link Gson} object used for json conversion.
      */
     public Gson getGson() {
         return gson;

@@ -72,15 +72,19 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
-     * @param connection db connection
+     * Creates a new {@link Jdbi} object from a {@link Connection}.
      *
-     * @return a Jdbi which works on single connection
+     * @param connection A {@link Connection} object.
+     *
+     * @return A {@link Jdbi} instance that uses a single database connection.
      */
     public static Jdbi create(Connection connection) {
         return create(new SingleConnectionFactory(connection));
     }
 
     /**
+     * Creates a new {@link Jdbi} object from a {@link DataSource}.
+     *
      * @param dataSource the data source.
      *
      * @return a Jdbi which uses the given data source as a connection factory.
@@ -106,9 +110,11 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
-     * @param url JDBC URL for connections
+     * Creates a new {@link Jdbi} instance from a database URL.
      *
-     * @return a Jdbi which uses {@link DriverManager} as a connection factory.
+     * @param url A JDBC URL for connections.
+     *
+     * @return a Jdbi which uses{@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url) {
         Objects.requireNonNull(url, "null url");
@@ -116,6 +122,8 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Creates a new {@link Jdbi} instance from a database URL.
+     *
      * @param url   JDBC URL for connections
      * @param properties Properties to pass to DriverManager.getConnection(url, props) for each new handle
      *
@@ -128,6 +136,8 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Creates a new {@link Jdbi} instance from a database URL.
+     *
      * @param url      JDBC URL for connections
      * @param username User name for connection authentication
      * @param password Password for connection authentication
@@ -251,6 +261,8 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Returns the current {@link StatementBuilderFactory}.
+     *
      * @return the current {@link StatementBuilderFactory}
      */
     public StatementBuilderFactory getStatementBuilderFactory() {
@@ -282,6 +294,8 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Returns the {@link TransactionHandler}.
+     *
      * @return the {@link TransactionHandler}
      */
     public TransactionHandler getTransactionHandler() {
@@ -497,6 +511,8 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Creates an extension instance that uses the current {@link Jdbi} instance for database operations.
+     *
      * @param extensionType the type of extension. Must be a public interface type.
      * @param <E> the extension type
      *

@@ -117,14 +117,18 @@ public class GenericTypes {
     }
 
     /**
+     * Checks whether a given {@link Type} is an Array Type.
+     *
      * @param type a type
-     * @return whether the given {@code Type} is an Array type.
+     * @return whether the given {@link Type} is an Array type.
      */
     public static boolean isArray(Type type) {
         return type instanceof Class<?> && ((Class<?>) type).isArray();
     }
 
     /**
+     * Returns the element type for an Array Type.
+     *
      * @param type the array's element type
      * @return the array Type
      */

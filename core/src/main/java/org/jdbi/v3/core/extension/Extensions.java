@@ -106,6 +106,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     /**
+     * Returns whether Proxy classes are allowed to be used.
+     *
      * @return whether Proxy classes are allowed to be used.
      */
     @Beta

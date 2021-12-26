@@ -34,7 +34,9 @@ import org.jdbi.v3.sqlobject.config.internal.KeyColumnImpl;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface KeyColumn {
     /**
-     * @return the column name to use for map keys.
+     * Returns the column name to use for map keys.
+     *
+     * @return The column name to use for map keys.
      */
     String value();
 }

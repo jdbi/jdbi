@@ -32,13 +32,17 @@ public class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
     }
 
     /**
-     * @return timezone used in the resulting {@link java.time.OffsetDateTime}
+     * Returns the timezone used in the resulting {@link java.time.OffsetDateTime}.
+     *
+     * @return The timezone used in the resulting {@link java.time.OffsetDateTime}
      */
     public ZoneId getTimezone() {
         return timezone;
     }
 
     /**
+     * Sets the timezone used for the conversion of {@link java.time.OffsetDateTime} objects.
+     *
      * @param timezone used in the resulting {@link java.time.OffsetDateTime}
      */
     public void setTimezone(ZoneId timezone) {

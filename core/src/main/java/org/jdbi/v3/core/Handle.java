@@ -111,6 +111,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
+     * Returns the current {@link StatementBuilder}.
+     *
      * @return the current {@link StatementBuilder}
      */
     public StatementBuilder getStatementBuilder() {
@@ -193,7 +195,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * @return whether the Handle is closed
+     * Returns true if the {@link Handle} has been closed.
+     *
+     * @return True if the Handle is closed.
      */
     public boolean isClosed() {
         return closed;
@@ -329,8 +333,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * @return whether the handle is in a transaction. Delegates to the underlying
-     *         {@link TransactionHandler}.
+     * Returns whether the handle is in a transaction. Delegates to the underlying {@link TransactionHandler}.
+     *
+     * @return True if the handle is in a transaction.
      */
     public boolean isInTransaction() {
         return transactions.isInTransaction(this);
@@ -456,8 +461,10 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
+     * Whether the connection is in read-only mode.
+     *
+     * @return True if the connection is in read-only mode.
      * @see Connection#isReadOnly()
-     * @return whether the connection is in read-only mode
      */
     public boolean isReadOnly() {
         try {
@@ -622,6 +629,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
+     * Returns the extension method currently bound to the handle's context.
+     *
      * @return the extension method currently bound to the handle's context
      */
     public ExtensionMethod getExtensionMethod() {

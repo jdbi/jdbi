@@ -21,9 +21,14 @@ import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 
 /**
+ * Locates SQL in {@code .sql} files on the classpath for use with {@link org.jdbi.v3.sqlobject.statement.SqlQuery}.  Given a class and method name, for example
+ * {@code com.foo.Bar#query}, load a classpath resource name like {@code com/foo/Bar/query.sql} and use it with the annotation. The contents are then parsed,
+ * cached, and returned for use by a statement.
+ *
  * @see org.jdbi.v3.core.locator.ClasspathSqlLocator
  */
 public class SqlObjectClasspathSqlLocator implements SqlLocator {
+
     private final ClasspathSqlLocator locator;
 
     public SqlObjectClasspathSqlLocator() {

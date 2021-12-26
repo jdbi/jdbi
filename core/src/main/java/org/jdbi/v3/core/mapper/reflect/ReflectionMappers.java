@@ -63,6 +63,8 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
+     * Returns whether strict column name matching is enabled.
+     *
      * @return True if strict column name matching is enabled.
      */
     public boolean isStrictMatching() {
