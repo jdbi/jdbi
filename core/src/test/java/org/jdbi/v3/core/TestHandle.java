@@ -138,6 +138,25 @@ public class TestHandle {
     }
 
     @Test
+    public void testNestedTxnCommitCallback() throws Exception {
+        final AtomicBoolean onCommit = new AtomicBoolean();
+        final AtomicBoolean onRollback = new AtomicBoolean();
+        try (Handle h = h2Extension.openHandle()) {
+            h.useTransaction(outer ->
+                    outer.useTransaction(inner -> {
+                        inner.afterCommit(() -> onCommit.set(true));
+                        inner.afterRollback(() -> onRollback.set(true));
+                    }));
+            assertThat(onCommit.get()).isTrue();
+            assertThat(onRollback.get()).isFalse();
+
+            onCommit.set(false);
+            h.useTransaction(inner -> {});
+            assertThat(onCommit.get()).isFalse();
+        }
+    }
+
+    @Test
     public void testCommitRollback() throws Exception {
         final AtomicBoolean onCommit = new AtomicBoolean();
         final AtomicBoolean onRollback = new AtomicBoolean();

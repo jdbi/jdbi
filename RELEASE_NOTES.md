@@ -1,4 +1,5 @@
 # Unreleased
+  - Fix transaction callbacks working with nested transactions
 
 # 3.26.0
   - change annotation targets for Kotlin annotations to `CLASS` (fixes #1971)

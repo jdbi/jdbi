@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.GuardedBy;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -62,6 +64,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     private ThreadLocal<ConfigRegistry> localConfig;
     private ThreadLocal<ExtensionMethod> localExtensionMethod;
     private StatementBuilder statementBuilder;
+
+    @GuardedBy("transactionCallbacks")
+    private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
 
     private boolean closed = false;
 
@@ -361,7 +366,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         final long start = System.nanoTime();
         transactions.commit(this);
         LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
-        getConfig(Handles.class).drainCallbacks()
+        drainCallbacks()
                 .forEach(TransactionCallback::afterCommit);
         return this;
     }
@@ -375,7 +380,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         final long start = System.nanoTime();
         transactions.rollback(this);
         LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
-        getConfig(Handles.class).drainCallbacks()
+        drainCallbacks()
                 .forEach(TransactionCallback::afterRollback);
         return this;
     }
@@ -410,11 +415,21 @@ public class Handle implements Closeable, Configurable<Handle> {
         });
     }
 
+    List<TransactionCallback> drainCallbacks() {
+        synchronized (transactionCallbacks) {
+            List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
+            transactionCallbacks.clear();
+            return result;
+        }
+    }
+
     Handle addTransactionCallback(TransactionCallback cb) {
         if (!isInTransaction()) {
             throw new IllegalStateException("Handle must be in transaction");
         }
-        getConfig(Handles.class).addCallback(cb);
+        synchronized (transactionCallbacks) {
+            transactionCallbacks.add(cb);
+        }
         return this;
     }
 

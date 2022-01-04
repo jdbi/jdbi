@@ -139,6 +139,16 @@ public class TestTransactional {
             .isEmpty();
     }
 
+    @Test
+    public void testNestedTransactionCallbacks() {
+        AtomicBoolean result = new AtomicBoolean();
+        CommitCallbackDao dao = jdbi.onDemand(CommitCallbackDao.class);
+        jdbi.useTransaction(txn -> {
+            dao.txnCommitSet(() -> result.set(true));
+        });
+        assertThat(result.get()).isTrue();
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface InserterDao {
         @SqlUpdate("insert into something(id, name) values(1, 'test')")
@@ -146,6 +156,13 @@ public class TestTransactional {
 
         @SqlQuery("select * from something")
         List<Something> list();
+    }
+
+    public interface CommitCallbackDao extends SqlObject {
+        @Transaction
+        default void txnCommitSet(Runnable action) {
+            getHandle().afterCommit(action);
+        }
     }
 
     private static final Set<Method> CHECKED_METHODS;
