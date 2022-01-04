@@ -1,4 +1,6 @@
 # Unreleased
+
+# 3.26.1
   - Fix transaction callbacks working with nested transactions
 
 # 3.26.0
