@@ -257,19 +257,10 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
                         }
                     }
                 } else {
-                    if (value instanceof Argument) {
-                        // if the value is already an argument, skip the machinery and bind the value
-                        // directly in the right position
-                        innerBinders.add(wrapCheckedConsumer(name, binding -> ((Argument) value).apply(index + 1, stmt, ctx)));
-                    } else {
-                        // otherwise find a function that translates the value to an argument and
-                        // bind it as an inner binder
-                        final Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
-
-                        innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> binder.apply(unwrap(binding.named.get(name)))
-                                .apply(index + 1, stmt, ctx)));
-                    }
+                    final Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
+                    innerBinders.add(wrapCheckedConsumer(name,
+                        binding -> binder.apply(unwrap(binding.named.get(name)))
+                            .apply(index + 1, stmt, ctx)));
                 }
             }
             return binding -> innerBinders.forEach(b -> b.accept(binding));
