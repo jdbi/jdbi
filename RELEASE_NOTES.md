@@ -1,6 +1,11 @@
 # Unreleased
 
 # 3.26.1
+
+** DO NOT USE **
+
+Serious regression in batch binding: https://github.com/jdbi/jdbi/issues/1987
+
   - Fix transaction callbacks working with nested transactions
 
 # 3.26.0
