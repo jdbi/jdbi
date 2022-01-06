@@ -1,5 +1,9 @@
 # Unreleased
 
+# 3.27.0
+
+  - Fix serious regression in 3.26.1: incorrect Batch parameter binding
+
 # 3.26.1
 
 ** DO NOT USE **
