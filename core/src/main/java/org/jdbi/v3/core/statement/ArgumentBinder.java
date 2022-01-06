@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -43,22 +44,16 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.internal.PreparedBinding;
 
-import static java.lang.String.format;
-
 class ArgumentBinder<Stmt extends SqlStatement<?>> {
     final PreparedStatement stmt;
     final StatementContext ctx;
     final ParsedParameters params;
     final Map<QualifiedType<?>, Function<Object, Argument>> argumentFactoryByType = new HashMap<>();
 
-    private final Argument nullArgument;
-
     ArgumentBinder(PreparedStatement stmt, StatementContext ctx, ParsedParameters params) {
         this.stmt = stmt;
         this.ctx = ctx;
         this.params = params;
-
-        this.nullArgument = ctx.getConfig(Arguments.class).getUntypedNullArgument();
     }
 
     void bind(Binding binding) {
@@ -89,40 +84,26 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
     void bindNamed(Binding binding) {
         final List<String> paramNames = params.getParameterNames();
         bindNamedCheck(binding, paramNames);
-
-        assignNames:
-        for (int i = 0; i < paramNames.size(); i++) {
-            final String name = paramNames.get(i);
-            try {
+        for (int i = 0; i < paramNames.size(); i++) { // NOPMD
+            final int index = i;
+            wrapExceptions(() -> paramNames.get(index), x -> {
+                final String name = paramNames.get(index);
                 final Object value = binding.named.get(name);
-                if (value == null) {
-                    if (binding.named.containsKey(name)) {
-                        // bind a null for the given name
-                        nullArgument.apply(i + 1, stmt, ctx);
-                    } else {
-                        // binding was not set, look through the named argument finders
-                        for (NamedArgumentFinder naf : binding.namedArgumentFinder) {
-                            Optional<Argument> found = naf.find(name, ctx);
-                            if (found.isPresent()) {
-                                found.get().apply(i + 1, stmt, ctx);
-                                continue assignNames;
-                            }
+                if (value == null && !binding.named.containsKey(name)) {
+                    for (NamedArgumentFinder naf : binding.namedArgumentFinder) {
+                        Optional<Argument> found = naf.find(name, ctx);
+                        if (found.isPresent()) {
+                            found.get().apply(index + 1, stmt, ctx);
+                            return;
                         }
-                        throw missingNamedParameter(name, binding);
                     }
+                    throw missingNamedParameter(name, binding);
                 } else {
-                    if (value instanceof Argument) {
-                        ((Argument) value).apply(i + 1, stmt, ctx);
-                    } else {
-                        // value set, find an argument factory and assign the value
-                        argumentFactoryForType(typeOf(value))
+                    argumentFactoryForType(typeOf(value))
                             .apply(unwrap(value))
-                            .apply(i + 1, stmt, ctx);
-                    }
+                            .apply(index + 1, stmt, ctx);
                 }
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(format("Exception while binding named parameter '%s'", name), e, ctx);
-            }
+            }).accept(null);
         }
     }
 
@@ -130,7 +111,7 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
         // best effort: compare empty to non-empty because we can't list the individual binding names (unless we expose a method to do so)
         boolean argumentsProvidedButNoneDeclared = paramNames.isEmpty() && !binding.isEmpty();
         if (argumentsProvidedButNoneDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
-            throw new UnableToCreateStatementException(format(
+            throw new UnableToCreateStatementException(String.format(
                     "Superfluous named parameters provided while the query "
                             + "declares none: '%s'. This check may be disabled by calling "
                             + "getConfig(SqlStatements.class).setUnusedBindingAllowed(true) "
@@ -167,16 +148,16 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
     }
 
     UnableToCreateStatementException missingNamedParameter(String name, Binding binding) {
-        return new UnableToCreateStatementException(format("Missing named parameter '%s' in binding:%s", name, binding), ctx);
+        return new UnableToCreateStatementException(String.format("Missing named parameter '%s' in binding:%s", name, binding), ctx);
     }
 
-    <T> Consumer<T> wrapCheckedConsumer(final String paramName, CheckedConsumer<T> consumer) {
+    <T> Consumer<T> wrapExceptions(Supplier<String> paramName, CheckedConsumer<T> consumer) {
         return t -> {
             try {
                 consumer.accept(t);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(
-                        format("Exception while binding named parameter '%s'", paramName),
+                        String.format("Exception while binding named parameter '%s'", paramName.get()),
                         e, ctx);
             } catch (Exception e) {
                 throw Sneaky.throwAnyway(e);
@@ -203,48 +184,41 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
     }
 
     static class Prepared extends ArgumentBinder<PreparedBatch> {
-        private final PreparedBatch batch;
-        private final Consumer<PreparedBinding> preparedBinder;
-        private final List<String> paramNames;
+        final PreparedBatch batch;
+        final Consumer<PreparedBinding> preparedBinder;
+        final List<String> paramNames;
 
-        private final Argument nullArgument;
-
-        Prepared(PreparedBatch batch, ParsedParameters params, PreparedBinding preparedBindingTemplate) {
+        Prepared(PreparedBatch batch, ParsedParameters params, PreparedBinding example) {
             super(batch.stmt, batch.getContext(), params);
             this.batch = batch;
-            this.paramNames = params.getParameterNames();
-            this.nullArgument = batch.getContext().getConfig(Arguments.class).getUntypedNullArgument();
-
-            this.preparedBinder = prepareBinder(preparedBindingTemplate);
+            paramNames = params.getParameterNames();
+            preparedBinder = prepareBinder(example);
         }
 
-        private Consumer<PreparedBinding> prepareBinder(PreparedBinding preparedBinding) {
+        private Consumer<PreparedBinding> prepareBinder(PreparedBinding example) {
             List<Consumer<PreparedBinding>> innerBinders = new ArrayList<>(paramNames.size());
-            for (int i = 0; i < paramNames.size(); i++) {
+            for (int i = 0; i < paramNames.size(); i++) { // NOPMD
                 final int index = i;
                 final String name = paramNames.get(i);
-                final Object value = preparedBinding.named.get(name);
-                if (value == null) {
-                    if (preparedBinding.named.containsKey(name)) {
-                        // name is present and value is null. Bind a null.
-                        innerBinders.add(wrapCheckedConsumer(name, binding -> nullArgument.apply(index + 1, stmt, ctx)));
-                    } else {
-                        final Optional<Entry<PrepareKey, Function<Object, Argument>>> preparation =
-                            preparedBinding.prepareKeys.keySet().stream()
-                                .map(pk -> new AbstractMap.SimpleImmutableEntry<>(pk, batch.preparedFinders.get(pk)))
-                                .flatMap(e ->
-                                    JdbiOptionals.stream(e.getValue()
-                                        .apply(name)
-                                        .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf))))
-                                .findFirst();
-                        if (preparation.isPresent()) {
-                            Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
-                            innerBinders.add(wrapCheckedConsumer(name,
+                final Object value = example.named.get(name);
+                if (value == null && !example.named.containsKey(name)) {
+                    final Optional<Entry<PrepareKey, Function<Object, Argument>>> preparation =
+                        example.prepareKeys.keySet().stream()
+                            .map(pk -> new AbstractMap.SimpleImmutableEntry<>(pk, batch.preparedFinders.get(pk)))
+                            .flatMap(e ->
+                                JdbiOptionals.stream(e.getValue()
+                                    .apply(name)
+                                    .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf))))
+                            .findFirst();
+                    if (preparation.isPresent()) {
+                        Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
+                        innerBinders.add(wrapExceptions(
+                                () -> name,
                                 binding -> p.getValue()
                                     .apply(binding.prepareKeys.get(p.getKey()))
                                     .apply(index + 1, stmt, ctx)));
-                        } else {
-                            innerBinders.add(wrapCheckedConsumer(name,
+                    } else {
+                        innerBinders.add(wrapExceptions(() -> name,
                                 binding -> binding.namedArgumentFinder.stream()
                                     .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
                                     .findFirst()
@@ -254,22 +228,12 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
                                             .findFirst()
                                             .orElseThrow(() -> missingNamedParameter(name, binding)))
                                     .apply(index + 1, stmt, ctx)));
-                        }
                     }
                 } else {
-                    if (value instanceof Argument) {
-                        // if the value is already an argument, skip the machinery and bind the value
-                        // directly in the right position
-                        innerBinders.add(wrapCheckedConsumer(name, binding -> ((Argument) value).apply(index + 1, stmt, ctx)));
-                    } else {
-                        // otherwise find a function that translates the value to an argument and
-                        // bind it as an inner binder
-                        final Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
-
-                        innerBinders.add(wrapCheckedConsumer(name,
+                    Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
+                    innerBinders.add(wrapExceptions(() -> name,
                             binding -> binder.apply(unwrap(binding.named.get(name)))
                                 .apply(index + 1, stmt, ctx)));
-                    }
                 }
             }
             return binding -> innerBinders.forEach(b -> b.accept(binding));

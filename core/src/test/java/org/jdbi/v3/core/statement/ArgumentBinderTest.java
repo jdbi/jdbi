@@ -17,8 +17,6 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +46,6 @@ public class ArgumentBinderTest {
     public void before() {
         when(ctx.getConfig(Qualifiers.class)).thenReturn(new Qualifiers());
         when(ctx.getConfig(SqlStatements.class)).thenReturn(statements);
-        when(ctx.getConfig(Arguments.class)).thenReturn(new Arguments(new ConfigRegistry()));
     }
 
     @Test
