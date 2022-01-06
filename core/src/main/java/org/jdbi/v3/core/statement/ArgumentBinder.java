@@ -218,43 +218,38 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
             this.preparedBinder = prepareBinder(preparedBindingTemplate);
         }
 
-        private Consumer<PreparedBinding> prepareBinder(PreparedBinding preparedBinding) {
+        private Consumer<PreparedBinding> prepareBinder(PreparedBinding preparedBindingTemplate) {
             List<Consumer<PreparedBinding>> innerBinders = new ArrayList<>(paramNames.size());
             for (int i = 0; i < paramNames.size(); i++) {
                 final int index = i;
                 final String name = paramNames.get(i);
-                final Object value = preparedBinding.named.get(name);
-                if (value == null) {
-                    if (preparedBinding.named.containsKey(name)) {
-                        // name is present and value is null. Bind a null.
-                        innerBinders.add(wrapCheckedConsumer(name, binding -> nullArgument.apply(index + 1, stmt, ctx)));
+                final Object value = preparedBindingTemplate.named.get(name);
+                if (value == null && !preparedBindingTemplate.named.containsKey(name)) {
+                    final Optional<Entry<PrepareKey, Function<Object, Argument>>> preparation =
+                        preparedBindingTemplate.prepareKeys.keySet().stream()
+                            .map(pk -> new AbstractMap.SimpleImmutableEntry<>(pk, batch.preparedFinders.get(pk)))
+                            .flatMap(e ->
+                                JdbiOptionals.stream(e.getValue()
+                                    .apply(name)
+                                    .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf))))
+                            .findFirst();
+                    if (preparation.isPresent()) {
+                        Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
+                        innerBinders.add(wrapCheckedConsumer(name,
+                            binding -> p.getValue()
+                                .apply(binding.prepareKeys.get(p.getKey()))
+                                .apply(index + 1, stmt, ctx)));
                     } else {
-                        final Optional<Entry<PrepareKey, Function<Object, Argument>>> preparation =
-                            preparedBinding.prepareKeys.keySet().stream()
-                                .map(pk -> new AbstractMap.SimpleImmutableEntry<>(pk, batch.preparedFinders.get(pk)))
-                                .flatMap(e ->
-                                    JdbiOptionals.stream(e.getValue()
-                                        .apply(name)
-                                        .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf))))
-                                .findFirst();
-                        if (preparation.isPresent()) {
-                            Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
-                            innerBinders.add(wrapCheckedConsumer(name,
-                                binding -> p.getValue()
-                                    .apply(binding.prepareKeys.get(p.getKey()))
-                                    .apply(index + 1, stmt, ctx)));
-                        } else {
-                            innerBinders.add(wrapCheckedConsumer(name,
-                                binding -> binding.namedArgumentFinder.stream()
-                                    .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
-                                    .findFirst()
-                                    .orElseGet(() ->
-                                        binding.realizedBackupArgumentFinders.get().stream()
-                                            .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
-                                            .findFirst()
-                                            .orElseThrow(() -> missingNamedParameter(name, binding)))
-                                    .apply(index + 1, stmt, ctx)));
-                        }
+                        innerBinders.add(wrapCheckedConsumer(name,
+                            binding -> binding.namedArgumentFinder.stream()
+                                .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
+                                .findFirst()
+                                .orElseGet(() ->
+                                    binding.realizedBackupArgumentFinders.get().stream()
+                                        .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
+                                        .findFirst()
+                                        .orElseThrow(() -> missingNamedParameter(name, binding)))
+                                .apply(index + 1, stmt, ctx)));
                     }
                 } else {
                     final Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
