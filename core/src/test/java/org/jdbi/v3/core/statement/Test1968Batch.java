@@ -58,6 +58,28 @@ public class Test1968Batch {
         doTest(data);
     }
 
+    @Test
+    public void testColumnMissing() {
+        List<Map<String, Object>> data = ImmutableList.of(
+            createMap("id", 1L),
+            createMap("id", 2L, "name", FooType.SOMETHING_ELSE),
+            createMap("id", 3L, "name", FooType.OTHER)
+        );
+
+        doTest(data);
+    }
+
+    @Test
+    public void testColumnMissingLater() {
+        List<Map<String, Object>> data = ImmutableList.of(
+            createMap("id", 1L, "name", FooType.SOMETHING_ELSE),
+            createMap("id", 2L),
+            createMap("id", 3L, "name", FooType.OTHER)
+        );
+
+        doTest(data);
+    }
+
     private void doTest(List<Map<String, Object>> data) {
         Handle h = h2Extension.openHandle();
         PreparedBatch b = h.prepareBatch("INSERT INTO something (id, name) values (:id, :name)");
