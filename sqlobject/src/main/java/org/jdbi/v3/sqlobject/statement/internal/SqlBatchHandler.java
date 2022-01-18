@@ -17,11 +17,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -194,12 +192,22 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
             private ResultIterator<?> loadChunk() {
                 // execute a single chunk and buffer
-                PreparedBatch batch = handle.prepareBatch(sql);
+                List<Object[]> currArgs = new ArrayList<>();
                 for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                    applyCustomizers(batch, batchArgs.next());
+                    Object[] batchArg = batchArgs.next();
+                    currArgs.add(Arrays.copyOf(batchArg, batchArg.length));
+                }
+                Supplier<PreparedBatch> preparedBatchSupplier = () -> createPreparedBatch(handle, sql, currArgs);
+                return executeBatch(handle, preparedBatchSupplier);
+            }
+
+            private PreparedBatch createPreparedBatch(Handle handle, String sql, List<Object[]> currArgs) {
+                PreparedBatch batch = handle.prepareBatch(sql);
+                for (Object[] currArg : currArgs) {
+                    applyCustomizers(batch, currArg);
                     batch.add();
                 }
-                return executeBatch(handle, batch);
+                return batch;
             }
 
             @Override
@@ -326,13 +334,13 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         };
     }
 
-    private ResultIterator<?> executeBatch(final Handle handle, final PreparedBatch batch) {
+    private ResultIterator<?> executeBatch(final Handle handle, final Supplier<PreparedBatch> preparedBatchSupplier) {
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
-            // it is safe to use same prepared batch as the inTransaction passes in the same
+            // it is safe to use same prepared preparedBatchSupplier as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction(c -> batchIntermediate.apply(batch));
+            return handle.inTransaction(c -> batchIntermediate.apply(preparedBatchSupplier.get()));
         } else {
-            return batchIntermediate.apply(batch);
+            return batchIntermediate.apply(preparedBatchSupplier.get());
         }
     }
 

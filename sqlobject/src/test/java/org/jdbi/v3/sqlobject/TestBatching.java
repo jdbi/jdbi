@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -34,10 +32,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static java.util.Collections.emptySet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 public class TestBatching {
 
@@ -182,6 +188,28 @@ public class TestBatching {
         BooleanBatchDao dao = handle.attach(BooleanBatchDao.class);
         assertThat(dao.insert(new Something(1, "foo"), new Something(2, "bar"))).containsExactly(true, true);
         assertThat(dao.update(new Something(1, "baz"), new Something(3, "buz"))).containsExactly(true, false);
+    }
+
+    @Test
+    public void testBatchingWithSerializableTransactionRunner() {
+        Jdbi jdbi = h2Extension.getJdbi();
+        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+
+        jdbi.useHandle(handle -> {
+            Handle spyHandle = spy(handle);
+            given(spyHandle.commit()).willAnswer(invocation -> {
+                throw new SQLException("Test exception", "40001");
+            }).willCallRealMethod();
+
+            UsesBatching b = spyHandle.attach(UsesBatching.class);
+            List<Something> things = Arrays.asList(new Something(1, "Brian"),
+                new Something(2, "Henri"),
+                new Something(3, "Patrick"),
+                new Something(4, "Robert"),
+                new Something(5, "Maniax"));
+            int[] counts = b.insertChunked(2, things);
+            assertThat(counts).hasSize(5).containsOnly(1);
+        });
     }
 
     @BatchChunkSize(4)
