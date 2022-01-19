@@ -327,11 +327,11 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
             @Override
             public Object[] next() {
-                final Object[] sharedArg = new Object[args.length];
+                final Object[] argsArray = new Object[args.length];
                 for (int i = 0; i < extras.size(); i++) {
-                    sharedArg[i] = extras.get(i).next();
+                    argsArray[i] = extras.get(i).next();
                 }
-                return sharedArg;
+                return argsArray;
             }
         };
     }
