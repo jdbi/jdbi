@@ -13,6 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -32,12 +37,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
 import static java.util.Collections.emptySet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -193,8 +194,8 @@ public class TestBatching {
         Jdbi jdbi = h2Extension.getJdbi();
         jdbi.setTransactionHandler(new SerializableTransactionRunner());
 
-        jdbi.useHandle(handle -> {
-            Handle spyHandle = spy(handle);
+        jdbi.useHandle(jdbiHandle -> {
+            Handle spyHandle = spy(jdbiHandle);
             given(spyHandle.commit()).willAnswer(invocation -> {
                 throw new SQLException("Test exception", "40001");
             }).willCallRealMethod();
