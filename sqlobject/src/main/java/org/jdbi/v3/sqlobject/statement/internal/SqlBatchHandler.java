@@ -13,6 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.statement.internal;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
@@ -31,20 +44,6 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
     private final SqlBatch sqlBatch;
@@ -198,8 +197,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                 // execute a single chunk and buffer
                 List<Object[]> currArgs = new ArrayList<>();
                 for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                    Object[] batchArg = batchArgs.next();
-                    currArgs.add(Arrays.copyOf(batchArg, batchArg.length));
+                    currArgs.add(batchArgs.next());
                 }
                 Supplier<PreparedBatch> preparedBatchSupplier = () -> createPreparedBatch(handle, sql, currArgs);
                 return executeBatch(handle, preparedBatchSupplier);
@@ -316,7 +314,6 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                     + " did you mean @SqlQuery?", null, null);
         }
 
-        final Object[] sharedArg = new Object[args.length];
         return new Iterator<Object[]>() {
             @Override
             public boolean hasNext() {
@@ -330,6 +327,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
             @Override
             public Object[] next() {
+                final Object[] sharedArg = new Object[args.length];
                 for (int i = 0; i < extras.size(); i++) {
                     sharedArg[i] = extras.get(i).next();
                 }
