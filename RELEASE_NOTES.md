@@ -1,5 +1,8 @@
 # Unreleased
 
+# 3.27.1
+  - Fix Batch binding with serializable transaction retries (#1967), thanks @sudharsannr!
+
 # 3.27.0
 
   - Fix serious regression in 3.26.1: incorrect Batch parameter binding
