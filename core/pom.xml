@@ -44,10 +44,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -71,6 +67,12 @@
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -138,6 +140,23 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.basepom.maven</groupId>
+                    <artifactId>inline-maven-plugin</artifactId>
+                    <version>0.1</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>inline</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.antlr</groupId>
@@ -151,8 +170,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>inline-maven-plugin</artifactId>
+                <configuration>
+                    <prefix>org.jdbi.relocated</prefix>
+                    <inlineDependencies>
+                        <inlineDependency>
+                            <groupId>org.antlr</groupId>
+                            <artifactId>antlr4-runtime</artifactId>
+                            <hideClasses>true</hideClasses>
+                        </inlineDependency>
+                    </inlineDependencies>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>jdk8</id>
