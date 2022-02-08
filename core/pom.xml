@@ -145,7 +145,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>inline-maven-plugin</artifactId>
-                    <version>0.1</version>
+                    <version>0.3</version>
                     <executions>
                         <execution>
                             <phase>package</phase>
@@ -175,11 +175,12 @@
                 <artifactId>inline-maven-plugin</artifactId>
                 <configuration>
                     <prefix>org.jdbi.relocated</prefix>
+                    <requireOptional>false</requireOptional>
+                    <requireProvided>false</requireProvided>
+                    <hideClasses>true</hideClasses>
                     <inlineDependencies>
                         <inlineDependency>
-                            <groupId>org.antlr</groupId>
-                            <artifactId>antlr4-runtime</artifactId>
-                            <hideClasses>true</hideClasses>
+                            <artifact>org.antlr:antlr4-runtime</artifact>
                         </inlineDependency>
                     </inlineDependencies>
                 </configuration>
