@@ -15,7 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class Slf4JSqlLogger implements SqlLogger {
         if (log.isDebugEnabled()) {
             log.debug("Executed in {} '{}' with parameters '{}'",
                     format(Duration.between(context.getExecutionMoment(), context.getCompletionMoment())),
-                    context.getParsedSql().getSql(),
+                    getSql(context),
                     context.getBinding());
         }
     }
@@ -50,12 +49,18 @@ public class Slf4JSqlLogger implements SqlLogger {
     public void logException(StatementContext context, SQLException ex) {
         if (log.isErrorEnabled()) {
             log.error("Exception while executing '{}' with parameters '{}'",
-                    Optional.ofNullable(context.getParsedSql())
-                            .map(ParsedSql::getSql)
-                            .orElse("<not available>"),
-                    context.getBinding(),
-                    ex);
+                getSql(context),
+                context.getBinding(),
+                ex);
         }
+    }
+
+    private static String getSql(StatementContext context) {
+        ParsedSql parsedSql = context.getParsedSql();
+        if (parsedSql != null) {
+            return parsedSql.getSql();
+        }
+        return "<not available>";
     }
 
     private static String format(Duration duration) {
