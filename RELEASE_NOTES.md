@@ -1,5 +1,8 @@
 # Unreleased
 
+# 3.27.2
+  - Fix NPE in SqlLogger#logAfterExecution when query string is not available (#2000), thanks @tmichel!
+
 # 3.27.1
   - Fix Batch binding with serializable transaction retries (#1967), thanks @sudharsannr!
 
