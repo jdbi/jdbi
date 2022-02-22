@@ -69,7 +69,7 @@ public class ObjectArgument implements Argument {
     @Override
     public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         if (value == null) { // remove this clause when constructor is no longer public
-            statement.setNull(position, sqlType);
+            statement.setNull(position, sqlType); // lgtm[java/dereferenced-value-may-be-null] - guarded by constructor check
         } else {
             if (sqlType == null) {
                 statement.setObject(position, value);
