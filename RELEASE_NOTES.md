@@ -1,4 +1,5 @@
 # Unreleased
+  - Remove the antlr4-runtime dependency by inlining it into the core jar.
 
 # 3.27.2
   - Fix NPE in SqlLogger#logAfterExecution when query string is not available (#2000), thanks @tmichel!
