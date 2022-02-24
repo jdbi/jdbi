@@ -98,6 +98,7 @@
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
         <exclude name="UseProperClassLoader"/>
+        <exclude name="ReturnEmptyCollectionRatherThanNull" />
     </rule>
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
