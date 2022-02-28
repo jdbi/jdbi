@@ -9,30 +9,6 @@ on:
     - master
 
 jobs:
-  antlr:
-    name: Test antlr runtime versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 4.9, 4.9.1, 4.9.2, 4.9.3 ]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - uses: actions/setup-java@v2
-      id: setup_jdk
-      name: Setup JDK
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
-
-    - name: Build
-      run: |
-          ./mvnw -B -DskipTests -Dbasepom.check.skip-all=true clean install
-          ./mvnw -B -Ddep.antlr.version=${{ matrix.test-version }} -DargLine= surefire:test
-
   guava:
     name: Test Guava versions
     runs-on: ubuntu-latest
