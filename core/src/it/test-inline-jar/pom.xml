@@ -19,7 +19,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.27.3-SNAPSHOT</version>
+        <version>@project.version@</version>
     </parent>
 
     <artifactId>test-inline-jar</artifactId>
