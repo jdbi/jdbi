@@ -1,5 +1,10 @@
 # Unreleased
+
+# 3.28.0
   - Remove the antlr4-runtime dependency by inlining it into the core jar.
+  - [CI] add lgtm checks
+  - [CI] build integration tests for inlined jar
+  - [SECURITY] update baseline dependencies for known CVE (reported by dependabot)
 
 # 3.27.2
   - Fix NPE in SqlLogger#logAfterExecution when query string is not available (#2000), thanks @tmichel!
