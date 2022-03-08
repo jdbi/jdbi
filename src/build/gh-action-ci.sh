@@ -26,4 +26,4 @@ mvn ${OPTS} -DskipTests clean install
 PATH=${SAVED_PATH}
 JAVA_HOME=${BUILD_JAVA_HOME}
 export JAVA_HOME PATH
-mvn -DargLine= surefire:test
+mvn -DargLine= -Dbasepom.it.skip=false surefire:test invoker:integration-test
