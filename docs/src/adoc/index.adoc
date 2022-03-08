@@ -865,7 +865,7 @@ Finally, we construct a pair mapper, and return it:
 ----
 RowMapper<?> pairMapper = (rs, ctx) ->
     new Pair(leftMapper.map(rs, 1, ctx), // In JDBC, column numbers start at 1
-             rightMapper.map(rs, 2, ctx)); // ..for MOTHERF***ING REASONS
+             rightMapper.map(rs, 2, ctx));
 
 return Optional.of(pairMapper);
 ----
