@@ -20,7 +20,9 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install locales on runner
-      run: sudo apt-get install -y locales-all
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y locales-all
 
     - uses: actions/setup-java@v2
       id: setup_jdk
