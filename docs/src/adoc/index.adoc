@@ -4331,7 +4331,7 @@ Just tell us about your types by installing the plugin and configuring your `Imm
 
 `jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class)`
 
-The configuration will both register appropriate `RowMapper`s as well as configure the new `bindPojo` (or `@BindPojo`) binders:
+The configuration will both register appropriate `RowMapper`&#8288;s as well as configure the new `bindPojo` (or `@BindPojo`) binders:
 
 [source,java,indent=0]
 ----
