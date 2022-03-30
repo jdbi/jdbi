@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
