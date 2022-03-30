@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -201,9 +202,12 @@ public class FieldMapper<T> implements RowMapper<T> {
         return format("%s.%s", type.getSimpleName(), field.getName());
     }
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     private T construct() {
         try {
-            return type.getDeclaredConstructor().newInstance();
+            Constructor<T> ctor = type.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            return ctor.newInstance();
         } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
         }
