@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SamplePrivateBean;
@@ -28,11 +32,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
