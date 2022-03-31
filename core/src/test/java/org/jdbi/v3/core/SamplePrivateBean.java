@@ -23,9 +23,7 @@ public class SamplePrivateBean {
     BigDecimal privateBigDecimalField;
     ValueType valueTypeField;
 
-    private SamplePrivateBean() {
-
-    }
+    private SamplePrivateBean() {}
 
     public Long getLongField() {
         return longField;
