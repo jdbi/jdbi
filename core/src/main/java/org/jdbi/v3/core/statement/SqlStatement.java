@@ -1755,6 +1755,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return addCustomizer(new DefineNamedBindingsStatementCustomizer());
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s[sql=%s, bindings=%s]", getClass().getSimpleName(), sql, getContext().getBinding());
+    }
+
     PreparedStatement internalExecute() {
         final StatementContext ctx = getContext();
 
