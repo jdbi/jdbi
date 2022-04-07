@@ -62,7 +62,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
                 return magic.mappedResult(iterable, update.getContext());
             };
         } else if (isNumeric(method.getReturnType())) {
-            this.returner = update -> update.execute();
+            this.returner = Update::execute;
             magic = null;
         } else if (isBoolean(method.getReturnType())) {
             this.returner = update -> update.execute() > 0;

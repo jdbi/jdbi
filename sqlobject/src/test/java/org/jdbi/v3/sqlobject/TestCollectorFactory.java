@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestCollectorFactory {
 
@@ -47,7 +46,7 @@ public class TestCollectorFactory {
         Optional<String> rs = h.createQuery("select name from something where id = :id")
             .bind("id", 1)
             .mapTo(String.class)
-            .collect(GuavaCollectors.toOptional());
+            .findFirst();
 
         assertThat(rs).contains("Coda");
     }
@@ -60,9 +59,9 @@ public class TestCollectorFactory {
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
                 .mapTo(String.class)
-                .collect(GuavaCollectors.toOptional());
+                .findFirst();
 
-        assertThat(rs).isAbsent();
+        assertThat(rs).isEmpty();
     }
 
     @Test
@@ -72,9 +71,9 @@ public class TestCollectorFactory {
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
-        ImmutableList<String> rs = h.createQuery("select name from something order by id")
+        List<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
-                .collect(ImmutableList.toImmutableList());
+                .collect(Collectors.toList());
 
         assertThat(rs).containsExactly("Coda", "Brian");
     }
@@ -85,7 +84,7 @@ public class TestCollectorFactory {
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
-        ImmutableList<String> rs = dao.findAll();
+        List<String> rs = dao.findAll();
         assertThat(rs).containsExactly("Coda", "Brian");
     }
 
@@ -117,7 +116,7 @@ public class TestCollectorFactory {
 
     public interface Dao extends Base<String> {
         @SqlQuery("select name from something order by id")
-        ImmutableList<String> findAll();
+        List<String> findAll();
 
         @SqlQuery("select name from something order by id")
         SortedSet<String> findAllAsSet();

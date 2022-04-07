@@ -186,7 +186,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return modified statement
      */
-    @SuppressWarnings("deprecation")
     public This bindBean(String prefix, Object bean) {
         return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.BEAN,
@@ -364,7 +363,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindMap(Map<String, ?> map) {
         if (map != null) {
-            map.forEach((name, value) -> bind(name, value));
+            map.forEach(this::bind);
         }
         return typedThis;
     }

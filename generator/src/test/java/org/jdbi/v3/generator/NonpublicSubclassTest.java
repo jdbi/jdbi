@@ -20,8 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Predicate;
 
-import com.google.common.base.Predicate;
 import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -99,7 +99,7 @@ public class NonpublicSubclassTest {
         @GeneratorConfigurerMethod
         public boolean checkConfigurer(Predicate<GeneratorConfig> test) {
             final GeneratorConfig cfg = getHandle().getConfig(GeneratorConfig.class);
-            return test.apply(cfg);
+            return test.test(cfg);
         }
 
         // test both value-returning and void methods

@@ -54,12 +54,10 @@ public class TestSqlArrays {
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
-        .withInitializer((ds, h) -> {
-            h.useTransaction(th -> {
-                th.execute("DROP TABLE IF EXISTS uuids");
-                th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
-            });
-        });
+        .withInitializer((ds, h) -> h.useTransaction(th -> {
+            th.execute("DROP TABLE IF EXISTS uuids");
+            th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+        }));
 
     private Handle handle;
     private ArrayObject ao;

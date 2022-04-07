@@ -140,7 +140,6 @@ public interface ResultBearing {
      * @param <T>  the bean type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      */
-    @SuppressWarnings("deprecation")
     default <T> ResultIterable<T> mapToBean(Class<T> type) {
         return map(BeanMapper.of(type));
     }

@@ -31,7 +31,7 @@ public class EnumSqlArrayTypeFactory implements SqlArrayTypeFactory {
     public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
         return Optional.of(elementType)
             .map(GenericTypes::getErasedType)
-            .filter(c -> Enum.class.isAssignableFrom(c))
+            .filter(Enum.class::isAssignableFrom)
             .map(clazz -> makeSqlArrayType((Class<Enum>) clazz, config));
     }
 

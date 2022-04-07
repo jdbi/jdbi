@@ -17,7 +17,6 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -168,7 +167,7 @@ public class FieldMapper<T> implements RowMapper<T> {
             return Optional.empty();
         }
 
-        Collections.sort(fields, Comparator.comparing(f -> f.propagateNull ? 1 : 0));
+        fields.sort(Comparator.comparing(f -> f.propagateNull ? 1 : 0));
 
         final Optional<String> nullMarkerColumn =
                 Optional.ofNullable(type.getAnnotation(PropagateNull.class))

@@ -29,7 +29,7 @@ public class EnumMapperFactory implements QualifiedColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
         return Optional.of(givenType.getType())
             .map(GenericTypes::getErasedType)
-            .filter(c -> Enum.class.isAssignableFrom(c))
+            .filter(Enum.class::isAssignableFrom)
             .map(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Class<Enum>) clazz, config));
     }
 

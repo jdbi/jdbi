@@ -379,7 +379,7 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
         }
 
         static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, Consumer<C> configurer) {
-            return new ConfiguringPlugin<C>(configClass, configurer);
+            return new ConfiguringPlugin<>(configClass, configurer);
         }
 
         @Override

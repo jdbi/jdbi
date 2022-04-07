@@ -230,7 +230,7 @@ public class TestMapperInit {
 
         @Override
         public Entry<StringValue, Integer> map(ResultSet rs, StatementContext ctx) throws SQLException {
-            return new SimpleImmutableEntry<StringValue, Integer>(
+            return new SimpleImmutableEntry<>(
                 stringValueMapper.map(rs, 1, ctx),
                 rs.getInt(2)
             );

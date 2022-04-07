@@ -39,9 +39,8 @@ public class TestCodecFactoryH2 {
 
         jdbi.registerCodecFactory(CodecFactory.forSingleCodec(testType, new TestValueCodec()));
 
-        jdbi.useHandle(h -> {
-            h.execute("CREATE TABLE test (test VARCHAR PRIMARY KEY)");
-        });
+        jdbi.useHandle(h ->
+            h.execute("CREATE TABLE test (test VARCHAR PRIMARY KEY)"));
 
         TestValue value = new TestValue(12345);
 

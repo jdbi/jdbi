@@ -96,13 +96,11 @@ public class TestEnums {
 
     @Test
     public void testGenericEnumBindBean() {
-        h2Extension.getSharedHandle().useTransaction(h -> {
-            assertThat(h.createQuery("select :e.val")
-                    .bindBean("e", new E<SomethingElse.Name>(SomethingElse.Name.brian))
-                    .mapTo(SomethingElse.Name.class)
-                    .one())
-                .isEqualTo(SomethingElse.Name.brian);
-        });
+        h2Extension.getSharedHandle().useTransaction(h -> assertThat(h.createQuery("select :e.val")
+                .bindBean("e", new E<>(SomethingElse.Name.brian))
+                .mapTo(SomethingElse.Name.class)
+                .one())
+            .isEqualTo(SomethingElse.Name.brian));
     }
 
     public static class E<T extends SomethingElse.Name> {

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.benchmark.sqlobject;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 public final class TestContent {
@@ -46,10 +47,10 @@ public final class TestContent {
 
         final TestContent that = (TestContent) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        return description != null ? description.equals(that.description) : that.description == null;
+        return Objects.equals(description, that.description);
     }
 
     @Override

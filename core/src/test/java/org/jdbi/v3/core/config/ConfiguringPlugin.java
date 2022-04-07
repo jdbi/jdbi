@@ -28,7 +28,7 @@ public class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
     }
 
     public static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, Consumer<C> configurer) {
-        return new ConfiguringPlugin<C>(configClass, configurer);
+        return new ConfiguringPlugin<>(configClass, configurer);
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -261,7 +262,7 @@ public class TestTimestamped {
             if (!firstName.equals(person.firstName)) {
                 return false;
             }
-            return lastName != null ? lastName.equals(person.lastName) : person.lastName == null;
+            return Objects.equals(lastName, person.lastName);
         }
 
         @Override

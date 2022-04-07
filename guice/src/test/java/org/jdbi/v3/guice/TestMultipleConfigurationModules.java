@@ -143,9 +143,7 @@ public class TestMultipleConfigurationModules {
     @Test
     public void testDefinitionModule() {
         Injector inj = GuiceTestSupport.createTestInjector(
-            binder -> {
-                binder.bind(DataSource.class).annotatedWith(Foo.class).toInstance(new JdbcDataSource());
-            },
+            binder -> binder.bind(DataSource.class).annotatedWith(Foo.class).toInstance(new JdbcDataSource()),
             new AbstractJdbiConfigurationModule() {
                 @Override
                 public void configureJdbi() {
@@ -199,9 +197,7 @@ public class TestMultipleConfigurationModules {
         };
 
         Injector inj = GuiceTestSupport.createTestInjector(
-            binder -> {
-                binder.bind(DataSource.class).annotatedWith(Foo.class).toInstance(new JdbcDataSource());
-            },
+            binder -> binder.bind(DataSource.class).annotatedWith(Foo.class).toInstance(new JdbcDataSource()),
             configModule
         );
 
