@@ -27,7 +27,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin
  *
  *     @property installKotlinMapperFactory If true, install the {@link KotlinMapperFactory}.
  */
-class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true) : JdbiPlugin {
+class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true) : JdbiPlugin.Singleton() {
 
     override fun customizeJdbi(jdbi: Jdbi) {
         jdbi.configure(RowMappers::class.java) {
