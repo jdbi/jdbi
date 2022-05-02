@@ -109,8 +109,13 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             }
             // some constructor parameters explicitly mapped, and some unmapped
             throw IllegalArgumentException(
-                "Mapping constructor-injected type ${kClass.simpleName} matched columns for constructor parameters $explicitlyMappedConstructorParameters, " +
-                    "but not for $unmappedConstructorParameters"
+                @Suppress("MaxLineLength")
+                """
+                Could not map Constructor-injected type '${kClass.simpleName}' with ${constructorParameters.size} parameters, only ${explicitlyMappedConstructorParameters.size} parameter matched, ${unmappedConstructorParameters.size} unmatched.
+                Available columns:    $columnNames
+                Matched parameters:   $explicitlyMappedConstructorParameters
+                Unmatched parameters: $unmappedConstructorParameters
+                """.trimIndent()
             )
         }
 
