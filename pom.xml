@@ -114,7 +114,8 @@
         <jdbi.check.skip-detekt>${jdbi.check.skip-kotlin}</jdbi.check.skip-detekt>
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <!-- remove the '1.' once we move past JDK8 compatibility -->
+        <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
 
@@ -666,8 +667,7 @@
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <version>${dep.kotlin.version}</version>
                     <configuration>
-                        <!-- remove the '1.' once we move past JDK8 compatibility -->
-                        <jvmTarget>1.${project.build.targetJdk}</jvmTarget>
+                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -715,8 +715,7 @@
 
                     <configuration>
                         <skip>${jdbi.check.skip-detekt}</skip>
-                        <!-- remove the '1.' once we move past JDK8 compatibility -->
-                        <jvmTarget>1.${project.build.targetJdk}</jvmTarget>
+                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
                         <failBuildOnMaxIssuesReached>${jdbi.check.fail-detekt}</failBuildOnMaxIssuesReached>
                         <configResource>policy/detekt.yml</configResource>
                     </configuration>
