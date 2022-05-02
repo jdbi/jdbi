@@ -78,9 +78,8 @@ public class TestInheritedValueH2 {
 
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE data (id VARCHAR PRIMARY KEY, \"value\" VARCHAR)");
-        });
+        h2Extension.getJdbi().useHandle(h ->
+            h.execute("CREATE TABLE data (id VARCHAR PRIMARY KEY, \"value\" VARCHAR)"));
     }
 
     @Test
@@ -186,16 +185,12 @@ public class TestInheritedValueH2 {
 
         @Override
         public ColumnMapper<Value<String>> getColumnMapper() {
-            return (r, idx, ctx) -> {
-                return new StringValue(r.getString(idx));
-            };
+            return (r, idx, ctx) -> new StringValue(r.getString(idx));
         }
 
         @Override
         public Function<Value<String>, Argument> getArgumentFunction() {
-            return data -> (idx, stmt, ctx) -> {
-                stmt.setString(idx, data.getValue());
-            };
+            return data -> (idx, stmt, ctx) -> stmt.setString(idx, data.getValue());
         }
     }
 

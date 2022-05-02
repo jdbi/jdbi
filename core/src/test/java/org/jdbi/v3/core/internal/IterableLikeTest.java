@@ -92,7 +92,7 @@ public class IterableLikeTest {
 
     @Test
     public void testListToIterator() {
-        final List<String> in = new ArrayList<String>(2);
+        final List<String> in = new ArrayList<>(2);
         in.add("1");
         in.add("2");
 
@@ -103,7 +103,7 @@ public class IterableLikeTest {
 
     @Test
     public void testSetToIterator() {
-        final Set<String> in = new HashSet<String>(2);
+        final Set<String> in = new HashSet<>(2);
         in.add("1");
         in.add("2");
 
@@ -114,15 +114,12 @@ public class IterableLikeTest {
 
     @Test
     public void testIterableToIterator() {
-        final Iterable<String> in = new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                final List<String> tmp = new ArrayList<String>();
-                tmp.add("1");
-                tmp.add("2");
+        final Iterable<String> in = () -> {
+            final List<String> tmp = new ArrayList<>();
+            tmp.add("1");
+            tmp.add("2");
 
-                return tmp.iterator();
-            }
+            return tmp.iterator();
         };
 
         final Object[] out = toArray(IterableLike.of(in));

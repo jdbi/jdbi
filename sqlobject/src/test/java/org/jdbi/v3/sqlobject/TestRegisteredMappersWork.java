@@ -126,10 +126,9 @@ public class TestRegisteredMappersWork {
         bdb.insertBean(lima);
 
         assertThat(bdb.findByNameDefaultMethod("lima"))
-                .hasValueSatisfying(bean -> {
+                .hasValueSatisfying(bean ->
                     assertThat(bean).extracting(Bean::getName, Bean::getColor)
-                            .contains(lima.getName(), lima.getColor());
-                });
+                        .contains(lima.getName(), lima.getColor()));
     }
 
     @Test

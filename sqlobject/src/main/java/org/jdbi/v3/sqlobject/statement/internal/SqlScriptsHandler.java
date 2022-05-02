@@ -26,7 +26,7 @@ public class SqlScriptsHandler extends CustomizingStatementHandler<Script> {
 
     @Override
     void configureReturner(Script stmt, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> stmt.execute());
+        cfg.setReturner(stmt::execute);
     }
 
     @Override

@@ -73,7 +73,7 @@ public class BindListNullPostgresTest {
     public void testSomethingByIterableHandleNullWithEmptyList() {
         final SomethingByIterableHandleNull s = handle.attach(SomethingByIterableHandleNull.class);
 
-        final List<Something> out = s.get(new ArrayList<Object>());
+        final List<Something> out = s.get(new ArrayList<>());
 
         assertThat(out).isEmpty();
     }

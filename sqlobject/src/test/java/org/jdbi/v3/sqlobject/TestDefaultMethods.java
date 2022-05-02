@@ -83,7 +83,7 @@ public class TestDefaultMethods {
 
     @Test
     public void testHandleHasExtensionMethodSet() throws Exception {
-        h2Extension.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
+        h2Extension.getJdbi().useExtension(StatementContextExtensionMethodDao.class, StatementContextExtensionMethodDao::check);
     }
 
     private interface StatementContextExtensionMethodDao extends SqlObject {

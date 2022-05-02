@@ -163,12 +163,7 @@ public class BindListTest {
     public void testSomethingByIterableHandleDefaultWithIterable() {
         final SomethingByIterableHandleDefault s = handle.attach(SomethingByIterableHandleDefault.class);
 
-        final List<Something> out = s.get(new Iterable<Integer>() {
-            @Override
-            public Iterator<Integer> iterator() {
-                return Arrays.asList(1, 2).iterator();
-            }
-        });
+        final List<Something> out = s.get(() -> Arrays.asList(1, 2).iterator());
 
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }

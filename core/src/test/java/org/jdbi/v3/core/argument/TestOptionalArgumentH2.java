@@ -30,9 +30,8 @@ public class TestOptionalArgumentH2 {
 
     @BeforeEach
     public void createTable() {
-        h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE test (id BIGINT PRIMARY KEY, val TEXT)");
-        });
+        h2Extension.getJdbi().useHandle(h ->
+            h.execute("CREATE TABLE test (id BIGINT PRIMARY KEY, val TEXT)"));
     }
 
     @Test

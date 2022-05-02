@@ -99,7 +99,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(direct.size()).isEqualTo(2);
-        assertThat(direct.stream().filter(m -> m.isBridge())).hasSize(1);
+        assertThat(direct.stream().filter(Method::isBridge)).hasSize(1);
 
         // This version has multiple bridge methods!
         final List<Method> override = Arrays.stream(DatabaseLongValueWithOverride.class.getMethods())
@@ -107,7 +107,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(override.size()).isEqualTo(3);
-        assertThat(override.stream().filter(m -> m.isBridge())).hasSize(2);
+        assertThat(override.stream().filter(Method::isBridge)).hasSize(2);
 
         // Only one bridge method expected.
         final List<Method> implicit = Arrays.stream(DatabaseLongValue.class.getMethods())
@@ -115,7 +115,7 @@ public class TestBindMethods {
             .collect(Collectors.toList());
 
         assertThat(implicit.size()).isEqualTo(2);
-        assertThat(implicit.stream().filter(m -> m.isBridge())).hasSize(1);
+        assertThat(implicit.stream().filter(Method::isBridge)).hasSize(1);
     }
 
     public interface PairRowDAO {
@@ -171,14 +171,14 @@ public class TestBindMethods {
     public static final class DatabaseLongValue extends DatabaseNumberValue<Long> {
 
         DatabaseLongValue(final long value) {
-            super(Long.valueOf(value));
+            super(value);
         }
     }
 
     public static final class DatabaseLongValueWithOverride extends DatabaseNumberValue<Long> {
 
         DatabaseLongValueWithOverride(final long value) {
-            super(Long.valueOf(value));
+            super(value);
         }
 
         @Override
@@ -198,7 +198,7 @@ public class TestBindMethods {
 
         @Override
         public Long getColumnValue() {
-            return Long.valueOf(this.value);
+            return this.value;
         }
     }
 

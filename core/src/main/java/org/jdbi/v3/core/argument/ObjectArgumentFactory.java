@@ -56,7 +56,7 @@ public class ObjectArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type expectedType, ConfigRegistry config) {
         return Optional.of(expectedType)
-                .filter(t -> type.equals(t))
+                .filter(type::equals)
                 .map(t -> o -> ObjectArgument.of(o, sqlType));
     }
 

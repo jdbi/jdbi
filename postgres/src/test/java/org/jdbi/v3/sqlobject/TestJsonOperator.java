@@ -37,9 +37,8 @@ public class TestJsonOperator {
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
-        .withInitializer((ds, h) -> {
-            h.execute("create table something (id serial primary key, value jsonb)");
-        });
+        .withInitializer((ds, h) ->
+            h.execute("create table something (id serial primary key, value jsonb)"));
 
     private KeyValueStore kvs;
 

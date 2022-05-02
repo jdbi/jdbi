@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.benchmark.sqlobject;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 public final class TestData {
@@ -56,7 +57,7 @@ public final class TestData {
         if (id != testData.id) {
             return false;
         }
-        return content != null ? content.equals(testData.content) : testData.content == null;
+        return Objects.equals(content, testData.content);
     }
 
     @Override

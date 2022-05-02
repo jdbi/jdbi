@@ -127,9 +127,7 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
     private EmbeddedPostgres createEmbeddedPostgres() throws IOException {
 
         final EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
-        this.builderCustomizers.forEach((c) -> {
-            c.accept(builder);
-        });
+        this.builderCustomizers.forEach(c -> c.accept(builder));
 
         return builder.start();
     }

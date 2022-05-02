@@ -33,9 +33,7 @@ public class JdbiInterceptionChainHolderTest {
     public void testDefault() {
         JdbiInterceptionChainHolder<Object, Object> holder = new JdbiInterceptionChainHolder<>();
 
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> {
-            holder.process(new Object());
-        });
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> holder.process(new Object()));
 
         assertEquals("object type 'Object' is not supported", e.getMessage());
     }
@@ -44,9 +42,7 @@ public class JdbiInterceptionChainHolderTest {
     public void testDefaultNull() {
         JdbiInterceptionChainHolder<Object, Object> holder = new JdbiInterceptionChainHolder<>();
 
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> {
-            holder.process(null);
-        });
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> holder.process(null));
 
         assertEquals("null value is not supported", e.getMessage());
     }

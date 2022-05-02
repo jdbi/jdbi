@@ -40,12 +40,11 @@ public class TestH2SqlArrays {
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:u)";
 
     @RegisterExtension
-    public static H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
+    public static H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h ->
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u UUID ARRAY)");
-        });
-    });
+    }));
 
     private final UUID[] testUuids = new UUID[]{
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()

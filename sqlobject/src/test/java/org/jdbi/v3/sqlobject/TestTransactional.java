@@ -143,9 +143,7 @@ public class TestTransactional {
     public void testNestedTransactionCallbacks() {
         AtomicBoolean result = new AtomicBoolean();
         CommitCallbackDao dao = jdbi.onDemand(CommitCallbackDao.class);
-        jdbi.useTransaction(txn -> {
-            dao.txnCommitSet(() -> result.set(true));
-        });
+        jdbi.useTransaction(txn -> dao.txnCommitSet(() -> result.set(true)));
         assertThat(result.get()).isTrue();
     }
 

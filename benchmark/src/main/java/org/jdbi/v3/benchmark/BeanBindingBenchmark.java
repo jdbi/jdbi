@@ -190,7 +190,7 @@ public class BeanBindingBenchmark {
     public String randomString(int targetStringLength) {
         return random.ints('a', 'z')
             .limit(targetStringLength)
-            .mapToObj(c -> Character.valueOf((char) c))
+            .mapToObj(c -> (char) c)
             .reduce("", (buf, chr) -> buf + chr, (a, b) -> a + b);
     }
 

@@ -30,7 +30,7 @@ public class EnumSetCollectorFactoryTest {
 
     @Test
     public void enumSet() {
-        GenericType genericType = new GenericType<EnumSet<Color>>() {};
+        GenericType<EnumSet<Color>> genericType = new GenericType<EnumSet<Color>>() {};
         Type containerType = genericType.getType();
         Class<?> erasedType = getErasedType(containerType);
         assertThat(factory.accepts(containerType)).isTrue();

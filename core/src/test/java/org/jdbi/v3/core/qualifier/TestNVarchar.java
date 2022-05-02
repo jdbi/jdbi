@@ -51,6 +51,7 @@ public class TestNVarchar {
             handle.execute("drop table nvarchars"));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void sqlStatementBindNVarchar() {
         h2Extension.getJdbi().useHandle(handle -> {

@@ -42,7 +42,7 @@ public class ClasspathBuilder {
     }
 
     // org.foo.Bar$Inner -> org/foo/Bar$Inner
-    public ClasspathBuilder appendFullyQualifiedClassName(@Nonnull Class clazz) {
+    public ClasspathBuilder appendFullyQualifiedClassName(@Nonnull Class<?> clazz) {
         return appendDotPath(clazz.getName());
     }
 

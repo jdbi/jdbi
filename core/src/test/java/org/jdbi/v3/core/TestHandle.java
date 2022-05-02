@@ -170,9 +170,7 @@ public class TestHandle {
             assertThat(onRollback.get()).isTrue();
 
             onRollback.set(false);
-            h.useTransaction(inner -> {
-                inner.rollback();
-            });
+            h.useTransaction(Handle::rollback);
             assertThat(onRollback.get()).isFalse();
         }
     }

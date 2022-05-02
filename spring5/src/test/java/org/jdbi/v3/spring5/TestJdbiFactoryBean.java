@@ -132,15 +132,13 @@ public class TestJdbiFactoryBean {
             final Handle h = JdbiUtil.getHandle(outer);
             h.execute("insert into something (id, name) values (7, 'ignored')");
 
-            assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
-                service.inRequiresNewReadUncommitted(inner -> {
-                    final Handle h1 = JdbiUtil.getHandle(inner);
-                    final int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
-                    assertThat(count).isEqualTo(1);
-                    h1.execute("insert into something (id, name) values (8, 'ignored again')");
-                    throw new ForceRollback();
-                });
-            });
+            assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> service.inRequiresNewReadUncommitted(inner -> {
+                final Handle h1 = JdbiUtil.getHandle(inner);
+                final int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).one();
+                assertThat(count).isEqualTo(1);
+                h1.execute("insert into something (id, name) values (8, 'ignored again')");
+                throw new ForceRollback();
+            }));
 
             final int count = h.createQuery("select count(*) from something").mapTo(Integer.class).one();
             assertThat(count).isEqualTo(1);

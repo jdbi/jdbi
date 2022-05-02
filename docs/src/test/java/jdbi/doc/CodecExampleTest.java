@@ -25,9 +25,8 @@ public class CodecExampleTest {
 
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().useHandle(h -> {
-            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, \"value\" INT)");
-        });
+        h2Extension.getJdbi().useHandle(h ->
+            h.execute("CREATE TABLE counters (id VARCHAR PRIMARY KEY, \"value\" INT)"));
     }
 
     @Test

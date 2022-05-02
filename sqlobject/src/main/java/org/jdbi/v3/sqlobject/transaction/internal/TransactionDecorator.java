@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.transaction.internal;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
@@ -29,7 +30,7 @@ public class TransactionDecorator implements HandlerDecorator {
     public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
         final Transaction txnAnnotation = Stream.of(method, sqlObjectType)
                 .map(ae -> ae.getAnnotation(Transaction.class))
-                .filter(txn -> txn != null)
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new TransactionException("No @Transaction annotation found"));
         final TransactionIsolationLevel isolation = txnAnnotation.value();

@@ -27,7 +27,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 
 class EnumArgumentFactory implements QualifiedArgumentFactory {
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Optional<Argument> build(QualifiedType<?> givenType, Object value, ConfigRegistry config) {
         return ifEnum(givenType.getType())
             .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Enum) value, config));

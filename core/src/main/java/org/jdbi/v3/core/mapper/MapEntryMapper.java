@@ -34,6 +34,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
  * @param <K> entry key type
  * @param <V> entry value type
  */
+@SuppressWarnings("rawtypes")
 public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     private static final TypeVariable<Class<Map.Entry>> KEY_PARAM;
     private static final TypeVariable<Class<Map.Entry>> VALUE_PARAM;

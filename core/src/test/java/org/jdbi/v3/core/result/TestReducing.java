@@ -53,7 +53,7 @@ public class TestReducing {
     public void testReduceRowsWithSeed() {
         Map<Integer, SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
-            .reduceRows(new HashMap<Integer, SomethingWithLocations>(), (map, rr) -> {
+            .reduceRows(new HashMap<>(), (map, rr) -> {
                 map.computeIfAbsent(rr.getColumn("id", Integer.class),
                         id -> new SomethingWithLocations(rr.getRow(Something.class)))
                     .locations
@@ -107,7 +107,7 @@ public class TestReducing {
     public void testReduceResultSet() {
         Map<Integer, SomethingWithLocations> result = h2Extension.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
-            .reduceResultSet(new HashMap<Integer, SomethingWithLocations>(), (map, rs, ctx) -> {
+            .reduceResultSet(new HashMap<>(), (map, rs, ctx) -> {
                 final String name = rs.getString("name");
                 map.computeIfAbsent(rs.getInt("id"),
                         id -> new SomethingWithLocations(new Something(id, name)))

@@ -46,6 +46,6 @@ public interface SqlArrayType<T> {
      * @return the created array type
      */
     static <T> SqlArrayType<T> of(String typeName, Function<T, ?> conversion) {
-        return new SqlArrayTypeImpl<T>(typeName, conversion);
+        return new SqlArrayTypeImpl<>(typeName, conversion);
     }
 }
