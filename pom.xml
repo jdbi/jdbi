@@ -18,7 +18,7 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>43</version>
+        <version>44</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -97,14 +97,13 @@
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.junit5.version>5.8.2</dep.junit5.version>
-        <dep.kotlin.version>1.6.10</dep.kotlin.version>
+        <dep.kotlin.version>1.6.21</dep.kotlin.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
-        <dep.plugin.detekt.version>1.19.0</dep.plugin.detekt.version>
+        <dep.plugin.detekt.version>1.20.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
-        <dep.plugin.ktlint.version>1.11.2</dep.plugin.ktlint.version>
-        <dep.plugin.scm-publish.version>3.1.0</dep.plugin.scm-publish.version>
+        <dep.plugin.ktlint.version>1.13.1</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
         <dep.spring.version>5.3.14</dep.spring.version>
@@ -614,12 +613,6 @@
                     <configuration>
                         <tagNameFormat>v@{project.version}</tagNameFormat>
                     </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-publish-plugin</artifactId>
-                    <version>${dep.plugin.scm-publish.version}</version>
                 </plugin>
 
                 <plugin>

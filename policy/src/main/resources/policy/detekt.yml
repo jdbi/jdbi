@@ -268,10 +268,6 @@ exceptions:
       - 'RuntimeException'
       - 'Throwable'
 
-formatting:
-  # ktlint is the same thing
-  active: false
-
 naming:
   active: true
   BooleanPropertyNaming:
