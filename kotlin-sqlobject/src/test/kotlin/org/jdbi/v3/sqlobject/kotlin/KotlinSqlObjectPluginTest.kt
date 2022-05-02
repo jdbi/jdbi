@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.kotlin
+package org.jdbi.v3.sqlobject.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.kotlin.mapTo
@@ -25,10 +25,6 @@ import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers
-import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper
-import org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMappers
-import org.jdbi.v3.sqlobject.kotlin.attach
-import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.testing.junit5.JdbiExtension

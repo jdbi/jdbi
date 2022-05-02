@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.kotlin
+package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.HandleCallback
 import org.jdbi.v3.core.Jdbi
@@ -21,7 +21,6 @@ import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.JoinRow
 import org.jdbi.v3.core.mapper.JoinRowMapper
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
-import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
