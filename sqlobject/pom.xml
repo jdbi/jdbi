@@ -25,7 +25,6 @@
     <name>jdbi3 SqlObject</name>
     <description>jdbi SqlObject transforms simple annotated interfaces into
         full-featured DAO implementations.</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>

@@ -24,7 +24,6 @@
     <artifactId>jdbi3-postgres</artifactId>
     <name>jdbi3 Postgres</name>
     <description>jdbi PostgreSQL specific features</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>

@@ -9,7 +9,7 @@
   </script>
   <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
   <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
-  
+
   <link rel="stylesheet" href="/jdbi2/css/syntax.css" type="text/css" />
   <link rel="stylesheet" href="/jdbi2/css/screen.css" type="text/css" />
   <script type="text/javascript">
@@ -37,16 +37,16 @@
           <a href="/jdbi2/getting_jdbi/">Download</a> |
           <a href="/jdbi2/apidocs/">Javadoc</a> |
           <a href="/jdbi2/faq/">FAQ</a> |
-          <a href="/jdbi2/community.html">Community</a> 
+          <a href="/jdbi2/community.html">Community</a>
         </span>
       </h1>
     </div>
     <div id="content">
       <div id="page">
     <h1 class="emphnext">
-      	<a href="/jdbi2/">Five Minute Introduction</a> 
+      	<a href="/jdbi2/">Five Minute Introduction</a>
     </h1>
-<p><a href='http://jdbi.org/'>JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
+<p><a href='https://jdbi.org/'>JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
 
 <h1 id='fluent_api'>Fluent API</h1>
 
@@ -65,7 +65,7 @@
                     <span class='o'>.</span><span class='na'>bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>,</span> <span class='mi'>1</span><span class='o'>)</span>
                     <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringColumnMapper</span><span class='o'>.</span><span class='na'>INSTANCE</span><span class='o'>)</span>
                     <span class='o'>.</span><span class='na'>first</span><span class='o'>();</span>
-                    
+
 <span class='n'>assertThat</span><span class='o'>(</span><span class='n'>name</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>));</span>
 
 <span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
@@ -125,13 +125,13 @@
 </div>
 <p>We obtain an instance of the sql object from the DBI instance, and then call methods on it. There are a couple different ways of creating sql object instances. The one one here binds the object to a specific handle, so we need to make sure to close the object when we are finished with it.</p>
     <div id="pagination">
-        
-        
+
+
         <a href="/jdbi2/">Home</a> | <a href="/jdbi2/archive.html">Docs</a>
-        
-        
+
+
             <a href="/jdbi2/getting_jdbi/" class="forward"> Getting JDBI ❯❯</a>
-        
+
     </div>
 </div>
 
@@ -143,4 +143,3 @@
   </div>
 </body>
 </html>
-

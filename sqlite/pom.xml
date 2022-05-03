@@ -23,7 +23,6 @@
     <artifactId>jdbi3-sqlite</artifactId>
     <name>jdbi3 sqlite</name>
     <description>Jdbi sqlite support</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>

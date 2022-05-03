@@ -23,7 +23,6 @@
     <artifactId>jdbi3-spring5</artifactId>
     <name>jdbi3 Spring 5</name>
     <description>jdbi Spring 4/5 forward compatibility testing</description>
-    <url>http://jdbi.org/</url>
 
     <properties>
         <moduleName>org.jdbi.v3.spring5</moduleName>

@@ -23,7 +23,6 @@
 
     <name>jdbi3 Apache Commons Text integration</name>
     <description>Provides features implemented with Apache Commons Text.</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>
