@@ -1,1 +1,1 @@
-Documentation repo for [JDBI](http://jdbi.org/).
+Documentation repo for [JDBI](https://jdbi.org/).

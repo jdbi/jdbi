@@ -24,7 +24,6 @@
     <artifactId>jdbi3-generator</artifactId>
     <name>jdbi3 Generator</name>
     <description>jdbi Generator creates SqlObject implementations and simple value classes</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>

@@ -31,7 +31,7 @@
     results, provides a convenient means of externalizing sql
     statements, and provides named parameter support for any database
     being used.</description>
-    <url>http://jdbi.org/</url>
+    <url>https://jdbi.org/</url>
 
     <licenses>
         <license>

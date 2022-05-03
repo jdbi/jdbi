@@ -24,7 +24,6 @@
     <artifactId>jdbi3-freemarker</artifactId>
     <name>jdbi3 Freemarker integration</name>
     <description>jdbi-freemarker locates SQL statements in Freemarker files on the classpath</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>

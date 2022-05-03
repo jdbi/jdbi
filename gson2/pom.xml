@@ -23,7 +23,6 @@
     <artifactId>jdbi3-gson2</artifactId>
     <name>jdbi3 gson2</name>
     <description>Jdbi Gson 2 integration</description>
-    <url>http://jdbi.org/</url>
 
     <properties>
         <moduleName>org.jdbi.v3.gson2</moduleName>

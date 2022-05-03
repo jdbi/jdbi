@@ -24,7 +24,6 @@
     <artifactId>jdbi3-stringtemplate4</artifactId>
     <name>jdbi3 String Template 4 integration</name>
     <description>jdbi-stringtemplate4 locates SQL statements in StringTemplate 4 files on the classpath</description>
-    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>
