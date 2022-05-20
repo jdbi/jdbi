@@ -101,7 +101,7 @@
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
         <dep.plugin.detekt.version>1.20.0</dep.plugin.detekt.version>
-        <dep.plugin.flatten.version>1.2.2</dep.plugin.flatten.version>
+        <dep.plugin.flatten.version>1.2.7</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
         <dep.plugin.ktlint.version>1.13.1</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
@@ -782,6 +782,7 @@
                             <properties>remove</properties>
                             <distributionManagement>remove</distributionManagement>
                             <repositories>remove</repositories>
+                            <dependencyManagement>interpolate</dependencyManagement>
                         </pomElements>
                     </configuration>
                 </plugin>
