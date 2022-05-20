@@ -46,6 +46,7 @@
 
     <properties>
         <moduleName>org.jdbi.v3.bom</moduleName>
+        <dep.jdbi3.version>3.28.1-SNAPSHOT</dep.jdbi3.version>
     </properties>
 
     <dependencyManagement>
@@ -53,126 +54,126 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-core</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-core</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
             </dependency>
 
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-commons-text</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-freemarker</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-generator</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-gson2</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-moshi</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-guava</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-guice</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jackson2</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jpa</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-json</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-kotlin</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-kotlin-sqlobject</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgres</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgres</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlite</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlobject</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlobject</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-spring5</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-stringtemplate4</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-testing</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-vavr</artifactId>
-                <version>${project.version}</version>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -198,7 +199,7 @@
                         </goals>
                     </execution>
                   </executions>
-             </plugin>
+            </plugin>
         </plugins>
     </build>
 </project>
