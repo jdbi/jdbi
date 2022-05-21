@@ -1,5 +1,11 @@
 # Unreleased
 
+# 3.28.1
+  - build now fully supports building with JDK 17
+  - minor changes and cleanups (#2020, #2023)
+  - always load kotlin plugin if using kotlin-sqlobject (#2023)
+  - change BOM to resolve versions in the released bom version
+
 # 3.28.0
   - Remove the antlr4-runtime dependency by inlining it into the core jar.
   - [CI] add lgtm checks
