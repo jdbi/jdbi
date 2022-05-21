@@ -105,7 +105,11 @@
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
         <dep.plugin.ktlint.version>1.13.1</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
+        <!-- remove after next basepom update -->
+        <dep.plugin.spotbugs.version>4.7.0.0</dep.plugin.spotbugs.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
+        <!-- remove after next basepom update -->
+        <dep.spotbugs.version>4.7.0</dep.spotbugs.version>
         <dep.spring.version>5.3.14</dep.spring.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
