@@ -75,7 +75,7 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
             throw new IllegalStateException("not within a Junit test!");
         }
 
-        return pg.getJdbcUrl("postgres", "postgres");
+        return pg.getJdbcUrl("postgres");
     }
 
     @Override
