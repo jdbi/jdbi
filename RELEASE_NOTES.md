@@ -1,10 +1,19 @@
 # Unreleased
 
-# 3.28.1
+# 3.29.0
+
+  This is a maintenance release. It bumps the minor because of a backwards incompatible change
+  in the `JdbiOtjPostgresExtension` due to a change in the upstream `otj-pg-embedded` component.
+
+  If you do not use this component, there are no significant changes over 3.28.0.
+
   - build now fully supports building with JDK 17
   - minor changes and cleanups (#2020, #2023)
   - always load kotlin plugin if using kotlin-sqlobject (#2023)
   - change BOM to resolve versions in the released bom version
+  - update to otj-pg-embedded 1.0.1 (0.13.x started to crash on MacOS Monterey). This is a backwards
+    incompatible change as the component changed the call signature of `getJdbcUrl`. This only
+    affects the JdbiOtjPostgresExtension
 
 # 3.28.0
   - Remove the antlr4-runtime dependency by inlining it into the core jar.
