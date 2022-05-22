@@ -1,6 +1,7 @@
 # Unreleased
 
   - ANTLr 4.10.1
+  - GSON 2.9.0 fixes CVE-2022-25647
 
 # 3.29.0
 
