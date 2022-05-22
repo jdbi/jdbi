@@ -1,5 +1,6 @@
 # Unreleased
 
+  - Fix DefinedAttributeTemplateEngine lexer bug swallowing single-quoted text with escapes (#1906)
   - ANTLr 4.10.1
   - GSON 2.9.0 fixes CVE-2022-25647
 
