@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 31.0.1-jre, 30.1.1-jre ]
+        test-version: [ 31.1-jre, 31.0.1-jre, 30.1.1-jre ]
 
     steps:
     - uses: actions/checkout@v2
@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.9.0-rc1, 2.8.9-ea-1, 2.8.8 ]
+        test-version: [ 2.9.0, 2.8.9-ea-1, 2.8.8 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.13.1, 2.12.6, 2.11.4, 2.10.5.20201202, 2.10.5 ]
+        test-version: [ 2.13.3, 2.12.6.20220326, 2.11.4, 2.10.5.20201202 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -84,7 +84,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.10.13, 2.9.9 ]
+        test-version: [ 2.10.14, 2.9.9 ]
 
     steps:
     - uses: actions/checkout@v2
