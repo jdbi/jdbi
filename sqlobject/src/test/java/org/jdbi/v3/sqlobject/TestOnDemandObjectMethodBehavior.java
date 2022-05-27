@@ -20,6 +20,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestOnDemandObjectMethodBehavior {
     private UselessDao dao;
 
@@ -44,6 +46,7 @@ public class TestOnDemandObjectMethodBehavior {
     @Test
     public void testFinalizeDoesntConnect() {
         dao.finalize(); // Normally GC would do this, but just fake it
+        assertThat(true).isTrue();
     }
 
 }

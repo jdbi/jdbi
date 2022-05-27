@@ -130,9 +130,9 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        it.next();
-        it.next();
-        it.next();
+        assertThat(it.next()).containsEntry("name", "eric");
+        assertThat(it.next()).containsEntry("name", "brian");
+        assertThat(it.next()).containsEntry("name", "john");
     }
 
     @Test

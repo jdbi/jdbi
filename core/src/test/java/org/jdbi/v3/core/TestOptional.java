@@ -157,10 +157,10 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
-        handle.createQuery(SELECT_BY_NAME)
+        assertThat(handle.createQuery(SELECT_BY_NAME)
             .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
             .mapToBean(Something.class)
-            .list();
+            .list().size()).isEqualTo(1);
     }
 
     @Test

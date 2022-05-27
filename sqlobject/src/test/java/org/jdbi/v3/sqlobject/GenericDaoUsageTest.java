@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.Objects;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -23,6 +25,8 @@ import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericDaoUsageTest {
 
@@ -39,13 +43,14 @@ public class GenericDaoUsageTest {
     @Test
     public void testSqlObjectUseGenericDaoInterface() {
         Dao<UserModel, Integer> dao = h2Extension.getJdbi().onDemand(UserDao.class); // widening conversion
-        dao.getById(1);
+        assertThat(dao.getById(1)).isEqualTo(new UserModel(1));
     }
 
     @Test
     public void testSqlObjectUseConcreteDaoInterface() {
         UserDao userDao = h2Extension.getJdbi().onDemand(UserDao.class);
         UserModel entity = userDao.getById(1);
+        assertThat(entity).isEqualTo(new UserModel(1));
     }
 
     public interface Model<PK> {
@@ -71,6 +76,23 @@ public class GenericDaoUsageTest {
         @Override
         public void setId(Integer id) {
             this.id = id;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            UserModel userModel = (UserModel) o;
+            return id == userModel.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id);
         }
     }
 

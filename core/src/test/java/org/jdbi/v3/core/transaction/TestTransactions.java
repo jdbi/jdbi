@@ -80,7 +80,9 @@ public class TestTransactions {
     @Test
     public void testRollbackOutsideTx() {
         h.execute("insert into something (id, name) values (?, ?)", 7, "Tom");
+        assertThat(h.isInTransaction()).isFalse();
         h.rollback();
+        assertThat(h.isInTransaction()).isFalse();
     }
 
     @Test

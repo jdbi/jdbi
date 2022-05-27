@@ -268,11 +268,11 @@ public class TestPreparedBatch {
     public void testBindNull() {
         Handle handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE record (b bool)");
-        handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
+        assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
             .bind("bVal", false).add()
             .bindNull("bVal", Types.BOOLEAN).add()
             .bindByType("bVal", null, boolean.class).add()
-            .execute();
+            .execute()).contains(1, 1, 1);
     }
 
     public static class PublicSomething {

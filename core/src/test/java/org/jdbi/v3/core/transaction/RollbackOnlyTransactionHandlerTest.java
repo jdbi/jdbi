@@ -18,6 +18,8 @@ import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class RollbackOnlyTransactionHandlerTest {
 
     @RegisterExtension
@@ -26,20 +28,19 @@ public class RollbackOnlyTransactionHandlerTest {
     @Test
     public void doubleInsert() {
         try (Handle h = h2Extension.openHandle()) {
-            h.useTransaction(txn ->
-                txn.execute("create table pk (id integer primary key)"));
+            h.useTransaction(txn -> txn.execute("create table pk (id integer primary key)"));
         }
 
         h2Extension.getJdbi().setTransactionHandler(new RollbackOnlyTransactionHandler());
 
         try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                txn.execute("insert into pk values(1)"));
+                assertThat(txn.execute("insert into pk values(1)")).isEqualTo(1));
         }
 
         try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                txn.execute("insert into pk values(1)"));
+                assertThat(txn.execute("insert into pk values(1)")).isEqualTo(1));
         }
     }
 }

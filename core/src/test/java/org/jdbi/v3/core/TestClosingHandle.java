@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestClosingHandle {
     @RegisterExtension
@@ -166,12 +167,16 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenContainerManagedTransaction() throws Exception {
+        Handle handle = null;
         try (Connection conn = DriverManager.getConnection(h2Extension.getUri())) {
             conn.setAutoCommit(false); // open transaction
 
-            Handle handle = Jdbi.open(conn);
+            handle = Jdbi.open(conn);
             handle.close();
         }
+
+        assertNotNull(handle);
+        assertThat(handle.isClosed()).isTrue();
     }
 }
 

@@ -65,12 +65,12 @@ public class TestArgumentFactory {
 
     @Test
     public void testRegisterOnStatement() {
-        h2Extension.getSharedHandle()
+        assertThat(h2Extension.getSharedHandle()
             .createUpdate("insert into something (id, name) values (:id, :name)")
             .registerArgument(new NameAF())
             .bind("id", 1)
             .bind("name", new Name("Brian", "McCallister"))
-            .execute();
+            .execute()).isEqualTo(1);
     }
 
     @Test

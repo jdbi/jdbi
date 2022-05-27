@@ -133,6 +133,7 @@ public class TestClasspathSqlLocator {
     public void testColonInComment() {
         // Used to throw exception in SQL statement lexer
         // see https://github.com/jdbi/jdbi/issues/748
-        ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment");
+        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment"))
+            .contains("SELECT 1.007 AS column_name");
     }
 }

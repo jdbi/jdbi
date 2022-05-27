@@ -76,7 +76,7 @@ public class TestDuration {
                 .bind(0, 4)
                 .mapTo(Duration.class)
                 .one();
-        assertThat(d.isZero());
+        assertThat(d.isZero()).isTrue();
     }
 
     @Test

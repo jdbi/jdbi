@@ -30,6 +30,8 @@ import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Oracle was getting angry about too many open cursors because of the large number of prepared statements being created and cached indefinitely.
  */
@@ -47,7 +49,7 @@ public class TestTooManyCursors {
         db.useHandle(handle -> {
             handle.setStatementBuilder(new DefaultStatementBuilder());
             for (int idx = 0; idx < 100; idx++) {
-                handle.createQuery("SELECT " + idx).mapTo(int.class).first();
+                assertThat(handle.createQuery("SELECT " + idx).mapTo(int.class).first()).isEqualTo(idx);
             }
         });
     }
