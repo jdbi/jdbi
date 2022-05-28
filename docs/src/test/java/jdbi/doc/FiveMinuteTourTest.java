@@ -74,7 +74,7 @@ public class FiveMinuteTourTest {
             result = handle.execute("insert into contacts (id, name) values (?, ?)", 3, "Chuck");
         }
         // end::openHandle[]
-        assertThat(result).isEqualTo(1);
+        assertThat(result).isOne();
     }
 
     // tag::defineCustomMapper[]

@@ -47,15 +47,15 @@ public class SqlObjectArgumentTest {
             .bind("id", 11)
             .bind("status", StatusClass.ONLINE)
                 .execute();
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         // test SQL Object
         count = dao.insert(12, StatusClass.ONLINE.code);
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         // test both together
         count = dao.insert(13, StatusClass.ONLINE);
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         final Query query = h.createQuery(
                 "SELECT integerValue FROM something WHERE id = 13");
@@ -73,15 +73,15 @@ public class SqlObjectArgumentTest {
                 .bind("id", 21)
                 .bind("status", StatusEnum.ONLINE)
                 .execute();
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         // test SQL Object
         count = dao.insert(22, StatusEnum.ONLINE.code);
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         // test both together
         count = h.attach(StatusDao.class).insert(23, StatusEnum.ONLINE);
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
 
         final Query query = h.createQuery(
                 "SELECT integerValue FROM something WHERE id = 23");

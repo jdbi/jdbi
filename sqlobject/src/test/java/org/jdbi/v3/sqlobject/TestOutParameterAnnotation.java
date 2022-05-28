@@ -64,7 +64,7 @@ public class TestOutParameterAnnotation {
         OutParameters outParameters = myDao.callMultipleOutParameters(1, 9);
 
         assertThat(outParameters.getInt("c")).isEqualTo(9);
-        assertThat(outParameters.getInt("d")).isEqualTo(1);
+        assertThat(outParameters.getInt("d")).isOne();
     }
 
     public interface MyDao {

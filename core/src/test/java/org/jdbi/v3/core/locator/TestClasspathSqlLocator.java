@@ -109,10 +109,10 @@ public class TestClasspathSqlLocator {
         });
 
         ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(loadCount.get()).isEqualTo(1);
+        assertThat(loadCount.get()).isOne();
 
         ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(loadCount.get()).isEqualTo(1); // has not increased since previous
+        assertThat(loadCount.get()).isOne(); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(classLoader);
     }

@@ -35,12 +35,12 @@ public class RollbackOnlyTransactionHandlerTest {
 
         try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                assertThat(txn.execute("insert into pk values(1)")).isEqualTo(1));
+                assertThat(txn.execute("insert into pk values(1)")).isOne());
         }
 
         try (Handle h = h2Extension.openHandle()) {
             h.useTransaction(txn ->
-                assertThat(txn.execute("insert into pk values(1)")).isEqualTo(1));
+                assertThat(txn.execute("insert into pk values(1)")).isOne());
         }
     }
 }

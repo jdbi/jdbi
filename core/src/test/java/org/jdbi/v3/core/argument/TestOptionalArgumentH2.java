@@ -46,7 +46,7 @@ public class TestOptionalArgumentH2 {
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().val).isNull();
-        assertThat(op.get().id).isEqualTo(1);
+        assertThat(op.get().id).isOne();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class TestOptionalArgumentH2 {
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().val).isEqualTo("TEST");
-        assertThat(op.get().id).isEqualTo(1);
+        assertThat(op.get().id).isOne();
     }
 
     @Test
@@ -64,7 +64,7 @@ public class TestOptionalArgumentH2 {
         Optional<IdValue> op = select();
         assertThat(op.isPresent()).isTrue();
         assertThat(op.get().val).isEqualTo("TEST");
-        assertThat(op.get().id).isEqualTo(1);
+        assertThat(op.get().id).isOne();
     }
 
     private void insert(String binding, Object bean) {

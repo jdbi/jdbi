@@ -125,7 +125,7 @@ public class TestVavrTupleRowMapperFactory {
     }
 
     private void assertMapper(Optional<RowMapper<?>> mapper, Tuple expected) throws SQLException {
-        assertThat(mapper.isPresent());
+        assertThat(mapper.isPresent()).isTrue();
         assertThat(mapper.get()).isInstanceOf(RowMapper.class);
         assertThat(mapper.get().map(null, null)).isEqualTo(expected);
     }

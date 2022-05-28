@@ -26,6 +26,6 @@ public class JdbiRuleSqliteTest {
     public void isAlive() {
         Integer one = sqlite.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
 
-        assertThat(one).isEqualTo(1);
+        assertThat(one).isOne();
     }
 }

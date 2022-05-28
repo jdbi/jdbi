@@ -39,7 +39,7 @@ public class TestPositionalParameterBinding {
                 .mapToBean(Something.class)
                 .list()
                 .get(0);
-        assertThat(eric.getId()).isEqualTo(1);
+        assertThat(eric.getId()).isOne();
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TestPositionalParameterBinding {
                 .bind(0, 1)
                 .mapToBean(Something.class)
                 .list().get(0);
-        assertThat(eric.getId()).isEqualTo(1);
+        assertThat(eric.getId()).isOne();
     }
 
     @Test
@@ -85,7 +85,7 @@ public class TestPositionalParameterBinding {
                 .bind(0, 1)
                 .execute();
 
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
     }
 
     @Test
@@ -94,6 +94,6 @@ public class TestPositionalParameterBinding {
 
         int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
     }
 }

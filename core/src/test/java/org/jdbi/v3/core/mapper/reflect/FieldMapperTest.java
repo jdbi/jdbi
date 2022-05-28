@@ -54,7 +54,7 @@ public class FieldMapperTest {
             .map(FieldMapper.of(ColumnNameThing.class))
             .one();
 
-        assertThat(thing.i).isEqualTo(1);
+        assertThat(thing.i).isOne();
         assertThat(thing.s).isEqualTo("foo");
     }
 

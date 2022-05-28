@@ -44,7 +44,7 @@ public class TestTimingCollector {
 
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.execute(statement);
-        assertThat(c).isEqualTo(1);
+        assertThat(c).isOne();
 
         assertThat(tc.getRawStatements()).containsExactly(statement);
         assertThat(tc.getRenderedStatements()).containsExactly(statement);

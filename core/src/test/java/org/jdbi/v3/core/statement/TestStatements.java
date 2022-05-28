@@ -38,7 +38,7 @@ public class TestStatements {
         Handle h = h2Extension.openHandle();
 
         int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        assertThat(rows).isEqualTo(1);
+        assertThat(rows).isOne();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class TestStatements {
         Handle h = h2Extension.openHandle();
 
         int c = h.execute("insert into something (id, name) values (1, 'eric')");
-        assertThat(c).isEqualTo(1);
+        assertThat(c).isOne();
     }
 
     @Test

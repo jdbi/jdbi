@@ -85,7 +85,7 @@ public class ImmutablesTest {
                 handle.createUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
                     .bindPojo(ImmutableTrain.builder().name("Zephyr").carriages(8).observationCar(true).build())
                     .execute())
-                .isEqualTo(1);
+                .isOne();
 
             assertThat(
                 handle.createQuery("select * from train")
@@ -103,7 +103,7 @@ public class ImmutablesTest {
             h.createUpdate("insert into immutables(t, x) values (:t, :x)")
                 .bindPojo(ImmutableSubValue.<String, Integer>builder().t(42).x("foo").build())
                 .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(
             h.createQuery("select * from immutables")
@@ -144,7 +144,7 @@ public class ImmutablesTest {
         assertThat(h.createUpdate("insert into fbb (id, foo, bar, baz) values (:id, :foo, :bar, :baz)")
             .bindPojo(ModifiableFooBarBaz.create().setId(1).setFoo("foo").setBar(42).setBaz(1.0))
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h.createQuery("select * from fbb")
             .mapTo(ModifiableFooBarBaz.class)
@@ -182,7 +182,7 @@ public class ImmutablesTest {
         assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
             .bindPojo(expected)
             .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(h.createQuery("select * from getter")
             .mapTo(Getter.class)
             .one())

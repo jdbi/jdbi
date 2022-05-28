@@ -27,13 +27,13 @@ public class JdbiPostgresExtendWithTest {
     public void testJdbiIsAlive(Jdbi jdbi) {
         Integer one = jdbi.withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
 
-        assertThat(one).isEqualTo(1);
+        assertThat(one).isOne();
     }
 
     @Test
     public void testHandleIsAlive(Handle handle) {
         Integer one = handle.createQuery("select 1").mapTo(Integer.class).one();
 
-        assertThat(one).isEqualTo(1);
+        assertThat(one).isOne();
     }
 }

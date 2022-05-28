@@ -93,7 +93,7 @@ public class TestDocumentation {
     public void testObtainHandleInCallback() {
         Jdbi db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         db.useHandle(handle ->
-            assertThat(handle.execute("create table silly (id int)")).isEqualTo(0));
+            assertThat(handle.execute("create table silly (id int)")).isZero());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class TestDocumentation {
             assertThat(h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
                 .bind("name", "Martin")
-                .execute()).isEqualTo(1);
+                .execute()).isOne();
         }
     }
 
@@ -147,14 +147,14 @@ public class TestDocumentation {
     public void testAttachToObject() {
         try (Handle h = h2Extension.openHandle()) {
             MyDAO dao = h.attach(MyDAO.class);
-            assertThat(dao.insert(1, "test")).isEqualTo(1);
+            assertThat(dao.insert(1, "test")).isOne();
         }
     }
 
     @Test
     public void testOnDemandDao() {
         MyDAO dao = h2Extension.getJdbi().onDemand(MyDAO.class);
-        assertThat(dao.insert(2, "test")).isEqualTo(1);
+        assertThat(dao.insert(2, "test")).isOne();
     }
 
     public interface SomeQueries {

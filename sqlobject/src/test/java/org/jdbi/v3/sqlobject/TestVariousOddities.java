@@ -132,8 +132,9 @@ public class TestVariousOddities {
     }
 
     @Test
-    public void testAbiguityResolved() {
-        h2Extension.getSharedHandle().attach(ResolvedMethods.class);
+    public void testAmbiguityResolved() {
+        ResolvedMethods methods = h2Extension.getSharedHandle().attach(ResolvedMethods.class);
+        assertThat(methods.value()).isEqualTo("resolved");
     }
 
     public interface VersionA {
@@ -147,7 +148,7 @@ public class TestVariousOddities {
 
     public interface AmbiguousMethods extends VersionA, VersionB {}
     public interface ResolvedMethods extends AmbiguousMethods {
-        @SqlQuery("select ''")
+        @SqlQuery("select 'resolved'")
         @Override
         String value();
     }

@@ -59,7 +59,7 @@ public class TestBindMethods {
         final DatabaseValue<?> dbVal = new DirectDatabaseLongValue(testValue);
         final PairRow row = new PairRow(testId, dbVal);
 
-        assertThat(dao.insert(row)).isEqualTo(1);
+        assertThat(dao.insert(row)).isOne();
         assertThat(dao.getById(testId)).isEqualTo(testValue);
     }
 
@@ -72,7 +72,7 @@ public class TestBindMethods {
         final DatabaseValue<?> dbVal = new DatabaseLongValueWithOverride(testValue);
         final PairRow row = new PairRow(testId, dbVal);
 
-        assertThat(dao.insert(row)).isEqualTo(1);
+        assertThat(dao.insert(row)).isOne();
         assertThat(dao.getById(testId)).isEqualTo(testValue);
     }
 
@@ -85,7 +85,7 @@ public class TestBindMethods {
         final DatabaseValue<?> dbVal = new DatabaseLongValue(testValue);
         final PairRow row = new PairRow(testId, dbVal);
 
-        assertThat(dao.insert(row)).isEqualTo(1);
+        assertThat(dao.insert(row)).isOne();
         assertThat(dao.getById(testId)).isEqualTo(testValue);
     }
 

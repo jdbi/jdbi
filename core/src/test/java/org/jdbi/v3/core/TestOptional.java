@@ -160,7 +160,7 @@ public class TestOptional {
         assertThat(handle.createQuery(SELECT_BY_NAME)
             .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
             .mapToBean(Something.class)
-            .list().size()).isEqualTo(1);
+            .list()).hasSize(1);
     }
 
     @Test

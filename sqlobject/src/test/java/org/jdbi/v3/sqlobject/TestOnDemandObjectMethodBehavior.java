@@ -15,12 +15,14 @@ package org.jdbi.v3.sqlobject;
 
 import java.sql.Connection;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class TestOnDemandObjectMethodBehavior {
     private UselessDao dao;
@@ -32,11 +34,6 @@ public class TestOnDemandObjectMethodBehavior {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
-    @BeforeEach
-    public void setUp() {
-        dao = h2Extension.attach(UselessDao.class);
-    }
-
     /**
      * Sometimes the GC will call {@link #finalize()} on a SqlObject from
      * extremely sensitive places from within the GC machinery.  Jdbi should not
@@ -45,8 +42,15 @@ public class TestOnDemandObjectMethodBehavior {
      */
     @Test
     public void testFinalizeDoesntConnect() {
+
+        Handle handle = spy(h2Extension.getSharedHandle());
+        UselessDao dao = handle.attach(UselessDao.class);
+
         dao.finalize(); // Normally GC would do this, but just fake it
-        assertThat(true).isTrue();
+
+        verify(handle, never()).getConnection();
+        verify(handle, never()).getJdbi();
+        verify(handle);
     }
 
 }

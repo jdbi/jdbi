@@ -56,7 +56,7 @@ public class TestCustomArrayType {
                     .bind(0, 1)
                     .bind(1, new UserId[]{user1, user2})
                     .execute())
-                .isEqualTo(1);
+                .isOne();
 
             final List<UserId> result = handle.createQuery("select user_ids from groups where id = ?")
                 .bind(0, 1)

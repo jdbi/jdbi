@@ -64,7 +64,12 @@ public class TestReadOnly {
     public void testReadOnlyInner() {
         try (Handle h = pgExtension.openHandle()) {
             RODao dao = h.attach(RODao.class);
-            dao.writeTxn(() -> dao.readTxn(() -> {}));
+            dao.writeTxn(() -> {
+                assertThat(dao.getHandle().isReadOnly()).isFalse();
+                dao.readTxn(() -> {
+                    assertThat(dao.getHandle().isReadOnly()).isTrue();
+                });
+            });
         }
     }
 
@@ -89,11 +94,13 @@ public class TestReadOnly {
 
         @Transaction(readOnly = false)
         default void writeTxn(Runnable r) {
+            assertThat(getHandle().isReadOnly()).isFalse();
             r.run();
         }
 
         @Transaction(readOnly = true)
         default void readTxn(Runnable r) {
+            assertThat(getHandle().isReadOnly()).isTrue();
             r.run();
         }
     }

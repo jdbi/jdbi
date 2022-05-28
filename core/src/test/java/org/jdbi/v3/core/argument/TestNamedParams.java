@@ -39,7 +39,7 @@ public class TestNamedParams {
         insert.bind("id", 1);
         insert.bind("name", "Brian");
         int count = insert.execute();
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:id, :name)")
             .bindBean(original)
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", original.getId())
@@ -89,7 +89,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
             .bindBean("my", original)
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", original.getId())
@@ -107,7 +107,7 @@ public class TestNamedParams {
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
             .bindBean("my", new NestsSomething(thing))
-            .execute()).isEqualTo(1);
+            .execute()).isOne();
 
         assertThat(h
             .select("select * from something where id = ?", thing.getId())
@@ -137,7 +137,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:id, :name)")
             .bindFields(new PublicFields(0, "Keith"))
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -154,7 +154,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
             .bindFields("my", new PublicFields(0, "Keith"))
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -174,7 +174,7 @@ public class TestNamedParams {
                 public final PublicFields nested = new PublicFields(0, "Keith");
             })
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -194,7 +194,7 @@ public class TestNamedParams {
                 public final PublicFields nested = null;
             })
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -230,7 +230,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:id, :name)")
             .bindMethods(new NoArgFunctions(0, "Keith"))
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -247,7 +247,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
             .bindMethods("my", new NoArgFunctions(0, "Keith"))
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -264,7 +264,7 @@ public class TestNamedParams {
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
             .bindMethods("my", new FunctionsNestedBinding())
             .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(h
             .select("select * from something where id = ?", 0)
@@ -305,7 +305,7 @@ public class TestNamedParams {
         Query q = h.createQuery("select * from something where id = :id").bind("id", 0);
         final Something fromDb = q.mapToBean(Something.class).one();
 
-        assertThat(insertCount).isEqualTo(1);
+        assertThat(insertCount).isOne();
         assertThat(fromDb).extracting(Something::getId, Something::getName).containsExactly(0, "Keith");
     }
 
@@ -318,7 +318,7 @@ public class TestNamedParams {
         s.bindMap(args);
         s.bindBean(new Keith());
         int insertCount = s.execute();
-        assertThat(insertCount).isEqualTo(1);
+        assertThat(insertCount).isOne();
         Something something = h.createQuery("select id, name from something").mapToBean(Something.class).one();
         assertThat(something).isEqualTo(new Something(0, "Keith"));
     }

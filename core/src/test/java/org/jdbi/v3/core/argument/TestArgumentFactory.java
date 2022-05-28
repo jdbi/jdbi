@@ -70,7 +70,7 @@ public class TestArgumentFactory {
             .registerArgument(new NameAF())
             .bind("id", 1)
             .bind("name", new Name("Brian", "McCallister"))
-            .execute()).isEqualTo(1);
+            .execute()).isOne();
     }
 
     @Test

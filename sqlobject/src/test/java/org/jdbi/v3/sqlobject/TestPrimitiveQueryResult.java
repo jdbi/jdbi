@@ -67,7 +67,7 @@ public class TestPrimitiveQueryResult {
 
     @Test
     public void testInt() {
-        assertThat(dao.getInt(1)).isEqualTo(1);
+        assertThat(dao.getInt(1)).isOne();
 
         assertThrows(IllegalStateException.class, () -> dao.getInt(2));
     }

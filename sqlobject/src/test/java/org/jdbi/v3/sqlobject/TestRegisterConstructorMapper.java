@@ -42,7 +42,7 @@ public class TestRegisterConstructorMapper {
     public void testMapperRegistered() {
         dao.insert(1, "brain");
         Something brain = dao.getById(1);
-        assertThat(brain.getId()).isEqualTo(1);
+        assertThat(brain.getId()).isOne();
         assertThat(brain.getName()).isEqualTo("brain");
     }
 
@@ -50,7 +50,7 @@ public class TestRegisterConstructorMapper {
     public void testMapperPrefixed() {
         dao.insert(1, "brain");
         Something brain = dao.getByIdPrefixed(1);
-        assertThat(brain.getId()).isEqualTo(1);
+        assertThat(brain.getId()).isOne();
         assertThat(brain.getName()).isEqualTo("brain");
     }
 

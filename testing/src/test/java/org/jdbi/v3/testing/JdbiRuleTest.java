@@ -92,12 +92,17 @@ public class JdbiRuleTest {
     }
 
     @Test
-    public void subclassOverridingCreatedataSource() {
-        new JdbiRule() {
+    public void subclassOverridingCreateDataSource() {
+
+        DataSource dataSource = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
+
+        JdbiRule rule = new JdbiRule() {
           @Override
           protected DataSource createDataSource() {
-            return JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
+            return dataSource;
           }
         };
+
+        assertThat(rule.createDataSource()).isEqualTo(dataSource);
     }
 }

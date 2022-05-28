@@ -36,7 +36,7 @@ public class TestStatements {
 
             String name = h2Extension.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).one();
 
-            assertThat(rowsAffected).isEqualTo(1);
+            assertThat(rowsAffected).isOne();
             assertThat(name).isEqualTo("Diego");
         });
     }
