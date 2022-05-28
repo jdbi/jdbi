@@ -50,7 +50,5 @@ public class TestOnDemandObjectMethodBehavior {
 
         verify(handle, never()).getConnection();
         verify(handle, never()).getJdbi();
-        verify(handle);
     }
-
 }
