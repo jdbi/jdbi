@@ -178,7 +178,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier hs) {
         final Handle h = hs.getHandle();
-        final String locatedSql = locateSql(h);
+        final String locatedSql = locateSql(h, target);
         final StatementType stmt = createStatement(h, locatedSql);
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
         cfg.setArgs(args);
@@ -200,8 +200,8 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
     abstract StatementType createStatement(Handle handle, String locatedSql);
 
-    String locateSql(final Handle h) {
-        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method, h.getConfig());
+    String locateSql(final Handle h, Object target) {
+        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, target, method, h.getConfig());
     }
 
     Method getMethod() {

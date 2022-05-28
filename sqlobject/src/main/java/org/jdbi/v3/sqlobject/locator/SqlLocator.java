@@ -29,6 +29,21 @@ public interface SqlLocator {
      * @param method the method
      * @param config the config registry
      * @return the SQL for the given method.
+     * @deprecated use {@link #locate(Class, Object, Method, ConfigRegistry)}
      */
+    @Deprecated
     String locate(Class<?> sqlObjectType, Method method, ConfigRegistry config);
+
+    /**
+     * Locates and returns the SQL for the given SQL Object type, target and method.
+     *
+     * @param sqlObjectType the SQL object type
+     * @param target the target
+     * @param method the method
+     * @param config the config registry
+     * @return the SQL for the given method.
+     */
+    default String locate(Class<?> sqlObjectType, Object target, Method method, ConfigRegistry config) {
+        return locate(sqlObjectType, method, config);
+    }
 }
