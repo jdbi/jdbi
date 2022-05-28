@@ -128,7 +128,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
 
         assertThat(result._1).isEqualTo(99);
         assertThat(result._2).isEqualTo(100);
-        assertThat(result._3).isEqualTo(1);
+        assertThat(result._3).isOne();
     }
 
     @Test

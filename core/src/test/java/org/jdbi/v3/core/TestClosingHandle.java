@@ -166,12 +166,15 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenContainerManagedTransaction() throws Exception {
+        Handle handle;
         try (Connection conn = DriverManager.getConnection(h2Extension.getUri())) {
             conn.setAutoCommit(false); // open transaction
 
-            Handle handle = Jdbi.open(conn);
+            handle = Jdbi.open(conn);
             handle.close();
         }
+
+        assertThat(handle.isClosed()).isTrue();
     }
 }
 

@@ -80,7 +80,9 @@ public class TestTransactions {
     @Test
     public void testRollbackOutsideTx() {
         h.execute("insert into something (id, name) values (?, ?)", 7, "Tom");
+        assertThat(h.isInTransaction()).isFalse();
         h.rollback();
+        assertThat(h.isInTransaction()).isFalse();
     }
 
     @Test
@@ -122,14 +124,14 @@ public class TestTransactions {
 
     @Test
     public void testRollbackDoesntCommit() {
-        assertThat(begin).isEqualTo(0);
+        assertThat(begin).isZero();
         h.useTransaction(th -> {
-            assertThat(begin).isEqualTo(1);
-            assertThat(rollback).isEqualTo(0);
+            assertThat(begin).isOne();
+            assertThat(rollback).isZero();
             th.rollback();
         });
-        assertThat(rollback).isEqualTo(1);
-        assertThat(commit).isEqualTo(0);
+        assertThat(rollback).isOne();
+        assertThat(commit).isZero();
     }
 
     @Test

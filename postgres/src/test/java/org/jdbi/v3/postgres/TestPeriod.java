@@ -76,7 +76,7 @@ public class TestPeriod {
                 .bind(0, 4)
                 .mapTo(Period.class)
                 .one();
-        assertThat(p.isZero());
+        assertThat(p.isZero()).isTrue();
     }
 
     @Test

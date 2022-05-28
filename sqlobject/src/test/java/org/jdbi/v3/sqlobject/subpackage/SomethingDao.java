@@ -24,7 +24,7 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 @RegisterRowMapper(SomethingMapper.class)
 public interface SomethingDao {
     @SqlUpdate("insert into something (id, name) values (:id, :name)")
-    void insert(@Bind("id") int id, @Bind("name") String name);
+    int insert(@Bind("id") int id, @Bind("name") String name);
 
     @SqlQuery("select id, name from something where id = :id")
     Something findById(@Bind("id") int id);
@@ -34,13 +34,13 @@ public interface SomethingDao {
     }
 
     @Transaction
-    default void insertInSingleTransaction(final int id, final String name) {
-        insert(id, name);
+    default int insertInSingleTransaction(final int id, final String name) {
+        return insert(id, name);
     }
 
     @Transaction
-    default void insertInNestedTransaction(final int id, final String name) {
-        insertInSingleTransaction(id, name);
+    default int insertInNestedTransaction(final int id, final String name) {
+        return insertInSingleTransaction(id, name);
     }
 
 }

@@ -33,6 +33,6 @@ public class TestStatementContext {
                 .bind("name", "Martin")
                 .define("table", "something")
                 .execute();
-        assertThat(inserted).isEqualTo(1);
+        assertThat(inserted).isOne();
     }
 }

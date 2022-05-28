@@ -70,7 +70,7 @@ public class TestHandle {
     @Test
     public void testMrWinter() {
         final Handle h = h2Extension.getSharedHandle();
-        h.execute("CREATE TABLE \"\u2603\" (pk int primary key)");
+        assertThat(h.execute("CREATE TABLE \"\u2603\" (pk int primary key)")).isZero();
     }
 
     @Test

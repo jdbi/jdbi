@@ -57,7 +57,7 @@ public class TestH2SqlArrays {
                 .createUpdate(U_INSERT)
                 .bindArray("u", testUuids)
                 .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(
             h2Extension.openHandle()
                 .createQuery(U_SELECT)
@@ -73,7 +73,7 @@ public class TestH2SqlArrays {
                 .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, Arrays.asList(testUuids))
                 .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(
             h2Extension.openHandle()
                 .createQuery(U_SELECT)
@@ -89,7 +89,7 @@ public class TestH2SqlArrays {
                 .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, new ArrayList<>(Arrays.asList(testUuids)))
                 .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(
             h2Extension.openHandle()
                 .createQuery(U_SELECT)
@@ -105,7 +105,7 @@ public class TestH2SqlArrays {
                 .createUpdate(U_INSERT)
                 .bindByType("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(
             h2Extension.openHandle()
                 .createQuery(U_SELECT)
@@ -121,7 +121,7 @@ public class TestH2SqlArrays {
                 .createUpdate(U_INSERT)
                 .bindByType("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(
             h2Extension.openHandle()
                 .createQuery(U_SELECT)

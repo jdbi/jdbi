@@ -128,6 +128,8 @@ public class TestDefineListParameter {
         values.add(1);
         values.add("Some Pig");
         testDao.insert("test", columns, values);
+
+        assertThat(testDao.findById(testColumns, "test", 1)).isEqualTo(new Something(1, "Some Pig"));
     }
 
     @Test
@@ -137,6 +139,8 @@ public class TestDefineListParameter {
         values.add(1);
         values.add("Some Pig");
         testDao.defaultedInsert("test", testColumns, values);
+
+        assertThat(testDao.findById(testColumns, "test", 1)).isEqualTo(new Something(1, "Some Pig"));
     }
 
     @Test

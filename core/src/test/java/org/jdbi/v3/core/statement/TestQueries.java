@@ -368,7 +368,7 @@ public class TestQueries {
         assertThat(h.createQuery("select id, name from something")
             .mapToBean(Something.class)
             .withStream(stream -> stream.limit(1).count())
-            .longValue()).isEqualTo(1);
+            .longValue()).isOne();
 
         assertThat(h.createQuery("select id, name from something")
             .mapToBean(Something.class)

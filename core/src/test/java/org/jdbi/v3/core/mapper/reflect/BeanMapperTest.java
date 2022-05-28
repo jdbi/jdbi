@@ -73,7 +73,7 @@ public class BeanMapperTest {
             .mapTo(ColumnNameBean.class)
             .one();
 
-        assertThat(bean.getI()).isEqualTo(1);
+        assertThat(bean.getI()).isOne();
         assertThat(bean.getS()).isEqualTo("foo");
     }
 

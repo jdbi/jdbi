@@ -81,7 +81,7 @@ public class FreeBuildersTest {
                 handle.createUpdate("insert into train(name, carriages, observation_car) values (:name, :carriages, :observationCar)")
                     .bindPojo(train)
                     .execute())
-                .isEqualTo(1);
+                .isOne();
 
             assertThat(
                 handle.createQuery("select * from train")
@@ -103,7 +103,7 @@ public class FreeBuildersTest {
             h.createUpdate("insert into unnested_free_builders(test) values (:test)")
             .bindPojo(unnestedFreeBuilder)
             .execute())
-        .isEqualTo(1);
+        .isOne();
 
         assertThat(
             h.createQuery("select * from unnested_free_builders")
@@ -129,7 +129,7 @@ public class FreeBuildersTest {
             h.createUpdate("insert into free_builders(t, x) values (:t, :x)")
                 .bindPojo(new SubValue.Builder<String, Integer>().t(42).x("foo").build())
                 .execute())
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(
             h.createQuery("select * from free_builders")
@@ -154,7 +154,7 @@ public class FreeBuildersTest {
         assertThat(h.createUpdate("insert into getter(foo, bar) values (:foo, :bar)")
             .bindPojo(expected)
             .execute())
-            .isEqualTo(1);
+            .isOne();
         assertThat(h.createQuery("select * from getter")
             .mapTo(Getter.class)
             .one())

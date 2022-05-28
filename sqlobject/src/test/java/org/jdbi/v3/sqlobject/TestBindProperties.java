@@ -55,7 +55,7 @@ public class TestBindProperties {
                 .carriages(8)
                 .observationCar(true)
                 .build()))
-            .isEqualTo(1);
+            .isOne();
 
         assertThat(dao.getTrains().get(0))
             .extracting("name", "carriages", "observationCar")

@@ -46,7 +46,7 @@ public class IterableLikeTest {
         final Iterator<?> it = IterableLike.of(new int[]{1});
 
         assertThat(it.hasNext()).isTrue();
-        assertThat(it.next()).isEqualTo(1);
+        assertThat(it.next()).isEqualTo(Integer.valueOf(1));
 
         assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }

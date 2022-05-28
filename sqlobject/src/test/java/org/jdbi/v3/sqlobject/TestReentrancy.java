@@ -20,6 +20,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
@@ -46,6 +47,9 @@ public class TestReentrancy {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);
+
+        @SqlQuery("select count(1) from something")
+        int count();
     }
 
     @Test
@@ -68,6 +72,8 @@ public class TestReentrancy {
 
             return null;
         });
+
+        assertThat(dao.count()).isOne();
     }
 
     @Test

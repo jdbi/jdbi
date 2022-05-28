@@ -107,7 +107,7 @@ public class TestSqlObject {
     public void testSimpleTransactionsSucceed() {
         SomethingDao dao = h2Extension.getJdbi().onDemand(SomethingDao.class);
 
-        dao.insertInSingleTransaction(10, "Linda");
+        assertThat(dao.insertInSingleTransaction(10, "Linda")).isOne();
     }
 
     @Test
@@ -157,7 +157,7 @@ public class TestSqlObject {
         verify(spyHandle, never()).begin();
         assertThat(dao.findById(1)).isEqualTo(new Something(1, "foo"));
 
-        assertThat(dao.insertTransactional(2, "bar")).isEqualTo(1);
+        assertThat(dao.insertTransactional(2, "bar")).isOne();
         verify(spyHandle, times(1)).begin();
         assertThat(dao.findById(2)).isEqualTo(new Something(2, "bar"));
     }

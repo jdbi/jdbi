@@ -79,7 +79,7 @@ public class TestGetGeneratedKeysPostgres {
 
             IdCreateTime result = dao.insert("foo");
 
-            assertThat(result.id).isEqualTo(1);
+            assertThat(result.id).isOne();
             assertThat(result.createdOn).isNotNull();
         });
     }
@@ -103,7 +103,7 @@ public class TestGetGeneratedKeysPostgres {
 
             IdCreateTime result = dao.insert("foo");
 
-            assertThat(result.id).isEqualTo(1);
+            assertThat(result.id).isOne();
             assertThat(result.createdOn).isNotNull();
         });
     }

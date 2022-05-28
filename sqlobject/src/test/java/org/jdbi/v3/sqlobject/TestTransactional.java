@@ -76,6 +76,9 @@ public class TestTransactional {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         @Transaction(TransactionIsolationLevel.SERIALIZABLE)
         int insert(@BindBean Something something);
+
+        @SqlQuery("select count(1) from something")
+        int count();
     }
 
     @Transaction
@@ -95,6 +98,8 @@ public class TestTransactional {
             inTransaction.set(false);
             return null;
         });
+
+        assertThat(dao.count()).isEqualTo(2);
     }
 
     @Test

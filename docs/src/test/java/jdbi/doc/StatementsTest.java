@@ -64,12 +64,12 @@ public class StatementsTest {
             .bind("id", 3)
             .bind("name", "Charlie")
             .execute();
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
         // end::update[]
 
         // tag::execute[]
         count = handle.execute("INSERT INTO \"user\" (id, \"name\") VALUES(?, ?)", 4, "Alice");
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
         // end::execute[]
     }
 

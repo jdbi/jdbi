@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestSqlObjectMethodBehavior {
     private UselessDao dao;
@@ -70,7 +71,11 @@ public class TestSqlObjectMethodBehavior {
      */
     @Test
     public void testFinalizeDoesntConnect() {
-        dao.finalize(); // Normally GC would do this, but just fake it
+        try {
+            dao.finalize(); // Normally GC would do this, but just fake it
+        } catch (UnsupportedOperationException e) {
+            fail();
+        }
     }
 
     @Test
@@ -87,6 +92,10 @@ public class TestSqlObjectMethodBehavior {
 
     @Test
     public void testToStringDoesntConnect() {
-        dao.toString();
+        try {
+            dao.toString();
+        } catch (UnsupportedOperationException e) {
+            fail();
+        }
     }
 }

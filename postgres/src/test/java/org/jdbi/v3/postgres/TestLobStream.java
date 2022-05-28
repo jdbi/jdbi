@@ -57,12 +57,12 @@ public class TestLobStream {
     public void blobCrud() throws IOException {
         final Supplier<InputStream> expectedData = () -> new IntsInputStream(0, 255);
         h.useTransaction(th -> {
-            assertThat(lob.countLob()).isEqualTo(0);
+            assertThat(lob.countLob()).isZero();
             lob.insert(1, expectedData.get());
-            assertThat(lob.countLob()).isEqualTo(1);
+            assertThat(lob.countLob()).isOne();
             assertSameBytes(lob.findBlob(1), expectedData.get());
             lob.deleteLob(1);
-            assertThat(lob.countLob()).isEqualTo(0);
+            assertThat(lob.countLob()).isZero();
             assertThat(lob.findBlob(1)).isNull();
         });
     }

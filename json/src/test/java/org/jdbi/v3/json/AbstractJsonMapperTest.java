@@ -71,7 +71,7 @@ public abstract class AbstractJsonMapperTest {
             h.execute("create table bean (id serial primary key, nested1 json, nested2 json)");
             assertThat(h.createUpdate("insert into bean(id, nested1, nested2) values (:id, :nested1, :nested2)")
                 .bindBean(new NestedJsonBean(42, 64, "quux"))
-                .execute()).isEqualTo(1);
+                .execute()).isOne();
 
             NestedJsonBean beany = h.createQuery("select * from bean")
                 .mapToBean(NestedJsonBean.class)

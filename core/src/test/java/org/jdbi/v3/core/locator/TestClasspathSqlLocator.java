@@ -109,10 +109,10 @@ public class TestClasspathSqlLocator {
         });
 
         ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(loadCount.get()).isEqualTo(1);
+        assertThat(loadCount.get()).isOne();
 
         ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(loadCount.get()).isEqualTo(1); // has not increased since previous
+        assertThat(loadCount.get()).isOne(); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(classLoader);
     }
@@ -133,6 +133,7 @@ public class TestClasspathSqlLocator {
     public void testColonInComment() {
         // Used to throw exception in SQL statement lexer
         // see https://github.com/jdbi/jdbi/issues/748
-        ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment");
+        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment"))
+            .contains("SELECT 1.007 AS column_name");
     }
 }

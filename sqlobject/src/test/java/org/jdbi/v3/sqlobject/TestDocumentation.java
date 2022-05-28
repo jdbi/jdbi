@@ -63,7 +63,7 @@ public class TestDocumentation {
 
     public interface MyDAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        void insert(@Bind("id") int id, @Bind("name") String name);
+        int insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);
@@ -92,7 +92,8 @@ public class TestDocumentation {
     @Test
     public void testObtainHandleInCallback() {
         Jdbi db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
-        db.useHandle(handle -> handle.execute("create table silly (id int)"));
+        db.useHandle(handle ->
+            assertThat(handle.execute("create table silly (id int)")).isZero());
     }
 
     @Test
@@ -108,10 +109,10 @@ public class TestDocumentation {
     @Test
     public void testFluentUpdate() {
         try (Handle h = h2Extension.openHandle()) {
-            h.createUpdate("insert into something(id, name) values (:id, :name)")
+            assertThat(h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
                 .bind("name", "Martin")
-                .execute();
+                .execute()).isOne();
         }
     }
 
@@ -146,14 +147,14 @@ public class TestDocumentation {
     public void testAttachToObject() {
         try (Handle h = h2Extension.openHandle()) {
             MyDAO dao = h.attach(MyDAO.class);
-            dao.insert(1, "test");
+            assertThat(dao.insert(1, "test")).isOne();
         }
     }
 
     @Test
     public void testOnDemandDao() {
         MyDAO dao = h2Extension.getJdbi().onDemand(MyDAO.class);
-        dao.insert(2, "test");
+        assertThat(dao.insert(2, "test")).isOne();
     }
 
     public interface SomeQueries {

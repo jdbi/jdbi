@@ -68,11 +68,13 @@ public class FiveMinuteTourTest {
 
     @Test
     public void tryWithResources() {
+        int result;
         // tag::openHandle[]
         try (Handle handle = jdbi.open()) {
-            handle.execute("insert into contacts (id, name) values (?, ?)", 3, "Chuck");
+            result = handle.execute("insert into contacts (id, name) values (?, ?)", 3, "Chuck");
         }
         // end::openHandle[]
+        assertThat(result).isOne();
     }
 
     // tag::defineCustomMapper[]
