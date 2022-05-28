@@ -25,7 +25,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class TestOnDemandObjectMethodBehavior {
-    private UselessDao dao;
 
     public interface UselessDao extends SqlObject {
         void finalize();
