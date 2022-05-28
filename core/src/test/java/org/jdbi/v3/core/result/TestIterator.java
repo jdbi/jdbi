@@ -40,7 +40,7 @@ public class TestIterator {
 
     @AfterEach
     public void doTearDown() {
-        assertThat(h.isClosed()).isTrue().withFailMessage("Handle was not closed correctly!");
+        assertThat(h.isClosed()).withFailMessage("Handle was not closed correctly!").isTrue();
     }
 
     @Test

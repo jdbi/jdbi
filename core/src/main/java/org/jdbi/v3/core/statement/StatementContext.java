@@ -570,28 +570,27 @@ public class StatementContext implements Closeable {
     }
 
     @Override
-    @SuppressWarnings({"PMD.DoNotThrowExceptionInFinally", "Finally"})
     public void close() {
         SQLException exception = null;
-        try {
-            List<Cleanable> cleanablesCopy = new ArrayList<>(cleanables);
-            cleanables.clear();
-            Collections.reverse(cleanablesCopy);
-            for (Cleanable cleanable : cleanablesCopy) {
-                try {
-                    cleanable.close();
-                } catch (SQLException e) {
-                    if (exception == null) {
-                        exception = e;
-                    } else {
-                        exception.addSuppressed(e);
-                    }
+
+        List<Cleanable> cleanablesCopy = new ArrayList<>(cleanables);
+        cleanables.clear();
+        Collections.reverse(cleanablesCopy);
+
+        for (Cleanable cleanable : cleanablesCopy) {
+            try {
+                cleanable.close();
+            } catch (SQLException e) {
+                if (exception == null) {
+                    exception = e;
+                } else {
+                    exception.addSuppressed(e);
                 }
             }
-        } finally {
-            if (exception != null) {
-                throw new CloseException("Exception thrown while cleaning StatementContext", exception);
-            }
+        }
+
+        if (exception != null) {
+            throw new CloseException("Exception thrown while cleaning StatementContext", exception);
         }
     }
 
