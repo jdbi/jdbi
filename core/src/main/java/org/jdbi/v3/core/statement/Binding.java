@@ -119,7 +119,7 @@ public class Binding {
     public Optional<Argument> findForName(String name, StatementContext ctx2) {
         final Object found = named.get(name);
         if (found != null || named.containsKey(name)) {
-            return Optional.of(new ArgumentBinder<>(null, ctx2, ParsedParameters.NONE).toArgument(found));
+            return Optional.of(new ArgumentBinder(null, ctx2, ParsedParameters.NONE).toArgument(found));
         }
 
         return namedArgumentFinder.stream()
@@ -147,7 +147,7 @@ public class Binding {
      */
     @Deprecated
     public Optional<Argument> findForPosition(int position) {
-        return Optional.ofNullable(new ArgumentBinder<>(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
+        return Optional.ofNullable(new ArgumentBinder(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
     }
 
     @Override

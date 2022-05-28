@@ -343,7 +343,7 @@ public class TestQueries {
         Handle h = h2Extension.openHandle();
 
         Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
-        assertThat(s.isPresent()).isFalse();
+        assertThat(s).isNotPresent();
     }
 
     @Test

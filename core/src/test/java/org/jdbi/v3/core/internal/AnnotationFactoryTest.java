@@ -42,7 +42,7 @@ public class AnnotationFactoryTest {
     public void createAnnotationWithAttributeFails() {
         assertThatThrownBy(() -> AnnotationFactory.create(Bar.class))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Cannot synthesize annotation @Bar from Bar.class because it has attribute");
+            .hasMessageContaining("Cannot synthesize annotation @Bar from org.jdbi.v3.core.internal.AnnotationFactoryTest$Bar.class because it has attribute 'value'");
     }
 
     @Qualifier

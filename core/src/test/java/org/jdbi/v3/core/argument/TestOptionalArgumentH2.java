@@ -37,14 +37,14 @@ public class TestOptionalArgumentH2 {
     @Test
     public void testNotOptional() {
         assertThatThrownBy(() -> insert("val.text", new EmptyBean())).isInstanceOf(IllegalArgumentException.class);
-        assertThat(select().isPresent()).isFalse();
+        assertThat(select()).isNotPresent();
     }
 
     @Test
     public void testOptional() {
         insert("val?.text", new EmptyBean());
         Optional<IdValue> op = select();
-        assertThat(op.isPresent()).isTrue();
+        assertThat(op).isPresent();
         assertThat(op.get().val).isNull();
         assertThat(op.get().id).isOne();
     }
@@ -53,7 +53,7 @@ public class TestOptionalArgumentH2 {
     public void testNotOptionalFullBean() {
         insert("val.text", new FullBean());
         Optional<IdValue> op = select();
-        assertThat(op.isPresent()).isTrue();
+        assertThat(op).isPresent();
         assertThat(op.get().val).isEqualTo("TEST");
         assertThat(op.get().id).isOne();
     }
@@ -62,7 +62,7 @@ public class TestOptionalArgumentH2 {
     public void testOptionalFullBean() {
         insert("val?.text", new FullBean());
         Optional<IdValue> op = select();
-        assertThat(op.isPresent()).isTrue();
+        assertThat(op).isPresent();
         assertThat(op.get().val).isEqualTo("TEST");
         assertThat(op.get().id).isOne();
     }

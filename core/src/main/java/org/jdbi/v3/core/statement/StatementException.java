@@ -24,7 +24,7 @@ import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
 public abstract class StatementException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
-    private final StatementContext statementContext;
+    private final transient StatementContext statementContext;
 
     public StatementException(Throwable cause) {
         super(cause);

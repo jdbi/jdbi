@@ -269,7 +269,7 @@ public class JdbiInterceptionChainHolderTest {
 
         @CheckForNull
         @Override
-        public String intercept(@Nullable S s, JdbiInterceptionChain<S, String> chain) {
+        public String intercept(@Nullable S s, JdbiInterceptionChain<String> chain) {
             this.source = s;
             if (doIt) {
                 return this.target;

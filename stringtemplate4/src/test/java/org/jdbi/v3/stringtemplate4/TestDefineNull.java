@@ -54,7 +54,7 @@ public class TestDefineNull {
                 .define("defined", null)
                 .mapTo(boolean.class)
                 .one())
-            .isEqualTo(true);
+            .isTrue();
         assertThat(err.toString()).isEmpty();
     }
 }

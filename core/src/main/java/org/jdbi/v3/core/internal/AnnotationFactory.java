@@ -44,9 +44,10 @@ public class AnnotationFactory {
             .findAny()
             .ifPresent(m -> {
                 throw new IllegalArgumentException(String.format(
-                        "Cannot synthesize annotation @%s from %s.class because it has attribute " + m.getName() + " without a default or specified value",
+                        "Cannot synthesize annotation @%s from %s.class because it has attribute '%s' without a default or specified value",
                         annotationType.getSimpleName(),
-                        annotationType.getSimpleName()));
+                        annotationType.getName(),
+                        m.getName()));
         });
 
         Class<?>[] interfaces = {annotationType};

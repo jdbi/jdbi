@@ -24,16 +24,15 @@ import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.ObjectFieldArguments;
 import org.jdbi.v3.core.argument.ObjectMethodArguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 @SuppressWarnings("deprecation")
-public interface NamedArgumentFinderFactory<T> {
-    NamedArgumentFinderFactory<Object> BEAN = new Bean<>();
-    NamedArgumentFinderFactory<Object> POJO = new Pojo<>();
-    NamedArgumentFinderFactory<Object> FIELDS = new Fields<>();
-    NamedArgumentFinderFactory<Object> METHODS = new Methods<>();
+public interface NamedArgumentFinderFactory {
+    NamedArgumentFinderFactory BEAN = new Bean();
+    NamedArgumentFinderFactory POJO = new Pojo();
+    NamedArgumentFinderFactory FIELDS = new Fields();
+    NamedArgumentFinderFactory METHODS = new Methods();
 
     PrepareKey keyFor(String prefix, Object value);
     Function<String, Optional<Function<Object, Argument>>> prepareFor(
@@ -43,14 +42,14 @@ public interface NamedArgumentFinderFactory<T> {
             Object example,
             Type type);
 
-    abstract class Base<T, PrepareData> implements NamedArgumentFinderFactory<T> {
+    abstract class Base implements NamedArgumentFinderFactory {
         @Override
         public PrepareKey keyFor(String prefix, Object value) {
             return new PrepareKey(getClass(), value.getClass(), prefix);
         }
     }
 
-    class Pojo<T> extends Base<T, PojoProperties<T>> {
+    class Pojo extends Base {
         @Override
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
@@ -73,7 +72,7 @@ public interface NamedArgumentFinderFactory<T> {
         }
     }
 
-    class Bean<T> extends Pojo<T> {
+    class Bean extends Pojo {
         @Override
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
@@ -85,7 +84,7 @@ public interface NamedArgumentFinderFactory<T> {
         }
     }
 
-    abstract class ReflectionBase<T> extends Base<T, PojoProperties<T>> {
+    abstract class ReflectionBase extends Base {
         @Override
         public Function<String, Optional<Function<Object, Argument>>> prepareFor(
                 ConfigRegistry config,
@@ -102,14 +101,14 @@ public interface NamedArgumentFinderFactory<T> {
         abstract BiFunction<String, Object, BiFunction<String, ConfigRegistry, Optional<Function<Object, TypedValue>>>> create();
     }
 
-    class Fields<T> extends ReflectionBase<T> {
+    class Fields extends ReflectionBase {
         @Override
         BiFunction<String, Object, BiFunction<String, ConfigRegistry, Optional<Function<Object, TypedValue>>>> create() {
             return (prefix, example) -> new ObjectFieldArguments(prefix, example)::getter;
         }
     }
 
-    class Methods<T> extends ReflectionBase<T> {
+    class Methods extends ReflectionBase {
         @Override
         BiFunction<String, Object, BiFunction<String, ConfigRegistry, Optional<Function<Object, TypedValue>>>> create() {
             return (prefix, example) -> new ObjectMethodArguments(prefix, example)::getter;

@@ -38,8 +38,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 @Deprecated
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
-            JdbiCaches.declare((config, beanClass) ->
-                Stream.of(beanClass.getFields())
+            JdbiCaches.declare((config, beanClazz) ->
+                Stream.of(beanClazz.getFields())
                     .collect(Collectors.toMap(Field::getName, f -> {
                         QualifiedType<?> qualifiedType = QualifiedType.of(f.getGenericType())
                                 .withAnnotations(config.get(Qualifiers.class).findFor(f));
