@@ -34,7 +34,7 @@ public class StatementContextTest {
 
         // it's about the return type being String and not ?
         Optional<ColumnMapper<String>> mapper = context.findColumnMapperFor(QualifiedType.of(String.class).with(NVarchar.class));
-        assertNotNull(mapper);
+        assertThat(mapper).isPresent();
     }
 
     @Test

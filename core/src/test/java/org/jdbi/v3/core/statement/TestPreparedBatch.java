@@ -272,7 +272,7 @@ public class TestPreparedBatch {
             .bind("bVal", false).add()
             .bindNull("bVal", Types.BOOLEAN).add()
             .bindByType("bVal", null, boolean.class).add()
-            .execute()).contains(1, 1, 1);
+            .execute()).containsExactly(1, 1, 1);
     }
 
     public static class PublicSomething {
