@@ -17,7 +17,7 @@ td {
 }
 
 .code {
-    font-family: courier, mono;
+    font-family: courier, mono, sans-serif;
     background: #fafafa;
     padding: 5px;
     border: 1px solid #ccc;

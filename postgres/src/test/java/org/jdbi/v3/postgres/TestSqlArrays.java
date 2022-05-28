@@ -124,7 +124,7 @@ public class TestSqlArrays {
         Integer[] source = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Integer[]::new);
         ao.insertBoxedIntArray(source);
         Integer[] actuals = ao.fetchBoxedIntArray();
-        assertThat(actuals).containsExactly(actuals);
+        assertThat(actuals).containsExactly(source);
     }
 
     @Test
