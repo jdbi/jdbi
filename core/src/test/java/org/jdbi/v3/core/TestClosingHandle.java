@@ -167,7 +167,7 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenContainerManagedTransaction() throws Exception {
-        Handle handle = null;
+        Handle handle;
         try (Connection conn = DriverManager.getConnection(h2Extension.getUri())) {
             conn.setAutoCommit(false); // open transaction
 
@@ -175,7 +175,6 @@ public class TestClosingHandle {
             handle.close();
         }
 
-        assertNotNull(handle);
         assertThat(handle.isClosed()).isTrue();
     }
 }
