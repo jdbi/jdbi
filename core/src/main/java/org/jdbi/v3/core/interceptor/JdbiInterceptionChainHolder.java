@@ -28,8 +28,8 @@ import static java.util.Objects.requireNonNull;
 /**
  * An interception chain holder to manage transformation operations.
  *
- * @param <S> The source type.
- * @param <T> The target type.
+ * @param <S> Type of the transformation source.
+ * @param <T> Type of the transformation target.
  */
 @Alpha
 public final class JdbiInterceptionChainHolder<S, T> {
