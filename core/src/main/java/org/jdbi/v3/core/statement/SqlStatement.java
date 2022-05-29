@@ -384,7 +384,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     This bindNamedArgumentFinder(
-            NamedArgumentFinderFactory<?> factory,
+            NamedArgumentFinderFactory factory,
             String prefix,
             Object value,
             Type type,
@@ -1780,7 +1780,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeBinding();
 
-        new ArgumentBinder<>(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
+        new ArgumentBinder(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
 
         beforeExecution();
 

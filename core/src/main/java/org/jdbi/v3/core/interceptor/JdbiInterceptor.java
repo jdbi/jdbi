@@ -52,5 +52,5 @@ public interface JdbiInterceptor<S, T> {
      * @return The destination type.
      */
     @CheckForNull
-    T intercept(@Nullable S source, JdbiInterceptionChain<S, T> chain);
+    T intercept(@Nullable S source, JdbiInterceptionChain<T> chain);
 }

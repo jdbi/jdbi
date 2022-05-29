@@ -78,34 +78,34 @@ public class TestJsonOperator {
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb @> '{\"b\":2}'::jsonb")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
 
         assertThat(pgExtension.openHandle()
             .createQuery("SELECT '{\"b\":2}'::jsonb <@ '{\"a\":1, \"b\":2}'::jsonb")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
 
         // ? escaped to ??
         assertThat(pgExtension.openHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? 'b'")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
 
         // ?| escaped to ??|
         assertThat(pgExtension.openHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2, \"c\":3}'::jsonb ??| array['b', 'c']")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
 
         // ?& escaped to ??&
         assertThat(pgExtension.openHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb ??& array['a', 'b']")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
 
         assertThat(pgExtension.openHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb || '[\"c\", \"d\"]'::jsonb")
@@ -145,6 +145,6 @@ public class TestJsonOperator {
             .bind("key", "a")
             .mapTo(boolean.class)
             .one())
-            .isEqualTo(true);
+            .isTrue();
     }
 }

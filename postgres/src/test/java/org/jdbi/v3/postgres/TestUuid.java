@@ -83,7 +83,7 @@ public class TestUuid {
 
         uo.insert(null);
 
-        assertThat(uo.getUuid()).isEqualTo(null);
+        assertThat(uo.getUuid()).isNull();
     }
 
     @Test

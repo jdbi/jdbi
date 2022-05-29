@@ -22,7 +22,7 @@ import org.jdbi.v3.meta.Alpha;
  * @param <T> A generic destination type.
  */
 @Alpha
-public interface JdbiInterceptionChain<S, T> {
+public interface JdbiInterceptionChain<T> {
 
     /**
      * Called from an {@link JdbiInterceptor} to execute the next interceptor on the chain.

@@ -107,7 +107,7 @@ public final class JdbiInterceptionChainHolder<S, T> {
         defaultTransformer = chainHolder.defaultTransformer;
     }
 
-    final class ChainInstance implements JdbiInterceptionChain<S, T> {
+    final class ChainInstance implements JdbiInterceptionChain<T> {
 
         private final Iterator<JdbiInterceptor<S, T>> iterator;
         private final S source;

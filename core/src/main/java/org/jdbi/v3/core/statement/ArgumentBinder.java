@@ -45,7 +45,7 @@ import org.jdbi.v3.core.statement.internal.PreparedBinding;
 
 import static java.lang.String.format;
 
-class ArgumentBinder<Stmt extends SqlStatement<?>> {
+class ArgumentBinder {
     final PreparedStatement stmt;
     final StatementContext ctx;
     final ParsedParameters params;
@@ -202,18 +202,15 @@ class ArgumentBinder<Stmt extends SqlStatement<?>> {
         return maybeTypedValue instanceof TypedValue ? ((TypedValue) maybeTypedValue).getValue() : maybeTypedValue;
     }
 
-    static class Prepared extends ArgumentBinder<PreparedBatch> {
+    static class Prepared extends ArgumentBinder {
         private final PreparedBatch batch;
         private final Consumer<PreparedBinding> preparedBinder;
         private final List<String> paramNames;
-
-        private final Argument nullArgument;
 
         Prepared(PreparedBatch batch, ParsedParameters params, PreparedBinding preparedBindingTemplate) {
             super(batch.stmt, batch.getContext(), params);
             this.batch = batch;
             this.paramNames = params.getParameterNames();
-            this.nullArgument = batch.getContext().getConfig(Arguments.class).getUntypedNullArgument();
 
             this.preparedBinder = prepareBinder(preparedBindingTemplate);
         }

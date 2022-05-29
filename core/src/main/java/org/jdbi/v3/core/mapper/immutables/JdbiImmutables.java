@@ -153,7 +153,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
         }
     }
 
-    private static <S, Sub extends S> Class<? extends S> classByPrefix(String prefix, Class<S> spec) {
+    private static <S> Class<? extends S> classByPrefix(String prefix, Class<S> spec) {
         final String implName = spec.getPackage().getName() + '.' + prefix + spec.getSimpleName();
         try {
             return Class.forName(implName).asSubclass(spec);
