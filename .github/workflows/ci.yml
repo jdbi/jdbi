@@ -34,4 +34,4 @@ jobs:
         BASELINE_JAVA_HOME: ${{ steps.baseline_java.outputs.path }}
         BUILD_JAVA_HOME: ${{ steps.build_java.outputs.path }}
       run: |
-          ./src/build/gh-action-ci.sh ${{ matrix.java-version }}
+          ./src/build/gh-action-ci.sh

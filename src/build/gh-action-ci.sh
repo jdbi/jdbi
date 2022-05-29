@@ -5,7 +5,6 @@
 
 set -xe
 
-JDK_VERSION=$1
 OPTS="-Dbasepom.check.skip-all=true -Dbasepom.check.skip-enforcer=false -B"
 
 #
