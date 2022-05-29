@@ -21,8 +21,8 @@ import org.jdbi.v3.meta.Alpha;
 /**
  * Generic interface to allow transformation operation interception. Used to manage the various inferred data types that may need special treatment.
  *
- * @param <S> A generic source type.
- * @param <T> A generic destination type.
+ * @param <S> Transformation source type.
+ * @param <T> Type of the transformation result.
  */
 @Alpha
 @FunctionalInterface

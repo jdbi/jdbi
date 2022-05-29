@@ -18,8 +18,7 @@ import org.jdbi.v3.meta.Alpha;
 /**
  * An instance of an interception chain.
  *
- * @param <S> A generic source type.
- * @param <T> A generic destination type.
+ * @param <T> Type of the transformation result.
  */
 @Alpha
 public interface JdbiInterceptionChain<T> {
