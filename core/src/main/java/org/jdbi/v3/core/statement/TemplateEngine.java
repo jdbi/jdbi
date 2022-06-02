@@ -32,7 +32,7 @@ public interface TemplateEngine {
     /**
      * Convenience constant that returns the input template.
      */
-    TemplateEngine NOP = (template, ctx) -> template;
+    TemplateEngine NOP = new NoTemplateEngine();
 
     /**
      * Renders an SQL statement from the given template, using the statement

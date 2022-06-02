@@ -4,6 +4,7 @@
   - ANTLr 4.10.1
   - GSON 2.9.0 fixes CVE-2022-25647
   - Spring 5.3.18 fixes CVE-2022-22965
+  - Promote TemplateEngine.NOP to a NoTemplateEngine class, for use with @UseTemplateEngine
 
 # 3.29.0
 
