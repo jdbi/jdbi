@@ -25,12 +25,10 @@ import org.jdbi.v3.core.internal.SqlScriptParser;
  */
 public class Script extends SqlStatement<Script> {
     private final Handle handle;
-    private final String sql;
 
     public Script(Handle h, String sql) {
         super(h, sql);
         this.handle = h;
-        this.sql = sql;
     }
 
     /**
@@ -59,7 +57,7 @@ public class Script extends SqlStatement<Script> {
      * @return the split statements
      */
     public List<String> getStatements() {
-        return splitToStatements(getConfig(SqlStatements.class).getTemplateEngine().render(sql, getContext()));
+        return splitToStatements(getConfig(SqlStatements.class).getTemplateEngine().render(getSql(), getContext()));
     }
 
     private List<String> splitToStatements(String script) {
