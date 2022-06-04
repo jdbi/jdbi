@@ -13,15 +13,23 @@
  */
 package org.jdbi.v3.testing.junit5;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.testcontainers.DockerClientFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class JdbiOtjPostgresExtensionTest {
 
     @RegisterExtension
     public JdbiOtjPostgresExtension postgres = JdbiExtension.otjEmbeddedPostgres();
+
+    @BeforeAll
+    public static void checkDocker() {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable());
+    }
 
     @Test
     public void testIsAlive() {

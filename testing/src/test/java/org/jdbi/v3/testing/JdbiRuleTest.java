@@ -18,13 +18,22 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.testcontainers.DockerClientFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class JdbiRuleTest {
+
+    @BeforeClass
+    public static void checkDocker() {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable());
+    }
+
     @Test
     public void migrateWithFlywayDefaultLocation() throws Throwable {
         JdbiRule rule = JdbiRule.embeddedPostgres()

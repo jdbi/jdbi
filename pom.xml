@@ -111,6 +111,7 @@
         <!-- remove after next basepom update -->
         <dep.spotbugs.version>4.7.0</dep.spotbugs.version>
         <dep.spring.version>5.3.20</dep.spring.version>
+        <dep.testcontainer.version>1.16.3</dep.testcontainer.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
@@ -584,6 +585,14 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${dep.junit5.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${dep.testcontainer.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

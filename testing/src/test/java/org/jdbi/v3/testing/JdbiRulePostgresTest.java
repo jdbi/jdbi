@@ -13,14 +13,23 @@
  */
 package org.jdbi.v3.testing;
 
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.DockerClientFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class JdbiRulePostgresTest {
+
     @Rule
     public JdbiRule postgres = JdbiRule.embeddedPostgres();
+
+    @BeforeClass
+    public static void checkDocker() {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable());
+    }
 
     @Test
     public void isAlive() {
