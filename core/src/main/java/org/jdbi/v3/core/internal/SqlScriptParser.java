@@ -18,6 +18,16 @@ import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.SqlScriptLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
 
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.BLOCK_BEGIN;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.BLOCK_END;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.COMMENT;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.LITERAL;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.MULTI_LINE_COMMENT;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.NEWLINES;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.OTHER;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.QUOTED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.SEMICOLON;
+
 /**
  * An SQL script parser.
  *
@@ -37,26 +47,37 @@ public class SqlScriptParser {
         SqlScriptLexer lexer = new SqlScriptLexer(charStream);
         lexer.addErrorListener(new ErrorListener());
         boolean endOfFile = false;
+        int blockLevel = 0;
         while (!endOfFile) {
             Token t = lexer.nextToken();
             switch (t.getType()) {
                 case Token.EOF:
                     endOfFile = true;
                     break;
-                case SqlScriptLexer.SEMICOLON:
-                    semicolonHandler.handle(t, sb);
-                    break;
-                case SqlScriptLexer.COMMENT:
-                case SqlScriptLexer.MULTI_LINE_COMMENT:
-                    break;
-                case SqlScriptLexer.NEWLINES:
-                    if (sb.length() > 0) {
-                        sb.append(' ');
+                case SEMICOLON:
+                    if (blockLevel == 0) {
+                        semicolonHandler.handle(t, sb);
+                    } else {
+                        // preserve semicolons within begin/end block
+                        sb.append(t.getText());
                     }
                     break;
-                case SqlScriptLexer.QUOTED_TEXT:
-                case SqlScriptLexer.LITERAL:
-                case SqlScriptLexer.OTHER:
+                case BLOCK_BEGIN:
+                case BLOCK_END:
+                    blockLevel += BLOCK_BEGIN == t.getType() ? +1 : -1;
+                    sb.append(t.getText());
+                    break;
+                case COMMENT:
+                case MULTI_LINE_COMMENT:
+                    break;
+                case NEWLINES:
+                    if (sb.length() > 0) {
+                        sb.append('\n');
+                    }
+                    break;
+                case QUOTED_TEXT:
+                case LITERAL:
+                case OTHER:
                     sb.append(t.getText());
                     break;
                 default:
