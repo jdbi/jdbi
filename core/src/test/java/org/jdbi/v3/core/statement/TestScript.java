@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,16 +21,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.assertj.core.api.Condition;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspath;
 
 public class TestScript {
 
@@ -45,7 +47,7 @@ public class TestScript {
     @Test
     public void testScriptStuff() {
         Handle h = h2Extension.openHandle();
-        Script s = h.createScript(findSqlOnClasspath("default-data"));
+        Script s = h.createScript(getClasspathSqlLocator().locate("default-data"));
         s.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(2);
@@ -54,7 +56,7 @@ public class TestScript {
     @Test
     public void testScriptWithComments() {
         Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getResourceOnClasspath("script/insert-script-with-comments.sql"));
+        Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-script-with-comments.sql"));
         script.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(3);
@@ -63,7 +65,7 @@ public class TestScript {
     @Test
     public void testScriptWithStringSemicolon() {
         Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getResourceOnClasspath("script/insert-with-string-semicolons.sql"));
+        Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-with-string-semicolons.sql"));
         script.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(3);
@@ -72,7 +74,7 @@ public class TestScript {
     @Test
     public void testFuzzyScript() {
         Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getResourceOnClasspath("script/fuzzy-script.sql"));
+        Script script = h.createScript(getClasspathSqlLocator().getResource("script/fuzzy-script.sql"));
         script.executeAsSeparateStatements();
 
         List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
@@ -88,7 +90,7 @@ public class TestScript {
         assertThatExceptionOfType(StatementException.class)
             .isThrownBy(() -> {
                 Handle h = h2Extension.openHandle();
-                Script script = h.createScript(getResourceOnClasspath("script/malformed-sql-script.sql"));
+                Script script = h.createScript(getClasspathSqlLocator().getResource("script/malformed-sql-script.sql"));
                 script.executeAsSeparateStatements();
             })
             .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
@@ -98,9 +100,43 @@ public class TestScript {
     @Test
     public void testPostgresJsonExtractTextOperator() {
         Handle h = pgExtension.openHandle();
-        Script script = h.createScript(getResourceOnClasspath("script/postgres-json-operator.sql"));
+        Script script = h.createScript(getClasspathSqlLocator().getResource("script/postgres-json-operator.sql"));
         script.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(1);
+    }
+
+    /**
+     * <p>
+     *   Test for correct handling of semicolons in sql containing begin/end blocks.
+     * </p>
+     * <p>
+     *   Class {@link Script} splits sql scripts into lists of statements by semicolon ({@code ;}) and then batch-executes them.<br>
+     *   Statements may contain {@code BEGIN...END} blocks containing subordinated statements (also ending in semicolons).<br>
+     *   Only semicolons on the highest level (i.e. outside any block) actually signal the end of an sql statement.
+     * </p>
+     * @author Markus Spann
+     * @throws SQLException on failure to create the database handle
+     */
+    @Test
+    public void testOracleScriptWithBeginEndBlock() throws SQLException {
+        String sql = getClasspathSqlLocator().getResource("script/oracle-with-begin-end-blocks.sql");
+        try (Script script = new Script(HandleAccess.createHandle(), sql)) {
+
+            List<String> statements = script.getStatements();
+
+            assertThat(statements).hasSize(3);
+
+            String lastStmt = statements.get(2);
+            assertThat(lastStmt).startsWith("CREATE OR REPLACE TRIGGER EXAMPLE_TRIGGER");
+            assertThat(lastStmt).endsWith("END;");
+            assertThat(lastStmt).hasLineCount(15);
+            assertThat(lastStmt).has(new Condition<>(s -> 7 == s.chars().filter(ch -> ch == ';').count(), "count semicolons"));
+
+        }
+    }
+
+    private ClasspathSqlLocator getClasspathSqlLocator() {
+        return ClasspathSqlLocator.removingComments();
     }
 }

@@ -14,6 +14,8 @@
 
 lexer grammar SqlScriptLexer;
 
+options { caseInsensitive = true; }
+
 COMMENT
     : '--' ~('\r' | '\n')* |
       '//' ~('\r' | '\n')* |
@@ -33,8 +35,20 @@ fragment NEWLINE
     : ('\r' | '\n')
     ;
 
+fragment WHITESPACE
+    : (' ' | '\t' | NEWLINE)
+    ;
+
 QUOTED_TEXT
     :   ('\'' (ESCAPE_SEQUENCE | ~'\'')* '\'')
+    ;
+
+BLOCK_BEGIN
+    : 'BEGIN' WHITESPACE+
+    ;
+
+BLOCK_END
+    : 'END' WHITESPACE+
     ;
 
 fragment ESCAPE_SEQUENCE
@@ -46,7 +60,7 @@ SEMICOLON
     ;
 
 LITERAL
-    :  ('a'..'z'|'A'..'Z'|' '|'\t'|'0'..'9'|
+    :  ('A'..'Z'|' '|'\t'|'0'..'9'|
         ','|'*'|'.'|'@'|'_'|'!'|'='|'('|')'|'['|']')+
     ;
 

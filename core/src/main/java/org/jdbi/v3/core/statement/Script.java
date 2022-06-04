@@ -21,7 +21,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.internal.SqlScriptParser;
 
 /**
- * Represents a number of SQL statements which will be executed in a batch statement.
+ * Represents a number of SQL statements delimited by semicolon which will be executed in order in a batch statement.
  */
 public class Script extends SqlStatement<Script> {
     private final Handle handle;
