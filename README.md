@@ -32,7 +32,7 @@ We run CI tests on Java 8 on a best effort basis as some of the tests require Ja
 NOTE: to run on Java 8, you may need to manage the `caffeine` dependency back to the
 latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
 
-## Builds
+## Building
 
 Jdbi is built with Apache Maven, requiring version 3.6.0 or newer.
 
@@ -41,6 +41,25 @@ $ ./mvnw clean install
 ```
 
 The unit tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed).
+
+### Docker requirements
+
+For a full release build, docker or a docker compatible environment
+must be available. A small number of tests (those supporting the OTJ
+postgres plugin) use testcontainers which in turn requires docker.
+
+Local builds can use `-Dno-docker` on the command line to skip these tests.
+
+Supported configurations are
+
+* Docker Desktop on MacOS
+* docker-ce on Linux
+* podman 3 or better on Linux.
+
+For podman, the podman socket must be activated (see
+https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests)
+for details. SELinux sometimes interferes with testcontainers, if
+SELinux is active, make sure that there is an exception configured.
 
 ## Contributing
 

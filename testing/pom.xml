@@ -112,5 +112,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>no-docker</id>
+            <activation>
+                <property>
+                    <name>no-docker</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration combine.children="append">
+                            <excludes>
+                                <exclude>**/JdbiRulePostgresTest.*</exclude>
+                                <exclude>**/JdbiRuleTest.*</exclude>
+                                <exclude>**/JdbiOtjPostgresExtendWithTest.*</exclude>
+                                <exclude>**/JdbiOtjPostgresExtensionTest.*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
