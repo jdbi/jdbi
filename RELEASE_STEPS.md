@@ -63,7 +63,7 @@ It also creates a release tag, pointing to the release commit.
     meet Maven Central publishing requirements
 - Click Refresh until the repository status changes to "closed"
   - If this fails, find out what rule was not satisfied, and start over! Yay!
-- Click Release to submit the release to Maven Central. 
+- Click Release to submit the release to Maven Central.
   - Type in something to the description like "Jdbi release v\<version\>"
 - Click Refresh until the repository status changes again, which will make
   it disappear from the search.
@@ -109,3 +109,9 @@ Include in the message:
 - The release notes since the last announcement
 
 Send it to the mailing list: jdbi@googlegroups.com
+
+## Additional Modules
+
+A small number of JDBI3 modules is maintained outside the main build. Consider releasing those as well:
+
+* [JDBI3 Oracle support](https://github.com/jdbi/jdbi3-oracle12)
