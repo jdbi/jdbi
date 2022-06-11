@@ -16,10 +16,13 @@ package org.jdbi.v3.core.result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -87,39 +90,48 @@ public interface ResultIterable<T> extends Iterable<T> {
      * transforming elements using the given mapper function.
      *
      * @param mapper function to apply to elements of this ResultIterable
-     * @param <U>    Element type of the returned ResultIterable
+     * @param <R>    Element type of the returned ResultIterable
      * @return the new ResultIterable
      */
-    default <U> ResultIterable<U> map(Function<? super T, ? extends U> mapper) {
-        return () -> new ResultIterator<U>() {
-            private final ResultIterator<T> delegate = iterator();
-
+    default <R> ResultIterable<R> map(Function<? super T, ? extends R> mapper) {
+        return () -> new ResultIteratorDelegate<T, R>(iterator()) {
             @Override
-            public boolean hasNext() {
-                return delegate.hasNext();
-            }
-
-            @Override
-            public U next() {
-                return mapper.apply(delegate.next());
-            }
-
-            @Override
-            public StatementContext getContext() {
-                return delegate.getContext();
-            }
-
-            @Override
-            public void close() {
-                delegate.close();
+            public R next() {
+                return mapper.apply(getDelegate().next());
             }
         };
     }
 
     @Override
     default void forEach(Consumer<? super T> action) {
-        try (ResultIterator<T> iterator = iterator()) {
-            iterator.forEachRemaining(action);
+        forEachWithCount(action);
+    }
+
+    /**
+     * Performs the specified action on each remaining element and returns the iteration i.e. record count.<br>
+     * It is often useful (e.g. for logging) to know the record count while processing result sets.
+     * <pre>
+     * {@code
+         int cnt = h.createQuery("select * from something").mapTo(String.class)
+                    .forEachWithCount(System.out::println);
+         System.out.println(cnt + " records selected");
+       }
+     *  </pre>
+     *
+     * @param action action to apply (required)
+     * @return iteration count
+     *
+     * @since 3.31
+     */
+    default int forEachWithCount(Consumer<? super T> action) {
+        Objects.requireNonNull(action, "Action required");
+        try (ResultIterator<T> iter = iterator()) {
+            int count = 0;
+            while (iter.hasNext()) {
+                count++;
+                action.accept(iter.next());
+            }
+            return count;
         }
     }
 
@@ -301,6 +313,109 @@ public interface ResultIterable<T> extends Iterable<T> {
                 (u, v) -> {
                     throw new UnsupportedOperationException("parallel operation not supported");
                 });
+        }
+    }
+
+    /**
+     * Convenience method to filter the {@link ResultIterable} by applying the specified {@link Predicate}.<br>
+     * This method has the look and feel of {@link Stream#filter(Predicate)} without making use of streams.<p>
+     *
+     * Please note that filtering takes place in Java i.e. your client code, <b>not in the database</b>.<br>
+     * Filtering inside the database will most likely be of higher performance than filtering outside,
+     * as intermediate results are loaded into Java and then discarded. Moreover, indexes that may exist
+     * in the database will not be utilized here.
+     *
+     * @param predicate a non-null predicate to apply to each element
+     *                  to determine whether it should be included in the result
+     * @return the new result iterable
+     *
+     * @since 3.31
+     */
+    default ResultIterable<T> filter(Predicate<? super T> predicate) {
+        Objects.requireNonNull(predicate, "Filter required");
+        return () -> new ResultIteratorDelegate<T, T>(iterator()) {
+            /** The next result (initially {@code null}). */
+            private T next;
+
+            /**
+             * Returns {@code true} if the resultset has a {@code next} element.<br>
+             * Repeatedly calling this method will move the resultset forward at most once.
+             *
+             * @return {@code true} if the resultset has another element
+             */
+            @Override
+            public boolean hasNext() {
+                return next != null || findNext();
+            }
+
+            /**
+             * Returns the next result in the resultset.
+             *
+             * @return the next element in the resultset that passes the filter
+             * @throws NoSuchElementException if the resultset has no more suitable elements
+             */
+            @Override
+            public T next() {
+                if (next == null && !findNext()) {
+                    throw new NoSuchElementException("No more filtered results");
+                }
+                T n = next;
+                next = null;
+                return n;
+            }
+
+            /**
+             * Forwards the resultset to the next result that passes the filter (i.e. {@link Predicate} tests {@code true}).<br>
+             * @return true if another such result exists, false otherwise
+             */
+            private boolean findNext() {
+                next = null;
+                while (getDelegate().hasNext()) {
+                    T n = getDelegate().next();
+                    if (predicate.test(n)) {
+                        next = n;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+    }
+
+    /**
+     * An implementation of {@link ResultIterator} that delegates calls
+     * to the iterator provided in the constructor.
+     *
+     * @param <T> iterable element type of delegate
+     * @param <R> returned iterable element type, may be same as delegate's ({@code T})
+     *
+     * @author Markus Spann
+     */
+    abstract class ResultIteratorDelegate<T, R> implements ResultIterator<R> {
+        private final ResultIterator<T> delegate;
+
+        ResultIteratorDelegate(ResultIterator<T> del) {
+            delegate = Objects.requireNonNull(del, "Delegate required");
+        }
+
+        @Override
+        public boolean hasNext() {
+            return delegate.hasNext();
+        }
+
+        @Override
+        public final void close() {
+            delegate.close();
+        }
+
+        @Override
+        public final StatementContext getContext() {
+            return delegate.getContext();
+        }
+
+        protected final ResultIterator<T> getDelegate() {
+            return delegate;
         }
     }
 }
