@@ -50,6 +50,8 @@ public class Arguments implements JdbiConfig<Arguments> {
     public Arguments(final ConfigRegistry registry) {
         this.registry = registry;
 
+        // register built-in factories, priority of factories is by reverse registration order
+
         // the null factory must be interrogated last to preserve types!
         register(new UntypedNullArgumentFactory());
 
@@ -60,6 +62,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new SqlTimeArgumentFactory());
         register(new JavaTimeArgumentFactory());
         register(new SqlArrayArgumentFactory());
+        register(new CharSequenceArgumentFactory()); // register before EssentialsArgumentFactory which handles String
         register(new EssentialsArgumentFactory());
         register(new JavaTimeZoneIdArgumentFactory());
         register(new NVarcharArgumentFactory());

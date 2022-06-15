@@ -14,10 +14,12 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.collect.Maps;
@@ -468,4 +470,94 @@ public class TestQueries {
                 .one())
             .isNull();
     }
+
+    /**
+     * Tests that {@link CharSequence} parameters behave as if they were Strings.
+     */
+    @Test
+    public void testCharSequenceParms() {
+        Handle h = h2Extension.openHandle();
+
+        // create list of CharSequence types
+        List<CharSequence> names = Arrays.asList(
+                String.valueOf(String.class.getSimpleName()),
+                new StringBuffer(StringBuffer.class.getSimpleName()),
+                new StringBuilder(StringBuilder.class.getSimpleName()),
+                new CharSequence() { // anonymous inner class implementing CharSequence
+                    private final CharSequence mySeq = "CharSequence";
+                    @Override
+                    public int length() {
+                        return mySeq.length();
+                    }
+                    @Override
+                    public char charAt(int index) {
+                        return mySeq.charAt(index);
+                    }
+                    @Override
+                    public CharSequence subSequence(int start, int end) {
+                        return mySeq.subSequence(start, end);
+                    }
+                    @Override
+                    public String toString() {
+                        return mySeq.toString();
+                    }
+                });
+        for (int i = 0; i < names.size(); i++) {
+            // insert CharSequence into name column of type VARCHAR
+            h.execute("insert into something (id, name) values (?, ?)", i, names.get(i));
+        }
+
+        // read names back from database into Strings
+        List<String> rs1 = h.createQuery("select name from something order by id")
+                .mapTo(String.class).list();
+        assertThat(rs1).containsExactly("String", "StringBuffer", "StringBuilder", "CharSequence");
+
+        // read names back from database into bean with CharSequence member
+        List<CharSeqName> rs2 = h.createQuery("select name from something order by id")
+                .mapToBean(CharSeqName.class).list();
+        assertThat(rs2).containsExactly(
+                CharSeqName.of("String"), CharSeqName.of("StringBuffer"),
+                CharSeqName.of("StringBuilder"), CharSeqName.of("CharSequence"));
+    }
+
+    /**
+     * Test bean with a single member {@code name} of type {@link CharSequence}.
+     */
+    public static class CharSeqName {
+        private CharSequence name;
+
+        public CharSeqName() {}
+
+        static CharSeqName of(CharSequence name) {
+            CharSeqName csn = new CharSeqName();
+            csn.setName(name);
+            return csn;
+        }
+
+        public CharSequence getName() {
+            return name;
+        }
+
+        public void setName(CharSequence name) {
+            this.name = name;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            } else if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            CharSeqName other = (CharSeqName) obj;
+            return Objects.equals(name, other.name);
+        }
+
+    }
+
 }
