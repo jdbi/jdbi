@@ -87,6 +87,14 @@ public class TestArgumentsRegistry {
     }
 
     @Test
+    public void testExplicitWaffleCharSequence() throws Exception {
+        Argument arg = ctx.findArgumentFor(CharSequence.class, I_AM_A_STRING).get();
+        assertThat(arg.toString()).startsWith(CharSequenceArgumentFactory.class.getName());
+        arg.apply(4, stmt, ctx);
+        verify(stmt).setString(4, I_AM_A_STRING);
+    }
+
+    @Test
     public void testPull88WeirdClassArgumentFactory() {
         handle.registerArgument(new WeirdClassArgumentFactory());
 
