@@ -21,6 +21,7 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
+import org.jdbi.v3.core.result.ResultBearingAndModCounts;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -68,6 +69,43 @@ public class TestPreparedBatchGenerateKeysPostgres {
         assertThat(ids).hasSize(2);
         assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2);
         assertThat(ids).extracting(ic -> ic.createTime).doesNotContainNull();
+    }
+
+    @Test
+    public void testBatchUpdateWithResultBearingAndModCount() {
+        Handle h = pgExtension.openHandle();
+
+        PreparedBatch batch1 = h.prepareBatch("insert into something (name) values (?) ");
+        batch1.add("Brian1");
+        batch1.add("Brian2");
+        batch1.add("Thom1");
+        batch1.add("Thom2");
+        List<IdCreateTime> ids = batch1.executeAndReturnGeneratedKeys("id", "create_time")
+            .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getTimestamp("create_time")))
+            .list();
+
+        PreparedBatch batch2 = h.prepareBatch("update something set create_time = now() where name like :name returning id, name, create_time");
+        batch2
+            .bind("name", "Brian%")
+            .add()
+            .bind("name", "Thom%")
+            .add()
+            .bind("name", "Nothing%")
+            .add();
+
+        ResultBearingAndModCounts resultBearingAndModCounts = batch2.executeAndReturnGeneratedKeysAndModCounts("id", "create_time");
+        List<List<IdCreateTime>> choppedList = resultBearingAndModCounts
+            .resultBearing()
+            .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getTimestamp("create_time")))
+            .lists(resultBearingAndModCounts);
+
+        assertThat(choppedList).hasSize(3);
+        assertThat(choppedList.get(0)).extracting(ic -> ic.id).containsExactly(1, 2);
+        assertThat(choppedList.get(0)).extracting(ic -> ic.createTime).allMatch(date -> ids.stream().map(idCreateTime -> idCreateTime.createTime).allMatch(date1 -> date1.before(date)));
+        assertThat(choppedList.get(1)).extracting(ic -> ic.id).containsExactly(3, 4);
+        assertThat(choppedList.get(1)).extracting(ic -> ic.createTime).allMatch(date -> ids.stream().map(idCreateTime -> idCreateTime.createTime).allMatch(date1 -> date1.before(date)));
+        assertThat(choppedList.get(2)).extracting(ic -> ic.id).isEmpty();
+        assertThat(choppedList.get(2)).extracting(ic -> ic.createTime).isEmpty();
     }
 
     private static class IdCreateTime {

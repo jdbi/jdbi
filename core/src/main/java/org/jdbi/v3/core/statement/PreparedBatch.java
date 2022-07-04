@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -36,6 +37,7 @@ import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.ResultBearingAndModCounts;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultProducers;
@@ -154,6 +156,41 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
     public ResultBearing executeAndReturnGeneratedKeys(String... columnNames) {
         return execute(returningGeneratedKeys(columnNames));
+    }
+
+    /**
+     * Execute the batch and return {@link ResultBearing} and the number of rows affected for each batch part.
+     *
+     * @return {@link ResultBearing} and the number of rows affected per batch part
+     * @see Statement#executeBatch()
+     */
+    public ResultBearingAndModCounts executeAndReturnGeneratedKeysAndModCounts(String... columnNames) {
+        try {
+            AtomicReference<int[]> modCounts = new AtomicReference<>();
+            ResultBearing resultBearing = returningGeneratedKeys(columnNames).produce(() -> {
+                ExecutedBatch executedBatch = internalBatchExecute();
+                modCounts.set(executedBatch.updateCounts);
+                return executedBatch.stmt;
+            }, getContext());
+            return new ResultBearingAndModCounts() {
+                @Override
+                public ResultBearing resultBearing() {
+                    return resultBearing;
+                }
+
+                @Override
+                public int[] modCounts() {
+                    return modCounts.get();
+                }
+            };
+        } catch (SQLException e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
+        }
     }
 
     /**

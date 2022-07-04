@@ -15,6 +15,8 @@ package org.jdbi.v3.core.result;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -271,6 +273,24 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default List<T> list() {
         return collect(Collectors.toList());
+    }
+
+    /**
+     * Returns results in a {@link List} of {@link List}s, grouped by the mod counts.
+     *
+     * @return results in a {@link List} of {@link List}s.
+     */
+    default List<List<T>> lists(ResultBearingAndModCounts resultBearingAndModCounts) {
+        Iterator<T> iterator = iterator();
+        List<List<T>> chopped = new ArrayList<>();
+        for (int modCount : resultBearingAndModCounts.modCounts()) {
+            List<T> chop = new ArrayList<>();
+            for (int i = 0; i < modCount; i++) {
+                chop.add(iterator.next());
+            }
+            chopped.add(chop);
+        }
+        return chopped;
     }
 
     /**
