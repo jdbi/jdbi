@@ -18,7 +18,7 @@
     <parent>
         <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
-        <version>3.30.1-SNAPSHOT</version>
+        <version>3.31.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-bom</artifactId>
@@ -46,7 +46,7 @@
 
     <properties>
         <moduleName>org.jdbi.v3.bom</moduleName>
-        <dep.jdbi3.version>3.30.1-SNAPSHOT</dep.jdbi3.version>
+        <dep.jdbi3.version>3.31.0-SNAPSHOT</dep.jdbi3.version>
     </properties>
 
     <dependencyManagement>

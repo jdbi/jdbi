@@ -18,13 +18,13 @@
     <parent>
         <artifactId>jdbi3-build-parent</artifactId>
         <groupId>org.jdbi.internal</groupId>
-        <version>3.30.1-SNAPSHOT</version>
+        <version>3.31.0-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.30.1-SNAPSHOT</version>
+    <version>3.31.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
