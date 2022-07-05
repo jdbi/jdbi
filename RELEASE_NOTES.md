@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Support binding parameters of type CharSequence #2057 (thanks sman-81!)
+
 # 3.30.0
 
   - Fix DefinedAttributeTemplateEngine lexer bug swallowing single-quoted text with escapes (#1906)
