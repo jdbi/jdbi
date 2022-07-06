@@ -1,6 +1,7 @@
 # Unreleased
 
   - Support binding parameters of type CharSequence #2057 (thanks sman-81!)
+  - Fix Sql scripts to support BEGIN / END nested scripts
 
 # 3.30.0
 
