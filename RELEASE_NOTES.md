@@ -2,6 +2,7 @@
 
   - Support binding parameters of type CharSequence #2057 (thanks sman-81!)
   - Fix Sql scripts to support BEGIN / END nested scripts
+  - ResultIterables have additional convenience methods forEachWithCount and filter #2056
 
 # 3.30.0
 
