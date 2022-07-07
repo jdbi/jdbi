@@ -14,20 +14,14 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
-<<<<<<< HEAD
 import java.util.Arrays;
-=======
 import java.util.ArrayList;
->>>>>>> sman81/sman-81-jdbi-resultiterable
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-<<<<<<< HEAD
 import java.util.Objects;
-=======
 import java.util.NoSuchElementException;
->>>>>>> sman81/sman-81-jdbi-resultiterable
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -67,97 +61,97 @@ public class TestQueries {
 
     @Test
     public void testCreateQueryObject() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        List<Map<String, Object>> results = h.createQuery("select * from something order by id").mapToMap().list();
+        final List<Map<String, Object>> results = h.createQuery("select * from something order by id").mapToMap().list();
         assertThat(results).hasSize(2);
         assertThat(results.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
     public void testMappedQueryObject() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        final ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
-        List<Something> r = query.list();
+        final List<Something> r = query.list();
         assertThat(r).startsWith(new Something(1, "eric"));
     }
 
     @Test
     public void testMappedQueryObjectWithNulls() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
-        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        final ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
-        List<Something> r = query.list();
-        Something eric = r.get(0);
+        final List<Something> r = query.list();
+        final Something eric = r.get(0);
         assertThat(eric).isEqualTo(new Something(1, "eric"));
         assertThat(eric.getIntegerValue()).isNull();
     }
 
     @Test
     public void testMappedQueryObjectWithNullForPrimitiveIntField() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name, intValue) values (1, 'eric', null)");
 
-        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        final ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
-        List<Something> r = query.list();
-        Something eric = r.get(0);
+        final List<Something> r = query.list();
+        final Something eric = r.get(0);
         assertThat(eric).isEqualTo(new Something(1, "eric"));
         assertThat(eric.getIntValue()).isZero();
     }
 
     @Test
     public void testMapper() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
+        final ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
-        List<String> r = query.list();
+        final List<String> r = query.list();
         assertThat(r).startsWith("eric");
     }
 
     @Test
     public void testConvenienceMethod() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.select("select * from something order by id").mapToMap().list();
+        final List<Map<String, Object>> r = h.select("select * from something order by id").mapToMap().list();
         assertThat(r).hasSize(2);
         assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
     public void testConvenienceMethodWithParam() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.select("select * from something where id = ?", 1).mapToMap().list();
+        final List<Map<String, Object>> r = h.select("select * from something where id = ?", 1).mapToMap().list();
         assertThat(r).hasSize(1);
         assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
     public void testPositionalArgWithNamedParam() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -173,7 +167,7 @@ public class TestQueries {
 
     @Test
     public void testMixedSetting() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -190,7 +184,7 @@ public class TestQueries {
 
     @Test
     public void testHelpfulErrorOnNothingSet() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         assertThatThrownBy(() -> h.createQuery("select * from something where name = :name").mapToMap().list())
             .isInstanceOf(UnableToCreateStatementException.class);
@@ -198,9 +192,9 @@ public class TestQueries {
 
     @Test
     public void testFirstResult() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
-        Query query = h.createQuery("select name from something order by id");
+        final Query query = h.createQuery("select name from something order by id");
 
         assertThatThrownBy(() -> query.mapTo(String.class).first()).isInstanceOf(IllegalStateException.class);
         assertThat(query.mapTo(String.class).findFirst()).isEmpty();
@@ -214,9 +208,9 @@ public class TestQueries {
 
     @Test
     public void testFirstResultNull() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
-        Query query = h.createQuery("select name from something order by id");
+        final Query query = h.createQuery("select name from something order by id");
 
         assertThatThrownBy(() -> query.mapTo(String.class).first()).isInstanceOf(IllegalStateException.class);
         assertThat(query.mapTo(String.class).findFirst()).isEmpty();
@@ -230,9 +224,9 @@ public class TestQueries {
 
     @Test
     public void testOneResult() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
-        Query query = h.createQuery("select name from something order by id");
+        final Query query = h.createQuery("select name from something order by id");
 
         assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
         assertThat(query.mapTo(String.class).findOne()).isEmpty();
@@ -250,9 +244,9 @@ public class TestQueries {
 
     @Test
     public void testOneResultNull() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
-        Query query = h.createQuery("select name from something order by id");
+        final Query query = h.createQuery("select name from something order by id");
 
         assertThatThrownBy(() -> query.mapTo(String.class).one()).isInstanceOf(IllegalStateException.class);
         assertThat(query.mapTo(String.class).findOne()).isEmpty();
@@ -270,7 +264,7 @@ public class TestQueries {
 
     @Test
     public void testIteratedResult() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -279,10 +273,10 @@ public class TestQueries {
             .mapToBean(Something.class)
             .iterator()) {
             assertThat(i.hasNext()).isTrue();
-            Something first = i.next();
+            final Something first = i.next();
             assertThat(first.getName()).isEqualTo("eric");
             assertThat(i.hasNext()).isTrue();
-            Something second = i.next();
+            final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
             assertThat(i.hasNext()).isFalse();
         }
@@ -290,7 +284,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -299,10 +293,10 @@ public class TestQueries {
             .mapToBean(Something.class)
             .iterator()) {
             assertThat(i.hasNext()).isTrue();
-            Something first = i.next();
+            final Something first = i.next();
             assertThat(first.getName()).isEqualTo("eric");
             assertThat(i.hasNext()).isTrue();
-            Something second = i.next();
+            final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
             assertThat(i.hasNext()).isFalse();
         }
@@ -310,7 +304,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior2() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -319,9 +313,9 @@ public class TestQueries {
             .mapToBean(Something.class)
             .iterator()) {
 
-            Something first = i.next();
+            final Something first = i.next();
             assertThat(first.getName()).isEqualTo("eric");
-            Something second = i.next();
+            final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
             assertThat(i.hasNext()).isFalse();
         }
@@ -329,7 +323,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior3() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'eric')");
@@ -342,15 +336,15 @@ public class TestQueries {
 
     @Test
     public void testFetchSize() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.createScript(findSqlOnClasspath("default-data")).execute();
 
-        ResultIterable<Something> ri = h.createQuery("select id, name from something order by id")
+        final ResultIterable<Something> ri = h.createQuery("select id, name from something order by id")
             .setFetchSize(1)
             .mapToBean(Something.class);
 
-        ResultIterator<Something> r = ri.iterator();
+        final ResultIterator<Something> r = ri.iterator();
 
         assertThat(r.hasNext()).isTrue();
         r.next();
@@ -361,24 +355,24 @@ public class TestQueries {
 
     @Test
     public void testFirstWithNoResult() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
-        Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
+        final Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
         assertThat(s).isNotPresent();
     }
 
     @Test
     public void testNullValueInColumn() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, null);
-        String s = h.createQuery("select name from something where id=1").mapTo(String.class).first();
+        final String s = h.createQuery("select name from something where id=1").mapTo(String.class).first();
         assertThat(s).isNull();
     }
 
     @Test
     public void testListWithMaxRows() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
@@ -399,14 +393,14 @@ public class TestQueries {
 
     @Test
     public void testFold() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
             .add(2, "Keith")
             .execute();
 
-        Map<String, Integer> rs = h.createQuery("select id, name from something")
+        final Map<String, Integer> rs = h.createQuery("select id, name from something")
             .<Entry<String, Integer>>map((r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
             .collect(toMap(Entry::getKey, Entry::getValue));
 
@@ -415,14 +409,14 @@ public class TestQueries {
 
     @Test
     public void testCollectList() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
             .add(2, "Keith")
             .execute();
 
-        List<String> rs = h.createQuery("select name from something order by id")
+        final List<String> rs = h.createQuery("select name from something order by id")
             .mapTo(String.class)
             .collect(toList());
         assertThat(rs).containsExactly("Brian", "Keith");
@@ -430,7 +424,7 @@ public class TestQueries {
 
     @Test
     public void testUsefulArgumentOutputForDebug() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         assertThatThrownBy(() -> h.createUpdate("insert into something (id, name) values (:id, :name)")
             .bind("name", "brian")
@@ -444,12 +438,12 @@ public class TestQueries {
 
     @Test
     public void testStatementCustomizersPersistAfterMap() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
-        List<Something> rs = h.createQuery("select id, name from something")
+        final List<Something> rs = h.createQuery("select id, name from something")
             .setMaxRows(1)
             .mapToBean(Something.class)
             .list();
@@ -459,7 +453,7 @@ public class TestQueries {
 
     @Test
     public void testQueriesWithNullResultSets() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         assertThatThrownBy(() -> h.select("insert into something (id, name) values (?, ?)", 1, "hello").mapToMap().list())
             .isInstanceOf(NoResultsException.class);
@@ -467,12 +461,12 @@ public class TestQueries {
 
     @Test
     public void testMapMapperOrdering() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
-        List<Map<String, Object>> rs = h.createQuery("select id, name from something")
+        final List<Map<String, Object>> rs = h.createQuery("select id, name from something")
             .mapToMap()
             .list();
 
@@ -482,7 +476,7 @@ public class TestQueries {
 
     @Test
     public void testBindPrimitiveWithExplicitNull() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
         assertThat(h.createQuery("select :bool")
                 .bindByType("bool", new NullArgument(Types.BOOLEAN), boolean.class)
                 .mapTo(Boolean.class)
@@ -495,10 +489,10 @@ public class TestQueries {
      */
     @Test
     public void testCharSequenceParms() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         // create list of CharSequence types
-        List<CharSequence> names = Arrays.asList(
+        final List<CharSequence> names = Arrays.asList(
                 String.valueOf(String.class.getSimpleName()),
                 new StringBuffer(StringBuffer.class.getSimpleName()),
                 new StringBuilder(StringBuilder.class.getSimpleName()),
@@ -509,11 +503,11 @@ public class TestQueries {
                         return mySeq.length();
                     }
                     @Override
-                    public char charAt(int index) {
+                    public char charAt(final int index) {
                         return mySeq.charAt(index);
                     }
                     @Override
-                    public CharSequence subSequence(int start, int end) {
+                    public CharSequence subSequence(final int start, final int end) {
                         return mySeq.subSequence(start, end);
                     }
                     @Override
@@ -527,12 +521,12 @@ public class TestQueries {
         }
 
         // read names back from database into Strings
-        List<String> rs1 = h.createQuery("select name from something order by id")
+        final List<String> rs1 = h.createQuery("select name from something order by id")
                 .mapTo(String.class).list();
         assertThat(rs1).containsExactly("String", "StringBuffer", "StringBuilder", "CharSequence");
 
         // read names back from database into bean with CharSequence member
-        List<CharSeqName> rs2 = h.createQuery("select name from something order by id")
+        final List<CharSeqName> rs2 = h.createQuery("select name from something order by id")
                 .mapToBean(CharSeqName.class).list();
         assertThat(rs2).containsExactly(
                 CharSeqName.of("String"), CharSeqName.of("StringBuffer"),
@@ -547,8 +541,8 @@ public class TestQueries {
 
         public CharSeqName() {}
 
-        static CharSeqName of(CharSequence name) {
-            CharSeqName csn = new CharSeqName();
+        static CharSeqName of(final CharSequence name) {
+            final CharSeqName csn = new CharSeqName();
             csn.setName(name);
             return csn;
         }
@@ -557,7 +551,7 @@ public class TestQueries {
             return name;
         }
 
-        public void setName(CharSequence name) {
+        public void setName(final CharSequence name) {
             this.name = name;
         }
 
@@ -567,64 +561,64 @@ public class TestQueries {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
             } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            CharSeqName other = (CharSeqName) obj;
+            final CharSeqName other = (CharSeqName) obj;
             return Objects.equals(name, other.name);
         }
     }
-    
+
     @Test
     public void testForEach() {
-        Handle h = h2Extension.openHandle();
-        int nbRecs = 42;
+        final Handle h = h2Extension.openHandle();
+        final int nbRecs = 42;
         for (int id = 1; id <= nbRecs; id++) {
             h.execute("insert into something (id, name) values (?, ?)", id, null);
         }
 
-        ResultIterable<Integer> ri = h.createQuery("select id from something").mapTo(Integer.class);
+        final ResultIterable<Integer> ri = h.createQuery("select id from something").mapTo(Integer.class);
 
         assertThatThrownBy(() -> ri.forEach(null)).isInstanceOf(NullPointerException.class)
                 .hasMessage("Action required");
 
-        AtomicInteger sum = new AtomicInteger(0);
-        int count = ri.forEachWithCount(sum::addAndGet);
+        final AtomicInteger sum = new AtomicInteger(0);
+        final int count = ri.forEachWithCount(sum::addAndGet);
         assertThat(count).isEqualTo(nbRecs);
         assertThat(sum.intValue()).isEqualTo(903);
     }
 
     @Test
     public void testFilter() {
-        Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.openHandle();
 
         int id = 0;
-        for (String name : new String[] {null, "john", "lennon", "would have liked", "java"}) {
+        for (final String name : new String[] {null, "john", "lennon", "would have liked", "java"}) {
             h.execute("insert into something (id, name) values (?, ?)", ++id, name);
         }
 
-        ResultIterable<String> ri1 = h.createQuery("select name from something").mapTo(String.class);
+        final ResultIterable<String> ri1 = h.createQuery("select name from something").mapTo(String.class);
 
         assertThatThrownBy(() -> ri1.filter(null)).isInstanceOf(NullPointerException.class)
                 .hasMessage("Filter required");
 
-        Predicate<String> startsWithJPredicate = spy(new Predicate<String>() {
+        final Predicate<String> startsWithJPredicate = spy(new Predicate<String>() {
             @Override
-            public boolean test(String s) {
+            public boolean test(final String s) {
                 return s != null && s.startsWith("j");
             }
         });
-        Predicate<String> containsHPredicate = spy(new Predicate<String>() {
+        final Predicate<String> containsHPredicate = spy(new Predicate<String>() {
             @Override
-            public boolean test(String s) {
+            public boolean test(final String s) {
                 return s.contains("h");
             }
         });
 
-        ResultIterable<String> ri2 = ri1
+        final ResultIterable<String> ri2 = ri1
                 .filter(startsWithJPredicate)
                 .filter(containsHPredicate);
 
@@ -634,11 +628,11 @@ public class TestQueries {
 
         assertThat(ri1).isNotSameAs(ri2);
 
-        ResultIterator<String> iter = ri2.iterator();
+        final ResultIterator<String> iter = ri2.iterator();
         // mess with the resultset by calling hasNext repeatedly
         IntStream.range(0, 5).forEach(i -> assertTrue(iter.hasNext()));
 
-        List<String> results = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
         while (iter.hasNext()) {
             results.add(iter.next());
         }
