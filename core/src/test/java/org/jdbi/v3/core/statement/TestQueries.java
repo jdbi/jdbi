@@ -14,13 +14,24 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
+<<<<<<< HEAD
 import java.util.Arrays;
+=======
+import java.util.ArrayList;
+>>>>>>> sman81/sman-81-jdbi-resultiterable
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+<<<<<<< HEAD
 import java.util.Objects;
+=======
+import java.util.NoSuchElementException;
+>>>>>>> sman81/sman-81-jdbi-resultiterable
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import com.google.common.collect.Maps;
 import org.jdbi.v3.core.Handle;
@@ -40,6 +51,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TestQueries {
 
@@ -557,7 +576,82 @@ public class TestQueries {
             CharSeqName other = (CharSeqName) obj;
             return Objects.equals(name, other.name);
         }
+    }
+    
+    @Test
+    public void testForEach() {
+        Handle h = h2Extension.openHandle();
+        int nbRecs = 42;
+        for (int id = 1; id <= nbRecs; id++) {
+            h.execute("insert into something (id, name) values (?, ?)", id, null);
+        }
 
+        ResultIterable<Integer> ri = h.createQuery("select id from something").mapTo(Integer.class);
+
+        assertThatThrownBy(() -> ri.forEach(null)).isInstanceOf(NullPointerException.class)
+                .hasMessage("Action required");
+
+        AtomicInteger sum = new AtomicInteger(0);
+        int count = ri.forEachWithCount(sum::addAndGet);
+        assertThat(count).isEqualTo(nbRecs);
+        assertThat(sum.intValue()).isEqualTo(903);
+    }
+
+    @Test
+    public void testFilter() {
+        Handle h = h2Extension.openHandle();
+
+        int id = 0;
+        for (String name : new String[] {null, "john", "lennon", "would have liked", "java"}) {
+            h.execute("insert into something (id, name) values (?, ?)", ++id, name);
+        }
+
+        ResultIterable<String> ri1 = h.createQuery("select name from something").mapTo(String.class);
+
+        assertThatThrownBy(() -> ri1.filter(null)).isInstanceOf(NullPointerException.class)
+                .hasMessage("Filter required");
+
+        Predicate<String> startsWithJPredicate = spy(new Predicate<String>() {
+            @Override
+            public boolean test(String s) {
+                return s != null && s.startsWith("j");
+            }
+        });
+        Predicate<String> containsHPredicate = spy(new Predicate<String>() {
+            @Override
+            public boolean test(String s) {
+                return s.contains("h");
+            }
+        });
+
+        ResultIterable<String> ri2 = ri1
+                .filter(startsWithJPredicate)
+                .filter(containsHPredicate);
+
+        // as iteration has not yet taken place, test filters were not invoked
+        verify(startsWithJPredicate, never()).test(any());
+        verify(containsHPredicate, never()).test(any());
+
+        assertThat(ri1).isNotSameAs(ri2);
+
+        ResultIterator<String> iter = ri2.iterator();
+        // mess with the resultset by calling hasNext repeatedly
+        IntStream.range(0, 5).forEach(i -> assertTrue(iter.hasNext()));
+
+        List<String> results = new ArrayList<>();
+        while (iter.hasNext()) {
+            results.add(iter.next());
+        }
+
+        // the first filter should have seen all records
+        verify(startsWithJPredicate, times(5)).test(nullable(String.class));
+        // the second filter only two records that matched the first filter
+        verify(containsHPredicate, times(2)).test(anyString());
+
+        assertThatThrownBy(iter::next).isInstanceOf(NoSuchElementException.class)
+                .hasMessage("No more filtered results");
+
+        assertThat(results).containsExactly("john");
     }
 
 }
