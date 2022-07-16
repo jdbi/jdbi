@@ -61,7 +61,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.13.3, 2.12.6.20220326, 2.11.4 ]
+        test-version: [ 2.13.3, 2.12.7, 2.11.4 ]
 
     steps:
     - uses: actions/checkout@v2
