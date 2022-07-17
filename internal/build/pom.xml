@@ -24,7 +24,7 @@
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-build-parent</artifactId>
-    <version>3.31.0</version>
+    <version>3.31.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 - internal - build parent</name>
     <description>JDBI build related artifacts. Not for public consumption</description>
@@ -54,7 +54,7 @@
         <dep.hsqldb.version>2.6.0</dep.hsqldb.version>
         <dep.immutables.version>2.8.8</dep.immutables.version>
         <dep.jackson2.version>2.10.5.20201202</dep.jackson2.version>
-        <dep.jdbi-policy.version>3.31.0</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>3.31.1-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.junit5.version>5.8.2</dep.junit5.version>
