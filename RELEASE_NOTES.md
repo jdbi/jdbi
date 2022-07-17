@@ -1,8 +1,11 @@
 # Unreleased
 
-  - Support binding parameters of type CharSequence #2057 (thanks sman-81!)
-  - Fix Sql scripts to support BEGIN / END nested scripts
-  - ResultIterables have additional convenience methods forEachWithCount and filter #2056
+# 3.31.0
+
+  - Support binding parameters of type CharSequence (#2057, thanks @sman-81)
+  - Fix Sql scripts to support BEGIN / END nested scripts (#2021, thanks @sman-81)
+  - ResultIterables have additional convenience methods forEachWithCount and filter (#2056, thanks @sman-81)
+  - upgrades to the build system to support external modules. This allows keeping the `jdbi3-oracle12` module up to date.
 
 # 3.30.0
 
