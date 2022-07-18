@@ -47,10 +47,10 @@ fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj:
 @Beta
 fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This = this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 
-@Beta
 /**
  * Convenience method for {@link Configurable#configure} using Kotlin class syntax.
  */
+@Beta
 fun <This : Configurable<This>, C : JdbiConfig<C>> Configurable<This>.configure(configClass: KClass<C>, configurer: Consumer<C>): This =
     this.configure(configClass.java, configurer)
 
