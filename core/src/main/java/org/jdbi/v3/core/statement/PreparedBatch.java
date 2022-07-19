@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,6 +36,7 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.result.BatchResultBearing;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
@@ -152,8 +154,28 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         };
     }
 
+    /**
+     * Execute the batch and give access to any generated keys returned by the operation.
+     *
+     * @param columnNames The column names for generated keys.
+     * @return A {@link ResultBearing} object that can be used to access the results of the batch.
+     * @deprecated Use {@link #executePreparedBatch(String...)} which has the same functionality but also returns the per-batch modified row counts.
+     */
+    @Deprecated
     public ResultBearing executeAndReturnGeneratedKeys(String... columnNames) {
         return execute(returningGeneratedKeys(columnNames));
+    }
+
+    /**
+     * Execute the batch and give access to any generated keys returned by the operation.
+     *
+     * @param columnNames The column names for generated keys.
+     * @return A {@link BatchResultBearing} object that can be used to access the results of the batch and the per-batch modified row counts.
+     */
+    public BatchResultBearing executePreparedBatch(String... columnNames) {
+        final ExecutedBatchConsumer executedBatchConsumer = new ExecutedBatchConsumer();
+        final ResultBearing resultBearing = execute(returningGeneratedKeys(columnNames), executedBatchConsumer);
+        return new BatchResultBearing(resultBearing, executedBatchConsumer);
     }
 
     /**
@@ -164,8 +186,16 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @return value returned by the result producer.
      */
     public <R> R execute(ResultProducer<R> producer) {
+        return execute(producer, x -> {});
+    }
+
+    private <R> R execute(ResultProducer<R> producer, Consumer<ExecutedBatch> batchConsumer) {
         try {
-            return producer.produce(() -> internalBatchExecute().stmt, getContext());
+            return producer.produce(() -> {
+                ExecutedBatch batch = internalBatchExecute();
+                batchConsumer.accept(batch);
+                return batch.stmt;
+            }, getContext());
         } catch (SQLException e) {
             try {
                 close();
@@ -222,13 +252,13 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution();
 
             try {
-                final int[] rs = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
+                final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
 
                 afterExecution();
 
                 ctx.setBinding(new PreparedBinding(ctx));
 
-                return new ExecutedBatch(stmt, rs);
+                return new ExecutedBatch(stmt, modifiedRows);
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
             }
@@ -295,6 +325,24 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         ExecutedBatch(PreparedStatement stmt, int[] updateCounts) {
             this.stmt = stmt;
             this.updateCounts = Arrays.copyOf(updateCounts, updateCounts.length);
+        }
+    }
+
+    private static final class ExecutedBatchConsumer implements Consumer<ExecutedBatch>, Supplier<int[]> {
+
+        private int[] modifiedRowCounts = new int[0];
+
+        @Override
+        public void accept(ExecutedBatch executedBatch) {
+            // has been copied within the executed batch
+            this.modifiedRowCounts = executedBatch.updateCounts;
+        }
+
+        @Override
+        @SuppressWarnings("PMD.MethodReturnsInternalArray")
+        public int[] get() {
+            // Array was copied as when the ExecutedBatch was created, so exposing it is fine.
+            return modifiedRowCounts;
         }
     }
 }
