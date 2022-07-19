@@ -175,6 +175,22 @@ public class TestHandle {
         }
     }
 
+    @Test
+    public void testIssue2065() throws Exception {
+        Handle h = h2Extension.openHandle();
+
+        h.begin();
+        h.execute("insert into something (id, name) values (1, 'Brian')");
+        String value = h.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
+        h.commit();
+
+        // close connection between commit and handle close - this may be done by the connection pool or timeout or sth else
+        h.getConnection().close();
+
+        h.close();
+        assertThat(value).isEqualTo("Brian");
+    }
+
     static class BoomHandler extends LocalTransactionHandler {
         boolean failTest;
         boolean failRollback;

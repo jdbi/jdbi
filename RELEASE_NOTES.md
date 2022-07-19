@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Fix exception in Handle#close() when underlying connection is closed (#2065)
+
 # 3.31.0
 
   - Support binding parameters of type CharSequence (#2057, thanks @sman-81)
