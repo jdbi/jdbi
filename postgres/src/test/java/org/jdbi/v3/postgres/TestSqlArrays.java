@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,9 +47,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestSqlArrays {
 
     private static final String U_SELECT = "SELECT u FROM uuids";
-    private static final String U_INSERT = "INSERT INTO uuids VALUES(:uuids, NULL)";
+    private static final String U_INSERT = "INSERT INTO uuids VALUES(:uuids, NULL, NULL)";
     private static final String I_SELECT = "SELECT i FROM uuids";
-    private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints)";
+    private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints, NULL)";
+    private static final String T_SELECT = "SELECT t FROM uuids";
+    private static final String T_INSERT = "INSERT INTO uuids VALUES(NULL, NULL, :instants)";
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
@@ -56,7 +60,7 @@ public class TestSqlArrays {
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
         .withInitializer((ds, h) -> h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
-            th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+            th.execute("CREATE TABLE uuids (u UUID[], i INT[], t TIMESTAMP[])");
         }));
 
     private Handle handle;
@@ -64,8 +68,12 @@ public class TestSqlArrays {
 
     @BeforeEach
     public void setUp() {
-        handle = pgExtension.openHandle();
-        ao = pgExtension.attach(ArrayObject.class);
+        handle = pgExtension.openHandle()
+            // register array type to the handle
+            .registerArrayType(Instant.class, "timestamp");
+
+        // attach the array object to the handle as well.
+        ao = handle.attach(ArrayObject.class);
     }
 
     private final UUID[] testUuids = new UUID[] {
@@ -74,6 +82,17 @@ public class TestSqlArrays {
 
     private final int[] testInts = new int[] {
         5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE
+    };
+
+    private final Instant[] testInstants = new Instant[] {
+        Instant.EPOCH,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        Instant.ofEpochSecond(Integer.MIN_VALUE),
+        Instant.ofEpochSecond(Integer.MAX_VALUE),
+        // amazingly, according to ISO 8601, everything before 1583 is a mess...
+        Instant.parse("1583-01-01T00:00:00Z"),
+        // and anything after 9999 is as well...
+        Instant.parse("9999-12-31T23:59:59Z"),
     };
 
     @Test
@@ -183,6 +202,36 @@ public class TestSqlArrays {
                 .one()).isTrue();
     }
 
+    @Test
+    public void testInstantArray() {
+        ao.insertInstantArray(testInstants);
+        assertThat(ao.fetchInstantArray()).containsExactly(testInstants);
+    }
+
+    @Test
+    public void testInstantList() {
+        ao.insertInstantList(Arrays.asList(testInstants));
+        assertThat(ao.fetchInstantList()).contains(testInstants);
+    }
+
+    @Test
+    public void testInstantArrayList() {
+        ao.insertInstantList(Arrays.asList(testInstants));
+        assertThat(ao.fetchInstantArrayList()).contains(testInstants);
+    }
+
+    @Test
+    public void testInstantLinkedList() {
+        ao.insertInstantList(Arrays.asList(testInstants));
+        assertThat(ao.fetchInstantLinkedList()).contains(testInstants);
+    }
+
+    @Test
+    public void testInstantCopyOnWriteArrayList() {
+        ao.insertInstantList(Arrays.asList(testInstants));
+        assertThat(ao.fetchInstantCopyOnWriteArrayList()).contains(testInstants);
+    }
+
     public interface ArrayObject {
         @SqlQuery(U_SELECT)
         @SingleValue
@@ -234,6 +283,33 @@ public class TestSqlArrays {
 
         @SqlUpdate(I_INSERT)
         void insertIntList(List<Integer> ints);
+
+        @SqlQuery(T_SELECT)
+        @SingleValue
+        Instant[] fetchInstantArray();
+
+        @SqlUpdate(T_INSERT)
+        void insertInstantArray(Instant[] instants);
+
+        @SqlQuery(T_SELECT)
+        @SingleValue
+        List<Instant> fetchInstantList();
+
+        @SqlQuery(T_SELECT)
+        @SingleValue
+        ArrayList<Instant> fetchInstantArrayList();
+
+        @SqlQuery(T_SELECT)
+        @SingleValue
+        LinkedList<Instant> fetchInstantLinkedList();
+
+        @SqlQuery(T_SELECT)
+        @SingleValue
+        CopyOnWriteArrayList<Instant> fetchInstantCopyOnWriteArrayList();
+
+        @SqlUpdate(T_INSERT)
+        void insertInstantList(List<Instant> instants);
+
     }
 
     @Test
