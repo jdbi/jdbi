@@ -148,14 +148,14 @@ public class Handle implements Closeable, Configurable<Handle> {
             return;
         }
 
-        boolean connectionIsLive = false;
+        boolean connectionIsLive;
 
         try {
             connectionIsLive = !connection.isClosed();
         } catch (SQLException e) {
             // if the connection state can not be determined, assume that the
-            // connection is closed
-            suppressed.add(e);
+            // connection is closed and ignore the exception
+            connectionIsLive = false;
         }
 
         boolean wasInTransaction = false;
