@@ -27,7 +27,7 @@ abstract class CachingSqlParser implements SqlParser {
     }
 
     CachingSqlParser(Caffeine<Object, Object> cache) {
-        parsedSqlCache = cache.build(this::internalParse);
+        parsedSqlCache = cache.build(new SqlParserCacheLoader());
     }
 
     @Override
@@ -45,4 +45,11 @@ abstract class CachingSqlParser implements SqlParser {
     }
 
     abstract ParsedSql internalParse(String sql);
+
+    final class SqlParserCacheLoader implements CacheLoader<String, ParsedSql> {
+        @Override
+        public ParsedSql load(String key) {
+            return internalParse(key);
+        }
+    }
 }
