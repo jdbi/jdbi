@@ -62,6 +62,13 @@ an ORM, we do not aim to provide a complete object relational mapping framework 
 instead of that hidden complexity, we provide building blocks that allow you to
 construct the mapping between relations and objects as appropriate for your application.
 
+=== Quick Links
+
+* https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)]
+* https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code]
+* https://github.com/jdbi/jdbi[GitHub JDBI repository]
+
+
 Jdbi's API comes in two flavors:
 
 === Fluent API

@@ -36,6 +36,7 @@
 
     <modules>
         <module>internal</module>
+        <module>examples</module>
         <module>core</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>
@@ -87,6 +88,11 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-commons-text</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-examples</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
