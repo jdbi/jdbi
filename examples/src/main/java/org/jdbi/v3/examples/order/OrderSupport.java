@@ -17,10 +17,8 @@ import java.security.SecureRandom;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import de.softwareforge.testing.postgres.embedded.DatabaseInfo;
-import de.softwareforge.testing.postgres.embedded.DatabaseManager;
-import de.softwareforge.testing.postgres.embedded.EmbeddedPostgres;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.examples.support.DatabaseSupport;
 
 public final class OrderSupport {
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -30,21 +28,14 @@ public final class OrderSupport {
     }
 
     public static void withOrders(Consumer<Jdbi> jdbiConsumer) throws Exception {
-        try (DatabaseManager manager = DatabaseManager.singleDatabase()
-            // same as EmbeddedPostgres.defaultInstance()
-            .withInstancePreparer(EmbeddedPostgres.Builder::withDefaults)
-            .build()
-            .start()) {
-            DatabaseInfo databaseInfo = manager.getDatabaseInfo();
-            Jdbi jdbi = Jdbi.create(databaseInfo.asDataSource());
-
+        DatabaseSupport.withDatabase(jdbi -> {
             createTables(jdbi);
             populateOrders(jdbi, 3, 20);
 
             jdbi.registerRowMapper(new OrderMapper());
 
             jdbiConsumer.accept(jdbi);
-        }
+        });
     }
 
     public static void createTables(Jdbi jdbi) {
@@ -53,7 +44,6 @@ public final class OrderSupport {
     }
 
     public static void populateOrders(Jdbi jdbi, int orderCount, int userIdCount) {
-
         jdbi.withHandle(
             handle -> {
                 for (int j = 0; j < userIdCount; j++) {
