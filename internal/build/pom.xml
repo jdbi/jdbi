@@ -58,6 +58,7 @@
         <dep.jdbi-policy.version>3.31.1-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
+        <dep.jts.version>1.19.0</dep.jts.version>
         <dep.junit5.version>5.8.2</dep.junit5.version>
         <dep.kotlin.version>1.7.10</dep.kotlin.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
@@ -224,6 +225,12 @@
                         <groupId>org.checkerframework</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.locationtech.jts</groupId>
+                <artifactId>jts-core</artifactId>
+                <version>${dep.jts.version}</version>
             </dependency>
 
             <dependency>

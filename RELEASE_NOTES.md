@@ -1,5 +1,6 @@
 # Unreleased
 
+  - Add support for Eclipse LocationTech JTS data types with PostGIS. (#2072, #2074, thank you @bchapuis)
   - Fix exception in Handle#close() when underlying connection is closed (#2065)
   - Give access to per-batch row modification count (#2069, #2060, thank you @doppelrittberger)
   - Start new `examples` module for JDBI3 example code.
