@@ -13,6 +13,8 @@ Jdbi with it.
 * [Javadoc](https://jdbi.org/apidocs/)
 * [Mailing List](http://groups.google.com/group/jdbi)
 
+Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/blob/master/examples/README.md) module.
+
 ## Prerequisites
 
 Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
