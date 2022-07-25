@@ -19,6 +19,8 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import org.jdbi.v3.meta.Beta;
 
+import java.util.Map;
+
 abstract class CachingSqlParser implements SqlParser {
     private final LoadingCache<String, ParsedSql> parsedSqlCache;
 
