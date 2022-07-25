@@ -52,5 +52,10 @@ abstract class CachingSqlParser implements SqlParser {
         public ParsedSql load(String key) {
             return internalParse(key);
         }
+
+        @Override
+        public Map<String, ParsedSql> loadAll(Iterable<? extends String> keys) throws Exception {
+            return CacheLoader.super.loadAll(keys);
+        }
     }
 }
