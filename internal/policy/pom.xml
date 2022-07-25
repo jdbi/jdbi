@@ -24,7 +24,7 @@
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-policy</artifactId>
-    <version>3.31.1-SNAPSHOT</version>
+    <version>3.32.0</version>
     <name>jdbi3 - internal - policy</name>
     <description>Policy files for Jdbi build configuration</description>
 </project>
