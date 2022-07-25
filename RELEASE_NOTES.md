@@ -1,5 +1,6 @@
 # Unreleased
 
+  - Use Kotlin 1.7 ecosystem (compiler, plugin) but compile to Kotlin 1.5 compatibility
   - Add support for Eclipse LocationTech JTS data types with PostGIS. (#2072, #2074, thank you @bchapuis)
   - Fix exception in Handle#close() when underlying connection is closed (#2065)
   - Give access to per-batch row modification count (#2069, #2060, thank you @doppelrittberger)
