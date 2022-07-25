@@ -18,13 +18,13 @@
     <parent>
         <artifactId>jdbi3-build-parent</artifactId>
         <groupId>org.jdbi.internal</groupId>
-        <version>3.32.0</version>
+        <version>3.32.1-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
-    <version>3.32.0</version>
+    <version>3.32.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 Parent</name>
     <description>Jdbi is designed to provide convenient tabular data access in
@@ -68,7 +68,7 @@
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>v3.32.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 
