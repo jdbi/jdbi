@@ -51,6 +51,7 @@
         <module>jpa</module>
         <module>json</module>
         <module>postgres</module>
+        <module>postgis</module>
         <module>spring5</module>
         <module>docs</module>
         <module>kotlin</module>
@@ -156,6 +157,11 @@
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${project.version}</version>
                 <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgis</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
