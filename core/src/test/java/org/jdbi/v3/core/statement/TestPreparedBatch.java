@@ -269,8 +269,8 @@ public class TestPreparedBatch {
         Handle handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE record (b bool)");
         assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
-            .bind("bVal", false).add()
             .bindNull("bVal", Types.BOOLEAN).add()
+            .bind("bVal", false).add()
             .bindByType("bVal", null, boolean.class).add()
             .execute()).containsExactly(1, 1, 1);
     }
