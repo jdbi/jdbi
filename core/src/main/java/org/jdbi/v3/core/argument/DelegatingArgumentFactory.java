@@ -35,6 +35,10 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
 
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        if (expectedType == NullArgument.class && value != null) {
+            expectedType = value.getClass();
+        }
+
         Class<?> expectedClass = getErasedType(expectedType);
 
         if (value != null && expectedClass == Object.class) {

@@ -164,7 +164,7 @@ public class TestPreparedBatch {
         b.execute();
 
         assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
-                .containsExactly("Jeff", "Tom");
+            .containsExactly("Jeff", "Tom");
     }
 
     @Test
@@ -204,7 +204,7 @@ public class TestPreparedBatch {
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).extracting(Something::getId, Something::getName)
-                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
+            .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class TestPreparedBatch {
 
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).extracting(Something::getId, Something::getName)
-                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
+            .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
     @Test
@@ -267,12 +267,46 @@ public class TestPreparedBatch {
     @Test
     public void testBindNull() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.execute("CREATE TABLE record (b bool)");
+        handle.execute("CREATE TABLE record (id integer auto_increment, b bool)");
         assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
-            .bindNull("bVal", Types.BOOLEAN).add()
             .bind("bVal", false).add()
+            .bindNull("bVal", Types.BOOLEAN).add()
             .bindByType("bVal", null, boolean.class).add()
             .execute()).containsExactly(1, 1, 1);
+        assertThat(handle.createQuery("SELECT b FROM record ORDER BY id")
+            .map((rs, ctx) -> rs.getObject("b"))
+            .list())
+            .containsExactly(false, null, null);
+    }
+
+    @Test
+    public void testBindFirstNull() {
+        Handle handle = h2Extension.getSharedHandle();
+        handle.execute("CREATE TABLE record (id integer auto_increment, b bool)");
+        assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
+            .bindNull("bVal", Types.BOOLEAN).add()
+            .bindByType("bVal", null, boolean.class).add()
+            .bind("bVal", false).add()
+            .execute()).containsExactly(1, 1, 1);
+        assertThat(handle.createQuery("SELECT b FROM record ORDER BY id")
+            .map((rs, ctx) -> rs.getObject("b"))
+            .list())
+            .containsExactly(null, null, false);
+    }
+
+    @Test
+    public void testBindFirstNullByType() {
+        Handle handle = h2Extension.getSharedHandle();
+        handle.execute("CREATE TABLE record (id integer auto_increment, b bool)");
+        assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
+            .bindByType("bVal", null, boolean.class).add()
+            .bind("bVal", false).add()
+            .bindNull("bVal", Types.BOOLEAN).add()
+            .execute()).containsExactly(1, 1, 1);
+        assertThat(handle.createQuery("SELECT b FROM record ORDER BY id")
+            .map((rs, ctx) -> rs.getObject("b"))
+            .list())
+            .containsExactly(null, false, null);
     }
 
     public static class PublicSomething {
@@ -329,8 +363,8 @@ public class TestPreparedBatch {
         @Override
         public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
             return type == WrappedInt.class
-                    ? Optional.of((p, s, c) -> s.setInt(p, ((WrappedInt) value).i))
-                    : Optional.empty();
+                ? Optional.of((p, s, c) -> s.setInt(p, ((WrappedInt) value).i))
+                : Optional.empty();
         }
     }
 
