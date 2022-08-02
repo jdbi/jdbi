@@ -75,6 +75,11 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             .collect(Collectors.toList());
     }
 
+    @Override
+    public void warm(ConfigRegistry config) {
+        statementCustomizers.forEach(s -> s.warm(config));
+    }
+
     // duplicate implementation in SqlObjectFactory
     private static Stream<Class<?>> superTypes(Class<?> type) {
         Class<?>[] interfaces = type.getInterfaces();

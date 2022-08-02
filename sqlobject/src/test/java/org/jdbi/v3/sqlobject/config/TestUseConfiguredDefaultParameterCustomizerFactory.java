@@ -59,7 +59,9 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
         SomethingDao h = handle.attach(SomethingDao.class);
         h.findByNameAndIdNoBindAnnotation(1, "Joy");
 
-        assertThat(invocationCounter.get()).isEqualTo(2);
+        // factory is called twice for each parameters, once in
+        // warm() and once in apply()
+        assertThat(invocationCounter.get()).isEqualTo(4);
     }
 
     @Test
