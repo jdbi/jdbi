@@ -74,15 +74,15 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     PreparedStatement stmt;
 
     SqlStatement(Handle handle,
-                 String sql) {
+                 CharSequence sql) {
         super(handle);
 
         this.handle = handle;
-        this.sql = sql;
+        this.sql = sql.toString();
 
         getContext()
             .setConnection(handle.getConnection())
-            .setRawSql(sql);
+            .setRawSql(this.sql);
     }
 
     protected Binding getBinding() {

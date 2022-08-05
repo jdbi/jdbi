@@ -229,13 +229,20 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param args arguments to bind positionally
      * @return query object
      */
-    public Query select(String sql, Object... args) {
+    public Query select(CharSequence sql, Object... args) {
         Query query = this.createQuery(sql);
         int position = 0;
         for (Object arg : args) {
             query.bind(position++, arg);
         }
         return query;
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Query select(String sql, Object... args) {
+        return select((CharSequence) sql, args);
     }
 
     /**
@@ -246,7 +253,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @return the number of rows affected
      */
-    public int execute(String sql, Object... args) {
+    public int execute(CharSequence sql, Object... args) {
         try (Update stmt = createUpdate(sql)) {
             int position = 0;
             for (Object arg : args) {
@@ -254,6 +261,13 @@ public class Handle implements Closeable, Configurable<Handle> {
             }
             return stmt.execute();
         }
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public int execute(String sql, Object... args) {
+        return execute((CharSequence) sql, args);
     }
 
     /**
@@ -272,8 +286,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql the batch SQL
      * @return a batch which can have "statements" added
      */
-    public PreparedBatch prepareBatch(String sql) {
+    public PreparedBatch prepareBatch(CharSequence sql) {
         return new PreparedBatch(this, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public PreparedBatch prepareBatch(String sql) {
+        return prepareBatch((CharSequence) sql);
     }
 
     /**
@@ -283,8 +304,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @return the Call
      */
-    public Call createCall(String sql) {
+    public Call createCall(CharSequence sql) {
         return new Call(this, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Call createCall(String sql) {
+        return createCall((CharSequence) sql);
     }
 
     /**
@@ -293,8 +321,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql SQL that may return results
      * @return a Query builder
      */
-    public Query createQuery(String sql) {
+    public Query createQuery(CharSequence sql) {
         return new Query(this, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Query createQuery(String sql) {
+        return createQuery((CharSequence) sql);
     }
 
     /**
@@ -304,8 +339,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @return the created Script
      */
-    public Script createScript(String sql) {
+    public Script createScript(CharSequence sql) {
         return new Script(this, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Script createScript(String sql) {
+        return createScript((CharSequence) sql);
     }
 
     /**
@@ -315,8 +357,15 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @return the Update builder
      */
-    public Update createUpdate(String sql) {
+    public Update createUpdate(CharSequence sql) {
         return new Update(this, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Update createUpdate(String sql) {
+        return createUpdate((CharSequence) sql);
     }
 
     /**

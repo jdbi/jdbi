@@ -99,7 +99,7 @@ public class MapEntryMapperTest {
                 .execute();
 
         // tag::joinRow[]
-        String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
+        CharSequence sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
 
             + "from \"user\" u left join phone p on u.id = p.user_id";
         Map<User, Phone> map = h.createQuery(sql)
@@ -129,7 +129,7 @@ public class MapEntryMapperTest {
                 .add(30, 3, "555-0003")
                 .execute();
 
-        String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
+        CharSequence sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
             + "from \"user\" u left join phone p on u.id = p.user_id";
         h2Extension.getJdbi()
                 .setMapKeyColumn("foo")
