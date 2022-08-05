@@ -28,8 +28,15 @@ import static org.jdbi.v3.core.result.ResultProducers.returningUpdateCount;
  * Used for INSERT, UPDATE, and DELETE statements
  */
 public class Update extends SqlStatement<Update> {
-    public Update(Handle handle, String sql) {
+    public Update(Handle handle, CharSequence sql) {
         super(handle, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Update(Handle handle, String sql) {
+        this(handle, (CharSequence) sql);
     }
 
     public void one() {

@@ -27,8 +27,15 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
  * Statement providing convenience result handling for SQL queries.
  */
 public class Query extends SqlStatement<Query> implements ResultBearing {
-    public Query(Handle handle, String sql) {
+    public Query(Handle handle, CharSequence sql) {
         super(handle, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Query(Handle handle, String sql) {
+        super(handle, (CharSequence) sql);
     }
 
     /**

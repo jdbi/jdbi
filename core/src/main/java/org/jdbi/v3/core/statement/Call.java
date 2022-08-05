@@ -31,8 +31,15 @@ import org.jdbi.v3.core.argument.Argument;
 public class Call extends SqlStatement<Call> {
     private final List<OutParamArgument> params = new ArrayList<>();
 
-    public Call(Handle handle, String sql) {
+    public Call(Handle handle, CharSequence sql) {
         super(handle, sql);
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public Call(Handle handle, String sql) {
+        super(handle, (CharSequence) sql);
     }
 
     @Override

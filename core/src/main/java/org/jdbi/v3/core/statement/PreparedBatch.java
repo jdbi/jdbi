@@ -64,9 +64,16 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     private final List<PreparedBinding> bindings = new ArrayList<>();
     final Map<PrepareKey, Function<String, Optional<Function<Object, Argument>>>> preparedFinders = new HashMap<>();
 
-    public PreparedBatch(Handle handle, String sql) {
+    public PreparedBatch(Handle handle, CharSequence sql) {
         super(handle, sql);
         getContext().setBinding(new PreparedBinding(getContext()));
+    }
+
+    /**
+     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     */
+    public PreparedBatch(Handle handle, String sql) {
+        super(handle, (CharSequence) sql);
     }
 
     @Override
