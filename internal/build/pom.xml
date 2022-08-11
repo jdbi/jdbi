@@ -69,6 +69,7 @@
         <dep.plugin.kotlin.version>1.7.10</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.14.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
+        <dep.postgresql.version>42.4.1</dep.postgresql.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
         <dep.spring.version>5.3.20</dep.spring.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
@@ -220,7 +221,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.3.3</version>
+                <version>${dep.postgresql.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>checker-qual</artifactId>
