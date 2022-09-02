@@ -30,7 +30,10 @@
         <!-- Javadocs refer to jars without actual code references -->
         <basepom.check.skip-dependency>true</basepom.check.skip-dependency>
         <basepom.check.skip-license>true</basepom.check.skip-license>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <basepom.deploy.skip>true</basepom.deploy.skip>
+        <basepom.site.scm.branch>master</basepom.site.scm.branch>
+        <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
+        <basepom.site.scm.url>scm:git:git@github.com:jdbi/jdbi.github.io.git</basepom.site.scm.url>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
 
@@ -247,23 +250,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <tasks>
-                                        <unzip dest="${project.build.directory}/generated-docs/jdbi2/apidocs/" src="${project.basedir}/src/main/resources/jdbi2/apidocs.zip" />
-                                    </tasks>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <executions>
                             <execution>
@@ -346,10 +332,9 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <pubScmUrl>scm:git:git@github.com:jdbi/jdbi.github.io.git</pubScmUrl>
-                            <checkoutDirectory>${java.io.tmpdir}/gh-pages-publish/${project.name}/}</checkoutDirectory>
                             <content>${project.build.directory}/generated-docs</content>
-                            <localCheckout>true</localCheckout>
+                            <!-- do not clobber the legacy api docs -->
+                            <ignorePathsToDelete>jdbi2</ignorePathsToDelete>
                         </configuration>
                     </plugin>
                 </plugins>
