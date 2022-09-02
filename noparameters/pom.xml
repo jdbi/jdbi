@@ -30,8 +30,8 @@
         <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
         <basepom.compiler.parameters>false</basepom.compiler.parameters>
 
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
+        <basepom.deploy.skip>true</basepom.deploy.skip>
+        <basepom.install.skip>true</basepom.install.skip>
         <moduleName>org.jdbi.v3.noparameters</moduleName>
     </properties>
 

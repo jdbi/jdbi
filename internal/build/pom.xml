@@ -18,7 +18,7 @@
     <parent>
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
-        <version>47</version>
+        <version>49</version>
         <relativePath />
     </parent>
 
@@ -41,8 +41,8 @@
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.release.profiles>basepom.oss-release,jdbi-release</basepom.release.profiles>
+        <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
-        <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>4.10.1</dep.antlr.version>
@@ -63,6 +63,7 @@
         <dep.kotlin.version>1.5.32</dep.kotlin.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
+        <dep.plugin.asciidoctor.version>2.1.0</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.20.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.2.7</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
@@ -499,14 +500,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <configuration>
-                        <tagNameFormat>v@{project.version}</tagNameFormat>
-                    </configuration>
-                </plugin>
-
-                <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <configuration>
@@ -563,7 +556,7 @@
                 <plugin>
                     <groupId>org.asciidoctor</groupId>
                     <artifactId>asciidoctor-maven-plugin</artifactId>
-                    <version>2.1.0</version>
+                    <version>${dep.plugin.asciidoctor.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>com.github.ekryd.sortpom</groupId>
@@ -626,7 +619,6 @@
                         </dependency>
                     </dependencies>
                     <configuration>
-                        <linkXRef>false</linkXRef>
                         <analysisCache>true</analysisCache>
                         <verbose>true</verbose>
                         <rulesets>
@@ -649,7 +641,6 @@
                         <configLocation>policy/checkstyle.xml</configLocation>
                         <suppressionsLocation>policy/checkstyle-suppress.xml</suppressionsLocation>
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
-                        <skip>${basepom.check.skip-extended}</skip>
                     </configuration>
                 </plugin>
                 <plugin>

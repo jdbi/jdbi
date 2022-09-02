@@ -29,8 +29,8 @@
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
         <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>
-        <jmh.version>1.32</jmh.version>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <basepom.deploy.skip>true</basepom.deploy.skip>
+        <dep.jmh.version>1.32</dep.jmh.version>
         <moduleName>org.jdbi.v3.benchmark</moduleName>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>${jmh.version}</version>
+            <version>${dep.jmh.version}</version>
         </dependency>
 
         <dependency>
@@ -82,10 +82,11 @@
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>${jmh.version}</version>
+            <version>${dep.jmh.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
