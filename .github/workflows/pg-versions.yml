@@ -17,14 +17,14 @@ jobs:
         postgres-version: [ 9.6, 10, 11, 12, 13, 14 ]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install locales on runner
       run: |
           sudo apt-get update
           sudo apt-get install -y locales-all
 
-    - uses: actions/setup-java@v2
+    - uses: actions/setup-java@v3
       id: setup_jdk
       name: Setup JDK
       with:
