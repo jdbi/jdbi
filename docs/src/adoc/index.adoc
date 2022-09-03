@@ -23,6 +23,7 @@
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
 
+[preface]
 image::logo.svg[Jdbi logo]
 
 ////
@@ -45,15 +46,12 @@ Style guidelines:
 
 ////
 
-== Introduction to Jdbi
+== Introduction to Jdbi 3
 
 Jdbi provides convenient, idiomatic access to relational data in Java. Jdbi 3
 is the third major release which introduces enhanced support for Java 8,
 countless refinements to the design and implementation, and enhanced support
 for modular plugins.
-
-[TIP]
-Not upgrading yet? The link:/jdbi2/[v2 documentation] is still available.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
 Jdbi with it.  Jdbi improves JDBC's rough interface, providing a more natural
@@ -64,10 +62,18 @@ construct the mapping between relations and objects as appropriate for your appl
 
 === Quick Links
 
+
 * https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)]
 * https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code]
 * https://github.com/jdbi/jdbi[GitHub JDBI repository]
 
+==== JDBI v2 (legacy version)
+
+JDBI v2 is no longer under active development.
+
+* link:/jdbi2/[JDBI v2 documentation].
+
+== JDBI API
 
 Jdbi's API comes in two flavors:
 
