@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
     </parent>
 
@@ -145,10 +145,10 @@
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>antlr4</goal>
                         </goals>
+                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -157,10 +157,10 @@
                 <artifactId>inline-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
                             <goal>inline</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <prefix>org.jdbi.v3.core.inlined</prefix>
                             <inlineDependencies>

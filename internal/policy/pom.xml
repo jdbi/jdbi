@@ -19,7 +19,6 @@
         <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
         <version>49</version>
-        <relativePath />
     </parent>
 
     <groupId>org.jdbi.internal</groupId>

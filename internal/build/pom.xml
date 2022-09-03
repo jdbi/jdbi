@@ -16,10 +16,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>basepom-oss</artifactId>
         <groupId>org.basepom</groupId>
+        <artifactId>basepom-oss</artifactId>
         <version>49</version>
-        <relativePath />
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
@@ -69,7 +68,7 @@
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.7.10</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.14.0</dep.plugin.ktlint.version>
-        <dep.plugin.sortpom.version>2.8.0</dep.plugin.sortpom.version>
+        <dep.plugin.sortpom.version>3.2.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.4.1</dep.postgresql.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
         <dep.spring.version>5.3.20</dep.spring.version>
@@ -89,6 +88,22 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${dep.jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${dep.junit5.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.leangen.geantyref</groupId>
                 <artifactId>geantyref</artifactId>
@@ -101,8 +116,8 @@
                 <version>${dep.guava.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>checker-qual</artifactId>
                         <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -119,12 +134,12 @@
                 <version>${dep.caffeine.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>error_prone_annotations</artifactId>
                         <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>checker-qual</artifactId>
                         <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -225,8 +240,8 @@
                 <version>${dep.postgresql.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>checker-qual</artifactId>
                         <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -425,22 +440,6 @@
                 <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${dep.jackson2.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${dep.junit5.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -570,6 +569,7 @@
                         <nrOfIndentSpace>4</nrOfIndentSpace>
                         <sortDependencies>scope</sortDependencies>
                         <sortProperties>true</sortProperties>
+                        <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
                     </configuration>
                 </plugin>
 
@@ -588,6 +588,13 @@
                     <groupId>com.github.ozsie</groupId>
                     <artifactId>detekt-maven-plugin</artifactId>
                     <version>${dep.plugin.detekt.version}</version>
+
+                    <configuration>
+                        <skip>${jdbi.check.skip-detekt}</skip>
+                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
+                        <failBuildOnMaxIssuesReached>${jdbi.check.fail-detekt}</failBuildOnMaxIssuesReached>
+                        <configResource>policy/detekt.yml</configResource>
+                    </configuration>
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
@@ -600,24 +607,10 @@
                             <version>${dep.detekt.version}</version>
                         </dependency>
                     </dependencies>
-
-                    <configuration>
-                        <skip>${jdbi.check.skip-detekt}</skip>
-                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
-                        <failBuildOnMaxIssuesReached>${jdbi.check.fail-detekt}</failBuildOnMaxIssuesReached>
-                        <configResource>policy/detekt.yml</configResource>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.jdbi.internal</groupId>
-                            <artifactId>jdbi3-policy</artifactId>
-                            <version>${dep.jdbi-policy.version}</version>
-                        </dependency>
-                    </dependencies>
                     <configuration>
                         <analysisCache>true</analysisCache>
                         <verbose>true</verbose>
@@ -626,10 +619,6 @@
                         </rulesets>
                         <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
@@ -637,15 +626,15 @@
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
                     <configuration>
                         <configLocation>policy/checkstyle.xml</configLocation>
                         <suppressionsLocation>policy/checkstyle-suppress.xml</suppressionsLocation>
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs-maven-plugin</artifactId>
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
@@ -653,6 +642,10 @@
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
                     <configuration>
                         <includeFilterFiles combine.children="override">
                             <includeFilterFile>policy/spotbugs-include.xml</includeFilterFile>
@@ -661,6 +654,13 @@
                             <excludeFilterFile>policy/spotbugs-exclude.xml</excludeFilterFile>
                         </excludeFilterFiles>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jdbi.internal</groupId>
+                            <artifactId>jdbi3-policy</artifactId>
+                            <version>${dep.jdbi-policy.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -694,10 +694,10 @@
                 <artifactId>sortpom-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
                         <goals>
                             <goal>sort</goal>
                         </goals>
+                        <phase>validate</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -706,10 +706,10 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
+                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -718,10 +718,10 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
+                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -737,7 +737,7 @@
                         <configuration>
                             <rules>
                                 <!-- Ensure consistency -->
-                                <dependencyConvergence />
+                                <dependencyConvergence/>
                                 <requireProperty>
                                     <property>moduleName</property>
                                     <message>This module must set a moduleName.</message>
@@ -771,6 +771,9 @@
                     <name>m2e.version</name>
                 </property>
             </activation>
+            <properties>
+                <build.output>target-ide</build.output>
+            </properties>
             <build>
                 <pluginManagement>
                     <plugins>
@@ -792,7 +795,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                         <pluginExecution>
@@ -805,7 +808,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                     </pluginExecutions>
@@ -815,9 +818,6 @@
                     </plugins>
                 </pluginManagement>
             </build>
-            <properties>
-                <build.output>target-ide</build.output>
-            </properties>
         </profile>
         <profile>
             <id>jdk8</id>
@@ -837,6 +837,28 @@
                     <exists>${basedir}/src/main/kotlin</exists>
                 </file>
             </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-reflect</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-test</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
 
             <build>
                 <plugins>
@@ -846,10 +868,10 @@
                         <executions>
                             <execution>
                                 <id>kotlin</id>
-                                <phase>generate-sources</phase>
                                 <goals>
                                     <goal>add-source</goal>
                                 </goals>
+                                <phase>generate-sources</phase>
                                 <configuration>
                                     <sources>
                                         <source>${project.basedir}/src/main/kotlin</source>
@@ -858,10 +880,10 @@
                             </execution>
                             <execution>
                                 <id>test-kotlin</id>
-                                <phase>generate-test-sources</phase>
                                 <goals>
                                     <goal>add-test-source</goal>
                                 </goals>
+                                <phase>generate-test-sources</phase>
                                 <configuration>
                                     <sources>
                                         <source>${project.basedir}/src/test/kotlin</source>
@@ -907,17 +929,17 @@
                             <!-- add new compilation executions for java -->
                             <execution>
                                 <id>java-compile</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>compile</goal>
                                 </goals>
+                                <phase>compile</phase>
                             </execution>
                             <execution>
                                 <id>java-test-compile</id>
-                                <phase>test-compile</phase>
                                 <goals>
                                     <goal>testCompile</goal>
                                 </goals>
+                                <phase>test-compile</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -927,11 +949,11 @@
                         <artifactId>dokka-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>package</phase>
                                 <goals>
                                     <goal>javadocJar</goal>
                                     <goal>dokka</goal>
                                 </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -942,10 +964,10 @@
                         <executions>
                             <execution>
                                 <id>default</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
+                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -955,40 +977,21 @@
                         <executions>
                             <execution>
                                 <id>default</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
+                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-stdlib</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-reflect</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-test</artifactId>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>jdbi-release</id>
+            <properties>
+                <basepom.check.skip-all>true</basepom.check.skip-all>
+            </properties>
 
             <build>
                 <plugins>
@@ -1014,9 +1017,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <properties>
-                <basepom.check.skip-all>true</basepom.check.skip-all>
-            </properties>
         </profile>
     </profiles>
 </project>

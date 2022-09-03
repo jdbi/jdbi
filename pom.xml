@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-build-parent</artifactId>
         <groupId>org.jdbi.internal</groupId>
+        <artifactId>jdbi3-build-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>

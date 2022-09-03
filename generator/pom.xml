@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
     </parent>
 
