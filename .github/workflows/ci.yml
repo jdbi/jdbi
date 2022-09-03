@@ -18,20 +18,47 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - uses: actions/setup-java@v3
-      id: baseline_java
+      id: build_jdk
       with:
         java-version: 17
         distribution: ${{ matrix.distribution }}
+        cache: maven
+
     - uses: actions/setup-java@v3
-      id: build_java
+      id: test_jdk
       with:
         java-version: ${{ matrix.java-version }}
         distribution: ${{ matrix.distribution }}
         cache: maven
-    - name: Build
+
+    - name: set build_jdk
       env:
-        BASELINE_JAVA_HOME: ${{ steps.baseline_java.outputs.path }}
-        BUILD_JAVA_HOME: ${{ steps.build_java.outputs.path }}
+        JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
       run: |
-          ./src/build/gh-action-ci.sh
+        echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+
+    - name: build distribution
+      env:
+        JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
+        JDBI_MAVEN_OPTS: "-DskipTests -Dbasepom.check.skip-all=true -Dbasepom.check.skip-enforcer=false -B -fae"
+      run: |
+        ./mvnw --version
+        echo $PATH
+        make install
+
+    - name: set test_jdk
+      env:
+        JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
+      run: |
+        echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+
+    - name: run tests
+      env:
+        JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
+        JDBI_MAVEN_OPTS: "-B -fae"
+      run: |
+        ./mvnw --version
+        echo $PATH
+        make tests

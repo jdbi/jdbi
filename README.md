@@ -37,21 +37,39 @@ latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
 
 ## Building
 
-Jdbi is built with Apache Maven, requiring version 3.6.0 or newer.
+Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.8.6 or later is recommended.
+
+Jdbi requires a modern JDK (11+) to build and enforces JDK 17+ for releases.
+
+All build tasks are organized as `make` targets. The Makefile in the root directory shows which commands are run.
+
+Build the code an install it into the local repository:
 
 ```bash
-$ ./mvnw clean install
+$ make install
 ```
 
-The unit tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed).
+Running `make` or `make help` displays all available build targets with a short explanation. Some of the goals will require project membership privileges.
 
-### Docker requirements
+To add command line parameters to the maven executions from the Makefile, set the `JDBI_MAVEN_OPTS` variable:
+
+``` bash
+% JDBI_MAVEN_OPTS="-B -fae" make install
+```
+
+## Testing
+
+Running `make tests` runs all unit and integration tests.
+
+Some tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed). Most modern OS (Windows, MacOS, Linux) and host architecture (x86_64, aarch64) should work.
+
+### Docker requirements for tests
 
 For a full release build, docker or a docker compatible environment
 must be available. A small number of tests (those supporting the OTJ
 postgres plugin) use testcontainers which in turn requires docker.
 
-Local builds can use `-Dno-docker` on the command line to skip these tests.
+`make install-nodocker` skips the tests when building and installing Jdbi locally. `make tests-nodocker` skips the tests when only running tests.
 
 Supported configurations are
 
@@ -61,8 +79,8 @@ Supported configurations are
 
 For podman, the podman socket must be activated (see
 https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests)
-for details. SELinux sometimes interferes with testcontainers, if
-SELinux is active, make sure that there is an exception configured.
+for details. SELinux sometimes interferes with testcontainers if
+SELinux is active; make sure that there is an exception configured.
 
 ## Contributing
 
@@ -72,7 +90,7 @@ for instructions to set up your development environment to build Jdbi.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning.
+Jdbi uses [SemVer](http://semver.org/) for versioning.
 
 ## License
 
