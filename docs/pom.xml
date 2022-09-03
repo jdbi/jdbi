@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
     </parent>
 
@@ -200,34 +200,25 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>timestamp-property</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>timestamp-property</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <name>doc.timestamp</name>
                     <pattern>MM/dd/yyyy HH:mm ZZ</pattern>
                     <locale>en_US</locale>
                     <timeZone>America/Los_Angeles</timeZone>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>timestamp-property</id>
+                        <goals>
+                            <goal>timestamp-property</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>output-html</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
 
                 <configuration>
                     <sourceDirectory>src/adoc</sourceDirectory>
@@ -241,6 +232,15 @@
                         <source-highlighter>coderay</source-highlighter>
                     </attributes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -248,6 +248,10 @@
     <profiles>
         <profile>
             <id>publish-docs</id>
+            <properties>
+                <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
+                <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -255,10 +259,10 @@
                         <executions>
                             <execution>
                                 <id>javadoc-jar</id>
-                                <phase>package</phase>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <phase>package</phase>
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
@@ -275,10 +279,10 @@
                         <executions>
                             <execution>
                                 <id>copy-kotlin-apidocs</id>
-                                <phase>validate</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
+                                <phase>validate</phase>
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi3-kotlin</outputDirectory>
                                     <resources>
@@ -290,10 +294,10 @@
                             </execution>
                             <execution>
                                 <id>copy-kotlin-sqlobject-apidocs</id>
-                                <phase>validate</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
+                                <phase>validate</phase>
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi3-kotlin-sqlobject</outputDirectory>
                                     <resources>
@@ -305,10 +309,10 @@
                             </execution>
                             <execution>
                                 <id>copy-site-files</id>
-                                <phase>validate</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
+                                <phase>validate</phase>
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/generated-docs</outputDirectory>
                                     <resources>
@@ -323,27 +327,23 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-scm-publish-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>publish-docs</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>publish-scm</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                         <configuration>
                             <content>${project.build.directory}/generated-docs</content>
                             <!-- do not clobber the legacy api docs -->
                             <ignorePathsToDelete>jdbi2</ignorePathsToDelete>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>publish-docs</id>
+                                <goals>
+                                    <goal>publish-scm</goal>
+                                </goals>
+                                <phase>deploy</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
-            <properties>
-                <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
-                <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
-            </properties>
         </profile>
         <profile>
             <id>jdk8</id>

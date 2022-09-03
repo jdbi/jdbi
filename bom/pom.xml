@@ -16,8 +16,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-parent</artifactId>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
     </parent>
 
@@ -39,14 +39,14 @@
         </license>
     </licenses>
     <developers>
-      <developer>
-        <name>The Jdbi Team</name>
-      </developer>
+        <developer>
+            <name>The Jdbi Team</name>
+        </developer>
     </developers>
 
     <properties>
-        <moduleName>org.jdbi.v3.bom</moduleName>
         <dep.jdbi3.version>3.32.1-SNAPSHOT</dep.jdbi3.version>
+        <moduleName>org.jdbi.v3.bom</moduleName>
     </properties>
 
     <dependencyManagement>
@@ -186,19 +186,19 @@
                 <executions>
                     <execution>
                         <id>flatten</id>
-                        <phase>process-resources</phase>
                         <goals>
                             <goal>flatten</goal>
                         </goals>
+                        <phase>process-resources</phase>
                     </execution>
                     <execution>
                         <id>flatten.clean</id>
-                        <phase>clean</phase>
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                        <phase>clean</phase>
                     </execution>
-                  </executions>
+                </executions>
             </plugin>
         </plugins>
     </build>
