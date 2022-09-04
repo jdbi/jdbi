@@ -106,8 +106,8 @@ class TestGetGeneratedKeys {
     @Test
     fun testInsertSomethingReturnSomething() {
         pgExtension.jdbi.useExtensionUnchecked(SomethingDAO::class) { dao ->
-            val brian = Something(0, "Brian", 10, 100)
-            val keith = Something(0, "Keith", 10, 100)
+            val brian = Something(id = 0, name = "Brian", intValue = 10, integerValue = 100)
+            val keith = Something(id = 0, name = "Keith", intValue = 10, integerValue = 100)
             val brianRow = dao.insert(brian)
             val keithRow = dao.insert(keith)
 

@@ -67,7 +67,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
         val unmatchedColumns = columnNames.toMutableSet()
 
-        val mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        val mapper = specialize0(ctx = ctx, columnNames = columnNames, columnNameMatchers = columnNameMatchers, unmatchedColumns = unmatchedColumns)
             .orElseThrow {
                 IllegalArgumentException(
                     "Mapping Kotlin type ${kClass.simpleName} didn't find any columns matching required, non-default constructor parameters in result set"
@@ -77,12 +77,15 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         if (ctx.getConfig(ReflectionMappers::class.java).isStrictMatching &&
             unmatchedColumns.any { col -> col.startsWith(prefix) }
         ) {
-            throw IllegalArgumentException("Mapping constructor-injected type ${kClass.simpleName} could not match parameters for columns: $unmatchedColumns")
+            throw IllegalArgumentException(
+                "Mapping constructor-injected type ${kClass.simpleName()} could not match parameters for columns: $unmatchedColumns"
+            )
         }
 
         return mapper
     }
 
+    @Suppress("LongMethod")
     private fun specialize0(
         ctx: StatementContext,
         columnNames: List<String>,
@@ -91,7 +94,13 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
     ): Optional<RowMapper<Any?>> {
         val resolvedConstructorParameters = constructorParameters
             .map { parameter ->
-                parameter to resolveConstructorParameterMapper(ctx, parameter, columnNames, columnNameMatchers, unmatchedColumns)
+                parameter to resolveConstructorParameterMapper(
+                    ctx = ctx,
+                    parameter = parameter,
+                    columnNames = columnNames,
+                    columnNameMatchers = columnNameMatchers,
+                    unmatchedColumns = unmatchedColumns
+                )
             }
             .sortedBy { if (it.second.propagateNull) 0 else 1 }
             .associate { it }
@@ -123,7 +132,13 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             .associate { property ->
                 property to ParamData(
                     ParamResolution.MAPPED,
-                    resolveMemberPropertyMapper(ctx, property, columnNames, columnNameMatchers, unmatchedColumns),
+                    resolveMemberPropertyMapper(
+                        ctx = ctx,
+                        property = property,
+                        columnNames = columnNames,
+                        columnNameMatchers = columnNameMatchers,
+                        unmatchedColumns = unmatchedColumns
+                    ),
                     property.javaField?.getAnnotation(PropagateNull::class.java) != null
                 )
             }
@@ -147,9 +162,9 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                 val constructorParametersWithValues = resolvedConstructorParameters
                     // We filter 'null' mappers to remove parameters with no mappers but a default value
                     .filterValues { it.mapper != null }
-                    .mapValues {
-                        val v = it.value.mapper?.map(r, c)
-                        if (v == null && it.value.propagateNull) {
+                    .mapValues { mapEntry ->
+                        val v = mapEntry.value.mapper?.map(r, c)
+                        if (v == null && mapEntry.value.propagateNull) {
                             return@RowMapper null
                         }
                         v
@@ -157,14 +172,14 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                     .filterValues { it != ParamResolution.USE_DEFAULT }
 
                 val memberPropertiesWithValues = memberProperties
-                    .filter { memberPropertyMappers.get(it)?.mapper != null }
-                    .associate {
-                        val prop = memberPropertyMappers.get(it)
+                    .filter { memberPropertyMappers[it]?.mapper != null }
+                    .associate { propertyMapper ->
+                        val prop = memberPropertyMappers[propertyMapper]
                         val v = prop?.mapper?.map(r, c)
-                        if (v == null && prop!!.propagateNull) {
+                        if (v == null && prop?.propagateNull == true) {
                             return@RowMapper null
                         }
-                        it to v
+                        propertyMapper to v
                     }
                 constructor.isAccessible = true
                 constructor.callBy(constructorParametersWithValues).also { instance ->
@@ -187,6 +202,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         val parameterName = parameter.paramName()
 
         val nested = parameter.findAnnotation<Nested>()
+
+        @Suppress("BooleanPropertyNaming")
         val propagateNull = parameter.findAnnotation<PropagateNull>() != null
         if (nested == null) {
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
@@ -205,8 +222,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                     }
                     .orElseThrow {
                         IllegalArgumentException(
-                            "Could not find column mapper for type '$type' of parameter " +
-                                "'$parameter' for constructor '$constructor'"
+                            "Could not find column mapper for type '$type' of parameter '$parameter' for constructor '$constructor'"
                         )
                     }.also {
                         unmatchedColumns.remove(columnNames[columnIndex.asInt])
@@ -220,7 +236,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                     .computeIfAbsent(parameter) { p ->
                         KotlinMapper(p.type.jvmErasure.java, nestedPrefix)
                     }
-                    .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                    .specialize0(ctx = ctx, columnNames = columnNames, columnNameMatchers = columnNameMatchers, unmatchedColumns = unmatchedColumns)
                 if (nestedMapper.isPresent) {
                     return ParamData(ParamResolution.MAPPED, nestedMapper.get(), propagateNull)
                 }
@@ -255,9 +271,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                 possibleColumnIndex.isPresent -> possibleColumnIndex.asInt
                 !property.isLateinit -> return null
                 else -> throw IllegalArgumentException(
-                    "Member '${property.name}' of class '${kClass.simpleName} has no column in the result set but is lateinit. " +
-                        "Verify that your result set has the columns expected, or annotate the " +
-                        "property explicitly with @ColumnName"
+                    "Member '${property.name}' of class '${kClass.simpleName()} has no column in the result set but is lateinit. " +
+                        "Verify that your result set has the columns expected, or annotate the property explicitly with @ColumnName"
                 )
             }
 
@@ -266,8 +281,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                 .map { mapper -> SingleColumnMapper(mapper, columnIndex + 1) }
                 .orElseThrow {
                     IllegalArgumentException(
-                        "Could not find column mapper for type '$type' of property " +
-                            "'${property.name}' for constructor '${kClass.simpleName}'"
+                        "Could not find column mapper for type '$type' of property '${property.name}' for constructor '${kClass.simpleName()}'"
                     )
                 }
                 .also {
@@ -279,7 +293,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                 return nestedPropertyMappers
                     .computeIfAbsent(property) { p -> KotlinMapper(p.returnType.jvmErasure.java, nestedPrefix) }
-                    .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                    .specialize0(ctx = ctx, columnNames = columnNames, columnNameMatchers = columnNameMatchers, unmatchedColumns = unmatchedColumns)
                     .orElse(null)
             }
         }
@@ -287,7 +301,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         return null
     }
 
-    private fun KParameter.paramName(): String? = prefix + (findAnnotation<ColumnName>()?.value ?: name)
+    private fun KParameter.paramName(): String = prefix + (findAnnotation<ColumnName>()?.value ?: name)
 
     private fun KMutableProperty1<*, *>.propName(): String {
         val annotation = this.javaField?.getAnnotation(ColumnName::class.java)
@@ -317,7 +331,7 @@ private fun <C : Any> findConstructor(kClass: KClass<C>): KFunction<C> {
         annotatedConstructors.isEmpty() -> kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
         annotatedConstructors.size == 1 -> annotatedConstructors.first()
         else -> throw IllegalArgumentException(
-            "A bean, ${kClass.simpleName} was mapped which was not instantiable (multiple constructors marked with ${JdbiConstructor::class.simpleName})"
+            "A bean, ${kClass.simpleName()} was mapped which was not instantiable (multiple constructors marked with ${JdbiConstructor::class.simpleName()})"
         )
     }
 }
@@ -326,6 +340,6 @@ private fun <C : Any> findSecondaryConstructor(kClass: KClass<C>): KFunction<C> 
     if (kClass.constructors.size == 1) {
         return kClass.constructors.first()
     } else {
-        throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (cannot find appropriate constructor)")
+        throw IllegalArgumentException("A bean, ${kClass.simpleName()} was mapped which was not instantiable (cannot find appropriate constructor)")
     }
 }

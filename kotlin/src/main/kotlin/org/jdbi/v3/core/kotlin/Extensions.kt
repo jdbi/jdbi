@@ -33,6 +33,8 @@ private const val METADATA_FQ_NAME = "kotlin.Metadata"
 
 fun Class<*>.isKotlinClass() = this.annotations.singleOrNull { it.annotationClass.java.name == METADATA_FQ_NAME } != null
 
+internal fun KClass<*>.simpleName(): String = this.simpleName ?: this::java.javaClass.simpleName
+
 inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> = this.mapTo(T::class.java)
 
 inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit) {

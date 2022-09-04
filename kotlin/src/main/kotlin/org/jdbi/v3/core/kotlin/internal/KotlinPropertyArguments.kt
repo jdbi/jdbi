@@ -45,11 +45,11 @@ class KotlinPropertyArguments(
         val type = QualifiedType.of(property.returnType.javaType)
             .withAnnotations(
                 getQualifiers(
-                    kClass.primaryConstructor?.parameters?.find { it.name == name },
+                    kClass.primaryConstructor?.run { parameters.find { it.name == name } },
                     property,
                     property.getter,
                     mutableProperty?.setter,
-                    mutableProperty?.setter?.parameters?.getOrNull(0)
+                    mutableProperty?.run { setter.parameters.getOrNull(0) }
                 )
             )
         val value = property.getter.call(obj)
