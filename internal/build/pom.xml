@@ -19,6 +19,8 @@
         <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
         <version>49</version>
+        <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
+        <relativePath/>
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
