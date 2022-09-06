@@ -36,11 +36,11 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
-            method.kotlinFunction
-                ?.parameters
-                ?.dropWhile { it.kind != KParameter.Kind.VALUE }
-                ?.toList()
-                ?.get(paramIdx)?.name
+            method.kotlinFunction?.run {
+                parameters
+                    .dropWhile { it.kind != KParameter.Kind.VALUE }
+                    .toList()[paramIdx].name
+            }
         } ?: throw UnsupportedOperationException(
             "A parameter was not given a name, and parameter name data is not present in the class file, for: " +
                 "${parameter.declaringExecutable} :: $parameter"

@@ -473,6 +473,7 @@ class KotlinMapperTest {
             return result
         }
 
+        @Suppress("NullableToStringCall")
         override fun toString() = "DataClassWithNullableProperty(id=$id, name=$name)"
     }
 
@@ -549,6 +550,7 @@ class KotlinMapperTest {
             return result
         }
 
+        @Suppress("NullableToStringCall")
         override fun toString() = "ClassWithNullableNestedProperty(id='$id', nested=$nested)"
     }
 

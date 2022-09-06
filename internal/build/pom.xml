@@ -65,11 +65,11 @@
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.2</dep.plugin.asciidoctor.version>
-        <dep.plugin.detekt.version>1.20.0</dep.plugin.detekt.version>
+        <dep.plugin.detekt.version>1.21.0.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.3.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.7.10</dep.plugin.kotlin.version>
-        <dep.plugin.ktlint.version>1.14.0</dep.plugin.ktlint.version>
+        <dep.plugin.ktlint.version>1.15.1</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.2.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.4.1</dep.postgresql.version>
         <dep.slf4j.version>1.7.32</dep.slf4j.version>
