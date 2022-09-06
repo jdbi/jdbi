@@ -92,8 +92,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/TestMoshiPlugin.*</exclude>
                             </excludes>
                         </configuration>

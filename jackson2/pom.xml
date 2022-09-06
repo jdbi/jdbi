@@ -131,8 +131,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/TestJackson2Plugin.*</exclude>
                                 <exclude>**/TestJackson2Plugin$*.*</exclude>
                             </excludes>

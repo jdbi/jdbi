@@ -104,9 +104,9 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/TestGetGeneratedKeys.class</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/TestGetGeneratedKeys.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

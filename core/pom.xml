@@ -188,15 +188,15 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/TestCollectionArguments.java</exclude>
-                                <exclude>**/TestBatchExceptionRewrite.java</exclude>
-                                <exclude>**/TestPreparedBatchGenerateKeysPostgres.java</exclude>
-                                <exclude>**/TestPreparedBatchPG.java</exclude>
-                                <exclude>**/TestScript.java</exclude>
-                                <exclude>**/ConstructorMapperPgTest.java</exclude>
-                                <exclude>**/TestArgumentBinder.java</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/TestCollectionArguments.*</exclude>
+                                <exclude>**/TestBatchExceptionRewrite.*</exclude>
+                                <exclude>**/TestPreparedBatchGenerateKeysPostgres.*</exclude>
+                                <exclude>**/TestPreparedBatchPG.*</exclude>
+                                <exclude>**/TestScript.*</exclude>
+                                <exclude>**/ConstructorMapperPgTest.*</exclude>
+                                <exclude>**/TestArgumentBinder.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

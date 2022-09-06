@@ -80,9 +80,9 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/TestGuavaMappers.java</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/TestGuavaMappers.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

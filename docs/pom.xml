@@ -354,11 +354,11 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/CallTest.class</exclude>
-                                <exclude>**/TransactionTest.class</exclude>
-                                <exclude>**/GeneratedKeysTest.class</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/CallTest.*</exclude>
+                                <exclude>**/TransactionTest.*</exclude>
+                                <exclude>**/GeneratedKeysTest.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
