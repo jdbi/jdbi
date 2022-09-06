@@ -13,7 +13,6 @@ jobs:
     - uses: actions/checkout@v3
 
     - uses: actions/setup-java@v3
-      id: build_java
       with:
         java-version: 17
         distribution: temurin
@@ -22,10 +21,16 @@ jobs:
         server-username: NEXUS_REPO_USER
         server-password: NEXUS_REPO_PASSWORD
 
-    - name: Build
+    - name: deploy code
       env:
-        JAVA_HOME: ${{ steps.build_java.outputs.path }}
         NEXUS_REPO_USER: ${{ secrets.NEXUS_REPO_USER }}
         NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
+        JDBI_MAVEN_OPTS: "-B -fae"
       run: |
-          ./src/build/gh-action-cd.sh
+          make deploy
+
+    - name: publish docs
+      env:
+        JDBI_MAVEN_OPTS: "-B -fae"
+      run: |
+          make publish-docs

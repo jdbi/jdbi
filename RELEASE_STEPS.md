@@ -36,7 +36,7 @@ Create the release artifacts in Maven, and deploy them to Sonatype staging repos
 Use the latest Java LTS version (currently 17) to build the artifacts.
 
 ```bash
-$ ./mvnw release:prepare release:perform
+$ make release
 ```
 
 Change the release version if needed, or just press Enter if the suggested version is good.
@@ -86,7 +86,7 @@ Check out the release tag from Git, and run the `publish-docs.sh` script to send
 
 ```bash
 $ git checkout v<version>
-$ ./docs/publish-docs.sh
+$ make publish-docs
 ```
 
 ## Add a release announcement to github

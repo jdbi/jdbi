@@ -14,11 +14,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - uses: actions/setup-java@v3
-      id: baseline_java
       with:
         java-version: 17
         distribution: temurin
+        cache: maven
+
     - name: docs
+      env:
+        JDBI_MAVEN_OPTS: "-Dbasepom.check.fail-javadoc=true -B -fae"
       run: |
-          ./src/build/gh-action-doc.sh
+        ./mvnw --version
+        echo $PATH
+        make docs
