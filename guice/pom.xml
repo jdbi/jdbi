@@ -120,8 +120,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/TestRobotLegsModule.*</exclude>
                                 <exclude>**/TestRobotLegsModule$*.*</exclude>
                                 <exclude>**/TestJdbiModule.*</exclude>

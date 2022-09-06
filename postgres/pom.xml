@@ -133,8 +133,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/TestBatchGeneratedKeys.*</exclude>
                                 <exclude>**/TestJsonOperator.*</exclude>
                                 <exclude>**/TestDuration.*</exclude>

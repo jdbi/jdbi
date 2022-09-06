@@ -118,9 +118,9 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/KotlinBindTest.class</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/KotlinBindTest.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

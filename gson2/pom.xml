@@ -105,8 +105,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/TestGson2Plugin.*</exclude>
                             </excludes>
                         </configuration>

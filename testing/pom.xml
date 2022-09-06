@@ -101,8 +101,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/JdbiExtensionTest.*</exclude>
                                 <exclude>**/JdbiPostgresExtensionTest.*</exclude>
                                 <exclude>**/JdbiPostgresExtendWithTest.*</exclude>
@@ -123,8 +123,8 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
+                        <configuration>
+                            <excludes combine.children="append">
                                 <exclude>**/JdbiRulePostgresTest.*</exclude>
                                 <exclude>**/JdbiRuleTest.*</exclude>
                                 <exclude>**/JdbiOtjPostgresExtendWithTest.*</exclude>
