@@ -135,7 +135,6 @@
             <artifactId>pg-embedded</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

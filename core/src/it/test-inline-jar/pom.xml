@@ -34,6 +34,7 @@
             <artifactId>jdbi3-core</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
@@ -41,12 +42,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-
+        <!-- optionals, required for tests -->
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
@@ -59,6 +55,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- all the test dependencies as the -tests jar does not provide deps -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
