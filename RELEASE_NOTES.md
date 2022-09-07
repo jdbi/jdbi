@@ -1,6 +1,7 @@
 # Unreleased
 
   - Various methods that accept SQL statements now take CharSequence in preference to String (#2047)
+  - Upgrade Postgres driver to 42.5.0
 
 # 3.32.0
 
