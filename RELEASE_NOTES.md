@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Various methods that accept SQL statements now take CharSequence in preference to String (#2047)
+
 # 3.32.0
 
   - Use Kotlin 1.7 ecosystem (compiler, plugin) but compile to Kotlin 1.5 compatibility
