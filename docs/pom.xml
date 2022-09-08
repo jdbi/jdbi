@@ -32,6 +32,7 @@
         <basepom.check.skip-license>true</basepom.check.skip-license>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.site.scm.branch>master</basepom.site.scm.branch>
+        <basepom.site.scm.id>github</basepom.site.scm.id>
         <basepom.site.scm.site-path>/</basepom.site.scm.site-path>
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
         <basepom.site.scm.url>scm:git:https://github.com/jdbi/jdbi.github.io</basepom.site.scm.url>
