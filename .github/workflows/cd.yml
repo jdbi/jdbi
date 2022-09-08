@@ -29,8 +29,23 @@ jobs:
       run: |
           make deploy
 
+  site:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+        server-id: github
+        server-password: SITE_DEPLOY
+
     - name: publish docs
       env:
+        SITE_DEPLOY: ${{ secrets.SITE_DEPLOY_TOKEN  }}
         JDBI_MAVEN_OPTS: "-B -fae"
       run: |
           make publish-docs
