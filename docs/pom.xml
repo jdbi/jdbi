@@ -34,7 +34,7 @@
         <basepom.site.scm.branch>master</basepom.site.scm.branch>
         <basepom.site.scm.site-path>/</basepom.site.scm.site-path>
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
-        <basepom.site.scm.url>scm:git:git@github.com:jdbi/jdbi.github.io.git</basepom.site.scm.url>
+        <basepom.site.scm.url>scm:git:https://github.com/jdbi/jdbi.github.io</basepom.site.scm.url>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
 
