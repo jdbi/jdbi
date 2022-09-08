@@ -532,7 +532,7 @@
                     <version>${dep.dokka.version}</version>
                     <configuration>
                         <jdkVersion>8</jdkVersion>
-                        <skip>${basepom.check.skip-javadoc}</skip>
+                        <skip>${basepom.javadoc.skip}</skip>
                     </configuration>
                 </plugin>
                 <plugin>

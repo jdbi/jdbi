@@ -32,7 +32,7 @@ install:
 install-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
 install-nodocker: install
 
-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.check.skip-javadoc=false -DskipTests=true
+docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc.skip=false -DskipTests=true
 docs:
 	${MAVEN} -pl :jdbi3-docs clean install
 
@@ -43,7 +43,7 @@ tests:
 tests-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
 tests-nodocker: tests
 
-publish-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.check.skip-javadoc=false -DskipTests=true
+publish-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc.skip=false -DskipTests=true
 publish-docs: install
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 
