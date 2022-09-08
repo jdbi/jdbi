@@ -33,7 +33,7 @@ install-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
 install-nodocker: install
 
 docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc.skip=false -DskipTests=true
-docs:
+docs: install
 	${MAVEN} -pl :jdbi3-docs clean install
 
 tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false

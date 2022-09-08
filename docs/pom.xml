@@ -271,7 +271,6 @@
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
-                                    <excludePackageNames>*.internal.*</excludePackageNames>
                                     <dependencySourceIncludes>
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
                                     </dependencySourceIncludes>

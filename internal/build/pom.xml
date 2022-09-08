@@ -518,12 +518,15 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
+                        <excludePackageNames>*.internal.*:*.internal</excludePackageNames>
                         <links>
-                            <link>http://docs.oracle.com/javase/8/docs/api/</link>
                             <link>https://google.github.io/guice/api-docs/4.0/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                         </links>
                         <nodeprecated>true</nodeprecated>
+                        <author>false</author>
+                        <detectJavaApiLink>true</detectJavaApiLink>
+                        <nohelp>true</nohelp>
                     </configuration>
                 </plugin>
                 <plugin>
