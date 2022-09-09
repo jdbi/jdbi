@@ -534,8 +534,14 @@
                     <artifactId>dokka-maven-plugin</artifactId>
                     <version>${dep.dokka.version}</version>
                     <configuration>
-                        <jdkVersion>8</jdkVersion>
+                        <jdkVersion>${project.build.targetJdk}</jdkVersion>
                         <skip>${basepom.javadoc.skip}</skip>
+                        <perPackageOptions>
+                            <packageOptions>
+                                <matchingRegex>.*\.internal</matchingRegex>
+                                <suppress>true</suppress>
+                            </packageOptions>
+                        </perPackageOptions>
                     </configuration>
                 </plugin>
                 <plugin>
