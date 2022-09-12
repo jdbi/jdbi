@@ -1409,7 +1409,8 @@ public class User {
 ----
 
 The `@ColumnName` annotation can be placed on either the getter or setter
-method.
+method. Annotations on the setter are preferred if conflicting annotations
+exist.
 
 [NOTE]
 The `@ColumnName` annotation only applies while mapping SQL data into Java
@@ -4359,7 +4360,7 @@ supports Immutables.
 
 [WARNING]
 Freebuilder support is still experimental and may not support all Freebuilder
-implemented feaatures. We do support both JavaBean style getters and setters as
+implemented features. We do support both JavaBean style getters and setters as
 well as unprefixed getters and setters.
 
 Just tell us about your Freebuilder types by installing the plugin and
