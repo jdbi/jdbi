@@ -172,7 +172,7 @@ public class BeanPropertiesFactory {
             @Override
             public <A extends Annotation> Optional<A> getAnnotation(Class<A> anno) {
                 return annoCache.computeIfAbsent(anno, x ->
-                    Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+                    Stream.of(descriptor.getWriteMethod(), descriptor.getReadMethod())
                         .filter(Objects::nonNull)
                         .map(m -> m.getAnnotation(anno))
                         .filter(Objects::nonNull)

@@ -14,33 +14,57 @@
 
 package org.jdbi.v3.core.mapper.reflect;
 
-import javax.annotation.Nullable;
-
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.SampleBean;
-import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
-import org.jdbi.v3.core.mapper.Nested;
-import org.jdbi.v3.core.mapper.PropagateNull;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
 
 public class BeanMapperTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(SOMETHING_INITIALIZER);
 
-    RowMapper<SampleBean> mapper = BeanMapper.of(SampleBean.class);
+    private Handle handle;
+
+    @BeforeEach
+    public void setUp() {
+        this.handle = h2Extension.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+    }
+
+    @Test
+    public void testColumnNameAnnotation() {
+        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
+
+        ColumnNameBean bean = handle.createQuery("select * from something")
+            .mapTo(ColumnNameBean.class)
+            .one();
+
+        // annotation on setter
+        assertThat(bean.getI()).isOne();
+        // annotation on getter
+        assertThat(bean.getS()).isEqualTo("foo");
+    }
+
+    @Test
+    public void testColumnNameMismatch() {
+        handle.registerRowMapper(BeanMapper.factory(MismatchColumnNameBean.class));
+
+        MismatchColumnNameBean bean = handle.createQuery("select * from something")
+            .mapTo(MismatchColumnNameBean.class)
+            .one();
+
+        // annotation on setter
+        assertThat(bean.getI()).isOne();
+    }
 
     public static class ColumnNameBean {
-
-        int i;
-        String s;
+        private int i;
+        private String s;
 
         @ColumnName("id")
         public int getI() {
@@ -61,297 +85,18 @@ public class BeanMapperTest {
         }
     }
 
-    @Test
-    public void testColumnNameAnnotation() {
-        Handle handle = h2Extension.getSharedHandle();
+    public static class MismatchColumnNameBean {
+        private int i;
 
-        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
-
-        handle.execute("insert into something (id, name) values (1, 'foo')");
-
-        ColumnNameBean bean = handle.createQuery("select * from something")
-            .mapTo(ColumnNameBean.class)
-            .one();
-
-        assertThat(bean.getI()).isOne();
-        assertThat(bean.getS()).isEqualTo("foo");
-    }
-
-    @Test
-    public void testNested() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
-
-        handle.execute("insert into something (id, name) values (1, 'foo')");
-
-        assertThat(handle
-            .createQuery("select id, name from something")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("nested.id", "nested.name")
-            .containsExactly(1, "foo");
-    }
-
-    @Test
-    public void testNestedStrict() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
-
-        handle.execute("insert into something (id, name) values (1, 'foo')");
-
-        assertThat(handle
-            .createQuery("select id, name from something")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("nested.id", "nested.name")
-            .containsExactly(1, "foo");
-
-        assertThatThrownBy(() -> handle
-            .createQuery("select id, name, 1 as other from something")
-            .mapTo(NestedBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [other]");
-    }
-
-    @Test
-    public void testNestedNotReturned() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
-        assertThat(handle
-            .createQuery("select 42 as testValue")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("testValue", "nested")
-            .containsExactly(42, null);
-    }
-
-    public static class NestedBean {
-
-        private Integer testValue;
-        private Something nested;
-
-        public Integer getTestValue() {
-            return testValue;
+        @ColumnName("bad_id")
+        public int getI() {
+            return i;
         }
 
-        public void setTestValue(Integer testValue) {
-            this.testValue = testValue;
-        }
-
-        @Nested
-        public Something getNested() {
-            return nested;
-        }
-
-        public void setNested(Something nested) {
-            this.nested = nested;
+        @ColumnName("id")
+        public void setI(int i) {
+            this.i = i;
         }
     }
 
-    @Test
-    public void testNestedPrefix() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
-
-        handle.execute("insert into something (id, name) values (1, 'foo')");
-
-        assertThat(handle
-            .createQuery("select id nested_id, name nested_name from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .extracting("nested.id", "nested.name")
-            .containsExactly(1, "foo");
-    }
-
-    @Test
-    public void testNestedPrefixStrict() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
-
-        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
-
-        assertThat(handle
-            .createQuery("select id nested_id, name nested_name, integerValue from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .extracting("nested.id", "nested.name", "integerValue")
-            .containsExactly(1, "foo", 5);
-
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as other from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [other]");
-
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [nested_other]");
-    }
-
-    @Test
-    public void testNestedPrefixNotReturned() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
-        assertThat(handle
-            .createQuery("select 42 as integerValue")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .extracting("integerValue", "nested")
-            .containsExactly(42, null);
-    }
-
-    public static class NestedPrefixBean {
-
-        private Integer integerValue;
-        private Something nested;
-
-        public Integer getIntegerValue() {
-            return integerValue;
-        }
-
-        public void setIntegerValue(Integer integerValue) {
-            this.integerValue = integerValue;
-        }
-
-        public Something getNested() {
-            return nested;
-        }
-
-        @Nested("nested")
-        public void setNested(Something nested) {
-            this.nested = nested;
-        }
-    }
-
-    @Test
-    public void propagateNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle
-            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
-            .select("SELECT null as testValue, 'foo' as s")
-            .mapTo(PropagateNullThing.class)
-            .one())
-            .isNull();
-    }
-
-    @Test
-    public void propagateNotNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle
-            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
-            .select("SELECT 42 as testValue, 'foo' as s")
-            .mapTo(PropagateNullThing.class)
-            .one())
-            .extracting("testValue", "s")
-            .containsExactly(42, "foo");
-    }
-
-    @Test
-    public void nestedPropagateNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle
-            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
-            .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
-            .mapTo(NestedPropagateNullThing.class)
-            .one())
-            .extracting("integerValue", "nested")
-            .containsExactly(42, null);
-    }
-
-    @Test
-    public void nestedPropagateNotNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle
-            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
-            .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
-            .mapTo(NestedPropagateNullThing.class)
-            .one())
-            .extracting("integerValue", "nested.testValue", "nested.s")
-            .containsExactly(42, 60, "foo");
-    }
-
-    @Test
-    public void classPropagateNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle.select("select 42 as \"value\", null as fk")
-            .map(BeanMapper.of(ClassPropagateNullThing.class))
-            .one())
-            .isNull();
-    }
-
-    @Test
-    public void classPropagateNotNull() {
-        Handle handle = h2Extension.getSharedHandle();
-
-        assertThat(handle.select("select 42 as \"value\", 'a' as fk")
-            .map(BeanMapper.of(ClassPropagateNullThing.class))
-            .one())
-            .extracting(cpnt -> cpnt.value)
-            .isEqualTo(42);
-    }
-
-    public static class NestedPropagateNullThing {
-
-        private Integer integerValue;
-        private PropagateNullThing nested;
-
-        public Integer getIntegerValue() {
-            return integerValue;
-        }
-
-        @Nullable
-        public void setIntegerValue(Integer integerValue) {
-            this.integerValue = integerValue;
-        }
-
-        public PropagateNullThing getNested() {
-            return nested;
-        }
-
-        @Nested
-        public void setNested(PropagateNullThing nested) {
-            this.nested = nested;
-        }
-    }
-
-    public static class PropagateNullThing {
-
-        private int testValue;
-        private String s;
-
-        public int getTestValue() {
-            return testValue;
-        }
-
-        @PropagateNull
-        public void setTestValue(int testValue) {
-            this.testValue = testValue;
-        }
-
-        public String getS() {
-            return s;
-        }
-
-        public void setS(String s) {
-            this.s = s;
-        }
-    }
 }
