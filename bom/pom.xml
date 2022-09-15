@@ -16,11 +16,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-parent</artifactId>
+        <groupId>org.jdbi.internal</groupId>
+        <artifactId>jdbi3-build-parent</artifactId>
         <version>3.32.1-SNAPSHOT</version>
+        <relativePath>../internal/build</relativePath>
     </parent>
 
+    <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-bom</artifactId>
     <packaging>pom</packaging>
 
@@ -120,6 +122,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-json</artifactId>
+                <version>${dep.jdbi3.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-kotlin</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
@@ -138,6 +146,11 @@
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgis</artifactId>
+                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
