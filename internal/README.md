@@ -14,26 +14,30 @@ The pom inheritance model is:
       |                                            .......................
       |                                            .
       v                                            v
-  jdbi3-build-parent (org.jdbi.internal:jdbi3-build-parent)
-                           |
-                           v
-   +--+--+--+----  jdbi3-parent (org.jdbi:jdbi3-parent) ---------------+
-   |  |  |  |                                                          |
-   v  v  v  v                                                          v
-  ... all other code modules ...               jdbi-internal-parent (org.jdbi.internal:jdbi-internal-parent)
+  jdbi3-build-parent (org.jdbi.internal:jdbi3-build-parent) --------------------------+
+                           |                                                          |
+                           v                                                          |
+   +--+--+--+----  jdbi3-parent (org.jdbi:jdbi3-parent) ..........................    |
+   |  |  |  |                                  |                                 .    |
+   v  v  v  v                                  v                                 v    v
+  ... other code modules ...             jdbi3-internal-parent                  jdbi3-bom
+                              (org.jdbi.internal:jdbi3-internal-parent)    (org.jdbi:jdbi3-bom)
 ```
 
 * basepom-oss sets the maven plugins up
 * jdbi3-build-parent, which consumes the jdbi3-policy jar, and defines the JDBI specific build policies
 * jdbi3-parent contains the module definitions for the main JDBI build.
+* the jdbi3-bom is referenced from the jdbi3-parent, therefore it must inherit from the jdbi3-build-parent to avoid a loop.
 
 
 This inheritance model is mapped onto the build tree like this:
 
 ``` text
-/ jdbi3-parent (org.jdbi:jdbi3-parent) -+- internal (org.jdbi.internal:jdbi-internal-parent) -+- build (org.jdbi.internal:jdbi3-build-parent)
-                                        |                                                     |
-                                        |                                                     +- policy (org.jdbi.internal:jdbi3-policy)
+/ jdbi3-parent (org.jdbi:jdbi3-parent) -+- internal (org.jdbi.internal:jdbi3-internal-parent) -+- build (org.jdbi.internal:jdbi3-build-parent)
+                                        |                                                      |
+                                        |                                                      +- policy (org.jdbi.internal:jdbi3-policy)
+                                        |
+                                        +- bom (org.jdbi.internal:jdbi3-bom)
                                         |
                                         +-
                                         +- ... all other code modules
@@ -77,4 +81,16 @@ External projects should use this in their root pom files:
     <artifactId>jdbi3-foo</artifactId>
     <version>[... current version of jdbi-foo ...]</version>
 
+    <!-- referencing jdbi code -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-bom</artifactId>
+                <version>[... current JDBI release or snapshot version ...]</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 ```
