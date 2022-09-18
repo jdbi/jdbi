@@ -40,4 +40,95 @@ public class SnakeCaseColumnNameMatcherTest {
     public void testNumbersDontMatch() {
         assertThat(snake.columnNameMatches("test_property_2", "testProperty3")).isFalse();
     }
+
+    @Test
+    public void testNameWithoutPrefix() {
+        assertThat(snake.columnNameMatches("foo_bar_baz", "fooBarBaz")).isTrue();
+    }
+
+    @Test
+    public void testNameWithSinglePrefix() {
+        assertThat(snake.columnNameMatches("foo_bar_baz", "foo.barBaz")).isTrue();
+    }
+
+    @Test
+    public void testNameWithMultiplePrefix() {
+        assertThat(snake.columnNameMatches("foo_bar_baz", "foo.bar.baz")).isTrue();
+    }
+
+    @Test
+    public void testNameDoesNotMatchWithoutPrefix() {
+        assertThat(snake.columnNameMatches("foo_bar_baz", "barBaz")).isFalse();
+    }
+
+    @Test
+    public void testIgnoreShortProperties() {
+        assertThat(snake.columnNameMatches("foo_bar_baz", "foo.bar")).isFalse();
+    }
+
+    @Test
+    public void testIgnoreShortNames() {
+        assertThat(snake.columnNameMatches("foo_bar", "foo.bar.baz")).isFalse();
+    }
+
+    @Test
+    public void testIgnorePrefixOnly() {
+        assertThat(snake.columnNameMatches("foo_bar", "foo")).isFalse();
+    }
+
+    @Test
+    public void testWithWeirdPrefix() {
+        assertThat(snake.columnNameMatches("foo_bar", "foo_.bar")).isTrue();
+    }
+
+    @Test
+    public void testPrefixSimple() {
+        assertThat(snake.columnNameStartsWith("test_property_with_cheese", "testPropertyWith")).isTrue();
+    }
+
+    @Test
+    public void testPrefixWithoutCheese() {
+        assertThat(snake.columnNameStartsWith("test_property_with_cheese", "testPropertyWithout")).isFalse();
+    }
+
+    @Test
+    public void testPrefixBeanNumbers() {
+        assertThat(snake.columnNameStartsWith("test_property_2", "testProperty")).isTrue();
+    }
+
+    @Test
+    public void testPrefixNameWithoutPrefix() {
+        assertThat(snake.columnNameStartsWith("foo_bar_baz", "fooBar")).isTrue();
+    }
+
+    @Test
+    public void testPrefixNameWithSinglePrefix() {
+        assertThat(snake.columnNameStartsWith("foo_bar_baz", "foo.bar")).isTrue();
+    }
+
+    @Test
+    public void testPrefixNameWithMultiplePrefix() {
+        assertThat(snake.columnNameStartsWith("foo_bar_baz", "foo.bar")).isTrue();
+    }
+
+    @Test
+    public void testPrefixNameDoesNotMatchWithoutPrefix() {
+        assertThat(snake.columnNameStartsWith("foo_bar_baz", "bar")).isFalse();
+    }
+
+    @Test
+    public void testPrefixIgnoreShortProperties() {
+        assertThat(snake.columnNameStartsWith("foo_bar_baz", "foo")).isTrue();
+    }
+
+    @Test
+    public void testPrefixWithWeirdPrefix() {
+        assertThat(snake.columnNameStartsWith("foo_bar", "foo_")).isTrue();
+    }
+
+    @Test
+    public void testPrefixWithNoSeparatorPrefix() {
+        assertThat(snake.columnNameStartsWith("foobar", "foo")).isTrue();
+    }
+
 }
