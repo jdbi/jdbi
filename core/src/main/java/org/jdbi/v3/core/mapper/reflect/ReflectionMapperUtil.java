@@ -101,4 +101,18 @@ public class ReflectionMapperUtil {
             columnName -> columnNameMatchers.stream().anyMatch(
                 matcher -> matcher.columnNameStartsWith(columnName, prefix)));
     }
+
+    /**
+     * Add a prefix separated with '.' to a java bean property name. If the prefix is empty, return the name itself.
+     * @param prefix The prefix to add to the property name. The empty string is ignored.
+     * @param name A property name.
+     * @return The prefixed name.
+     */
+    public static String addPropertyNamePrefix(String prefix, String name) {
+        if (prefix.isEmpty()) {
+            return name;
+        } else {
+            return prefix + "." + name;
+        }
+    }
 }

@@ -36,6 +36,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.lang.String.format;
 
+import static org.jdbi.v3.core.mapper.ColumnMapper.getDefaultColumnMapper;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -100,7 +102,7 @@ public class FieldMapper<T> implements RowMapper<T> {
 
     private FieldMapper(Class<T> type, String prefix) {
         this.type = type;
-        this.prefix = prefix.toLowerCase();
+        this.prefix = prefix;
     }
 
     @Override
@@ -137,20 +139,19 @@ public class FieldMapper<T> implements RowMapper<T> {
             for (Field field : aType.getDeclaredFields()) {
                 Nested anno = field.getAnnotation(Nested.class);
                 if (anno == null) {
-                    String paramName = prefix + paramName(field);
+                    String paramName = addPropertyNamePrefix(prefix, paramName(field));
 
                     findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(field))
                         .ifPresent(index -> {
                             QualifiedType<?> fieldType = QualifiedType.of(field.getGenericType())
                                 .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(field));
-                            @SuppressWarnings("unchecked")
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(fieldType)
-                                .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
+                                .orElse(getDefaultColumnMapper());
                             fields.add(new FieldData(field, new SingleColumnMapper<>(mapper, index + 1)));
                             unmatchedColumns.remove(columnNames.get(index));
                         });
                 } else {
-                    String nestedPrefix = prefix + anno.value().toLowerCase();
+                    String nestedPrefix = addPropertyNamePrefix(prefix, anno.value());
 
                     if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                         nestedMappers

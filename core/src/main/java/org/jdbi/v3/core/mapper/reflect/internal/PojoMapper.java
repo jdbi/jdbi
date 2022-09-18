@@ -41,6 +41,7 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -55,7 +56,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
     public PojoMapper(Type type, String prefix) {
         this.type = type;
-        this.prefix = prefix.toLowerCase();
+        this.prefix = prefix;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class PojoMapper<T> implements RowMapper<T> {
             }
 
             if (anno == null) {
-                String paramName = prefix + getName(property);
+                String paramName = addPropertyNamePrefix(prefix, getName(property));
 
                 findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(property))
                     .ifPresent(index -> {
@@ -108,7 +109,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                         unmatchedColumns.remove(columnNames.get(index));
                     });
             } else {
-                String nestedPrefix = prefix + anno.value();
+                String nestedPrefix = addPropertyNamePrefix(prefix, anno.value());
                 if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                     nestedMappers
                         .computeIfAbsent(property, d -> createNestedMapper(ctx, d, nestedPrefix))
@@ -176,7 +177,7 @@ public class PojoMapper<T> implements RowMapper<T> {
             throw new NoSuchMapperException(String.format(
                     "Couldn't find mapper for property '%s' of type '%s' from %s", property.getName(), property.getQualifiedType(), type));
         }
-        return (r, n, c) -> r.getObject(n);
+        return ColumnMapper.getDefaultColumnMapper();
     }
 
     private String getName(PojoProperty<T> property) {

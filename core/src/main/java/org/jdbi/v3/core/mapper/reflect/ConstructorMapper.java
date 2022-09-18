@@ -41,6 +41,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.lang.String.format;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findFactoryFor;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -167,7 +168,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
 
     private ConstructorMapper(InstanceFactory<T> factory, String prefix) {
         this.factory = factory;
-        this.prefix = prefix.toLowerCase();
+        this.prefix = prefix;
         this.constructorProperties = factory.getAnnotation(ConstructorProperties.class);
     }
 
@@ -213,7 +214,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
             boolean nullable = isNullable(parameter);
             Nested anno = parameter.getAnnotation(Nested.class);
             if (anno == null) {
-                final String paramName = prefix + paramName(parameters, i, constructorProperties);
+                final String paramName = addPropertyNamePrefix(prefix, paramName(parameters, i, constructorProperties));
 
                 final OptionalInt columnIndex = findColumnIndex(paramName, columnNames, columnNameMatchers,
                     () -> debugName(parameter));
@@ -235,7 +236,7 @@ public class ConstructorMapper<T> implements RowMapper<T> {
                     unmatchedParameters.add(paramName);
                 }
             } else {
-                final String nestedPrefix = prefix + anno.value();
+                final String nestedPrefix = addPropertyNamePrefix(prefix, anno.value());
 
                 final Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
                     .computeIfAbsent(parameter, p ->
