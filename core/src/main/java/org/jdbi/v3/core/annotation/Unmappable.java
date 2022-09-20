@@ -24,7 +24,7 @@ import org.jdbi.v3.meta.Beta;
  * Configure reflective bean and pojo mapping to skip a property.
  */
 @Beta
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Unmappable {
     /**

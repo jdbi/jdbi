@@ -11,6 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
+
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.Jdbi
@@ -23,6 +25,7 @@ import org.jdbi.v3.core.qualifier.Qualifier
 import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
 import org.jdbi.v3.core.statement.SqlStatement
+import org.jdbi.v3.core.statement.StatementContext
 import org.jdbi.v3.meta.Beta
 import java.util.function.Consumer
 import kotlin.reflect.KAnnotatedElement
@@ -34,6 +37,9 @@ private const val METADATA_FQ_NAME = "kotlin.Metadata"
 fun Class<*>.isKotlinClass() = this.annotations.singleOrNull { it.annotationClass.java.name == METADATA_FQ_NAME } != null
 
 internal fun KClass<*>.simpleName(): String = this.simpleName ?: this::java.javaClass.simpleName
+
+/** Convenience helper to use KClass<T> for config lookup. */
+fun <T : JdbiConfig<T>>StatementContext.getConfig(kClass: KClass<T>): T = this.getConfig(kClass.java)
 
 inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> = this.mapTo(T::class.java)
 

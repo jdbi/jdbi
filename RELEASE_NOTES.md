@@ -1,5 +1,9 @@
 # Unreleased
 
+  - make `@Unmappable` work with FieldMapper fields and KotlinMapper properties
+  - rework the mapping logic for all bean related mappers (Bean, Field, Constructor, KotlinMapper)
+  - clarify the @PropagateNull logic, ensure that it works with nested beans
+  - ensure that bean mapper annotations work with lombok value and bean classes
   - add explicit support for `byte[]` -> `BYTEA` for Postgres. (#2109)
   - Revert lexer changes #1906 due to regressions
   - add missing jdbi3-postgis and jdbi3-json (tests) to the BOM

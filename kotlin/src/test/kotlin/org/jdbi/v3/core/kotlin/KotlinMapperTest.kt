@@ -637,5 +637,12 @@ class KotlinMapperTest {
                 .one()
         )
             .isEqualTo(ConstructorWithDefaultParameter(1, "non-default"))
+
+        assertThat(
+            handle.select("select 1 as id")
+                .mapTo<ConstructorWithDefaultParameter>()
+                .one()
+        )
+            .isEqualTo(ConstructorWithDefaultParameter(1, "default"))
     }
 }

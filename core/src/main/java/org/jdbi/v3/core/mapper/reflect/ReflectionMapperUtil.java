@@ -25,9 +25,10 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**
- * Utilities for reflective mappers.
+ * Utilities for reflective mappers. This is an internal helper class that should have been package private but as the mappers are spread across the reflect and
+ * reflect.internal package, they are not. Any method in here may change at any time.
  */
-public class ReflectionMapperUtil {
+public final class ReflectionMapperUtil {
     private ReflectionMapperUtil() {
         throw new UtilityClassException();
     }
