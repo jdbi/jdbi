@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jdbi.v3.meta.Beta;
+
 /**
  * <p>
  *   An immutable sql statement string created from multiple tokens
@@ -47,9 +49,8 @@ import java.util.stream.Collectors;
  *            " WHERE cond1 = :cond1",
  *            "   AND cond2 = :cond2");
  * </pre>
- *
- * @author Markus Spann
  */
+@Beta
 public final class Sql implements CharSequence {
 
     /** The internal sql string. Cannot be null. */
