@@ -27,7 +27,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * The factory converts arguments to String by calling their {@code toString()} method
  * and treats them as sql type {@link Types#VARCHAR}.
  *
- * @author Markus Spann
  * @since 3.30.1
  */
 public class CharSequenceArgumentFactory extends AbstractArgumentFactory<CharSequence> {

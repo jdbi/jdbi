@@ -10,6 +10,7 @@
 - Thomas Risberg, for the Spring `DataAccessException` wrapping code
 - Simone Gianni, for finding and solving a nasty `setNull` bug
 - Thomas Dudziak
+- Markus Spann, lots of improvements (char sequence support, SqlScript lexer/parser, ResultIterable etc)
 
 # Jdbi 3
 - Steven Schlansker

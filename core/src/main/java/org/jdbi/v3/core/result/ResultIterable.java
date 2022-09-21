@@ -389,8 +389,6 @@ public interface ResultIterable<T> extends Iterable<T> {
      *
      * @param <T> iterable element type of delegate
      * @param <R> returned iterable element type, may be same as delegate's ({@code T})
-     *
-     * @author Markus Spann
      */
     abstract class ResultIteratorDelegate<T, R> implements ResultIterator<R> {
         private final ResultIterator<T> delegate;
