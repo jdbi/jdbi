@@ -1,7 +1,14 @@
 # Unreleased
 
+
+  - add missing jdbi3-postgis and jdbi3-json (tests) to the BOM
+  - update build tooling for Java and Kotlin
+  - internal kotlin packages are considered undocumented and no longer show up in the docs
+  - Bean mapping now prefers setter annotations over getter annotations. (#2103)
   - Various methods that accept SQL statements now take CharSequence in preference to String (#2047)
+  - Add a typesafe `Sql` class for SQL statements.
   - Upgrade Postgres driver to 42.5.0
+  - call warm() correctly for SqlStatementCustomizer (#2040)
 
 # 3.32.0
 
