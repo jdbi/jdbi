@@ -115,7 +115,6 @@ public class TestScript {
      *   Statements may contain {@code BEGIN...END} blocks containing subordinated statements (also ending in semicolons).<br>
      *   Only semicolons on the highest level (i.e. outside any block) actually signal the end of an sql statement.
      * </p>
-     * @author Markus Spann
      * @throws SQLException on failure to create the database handle
      */
     @Test
