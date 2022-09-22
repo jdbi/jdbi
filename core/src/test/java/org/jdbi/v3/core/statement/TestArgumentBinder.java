@@ -14,7 +14,11 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+import com.google.common.collect.Lists;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
@@ -23,6 +27,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -284,12 +289,74 @@ public class TestArgumentBinder {
         }
     }
 
+    @Test
+    void testNonUniformBatch() {
+        try (Handle h = pgDatabaseExtension.openHandle()) {
+            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, s) values (:i, :s)");
+
+            b.bindBean(new TestBean(1, "foo")).add()
+                .bindBean(new TestBean2(2, "bar")).add()
+                .bind("i", 3).bindByType("s", null, Integer.class).add()
+                .bind("i", 4).bind("s", "40").add()
+                .bind("i", 5).bind("s", 50).add();
+
+            assertArrayEquals(new int[]{1, 1, 1, 1, 1}, b.execute());
+
+            List<TestBean> actual = h.createQuery("SELECT * FROM binder_test ORDER BY i, s")
+                .map(ConstructorMapper.of(TestBean.class))
+                .list();
+            List<TestBean> expected = Lists.newArrayList(
+                new TestBean(1, "foo"),
+                new TestBean(2, "bar"),
+                new TestBean(3, null),
+                new TestBean(4, "40"),
+                new TestBean(5, "50"));
+            assertEquals(expected, actual);
+        }
+    }
+
     public static class TestBean {
 
         private final int i;
         private final String s;
 
         public TestBean(int i, String s) {
+            this.i = i;
+            this.s = s;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            TestBean testBean = (TestBean) o;
+            return i == testBean.i && Objects.equals(s, testBean.s);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(i, s);
+        }
+
+        public int getI() {
+            return i;
+        }
+
+        public String getS() {
+            return s;
+        }
+    }
+
+    public static class TestBean2 {
+
+        private final int i;
+        private final String s;
+
+        public TestBean2(int i, String s) {
             this.i = i;
             this.s = s;
         }

@@ -24,13 +24,16 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 
 public class PreparedBinding extends Binding {
-    public PreparedBinding(StatementContext ctx) {
+    public PreparedBinding(PreparedBatch batch, StatementContext ctx) {
         super(ctx);
+        this.batch = batch;
     }
 
+    public final PreparedBatch batch;
     public final Map<NamedArgumentFinderFactory.PrepareKey, Object> prepareKeys = new HashMap<>();
 
     public final List<Supplier<NamedArgumentFinder>> backupArgumentFinders = new ArrayList<>();
