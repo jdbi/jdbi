@@ -1,7 +1,7 @@
 ![Jdbi Logo](docs/src/adoc/images/logo.svg)
 
 [![CD from master pushes](https://github.com/jdbi/jdbi/actions/workflows/cd.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/cd.yml) |
-[![CI Build with tests](https://github.com/jdbi/jdbi/actions/workflows/ci.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/ci.yml) | [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/jdbi/jdbi.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jdbi/jdbi/context:java)
+[![CI Build with tests](https://github.com/jdbi/jdbi/actions/workflows/ci.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/ci.yml) | [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi)
 
 The Jdbi library provides convenient, idiomatic access to relational databases
 in Java.
