@@ -1,6 +1,6 @@
 # Unreleased
 
-
+  - Revert lexer changes #1906 due to regressions
   - add missing jdbi3-postgis and jdbi3-json (tests) to the BOM
   - update build tooling for Java and Kotlin
   - internal kotlin packages are considered undocumented and no longer show up in the docs
