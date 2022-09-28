@@ -39,6 +39,16 @@ public interface SqlArrayType<T> {
     Object convertArrayElement(T element);
 
     /**
+     * Returns the element class that is used to create the backing array. By default, {@link Object} is used
+     * and the backing array is an {@code Object[]} array. Can be overridden if a more specific type is needed.
+     *
+     * @return A {@link Class} instance which is used with {@link java.lang.reflect.Array#newInstance(Class, int)}.
+     */
+    default Class<?> getArrayElementClass() {
+        return Object.class;
+    }
+
+    /**
      * Create a SqlArrayType from the given type and convert function.
      *
      * @param typeName the vendor sql type to use

@@ -14,7 +14,6 @@
 package org.jdbi.v3.postgres.internal;
 
 import org.jdbi.v3.core.array.SqlArrayType;
-import org.postgresql.util.PGbytea;
 
 public final class ByteaArrayType implements SqlArrayType<byte[]> {
 
@@ -24,7 +23,12 @@ public final class ByteaArrayType implements SqlArrayType<byte[]> {
     }
 
     @Override
+    public Class<?> getArrayElementClass() {
+        return byte[].class;
+    }
+
+    @Override
     public Object convertArrayElement(byte[] element) {
-        return PGbytea.toPGString(element);
+        return element;
     }
 }
