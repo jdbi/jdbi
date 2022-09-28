@@ -25,6 +25,7 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetArgumentFactory;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetMapperFactory;
+import org.jdbi.v3.postgres.internal.ByteaArrayType;
 import org.postgresql.PGConnection;
 import org.postgresql.geometric.PGbox;
 import org.postgresql.geometric.PGcircle;
@@ -142,6 +143,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArrayType(PGpath.class, "path");
         jdbi.registerArrayType(PGpoint.class, "point");
         jdbi.registerArrayType(PGpolygon.class, "polygon");
+        jdbi.registerArrayType(new ByteaArrayType());
 
         jdbi.registerColumnMapper(new JavaTimeMapperFactory());
         jdbi.registerColumnMapper(new HStoreColumnMapper());

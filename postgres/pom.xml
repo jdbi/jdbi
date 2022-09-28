@@ -153,6 +153,7 @@
                                 <exclude>**/TestStatementsTimeout.*</exclude>
                                 <exclude>**/TestTypedEnum.*</exclude>
                                 <exclude>**/TestUuid.*</exclude>
+                                <exclude>**/TestByteaArrays.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
