@@ -30,6 +30,16 @@
     <name>jdbi3 - internal - build parent</name>
     <description>JDBI build related artifacts. Not for public consumption</description>
 
+    <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->
+    <url>https://jdbi.org/</url>
+    <scm>
+        <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
+        <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/jdbi/jdbi/</url>
+    </scm>
+
+
     <licenses>
         <license>
             <name>Apache License 2.0</name>
