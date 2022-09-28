@@ -20,12 +20,12 @@
         <artifactId>basepom-oss</artifactId>
         <version>49</version>
         <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-build-parent</artifactId>
-    <version>3.33.0</version>
+    <version>3.33.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 - internal - build parent</name>
     <description>JDBI build related artifacts. Not for public consumption</description>
@@ -43,7 +43,7 @@
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>v3.33.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 
@@ -65,7 +65,7 @@
         <dep.hsqldb.version>2.6.0</dep.hsqldb.version>
         <dep.immutables.version>2.8.8</dep.immutables.version>
         <dep.jackson2.version>2.10.5.20201202</dep.jackson2.version>
-        <dep.jdbi-policy.version>3.33.0</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>3.33.1-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.jts.version>1.19.0</dep.jts.version>
@@ -769,7 +769,7 @@
                         <configuration>
                             <rules>
                                 <!-- Ensure consistency -->
-                                <dependencyConvergence/>
+                                <dependencyConvergence />
                                 <requireProperty>
                                     <property>moduleName</property>
                                     <message>This module must set a moduleName.</message>
@@ -827,7 +827,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore/>
+                                                <ignore />
                                             </action>
                                         </pluginExecution>
                                         <pluginExecution>
@@ -840,7 +840,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore/>
+                                                <ignore />
                                             </action>
                                         </pluginExecution>
                                     </pluginExecutions>
