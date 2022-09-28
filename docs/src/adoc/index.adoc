@@ -1184,23 +1184,66 @@ This may be disabled by configuring
 
 `Freebuilder` value objects may be mapped, see the <<Freebuilder>> section for details.
 
-==== Reflection Mappers
+==== Reflection Mappers for Beans and POJOs
 
-Jdbi provides a few reflection-based mappers out of the box.
+Jdbi provides a number of reflection-based mappers out of the box which treat column
+names as attributes. The different mappers can be used to map values onto
 
-Reflective mappers treat column names as bean property names (BeanMapper),
-constructor parameter names (ConstructorMapper), or field names (FieldMapper).
+* Java Bean properties (`BeanMapper`)
+* Class fields (`FieldMapper`)
+* Constructor parameters (`ConstructorMapper`)
+
+There is also an equivalent mapper for Kotlin classes that supports constructor arguments and class properties.
 
 Reflective mappers are snake_case aware and will automatically match up these
 columns to camelCase field/argument/property names.
 
-[TIP]
-To instruct Jdbi to ignore an otherwise mappable method, annotate it as `@Unmappable`.
+===== Supported attribute annotations
+
+Reflection mappers support the following annotations. Unless otherwise noted, all annotations are supported on bean getters and setters for the `BeanMapper`, constructor parameters for the `ConstructorMapper` and bean fields for the `FieldMapper`.
+
+* `@ColumnName` allows explicit naming of the column that is mapped to
+  the specific attribute.
+* `@Nested` for nested beans. Without this annotation, any attribute is treated as mappable from a single column. This annotation creates
+  a mapper for the nested bean. There is a limitation that only one type of mapper can be nested at a time; `BeanMapper` will create
+  another `BeanMapper`, `ConstructorMapper` will create another `ConstructorMapper` etc. `@Nested` supports an optional prefix for
+  all attributes in the nested bean (`@Nested("prefix")`).
+* `@PropagateNull` on a given attribute propagates a null value for a specific attribute up. So if the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself. This annotation can also be used on the bean
+  class with a column name that must be present in the result set. When used on an attribute, no value must be set.
+* `@Nullable` for `ConstructorMapper` arguments. If no column is mapped onto a specific constructor argument, don't fail but use `null` as value. Any annotation called `Nullable` is accepted.
+* `@Unmappable` for `BeanMapper` bean properties and `FieldMapper` fields. Any attribute with this annotation will be ignored.
+
+[NOTE]
+The `@ColumnName` annotation only applies while mapping SQL data into Java
+objects. When binding object properties (e.g. with `bindBean()`), bind the
+property name (`:id`) rather than the column name (`:user_id`).
+
 
 ===== ConstructorMapper
 
-*Jdbi* provides a simple constructor mapper which uses reflection to assign
-columns to constructor parameters by name.
+link:{jdbidocs}/core/mapper/reflect/ConstructorMapper.html[ConstructorMapper^] assigns columns to constructor parameters by
+name. If the java compiler stores method parameter names in the java
+classes (using the `-parameters` flag on the compiler -- see also
+<<Compiling with Parameter Names>>), the constructor mapper will use
+these names to select columns.
+
+[source,java,indent=0]
+----
+include::{exampledir}/ResultsTest.java[tags=userConstructor]
+----
+
+Otherwise, the names can be explictly set with the `@ColumnName`
+annotation on each constructor parameter:
+
+[source,java,indent=0]
+----
+public User(@ColumnName("id") int id, @ColumnName("name") String name) {
+  this.id = id;
+  this.name = name;
+}
+----
+
+The standard Java Bean `@ConstructorProperties` annotation can also be used:
 
 [source,java,indent=0]
 ----
@@ -1211,25 +1254,12 @@ public User(int id, String name) {
 }
 ----
 
-The `@ConstructorProperties` annotations tells Jdbi the property name of each
-constructor parameter, so it can figure out which column corresponds to each
-constructor parameter.
-
 [TIP]
 Lombok's `@AllArgsConstructor` annotation generates the
 `@ConstructorProperties` annotation for you.
 
-Enabling the `-parameters` Java compiler flag removes the need for the
-`@ConstructorProperties` annotation--see <<Compiling with Parameter Names>>.
-Thus:
-
-[source,java,indent=0]
-----
-include::{exampledir}/ResultsTest.java[tags=userConstructor]
-----
-
-Register a constructor mapper for your mapped class using the `factory()`
-method:
+Register a constructor mapper for your mapped class using the `factory()` or `of()`
+methods:
 
 [source,java,indent=0]
 ----
@@ -1274,11 +1304,6 @@ public User(@ColumnName("user_id") int id, String name) {
   this.name = name;
 }
 ----
-
-[NOTE]
-The `@ColumnName` annotation only applies while mapping SQL data into Java
-objects. When binding object properties (e.g. with `bindBean()`), bind the
-property name (`:id`) rather than the column name (`:user_id`).
 
 Nested constructor-injected types can be mapped using the `@Nested` annotation:
 
@@ -1363,12 +1388,17 @@ Any `@Nullable` annotation from any package may be used.
 
 ===== BeanMapper
 
-We also provide basic support for mapping beans:
+link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^] assigns columns to bean properties. This mapper uses the standard Java Bean conventions.
 
 [source,java]
 ----
 include::{exampledir}/UserBean.java[tags=beanMapper]
 ----
+
+[NOTE]
+The standard bean convention requires that the setter returns a `void` value. The popular "builder pattern" setter
+convention of returning the bean itself does not work with the standard Java Bean convention and the setter will not be found. This is a common source of problems when using the `BeanMapper`.
+
 
 Register a bean mapper for your mapped class, using the `factory()` method:
 
@@ -1382,6 +1412,13 @@ Alternatively, call `mapToBean()` instead of registering a bean mapper:
 [source,java,indent=0]
 ----
 include::{exampledir}/ResultsTest.java[tags=mapToBean]
+----
+
+Or use `map` with an instance:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ResultsTest.java[tags=useMapper]
 ----
 
 Bean mappers can be configured with a column name prefix for each mapped
@@ -1409,13 +1446,7 @@ public class User {
 ----
 
 The `@ColumnName` annotation can be placed on either the getter or setter
-method. Annotations on the setter are preferred if conflicting annotations
-exist.
-
-[NOTE]
-The `@ColumnName` annotation only applies while mapping SQL data into Java
-objects. When binding object properties (e.g. with `bindBean()`), bind the
-property name (`:id`) rather than the column name (`:user_id`).
+method. If conflicting annotations exist, then Annotations on the setter are preferred.
 
 Nested Java Bean types can be mapped using the `@Nested` annotation:
 
@@ -1444,7 +1475,7 @@ public class Address {
 }
 ----
 <1> The `@Nested` annotation can be placed on either the getter or setter
-    method.
+    method. The setter is preferred.
 
 [source,java]
 ----
@@ -1535,11 +1566,6 @@ public class User {
 }
 ----
 
-[NOTE]
-The `@ColumnName` annotation only applies while mapping SQL data into Java
-objects. When binding object properties (e.g. with `bindBean()`), bind the
-property name (`:id`) rather than the column name (`:user_id`).
-
 Nested field-mapped types can be mapped using the `@Nested` annotation:
 
 [source,java]
@@ -1608,7 +1634,7 @@ TODO:
 * default column name matchers out of the box
 ////
 
-===== Map.Entry mapping
+==== Map.Entry mapping
 
 Out of the box, Jdbi registers a `RowMapper<Map.Entry<K,V>>`. Since each row in
 the result set is a `Map.Entry<K,V>`, the entire result set can be easily
@@ -5214,7 +5240,7 @@ jdbi.getConfig(Jackson2Config::class.java).mapper = jacksonObjectMapper()
 
 === Lombok
 
-Lombok is a great tool for cutting the boilerplate out of POJO classes.
+Lombok is a tool for auto-generation of mutable and immutable data classes through annotations.
 
 [source,java,indent=0]
 ----
@@ -5233,34 +5259,29 @@ public void ValueClass {
 }
 ----
 
-Lombok and Jdbi mostly play nice out of the box:
+Classes annotated with `@Value` are immutable, classes annotated with `@Data` behave like standard, mutable Java Beans.
 
 - Use `BeanMapper` or `@RegisterBeanMapper` to map `@Data` classes.
 - Use `ConstructorMapper` or `@RegisterConstructorMapper` to map `@Value`
   classes.
 - Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
 
-We say "mostly" because there's a wrinkle once you start annotating fields with
-Jdbi annotations like `@Nested`, `@ColumnMapper`, or type qualifying annotations
-such as `@HStore`.
-
-- BeanMapper looks for these annotations on getters, setters, or setter
-  parameters.
-- ConstructorMapper looks for them on constructor parameters.
-- Lombok doesn't move them there by default.
-
-As of Lombok version 1.18.4, Lombok can be configured to copy any annotations
-you specify to generated getter, setter, setter parameters, and constructor
-parameters.
-
-Create a file `lombok.config` in your project src tree (or edit the existing
-one), and add a line for each annotation type which should be copied, as
-in the following example:
+Lombok must be configured to propagate annotations from the source code into the generated classes. Since version 1.18.4, lombok
+supports the `lombok.copyableAnnotations` setting in its config file. To support all JDBI features, the following lines must be added:
 
 [source,java,indent=0]
 ----
-lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
 lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.ColumnName
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.PropagateNull
+lombok.copyableAnnotations += org.jdbi.v3.core.annotation.Unmappable
+lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.JdbiConstructor
+----
+
+Any additional annotation (such as the `@HStore` annotation for PostgreSQL support) can also be added:
+
+[source,java,indent=0]
+----
 lombok.copyableAnnotations += org.jdbi.v3.postgres.HStore
 ----
 

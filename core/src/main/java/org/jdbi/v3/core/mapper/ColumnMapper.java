@@ -32,6 +32,11 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 @FunctionalInterface
 public interface ColumnMapper<T> {
+
+    static <U> ColumnMapper<U> getDefaultColumnMapper() {
+        return (r, n, c) -> (U) r.getObject(n);
+    }
+
     /**
      * Map the given column of the current row of the result set to an Object. This method should not cause the result
      * set to advance; allow Jdbi to do that, please.

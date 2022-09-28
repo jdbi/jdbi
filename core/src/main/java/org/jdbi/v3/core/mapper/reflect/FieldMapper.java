@@ -21,21 +21,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.mapper.reflect.internal.PojoMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.lang.String.format;
 
+import static org.jdbi.v3.core.mapper.ColumnMapper.getDefaultColumnMapper;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
@@ -47,7 +52,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  *
  * The mapped class must have a default constructor.
  */
-public class FieldMapper<T> implements RowMapper<T> {
+public final class FieldMapper<T> implements RowMapper<T> {
     private static final String DEFAULT_PREFIX = "";
 
     /**
@@ -100,7 +105,7 @@ public class FieldMapper<T> implements RowMapper<T> {
 
     private FieldMapper(Class<T> type, String prefix) {
         this.type = type;
-        this.prefix = prefix.toLowerCase();
+        this.prefix = prefix;
     }
 
     @Override
@@ -115,7 +120,7 @@ public class FieldMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
             .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
@@ -127,7 +132,7 @@ public class FieldMapper<T> implements RowMapper<T> {
         return mapper;
     }
 
-    private Optional<RowMapper<T>> specialize0(StatementContext ctx,
+    private Optional<RowMapper<T>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
                                                List<String> unmatchedColumns) {
@@ -135,27 +140,30 @@ public class FieldMapper<T> implements RowMapper<T> {
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
-                Nested anno = field.getAnnotation(Nested.class);
-                if (anno == null) {
-                    String paramName = prefix + paramName(field);
+                Nested nested = field.getAnnotation(Nested.class);
+                if (Optional.ofNullable(field.getAnnotation(Unmappable.class)).map(Unmappable::value).orElse(false)) {
+                    continue;
+                }
+
+                if (nested == null) {
+                    String paramName = addPropertyNamePrefix(prefix, paramName(field));
 
                     findColumnIndex(paramName, columnNames, columnNameMatchers, () -> debugName(field))
                         .ifPresent(index -> {
                             QualifiedType<?> fieldType = QualifiedType.of(field.getGenericType())
                                 .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(field));
-                            @SuppressWarnings("unchecked")
                             ColumnMapper<?> mapper = ctx.findColumnMapperFor(fieldType)
-                                .orElse((ColumnMapper) (r, n, c) -> r.getObject(n));
+                                .orElse(getDefaultColumnMapper());
                             fields.add(new FieldData(field, new SingleColumnMapper<>(mapper, index + 1)));
                             unmatchedColumns.remove(columnNames.get(index));
                         });
                 } else {
-                    String nestedPrefix = prefix + anno.value().toLowerCase();
+                    String nestedPrefix = addPropertyNamePrefix(prefix, nested.value());
 
                     if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                         nestedMappers
                             .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                            .specialize0(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
                             .ifPresent(mapper ->
                                 fields.add(new FieldData(field, mapper)));
                     }
@@ -169,66 +177,113 @@ public class FieldMapper<T> implements RowMapper<T> {
 
         fields.sort(Comparator.comparing(f -> f.propagateNull ? 1 : 0));
 
-        final Optional<String> nullMarkerColumn =
-                Optional.ofNullable(type.getAnnotation(PropagateNull.class))
-                    .map(PropagateNull::value);
-        return Optional.of((r, c) -> {
-            if (PojoMapper.propagateNull(r, nullMarkerColumn)) {
-                return null;
-            }
-            T obj = construct();
+        RowMapper<T> boundMapper = new BoundFieldMapper(fields);
+        OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
-            for (FieldData f : fields) {
-                Object value = f.mapper.map(r, ctx);
-                if (f.propagateNull && (value == null || (f.isPrimitive && r.wasNull()))) {
-                    return null;
-                }
-                writeField(obj, f.field, value);
-            }
+        if (propagateNullColumnIndex.isPresent()) {
+            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper));
+        } else {
+            return Optional.of(boundMapper);
+        }
+    }
 
-            return obj;
-        });
+    private OptionalInt locatePropagateNullColumnIndex(List<String> columnNames, List<ColumnNameMatcher> columnNameMatchers) {
+        Optional<String> propagateNullColumn =
+            Optional.ofNullable(type.getAnnotation(PropagateNull.class))
+                .map(PropagateNull::value)
+                .map(name -> addPropertyNamePrefix(prefix, name));
+
+        if (!propagateNullColumn.isPresent()) {
+            return OptionalInt.empty();
+        }
+
+        return findColumnIndex(propagateNullColumn.get(), columnNames, columnNameMatchers, propagateNullColumn::get);
     }
 
     private static String paramName(Field field) {
         return Optional.ofNullable(field.getAnnotation(ColumnName.class))
-                .map(ColumnName::value)
-                .orElseGet(field::getName);
+            .map(ColumnName::value)
+            .orElseGet(field::getName);
     }
 
     private String debugName(Field field) {
         return format("%s.%s", type.getSimpleName(), field.getName());
     }
 
-    private T construct() {
-        try {
-            return type.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
-        }
-    }
+    public static boolean checkPropagateNullAnnotation(Field field) {
+        final Optional<String> propagateNullValue = Optional.ofNullable(field.getAnnotation(PropagateNull.class)).map(PropagateNull::value);
+        propagateNullValue.ifPresent(v -> {
+            if (!v.isEmpty()) {
+                throw new IllegalArgumentException(format("@PropagateNull does not support a value (%s) on a field (%s)", v, field.getName()));
+            }
+        });
 
-    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
-    private void writeField(T obj, Field field, Object value) {
-        try {
-            field.setAccessible(true);
-            field.set(obj, value);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(format("Unable to access property, %s", field.getName()), e);
-        }
+        return propagateNullValue.isPresent();
     }
 
     private static class FieldData {
+
         FieldData(Field field, RowMapper<?> mapper) {
             this.field = field;
             this.mapper = mapper;
-            propagateNull = field.getAnnotation(PropagateNull.class) != null;
+            propagateNull = checkPropagateNullAnnotation(field);
             isPrimitive = field.getType().isPrimitive();
         }
+
         final Field field;
         final RowMapper<?> mapper;
         final boolean propagateNull;
         final boolean isPrimitive;
+    }
+
+    class BoundFieldMapper implements RowMapper<T> {
+
+        private final List<FieldData> fields;
+
+        BoundFieldMapper(List<FieldData> fields) {
+            this.fields = fields;
+        }
+
+        @Override
+        public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+            T obj = construct();
+
+            for (FieldData f : fields) {
+                Object value = f.mapper.map(rs, ctx);
+                if (f.propagateNull && (value == null || (f.isPrimitive && rs.wasNull()))) {
+                    return null;
+                }
+                writeField(obj, f.field, value);
+            }
+
+            return obj;
+        }
+
+        private T construct() {
+            try {
+                return type.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
+            }
+        }
+
+        @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+        private void writeField(T obj, Field field, Object value) {
+            try {
+                field.setAccessible(true);
+                field.set(obj, value);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(format("Unable to access property, %s", field.getName()), e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", BoundFieldMapper.class.getSimpleName() + "[", "]")
+                .add("type=" + type.getSimpleName())
+                .add("prefix=" + prefix)
+                .toString();
+        }
     }
 }
 

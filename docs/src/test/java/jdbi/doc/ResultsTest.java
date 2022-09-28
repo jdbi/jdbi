@@ -208,6 +208,18 @@ public class ResultsTest {
     }
 
     @Test
+    public void useMapper() {
+        // tag::useMapper[]
+        List<UserBean> users = handle
+            .createQuery("select id, \"name\" from \"user\"")
+            .map(BeanMapper.of(UserBean.class))
+            .list();
+        // end::useMapper[]
+
+        assertThat(users).extracting("name").contains("Alice", "Bob", "Charlie", "Data");
+    }
+
+    @Test
     public void beanMapperPrefix() {
         handle.execute("create table contacts (id int, \"name\" text)");
         handle.execute("create table phones (id int, contact_id int, \"name\" text, \"number\" text)");

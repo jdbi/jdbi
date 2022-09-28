@@ -62,6 +62,7 @@
         <dep.jts.version>1.19.0</dep.jts.version>
         <dep.junit5.version>5.8.2</dep.junit5.version>
         <dep.kotlin.version>1.5.32</dep.kotlin.version>
+        <dep.lombok.version>1.18.24</dep.lombok.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.2</dep.plugin.asciidoctor.version>
@@ -270,6 +271,12 @@
                 <groupId>org.tukaani</groupId>
                 <artifactId>xz</artifactId>
                 <version>1.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${dep.lombok.version}</version>
             </dependency>
 
             <dependency>

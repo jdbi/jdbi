@@ -25,9 +25,10 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 /**
- * Utilities for reflective mappers.
+ * Utilities for reflective mappers. This is an internal helper class that should have been package private but as the mappers are spread across the reflect and
+ * reflect.internal package, they are not. Any method in here may change at any time.
  */
-public class ReflectionMapperUtil {
+public final class ReflectionMapperUtil {
     private ReflectionMapperUtil() {
         throw new UtilityClassException();
     }
@@ -100,5 +101,19 @@ public class ReflectionMapperUtil {
         return columnNames.stream().anyMatch(
             columnName -> columnNameMatchers.stream().anyMatch(
                 matcher -> matcher.columnNameStartsWith(columnName, prefix)));
+    }
+
+    /**
+     * Add a prefix separated with '.' to a java bean property name. If the prefix is empty, return the name itself.
+     * @param prefix The prefix to add to the property name. The empty string is ignored.
+     * @param name A property name.
+     * @return The prefixed name.
+     */
+    public static String addPropertyNamePrefix(String prefix, String name) {
+        if (prefix.isEmpty()) {
+            return name;
+        } else {
+            return prefix + "." + name;
+        }
     }
 }

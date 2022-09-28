@@ -32,7 +32,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * The mapped class must have a default constructor.
  */
-public class BeanMapper<T> extends PojoMapper<T> {
+public final class BeanMapper<T> extends PojoMapper<T> {
     static final String DEFAULT_PREFIX = "";
     /**
      * Returns a mapper factory that maps to the given bean class

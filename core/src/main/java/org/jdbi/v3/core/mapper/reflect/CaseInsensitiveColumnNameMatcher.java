@@ -18,15 +18,47 @@ package org.jdbi.v3.core.mapper.reflect;
  * <p>
  * Example: column names {@code firstname} or {@code FIRSTNAME} would match java name {@code firstName}.
  */
-public class CaseInsensitiveColumnNameMatcher implements ColumnNameMatcher {
+public final class CaseInsensitiveColumnNameMatcher implements ColumnNameMatcher {
     @Override
-    public boolean columnNameMatches(String columnName, String javaName) {
-        return columnName.equalsIgnoreCase(javaName);
+    public boolean columnNameMatches(String columnName, String propertyName) {
+        return doMatch(columnName, propertyName, false);
     }
 
     @Override
     public boolean columnNameStartsWith(String columnName, String prefix) {
-        return columnName.regionMatches(true, 0, prefix, 0, prefix.length());
+        return doMatch(columnName, prefix, true);
+    }
+
+    private boolean doMatch(String columnName, String propertyName, boolean columnNameMayTrailCharacters) {
+        int cPos = 0;
+        int pPos = 0;
+
+        for (;;) {
+            boolean cEnded = cPos >= columnName.length();
+            boolean pEnded = pPos >= propertyName.length();
+
+            if (cEnded || pEnded) {
+                // javaname must have ended. (prefix match give only prefix)
+                // column name must end for full match but may trail characters for
+                // prefix matches.
+                return pEnded && (cEnded || columnNameMayTrailCharacters);
+            }
+
+            char pChar = propertyName.charAt(pPos);
+            char cChar = columnName.charAt(cPos);
+
+            // skip all prefix separators. This is a pure "column name to java bean name" match where
+            // all prefixes etc. are resolved down to a single bean property name.
+            if (pChar == '.') {
+                pPos++;
+            } else {
+                if (Character.toLowerCase(cChar) != Character.toLowerCase(pChar)) {
+                    return false;
+                }
+                pPos++;
+                cPos++;
+            }
+        }
     }
 
     @Override

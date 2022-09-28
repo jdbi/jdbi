@@ -14,27 +14,19 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 /**
- * Matches snake case column names to java camel case names, ignoring case.
+ * Matches snake case column names to java camel case names, ignoring case. This matcher is prefix aware and will
+ * try multiple strategies to match a case name to a java name. Java names can be prefixed and separated with "."
  * <p>
- * Example: column names {@code first_name} or {@code FIRST_NAME} would match java name {@code firstName}.
+ * <tt>foo_bar_baz</tt> can be mapped to <tt>fooBarBaz, foo.barBaz or foo.bar.baz</tt>
+ *
  */
-public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
-    @Override
-    public boolean columnNameMatches(String columnName, String javaName) {
-        return removeUnderscores(columnName).equalsIgnoreCase(removeUnderscores(javaName));
+public class SnakeCaseColumnNameMatcher extends AbstractSeparatorCharColumnNameMatcher {
+
+    public SnakeCaseColumnNameMatcher() {
+        super('_');
     }
 
-    @Override
-    public boolean columnNameStartsWith(String columnName, String prefix) {
-        String normalizedPrefix = removeUnderscores(prefix);
-        return removeUnderscores(columnName).regionMatches(true, 0, normalizedPrefix, 0, normalizedPrefix.length());
-    }
-
-    private String removeUnderscores(String string) {
-        return string.replace("_", "");
-    }
-
-    @Override
+   @Override
     public String toString() {
         return getClass().getSimpleName();
     }

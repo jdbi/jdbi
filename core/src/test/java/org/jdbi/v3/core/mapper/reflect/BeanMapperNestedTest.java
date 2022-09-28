@@ -25,6 +25,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanMapperNestedTest {
 
@@ -38,6 +40,8 @@ public class BeanMapperNestedTest {
         this.handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
         handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
+        handle.registerRowMapper(BeanMapper.factory(StrangePrefixBean.class));
+
         handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
     }
 
@@ -169,6 +173,71 @@ public class BeanMapperNestedTest {
         @Nested("nested")
         public void setNested(Something nested) {
             this.nested = nested;
+        }
+    }
+
+    @Test
+    void testStrangePrefixes() {
+        StrangePrefixBean bean = handle
+            .createQuery("SELECT 'hello' AS \"a_bx\", 'world' AS \"ab_x\"")
+            .mapTo(StrangePrefixBean.class)
+            .one();
+
+        assertNotNull(bean);
+        assertNotNull(bean.getFirstBean());
+        assertNotNull(bean.getSecondBean());
+
+        assertEquals("hello", bean.getFirstBean().getValue());
+        assertEquals("world", bean.getSecondBean().getValue());
+    }
+
+    public static class StrangePrefixBean {
+
+        private FirstBean firstBean;
+        private SecondBean secondBean;
+
+        public FirstBean getFirstBean() {
+            return firstBean;
+        }
+
+        @Nested("a")
+        public void setFirstBean(FirstBean firstBean) {
+            this.firstBean = firstBean;
+        }
+
+        public SecondBean getSecondBean() {
+            return secondBean;
+        }
+
+        @Nested("ab")
+        public void setSecondBean(SecondBean secondBean) {
+            this.secondBean = secondBean;
+        }
+    }
+
+    public static class FirstBean {
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        @ColumnName("bx")
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    public static class SecondBean {
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        @ColumnName("x")
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }
