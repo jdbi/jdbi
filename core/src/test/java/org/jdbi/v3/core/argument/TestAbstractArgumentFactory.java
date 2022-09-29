@@ -17,9 +17,12 @@ import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -139,5 +142,122 @@ public class TestAbstractArgumentFactory {
 
         argument.apply(2, statement, ctx);
         verify(statement).setNull(2, Types.VARCHAR);
+    }
+
+    static class StringBox extends Box<String> {
+
+        StringBox(String value) {
+            super(value);
+        }
+    }
+
+    static class IntegerBox extends Box<Integer> {
+
+        IntegerBox(Integer value) {
+            super(value);
+        }
+    }
+
+    @Test
+    public void testConcreteClassMatches() {
+        ArgumentFactory.Preparable preparable = new BoxOfStringArgumentFactory();
+        Optional<Function<Object, Argument>> argument = preparable.prepare(StringBox.class, new ConfigRegistry());
+        assertThat(argument).isPresent();
+
+        argument = preparable.prepare(IntegerBox.class, new ConfigRegistry());
+        assertThat(argument).isNotPresent();
+    }
+
+    @Test
+    public void testGenericClassMatches() {
+        ConfigRegistry registry = new ConfigRegistry();
+        Arguments arguments = new Arguments(registry);
+        arguments.register(new BoxOfStringArgumentFactory());
+        Box<String> genericBoxString = new Box<>("foo");
+        StringBox stringBox = new StringBox("bar");
+
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Box<String>>() {}), genericBoxString)).isPresent();
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Box<String>>() {}), stringBox)).isPresent();
+        assertThat(arguments.findFor(StringBox.class, stringBox)).isPresent();
+    }
+
+    @Test
+    public void testGenericClassNonMatches() {
+        ConfigRegistry registry = new ConfigRegistry();
+        Arguments arguments = new Arguments(registry);
+        arguments.register(new BoxOfStringArgumentFactory());
+        Box<Integer> genericBoxInteger = new Box<>(10);
+        IntegerBox integerBox = new IntegerBox(20);
+
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Box<Integer>>() {}), genericBoxInteger)).isNotPresent();
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Box<Integer>>() {}), integerBox)).isNotPresent();
+        assertThat(arguments.findFor(IntegerBox.class, integerBox)).isNotPresent();
+    }
+
+    interface Thing<T> {
+
+        T getKey();
+    }
+
+    static class StringThing implements Thing<String> {
+
+        private final String key;
+
+        StringThing(final String key) {
+            this.key = key;
+        }
+
+        @Override
+        public String getKey() {
+            return this.key;
+        }
+    }
+
+    static class IntegerThing implements Thing<Integer> {
+
+        private final Integer key;
+
+        IntegerThing(final Integer key) {
+            this.key = key;
+        }
+
+        @Override
+        public Integer getKey() {
+            return this.key;
+        }
+    }
+
+    public static class StringThingArgumentFactory extends AbstractArgumentFactory<Thing<String>> {
+
+        protected StringThingArgumentFactory() {
+            super(Types.VARCHAR);
+        }
+
+        @Override
+        protected Argument build(final Thing<String> value, final ConfigRegistry config) {
+            return ((position, statement, ctx1) -> statement.setString(position, value.getKey()));
+        }
+    }
+
+    @Test
+    public void testGenericInterfaceMatches() {
+        ConfigRegistry registry = new ConfigRegistry();
+        Arguments arguments = new Arguments(registry);
+        arguments.register(new StringThingArgumentFactory());
+        StringThing stringThing = new StringThing("bar");
+
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Thing<String>>() {}), stringThing)).isPresent();
+        assertThat(arguments.findFor(StringThing.class, stringThing)).isPresent();
+    }
+
+    @Test
+    public void testGenericInterfaceNonMatches() {
+        ConfigRegistry registry = new ConfigRegistry();
+        Arguments arguments = new Arguments(registry);
+        arguments.register(new StringThingArgumentFactory());
+        IntegerThing integerThing = new IntegerThing(20);
+
+        assertThat(arguments.findFor(QualifiedType.of(new GenericType<Thing<Integer>>() {}), integerThing)).isNotPresent();
+        assertThat(arguments.findFor(IntegerThing.class, integerThing)).isNotPresent();
     }
 }
