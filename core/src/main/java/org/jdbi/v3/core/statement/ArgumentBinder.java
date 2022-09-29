@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,14 +33,11 @@ import java.util.stream.IntStream;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.inferred.freebuilder.shaded.com.google.common.base.Functions;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.TypedValue;
-import org.jdbi.v3.core.internal.exceptions.CheckedConsumer;
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.internal.PreparedBinding;
@@ -50,23 +48,20 @@ class ArgumentBinder {
     final PreparedStatement stmt;
     final StatementContext ctx;
     final ParsedParameters params;
-    final Map<String, Integer> paramToIndex;
     final Map<QualifiedType<?>, Function<Object, Argument>> argumentFactoryByType = new HashMap<>();
+    /**
+     * Used to tell null from absent value in Map.getOrDefault().
+     */
+    private static final Object ABSENT = new Object();
+    private final List<Consumer<Binding>> cachedBinders = new ArrayList<>();
 
     ArgumentBinder(PreparedStatement stmt, StatementContext ctx, ParsedParameters params) {
         this.stmt = stmt;
         this.ctx = ctx;
         this.params = params;
-
-        List<String> paramNames = params.getParameterNames();
-        this.paramToIndex = params.isPositional()
-            ? Collections.emptyMap()
-            : IntStream.range(0, paramNames.size())
-                .boxed()
-                .collect(Collectors.toMap(paramNames::get, i -> i));
     }
 
-    void bind(Binding binding) {
+    final void bind(Binding binding) {
         if (params.isPositional()) {
             bindPositional(binding);
         } else {
@@ -74,45 +69,37 @@ class ArgumentBinder {
         }
     }
 
-    private static final class ParamId {
-        private final Object value;
+    private static final class Param {
+        final String name;
+        final int index;
 
-        private ParamId(Object value) {
-            this.value = value;
-        }
-
-        public static ParamId of(String value) {
-            return new ParamId(value);
-        }
-
-        public static ParamId of(int value) {
-            return new ParamId(value);
-        }
-
-        public Optional<String> getName() {
-            return value.getClass() == String.class ? Optional.of((String) value) : Optional.empty();
-        }
-
-        public Optional<Integer> getIndex() {
-            return value.getClass() == Integer.class ? Optional.of((Integer) value) : Optional.empty();
+        public Param(String name, int index) {
+            this.name = name;
+            this.index = index;
         }
     }
 
-    private void applyArgument(Argument arg, ParamId paramId) {
-        int index = paramId.getName().map(paramToIndex::get).orElseGet(() -> paramId.getIndex().get());
+    protected final void applyArgument(Argument arg, Param param) {
         try {
-            arg.apply(index + 1, stmt, ctx);
+            arg.apply(param.index + 1, stmt, ctx);
         } catch (SQLException e) {
-            String msg = paramId.getName().map(v -> format("Exception while binding named parameter '%s'", v))
-                .orElseGet(() -> "Exception while binding positional param at (0 based) position " + index);
+            String msg = params.isPositional()
+                ? "Exception while binding positional param at (0 based) position " + param.index
+                : format("Exception while binding named parameter '%s'", param.name);
             throw new UnableToCreateStatementException(msg, e, ctx);
         }
     }
 
-    private void bind(ParamId paramId, Object value) {
-        Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
-        Argument arg = binder.apply(unwrap(value));
-        applyArgument(arg, paramId);
+    private void bind(Param param, Object value, Binding binding) {
+        QualifiedType<?> valueType = typeOf(value);
+        Function<Object, Argument> argFactory = argumentFactoryForType(valueType);
+        bindAndCache(b -> {
+            Object v = params.isPositional()
+                ? b.positionals.get(param.index)
+                : b.named.get(param.name);
+            Argument arg = argFactory.apply(unwrap(v));
+            applyArgument(arg, param);
+        }, binding);
     }
 
     private void bindPositional(Binding binding) {
@@ -120,64 +107,67 @@ class ArgumentBinder {
         if (moreArgumentsProvidedThanDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
             throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), ctx);
         }
-        for (Map.Entry<Integer, Object> positional: binding.positionals.entrySet()) {
-            bind(ParamId.of(positional.getKey()), Optional.of(positional.getKey()));
+        for (int index = 0; index < params.getParameterCount(); index++) {
+            Object value = binding.positionals.get(index);
+            bind(new Param("?", index), value, binding);
+        }
+    }
+
+    protected boolean useCache() {
+        return false;
+    }
+
+    protected void bindAndCache(Consumer<Binding> binder, Binding binding) {
+        binder.accept(binding);
+        if (useCache()) {
+            cachedBinders.add(binder);
         }
     }
 
     private void bindNamed(Binding binding) {
         bindNamedCheck(binding);
 
-        PreparedBinding prepBinding = binding instanceof PreparedBinding ? (PreparedBinding) binding : null;
-
-        for (Map.Entry<String, Object> named: binding.named.entrySet()) {
-            bind(ParamId.of(named.getKey()), named.getValue());
+        if (!cachedBinders.isEmpty()) {
+            for (Consumer<Binding> binder: cachedBinders) {
+                binder.accept(binding);
+            }
+            return;
         }
 
-        if (binding.named.size() < params.getParameterNames().size()) {
-            outer:
-            for (String paramName: params.getParameterNames()) {
-                if (binding.named.containsKey(paramName)) {
-                    continue;
-                }
-                List<Supplier<NamedArgumentFinder>> backupNafs = Collections.emptyList();
-                if (prepBinding != null) {
-                    for (Map.Entry<NamedArgumentFinderFactory.PrepareKey, Object> pkAndValue: prepBinding.prepareKeys.entrySet()) {
-                        Function<Object, Argument> prep = prepBinding.batch.preparedFinders.get(pkAndValue.getKey())
-                            .apply(paramName)
-                            .orElse(null);
-                        if (prep == null) {
-                            backupNafs = prepBinding.backupArgumentFinders;
-                        } else {
-                            Argument arg = prep.apply(pkAndValue.getValue());
-                            applyArgument(arg, ParamId.of(paramName));
-                            continue outer;
-                        }
-                    }
-                }
-                if (bindArgFinders(binding.namedArgumentFinder, v -> v, paramName) ||
-                    bindArgFinders(backupNafs, Supplier::get, paramName))
-                {
-                    continue;
-                }
-                throw missingNamedParameter(paramName, binding);
+        List<String> paramNames = params.getParameterNames();
+        for (int paramIndex = 0; paramIndex < paramNames.size(); paramIndex++) {
+            Param param = new Param(paramNames.get(paramIndex), paramIndex);
+            Object namedValue = binding.named.getOrDefault(param.name, ABSENT);
+            if (namedValue != ABSENT) {
+                bind(param, namedValue, binding);
+                continue;
             }
+
+            if (bindArgFinders(binding, param)) {
+                continue;
+            }
+
+            throw missingNamedParameter(param.name, binding);
         }
     }
 
-    private <T> boolean bindArgFinders(
+    protected <T> boolean bindArgFinders(
         List<T> nafs,
         Function<T, NamedArgumentFinder> getter,
-        String paramName)
+        Param param)
     {
         for (T naf : nafs) {
-            Optional<Argument> found = getter.apply(naf).find(paramName, ctx);
+            Optional<Argument> found = getter.apply(naf).find(param.name, ctx);
             if (found.isPresent()) {
-                applyArgument(found.get(), ParamId.of(paramName));
+                bindAndCache(__ -> applyArgument(found.get(), param), null);
                 return true;
             }
         }
         return false;
+    }
+
+    protected boolean bindArgFinders(Binding binding, Param param) {
+        return bindArgFinders(binding.namedArgumentFinder, v -> v, param);
     }
 
     private void bindNamedCheck(Binding binding) {
@@ -193,7 +183,7 @@ class ArgumentBinder {
     }
 
     @NonNull
-    QualifiedType<?> typeOf(@Nullable Object value) {
+    private QualifiedType<?> typeOf(@Nullable Object value) {
         return value instanceof TypedValue
                 ? ((TypedValue) value).getType()
                 : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
@@ -209,7 +199,7 @@ class ArgumentBinder {
                 .apply(unwrap(found));
     }
 
-    Function<Object, Argument> argumentFactoryForType(QualifiedType<?> type) {
+    private Function<Object, Argument> argumentFactoryForType(QualifiedType<?> type) {
         return argumentFactoryByType.computeIfAbsent(type, qt -> {
             Arguments args = ctx.getConfig(Arguments.class);
             Function<Object, Argument> factory =
@@ -220,22 +210,8 @@ class ArgumentBinder {
         });
     }
 
-    UnableToCreateStatementException missingNamedParameter(String name, Binding binding) {
+    protected final UnableToCreateStatementException missingNamedParameter(String name, Binding binding) {
         return new UnableToCreateStatementException(format("Missing named parameter '%s' in binding:%s", name, binding), ctx);
-    }
-
-    <T> Consumer<T> wrapCheckedConsumer(final String paramName, CheckedConsumer<T> consumer) {
-        return t -> {
-            try {
-                consumer.accept(t);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(
-                        format("Exception while binding named parameter '%s'", paramName),
-                        e, ctx);
-            } catch (Exception e) {
-                throw Sneaky.throwAnyway(e);
-            }
-        };
     }
 
     private UnableToCreateStatementException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
@@ -254,5 +230,50 @@ class ArgumentBinder {
     @CheckForNull
     static Object unwrap(@Nullable Object maybeTypedValue) {
         return maybeTypedValue instanceof TypedValue ? ((TypedValue) maybeTypedValue).getValue() : maybeTypedValue;
+    }
+
+    static class Prepared extends ArgumentBinder {
+        private final PreparedBatch batch;
+        private final boolean useCache;
+
+        public Prepared(
+            PreparedBatch batch,
+            PreparedStatement stmt,
+            StatementContext ctx,
+            ParsedParameters params)
+        {
+            super(stmt, ctx, params);
+            this.batch = batch;
+            useCache = batch.size() > 1;
+        }
+
+        @Override
+        protected boolean useCache() {
+            return useCache;
+        }
+
+        @Override
+        protected boolean bindArgFinders(Binding binding, Param param) {
+            PreparedBinding prepBinding = (PreparedBinding) binding;
+            List<Supplier<NamedArgumentFinder>> backupNafs = Collections.emptyList();
+            for (NamedArgumentFinderFactory.PrepareKey pk: prepBinding.prepareKeys.keySet()) {
+                Function<Object, Argument> prep = batch.preparedFinders.get(pk)
+                    .apply(param.name)
+                    .orElse(null);
+                if (prep == null) {
+                    backupNafs = prepBinding.backupArgumentFinders;
+                } else {
+                    bindAndCache(b -> {
+                        PreparedBinding prepB = (PreparedBinding) b;
+                        Argument arg = prep.apply(prepB.prepareKeys.get(pk));
+                        applyArgument(arg, param);
+                    }, binding);
+
+                    return true;
+                }
+            }
+            return bindArgFinders(binding.namedArgumentFinder, v -> v, param) ||
+                bindArgFinders(backupNafs, Supplier::get, param);
+        }
     }
 }

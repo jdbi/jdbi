@@ -28,12 +28,10 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 
 public class PreparedBinding extends Binding {
-    public PreparedBinding(PreparedBatch batch, StatementContext ctx) {
+    public PreparedBinding(StatementContext ctx) {
         super(ctx);
-        this.batch = batch;
     }
 
-    public final PreparedBatch batch;
     public final Map<NamedArgumentFinderFactory.PrepareKey, Object> prepareKeys = new HashMap<>();
 
     public final List<Supplier<NamedArgumentFinder>> backupArgumentFinders = new ArrayList<>();

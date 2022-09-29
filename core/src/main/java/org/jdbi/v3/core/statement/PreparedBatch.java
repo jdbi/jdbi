@@ -66,7 +66,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
     public PreparedBatch(Handle handle, CharSequence sql) {
         super(handle, sql);
-        getContext().setBinding(new PreparedBinding(this, getContext()));
+        getContext().setBinding(new PreparedBinding(getContext()));
     }
 
     /**
@@ -246,7 +246,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeBinding();
 
             try {
-                ArgumentBinder binder = new ArgumentBinder(stmt, ctx, parsedParameters);
+                ArgumentBinder binder = new ArgumentBinder.Prepared(this, stmt, ctx, parsedParameters);
                 for (Binding binding : bindings) {
                     ctx.setBinding(binding);
                     binder.bind(binding);
@@ -263,7 +263,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
                 afterExecution();
 
-                ctx.setBinding(new PreparedBinding(this, ctx));
+                ctx.setBinding(new PreparedBinding(ctx));
 
                 return new ExecutedBatch(stmt, modifiedRows);
             } catch (SQLException e) {
@@ -285,7 +285,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                     + "- call add() *after* setting batch parameters");
         }
         bindings.add(currentBinding);
-        getContext().setBinding(new PreparedBinding(this, getContext()));
+        getContext().setBinding(new PreparedBinding(getContext()));
         return this;
     }
 
