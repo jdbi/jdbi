@@ -27,8 +27,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -53,21 +51,6 @@ class ArgumentBinder {
      * Used to tell null from absent value in Map.getOrDefault().
      */
     private static final Object ABSENT = new Object();
-    private final List<Consumer<Binding>> cachedBinders = new ArrayList<>();
-
-    ArgumentBinder(PreparedStatement stmt, StatementContext ctx, ParsedParameters params) {
-        this.stmt = stmt;
-        this.ctx = ctx;
-        this.params = params;
-    }
-
-    final void bind(Binding binding) {
-        if (params.isPositional()) {
-            bindPositional(binding);
-        } else {
-            bindNamed(binding);
-        }
-    }
 
     private static final class Param {
         final String name;
@@ -77,6 +60,38 @@ class ArgumentBinder {
             this.name = name;
             this.index = index;
         }
+    }
+
+    ArgumentBinder(PreparedStatement stmt, StatementContext ctx, ParsedParameters params) {
+        this.stmt = stmt;
+        this.ctx = ctx;
+        this.params = params;
+    }
+
+    void bind(Binding binding) {
+        if (params.isPositional()) {
+            bindPositionalCheck(binding);
+        } else {
+            bindNamedCheck(binding);
+        }
+
+        if (bindCached(binding)) {
+            return;
+        }
+
+        if (params.isPositional()) {
+            bindPositional(binding);
+        } else {
+            bindNamed(binding);
+        }
+    }
+
+    protected boolean bindCached(Binding binding) {
+        return false;
+    }
+
+    protected void bindAndMaybeCache(Consumer<Binding> binder, Binding binding) {
+        binder.accept(binding);
     }
 
     protected final void applyArgument(Argument arg, Param param) {
@@ -93,7 +108,7 @@ class ArgumentBinder {
     private void bind(Param param, Object value, Binding binding) {
         QualifiedType<?> valueType = typeOf(value);
         Function<Object, Argument> argFactory = argumentFactoryForType(valueType);
-        bindAndCache(b -> {
+        bindAndMaybeCache(b -> {
             Object v = params.isPositional()
                 ? b.positionals.get(param.index)
                 : b.named.get(param.name);
@@ -103,37 +118,20 @@ class ArgumentBinder {
     }
 
     private void bindPositional(Binding binding) {
-        boolean moreArgumentsProvidedThanDeclared = binding.positionals.size() != params.getParameterCount();
-        if (moreArgumentsProvidedThanDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
-            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), ctx);
-        }
         for (int index = 0; index < params.getParameterCount(); index++) {
             Object value = binding.positionals.get(index);
             bind(new Param("?", index), value, binding);
         }
     }
 
-    protected boolean useCache() {
-        return false;
-    }
-
-    protected void bindAndCache(Consumer<Binding> binder, Binding binding) {
-        binder.accept(binding);
-        if (useCache()) {
-            cachedBinders.add(binder);
+    private void bindPositionalCheck(Binding binding) {
+        boolean moreArgumentsProvidedThanDeclared = binding.positionals.size() != params.getParameterCount();
+        if (moreArgumentsProvidedThanDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
+            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), ctx);
         }
     }
 
     private void bindNamed(Binding binding) {
-        bindNamedCheck(binding);
-
-        if (!cachedBinders.isEmpty()) {
-            for (Consumer<Binding> binder: cachedBinders) {
-                binder.accept(binding);
-            }
-            return;
-        }
-
         List<String> paramNames = params.getParameterNames();
         for (int paramIndex = 0; paramIndex < paramNames.size(); paramIndex++) {
             Param param = new Param(paramNames.get(paramIndex), paramIndex);
@@ -159,7 +157,7 @@ class ArgumentBinder {
         for (T naf : nafs) {
             Optional<Argument> found = getter.apply(naf).find(param.name, ctx);
             if (found.isPresent()) {
-                bindAndCache(__ -> applyArgument(found.get(), param), null);
+                bindAndMaybeCache(__ -> applyArgument(found.get(), param), null);
                 return true;
             }
         }
@@ -183,7 +181,7 @@ class ArgumentBinder {
     }
 
     @NonNull
-    private QualifiedType<?> typeOf(@Nullable Object value) {
+    QualifiedType<?> typeOf(@Nullable Object value) {
         return value instanceof TypedValue
                 ? ((TypedValue) value).getType()
                 : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
@@ -234,7 +232,9 @@ class ArgumentBinder {
 
     static class Prepared extends ArgumentBinder {
         private final PreparedBatch batch;
-        private final boolean useCache;
+        private boolean useCache;
+        private final List<Consumer<Binding>> cachedBinders = new ArrayList<>();
+        private Object cacheKey;
 
         public Prepared(
             PreparedBatch batch,
@@ -248,8 +248,33 @@ class ArgumentBinder {
         }
 
         @Override
-        protected boolean useCache() {
-            return useCache;
+        protected boolean bindCached(Binding binding) {
+            if (!useCache) {
+                return false;
+            }
+
+            Object newCacheKey = ((PreparedBinding) binding).computeCacheKey(this::typeOf);
+            if (cacheKey == null) {
+                cacheKey = newCacheKey;
+            } else if (!cacheKey.equals(newCacheKey)) {
+                useCache = false;
+                cachedBinders.clear();
+            }
+            if (cachedBinders.isEmpty()) {
+                return false;
+            }
+            for (Consumer<Binding> binder: cachedBinders) {
+                binder.accept(binding);
+            }
+            return true;
+        }
+
+        @Override
+        protected void bindAndMaybeCache(Consumer<Binding> binder, Binding binding) {
+            super.bindAndMaybeCache(binder, binding);
+            if (useCache) {
+                cachedBinders.add(binder);
+            }
         }
 
         @Override
@@ -263,7 +288,7 @@ class ArgumentBinder {
                 if (prep == null) {
                     backupNafs = prepBinding.backupArgumentFinders;
                 } else {
-                    bindAndCache(b -> {
+                    bindAndMaybeCache(b -> {
                         PreparedBinding prepB = (PreparedBinding) b;
                         Argument arg = prep.apply(prepB.prepareKeys.get(pk));
                         applyArgument(arg, param);

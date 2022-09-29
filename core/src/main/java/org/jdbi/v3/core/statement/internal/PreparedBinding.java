@@ -13,16 +13,23 @@
  */
 package org.jdbi.v3.core.statement.internal;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
+import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -48,5 +55,16 @@ public class PreparedBinding extends Binding {
     @Override
     public void clear() {
         throw new UnsupportedOperationException("can't reset backup argument finders");
+    }
+
+    public Object computeCacheKey(Function<Object, QualifiedType<?>> typeOf) {
+        List<Object> r = new ArrayList<>(4);
+        r.add(positionals.entrySet().stream().map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), typeOf.apply(e.getValue())))
+            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+        r.add(named.entrySet().stream().map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), typeOf.apply(e.getValue())))
+            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+        r.add(prepareKeys.keySet());
+        r.add(namedArgumentFinder.size()); // TODO use NamedArgumentFinder.getNames()
+        return r;
     }
 }

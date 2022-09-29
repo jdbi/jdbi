@@ -17,7 +17,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
@@ -289,58 +293,42 @@ public class TestArgumentBinder {
         }
     }
 
-//    @Test
-//    void testNonUniformBatch() {
-//        try (Handle h = pgDatabaseExtension.openHandle()) {
-//            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, s) values (:i, :s)");
-//
-//            b.bindBean(new TestBean(1, "foo")).add()
-//                .bindBean(new TestBean2(2, "bar")).add()
-//                .bind("i", 3).bindByType("s", null, Integer.class).add()
-//                .bind("i", 4).bind("s", "40").add()
-//                .bind("i", 5).bind("s", 50).add();
-//
-//            assertArrayEquals(new int[]{1, 1, 1, 1, 1}, b.execute());
-//
-//            List<TestBean> actual = h.createQuery("SELECT * FROM binder_test ORDER BY i, s")
-//                .map(ConstructorMapper.of(TestBean.class))
-//                .list();
-//            List<TestBean> expected = Lists.newArrayList(
-//                new TestBean(1, "foo"),
-//                new TestBean(2, "bar"),
-//                new TestBean(3, null),
-//                new TestBean(4, "40"),
-//                new TestBean(5, "50"));
-//            assertEquals(expected, actual);
-//        }
-//    }
-//
-//    @Test
-//    void test() {
-//        try (Handle h = pgDatabaseExtension.openHandle()) {
-//            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, s) values (:i, :s)");
-//
-//            b.bindBean(new TestBean(1, "foo")).add()
-//                .bindBean(new TestBean2(2, "bar")).add();
-//
-//            assertArrayEquals(new int[]{1, 1}, b.execute());
-//
-//            List<TestBean> actual = h.createQuery("SELECT * FROM binder_test ORDER BY i, s")
-//                .map(ConstructorMapper.of(TestBean.class))
-//                .list();
-//            List<TestBean> expected = Lists.newArrayList(
-//                new TestBean(1, "foo"),
-//                new TestBean(2, "bar"));
-//            assertEquals(expected, actual);
-//        }
-//    }
+    @Test
+    void testNonUniformBatch() {
+        try (Handle h = pgDatabaseExtension.openHandle()) {
+            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, s) values (:i, :s)");
+
+            b.bindBean(new TestBean(1, "foo")).add()
+                .bindBean(new TestBean2(2, "bar")).add()
+                .bind("i", 3).bindByType("s", null, Integer.class).add()
+                .bind("i", 4).bind("s", "40").add()
+                .bindNull("i", Types.INTEGER).bind("s", 50).add()
+                .bindMap(ImmutableMap.of("i", 6, "s", "60")).add()
+                .bindMap(ImmutableMap.of("i", 7, "s", 70)).add();
+
+            assertArrayEquals(IntStream.range(0, b.size()).map(__ -> 1).toArray(), b.execute());
+
+            List<TestBean> actual = h.createQuery("SELECT * FROM binder_test ORDER BY i, s")
+                .map(ConstructorMapper.of(TestBean.class))
+                .list();
+            ImmutableList<TestBean> expected = ImmutableList.of(
+                new TestBean(1, "foo"),
+                new TestBean(2, "bar"),
+                new TestBean(3, null),
+                new TestBean(4, "40"),
+                new TestBean(6, "60"),
+                new TestBean(7, "70"),
+                new TestBean(null, "50"));
+            assertEquals(expected, actual);
+        }
+    }
 
     public static class TestBean {
 
-        private final int i;
+        private final Integer i;
         private final String s;
 
-        public TestBean(int i, String s) {
+        public TestBean(Integer i, String s) {
             this.i = i;
             this.s = s;
         }
@@ -354,7 +342,7 @@ public class TestArgumentBinder {
                 return false;
             }
             TestBean testBean = (TestBean) o;
-            return i == testBean.i && Objects.equals(s, testBean.s);
+            return Objects.equals(i, testBean.i) && Objects.equals(s, testBean.s);
         }
 
         @Override
@@ -362,7 +350,7 @@ public class TestArgumentBinder {
             return Objects.hash(i, s);
         }
 
-        public int getI() {
+        public Integer getI() {
             return i;
         }
 
@@ -381,7 +369,7 @@ public class TestArgumentBinder {
 
     public static class TestBean2 {
 
-        private final int i;
+        private final Integer i;
         private final String s;
 
         public TestBean2(int i, String s) {
@@ -389,7 +377,7 @@ public class TestArgumentBinder {
             this.s = s;
         }
 
-        public int getI() {
+        public Integer getI() {
             return i;
         }
 
