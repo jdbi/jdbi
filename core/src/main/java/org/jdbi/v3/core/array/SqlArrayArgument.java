@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.array;
 
+import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ class SqlArrayArgument<T> implements Argument {
 
         @SuppressWarnings("unchecked")
         Stream<T> stream = (Stream<T>) IterableLike.stream(newArray);
-        array = stream.map(arrayType::convertArrayElement).toArray();
+        array = stream.map(arrayType::convertArrayElement).toArray(n -> (Object[]) Array.newInstance(arrayType.getArrayElementClass(), n));
     }
 
     @Override
