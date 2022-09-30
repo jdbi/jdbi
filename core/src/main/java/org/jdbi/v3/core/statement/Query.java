@@ -32,10 +32,12 @@ public class Query extends SqlStatement<Query> implements ResultBearing {
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Backwards compatible constructor that takes an explicit string argument.
+     *
+     * @see Query#Query(Handle, CharSequence)
      */
     public Query(Handle handle, String sql) {
-        super(handle, (CharSequence) sql);
+        super(handle, sql);
     }
 
     /**

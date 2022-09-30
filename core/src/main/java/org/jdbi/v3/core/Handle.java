@@ -224,7 +224,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Convenience method which creates a query with the given positional arguments
+     * Convenience method which creates a query with the given positional arguments.
+     *
      * @param sql SQL or named statement
      * @param args arguments to bind positionally
      * @return query object
@@ -239,7 +240,11 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Convenience method which creates a query with the given positional arguments. Takes a string argument for backwards compatibility reasons.
+     * @param sql SQL or named statement
+     * @param args arguments to bind positionally
+     * @return query object
+     * @see Handle#select(CharSequence, Object...)
      */
     public Query select(String sql, Object... args) {
         return select((CharSequence) sql, args);
@@ -248,10 +253,10 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Execute a SQL statement, and return the number of rows affected by the statement.
      *
-     * @param sql the SQL statement to execute, using positional parameters (if any)
-     * @param args positional arguments
+     * @param sql the SQL statement to execute, using positional parameters (if any).
+     * @param args positional arguments.
      *
-     * @return the number of rows affected
+     * @return the number of rows affected.
      */
     public int execute(CharSequence sql, Object... args) {
         try (Update stmt = createUpdate(sql)) {
@@ -264,7 +269,13 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Execute a SQL statement, and return the number of rows affected by the statement. Takes a string argument for backwards compatibility reasons.
+     *
+     * @param sql the SQL statement to execute, using positional parameters (if any).
+     * @param args positional arguments.
+     *
+     * @return the number of rows affected.
+     * @see Handle#execute(CharSequence, Object...)
      */
     public int execute(String sql, Object... args) {
         return execute((CharSequence) sql, args);
@@ -283,15 +294,20 @@ public class Handle implements Closeable, Configurable<Handle> {
      * Prepare a batch to execute. This is for efficiently executing more than one
      * of the same statements with different parameters bound.
      *
-     * @param sql the batch SQL
-     * @return a batch which can have "statements" added
+     * @param sql the batch SQL.
+     * @return a batch which can have "statements" added.
      */
     public PreparedBatch prepareBatch(CharSequence sql) {
         return new PreparedBatch(this, sql);
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Prepare a batch to execute. This is for efficiently executing more than one
+     * of the same statements with different parameters bound. Takes a string argument for backwards compatibility reasons.
+     *
+     * @param sql the batch SQL.
+     * @return a batch which can have "statements" added.
+     * @see Handle#prepareBatch(CharSequence)
      */
     public PreparedBatch prepareBatch(String sql) {
         return prepareBatch((CharSequence) sql);
@@ -300,16 +316,21 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Create a call to a stored procedure.
      *
-     * @param sql the stored procedure sql
+     * @param sql the stored procedure sql.
      *
-     * @return the Call
+     * @return the Call.
      */
     public Call createCall(CharSequence sql) {
         return new Call(this, sql);
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Create a call to a stored procedure. Takes a string argument for backwards compatibility reasons.
+     *
+     * @param sql the stored procedure sql.
+     *
+     * @return the Call.
+     * @see Handle#createCall(CharSequence)
      */
     public Call createCall(String sql) {
         return createCall((CharSequence) sql);
@@ -318,15 +339,19 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Return a Query instance that executes a statement
      * with bound parameters and maps the result set into Java types.
-     * @param sql SQL that may return results
-     * @return a Query builder
+     * @param sql SQL that may return results.
+     * @return a Query builder.
      */
     public Query createQuery(CharSequence sql) {
         return new Query(this, sql);
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Return a Query instance that executes a statement
+     * with bound parameters and maps the result set into Java types. Takes a string argument for backwards compatibility reasons.
+     * @param sql SQL that may return results.
+     * @return a Query builder.
+     * @see Handle#createQuery(CharSequence)
      */
     public Query createQuery(String sql) {
         return createQuery((CharSequence) sql);
@@ -335,16 +360,22 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Creates a Script from the given SQL script.
      *
-     * @param sql the SQL script
+     * @param sql the SQL script.
      *
-     * @return the created Script
+     * @return the created Script.
      */
     public Script createScript(CharSequence sql) {
         return new Script(this, sql);
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Create an Insert or Update statement which returns the number of rows modified. Takes a string argument for backwards compatibility reasons.
+     *
+     * @param sql the statement sql.
+     *
+     * @return the Update builder.
+     *
+     * @see Handle#createScript(CharSequence)
      */
     public Script createScript(String sql) {
         return createScript((CharSequence) sql);
@@ -353,16 +384,22 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
      *
-     * @param sql the statement sql
+     * @param sql the statement sql.
      *
-     * @return the Update builder
+     * @return the Update builder.
      */
     public Update createUpdate(CharSequence sql) {
         return new Update(this, sql);
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Create an Insert or Update statement which returns the number of rows modified. Takes a string argument for backwards compatibility reasons.
+     *
+     * @param sql the statement sql.
+     *
+     * @return the Update builder.
+     *
+     * @see Handle#createUpdate(CharSequence)
      */
     public Update createUpdate(String sql) {
         return createUpdate((CharSequence) sql);

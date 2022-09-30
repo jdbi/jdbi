@@ -26,16 +26,19 @@ import org.jdbi.v3.core.internal.SqlScriptParser;
 public class Script extends SqlStatement<Script> {
     private final Handle handle;
 
-    public Script(Handle h, CharSequence sql) {
-        super(h, sql);
-        this.handle = h;
+    public Script(Handle handle, CharSequence sql) {
+        super(handle, sql);
+        this.handle = handle;
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Backwards compatible constructor that takes an explicit string argument.
+     *
+     * @see Script#Script(Handle, CharSequence)
      */
     public Script(Handle handle, String sql) {
-        this(handle, (CharSequence) sql);
+        super(handle, sql);
+        this.handle = handle;
     }
 
     /**
