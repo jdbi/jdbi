@@ -18,6 +18,7 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -29,7 +30,15 @@ public class TestEnums {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
+    private Handle handle;
+
+    @BeforeEach
+    void setUp() {
+        handle = h2Extension.getSharedHandle();
+    }
+
     public static class SomethingElse {
+
         public enum Name {
             eric, brian
         }
@@ -56,11 +65,10 @@ public class TestEnums {
 
     @Test
     public void testMapEnumValues() {
-        Handle h = h2Extension.openHandle();
-        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        List<SomethingElse> results = h.createQuery("select * from something order by id")
+        List<SomethingElse> results = handle.createQuery("select * from something order by id")
                                    .mapToBean(SomethingElse.class)
                                    .list();
         assertThat(results).extracting(se -> se.name).containsExactly(SomethingElse.Name.eric, SomethingElse.Name.brian);
@@ -68,11 +76,10 @@ public class TestEnums {
 
     @Test
     public void testMapToEnum() {
-        Handle h = h2Extension.openHandle();
-        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        List<SomethingElse.Name> results = h.createQuery("select name from something order by id")
+        List<SomethingElse.Name> results = handle.createQuery("select name from something order by id")
                                    .mapTo(SomethingElse.Name.class)
                                    .list();
         assertThat(results).containsExactly(SomethingElse.Name.eric, SomethingElse.Name.brian);
@@ -80,26 +87,25 @@ public class TestEnums {
 
     @Test
     public void testMapInvalidEnumValue() {
-        Handle h = h2Extension.openHandle();
-        h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
+        handle.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something order by id")
+        assertThatThrownBy(() -> handle.createQuery("select * from something order by id")
             .mapToBean(SomethingElse.class)
             .findFirst()).isInstanceOf(UnableToProduceResultException.class);
     }
 
     @Test
     public void testEnumCaseInsensitive() {
-        assertThat(h2Extension.getSharedHandle().createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).one())
+        assertThat(handle.createQuery("select 'BrIaN'").mapTo(SomethingElse.Name.class).one())
             .isEqualTo(SomethingElse.Name.brian);
     }
 
     @Test
     public void testGenericEnumBindBean() {
-        h2Extension.getSharedHandle().useTransaction(h -> assertThat(h.createQuery("select :e.val")
-                .bindBean("e", new E<>(SomethingElse.Name.brian))
-                .mapTo(SomethingElse.Name.class)
-                .one())
+        handle.useTransaction(h -> assertThat(h.createQuery("select :e.val")
+            .bindBean("e", new E<>(SomethingElse.Name.brian))
+            .mapTo(SomethingElse.Name.class)
+            .one())
             .isEqualTo(SomethingElse.Name.brian));
     }
 
