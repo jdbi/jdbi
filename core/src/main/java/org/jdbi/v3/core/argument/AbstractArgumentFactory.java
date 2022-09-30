@@ -24,6 +24,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.isSuperType;
 
 /**
  * An {@link ArgumentFactory} base class for arguments of type {@code T}. For values of type {@code T}, factories
@@ -71,7 +72,8 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
             this.isInstance = (type, value) ->
                     argumentClass.isAssignableFrom(getErasedType(type)) || argumentClass.isInstance(value);
         } else {
-            this.isInstance = (type, value) -> argumentType.equals(type);
+            this.isInstance = (type, value) ->
+                argumentType.equals(type) || isSuperType(argumentType, type);
         }
     }
 

@@ -174,12 +174,23 @@ public class GenericTypes {
     }
 
     /**
-     * Perform boxing conversion on a {@code Type}, if it is a primitive type.
-     * Otherwise return the input argument.
+     * Perform boxing conversion on a {@code Type}, if it is a primitive type. Otherwise return the input argument.
+     *
      * @param type the type to box
      * @return the boxed type, or the input type if it is not a primitive
      */
     public static Type box(Type type) {
         return GenericTypeReflector.box(type);
+    }
+
+    /**
+     * Tests whether a given type is a supertype of another type
+     *
+     * @param superType The supertype to check.
+     * @param subType   The subtype to check.
+     * @return True if supertype is a supertype of subtype.
+     */
+    public static boolean isSuperType(Type superType, Type subType) {
+        return GenericTypeReflector.isSuperType(superType, subType);
     }
 }

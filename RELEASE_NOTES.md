@@ -1,5 +1,7 @@
 # Unreleased
 
+  - AbstractArgumentFactory also need to check for supertypes when the generic argument is not a class (fixes #2026)
+
 # 3.33.0
 
   - make `@Unmappable` work with FieldMapper fields and KotlinMapper properties
