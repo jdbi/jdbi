@@ -14,9 +14,11 @@
 package org.jdbi.v3.core;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.annotation.Nonnull;
 
 import org.jdbi.v3.meta.Beta;
 
@@ -53,6 +55,8 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public final class Sql implements CharSequence {
 
+    private static final Sql EMPTY_SQL = new Sql("");
+
     /** The internal sql string. Cannot be null. */
     private final String str;
 
@@ -61,11 +65,11 @@ public final class Sql implements CharSequence {
     }
 
     public static Sql of(CharSequence... tokens) {
-        return tokens == null ? new Sql("") : of(Arrays.asList(tokens));
+        return tokens == null ? EMPTY_SQL : of(Arrays.asList(tokens));
     }
 
-    public static Sql of(Collection<CharSequence> tokens) {
-        return tokens == null ? new Sql("") : new Sql(format(tokens));
+    public static Sql of(Iterable<? extends CharSequence> tokens) {
+        return tokens == null ? EMPTY_SQL : new Sql(format(tokens));
     }
 
     /**
@@ -77,13 +81,13 @@ public final class Sql implements CharSequence {
      * @param tokens collection of tokens
      * @return formatted sql string
      */
-    static String format(Collection<CharSequence> tokens) {
-        String sql = Objects.requireNonNull(tokens).stream()
-                .filter(Objects::nonNull)
-                .map(CharSequence::toString)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(" "));
+    static String format(Iterable<? extends CharSequence> tokens) {
+        String sql = StreamSupport.stream(Objects.requireNonNull(tokens).spliterator(), false)
+            .filter(Objects::nonNull)
+            .map(CharSequence::toString)
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.joining(" "));
         while (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1);
         }
@@ -100,6 +104,7 @@ public final class Sql implements CharSequence {
         return str.charAt(index);
     }
 
+    @Nonnull
     @Override
     public CharSequence subSequence(int start, int end) {
         return str.subSequence(start, end);

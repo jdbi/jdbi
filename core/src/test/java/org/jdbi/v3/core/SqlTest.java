@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -30,10 +31,18 @@ public class SqlTest {
     @Test
     void testEmptyInput() {
         assertEquals("", Sql.of((CharSequence[]) null).toString());
+        assertEquals("", Sql.of((CharSequence) null).toString());
         assertEquals("", Sql.of((Collection<CharSequence>) null).toString());
         assertEquals("", Sql.of(new CharSequence[0]).toString());
         assertEquals("", Sql.of(new ArrayList<>()).toString());
         assertEquals("", Sql.of().toString());
+    }
+
+    @Test
+    void testMultipleStrings() {
+        assertEquals("A B C", Sql.of(ImmutableList.of("A", "B", "C")).toString());
+
+        assertEquals("A B C", Sql.of("A", "B", "C").toString());
     }
 
     @Test
@@ -66,7 +75,7 @@ public class SqlTest {
         assertEquals(sql1.hashCode(), sql2.hashCode());
         assertEquals(sql1, sql2);
         assertNotNull(sql1);
-        assertNotEquals("", sql1);
+        assertNotEquals("", sql1.toString());
         assertNotEquals(sql1, Sql.of());
     }
 
