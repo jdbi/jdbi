@@ -63,7 +63,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
     override fun map(rs: ResultSet, ctx: StatementContext): Any? = specialize(rs, ctx).map(rs, ctx)
 
     override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<Any?> {
-        val columnNames = getColumnNames(rs)
+        val caseChange = ctx.getConfig(ReflectionMappers::class).caseChange
+        val columnNames = getColumnNames(rs, caseChange)
         val columnNameMatchers = ctx.getConfig(ReflectionMappers::class).columnNameMatchers
         val unmatchedColumns = columnNames.toMutableSet()
 

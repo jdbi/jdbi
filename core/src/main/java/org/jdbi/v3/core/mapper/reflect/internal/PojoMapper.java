@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.annotation.Unmappable;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -69,7 +70,8 @@ public class PojoMapper<T> implements RowMapper<T> {
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        final List<String> columnNames = getColumnNames(rs);
+        final UnaryOperator<String> caseChange = ctx.getConfig(ReflectionMappers.class).getCaseChange();
+        final List<String> columnNames = getColumnNames(rs, caseChange);
         final List<ColumnNameMatcher> columnNameMatchers =
             ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);

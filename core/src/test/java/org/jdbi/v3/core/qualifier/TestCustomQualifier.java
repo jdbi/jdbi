@@ -18,6 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Locale;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
@@ -337,7 +338,7 @@ public class TestCustomQualifier {
 
         @Override
         protected Argument build(String value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, value.toUpperCase());
+            return (pos, stmt, ctx) -> stmt.setString(pos, value.toUpperCase(Locale.ROOT));
         }
     }
 
@@ -346,7 +347,7 @@ public class TestCustomQualifier {
 
         @Override
         public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return r.getString(columnNumber).toUpperCase();
+            return r.getString(columnNumber).toUpperCase(Locale.ROOT);
         }
     }
 
@@ -360,7 +361,7 @@ public class TestCustomQualifier {
 
         @Override
         protected Argument build(String value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value).toUpperCase());
+            return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value).toUpperCase(Locale.ROOT));
         }
     }
 
@@ -370,7 +371,7 @@ public class TestCustomQualifier {
 
         @Override
         public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return reverse(r.getString(columnNumber)).toUpperCase();
+            return reverse(r.getString(columnNumber)).toUpperCase(Locale.ROOT);
         }
     }
 

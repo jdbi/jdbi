@@ -68,8 +68,14 @@ public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
             }
         }
 
+        /**
+         * Takes a property name and turns it into a setter name.
+         * @param name the property name.
+         * @return The setter name.
+         * @see java.beans.Introspector#decapitalize(String)
+         */
         private String setterName(String name) {
-            return "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
         }
 
         @Override

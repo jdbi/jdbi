@@ -15,6 +15,7 @@ package org.jdbi.v3.jpa;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -1039,7 +1040,7 @@ public class JpaTest {
         }
 
         public String getNameUppercase() {
-            return name.toUpperCase();
+            return name.toUpperCase(Locale.ROOT);
         }
     }
 

@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.mapper.CaseStrategy;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for reflective mappers.
@@ -26,6 +29,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
+    private UnaryOperator<String> caseChange;
 
     /**
      * Create a default configuration that attempts case insensitive and
@@ -36,11 +40,13 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
                 new CaseInsensitiveColumnNameMatcher(),
                 new SnakeCaseColumnNameMatcher());
         strictMatching = false;
+        caseChange = CaseStrategy.LOCALE_LOWER;
     }
 
     private ReflectionMappers(ReflectionMappers that) {
         columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
         strictMatching = that.strictMatching;
+        caseChange = that.caseChange;
     }
 
     /**
@@ -83,6 +89,29 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      */
     public ReflectionMappers setStrictMatching(boolean strictMatching) {
         this.strictMatching = strictMatching;
+        return this;
+    }
+
+    /**
+     * Case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     *
+     * @return The current case change strategy.
+     * @see CaseStrategy
+     */
+    @Beta
+    public UnaryOperator<String> getCaseChange() {
+        return caseChange;
+    }
+
+    /**
+     * Sets the case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     *
+     * @param caseChange The strategy to use. Must not be null.
+     * @see CaseStrategy
+     */
+    @Beta
+    public ReflectionMappers setCaseChange(UnaryOperator<String> caseChange) {
+        this.caseChange = caseChange;
         return this;
     }
 
