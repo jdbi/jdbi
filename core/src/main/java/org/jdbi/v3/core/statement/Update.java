@@ -33,10 +33,12 @@ public class Update extends SqlStatement<Update> {
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Backwards compatible constructor that takes an explicit string argument.
+     *
+     * @see Update#Update(Handle, CharSequence)
      */
     public Update(Handle handle, String sql) {
-        this(handle, (CharSequence) sql);
+        super(handle, sql);
     }
 
     public void one() {

@@ -36,10 +36,12 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Deprecated delegate - please use {@code CharSequence} signature for future compatibility.
+     * Backwards compatible constructor that takes an explicit string argument.
+     *
+     * @see Call#Call(Handle, CharSequence)
      */
     public Call(Handle handle, String sql) {
-        super(handle, (CharSequence) sql);
+        super(handle, sql);
     }
 
     @Override
