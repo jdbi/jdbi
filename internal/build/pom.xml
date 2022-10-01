@@ -20,7 +20,7 @@
         <artifactId>basepom-oss</artifactId>
         <version>49</version>
         <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
@@ -772,7 +772,7 @@
                         <configuration>
                             <rules>
                                 <!-- Ensure consistency -->
-                                <dependencyConvergence />
+                                <dependencyConvergence/>
                                 <requireProperty>
                                     <property>moduleName</property>
                                     <message>This module must set a moduleName.</message>
@@ -830,7 +830,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                         <pluginExecution>
@@ -843,7 +843,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                     </pluginExecutions>
