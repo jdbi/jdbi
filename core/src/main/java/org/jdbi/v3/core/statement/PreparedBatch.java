@@ -122,7 +122,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         try {
             return internalBatchExecute().updateCounts;
         } finally {
-            getContext().close();
+            PreparedBatch.nullSafeCleanUp(this);
         }
     }
 
@@ -206,11 +206,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 return batch.stmt;
             }, getContext());
         } catch (SQLException e) {
-            try {
-                close();
-            } catch (Exception e1) {
-                e.addSuppressed(e1);
-            }
+            cleanUpForException(e);
             throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
         }
     }

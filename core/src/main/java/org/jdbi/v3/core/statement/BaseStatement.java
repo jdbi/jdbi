@@ -17,6 +17,7 @@ import java.io.Closeable;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
@@ -51,6 +52,22 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         return ctx;
     }
 
+    public static void nullSafeCleanUp(BaseStatement<?> statement) {
+        if (statement != null) {
+            statement.getContext().close();
+        }
+    }
+
+    protected final void cleanUpForException(SQLException e) {
+        try {
+            nullSafeCleanUp(this);
+        } catch (CloseException ce) {
+            e.addSuppressed(ce.getCause());
+        } catch (Exception e1) {
+            e.addSuppressed(e1);
+        }
+    }
+
     /**
      * Registers the given {@link Cleanable} to be executed when this statement is closed.
      *
@@ -82,7 +99,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     @Override
     public void close() {
-        getContext().close();
+        nullSafeCleanUp(this);
     }
 
     @FunctionalInterface

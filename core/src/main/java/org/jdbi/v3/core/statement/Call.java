@@ -94,8 +94,8 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Invoke the callable statement.  Note that the statement will be {@link #close()}d,
-     * so cursor-typed values may not work.
+     * Invoke the callable statement.  Note that the statement will be cleaned up, so cursor-typed values may not work.
+     *
      * @return the output parameters resulting from the invocation.
      */
     public OutParameters invoke() {
@@ -118,6 +118,8 @@ public class Call extends SqlStatement<Call> {
      */
     public <T> T invoke(Function<OutParameters, T> resultComputer) {
         try {
+            // it is ok to ignore the PreparedStatement returned here. internalExecute registers it to close with the context and the
+            // nullSafeCleanUp below will take care of it.
             internalExecute();
             OutParameters out = new OutParameters(getContext());
             for (OutParamArgument param : params) {
@@ -133,7 +135,7 @@ public class Call extends SqlStatement<Call> {
             }
             return resultComputer.apply(out);
         } finally {
-            close();
+            nullSafeCleanUp(this);
         }
     }
 
