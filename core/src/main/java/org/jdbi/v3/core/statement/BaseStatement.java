@@ -33,7 +33,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         this.ctx = new StatementContext(handle.getConfig().createCopy(), handle.getExtensionMethod());
     }
 
-    public Handle getHandle() {
+    public final Handle getHandle() {
         return handle;
     }
 

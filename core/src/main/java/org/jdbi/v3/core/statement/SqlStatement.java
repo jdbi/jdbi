@@ -69,7 +69,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.parameterizeClass;
  */
 @SuppressWarnings({"deprecation", "PMD.ExcessiveClassLength"})
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
-    private final Handle handle;
     private final String sql;
     PreparedStatement stmt;
 
@@ -77,7 +76,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                  CharSequence sql) {
         super(handle);
 
-        this.handle = handle;
         this.sql = sql.toString();
 
         getContext()
@@ -128,6 +126,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     private This cleanupHandle(Consumer<Handle> action) {
         addCleanable(() -> {
+            Handle handle = getHandle();
             if (handle != null) {
                 if (handle.isInTransaction()) {
                     action.accept(handle);
@@ -1770,7 +1769,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             stmt = createStatement(ctx, parsedSql);
             // The statement builder might (or might not) clean up the statement when called. E.g. the
             // caching statement builder relies on the statement *not* being closed.
-            addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), this.sql, stmt));
+            addCleanable(() -> getHandle().getStatementBuilder().close(getHandle().getConnection(), this.sql, stmt));
             getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, ctx);
@@ -1802,7 +1801,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
-        return handle.getStatementBuilder().create(handle.getConnection(), parsedSql.getSql(), ctx);
+        return getHandle().getStatementBuilder().create(getHandle().getConnection(), parsedSql.getSql(), ctx);
     }
 
     ParsedSql parseSql() {
