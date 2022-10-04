@@ -44,6 +44,7 @@
         <module>sqlobject</module>
         <module>stringtemplate4</module>
         <module>commons-text</module>
+        <module>lombok</module>
         <module>freemarker</module>
         <module>gson2</module>
         <module>moshi</module>
