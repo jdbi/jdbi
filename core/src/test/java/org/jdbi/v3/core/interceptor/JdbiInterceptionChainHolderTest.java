@@ -49,9 +49,9 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testCustomTransformer() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
 
         Object source = new Object();
 
@@ -63,9 +63,9 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testCustomTransformerNull() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
 
         String result = holder.process(null);
 
@@ -75,10 +75,10 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testFirstInterceptorSkip() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i = new Interceptor<>(false);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addFirst(i);
 
         Object source = new Object();
@@ -92,10 +92,10 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testFirstInterceptorHit() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i = new Interceptor<>(true);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addFirst(i);
 
         Object source = new Object();
@@ -109,10 +109,10 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testLastInterceptorHit() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i = new Interceptor<>(true);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addLast(i);
 
         Object source = new Object();
@@ -126,10 +126,10 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testLastInterceptorSkip() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i = new Interceptor<>(false);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addLast(i);
 
         Object source = new Object();
@@ -143,11 +143,11 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testFirstSkipHit() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i1 = new Interceptor<>(true);
         Interceptor<Object> i2 = new Interceptor<>(false);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addFirst(i1);
         holder.addFirst(i2);
 
@@ -165,11 +165,11 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testFirstHitSkip() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i1 = new Interceptor<>(false);
         Interceptor<Object> i2 = new Interceptor<>(true);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addFirst(i1);
         holder.addFirst(i2);
 
@@ -187,11 +187,11 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testLastSkipHit() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i1 = new Interceptor<>(true);
         Interceptor<Object> i2 = new Interceptor<>(false);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addLast(i1);
         holder.addLast(i2);
 
@@ -209,11 +209,11 @@ public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testLastHitSkip() {
-        Transformer<Object> t = new Transformer();
+        Transformer<Object> t = new Transformer<>();
         Interceptor<Object> i1 = new Interceptor<>(false);
         Interceptor<Object> i2 = new Interceptor<>(true);
 
-        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder(t);
+        JdbiInterceptionChainHolder<Object, String> holder = new JdbiInterceptionChainHolder<>(t);
         holder.addLast(i1);
         holder.addLast(i2);
 
