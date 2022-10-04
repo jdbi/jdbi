@@ -24,11 +24,8 @@ import org.jdbi.v3.core.internal.SqlScriptParser;
  * Represents a number of SQL statements delimited by semicolon which will be executed in order in a batch statement.
  */
 public class Script extends SqlStatement<Script> {
-    private final Handle handle;
-
     public Script(Handle handle, CharSequence sql) {
         super(handle, sql);
-        this.handle = handle;
     }
 
     /**
@@ -38,7 +35,6 @@ public class Script extends SqlStatement<Script> {
      */
     public Script(Handle handle, String sql) {
         super(handle, sql);
-        this.handle = handle;
     }
 
     /**
@@ -48,7 +44,7 @@ public class Script extends SqlStatement<Script> {
      */
     public int[] execute() {
         final List<String> statements = getStatements();
-        Batch b = handle.createBatch();
+        Batch b = getHandle().createBatch();
         statements.forEach(b::add);
         return b.execute();
     }
@@ -58,7 +54,7 @@ public class Script extends SqlStatement<Script> {
      */
     public void executeAsSeparateStatements() {
         for (String s : getStatements()) {
-            handle.execute(s);
+            getHandle().execute(s);
         }
     }
 

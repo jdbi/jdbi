@@ -28,12 +28,10 @@ import org.jdbi.v3.core.result.ResultSetScanner;
  */
 public final class MetaData extends BaseStatement<MetaData> implements ResultBearing {
 
-    private final Handle handle;
     private final MetaDataValueProvider<?> metaDataFunction;
 
     public MetaData(Handle handle, MetaDataValueProvider<?> metaDataFunction) {
         super(handle);
-        this.handle = handle;
         this.metaDataFunction = metaDataFunction;
     }
 
@@ -46,7 +44,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public <R> R execute() {
         try {
-            Connection connection = handle.getConnection();
+            Connection connection = getHandle().getConnection();
             return (R) metaDataFunction.provideValue(connection.getMetaData());
         } catch (SQLException e) {
             throw new UnableToRetrieveMetaDataException(e, getContext());
