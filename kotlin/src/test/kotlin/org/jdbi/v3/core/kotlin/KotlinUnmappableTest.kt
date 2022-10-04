@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
-import org.jdbi.v3.core.annotation.Unmappable
+import org.jdbi.v3.core.annotation.JdbiProperty
 import org.jdbi.v3.core.junit5.H2DatabaseExtension
 import org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER
 import org.junit.jupiter.api.Test
@@ -37,7 +37,7 @@ class KotlinUnmappableTest {
     }
 
     data class TestBean(val id: Int = 0) {
-        @Unmappable
+        @JdbiProperty(map = false)
         var unmapped: Int = 0
     }
 }

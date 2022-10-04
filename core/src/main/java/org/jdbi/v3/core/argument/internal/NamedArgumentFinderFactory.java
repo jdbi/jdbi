@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.BeanPropertyArguments;
 import org.jdbi.v3.core.argument.ObjectFieldArguments;
@@ -65,6 +66,7 @@ public interface NamedArgumentFinderFactory {
                 PojoPropertyArguments ppa) {
             return name -> Optional.ofNullable(ppa.properties.getProperties().get(name))
                     .map(PojoProperty.class::cast)
+                    .filter(JdbiAnnotations::isBound)
                     .map(property -> {
                         Function<Object, Argument> arg = argumentFactoryLookup.apply(property.getQualifiedType());
                         return pojo -> arg.apply(property.get(pojo));

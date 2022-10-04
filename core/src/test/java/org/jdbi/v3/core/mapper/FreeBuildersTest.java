@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import org.inferred.freebuilder.FreeBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.annotation.JdbiProperty;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.freebuilder.JdbiFreeBuilders;
@@ -248,7 +248,7 @@ public class FreeBuildersTest {
     public interface UnmappableValue {
         int getFoo();
 
-        @Unmappable
+        @JdbiProperty(map = false)
         default int derivedFoo() {
             return 1;
         }

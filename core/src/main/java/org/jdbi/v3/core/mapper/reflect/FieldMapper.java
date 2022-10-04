@@ -25,7 +25,7 @@ import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
@@ -141,7 +141,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
                 Nested nested = field.getAnnotation(Nested.class);
-                if (Optional.ofNullable(field.getAnnotation(Unmappable.class)).map(Unmappable::value).orElse(false)) {
+                if (!JdbiAnnotations.isMapped(field)) {
                     continue;
                 }
 

@@ -15,8 +15,12 @@ package org.jdbi.v3.core.argument.internal;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties;
@@ -32,6 +36,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     protected final PojoProperties<?> properties;
     protected final ConfigRegistry config;
+    private final Set<String> names;
 
     public PojoPropertyArguments(String prefix, Object obj, Type type, ConfigRegistry config) {
         this(prefix,
@@ -45,18 +50,25 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
         super(prefix, obj);
         this.properties = properties;
         this.config = config;
+        names = properties.getProperties()
+                .entrySet()
+                .stream()
+                .filter(e -> JdbiAnnotations.isBound(e.getValue()))
+                .map(Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     @Override
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         return Optional.ofNullable(properties.getProperties().get(name))
                 .map(PojoProperty.class::cast)
+                .filter(JdbiAnnotations::isBound)
                 .map(p -> new TypedValue(p.getQualifiedType(), p.get(obj)));
     }
 
     @Override
     public Collection<String> getNames() {
-        return properties.getProperties().keySet();
+        return names;
     }
 
     @Override

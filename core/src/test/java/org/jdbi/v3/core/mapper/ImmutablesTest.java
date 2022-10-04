@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.immutables.value.Value;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.annotation.JdbiProperty;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -225,7 +225,7 @@ public class ImmutablesTest {
         }
 
         @Value.Derived
-        @Unmappable
+        @JdbiProperty(map = false)
         default int derivedFoo() {
             return foo() + 40;
         }

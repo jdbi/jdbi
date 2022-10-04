@@ -25,7 +25,7 @@ import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -95,7 +95,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
         for (PojoProperty<T> property : getProperties(ctx.getConfig()).getProperties().values()) {
             Nested nested = property.getAnnotation(Nested.class).orElse(null);
-            if (property.getAnnotation(Unmappable.class).map(Unmappable::value).orElse(false)) {
+            if (!JdbiAnnotations.isMapped(property)) {
                 continue;
             }
 

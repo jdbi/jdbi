@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -40,6 +41,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
             JdbiCaches.declare((config, beanClazz) ->
                 Stream.of(beanClazz.getFields())
+                    .filter(JdbiAnnotations::isBound)
                     .collect(Collectors.toMap(Field::getName, f -> {
                         QualifiedType<?> qualifiedType = QualifiedType.of(f.getGenericType())
                                 .withAnnotations(config.get(Qualifiers.class).findFor(f));
@@ -75,7 +77,7 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
 
     @Override
     public String toString() {
-        return "{lazy bean field arguments \"" + obj + "\"";
+        return "{lazy bean field arguments \"" + obj + "\"}";
     }
 }
 

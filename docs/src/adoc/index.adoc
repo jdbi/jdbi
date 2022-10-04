@@ -492,6 +492,10 @@ match the bound parameter name.
 The authors recommend checking out <<Immutables>> support for an advanced way
 to easily bind and map value types.
 
+==== Argument Annotations
+
+* `@JdbiProperty(bind=false)` allows configuring whether a discovered property is bound as an argument. Turn the `bind` annotation value off, and the property discovery mechanism will ignore it.
+
 ==== Custom Arguments
 
 Occasionally your data model will use data types not natively supported by
@@ -1198,7 +1202,7 @@ There is also an equivalent mapper for Kotlin classes that supports constructor 
 Reflective mappers are snake_case aware and will automatically match up these
 columns to camelCase field/argument/property names.
 
-===== Supported attribute annotations
+===== Supported property annotations
 
 Reflection mappers support the following annotations. Unless otherwise noted, all annotations are supported on bean getters and setters for the `BeanMapper`, constructor parameters for the `ConstructorMapper` and bean fields for the `FieldMapper`.
 
@@ -1211,7 +1215,7 @@ Reflection mappers support the following annotations. Unless otherwise noted, al
 * `@PropagateNull` on a given attribute propagates a null value for a specific attribute up. So if the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself. This annotation can also be used on the bean
   class with a column name that must be present in the result set. When used on an attribute, no value must be set.
 * `@Nullable` for `ConstructorMapper` arguments. If no column is mapped onto a specific constructor argument, don't fail but use `null` as value. Any annotation called `Nullable` is accepted.
-* `@Unmappable` for `BeanMapper` bean properties and `FieldMapper` fields. Any attribute with this annotation will be ignored.
+* `@JdbiProperty(map=false)` allows configuring whether a discovered property is mapped in results. Turn the `map` value off, and the property discovery mechanism will ignore it. This used to be called `@Unmappable`.
 
 [NOTE]
 The `@ColumnName` annotation only applies while mapping SQL data into Java
@@ -5274,7 +5278,7 @@ supports the `lombok.copyableAnnotations` setting in its config file. To support
 lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.ColumnName
 lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
 lombok.copyableAnnotations += org.jdbi.v3.core.mapper.PropagateNull
-lombok.copyableAnnotations += org.jdbi.v3.core.annotation.Unmappable
+lombok.copyableAnnotations += org.jdbi.v3.core.annotation.JdbiProperty
 lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.JdbiConstructor
 ----
 

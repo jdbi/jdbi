@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.kotlin
 
-import org.jdbi.v3.core.annotation.Unmappable
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.RowMapper
@@ -134,7 +134,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         }
 
         val memberPropertyMappers = memberProperties.filter {
-            !(it.javaField?.getAnnotation(Unmappable::class.java)?.value ?: false)
+            JdbiAnnotations.isMapped(it.javaField)
         }.associateWith { property ->
             ParamData(
                 ParamResolution.MAPPED,

@@ -21,16 +21,23 @@ import java.lang.annotation.Target;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Configure reflective bean and pojo mapping to skip a property.
+ * Configure reflective bean and pojo property attributes.
+ * Most reflective mappers, including field, method, and property mappers, try to respect this.
  */
 @Beta
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Unmappable {
+public @interface JdbiProperty {
     /**
-     * Returns true if the property is unmappable. It will be skipped when read from the database into a pojo.
+     * Returns true if the property is mapped in a result. The property will be read from the database into a result.
      *
-     * @return True if the property is unmappable. It will be skipped when read from the database into a pojo.
+     * @return true if the property is unmappable
      */
-    boolean value() default true;
+    boolean map() default true;
+    /**
+     * Returns true if the property is bound as an argument. Property will be bound as an argument.
+     *
+     * @return true if the property is unbindable
+     */
+    boolean bind() default true;
 }

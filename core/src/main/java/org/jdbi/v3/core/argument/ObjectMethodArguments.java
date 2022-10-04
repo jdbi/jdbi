@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -55,6 +56,7 @@ public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
         if (Modifier.isPublic(type.getModifiers())) {
             Arrays.stream(type.getMethods())
                 .filter(m -> m.getParameterCount() == 0)
+                .filter(JdbiAnnotations::isBound)
                 .collect(Collectors.toMap(
                         Method::getName,
                         Function.identity(),

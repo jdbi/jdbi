@@ -82,7 +82,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         try {
             return mapper.map(results, context);
         } catch (SQLException e) {
-            throw new ResultSetException("Error thrown mapping result set into return type", e, context);
+            throw new ResultSetException("Exception thrown mapping result set into return type", e, context);
         } finally {
             alreadyAdvanced = safeNext();
             if (!alreadyAdvanced) {
