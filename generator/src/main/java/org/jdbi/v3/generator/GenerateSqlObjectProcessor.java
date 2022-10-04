@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -53,10 +52,21 @@ import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
 
 @SupportedAnnotationTypes("org.jdbi.v3.sqlobject.GenerateSqlObject")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class GenerateSqlObjectProcessor extends AbstractProcessor {
     private static final Set<ElementKind> ACCEPTABLE = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
     private long counter = 0;
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        // We should be able to output generated code for any supported releases >= 8.
+        // Considering the bytecode we output for the artifact (i.e. the processor, not the
+        //   generated code) is always Java 8 or newer as of writing, this will not be an issue.
+        //
+        // We return the latest supported version for javac instead of the lowest version we expect
+        //   to support, because javac will print warnings in that case.  This breaks -Werror builds
+        //   on versions higher than this is made to support (i.e. Java 9+ as of writing).
+        return SourceVersion.latestSupported();
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
