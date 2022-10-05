@@ -50,6 +50,7 @@
     <properties>
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
+        <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.release.profiles>basepom.oss-release,jdbi-release</basepom.release.profiles>
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
