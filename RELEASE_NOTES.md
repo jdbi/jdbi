@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.34.0
+
   - `jdbi3-generator` will now support any Java 8+ version without generating compile-time warnings (#2128)
   - AbstractArgumentFactory also need to check for supertypes when the generic argument is not a class (fixes #2026)
   - Replace `@Unmappable` with `@JdbiProperty` so you can configure both mapping and binding flexibly
