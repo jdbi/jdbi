@@ -48,9 +48,9 @@
     </scm>
 
     <properties>
-        <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
+        <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.release.profiles>basepom.oss-release,jdbi-release</basepom.release.profiles>
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
@@ -92,6 +92,7 @@
         <jdbi.check.skip-detekt>${jdbi.check.skip-kotlin}</jdbi.check.skip-detekt>
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
+        <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <kotlin.compiler.apiVersion>1.5</kotlin.compiler.apiVersion>
         <!-- remove the '1.' once we move past JDK8 compatibility -->
         <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
@@ -595,6 +596,7 @@
                     <artifactId>sortpom-maven-plugin</artifactId>
                     <version>${dep.plugin.sortpom.version}</version>
                     <configuration>
+                        <skip>${jdbi.check.skip-sortpom}</skip>
                         <createBackupFile>false</createBackupFile>
                         <expandEmptyElements>false</expandEmptyElements>
                         <keepBlankLines>true</keepBlankLines>
