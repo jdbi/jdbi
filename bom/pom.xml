@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.33.1-SNAPSHOT</version>
+        <version>3.34.0</version>
         <relativePath>../internal/build</relativePath>
     </parent>
 
@@ -47,7 +47,7 @@
     </developers>
 
     <properties>
-        <dep.jdbi3.version>3.33.1-SNAPSHOT</dep.jdbi3.version>
+        <dep.jdbi3.version>3.34.0</dep.jdbi3.version>
         <moduleName>org.jdbi.v3.bom</moduleName>
     </properties>
 
