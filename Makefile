@@ -46,6 +46,7 @@ publish-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc
 publish-docs: install
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 
+deploy: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
 deploy:
 	${MAVEN} clean deploy
 
