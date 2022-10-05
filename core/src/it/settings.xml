@@ -14,6 +14,13 @@
 -->
 
 <settings>
+    <mirrors>
+        <mirror>
+            <id>local.central</id>
+            <url>@localRepositoryUrl@</url>
+            <mirrorOf>snapshots-repo</mirrorOf>
+        </mirror>
+    </mirrors>
     <profiles>
         <profile>
             <id>it-repo</id>
