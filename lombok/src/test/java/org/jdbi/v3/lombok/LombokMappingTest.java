@@ -11,15 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.lombok;
 
 import java.util.List;
 
 import lombok.Data;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.JdbiH2Extension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LombokMappingTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> {
+    public JdbiExtension h2Extension = JdbiH2Extension.h2().withInitializer((ds, h) -> {
         h.execute("create table test_table (table_name varchar, is_view boolean)");
         h.execute("insert into test_table (table_name, is_view) values ('abc', 1)");
         h.execute("insert into test_table (table_name, is_view) values ('def', 0)");
