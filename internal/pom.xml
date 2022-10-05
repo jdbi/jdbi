@@ -18,12 +18,12 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.34.0</version>
+        <version>3.34.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-internal-parent</artifactId>
-    <version>3.34.0</version>
+    <version>3.34.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>jdbi3 - internal - parent</name>
 
