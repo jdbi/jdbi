@@ -21,8 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.internal.UtilityClassException;
+import org.jdbi.v3.core.mapper.CaseStrategy;
 
 /**
  * Utilities for reflective mappers. This is an internal helper class that should have been package private but as the mappers are spread across the reflect and
@@ -34,20 +36,40 @@ public final class ReflectionMapperUtil {
     }
 
     /**
-     * Returns the name of all the columns present in the specified {@link ResultSet}
+     * Returns the name of all the columns present in the specified {@link ResultSet}. All column names are lowercased using the system locale.
+     *
+     * <br/>
+     * For new code, use the {@link ReflectionMapperUtil#getColumnNames(ResultSet, UnaryOperator)} method, which allows configuring the case modification strategy.
      *
      * @param rs the {@link ResultSet} to get the column names of
      * @return list of all the column names in {@code rs} (will contain duplicates if multiple columns have the same name)
-     * @throws SQLException See {@link ResultSet#getMetaData()}, {@link ResultSetMetaData#getColumnCount()},
-     *                      and {@link ResultSetMetaData#getColumnLabel(int)}
+     * @throws SQLException See {@link ResultSet#getMetaData()}, {@link ResultSetMetaData#getColumnCount()}, and {@link ResultSetMetaData#getColumnLabel(int)}
+     * @see #getColumnNames(ResultSet, UnaryOperator)
+     * @deprecated
      */
+    @Deprecated
     public static List<String> getColumnNames(ResultSet rs) throws SQLException {
+        return getColumnNames(rs, CaseStrategy.LOCALE_LOWER);
+    }
+
+    /**
+     * Returns the name of all the columns present in the specified {@link ResultSet}. The caseStrategy operator is applied to all column names to
+     * align upper/lower case etc.
+     *
+     * @param rs           the {@link ResultSet} to get the column names of
+     * @param caseStrategy Apply a specific case strategy to the column names.
+     * @return list of all the column names in {@code rs} (will contain duplicates if multiple columns have the same name)
+     * @throws SQLException See {@link ResultSet#getMetaData()}, {@link ResultSetMetaData#getColumnCount()}, and {@link ResultSetMetaData#getColumnLabel(int)}
+     * @see CaseStrategy
+     */
+    public static List<String> getColumnNames(ResultSet rs, UnaryOperator<String> caseStrategy) throws SQLException {
+
         final ResultSetMetaData metadata = rs.getMetaData();
         final int count = metadata.getColumnCount();
         final List<String> columnNames = new ArrayList<>(count);
 
         for (int i = 0; i < count; ++i) {
-            columnNames.add(metadata.getColumnLabel(i + 1).toLowerCase());
+            columnNames.add(caseStrategy.apply(metadata.getColumnLabel(i + 1)));
         }
 
         return columnNames;

@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -115,9 +116,9 @@ public final class FieldMapper<T> implements RowMapper<T> {
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        final List<String> columnNames = getColumnNames(rs);
-        final List<ColumnNameMatcher> columnNameMatchers =
-                ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
+        final UnaryOperator<String> caseChange = ctx.getConfig(ReflectionMappers.class).getCaseChange();
+        final List<String> columnNames = getColumnNames(rs, caseChange);
+        final List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)

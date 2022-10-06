@@ -31,11 +31,23 @@ public class MapMappers implements JdbiConfig<MapMappers> {
         caseChange = that.caseChange;
     }
 
+    /**
+     * Case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     *
+     * @return The current case change strategy.
+     * @see CaseStrategy
+     */
     @Beta
     public UnaryOperator<String> getCaseChange() {
         return caseChange;
     }
 
+    /**
+     * Sets the case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     *
+     * @param caseChange The strategy to use. Must not be null.
+     * @see CaseStrategy
+     */
     @Beta
     public MapMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
