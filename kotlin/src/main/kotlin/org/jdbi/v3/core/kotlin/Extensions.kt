@@ -34,29 +34,71 @@ import kotlin.reflect.full.findAnnotation
 
 private const val METADATA_FQ_NAME = "kotlin.Metadata"
 
+/**
+ * Returns true if the [Class][java.lang.Class] object represents a Kotlin class.
+ *
+ * @return True if this is a Kotlin class.
+ */
 fun Class<*>.isKotlinClass() = this.annotations.singleOrNull { it.annotationClass.java.name == METADATA_FQ_NAME } != null
 
 internal fun KClass<*>.simpleName(): String = this.simpleName ?: this::java.javaClass.simpleName
 
-/** Convenience helper to use KClass<T> for config lookup. */
+/**
+ * Convenience helper to use any [KClass] for config lookup.
+ *
+ * @see StatementContext.getConfig
+ */
 fun <T : JdbiConfig<T>>StatementContext.getConfig(kClass: KClass<T>): T = this.getConfig(kClass.java)
 
-inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> = this.mapTo(T::class.java)
+/**
+ * Use a reified parameter to map the result.
+ *
+ * @param T The type to use for mapping.
+ */
+inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> = this.mapTo(T::class)
 
-inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit) {
-    this.iterator().use {
-        block(it.asSequence())
-    }
-}
+/**
+ * Map to a Kotlin class.
+ *
+ * @param kClass the type to map the result set rows to.
+ *
+ * @see ResultBearing.mapTo
+ */
+fun <T : Any> ResultBearing.mapTo(kClass: KClass<T>): ResultIterable<T> = this.mapTo(kClass.java)
 
+/**
+ * Stream all the rows of the result set out with a [Sequence]. Handles closing of the underlying iterator.
+ *
+ * ```
+ * handle.createQuery(...).mapTo<Result>().useSequence { var firstResult = it.first() }
+ * ```
+ */
+inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit): Unit = this.iterator().use { block(it.asSequence()) }
+
+/**
+ * Bind all the member properties of a given Kotlin object.
+ *
+ * @param prefix A prefix for the property names.
+ * @param obj The object to bind.
+ */
 @Beta
-fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(name: String, obj: Any): This = this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, name))
+fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(prefix: String, obj: Any): This =
+    this.bindNamedArgumentFinder(KotlinPropertyArguments(obj, prefix))
 
+/**
+ * Bind all the member properties of a given Kotlin object.
+ *
+ * @param obj The object to bind.
+ */
 @Beta
 fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This = this.bindNamedArgumentFinder(KotlinPropertyArguments(obj))
 
 /**
- * Convenience method for {@link Configurable#configure} using Kotlin class syntax.
+ * Convenience method for [Configurable.configure] using Kotlin class syntax.
+ *
+ * @param configClass – the configuration type
+ * @param configurer – consumer that will be passed the configuration object
+ * @see Configurable.configure
  */
 @Beta
 fun <This : Configurable<This>, C : JdbiConfig<C>> Configurable<This>.configure(configClass: KClass<C>, configurer: Consumer<C>): This =
@@ -91,9 +133,7 @@ fun <E : Any, R, X : Exception> Jdbi.withExtension(extensionType: KClass<E>, cal
  * is registered which supports the given extension type.
  * @throws X                        if thrown by the callback.
  */
-fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callback: ExtensionConsumer<E, X>) {
-    useExtension(extensionType.java, callback)
-}
+fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callback: ExtensionConsumer<E, X>): Unit = useExtension(extensionType.java, callback)
 
 /**
  * Returns the set of qualifying annotations on the given Kotlin elements.
