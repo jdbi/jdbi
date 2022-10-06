@@ -17,7 +17,7 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
-import org.jdbi.v3.core.kotlin.useExtensionUnchecked
+import org.jdbi.v3.core.kotlin.useExtension
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
@@ -83,7 +83,7 @@ class TestGetGeneratedKeys {
 
     @Test
     fun testInsertStringReturnString() {
-        pgExtension.jdbi.useExtensionUnchecked(StringDAO::class) { dao ->
+        pgExtension.jdbi.useExtension<StringDAO, RuntimeException>(StringDAO::class) { dao ->
             val brianId = dao.insert("Brian")
             val keithId = dao.insert("Keith")
 
@@ -94,7 +94,7 @@ class TestGetGeneratedKeys {
 
     @Test
     fun testInsertStringReturnSomething() {
-        pgExtension.jdbi.useExtensionUnchecked(StringSomethingDAO::class) { dao ->
+        pgExtension.jdbi.useExtension<StringSomethingDAO, RuntimeException>(StringSomethingDAO::class) { dao ->
             val brianRow = dao.insert("Brian")
             val keithRow = dao.insert("Keith")
 
@@ -105,7 +105,7 @@ class TestGetGeneratedKeys {
 
     @Test
     fun testInsertSomethingReturnSomething() {
-        pgExtension.jdbi.useExtensionUnchecked(SomethingDAO::class) { dao ->
+        pgExtension.jdbi.useExtension<SomethingDAO, RuntimeException>(SomethingDAO::class) { dao ->
             val brian = Something(id = 0, name = "Brian", intValue = 10, integerValue = 100)
             val keith = Something(id = 0, name = "Keith", intValue = 10, integerValue = 100)
             val brianRow = dao.insert(brian)
