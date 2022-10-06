@@ -56,8 +56,26 @@ class Jdbi858ExtensionsTest {
     }
 
     @Test
+    fun testWithHandleWithExplicitTypes() {
+        val name = jdbi.withHandle<String, RuntimeException> { handle ->
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test
     fun testUseHandleUnchecked() {
         jdbi.useHandleUnchecked { handle ->
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
+    @Test
+    fun testUseHandleWithExplicitTypes() {
+        jdbi.useHandle<RuntimeException> { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -74,8 +92,26 @@ class Jdbi858ExtensionsTest {
     }
 
     @Test
+    fun testInTransactionWithExplicitTypes() {
+        val name = jdbi.inTransaction<String, RuntimeException> { handle ->
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test
     fun testUseTransactionUnchecked() {
         jdbi.useTransactionUnchecked { handle ->
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
+    @Test
+    fun testUseTransactionWithExplicitTypes() {
+        jdbi.useTransaction<RuntimeException> { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -92,8 +128,26 @@ class Jdbi858ExtensionsTest {
     }
 
     @Test
+    fun testInTransactionWithExplicitTypesWithLevel() {
+        val name = jdbi.inTransaction<String, RuntimeException>(TransactionIsolationLevel.READ_COMMITTED) { handle ->
+            handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test
     fun testUseTransactionUncheckedWithLevel() {
         jdbi.useTransactionUnchecked(TransactionIsolationLevel.READ_COMMITTED) { handle ->
+            val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
+    @Test
+    fun testUseTransactionWithExplicitTypesWithLevel() {
+        jdbi.useTransaction<RuntimeException>(TransactionIsolationLevel.READ_COMMITTED) { handle ->
             val name = handle.createQuery("SELECT $NAME_COLUMN FROM $TABLE_NAME").mapTo(String::class.java).one()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -110,8 +164,26 @@ class Jdbi858ExtensionsTest {
     }
 
     @Test
+    fun testWithExtensionWithExplicitTypes() {
+        val name = jdbi.withExtension<String, FooDao, RuntimeException>(FooDao::class.java) { dao ->
+            dao.getOnlyName()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test
     fun testUseExtensionUnchecked() {
         jdbi.useExtensionUnchecked(FooDao::class.java) { dao ->
+            val name = dao.getOnlyName()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
+    @Test
+    fun testUseExtensionWithExplicitTypes() {
+        jdbi.useExtension<FooDao, RuntimeException>(FooDao::class.java) { dao ->
             val name = dao.getOnlyName()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
@@ -128,8 +200,26 @@ class Jdbi858ExtensionsTest {
     }
 
     @Test
+    fun testWithExtensionWithExplicitTypesKClass() {
+        val name = jdbi.withExtension<FooDao, String, RuntimeException>(FooDao::class) { dao ->
+            dao.getOnlyName()
+        }
+
+        assertThat(name).isEqualTo(EXPECTED_NAME)
+    }
+
+    @Test
     fun testUseExtensionUncheckedKClass() {
         jdbi.useExtensionUnchecked(FooDao::class) { dao ->
+            val name = dao.getOnlyName()
+
+            assertThat(name).isEqualTo(EXPECTED_NAME)
+        }
+    }
+
+    @Test
+    fun testUseExtensionWithExplicitTypesKClass() {
+        jdbi.useExtension<FooDao, RuntimeException>(FooDao::class) { dao ->
             val name = dao.getOnlyName()
 
             assertThat(name).isEqualTo(EXPECTED_NAME)
