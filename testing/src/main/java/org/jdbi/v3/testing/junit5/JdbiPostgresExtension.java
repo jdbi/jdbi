@@ -63,8 +63,7 @@ public class JdbiPostgresExtension extends JdbiExtension {
 
     private volatile DatabaseInfo info;
 
-    static final JdbiExtension instance(EmbeddedPgExtension pg) {
-
+    static JdbiExtension instance(EmbeddedPgExtension pg) {
         return new JdbiPostgresExtension(pg);
     }
 
@@ -107,7 +106,7 @@ public class JdbiPostgresExtension extends JdbiExtension {
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
         if (info == null) {
-            throw new IllegalStateException("info has been set!");
+            throw new IllegalStateException("info has not been set!");
         }
 
         try {
