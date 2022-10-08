@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-sqlite</artifactId>
-    <name>jdbi3 sqlite</name>
+    <name>jdbi3 sqlite (${project.artifactId})</name>
     <description>Jdbi sqlite support</description>
 
     <licenses>

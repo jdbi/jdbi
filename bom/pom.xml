@@ -26,7 +26,7 @@
     <artifactId>jdbi3-bom</artifactId>
     <packaging>pom</packaging>
 
-    <name>jdbi3 BOM</name>
+    <name>jdbi3 BOM (${project.artifactId})</name>
     <description>Jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
         results, provides a convenient means of externalizing sql

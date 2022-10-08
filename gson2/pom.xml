@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-gson2</artifactId>
-    <name>jdbi3 gson2</name>
+    <name>jdbi3 gson2 (${project.artifactId})</name>
     <description>Jdbi Gson 2 integration</description>
 
     <properties>

@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-moshi</artifactId>
-    <name>jdbi3 moshi</name>
+    <name>jdbi3 moshi (${project.artifactId})</name>
     <description>Jdbi Moshi integration</description>
 
     <properties>

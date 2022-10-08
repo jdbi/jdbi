@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-freemarker</artifactId>
-    <name>jdbi3 Freemarker integration</name>
+    <name>jdbi3 Freemarker integration (${project.artifactId})</name>
     <description>jdbi-freemarker locates SQL statements in Freemarker files on the classpath</description>
 
     <licenses>

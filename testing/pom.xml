@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-testing</artifactId>
-    <name>jdbi3 Test Helpers</name>
+    <name>jdbi3 Test Helpers (${project.artifactId})</name>
     <description>Utilities for testing Jdbi</description>
 
     <licenses>

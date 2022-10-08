@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-kotlin</artifactId>
-    <name>jdbi3 Kotlin plugin</name>
+    <name>jdbi3 Kotlin plugin (${project.artifactId})</name>
 
     <developers>
         <developer>

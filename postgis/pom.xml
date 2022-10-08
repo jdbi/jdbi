@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-postgis</artifactId>
-    <name>jdbi3 PostGIS</name>
+    <name>jdbi3 PostGIS (${project.artifactId})</name>
     <description>jdbi PostgreSQL PostGIS support</description>
 
     <licenses>

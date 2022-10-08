@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-lombok</artifactId>
-    <name>jdbi3 lombok</name>
+    <name>jdbi3 lombok (${project.artifactId})</name>
 
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>

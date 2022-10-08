@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-vavr</artifactId>
-    <name>jdbi3 Vavr Integration</name>
+    <name>jdbi3 Vavr Integration (${project.artifactId})</name>
 
     <description>Vavr is a functional programming library for the JVM.
         It is greatly inspired by scala and brings persistent,

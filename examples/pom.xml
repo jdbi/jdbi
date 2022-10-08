@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-examples</artifactId>
-    <name>jdbi3 example code</name>
+    <name>jdbi3 example code (${project.artifactId})</name>
 
     <properties>
         <moduleName>org.jdbi.v3.examples</moduleName>

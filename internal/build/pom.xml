@@ -27,7 +27,7 @@
     <artifactId>jdbi3-build-parent</artifactId>
     <version>3.34.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>jdbi3 - internal - build parent</name>
+    <name>jdbi3 - internal - build parent (${project.artifactId})</name>
     <description>JDBI build related artifacts. Not for public consumption</description>
 
     <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->

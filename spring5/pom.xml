@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-spring5</artifactId>
-    <name>jdbi3 Spring 5</name>
+    <name>jdbi3 Spring 5 (${project.artifactId})</name>
     <description>jdbi Spring 4/5 forward compatibility testing</description>
 
     <properties>

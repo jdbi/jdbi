@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-generator</artifactId>
-    <name>jdbi3 Generator</name>
+    <name>jdbi3 Generator (${project.artifactId})</name>
     <description>jdbi Generator creates SqlObject implementations and simple value classes</description>
 
     <licenses>

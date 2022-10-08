@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-sqlobject</artifactId>
-    <name>jdbi3 SqlObject</name>
+    <name>jdbi3 SqlObject (${project.artifactId})</name>
     <description>jdbi SqlObject transforms simple annotated interfaces into
         full-featured DAO implementations.</description>
 

@@ -21,7 +21,7 @@
     </parent>
     <artifactId>jdbi3-commons-text</artifactId>
 
-    <name>jdbi3 Apache Commons Text integration</name>
+    <name>jdbi3 ${project.artifactId} integration</name>
     <description>Provides features implemented with Apache Commons Text.</description>
 
     <licenses>

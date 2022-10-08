@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-noparameters</artifactId>
-    <name>jdbi3 noparameters tests</name>
+    <name>jdbi3 noparameters tests (${project.artifactId})</name>
 
     <description>Unit tests for scenarios where javac compiles without -parameters flag</description>
 

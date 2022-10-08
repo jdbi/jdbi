@@ -21,7 +21,7 @@
     </parent>
 
     <artifactId>jdbi3-jackson2</artifactId>
-    <name>jdbi3 jackson2</name>
+    <name>jdbi3 jackson2 (${project.artifactId})</name>
     <description>Jdbi Jackson 2 integration</description>
 
     <properties>

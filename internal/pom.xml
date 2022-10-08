@@ -25,7 +25,7 @@
     <artifactId>jdbi3-internal-parent</artifactId>
     <version>3.34.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>jdbi3 - internal - parent</name>
+    <name>jdbi3 - internal - parent (${project.artifactId})</name>
 
     <modules>
         <module>policy</module>
