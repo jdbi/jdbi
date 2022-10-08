@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestJdbiModule {
 
@@ -72,7 +71,7 @@ public class TestJdbiModule {
 
         inj.injectMembers(this);
 
-        assertNotNull(jdbi);
+        assertThat(jdbi).isNotNull();
     }
 
     @Test

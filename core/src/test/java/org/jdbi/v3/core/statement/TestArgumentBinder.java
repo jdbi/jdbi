@@ -23,8 +23,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestArgumentBinder {
 
@@ -43,14 +42,14 @@ public class TestArgumentBinder {
                 .bind("i", 100)
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             int total = h.createQuery("SELECT COUNT(1) from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(Integer.class)
                 .one();
 
-            assertEquals(1, total);
+            assertThat(total).isOne();
         }
     }
 
@@ -63,15 +62,15 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             int total = h.createQuery("SELECT COUNT(1) from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(Integer.class)
                 .one();
 
-            assertEquals(1, total);
+            assertThat(total).isOne();
         }
     }
 
@@ -82,14 +81,14 @@ public class TestArgumentBinder {
                 .bind("i", (position, statement, ctx) -> statement.setInt(position, 200))
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             int total = h.createQuery("SELECT COUNT(1) from binder_test WHERE i = :i")
                 .bind("i", (position, statement, ctx) -> statement.setInt(position, 200))
                 .mapTo(Integer.class)
                 .one();
 
-            assertEquals(1, total);
+            assertThat(total).isOne();
         }
     }
 
@@ -102,15 +101,15 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             int total = h.createQuery("SELECT COUNT(1) from binder_test WHERE i = :i")
                 .bind("i", (position, statement, ctx) -> statement.setInt(position, 200))
                 .mapTo(Integer.class)
                 .one();
 
-            assertEquals(1, total);
+            assertThat(total).isOne();
         }
     }
 
@@ -122,15 +121,15 @@ public class TestArgumentBinder {
                 .bindBean(testBean)
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             TestBean result = h.createQuery("SELECT * from binder_test WHERE i = :i")
                 .bind("i", 300)
                 .map(ConstructorMapper.of(TestBean.class))
                 .one();
 
-            assertEquals(300, result.getI());
-            assertEquals("hello, world", result.getS());
+            assertThat(result.getI()).isEqualTo(300);
+            assertThat(result.getS()).isEqualTo("hello, world");
         }
     }
 
@@ -144,16 +143,16 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             TestBean result = h.createQuery("SELECT * from binder_test WHERE i = :i")
                 .bind("i", 300)
                 .map(ConstructorMapper.of(TestBean.class))
                 .one();
 
-            assertEquals(300, result.getI());
-            assertEquals("hello, world", result.getS());
+            assertThat(result.getI()).isEqualTo(300);
+            assertThat(result.getS()).isEqualTo("hello, world");
         }
     }
 
@@ -165,15 +164,15 @@ public class TestArgumentBinder {
                 .bindBean(testBean)
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             TestBean result = h.createQuery("SELECT * from binder_test WHERE i = :i")
                 .bind("i", 400)
                 .map(ConstructorMapper.of(TestBean.class))
                 .one();
 
-            assertEquals(400, result.getI());
-            assertNull(result.getS());
+            assertThat(result.getI()).isEqualTo(400);
+            assertThat(result.getS()).isNull();
         }
     }
 
@@ -187,16 +186,16 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             TestBean result = h.createQuery("SELECT * from binder_test WHERE i = :i")
                 .bind("i", 400)
                 .map(ConstructorMapper.of(TestBean.class))
                 .one();
 
-            assertEquals(400, result.getI());
-            assertNull(result.getS());
+            assertThat(result.getI()).isEqualTo(400);
+            assertThat(result.getS()).isNull();
         }
     }
 
@@ -209,14 +208,14 @@ public class TestArgumentBinder {
                 .bind("s", stringValue)
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             String value = h.createQuery("SELECT s from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(String.class)
                 .one();
 
-            assertNull(value);
+            assertThat(value).isNull();
         }
     }
 
@@ -231,15 +230,15 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             String value = h.createQuery("SELECT s from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(String.class)
                 .one();
 
-            assertNull(value);
+            assertThat(value).isNull();
         }
     }
 
@@ -251,14 +250,14 @@ public class TestArgumentBinder {
                 .bindNull("s", Types.VARCHAR)
                 .execute();
 
-            assertEquals(1, count);
+            assertThat(count).isOne();
 
             String value = h.createQuery("SELECT s from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(String.class)
                 .one();
 
-            assertNull(value);
+            assertThat(value).isNull();
         }
     }
 
@@ -272,15 +271,15 @@ public class TestArgumentBinder {
                 .add();
 
             int[] count = b.execute();
-            assertEquals(1, count.length);
-            assertEquals(1, count[0]);
+            assertThat(count).hasSize(1);
+            assertThat(count[0]).isOne();
 
             String value = h.createQuery("SELECT s from binder_test WHERE i = :i")
                 .bind("i", 100)
                 .mapTo(String.class)
                 .one();
 
-            assertNull(value);
+            assertThat(value).isNull();
         }
     }
 

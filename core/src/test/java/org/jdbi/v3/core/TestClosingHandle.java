@@ -105,16 +105,16 @@ public class TestClosingHandle {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         assertThat(h.isClosed()).isFalse();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         assertThat(h.isClosed()).isFalse();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         assertThat(h.isClosed()).isFalse();
         it.next();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
         assertThat(h.isClosed()).isTrue();
     }
 
@@ -131,14 +131,14 @@ public class TestClosingHandle {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         assertThat(h.isClosed()).isFalse();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         assertThat(h.isClosed()).isFalse();
 
         it.close();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
         assertThat(h.isClosed()).isTrue();
     }
 

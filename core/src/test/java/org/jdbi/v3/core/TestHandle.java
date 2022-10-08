@@ -128,12 +128,12 @@ public class TestHandle {
                 inner.afterCommit(() -> onCommit.set(true));
                 inner.afterRollback(() -> onRollback.set(true));
             });
-            assertThat(onCommit.get()).isTrue();
-            assertThat(onRollback.get()).isFalse();
+            assertThat(onCommit).isTrue();
+            assertThat(onRollback).isFalse();
 
             onCommit.set(false);
             h.useTransaction(inner -> {});
-            assertThat(onCommit.get()).isFalse();
+            assertThat(onCommit).isFalse();
         }
     }
 
@@ -147,12 +147,13 @@ public class TestHandle {
                         inner.afterCommit(() -> onCommit.set(true));
                         inner.afterRollback(() -> onRollback.set(true));
                     }));
-            assertThat(onCommit.get()).isTrue();
-            assertThat(onRollback.get()).isFalse();
+            assertThat(onCommit).isTrue();
+            assertThat(onCommit).isTrue();
+            assertThat(onRollback).isFalse();
 
             onCommit.set(false);
             h.useTransaction(inner -> {});
-            assertThat(onCommit.get()).isFalse();
+            assertThat(onCommit).isFalse();
         }
     }
 
@@ -166,12 +167,12 @@ public class TestHandle {
                 inner.afterRollback(() -> onRollback.set(true));
                 inner.rollback();
             });
-            assertThat(onCommit.get()).isFalse();
-            assertThat(onRollback.get()).isTrue();
+            assertThat(onCommit).isFalse();
+            assertThat(onRollback).isTrue();
 
             onRollback.set(false);
             h.useTransaction(Handle::rollback);
-            assertThat(onRollback.get()).isFalse();
+            assertThat(onRollback).isFalse();
         }
     }
 

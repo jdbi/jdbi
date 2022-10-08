@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 public class TestSqlObjectMethodBehavior {
     private UselessDao dao;
@@ -74,20 +74,20 @@ public class TestSqlObjectMethodBehavior {
         try {
             dao.finalize(); // Normally GC would do this, but just fake it
         } catch (UnsupportedOperationException e) {
-            fail();
+            fail("should not open a connection");
         }
     }
 
     @Test
     public void testEquals() {
-        assertThat(dao).isEqualTo(dao);
-        assertThat(dao).isNotEqualTo(anotherDao);
+        assertThat(dao).isEqualTo(dao)
+                .isNotEqualTo(anotherDao);
     }
 
     @Test
     public void testHashCode() {
-        assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
-        assertThat(dao.hashCode()).isNotEqualTo(anotherDao.hashCode());
+        assertThat(dao).hasSameHashCodeAs(dao)
+                .doesNotHaveSameHashCodeAs(anotherDao);
     }
 
     @Test
@@ -95,7 +95,8 @@ public class TestSqlObjectMethodBehavior {
         try {
             dao.toString();
         } catch (UnsupportedOperationException e) {
-            fail();
+            fail("should not open a connection");
         }
     }
+
 }

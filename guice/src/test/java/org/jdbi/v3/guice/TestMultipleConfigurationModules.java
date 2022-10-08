@@ -45,9 +45,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMultipleConfigurationModules {
 
@@ -76,23 +74,23 @@ public class TestMultipleConfigurationModules {
                 }
             }
         );
-        assertNotNull(inj);
+        assertThat(inj).isNotNull();
         Map<QualifiedType<?>, ColumnMapper<?>> qualifiedGlobalMappers = inj.getInstance(Key.get(new TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>>() {},
             JdbiGlobal.class));
 
-        assertEquals(2, qualifiedGlobalMappers.size());
-        assertTrue(qualifiedGlobalMappers.containsKey(A_TYPE));
-        assertTrue(qualifiedGlobalMappers.containsKey(B_TYPE));
+        assertThat(qualifiedGlobalMappers)
+                .hasSize(2)
+                .containsKey(A_TYPE)
+                .containsKey(B_TYPE);
         ColumnMapper<?> aMapper = qualifiedGlobalMappers.get(A_TYPE);
         ColumnMapper<?> bMapper = qualifiedGlobalMappers.get(B_TYPE);
 
         Set<ColumnMapper<?>> globalMappers = inj.getInstance(Key.get(new TypeLiteral<Set<ColumnMapper<?>>>() {}, JdbiGlobal.class));
-        assertEquals(2, globalMappers.size());
-        assertTrue(globalMappers.contains(aMapper));
-        assertTrue(globalMappers.contains(bMapper));
+        assertThat(globalMappers).hasSize(2)
+                .contains(aMapper, bMapper);
 
         Set<GuiceJdbiCustomizer> customizers = inj.getInstance(Key.get(new TypeLiteral<Set<GuiceJdbiCustomizer>>() {}, JdbiGlobal.class));
-        assertEquals(2, customizers.size());
+        assertThat(customizers).hasSize(2);
     }
 
     @Retention(RUNTIME)
@@ -121,23 +119,23 @@ public class TestMultipleConfigurationModules {
                 }
             }
         );
-        assertNotNull(inj);
+        assertThat(inj).isNotNull();
         Map<QualifiedType<?>, ColumnMapper<?>> qualifiedMappers = inj.getInstance(Key.get(new TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>>() {},
             Foo.class));
 
-        assertEquals(2, qualifiedMappers.size());
-        assertTrue(qualifiedMappers.containsKey(A_TYPE));
-        assertTrue(qualifiedMappers.containsKey(B_TYPE));
+        assertThat(qualifiedMappers)
+                .hasSize(2)
+                .containsKeys(A_TYPE, B_TYPE);
         ColumnMapper<?> aMapper = qualifiedMappers.get(A_TYPE);
         ColumnMapper<?> bMapper = qualifiedMappers.get(B_TYPE);
 
         Set<ColumnMapper<?>> globalMappers = inj.getInstance(Key.get(new TypeLiteral<Set<ColumnMapper<?>>>() {}, Foo.class));
-        assertEquals(2, globalMappers.size());
-        assertTrue(globalMappers.contains(aMapper));
-        assertTrue(globalMappers.contains(bMapper));
+        assertThat(globalMappers)
+                .hasSize(2)
+                .contains(aMapper, bMapper);
 
         Set<GuiceJdbiCustomizer> customizers = inj.getInstance(Key.get(new TypeLiteral<Set<GuiceJdbiCustomizer>>() {}, Foo.class));
-        assertEquals(2, customizers.size());
+        assertThat(customizers).hasSize(2);
     }
 
     @Test
@@ -162,13 +160,13 @@ public class TestMultipleConfigurationModules {
                 }
             }
         );
-        assertNotNull(inj);
+        assertThat(inj).isNotNull();
         Jdbi jdbi = inj.getInstance(Key.get(Jdbi.class, Foo.class));
 
         ColumnMappers mappers = jdbi.getConfig(ColumnMappers.class);
 
-        assertTrue(mappers.findFor(A_TYPE).isPresent());
-        assertTrue(mappers.findFor(B_TYPE).isPresent());
+        assertThat(mappers.findFor(A_TYPE)).isPresent();
+        assertThat(mappers.findFor(B_TYPE)).isPresent();
     }
 
     @Test
@@ -201,13 +199,13 @@ public class TestMultipleConfigurationModules {
             configModule
         );
 
-        assertNotNull(inj);
+        assertThat(inj).isNotNull();
         Jdbi jdbi = inj.getInstance(Key.get(Jdbi.class, Foo.class));
 
         ColumnMappers mappers = jdbi.getConfig(ColumnMappers.class);
 
-        assertTrue(mappers.findFor(A_TYPE).isPresent());
-        assertTrue(mappers.findFor(B_TYPE).isPresent());
+        assertThat(mappers.findFor(A_TYPE)).isPresent();
+        assertThat(mappers.findFor(B_TYPE)).isPresent();
     }
 
     @Singleton

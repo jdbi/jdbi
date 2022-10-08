@@ -96,10 +96,6 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-stringtemplate4</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -170,6 +166,12 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-testing</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

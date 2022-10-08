@@ -25,9 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CodecExampleTest {
 
@@ -86,11 +84,11 @@ public class CodecExampleTest {
 
         // end::load[]
 
-        assertNotSame(counter, restoredCounter);
+        assertThat(counter).isNotSameAs(restoredCounter);
 
         int nextRestoredValue = restoredCounter.nextValue();
 
-        assertNotEquals(counter.nextValue(), nextRestoredValue);
-        assertEquals(nextValue, nextRestoredValue);
+        assertThat(counter.nextValue()).isNotEqualTo(nextRestoredValue);
+        assertThat(nextValue).isEqualTo(nextRestoredValue);
     }
 }

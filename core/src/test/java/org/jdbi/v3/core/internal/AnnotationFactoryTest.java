@@ -88,10 +88,11 @@ public class AnnotationFactoryTest {
         A real = getAnno(annoType, annotatedMethod);
 
         assertThat(real).describedAs("real equals synthetic").isEqualTo(synthetic);
-        assertThat(synthetic).describedAs("synthetic equals real").isEqualTo(real);
-        assertThat(synthetic.hashCode()).describedAs("hashCode").isEqualTo(real.hashCode());
-        assertThat(synthetic).describedAs("toString").hasToString(expectedToString);
-        assertThat(synthetic.annotationType()).describedAs("annotationType").isEqualTo(annoType);
+        assertThat(synthetic)
+                .describedAs("synthetic equals real").isEqualTo(real)
+                .describedAs("hashCode").hasSameHashCodeAs(real)
+                .describedAs("toString").hasToString(expectedToString)
+                .extracting(A::annotationType).describedAs("annotationType").isEqualTo(annoType);
     }
 
     private <A extends Annotation> A getAnno(Class<A> annoType, String annotatedMethod) throws NoSuchMethodException {

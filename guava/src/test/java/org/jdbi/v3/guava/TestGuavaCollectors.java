@@ -174,5 +174,6 @@ public class TestGuavaCollectors {
         assertThat(map)
                 .isInstanceOf(erasedType)
                 .containsAllEntriesOf(ImmutableMultimap.of(1L, "foo", 2L, "bar"));
+
     }
 }

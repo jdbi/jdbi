@@ -44,8 +44,8 @@ public class TestOptionalArgumentH2 {
     public void testOptional() {
         insert("val?.text", new EmptyBean());
         Optional<IdValue> op = select();
-        assertThat(op).isPresent();
-        assertThat(op.get().val).isNull();
+        assertThat(op).isPresent().get()
+                .extracting(x -> x.val).isNull();
         assertThat(op.get().id).isOne();
     }
 
@@ -53,8 +53,8 @@ public class TestOptionalArgumentH2 {
     public void testNotOptionalFullBean() {
         insert("val.text", new FullBean());
         Optional<IdValue> op = select();
-        assertThat(op).isPresent();
-        assertThat(op.get().val).isEqualTo("TEST");
+        assertThat(op).isPresent().get()
+                .extracting(x -> x.val).isEqualTo("TEST");
         assertThat(op.get().id).isOne();
     }
 
@@ -62,8 +62,8 @@ public class TestOptionalArgumentH2 {
     public void testOptionalFullBean() {
         insert("val?.text", new FullBean());
         Optional<IdValue> op = select();
-        assertThat(op).isPresent();
-        assertThat(op.get().val).isEqualTo("TEST");
+        assertThat(op).isPresent().get()
+                .extracting(x -> x.val).isEqualTo("TEST");
         assertThat(op.get().id).isOne();
     }
 

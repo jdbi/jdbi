@@ -32,10 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class TestMapperInit {
 
@@ -56,15 +54,15 @@ public class TestMapperInit {
     public void testColumnMapper() {
         final StringValueMapper mapper = new StringValueMapper();
         // not yet initialized
-        assertEquals(0, mapper.getInitializedCount());
-        assertEquals(0, mapper.getMappedCount());
+        assertThat(mapper.getInitializedCount()).isZero();
+        assertThat(mapper.getMappedCount()).isZero();
 
         Jdbi jdbi = h2Extension.getJdbi();
         jdbi.registerColumnMapper(StringValue.class, mapper);
 
         // still not initialized, only at first retrieval
-        assertEquals(0, mapper.getInitializedCount());
-        assertEquals(0, mapper.getMappedCount());
+        assertThat(mapper.getInitializedCount()).isZero();
+        assertThat(mapper.getMappedCount()).isZero();
 
         List<StringValue> values = jdbi.withHandle(h -> {
             List<StringValue> value = h.createQuery("SELECT string_value FROM column_mappers")
@@ -72,28 +70,27 @@ public class TestMapperInit {
                 .list();
 
             // has been called once
-            assertEquals(1, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row (mapper gets reused)
-            assertEquals(value.size(), mapper.getMappedCount());
+            assertThat(value).hasSize(mapper.getMappedCount());
 
             value = h.createQuery("SELECT string_value FROM column_mappers")
                 .mapTo(StringValue.class)
                 .list();
 
             // has been called once
-            assertEquals(2, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
 
             // has been called for every row (mapper gets reused)
-            assertEquals(value.size() * 2, mapper.getMappedCount());
+            assertThat(value.size() * 2).isEqualTo(mapper.getMappedCount());
             return value;
         });
 
-        assertNotNull(values);
-        assertEquals(3, values.size());
-        assertTrue(values.contains(new StringValue("foo")));
-        assertTrue(values.contains(new StringValue("bar")));
-        assertTrue(values.contains(new StringValue("baz")));
+        assertThat(values)
+                .isNotNull()
+                .hasSize(3)
+                .contains(new StringValue("foo"), new StringValue("bar"), new StringValue("baz"));
 
         // redo with another handle
         values = jdbi.withHandle(h -> {
@@ -102,10 +99,10 @@ public class TestMapperInit {
                 .list();
 
             // called again for the statement
-            assertEquals(3, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isEqualTo(3);
 
             // has been called for every row again (mapper gets reused)
-            assertEquals(value.size() * 3, mapper.getMappedCount());
+            assertThat(value.size() * 3).isEqualTo(mapper.getMappedCount());
 
             return value;
         });
@@ -117,16 +114,16 @@ public class TestMapperInit {
 
         final StringValueMapper mapper = new StringValueMapper();
         // not yet initialized
-        assertEquals(0, mapper.getInitializedCount());
-        assertEquals(0, mapper.getMappedCount());
+        assertThat(mapper.getInitializedCount()).isZero();
+        assertThat(mapper.getMappedCount()).isZero();
 
         Jdbi jdbi = h2Extension.getJdbi();
         jdbi.registerColumnMapper(StringValue.class, mapper);
         jdbi.registerRowMapper(resultType, new ResultMapper());
 
         // still not initialized, only at first retrieval
-        assertEquals(0, mapper.getInitializedCount());
-        assertEquals(0, mapper.getMappedCount());
+        assertThat(mapper.getInitializedCount()).isZero();
+        assertThat(mapper.getMappedCount()).isZero();
 
         List<Map.Entry<StringValue, Integer>> values = jdbi.withHandle(h -> {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
@@ -134,25 +131,26 @@ public class TestMapperInit {
                 .list();
 
             // has been called once
-            assertEquals(1, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row (mapper gets reused)
-            assertEquals(value.size(), mapper.getMappedCount());
+            assertThat(value).hasSize(mapper.getMappedCount());
 
             value = h.createQuery("SELECT * FROM column_mappers")
                 .mapTo(resultType)
                 .list();
 
             // has been called once
-            assertEquals(2, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
 
             // has been called for every row (mapper gets reused)
-            assertEquals(value.size() * 2, mapper.getMappedCount());
+            assertThat(value.size() * 2).isEqualTo(mapper.getMappedCount());
             return value;
         });
 
-        assertNotNull(values);
-        assertEquals(3, values.size());
+        assertThat(values)
+                .isNotNull()
+                .hasSize(3);
 
         // redo with another handle
         values = jdbi.withHandle(h -> {
@@ -160,10 +158,10 @@ public class TestMapperInit {
                 .mapTo(resultType)
                 .list();
             // called again for the statement
-            assertEquals(3, mapper.getInitializedCount());
+            assertThat(mapper.getInitializedCount()).isEqualTo(3);
 
             // has been called for every row again (mapper gets reused)
-            assertEquals(value.size() * 3, mapper.getMappedCount());
+            assertThat(value).hasSize(mapper.getMappedCount() / 3);
 
             return value;
         });

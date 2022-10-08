@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 final class PostgisPluginTest {
 
@@ -86,9 +86,9 @@ final class PostgisPluginTest {
             .mapToBean(PostgisRecord.class)
             .first();
 
-        assertEquals(record.getPoint(), result.getPoint());
-        assertEquals(record.getLineString(), result.getLineString());
-        assertEquals(record.getPolygon(), result.getPolygon());
+        assertThat(record.getPoint()).isEqualTo(result.getPoint());
+        assertThat(record.getLineString()).isEqualTo(result.getLineString());
+        assertThat(record.getPolygon()).isEqualTo(result.getPolygon());
     }
 
     public static final class PostgisRecord {

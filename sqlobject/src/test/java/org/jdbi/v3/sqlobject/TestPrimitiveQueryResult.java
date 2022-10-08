@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestPrimitiveQueryResult {
 
@@ -41,56 +41,64 @@ public class TestPrimitiveQueryResult {
     public void testBoolean() {
         assertThat(dao.getBoolean(1)).isTrue();
 
-        assertThrows(IllegalStateException.class, () -> dao.getBoolean(2));
+        assertThatThrownBy(() -> dao.getBoolean(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testByte() {
         assertThat(dao.getByte(1)).isEqualTo((byte) 1);
 
-        assertThrows(IllegalStateException.class, () -> dao.getByte(2));
+        assertThatThrownBy(() -> dao.getByte(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testChar() {
         assertThat(dao.getChar(1)).isEqualTo('a');
 
-        assertThrows(IllegalStateException.class, () -> dao.getChar(2));
+        assertThatThrownBy(() -> dao.getChar(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testShort() {
         assertThat(dao.getShort(1)).isEqualTo((short) 1);
 
-        assertThrows(IllegalStateException.class, () -> dao.getShort(2));
+        assertThatThrownBy(() -> dao.getShort(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testInt() {
         assertThat(dao.getInt(1)).isOne();
 
-        assertThrows(IllegalStateException.class, () -> dao.getInt(2));
+        assertThatThrownBy(() -> dao.getInt(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testLong() {
         assertThat(dao.getLong(1)).isEqualTo(1L);
 
-        assertThrows(IllegalStateException.class, () -> dao.getLong(2));
+        assertThatThrownBy(() -> dao.getLong(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testFloat() {
         assertThat(dao.getFloat(1)).isEqualTo(1f);
 
-        assertThrows(IllegalStateException.class, () -> dao.getFloat(2));
+        assertThatThrownBy(() -> dao.getFloat(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     public void testDouble() {
         assertThat(dao.getDouble(1)).isEqualTo(1d);
 
-        assertThrows(IllegalStateException.class, () -> dao.getDouble(2));
+        assertThatThrownBy(() -> dao.getDouble(2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     public interface PrimitiveDao {

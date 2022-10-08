@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestGuavaCollectors {
 
@@ -52,8 +51,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void testOptional() {
-        assertThat(h.attach(UserDao.class).getById(1))
-                .contains(new User(1, "Alice"));
+        assertThat(h.attach(UserDao.class).getById(1).get()).isEqualTo(new User(1, "Alice"));
     }
 
     @RegisterConstructorMapper(User.class)

@@ -40,8 +40,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import static com.google.inject.name.Names.named;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestCustomConfigurationModule {
 
@@ -73,15 +72,15 @@ public class TestCustomConfigurationModule {
         // explicit custom mapper from the custom module
         ColumnMapper<String> customMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("custom")))
             .orElseThrow(IllegalStateException::new);
-        assertEquals(CUSTOM, customMapper.map(null, 1, null));
+        assertThat(customMapper.map(null, 1, null)).isEqualTo(CUSTOM);
 
         // explicit local mapper from the local module
         ColumnMapper<String> localMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("local")))
             .orElseThrow(IllegalStateException::new);
-        assertEquals(LOCAL, localMapper.map(null, 1, null));
+        assertThat(localMapper.map(null, 1, null)).isEqualTo(LOCAL);
 
         // but the global mapper is not loaded
-        assertFalse(columnMappers.findFor(QualifiedType.of(String.class).with(named("global"))).isPresent());
+        assertThat(columnMappers.findFor(QualifiedType.of(String.class).with(named("global")))).isNotPresent();
     }
 
     static class GlobalModule extends AbstractJdbiConfigurationModule {

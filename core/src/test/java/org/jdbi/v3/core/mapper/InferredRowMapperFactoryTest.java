@@ -22,11 +22,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InferredRowMapperFactoryTest {
 
@@ -36,40 +33,43 @@ public class InferredRowMapperFactoryTest {
 
         Optional<RowMapper<?>> mapper = factory.build(Dummy.class, new ConfigRegistry());
 
-        assertTrue(mapper.isPresent());
-        assertEquals(DummyMapper.class, mapper.get().getClass());
+        assertThat(mapper).isPresent().get()
+                .extracting(RowMapper::getClass).isEqualTo(DummyMapper.class);
     }
 
     @Test
     public void rejectGenericMapper() {
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
-            () -> new InferredRowMapperFactory(new GenericMapper<>(Dummy.class)));
-        assertEquals("Must use a concretely typed RowMapper here", e.getMessage());
+        GenericMapper<Dummy> mapper = new GenericMapper<>(Dummy.class);
+        assertThatThrownBy(() -> new InferredRowMapperFactory(mapper))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Must use a concretely typed RowMapper here");
     }
 
     @Test
     public void rejectObjectMapper() {
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> new InferredRowMapperFactory(new ObjectMapper()));
-        assertEquals("Must use a concretely typed RowMapper here", e.getMessage());
+        ObjectMapper mapper = new ObjectMapper();
+        assertThatThrownBy(() -> new InferredRowMapperFactory(mapper))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Must use a concretely typed RowMapper here");
     }
 
     @Test
     public void testDetectConcreteMapper() {
         Optional<Type> type = InferredRowMapperFactory.detectType(new DummyMapper());
-        assertTrue(type.isPresent());
-        assertSame(Dummy.class, type.get());
+        assertThat(type).isPresent().get()
+                .isSameAs(Dummy.class);
     }
 
     @Test
     public void testDetectGenericMapper() {
         Optional<Type> type = InferredRowMapperFactory.detectType(new GenericMapper<>(Dummy.class));
-        assertFalse(type.isPresent());
+        assertThat(type).isNotPresent();
     }
 
     @Test
     public void testDetectObjectMapper() {
         Optional<Type> type = InferredRowMapperFactory.detectType(new ObjectMapper());
-        assertFalse(type.isPresent());
+        assertThat(type).isNotPresent();
     }
 
     public static class Dummy {}

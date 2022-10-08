@@ -28,8 +28,7 @@ import org.jdbi.v3.guice.util.GuiceTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestMultipleModules {
 
@@ -46,7 +45,7 @@ public class TestMultipleModules {
         DataSource ds1 = new JdbcDataSource();
         DataSource ds2 = new JdbcDataSource();
 
-        assertNotEquals(ds1, ds2);
+        assertThat(ds1).isNotEqualTo(ds2);
 
         Annotation db1Annotation = Names.named("db1");
         Module db1Module = new AbstractJdbiDefinitionModule(db1Annotation) {
@@ -71,8 +70,9 @@ public class TestMultipleModules {
 
     @Test
     public void testMultiJdbi() {
-        assertNotNull(jdbiDb1);
-        assertNotNull(jdbiDb2);
-        assertNotEquals(jdbiDb1, jdbiDb2);
+        assertThat(jdbiDb2).isNotNull();
+        assertThat(jdbiDb1)
+                .isNotNull()
+                .isNotEqualTo(jdbiDb2);
     }
 }

@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Multimap;
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestVavrMapCollectorWithDB {
 
@@ -68,31 +66,31 @@ public class TestVavrMapCollectorWithDB {
             .setMapValueColumn("val_c");
 
         Boolean executed = jdbiWithKeyColAndValCol.withHandle(h -> {
-            HashMap<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
-                .collectInto(new GenericType<HashMap<String, String>>() {});
+            Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
+                .collectInto(new GenericType<Map<String, String>>() {});
             assertThat(valueMap).containsOnlyElementsOf(expectedMap);
             return true;
         });
 
-        assertTrue(executed);
+        assertThat(executed).isTrue();
     }
 
     @Test
     public void testMapCollectorWithTupleConfigShouldSucceed() {
-        HashMap<String, String> valueMap = h2Extension.getSharedHandle()
+        Map<String, String> valueMap = h2Extension.getSharedHandle()
             .configure(TupleMappers.class, c -> c.setKeyColumn("key_c").setValueColumn("val_c"))
             .createQuery("select val_c, key_c from keyval")
-            .collectInto(new GenericType<HashMap<String, String>>() {});
+            .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(valueMap).containsOnlyElementsOf(expectedMap);
     }
 
     @Test
     public void testMapCollectorWithCorrespondingTupleColsShouldSucceed() {
-        HashMap<String, String> valueMap = h2Extension.getSharedHandle()
+        Map<String, String> valueMap = h2Extension.getSharedHandle()
             .configure(TupleMappers.class, c -> c.setColumn(1, "key_c").setColumn(2, "val_c"))
             .createQuery("select val_c, key_c from keyval")
-            .collectInto(new GenericType<HashMap<String, String>>() {});
+            .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(valueMap).containsOnlyElementsOf(expectedMap);
     }

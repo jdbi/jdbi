@@ -54,13 +54,13 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
     }
 
     @Test
@@ -84,21 +84,21 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext()
+                      .hasNext()
+                      .hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext()
+                      .hasNext()
+                      .hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext()
+                      .hasNext()
+                      .hasNext();
         it.next();
-        assertThat(it.hasNext()).isFalse();
-        assertThat(it.hasNext()).isFalse();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted()
+                      .isExhausted()
+                      .isExhausted();
     }
 
     @Test
@@ -112,11 +112,11 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
         it.next();
         it.next();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
     }
 
     @Test
@@ -148,11 +148,11 @@ public class TestIterator {
 
         it.next();
         it.next();
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext()
+                      .hasNext();
         it.next();
-        assertThat(it.hasNext()).isFalse();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted()
+                      .isExhausted();
     }
 
     @Test
@@ -166,12 +166,12 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
     }
 
     @Test
@@ -185,13 +185,13 @@ public class TestIterator {
             .mapToMap()
             .iterator();
 
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isTrue();
+        assertThat(it).hasNext();
         it.next();
-        assertThat(it.hasNext()).isFalse();
+        assertThat(it).isExhausted();
 
         assertThatThrownBy(it::next).isInstanceOf(IllegalStateException.class);
     }

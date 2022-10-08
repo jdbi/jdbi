@@ -21,30 +21,26 @@ import javax.annotation.Nullable;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JdbiInterceptionChainHolderTest {
 
     @Test
     public void testDefault() {
-        JdbiInterceptionChainHolder<Object, Object> holder = new JdbiInterceptionChainHolder<>();
-
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> holder.process(new Object()));
-
-        assertEquals("object type 'Object' is not supported", e.getMessage());
+        JdbiInterceptionChainHolder<Object, Object> jdbiInterceptionChainHolder = new JdbiInterceptionChainHolder<>();
+        Object source = new Object();
+        assertThatThrownBy(() -> jdbiInterceptionChainHolder.process(source))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("object type 'Object' is not supported");
     }
 
     @Test
     public void testDefaultNull() {
-        JdbiInterceptionChainHolder<Object, Object> holder = new JdbiInterceptionChainHolder<>();
-
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> holder.process(null));
-
-        assertEquals("null value is not supported", e.getMessage());
+        JdbiInterceptionChainHolder<Object, Object> jdbiInterceptionChainHolder = new JdbiInterceptionChainHolder<>();
+        assertThatThrownBy(() -> jdbiInterceptionChainHolder.process(null))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("null value is not supported");
     }
 
     @Test
@@ -57,8 +53,8 @@ public class JdbiInterceptionChainHolderTest {
 
         String result = holder.process(source);
 
-        assertSame(source, t.getSource());
-        assertEquals(t.getTarget(), result);
+        assertThat(source).isSameAs(t.getSource());
+        assertThat(t.getTarget()).isEqualTo(result);
     }
 
     @Test
@@ -69,8 +65,8 @@ public class JdbiInterceptionChainHolderTest {
 
         String result = holder.process(null);
 
-        assertNull(t.getSource());
-        assertEquals(t.getTarget(), result);
+        assertThat(t.getSource()).isNull();
+        assertThat(t.getTarget()).isEqualTo(result);
     }
 
     @Test
@@ -84,10 +80,10 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, t.getSource());
-        assertSame(source, i.getSource());
-        assertEquals(t.getTarget(), result);
-        assertNotEquals(i.getTarget(), result);
+        assertThat(source).isSameAs(t.getSource())
+                          .isSameAs(i.getSource());
+        assertThat(t.getTarget()).isEqualTo(result);
+        assertThat(i.getTarget()).isNotEqualTo(result);
     }
 
     @Test
@@ -101,10 +97,10 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i.getSource());
-        assertNull(t.getSource());
-        assertNotEquals(t.getTarget(), result);
-        assertEquals(i.getTarget(), result);
+        assertThat(source).isSameAs(i.getSource());
+        assertThat(t.getSource()).isNull();
+        assertThat(t.getTarget()).isNotEqualTo(result);
+        assertThat(i.getTarget()).isEqualTo(result);
     }
 
     @Test
@@ -118,10 +114,10 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i.getSource());
-        assertNull(t.getSource());
-        assertNotEquals(t.getTarget(), result);
-        assertEquals(i.getTarget(), result);
+        assertThat(source).isSameAs(i.getSource());
+        assertThat(t.getSource()).isNull();
+        assertThat(t.getTarget()).isNotEqualTo(result);
+        assertThat(i.getTarget()).isEqualTo(result);
     }
 
     @Test
@@ -135,10 +131,10 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, t.getSource());
-        assertSame(source, i.getSource());
-        assertEquals(t.getTarget(), result);
-        assertNotEquals(i.getTarget(), result);
+        assertThat(source).isSameAs(t.getSource())
+                          .isSameAs(i.getSource());
+        assertThat(t.getTarget()).isEqualTo(result);
+        assertThat(i.getTarget()).isNotEqualTo(result);
     }
 
     @Test
@@ -154,13 +150,13 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i2.getSource());
-        assertSame(source, i1.getSource());
-        assertNull(t.getSource());
+        assertThat(source).isSameAs(i2.getSource())
+                          .isSameAs(i1.getSource());
+        assertThat(t.getSource()).isNull();
 
-        assertEquals(i1.getTarget(), result);
-        assertNotEquals(i2.getTarget(), result);
-        assertNotEquals(t.getTarget(), result);
+        assertThat(i1.getTarget()).isEqualTo(result);
+        assertThat(i2.getTarget()).isNotEqualTo(result);
+        assertThat(t.getTarget()).isNotEqualTo(result);
     }
 
     @Test
@@ -176,13 +172,13 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i2.getSource());
-        assertNull(i1.getSource());
-        assertNull(t.getSource());
+        assertThat(source).isSameAs(i2.getSource());
+        assertThat(i1.getSource()).isNull();
+        assertThat(t.getSource()).isNull();
 
-        assertEquals(i2.getTarget(), result);
-        assertNotEquals(i1.getTarget(), result);
-        assertNotEquals(t.getTarget(), result);
+        assertThat(i2.getTarget()).isEqualTo(result);
+        assertThat(i1.getTarget()).isNotEqualTo(result);
+        assertThat(t.getTarget()).isNotEqualTo(result);
     }
 
     @Test
@@ -198,13 +194,13 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i1.getSource());
-        assertNull(i2.getSource());
-        assertNull(t.getSource());
+        assertThat(source).isSameAs(i1.getSource());
+        assertThat(i2.getSource()).isNull();
+        assertThat(t.getSource()).isNull();
 
-        assertEquals(i1.getTarget(), result);
-        assertNotEquals(i2.getTarget(), result);
-        assertNotEquals(t.getTarget(), result);
+        assertThat(i1.getTarget()).isEqualTo(result);
+        assertThat(i2.getTarget()).isNotEqualTo(result);
+        assertThat(t.getTarget()).isNotEqualTo(result);
     }
 
     @Test
@@ -220,13 +216,13 @@ public class JdbiInterceptionChainHolderTest {
         Object source = new Object();
         String result = holder.process(source);
 
-        assertSame(source, i2.getSource());
-        assertSame(source, i1.getSource());
-        assertNull(t.getSource());
+        assertThat(source).isSameAs(i2.getSource())
+                          .isSameAs(i1.getSource());
+        assertThat(t.getSource()).isNull();
 
-        assertEquals(i2.getTarget(), result);
-        assertNotEquals(i1.getTarget(), result);
-        assertNotEquals(t.getTarget(), result);
+        assertThat(i2.getTarget()).isEqualTo(result);
+        assertThat(i1.getTarget()).isNotEqualTo(result);
+        assertThat(t.getTarget()).isNotEqualTo(result);
     }
 
     static class Transformer<S> implements Function<S, String> {

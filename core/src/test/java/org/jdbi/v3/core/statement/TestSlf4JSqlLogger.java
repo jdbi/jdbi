@@ -21,8 +21,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TestSlf4JSqlLogger {
     private static final String CREATE = "create table foo(bar int primary key not null)";
@@ -56,7 +56,7 @@ class TestSlf4JSqlLogger {
 
             Batch batch = handle.createBatch();
             batch.add(INSERT);
-            assertDoesNotThrow(batch::execute);
+            assertThatCode(batch::execute).doesNotThrowAnyException();
         }
     }
 
@@ -65,7 +65,9 @@ class TestSlf4JSqlLogger {
         try (Handle handle = h2Extension.getJdbi().open()) {
             Batch batch = handle.createBatch();
             batch.add(INSERT);
-            assertThrows(UnableToExecuteStatementException.class, batch::execute);
+
+            assertThatThrownBy(batch::execute)
+                    .isInstanceOf(UnableToExecuteStatementException.class);
         }
     }
 }

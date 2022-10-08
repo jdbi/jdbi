@@ -24,6 +24,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
@@ -32,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestGuavaOptional {
 
@@ -82,12 +83,10 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-
-        assertThrows(UnableToCreateStatementException.class,
-            () -> handle.createQuery(SELECT_BY_NAME)
+        ResultIterable<Something> ri = handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
-                .mapToBean(Something.class)
-                .list());
+                .mapToBean(Something.class);
+        assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -123,11 +122,10 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        assertThrows(UnableToCreateStatementException.class,
-            () -> handle.createQuery(SELECT_BY_NAME)
+        ResultIterable<Something> ri = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
-                .mapToBean(Something.class)
-                .list());
+                .mapToBean(Something.class);
+        assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     class Name {

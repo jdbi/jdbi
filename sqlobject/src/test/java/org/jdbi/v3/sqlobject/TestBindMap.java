@@ -35,7 +35,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBindMap {
 
@@ -102,7 +102,8 @@ public class TestBindMap {
     @Test
     public void testBindMapKeyNotInMapOrKeys() {
         handle.execute("insert into something(id, name) values (3, 'Carol')");
-        assertThrows(UnableToCreateStatementException.class, () -> dao.update(3, emptyMap()));
+        Map<Object, Object> m = emptyMap();
+        assertThatThrownBy(() -> dao.update(3, m)).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -126,8 +127,9 @@ public class TestBindMap {
     @Test
     public void testBindMapNonStringKeys() {
         handle.execute("insert into something(id, name) values (5, 'Edward')");
+        Map<Object, Object> m = singletonMap(new MapKey("name"), "Jacob");
 
-        assertThrows(IllegalArgumentException.class, () -> dao.update(5, singletonMap(new MapKey("name"), "Jacob")));
+        assertThatThrownBy(() -> dao.update(5, m)).isInstanceOf(IllegalArgumentException.class);
     }
 
     public static class MapKey {

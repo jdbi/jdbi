@@ -30,7 +30,6 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -97,10 +96,10 @@ public class TestVariousOddities {
 
     @Test
     public void testNullQueryReturn() {
-
-        IllegalStateException e = Assertions.assertThrows(IllegalStateException.class, () -> h2Extension.getSharedHandle().attach(SpiffyBoom.class));
-
-        assertThat(e.getMessage()).contains("returnNothing is annotated as if it should return a value, but the method is void.");
+        Handle h = h2Extension.getSharedHandle();
+        assertThatThrownBy(() -> h.attach(SpiffyBoom.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("returnNothing is annotated as if it should return a value, but the method is void.");
     }
 
     public interface Spiffy {

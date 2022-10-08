@@ -28,7 +28,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestBatch {
 
@@ -69,9 +68,9 @@ public class TestBatch {
             }
             int[] counts = batch.execute();
 
-            assertEquals(batchCount, counts.length);
+            assertThat(batchCount).isEqualTo(counts.length);
             for (int i = 0; i < batchCount; i++) {
-                assertEquals(1, counts[i]);
+                assertThat(counts[i]).isOne();
             }
         }
     }
@@ -88,9 +87,9 @@ public class TestBatch {
             }
             int[] counts = batch.execute();
 
-            assertEquals(batchCount, counts.length);
+            assertThat(batchCount).isEqualTo(counts.length);
             for (int i = 0; i < batchCount; i++) {
-                assertEquals(1, counts[i]);
+                assertThat(counts[i]).isOne();
             }
         }
     }

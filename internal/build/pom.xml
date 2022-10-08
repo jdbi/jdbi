@@ -57,6 +57,8 @@
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>4.10.1</dep.antlr.version>
+        <dep.assertj-core.version>3.23.1</dep.assertj-core.version>
+        <dep.assertj-guava.version>3.4.0</dep.assertj-guava.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
         <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
@@ -71,7 +73,7 @@
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.jts.version>1.19.0</dep.jts.version>
-        <dep.junit5.version>5.8.2</dep.junit5.version>
+        <dep.junit5.version>5.9.1</dep.junit5.version>
         <dep.kotlin.version>1.5.32</dep.kotlin.version>
         <dep.lombok.version>1.18.24</dep.lombok.version>
         <dep.mockito.version>4.2.0</dep.mockito.version>
@@ -328,13 +330,13 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.21.0</version>
+                <version>${dep.assertj-core.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
-                <version>3.4.0</version>
+                <version>${dep.assertj-guava.version}</version>
             </dependency>
 
             <dependency>
