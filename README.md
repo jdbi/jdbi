@@ -13,7 +13,7 @@ Jdbi with it.
 * [Javadoc](https://jdbi.org/apidocs/)
 * [Mailing List](http://groups.google.com/group/jdbi)
 
-Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/blob/master/examples/README.md) module.
+Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/tree/master/examples) module.
 
 ## Prerequisites
 
