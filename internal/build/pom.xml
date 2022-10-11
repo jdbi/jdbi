@@ -1057,5 +1057,15 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!-- Profile to skip time-consuming steps. -->
+            <id>fast</id>
+            <properties>
+                <basepom.check.skip-all>true</basepom.check.skip-all>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+
     </profiles>
 </project>
