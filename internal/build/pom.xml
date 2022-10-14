@@ -58,6 +58,7 @@
 
         <dep.antlr.version>4.10.1</dep.antlr.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
+        <dep.commons-text.version>1.10.0</dep.commons-text.version>
         <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
         <dep.dokka.version>1.7.10</dep.dokka.version>
         <dep.freebuilder.version>2.7.0</dep.freebuilder.version>
@@ -387,10 +388,9 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.9</version>
+                <version>${dep.commons-text.version}</version>
             </dependency>
 
-            <!-- commons-text 1.6 wants 3.8.1, but otj-pg-embedded 0.13.0 wants 3.7 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
