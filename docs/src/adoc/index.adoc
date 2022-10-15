@@ -2021,7 +2021,7 @@ Array columns can be mapped to any container type registered with the
 
 After executing a database query, you need to interpret the results. JDBC
 provides the *ResultSet* class which can do simple mapping to Java primitives
-and built in classes, but the API is often cumbersome to use. *Jdbi* provides
+and built in classes, but the API is often cumbersome to use. Jdbi provides
 configurable mapping, including the ability to register custom mappers for rows
 and columns.
 
@@ -2033,7 +2033,7 @@ build more complex *RowMapper* types.
 
 The mapper is selected based on the declared result type of your query.
 
-*jdbi* iterates over the rows in the ResultSet and presents the mapped results
+Jdbi iterates over the rows in the ResultSet and presents the mapped results
 to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
 
 [source,java,indent=0]
@@ -2522,7 +2522,7 @@ and end up with logs that say nothing other than
 java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, '') was aborted. Call getNextException to see the cause.
 ----
 
-*jdbi* will attempt to rewrite such nextExceptions into "suppressed exceptions"
+Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
 (new in Java 8) so that your logs are more helpful:
 
 ----
@@ -2622,7 +2622,7 @@ include::{exampledir}/StatementsTest.java[tags=script]
 
 === Transactions
 
-*jdbi* provides full support for JDBC transactions.
+Jdbi provides full support for JDBC transactions.
 
 *Handle* objects provide two ways to open a transaction -- *inTransaction*
 allows you to return a result, and *useTransaction* has no return value.
@@ -2643,7 +2643,7 @@ If you do not explicitly commit a manually opened transaction, it will be rolled
 ==== Serializable Transactions
 
 For more advanced queries, sometimes serializable transactions are required.
-*jdbi* includes a transaction runner that is able to retry transactions that
+Jdbi includes a transaction runner that is able to retry transactions that
 abort due to serialization failures. It is important that your transaction does
 not have side effects as it may be executed multiple times.
 
@@ -5730,7 +5730,7 @@ template will be used, regardless of the method name.
 
 === Vavr
 
-The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional library:
+The Vavr Plugin offers deep integration of Jdbi with the Vavr functional library:
 
 * Supports argument resolution of sever Vavr Value types such as
   `Option<T>`, `Either<L, T>`, `Lazy<T>`, `Try<T>` and `Validation<T>`.
@@ -5743,7 +5743,7 @@ The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional libra
   (e.q. `List<T>` for `Seq<T>`). Furthermore ``Multimap<K, T>``s are backed by a `Seq<T>`
   as default value container.
 * Columns can be mapped into Vavr's `Option<T>` type.
-* Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
+* Tuple projections for Jdbi! Yey! Vavr offers Tuples up to a maximum arity of 8.
   you can map your query results e.g. to `Tuple3<Integer, String, Long>`.
   If you select more columns than the arity of the projection the columns
   up to that index will be used.
@@ -5793,8 +5793,13 @@ handle.createQuery("select name from users")
 ----
 
 This works for all the collection types supported. For the nested value
+<<<<<<< Updated upstream
 row and column mappers already installed in *Jdbi* will be used.
 Therefore, the following would work and can make sense if the column is nullable:
+=======
+row and column mappers already installed in Jdbi will be used.
+Therefore the following would work and can make sense if the column is nullable:
+>>>>>>> Stashed changes
 
 [source,java]
 ----
@@ -6148,7 +6153,7 @@ methods are just creating and binding custom implementations of
 Configuration is managed by the
 link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry]
 class.  Each Jdbi object that represents a distinct database context
-(for example, *Jdbi* itself, a *Handle* instance, or an attached SqlObject
+(for example, Jdbi itself, a *Handle* instance, or an attached SqlObject
 class) gets its own configuration registry.  Most contexts implement the
 link:{jdbidocs}/core/config/Configurable.html[Configurable] interface which
 allows modification of its configuration as well as retrieving the current
@@ -6874,7 +6879,7 @@ here!
 
 === Contributing
 
-*jdbi* uses GitHub for collaboration. Please check out the
+Jdbi uses GitHub for collaboration. Please check out the
 link:{projecthome}[project page^] for more information.
 
 If you have a question, we have a
