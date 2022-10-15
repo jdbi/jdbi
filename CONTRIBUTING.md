@@ -1,3 +1,5 @@
+![Jdbi Logo](docs/src/adoc/images/logo.svg)
+
 Hi! Welcome to Jdbi.
 
 We're glad you're thinking about contributing to the project.
@@ -53,7 +55,23 @@ Most of our SQL Object tests rely on SQL method parameter names. However by defa
 parameter names into `.class` files. Thus, in order for unit tests to pass, the compiler must be configured to output
 parameter names.
 
-## Configure import ordering
+### IntelliJ IDEA
+
+* File &rarr; Settings
+* Build, Execution, Deployment &rarr; Compiler &rarr; Java Compiler
+* Additional command-line parameters: `-parameters`
+* Click Apply, then OK.
+* Build &rarr; Rebuild Project
+
+### Eclipse IDE
+
+* Window &rarr; Preferences &rarr; Java &rarr; Compiler
+* Section *Classfile Generation*
+* Check box *Add variable attributes to generated class files (used by the debugger)*
+* Check box *Store information about method parameters (usable via reflection)*
+* Click Apply and close dialog
+
+## Java Import Statements
 
 We enforce this order of imports:
 
@@ -66,13 +84,32 @@ static javax.*
 static *
 ```
 
-A blank line is required between each group. The imports in a group must be ordered
-alphabetically. Wildcard imports (e.g. `import org.apache.*;`) are not allowed.
+A blank line is required between each group.
+Imports in a group must be ordered alphabetically.
 
-### IntelliJ
+Wildcard (aka star) imports e.g. `import org.apache.*;`, including static imports, are not allowed.
 
-* File &rarr; Settings
-* Build, Execution, Deployment &rarr; Compiler &rarr; Java Compiler
-* Additional command-line parameters: `-parameters`
-* Click Apply, then OK.
-* Build &rarr; Rebuild Project
+Javadoc may not cause an import statement i.e. use FQCN in Javadoc unless the import statement is already caused by code.
+
+### Eclipse IDE
+
+* Save this content to a text file named `jdbi-eclipse.importorder`
+  or download from [here](internal/policy/src/main/resources/ide/jdbi-eclipse.importorder)
+
+```
+#Organize Import Order
+0=java
+1=javax
+2=
+3=\#java
+4=\#javax
+5=\#
+```
+
+* Open your project's properties
+* Go to Preferences &rarr; Java &rarr; Code Style &rarr; Organize Imports
+* Click the *Import...* button and select the file you previously created
+* Set both text boxes *Number of [static] imports needed for .* * to a large value such as 1000, effectively turning wildcard/star imports off
+* Close the dialog
+* Reorganize imports of modified source files using these rules before any commit
+
