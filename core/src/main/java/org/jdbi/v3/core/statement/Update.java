@@ -68,11 +68,7 @@ public class Update extends SqlStatement<Update> {
         try {
             return producer.produce(this::internalExecute, getContext());
         } catch (SQLException e) {
-            try {
-                close();
-            } catch (Exception e1) {
-                e.addSuppressed(e1);
-            }
+            cleanUpForException(e);
             throw new UnableToProduceResultException("Could not produce statement result", e, getContext());
         }
     }

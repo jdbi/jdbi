@@ -89,7 +89,7 @@ public class Batch extends BaseStatement<Batch> {
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         } finally {
-            close();
+            nullSafeCleanUp(this);
         }
     }
 
