@@ -230,7 +230,7 @@ Jdbi jdbi = Jdbi.create(ds);
 
 `Jdbi` instances are thread-safe and do not own any database resources.
 
-Typically applications create a single, shared `Jdbi` instance, and set up
+Typically, applications create a single, shared `Jdbi` instance, and set up
 any common configuration there.  See <<Configuration>> for more details.
 
 `Jdbi` itself does not provide connection pooling or other <<High Availability>>
@@ -260,7 +260,7 @@ drain your connection pool.
 
 There are a few ways to obtain a `Handle` instance at runtime.
 
-If your operation will return some result, use
+If your operation returns some result, use
 link:{jdbidocs}/core/Jdbi.html#withHandle-org.jdbi.v3.core.HandleCallback-[jdbi.withHandle()^]:
 
 [source,java,indent=0]
@@ -505,7 +505,7 @@ Fortunately, Jdbi can be configured to bind custom data types as arguments,
 by implementing a few simple interfaces.
 
 [NOTE]
-Core JDBC features are generally well supported by all database vendors.
+Core JDBC features are generally well-supported by all database vendors.
 However, more advanced usages like array support or geometry types tend to
 quickly become vendor-specific.
 
@@ -776,7 +776,7 @@ Implementing a factory might be preferable to a regular row mapper if:
   types. For example, Jdbi provides a generalized <<BeanMapper>>, which maps
   columns to bean properties for any bean class.
 * The mapped type has a generic signature, and/or the mapper could be composed
-  from other registered mappers. For example, Jdbi provides a
+  of other registered mappers. For example, Jdbi provides a
   <<Map.Entry mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
   for types `K` and `V`.
 * You want to bundle multiple mappers into a single class.
@@ -1043,7 +1043,7 @@ Implementing a factory might be preferable to a regular column mapper if:
 
 * The mapper class is generic, and could apply to multiple mapped types.
 * The type being mapped is generic, and/or the mapper could be composed
-  from other registered mappers.
+  of other registered mappers.
 * You want to bundle multiple mappers into a single class.
 
 Let's create a mapper factory for `Optional<T>` as an example. The factory
@@ -2021,7 +2021,7 @@ Array columns can be mapped to any container type registered with the
 
 After executing a database query, you need to interpret the results. JDBC
 provides the *ResultSet* class which can do simple mapping to Java primitives
-and built in classes, but the API is often cumbersome to use. *Jdbi* provides
+and built in classes, but the API is often cumbersome to use. Jdbi provides
 configurable mapping, including the ability to register custom mappers for rows
 and columns.
 
@@ -2033,7 +2033,7 @@ build more complex *RowMapper* types.
 
 The mapper is selected based on the declared result type of your query.
 
-*jdbi* iterates over the rows in the ResultSet and presents the mapped results
+Jdbi iterates over the rows in the ResultSet and presents the mapped results
 to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
 
 [source,java,indent=0]
@@ -2401,7 +2401,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
 
 The JoinRowMapper takes a set of types to extract from each row. It uses the
 mapping registry to determine how to map each given type, and presents you with
-a JoinRow that holds all of the resulting values.
+a JoinRow that holds all the resulting values.
 
 Let's consider two simple types, User and Article, with a join table named
 Author. Guava provides a Multimap class which is very handy for representing
@@ -2522,7 +2522,7 @@ and end up with logs that say nothing other than
 java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, '') was aborted. Call getNextException to see the cause.
 ----
 
-*jdbi* will attempt to rewrite such nextExceptions into "suppressed exceptions"
+Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
 (new in Java 8) so that your logs are more helpful:
 
 ----
@@ -2622,7 +2622,7 @@ include::{exampledir}/StatementsTest.java[tags=script]
 
 === Transactions
 
-*jdbi* provides full support for JDBC transactions.
+Jdbi provides full support for JDBC transactions.
 
 *Handle* objects provide two ways to open a transaction -- *inTransaction*
 allows you to return a result, and *useTransaction* has no return value.
@@ -2643,7 +2643,7 @@ If you do not explicitly commit a manually opened transaction, it will be rolled
 ==== Serializable Transactions
 
 For more advanced queries, sometimes serializable transactions are required.
-*jdbi* includes a transaction runner that is able to retry transactions that
+Jdbi includes a transaction runner that is able to retry transactions that
 abort due to serialization failures. It is important that your transaction does
 not have side effects as it may be executed multiple times.
 
@@ -3549,7 +3549,7 @@ When a batch method is called, SQL Object iterates through the method's iterable
 parameters, and executes the SQL statement with the corresponding elements from
 each parameter.
 
-Thus a statement like:
+Thus, a statement like:
 
 [source,java]
 ----
@@ -3732,7 +3732,7 @@ interface BarDao {
 *@UseClasspathSqlLocator* is implemented using the <<ClasspathSqlLocator>>, as described above.
 
 [WARNING]
-<<ClasspathSqlLocator>> loads files unchanged by default. Using the `@UseClasspathSqlLocator` annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
+<<ClasspathSqlLocator>> loads a file unchanged by default. Using the `@UseClasspathSqlLocator` annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
 
 [source,java]
 ----
@@ -5081,7 +5081,7 @@ The Jdbi element bound with the `SpecialDatabase` annotation will have the `Spec
 === JPA
 
 Using the JPA plugin is a great way to trick your boss into letting you try
-Jdbi. "No problem boss, it already supports JPA annotations, easy peasy!"
+Jdbi. "No problem boss, it already supports JPA annotations, easy-peasy!"
 
 This plugin adds mapping support for a small subset of JPA entity annotations:
 
@@ -5106,7 +5106,7 @@ Then install the plugin into your `Jdbi` instance:
 jdbi.installPlugin(new JpaPlugin());
 ----
 
-Honestly though.. just tear off the bandage and switch to Jdbi proper.
+Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
 
@@ -5428,7 +5428,7 @@ public interface UserDao {
 
 Postgres supports storing large character or binary data in separate storage from
 table data.  Jdbi allows you to stream this data in and out of the database as part
-of an enclosing transaction.  Storing, reading, and a delete hook are provided.
+of an enclosing transaction.  Operations for storing, reading, and a hook for deletions are provided.
 The test case serves as a simple example:
 
 [source,java,indent=0]
@@ -5730,7 +5730,7 @@ template will be used, regardless of the method name.
 
 === Vavr
 
-The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional library:
+The Vavr Plugin offers deep integration of Jdbi with the Vavr functional library:
 
 * Supports argument resolution of sever Vavr Value types such as
   `Option<T>`, `Either<L, T>`, `Lazy<T>`, `Try<T>` and `Validation<T>`.
@@ -5743,7 +5743,7 @@ The Vavr Plugin offers deep integration of *Jdbi* with the Vavr functional libra
   (e.q. `List<T>` for `Seq<T>`). Furthermore ``Multimap<K, T>``s are backed by a `Seq<T>`
   as default value container.
 * Columns can be mapped into Vavr's `Option<T>` type.
-* Tuple projections for *Jdbi*! Yey! Vavr offers Tuples up to a maximum arity of 8.
+* Tuple projections for Jdbi! Yey! Vavr offers Tuples up to a maximum arity of 8.
   you can map your query results e.g. to `Tuple3<Integer, String, Long>`.
   If you select more columns than the arity of the projection the columns
   up to that index will be used.
@@ -5793,8 +5793,13 @@ handle.createQuery("select name from users")
 ----
 
 This works for all the collection types supported. For the nested value
+<<<<<<< Updated upstream
 row and column mappers already installed in *Jdbi* will be used.
+Therefore, the following would work and can make sense if the column is nullable:
+=======
+row and column mappers already installed in Jdbi will be used.
 Therefore the following would work and can make sense if the column is nullable:
+>>>>>>> Stashed changes
 
 [source,java]
 ----
@@ -6116,8 +6121,8 @@ GenericTypes.findGenericParameter(optionalOfString, List.class);
 
 The link:{jdbidocs}/core/argument/NamedArgumentFinder[NamedArgumentFinder^]
 interface, as its name suggests, finds arguments by name from some source.
-Typically a single `NamedArgumentFinder` instance will provide arguments for
-several different names.
+Typically, a single `NamedArgumentFinder` instance will provide arguments for
+several names.
 
 In cases where neither `bindBean()`, `bindFields()`, `bindMethods()`, nor
 `bindMap()` are a good fit, you can implement your own `NamedArgumentFinder` and
@@ -6148,7 +6153,7 @@ methods are just creating and binding custom implementations of
 Configuration is managed by the
 link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry]
 class.  Each Jdbi object that represents a distinct database context
-(for example, *Jdbi* itself, a *Handle* instance, or an attached SqlObject
+(for example, Jdbi itself, a *Handle* instance, or an attached SqlObject
 class) gets its own configuration registry.  Most contexts implement the
 link:{jdbidocs}/core/config/Configurable.html[Configurable] interface which
 allows modification of its configuration as well as retrieving the current
@@ -6253,7 +6258,7 @@ important to understand the differences between them:
 - <<Statement Customizing Annotations>> - configures the underlying
   link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] of a method
   prior to execution. These can only be used in tandem with annotations like
-  `@SqlQuery`, `@SqlUpdate`, etc, and do not work on default methods.
+  `@SqlQuery`, `@SqlUpdate`, etc., and do not work on default methods.
 - <<Configuration Annotations>> - modifies configuration in the
   link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] within the
   scope of a SQL object or one of its methods.
@@ -6270,7 +6275,7 @@ SQL statement customizing annotations are used to apply some change to the
 link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] associated
 with a SQL method.
 
-Typically these annotations correlate to an API method in core. e.g. `@Bind`
+Typically, these annotations correlate to an API method in core. e.g. `@Bind`
 corresponds to `SqlStatement.bind()`, `@MaxRows` corresponds to
 `Query.setMaxRows()`, etc.
 
@@ -6398,7 +6403,7 @@ Configuration annotations are used to apply some change to the
 link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] associated with
 a SQL object or method.
 
-Typically these annotations correlate to a method of
+Typically, these annotations correlate to a method of
 link:{jdbidocs}/core/config/Configurable.html[Configurable^] (`Jdbi`,
 `Handle`, and `SqlStatement` all implement this interface). For example,
 `@RegisterColumnMapper` correlates to `Configurable.registerColumnMapper()`.
@@ -6479,7 +6484,7 @@ public class RegisterColumnMapperImpl implements Configurer {
 ----
 <1> In this example, we're applying the same configuration, whether the
     `@RegisterColumnMapper` annotation is used on the SQL object type or method.
-    However this is not a requirement--some annotations may choose to apply
+    However, this is not a requirement--some annotations may choose to apply
     configuration differently depending on whether the annotation is placed on
     the type or the method.
 
@@ -6632,7 +6637,7 @@ Decorator order is expressed from outermost to innermost.
 
 TODO:
 
-* SQL Object plumbing is exposed so you can enhance the out-of-the-box
+* SQL Object plumbing is exposed, so you can enhance the out-of-the-box
   behavior of SQL Objects with your own behavior.
 * Handler interface - the implementation of an invokable SQL object method
 * HandlerDecorator - Add behavior to another Handler. This is how e.g.
@@ -6869,12 +6874,12 @@ provides integration with DropWizard.
 link:https://github.com/arteam/metrics-jdbi3[metrics-jdbi3^]
 instruments using DropWizard-Metrics to emit statement timing statistics.
 
-Do you know of a project related to Jdbi? Send us an issue and we'll add a link
+Do you know of a project related to Jdbi? Send us an issue, and we'll add a link
 here!
 
 === Contributing
 
-*jdbi* uses GitHub for collaboration. Please check out the
+Jdbi uses GitHub for collaboration. Please check out the
 link:{projecthome}[project page^] for more information.
 
 If you have a question, we have a
@@ -6928,7 +6933,7 @@ Core API:
   `TransactionStatus` argument is removed. Just rollback the handle now.
 * `TransactionStatus` class removed.
 * `CallbackFailedException` class removed. The functional interfaces like
-  `HandleConsumer`, `HandleCallback`, `TransactionCallback`, etc can now throw
+  `HandleConsumer`, `HandleCallback`, `TransactionCallback`, etc. can now throw
   any exception type. Methods like `Jdbi.inTransaction` that take these
   callbacks use exception transparency to throw only the exception thrown by
   the callback. If your callback throws no checked exceptions, you don't need
