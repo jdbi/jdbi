@@ -71,6 +71,21 @@ parameter names.
 * Check box *Store information about method parameters (usable via reflection)*
 * Click Apply and close dialog
 
+## Code Style / Formatting Rules
+
+The project uses a set of code style and formatting rules. These are enforced by Checkstyle and PMD as part of the build cycle.
+We ask that you configure the project in your development environment to support these rules as closely as possible.
+
+The JDBI Eclipse formatting preferences are available for download [here](internal/policy/src/main/resources/ide/jdbi-eclipse-formatter.xml).
+
+### IntelliJ IDEA
+
+Import the file with the 'Adapter for Eclipse Code Formatter'. Additional info is available [here](https://plugins.jetbrains.com/plugin/6546-adapter-for-eclipse-code-formatter).
+
+### Eclipse IDE
+
+Import these settings via Preferences &rarr; Java &rarr; Code Style &rarr; Formatter &rarr; Import... and activate them for all JDBI modules.
+
 ## Java Import Statements
 
 We enforce this order of imports:
