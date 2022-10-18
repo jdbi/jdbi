@@ -86,6 +86,36 @@ public interface ResultIterable<T> extends Iterable<T> {
     ResultIterator<T> iterator();
 
     /**
+     * Passes the iterator of results to the consumer. Database resources owned by the query are
+     * released before this method returns.
+     *
+     * @param consumer a consumer which receives the iterator of results.
+     * @throws X any exception thrown by the callback
+     */
+    default <X extends Exception> void useIterator(IteratorConsumer<T, X> consumer) throws X {
+        withIterator(iterator -> {
+            consumer.useIterator(iterator);
+            return null;
+        });
+    }
+
+    /**
+     * Passes the iterator of results to the callback. Database resources owned by the query are
+     * released before this method returns.
+     *
+     * @param callback a callback which receives the iterator of results, and returns some result.
+     * @param <R> the type returned by the callback
+     *
+     * @return the value returned by the callback.
+     * @throws X any exception thrown by the callback
+     */
+    default <R, X extends Exception> R withIterator(IteratorCallback<T, R, X> callback) throws X {
+        try (ResultIterator<T> iterator = iterator()) {
+            return callback.withIterator(iterator);
+        }
+    }
+
+    /**
      * Returns a {@code ResultIterable<U>} derived from this {@code ResultIterable<T>}, by
      * transforming elements using the given mapper function.
      *
