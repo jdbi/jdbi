@@ -1,5 +1,7 @@
 # Unreleased
 
+  - ResultIterable.useIterator and ResultIterable.withIterator new helper methods to close iterator resources
+
 # 3.34.0
 
   - `jdbi3-generator` will now support any Java 8+ version without generating compile-time warnings (#2128)
