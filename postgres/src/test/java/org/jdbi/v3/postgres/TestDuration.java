@@ -66,13 +66,12 @@ public class TestDuration {
     @Test
     public void testReadsViaFluentAPI() {
         List<Duration> periods = handle.createQuery("select foo from intervals where id = 1 or id = 2 order by id")
-                .mapTo(Duration.class)
-                .list();
+            .mapTo(Duration.class)
+            .list();
 
         assertThat(periods).isEqualTo(ImmutableList.of(
-                Duration.ofDays(1).plusHours(15),
-                Duration.ofDays(40).plusMinutes(22)
-       ));
+            Duration.ofDays(1).plusHours(15),
+            Duration.ofDays(40).plusMinutes(22)));
     }
 
     @Test

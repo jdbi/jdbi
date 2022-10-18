@@ -40,8 +40,7 @@ public class TestBridgeException {
             for (int i = 0; i < 2; i++) {
                 dao.insert(arg);
             }
-        })
-        .isInstanceOf(UnableToExecuteStatementException.class);
+        }).isInstanceOf(UnableToExecuteStatementException.class);
     }
 
     public interface ExceptionalBridge<T> extends SqlObject {

@@ -56,29 +56,29 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
             switch (t.getType()) {
-            case COMMENT:
-            case LITERAL:
-            case QUOTED_TEXT:
-            case DOUBLE_QUOTED_TEXT:
-                buf.append(t.getText());
-                break;
-            case DEFINE:
-                pushBuf.run();
-                String text = t.getText();
-                String key = text.substring(1, text.length() - 1);
-                preparation.add((ctx, b) -> {
-                    Object value = ctx.getAttribute(key);
-                    if (value == null) {
-                        throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
-                    }
-                    b.append(value);
-                });
-                break;
-            case ESCAPED_TEXT:
-                buf.append(t.getText().substring(1));
-                break;
-            default:
-                break;
+                case COMMENT:
+                case LITERAL:
+                case QUOTED_TEXT:
+                case DOUBLE_QUOTED_TEXT:
+                    buf.append(t.getText());
+                    break;
+                case DEFINE:
+                    pushBuf.run();
+                    String text = t.getText();
+                    String key = text.substring(1, text.length() - 1);
+                    preparation.add((ctx, b) -> {
+                        Object value = ctx.getAttribute(key);
+                        if (value == null) {
+                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
+                        }
+                        b.append(value);
+                    });
+                    break;
+                case ESCAPED_TEXT:
+                    buf.append(t.getText().substring(1));
+                    break;
+                default:
+                    break;
             }
             t = lexer.nextToken();
         }

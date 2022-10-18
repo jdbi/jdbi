@@ -112,10 +112,10 @@ public class TestTransactional {
             inTransaction.set(false);
             return null;
         }))
-                .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class)
-                .hasCauseInstanceOf(SQLException.class)
-                .extracting(ex -> ex.getCause().getMessage())
-                .isEqualTo("PostgreSQL would not let you set the transaction isolation here");
+            .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class)
+            .hasCauseInstanceOf(SQLException.class)
+            .extracting(ex -> ex.getCause().getMessage())
+            .isEqualTo("PostgreSQL would not let you set the transaction isolation here");
     }
 
     @Test

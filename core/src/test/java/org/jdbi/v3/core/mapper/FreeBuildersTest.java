@@ -101,15 +101,15 @@ public class FreeBuildersTest {
 
         assertThat(
             h.createUpdate("insert into unnested_free_builders(test) values (:test)")
-            .bindPojo(unnestedFreeBuilder)
-            .execute())
-        .isOne();
+                .bindPojo(unnestedFreeBuilder)
+                .execute())
+                    .isOne();
 
         assertThat(
             h.createQuery("select * from unnested_free_builders")
-            .mapTo(UnnestedFreeBuilder.class)
-            .one())
-        .isEqualTo(unnestedFreeBuilder);
+                .mapTo(UnnestedFreeBuilder.class)
+                .one())
+                    .isEqualTo(unnestedFreeBuilder);
     }
 
     public interface BaseValue<T> {

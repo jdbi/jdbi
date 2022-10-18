@@ -44,7 +44,7 @@ public class TestH2SqlArrays {
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u UUID ARRAY)");
-    }));
+        }));
 
     private final UUID[] testUuids = new UUID[]{
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()

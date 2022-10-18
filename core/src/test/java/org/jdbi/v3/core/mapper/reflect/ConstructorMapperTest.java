@@ -155,9 +155,9 @@ public class ConstructorMapperTest {
     @Test
     public void testConstructorProperties() {
         final ConstructorPropertiesBean cpi = handle
-                .createQuery("SELECT * FROM bean")
-                .mapTo(ConstructorPropertiesBean.class)
-                .one();
+            .createQuery("SELECT * FROM bean")
+            .mapTo(ConstructorPropertiesBean.class)
+            .one();
         assertThat(cpi.s).isEqualTo("3");
         assertThat(cpi.i).isEqualTo(2);
     }
@@ -181,12 +181,12 @@ public class ConstructorMapperTest {
     @Test
     public void nestedParameters() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
-            .select("select s, i from bean")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+                .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+                .select("select s, i from bean")
+                .mapTo(NestedBean.class)
+                .one())
+                        .extracting("nested.s", "nested.i")
+                        .containsExactly("3", 2);
     }
 
     @Test
@@ -195,19 +195,19 @@ public class ConstructorMapperTest {
         handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
 
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
-            .select("select s, i from bean")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+                .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
+                .select("select s, i from bean")
+                .mapTo(NestedBean.class)
+                .one())
+                        .extracting("nested.s", "nested.i")
+                        .containsExactly("3", 2);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select s, i, 1 as other from bean")
-            .mapTo(NestedBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match parameters for columns: [other]");
+                .createQuery("select s, i, 1 as other from bean")
+                .mapTo(NestedBean.class)
+                .one())
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("could not match parameters for columns: [other]");
     }
 
     static class NestedBean {
@@ -246,7 +246,7 @@ public class ConstructorMapperTest {
     @Test
     public void nonNullableColumnOfNestedObjectAbsent() {
         assertThatThrownBy(() -> selectOne("select 'a' a, s from bean", NullableNestedBean.class))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     static class NullableNestedBean {
@@ -254,7 +254,7 @@ public class ConstructorMapperTest {
         private final NullableParameterBean nested;
 
         NullableNestedBean(String a,
-                           @Nullable @Nested NullableParameterBean nested) {
+                @Nullable @Nested NullableParameterBean nested) {
             this.a = a;
             this.nested = nested;
         }
@@ -263,10 +263,10 @@ public class ConstructorMapperTest {
     @Test
     public void nestedPrefixParameters() {
         NestedPrefixBean result = handle
-            .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
-            .select("select i nested_i, s nested_s from bean")
-            .mapTo(NestedPrefixBean.class)
-            .one();
+                .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
+                .select("select i nested_i, s nested_s from bean")
+                .mapTo(NestedPrefixBean.class)
+                .one();
         assertThat(result.nested.s).isEqualTo("3");
         assertThat(result.nested.i).isEqualTo(2);
     }
@@ -277,25 +277,25 @@ public class ConstructorMapperTest {
         handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
 
         assertThat(handle
-            .createQuery("select i nested_i, s nested_s from bean")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .extracting("nested.s", "nested.i")
-            .containsExactly("3", 2);
+                .createQuery("select i nested_i, s nested_s from bean")
+                .mapTo(NestedPrefixBean.class)
+                .one())
+                        .extracting("nested.s", "nested.i")
+                        .containsExactly("3", 2);
 
         assertThatThrownBy(() -> handle
-            .createQuery("select i nested_i, s nested_s, 1 as other from bean")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match parameters for columns: [other]");
+                .createQuery("select i nested_i, s nested_s, 1 as other from bean")
+                .mapTo(NestedPrefixBean.class)
+                .one())
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("could not match parameters for columns: [other]");
 
         assertThatThrownBy(() -> handle
-            .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match parameters for columns: [nested_other]");
+                .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
+                .mapTo(NestedPrefixBean.class)
+                .one())
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("could not match parameters for columns: [nested_other]");
     }
 
     static class NestedPrefixBean {
@@ -309,61 +309,60 @@ public class ConstructorMapperTest {
     @Test
     public void propagateNull() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
-            .select("SELECT null as testValue, 'foo' as s")
-            .mapTo(PropagateNullThing.class)
-            .one())
-            .isNull();
+                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
+                .select("SELECT null as testValue, 'foo' as s")
+                .mapTo(PropagateNullThing.class)
+                .one())
+                        .isNull();
     }
 
     @Test
     public void propagateNotNull() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
-            .select("SELECT 42 as testValue, 'foo' as s")
-            .mapTo(PropagateNullThing.class)
-            .one())
-            .extracting("testValue", "s")
-            .containsExactly(42, "foo");
+                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
+                .select("SELECT 42 as testValue, 'foo' as s")
+                .mapTo(PropagateNullThing.class)
+                .one())
+                        .extracting("testValue", "s")
+                        .containsExactly(42, "foo");
     }
 
     @Test
     public void nestedPropagateNull() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
-            .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
-            .mapTo(NestedPropagateNullThing.class)
-            .one())
-            .extracting("integerValue", "nested")
-            .containsExactly(42, null);
+                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
+                .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+                .mapTo(NestedPropagateNullThing.class)
+                .one())
+                        .extracting("integerValue", "nested")
+                        .containsExactly(42, null);
     }
 
     @Test
     public void nestedPropagateNotNull() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
-            .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
-            .mapTo(NestedPropagateNullThing.class)
-            .one())
-            .extracting("integerValue", "nested.testValue", "nested.s")
-            .containsExactly(42, 60, "foo");
+                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
+                .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+                .mapTo(NestedPropagateNullThing.class)
+                .one())
+                        .extracting("integerValue", "nested.testValue", "nested.s")
+                        .containsExactly(42, 60, "foo");
     }
 
     @Test
     public void classPropagateNull() {
-            assertThat(handle.select("select 42 as \"value\", null as fk")
-                    .map(ConstructorMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .isNull();
+        assertThat(handle.select("select 42 as \"value\", null as fk")
+                .map(ConstructorMapper.of(ClassPropagateNullThing.class))
+                .one()).isNull();
     }
 
     @Test
     public void classPropagateNotNull() {
-            assertThat(handle.select("select 42 as \"value\", 'a' as fk")
-                    .map(ConstructorMapper.of(ClassPropagateNullThing.class))
-                    .one())
-                .extracting(cpnt -> cpnt.value)
-                .isEqualTo(42);
+        assertThat(handle.select("select 42 as \"value\", 'a' as fk")
+                .map(ConstructorMapper.of(ClassPropagateNullThing.class))
+                .one())
+                        .extracting(cpnt -> cpnt.value)
+                        .isEqualTo(42);
     }
 
     static class NestedPropagateNullThing {
@@ -412,6 +411,7 @@ public class ConstructorMapperTest {
         public int getValue() {
             return value;
         }
+
         public void setValue(int value) {
             this.value = value;
         }
@@ -452,8 +452,8 @@ public class ConstructorMapperTest {
     @Test
     public void multipleFactoryMethods() {
         assertThatThrownBy(() -> ConstructorMapper.factory(MultipleStaticFactoryMethodsBean.class))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageMatching("class .* may have at most one constructor or static factory method annotated @JdbiConstructor");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("class .* may have at most one constructor or static factory method annotated @JdbiConstructor");
     }
 
     @SuppressWarnings("unused")

@@ -205,14 +205,14 @@ public class TestHandle {
     public void testAllNestedOpsSameHandle() {
         Jdbi jdbi = h2Extension.getJdbi();
         jdbi.useHandle(handle1 ->
-                jdbi.useTransaction(handle2 ->
-                        jdbi.withHandle(handle3 ->
-                                jdbi.inTransaction(handle4 -> {
-                                assertThat(handle1).isSameAs(handle2);
-                                assertThat(handle1).isSameAs(handle3);
-                                assertThat(handle1).isSameAs(handle4);
-                                return null;
-                            }))));
+            jdbi.useTransaction(handle2 ->
+                jdbi.withHandle(handle3 ->
+                    jdbi.inTransaction(handle4 -> {
+                        assertThat(handle1).isSameAs(handle2);
+                        assertThat(handle1).isSameAs(handle3);
+                        assertThat(handle1).isSameAs(handle4);
+                        return null;
+                    }))));
     }
 
     static class BoomHandler extends LocalTransactionHandler {

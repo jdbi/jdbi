@@ -24,15 +24,15 @@ public class VavrCollectors {
         throw new UtilityClassException();
     }
 
-  /**
-   * Returns a {@code Collector} that accumulates 0 or 1 input elements into an {@code Option<T>}.
-   * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements
-   * are present in a stream. Null elements are mapped to {@code Option.none()}.
-   *
-   * @param <T> the collected type
-   * @return a {@code Collector} which collects 0 or 1 input elements into an {@code Option<T>}.
-   */
-  public static <T> Collector<T, ?, Option<T>> toOption() {
-    return OptionalCollectors.toOptional(Option::none, Option::of);
-  }
+    /**
+     * Returns a {@code Collector} that accumulates 0 or 1 input elements into an {@code Option<T>}.
+     * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements
+     * are present in a stream. Null elements are mapped to {@code Option.none()}.
+     *
+     * @param <T> the collected type
+     * @return a {@code Collector} which collects 0 or 1 input elements into an {@code Option<T>}.
+     */
+    public static <T> Collector<T, ?, Option<T>> toOption() {
+        return OptionalCollectors.toOptional(Option::none, Option::of);
+    }
 }

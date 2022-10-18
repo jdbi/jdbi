@@ -46,6 +46,6 @@ public class TestEscapedCharacters {
     @Test
     public void testEscapedSql() {
         assertThat(parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"))
-        .isEqualTo("insert into foo (xyz) values (?::some_strange_type)");
+            .isEqualTo("insert into foo (xyz) values (?::some_strange_type)");
     }
 }

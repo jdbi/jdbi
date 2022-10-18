@@ -83,8 +83,7 @@ public class AnnotationFactoryTest {
             .isNotEqualTo(getAnno(Baz.class, "createWithExplicitProperties"));
     }
 
-    private <A extends Annotation> void checkImplementation(Class<A> annoType, String annotatedMethod, A synthetic, String expectedToString)
-    throws NoSuchMethodException {
+    private <A extends Annotation> void checkImplementation(Class<A> annoType, String annotatedMethod, A synthetic, String expectedToString) throws NoSuchMethodException {
         A real = getAnno(annoType, annotatedMethod);
 
         assertThat(real).describedAs("real equals synthetic").isEqualTo(synthetic);

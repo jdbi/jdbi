@@ -73,21 +73,20 @@ public class TestHStore {
     @Test
     public void testReadsViaFluentAPI() {
         List<Map<String, String>> initialCaps = handle.createQuery("select caps from campaigns order by id")
-                .mapTo(STRING_MAP)
-                .list();
+            .mapTo(STRING_MAP)
+            .list();
         assertThat(initialCaps).isEqualTo(ImmutableList.of(
-                ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
-                ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")
-       ));
+            ImmutableMap.of("yearly", "10000", "monthly", "5000", "daily", "200"),
+            ImmutableMap.of("yearly", "1000", "monthly", "200", "daily", "20")));
     }
 
     @Test
     public void testHandlesEmptyMap() {
         handle.execute("insert into campaigns(id, caps) values (?,?)", 4, ImmutableMap.of());
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
-                .bind(0, 4)
-                .mapTo(STRING_MAP)
-                .one();
+            .bind(0, 4)
+            .mapTo(STRING_MAP)
+            .one();
         assertThat(newCaps).isEmpty();
     }
 

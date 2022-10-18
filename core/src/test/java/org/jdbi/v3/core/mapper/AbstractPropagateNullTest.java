@@ -79,7 +79,7 @@ public abstract class AbstractPropagateNullTest {
             testBean = mapFunction.apply(handle.select("select NULL as beanID"))
                 .one();
 
-        assertThat(testBean).isNotNull()
+            assertThat(testBean).isNotNull()
                 .extracting(TestBean::getNestedBean).isNull();
         }
     }
@@ -99,7 +99,7 @@ public abstract class AbstractPropagateNullTest {
 
             testBean = mapFunction.apply(handle.select("select NULL as bean_id")).one();
 
-        assertThat(testBean).isNotNull()
+            assertThat(testBean).isNotNull()
                 .extracting(TestBean::getNestedBean).isNull();
         }
     }
@@ -138,7 +138,7 @@ public abstract class AbstractPropagateNullTest {
             testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, NULL as nestedfk"))
                 .one();
 
-        assertThat(testBean).isNotNull()
+            assertThat(testBean).isNotNull()
                 .extracting(TestBean::getNestedBean).isNull();
         }
     }
@@ -160,7 +160,7 @@ public abstract class AbstractPropagateNullTest {
             testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, NULL as beanFK"))
                 .one();
 
-        assertThat(testBean).isNotNull()
+            assertThat(testBean).isNotNull()
                 .extracting(TestBean::getNestedBean).isNull();
         }
     }

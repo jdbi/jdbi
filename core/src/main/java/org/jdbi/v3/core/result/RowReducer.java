@@ -24,31 +24,32 @@ import java.util.stream.Stream;
  * @see ResultBearing#reduceRows(RowReducer)
  */
 public interface RowReducer<C, R> {
-  /**
-   * Returns a new, empty result container.
-   *
-   * @return a new result container.
-   */
-  C container();
+    /**
+     * Returns a new, empty result container.
+     *
+     * @return a new result container.
+     */
+    C container();
 
-  /**
-   * Accumulate data from the current row into the result container. Do not attempt
-   * to accumulate the {@link RowView} itself into the result container--it is only
-   * valid within the {@link RowReducer#accumulate(Object, RowView) accumulate()}
-   * method invocation. Instead, extract mapped types from the RowView by calling
-   * {@code RowView.getRow()} or {@code RowView.getColumn()} and store those values
-   * in the container.
-   *
-   * @param container the result container
-   * @param rowView row view over the current result set row.
-   */
-  void accumulate(C container, RowView rowView);
+    /**
+     * Accumulate data from the current row into the result container. Do not attempt
+     * to accumulate the {@link RowView} itself into the result container--it is only
+     * valid within the {@link RowReducer#accumulate(Object, RowView) accumulate()}
+     * method invocation. Instead, extract mapped types from the RowView by calling
+     * {@code RowView.getRow()} or {@code RowView.getColumn()} and store those values
+     * in the container.
+     *
+     * @param container the result container
+     * @param rowView row view over the current result set row.
+     */
+    void accumulate(C container, RowView rowView);
 
-  /**
-   * Returns a stream of result elements from the result container.
-   *
-   * @param container the result container
-   * @return stream of result elements.
-   */
-  Stream<R> stream(C container);
+    /**
+     * Returns a stream of result elements from the result container.
+     *
+     * @param container the result container
+     * @return stream of result elements.
+     */
+    Stream<R> stream(C container);
+
 }

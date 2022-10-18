@@ -70,9 +70,7 @@ public class TestGuavaMappers {
 
     @Test
     public void testIntegerImmutableList() {
-        Integer[] testInts = new Integer[]{
-                5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE
-        };
+        Integer[] testInts = new Integer[] {5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE};
 
         h.execute("INSERT INTO arrays (i) VALUES(?)", (Object) testInts);
         ImmutableList<Integer> list = h.createQuery("SELECT i FROM arrays")

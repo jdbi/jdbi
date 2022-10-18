@@ -28,19 +28,19 @@ public class JdbiRuleTest {
     @Test
     public void migrateWithFlywayDefaultLocation() throws Throwable {
         JdbiRule rule = JdbiRule.embeddedPostgres()
-                .withMigration(Migration.before().withDefaultPath());
+            .withMigration(Migration.before().withDefaultPath());
 
         Statement statement =
             new Statement() {
-              @Override
-              public void evaluate() {
-                assertThat(
+                @Override
+                public void evaluate() {
+                    assertThat(
                         rule.getHandle()
                             .select("select value from standard_migration_location")
                             .mapTo(String.class)
                             .one())
-                    .isEqualTo("inserted in migration script in the default location");
-              }
+                                .isEqualTo("inserted in migration script in the default location");
+                }
             };
 
         rule.apply(statement, Description.EMPTY).evaluate();
@@ -49,19 +49,19 @@ public class JdbiRuleTest {
     @Test
     public void migrateWithFlywayCustomLocation() throws Throwable {
         JdbiRule rule = JdbiRule.embeddedPostgres()
-                .withMigration(Migration.before().withPath("custom/migration/location"));
+            .withMigration(Migration.before().withPath("custom/migration/location"));
 
         Statement statement =
             new Statement() {
-              @Override
-              public void evaluate() {
-                assertThat(
+                @Override
+                public void evaluate() {
+                    assertThat(
                         rule.getHandle()
                             .select("select value from custom_migration_location")
                             .mapTo(String.class)
                             .one())
-                    .isEqualTo("inserted in migration script in a custom location");
-              }
+                                .isEqualTo("inserted in migration script in a custom location");
+                }
             };
 
         rule.apply(statement, Description.EMPTY).evaluate();
@@ -71,21 +71,21 @@ public class JdbiRuleTest {
     public void migrateWithMultipleFlywayCustomLocations() throws Throwable {
         JdbiRule rule =
             JdbiRule.embeddedPostgres().withMigration(Migration.before()
-                    .withPaths("custom/migration/location", "custom/migration/otherlocation"));
+                .withPaths("custom/migration/location", "custom/migration/otherlocation"));
 
         Statement statement =
             new Statement() {
-              @Override
-              public void evaluate() {
-                assertThat(
+                @Override
+                public void evaluate() {
+                    assertThat(
                         rule.getHandle()
                             .select("select value from custom_migration_location")
                             .mapTo(String.class)
                             .list())
-                    .containsOnly(
-                        "inserted in migration script in a custom location",
-                        "inserted in migration script in another custom location");
-              }
+                                .containsOnly(
+                                    "inserted in migration script in a custom location",
+                                    "inserted in migration script in another custom location");
+                }
             };
 
         rule.apply(statement, Description.EMPTY).evaluate();
@@ -97,10 +97,10 @@ public class JdbiRuleTest {
         DataSource dataSource = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(), "", "");
 
         JdbiRule rule = new JdbiRule() {
-          @Override
-          protected DataSource createDataSource() {
-            return dataSource;
-          }
+            @Override
+            protected DataSource createDataSource() {
+                return dataSource;
+            }
         };
 
         assertThat(rule.createDataSource()).isEqualTo(dataSource);

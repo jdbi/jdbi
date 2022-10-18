@@ -124,7 +124,7 @@ public class OutParameters {
         if (obj == null) {
             if (!map.containsKey(name)) {
                 throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-           }
+            }
 
             return null;
         }
@@ -141,7 +141,7 @@ public class OutParameters {
         if (obj == null) {
             if (!map.containsKey(pos)) {
                 throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
-           }
+            }
 
             return null;
         }
