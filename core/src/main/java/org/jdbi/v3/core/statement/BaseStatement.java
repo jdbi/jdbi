@@ -52,15 +52,9 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         return ctx;
     }
 
-    public static void nullSafeCleanUp(BaseStatement<?> statement) {
-        if (statement != null) {
-            statement.getContext().close();
-        }
-    }
-
     protected final void cleanUpForException(SQLException e) {
         try {
-            nullSafeCleanUp(this);
+            close();
         } catch (CloseException ce) {
             e.addSuppressed(ce.getCause());
         } catch (Exception e1) {
@@ -99,7 +93,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     @Override
     public void close() {
-        nullSafeCleanUp(this);
+        getContext().close();
     }
 
     @FunctionalInterface

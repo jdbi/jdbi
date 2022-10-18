@@ -122,7 +122,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         try {
             return internalBatchExecute().updateCounts;
         } finally {
-            nullSafeCleanUp(this);
+            close();
         }
     }
 

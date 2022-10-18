@@ -135,7 +135,7 @@ public class Call extends SqlStatement<Call> {
             }
             return resultComputer.apply(out);
         } finally {
-            nullSafeCleanUp(this);
+            close();
         }
     }
 
