@@ -68,6 +68,7 @@ public class Batch extends BaseStatement<Batch> {
                 addCleanable(stmt::close);
                 getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
@@ -80,12 +81,14 @@ public class Batch extends BaseStatement<Batch> {
                     stmt.addBatch(sql);
                 }
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
             try {
                 return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         } finally {

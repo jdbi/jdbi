@@ -134,6 +134,9 @@ public class Call extends SqlStatement<Call> {
                 }
             }
             return resultComputer.apply(out);
+        } catch (SQLException e) {
+            cleanUpForException(e);
+            throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
         } finally {
             close();
         }
@@ -159,43 +162,39 @@ public class Call extends SqlStatement<Call> {
             this.position = outPosition;
         }
 
-        public Object map(CallableStatement stmt) {
-            try {
-                if (mapper != null) {
-                    return mapper.map(position, stmt);
-                }
-                switch (sqlType) {
-                    case Types.CLOB:
-                    case Types.VARCHAR:
-                    case Types.LONGNVARCHAR:
-                    case Types.LONGVARCHAR:
-                    case Types.NCLOB:
-                    case Types.NVARCHAR:
-                        return stmt.getString(position);
-                    case Types.BLOB:
-                    case Types.VARBINARY:
-                        return stmt.getBytes(position);
-                    case Types.SMALLINT:
-                        return stmt.getShort(position);
-                    case Types.INTEGER:
-                        return stmt.getInt(position);
-                    case Types.BIGINT:
-                        return stmt.getLong(position);
-                    case Types.TIMESTAMP:
-                        case Types.TIME:
-                        return stmt.getTimestamp(position);
-                    case Types.DATE:
-                        return stmt.getDate(position);
-                    case Types.FLOAT:
-                        return stmt.getFloat(position);
-                    case Types.DECIMAL:
-                    case Types.DOUBLE:
-                        return stmt.getDouble(position);
-                    default:
-                        return stmt.getObject(position);
-                }
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
+        public Object map(CallableStatement stmt) throws SQLException {
+            if (mapper != null) {
+                return mapper.map(position, stmt);
+            }
+            switch (sqlType) {
+                case Types.CLOB:
+                case Types.VARCHAR:
+                case Types.LONGNVARCHAR:
+                case Types.LONGVARCHAR:
+                case Types.NCLOB:
+                case Types.NVARCHAR:
+                    return stmt.getString(position);
+                case Types.BLOB:
+                case Types.VARBINARY:
+                    return stmt.getBytes(position);
+                case Types.SMALLINT:
+                    return stmt.getShort(position);
+                case Types.INTEGER:
+                    return stmt.getInt(position);
+                case Types.BIGINT:
+                    return stmt.getLong(position);
+                case Types.TIMESTAMP:
+                case Types.TIME:
+                    return stmt.getTimestamp(position);
+                case Types.DATE:
+                    return stmt.getDate(position);
+                case Types.FLOAT:
+                    return stmt.getFloat(position);
+                case Types.DECIMAL:
+                case Types.DOUBLE:
+                    return stmt.getDouble(position);
+                default:
+                    return stmt.getObject(position);
             }
         }
     }

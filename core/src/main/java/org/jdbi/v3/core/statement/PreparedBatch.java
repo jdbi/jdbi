@@ -234,6 +234,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
                 getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToCreateStatementException(e, ctx);
             }
 
@@ -251,6 +252,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                     stmt.addBatch();
                 }
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
             }
 
@@ -265,6 +267,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
                 return new ExecutedBatch(stmt, modifiedRows);
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
             }
         } finally {

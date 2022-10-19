@@ -82,6 +82,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
             try {
                 invocation.call(customizer);
             } catch (SQLException e) {
+                cleanUpForException(e);
                 throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, ctx);
             }
         }
