@@ -5793,13 +5793,8 @@ handle.createQuery("select name from users")
 ----
 
 This works for all the collection types supported. For the nested value
-<<<<<<< Updated upstream
 row and column mappers already installed in *Jdbi* will be used.
 Therefore, the following would work and can make sense if the column is nullable:
-=======
-row and column mappers already installed in Jdbi will be used.
-Therefore the following would work and can make sense if the column is nullable:
->>>>>>> Stashed changes
 
 [source,java]
 ----
