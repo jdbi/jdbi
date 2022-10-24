@@ -162,10 +162,13 @@ features.
 
 `Jdbi` runs on all Java versions 8 or later. 11 or later is required to build.
 
-[WARNING]
-Java 8 support is considered deprecated and will be maintained best-effort for now,
-but will be going away soon! In order to run on 8, you might need to dependency-manage your
-`caffeine` version back to 2.x. 3.x is required to run on newer JDKs, but will not run on 8.
+[CAUTION]
+Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
+it will go away. We are already no longer support all tests on JDK 8 (only 11+) and require JDK 11 or
+better to build the code base (but still maintain JDK 8 byte code compatibility).
+
+In order to run on JDK 8, some default dependencies, such as `caffeine` need to be explicitly version
+managed to a version that is supported on JDK 8.
 
 === Modules
 
@@ -199,8 +202,8 @@ jdbi3-vavr::
 [TIP]
 You'll probably want to add our annotations `org.jdbi.v3.meta.Beta` and `org.jdbi.v3.meta.Alpha` to your IDE's "unstable API usage" blacklist.
 
-[WARNING]
-Our `org.jdbi.*.internal` packages are not considered public API; their contents may change radically without warning.
+[CAUTION]
+Our `org.jdbi.*.internal` packages are not considered public API and they are not maintained or changed in a backwards compatible way.
 
 == Core API
 
@@ -484,7 +487,7 @@ handle.createUpdate("insert into documents (id, folder_id, name, contents) " +
 `bindBean()`, `bindFields()`, and `bindMethods()` may be used to bind nested
 properties, e.g. `:user.address.street`.
 
-[WARNING]
+[CAUTION]
 `bindMap()` does not bind nested properties--map keys are expected to exactly
 match the bound parameter name.
 
@@ -1654,7 +1657,7 @@ signature:
 include::{coreexampledir}/MapEntryMapperTest.java[tags=joinRow]
 ----
 
-In the preceding example, the `User` mapper uses a "u" column name prefix, and
+In the preceding example, the `User` mapper uses the "u" column name prefix, and
 the `Phone` mapper uses "p". Since each mapper only reads columns with the
 expected prefix, the respective `id` columns are unambiguous.
 
@@ -2147,7 +2150,7 @@ List<User> users =
 
 ===== Collectors
 
-*#collect* takes a *Collector<T, ? , R>* that builds a resulting collection
+*#collect* takes a `Collector<T, ?, R>` that builds a resulting collection
 *R<T>*. The *java.util.stream.Collectors* class has a number of interesting
 *Collector* implementations to start with.
 
@@ -2537,7 +2540,8 @@ An Update or PreparedBatch may automatically generate keys. These keys
 are treated separately from normal results. Depending on your database and
 configuration, the entire inserted row may be available.
 
-WARNING: Unfortunately there is a lot of variation between databases supporting
+[CAUTION]
+There is a lot of variation between databases supporting
 this feature so please test this feature's interaction with your database
 thoroughly.
 
@@ -2880,7 +2884,7 @@ database, e.g. a table with an auto-generated primary key, or a primary key
 selected from a sequence. We need a way to retrieve these generated values back
 from the database.
 
-[WARNING]
+[CAUTION]
 Databases vary in support for generated keys. Some support only one generated
 key column per statement, and some (such as Postgres) can return the entire row.
 You should check your database vendor's documentation before relying on this
@@ -3390,7 +3394,7 @@ for the key and value types.
 include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRow]
 ----
 
-In the preceding example, the `User` mapper uses a "u" column name prefix, and
+In the preceding example, the `User` mapper uses the "u" column name prefix, and
 the `Phone` mapper uses "p". Since each mapper only reads the column with the
 expected prefix, the respective `id` columns are unambigous.
 
@@ -4429,7 +4433,7 @@ jdbi.installPlugin(new JodaTimePlugin());
 
 === Google Guice
 
-[WARNING]
+[CAUTION]
 Guice support is experimental.
 
 The Guice module adds support for configuring and injecting `Jdbi` instances in applications and services that use the link:https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
@@ -4495,7 +4499,7 @@ class Application {
 
 In this example, a new `Jdbi` is defined using specific mappers and other customizations. The `Jdbi` object is exposed to Guice using the annotation passed on the module constructor (`GuiceJdbi` in the example). The link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] supports both annotation instances and classes, similar to Guice itself.
 
-[WARNING]
+[NOTE]
 A Jdbi definition module requires that a DataSource object is bound within Guice using the same annotation or annotation class as is passed into the module constructor. *Creating this data source is outside the scope of a Jdbi definition module!*
 
 When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jdbiBinder()[configureJdbi()^] method, a number of convenience methods are available as shown above. These methods return Guice LinkedBindingBuilder instances and allow the full range of bindings that guice supports (classes, instances, providers etc).
@@ -4758,7 +4762,7 @@ If the `DomainModule` is bound within Guice, then all configured `Jdbi` instance
 
 Multiple modules extending link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] can be installed in a single injector; the resulting bindings will be aggregated.
 
-[WARNING]
+[CAUTION]
 It is not possible to install a configuration module from within the `configureJdbi` method of a definition module using the `install()` or `binder().install()` methods!
 Definition modules are Guice private modules and anything defined within them will not be exposed to the general dependency tree. This is a limitation due to the way Guice works.
 
@@ -5793,7 +5797,7 @@ handle.createQuery("select name from users")
 ----
 
 This works for all the collection types supported. For the nested value
-row and column mappers already installed in *Jdbi* will be used.
+row and column mappers already installed in Jdbi will be used.
 Therefore, the following would work and can make sense if the column is nullable:
 
 [source,java]
