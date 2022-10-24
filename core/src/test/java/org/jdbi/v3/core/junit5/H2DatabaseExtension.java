@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -36,12 +37,14 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
 
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
+    private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
     private final boolean installPlugins;
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
 
     private Jdbi jdbi = null;
     private Handle sharedHandle = null;
+    private boolean enableLeakchecker = true;
 
     public static H2DatabaseExtension instance() {
         return new H2DatabaseExtension(false);
@@ -99,11 +102,21 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
     }
 
     @Override
+    public H2DatabaseExtension withoutLeakchecker() {
+        this.enableLeakchecker = false;
+        return this;
+    }
+
+    @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         if (jdbi != null) {
             throw new IllegalStateException("jdbi is not null!");
         }
         jdbi = Jdbi.create(uri);
+
+        if (enableLeakchecker) {
+            jdbi.getConfig(SqlStatements.class).addContextCustomizer(leakChecker);
+        }
 
         if (installPlugins) {
             jdbi.installPlugins();
@@ -123,5 +136,9 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
 
         this.jdbi = null;
         this.sharedHandle.close();
+
+        if (enableLeakchecker) {
+            leakChecker.assertState();
+        }
     }
 }
