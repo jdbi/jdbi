@@ -231,7 +231,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, ctx);
 
-                addCleanable(() -> statementBuilder.close(connection, sql, stmt));
+                getContext().addCleanable(() -> statementBuilder.close(connection, sql, stmt));
                 getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, ctx);
