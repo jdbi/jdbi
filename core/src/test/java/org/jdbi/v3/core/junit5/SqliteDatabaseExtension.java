@@ -18,8 +18,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -35,12 +37,14 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
 
     private final String uri = "jdbc:sqlite::memory:";
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
+    private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
     private final boolean installPlugins;
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
 
     private Jdbi jdbi = null;
     private Handle sharedHandle = null;
+    private boolean enableLeakchecker = true;
 
     public static SqliteDatabaseExtension instance() {
         return new SqliteDatabaseExtension(false);
@@ -98,11 +102,22 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
     }
 
     @Override
+    public SqliteDatabaseExtension withoutLeakchecker() {
+        this.enableLeakchecker = false;
+        return this;
+    }
+
+    @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         if (jdbi != null) {
             throw new IllegalStateException("jdbi is not null!");
         }
         jdbi = Jdbi.create(uri);
+
+        if (enableLeakchecker) {
+            jdbi.getConfig(Handles.class).addListener(leakChecker);
+            jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
+        }
 
         if (installPlugins) {
             jdbi.installPlugins();
@@ -122,5 +137,9 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
 
         this.jdbi = null;
         this.sharedHandle.close();
+
+        if (enableLeakchecker) {
+            leakChecker.checkForLeaks();
+        }
     }
 }

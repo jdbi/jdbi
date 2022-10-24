@@ -20,8 +20,10 @@ import java.util.Set;
 import de.softwareforge.testing.postgres.embedded.DatabaseInfo;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -36,12 +38,14 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
     private final boolean installPlugins;
 
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
+    private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
 
     private DatabaseInfo info = null;
     private Jdbi jdbi = null;
     private Handle sharedHandle = null;
+    private boolean enableLeakchecker = true;
 
     public static PgDatabaseExtension instance(EmbeddedPgExtension pg) {
         return new PgDatabaseExtension(pg, false);
@@ -95,6 +99,12 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
     }
 
     @Override
+    public PgDatabaseExtension withoutLeakchecker() {
+        this.enableLeakchecker = false;
+        return this;
+    }
+
+    @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         if (info != null) {
             throw new IllegalStateException("info is not null!");
@@ -103,6 +113,11 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
         info = pg.createDatabaseInfo();
 
         jdbi = Jdbi.create(info.asDataSource());
+
+        if (enableLeakchecker) {
+            jdbi.getConfig(Handles.class).addListener(leakChecker);
+            jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
+        }
 
         if (installPlugins) {
             jdbi.installPlugins();
@@ -122,5 +137,9 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
 
         this.jdbi = null;
         this.sharedHandle.close();
+
+        if (enableLeakchecker) {
+            leakChecker.checkForLeaks();
+        }
     }
 }
