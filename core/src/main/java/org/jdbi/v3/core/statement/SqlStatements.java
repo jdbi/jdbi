@@ -47,6 +47,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private boolean allowUnusedBindings;
     private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
+    private final Collection<StatementContextListener> contextCustomizers = new CopyOnWriteArrayList<>();
+
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
         templateEngine = new DefinedAttributeTemplateEngine();
@@ -64,6 +66,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
         this.customizers.addAll(that.customizers);
+        this.contextCustomizers.addAll(that.contextCustomizers);
         this.templateCache = that.templateCache;
     }
 
@@ -120,6 +123,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public SqlStatements addCustomizer(final StatementCustomizer customizer) {
         this.customizers.add(customizer);
+        return this;
+    }
+
+    public SqlStatements addContextCustomizer(final StatementContextListener customizer) {
+        this.contextCustomizers.add(customizer);
         return this;
     }
 
@@ -265,6 +273,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     Collection<StatementCustomizer> getCustomizers() {
         return customizers;
+    }
+
+    Collection<StatementContextListener> getContextCustomizers() {
+        return contextCustomizers;
     }
 
     String preparedRender(String template, StatementContext ctx) {

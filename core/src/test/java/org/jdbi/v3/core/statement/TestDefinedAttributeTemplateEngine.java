@@ -32,7 +32,7 @@ public class TestDefinedAttributeTemplateEngine {
     @BeforeEach
     public void setUp() {
         templateEngine = new DefinedAttributeTemplateEngine();
-        ctx = new StatementContext();
+        ctx = StatementContextAccess.createContext();
     }
 
     private String render(String sql) {

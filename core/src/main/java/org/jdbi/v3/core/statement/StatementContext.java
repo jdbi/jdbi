@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -85,15 +87,13 @@ public class StatementContext implements Closeable {
     private Instant completionMoment;
     private Instant exceptionMoment;
 
-    StatementContext() {
-        this(new ConfigRegistry());
+    static StatementContext create(ConfigRegistry config, ExtensionMethod extensionMethod) {
+        final StatementContext context = new StatementContext(config, extensionMethod);
+        context.notifyContextCreated();
+        return context;
     }
 
-    StatementContext(ConfigRegistry config) {
-        this(config, null);
-    }
-
-    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
+    private StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
     }
@@ -566,15 +566,24 @@ public class StatementContext implements Closeable {
      * @param cleanable the Cleanable to clean on close
      */
     public void addCleanable(Cleanable cleanable) {
-        cleanables.add(cleanable);
+        Cleanable cleanableToAdd = notifyCleanableAdded(cleanable);
+        synchronized (cleanables) {
+            cleanables.add(cleanableToAdd);
+        }
     }
 
     @Override
     public void close() {
         SQLException exception = null;
 
-        List<Cleanable> cleanablesCopy = new ArrayList<>(cleanables);
-        cleanables.clear();
+        List<Cleanable> cleanablesCopy;
+
+        synchronized (cleanables) {
+            cleanablesCopy = new ArrayList<>(cleanables);
+            cleanables.clear();
+        }
+
+        cleanablesCopy = cleanablesCopy.stream().map(this::cleanableRemoved).collect(Collectors.toCollection(ArrayList::new));
         Collections.reverse(cleanablesCopy);
 
         for (Cleanable cleanable : cleanablesCopy) {
@@ -589,8 +598,10 @@ public class StatementContext implements Closeable {
             }
         }
 
-        if (exception != null) {
-            throw new CloseException("Exception thrown while cleaning StatementContext", exception);
+        notifyContextCleaned();
+
+        if (firstException != null) {
+            throw new CloseException("Exception thrown while cleaning StatementContext", firstException);
         }
     }
 
@@ -599,6 +610,40 @@ public class StatementContext implements Closeable {
     }
 
     boolean isClosed() {
-        return cleanables.isEmpty();
+        synchronized (cleanables) {
+            return cleanables.isEmpty();
+        }
+    }
+
+    private Collection<StatementContextListener> getCustomizers() {
+        return getConfig(SqlStatements.class).getContextCustomizers();
+    }
+
+    private void notifyContextCreated() {
+        Collection<StatementContextListener> customizers = getCustomizers();
+        customizers.forEach(customizer -> customizer.contextCreated(this));
+    }
+
+    private void notifyContextCleaned() {
+        Collection<StatementContextListener> customizers = getCustomizers();
+        customizers.forEach(customizer -> customizer.contextCleaned(this));
+    }
+
+    private Cleanable notifyCleanableRemoved(Cleanable cleanable) {
+        Cleanable result = cleanable;
+        Collection<StatementContextListener> customizers = getCustomizers();
+        for (StatementContextListener customizer : customizers) {
+            result = customizer.cleanableRemoved(this, result).orElse(result);
+        }
+        return result;
+    }
+
+    private Cleanable notifyCleanableAdded(Cleanable cleanable) {
+        Cleanable result = cleanable;
+        Collection<StatementContextListener> customizers = getCustomizers();
+        for (StatementContextListener customizer : customizers) {
+            result = customizer.cleanableAdded(this, result).orElse(result);
+        }
+        return result;
     }
 }
