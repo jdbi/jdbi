@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -85,15 +86,13 @@ public class StatementContext implements Closeable {
     private Instant completionMoment;
     private Instant exceptionMoment;
 
-    StatementContext() {
-        this(new ConfigRegistry());
+    static StatementContext create(ConfigRegistry config, ExtensionMethod extensionMethod) {
+        final StatementContext context = new StatementContext(config, extensionMethod);
+        context.notifyContextCreated();
+        return context;
     }
 
-    StatementContext(ConfigRegistry config) {
-        this(config, null);
-    }
-
-    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
+    private StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
     }
@@ -566,16 +565,27 @@ public class StatementContext implements Closeable {
      * @param cleanable the Cleanable to clean on close
      */
     public void addCleanable(Cleanable cleanable) {
-        cleanables.add(cleanable);
+
+        synchronized (cleanables) {
+            cleanables.add(cleanable);
+        }
+
+        notifyCleanableAdded(cleanable);
     }
 
     @Override
     public void close() {
         SQLException exception = null;
 
-        List<Cleanable> cleanablesCopy = new ArrayList<>(cleanables);
-        cleanables.clear();
+        List<Cleanable> cleanablesCopy;
+
+        synchronized (cleanables) {
+            cleanablesCopy = new ArrayList<>(cleanables);
+            cleanables.clear();
+        }
+
         Collections.reverse(cleanablesCopy);
+        cleanablesCopy.forEach(this::notifyCleanableRemoved);
 
         for (Cleanable cleanable : cleanablesCopy) {
             try {
@@ -589,6 +599,8 @@ public class StatementContext implements Closeable {
             }
         }
 
+        notifyContextCleaned();
+
         if (exception != null) {
             throw new CloseException("Exception thrown while cleaning StatementContext", exception);
         }
@@ -599,6 +611,32 @@ public class StatementContext implements Closeable {
     }
 
     boolean isClosed() {
-        return cleanables.isEmpty();
+        synchronized (cleanables) {
+            return cleanables.isEmpty();
+        }
+    }
+
+    private Collection<StatementContextListener> getListeners() {
+        return getConfig(SqlStatements.class).getContextListeners();
+    }
+
+    private void notifyContextCreated() {
+        Collection<StatementContextListener> listeners = getListeners();
+        listeners.forEach(customizer -> customizer.contextCreated(this));
+    }
+
+    private void notifyContextCleaned() {
+        Collection<StatementContextListener> listeners = getListeners();
+        listeners.forEach(customizer -> customizer.contextCleaned(this));
+    }
+
+    private void notifyCleanableRemoved(Cleanable cleanable) {
+        Collection<StatementContextListener> listeners = getListeners();
+        listeners.forEach(customizer -> customizer.cleanableRemoved(this, cleanable));
+    }
+
+    private void notifyCleanableAdded(Cleanable cleanable) {
+        Collection<StatementContextListener> listeners = getListeners();
+        listeners.forEach(customizer -> customizer.cleanableAdded(this, cleanable));
     }
 }
