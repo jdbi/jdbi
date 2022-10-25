@@ -47,18 +47,19 @@ public abstract class AbstractPropagateNullTest {
      * result set.
      */
     protected void propagateNullOnNested(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as nestedid")) {
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as nestedid"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select NULL as nestedid"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -67,19 +68,20 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void testPropagateNullOnNestedWithPrefixCaseInsensitive(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        // use the case-insensitive column name mapper
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as beanID")) {
+            // use the case-insensitive column name mapper
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as beanID"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select NULL as beanID"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -87,19 +89,20 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void propagateNullOnNestedColumn(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        // use the snake case column name mapper
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as bean_id")) {
+            // use the snake case column name mapper
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as bean_id"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select NULL as bean_id"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -107,17 +110,19 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void doubleNestedPropagateNull(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as nid")) {
+            TestBean testBean = mapFunction.apply(select)
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as nid"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select NULL as nid"))
+                .one();
 
-        assertThat(testBean).isNull();
+            assertThat(testBean).isNull();
+        }
     }
 
     /**
@@ -125,18 +130,19 @@ public abstract class AbstractPropagateNullTest {
      * result set. The tested key is different from the id key (and may not be mapped by the bean).
      */
     protected void propagateNullOnNestedWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, 1 as nestedfk"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as nestedid, 1 as nestedfk")) {
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, NULL as nestedfk"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, NULL as nestedfk"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -145,19 +151,20 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void testPropagateNullOnNestedWithPrefixCaseInsensitiveWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        // use the case-insensitive column name mapper
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, 1 as beanFK"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as beanID, 1 as beanFK")) {
+            // use the case-insensitive column name mapper
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, NULL as beanFK"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, NULL as beanFK"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -165,19 +172,20 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void propagateNullOnNestedColumnWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        // use the snake case column name mapper
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id, 1 as bean_fk"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as bean_id, 1 as bean_fk")) {
+            // use the snake case column name mapper
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id, NULL as bean_fk"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id, NULL as bean_fk"))
+                .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNull();
+        }
     }
 
     /**
@@ -185,17 +193,18 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void doubleNestedPropagateNullWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        TestBean testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, 1 as nfk"))
-            .one();
+        try (Query select = handle.select("select 'fourty-two' as nid, 1 as nfk")) {
+            TestBean testBean = mapFunction.apply(select).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNotNull();
-        assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean).isNotNull();
+            assertThat(testBean.getNestedBean()).isNotNull();
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, NULL as nfk"))
-            .one();
+            testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, NULL as nfk"))
+                .one();
 
-        assertThat(testBean).isNull();
+            assertThat(testBean).isNull();
+        }
     }
 
     public interface TestBean {

@@ -53,17 +53,17 @@ class TestSlf4JSqlLogger {
     void testLogAfterExecutionForBatch() {
         try (Handle handle = h2Extension.getJdbi().open()) {
             handle.execute(CREATE);
-
-            Batch batch = handle.createBatch();
-            batch.add(INSERT);
-            assertDoesNotThrow(batch::execute);
+            try (Batch batch = handle.createBatch()) {
+                batch.add(INSERT);
+                assertDoesNotThrow(batch::execute);
+            }
         }
     }
 
     @Test
     void testLogExceptionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open()) {
-            Batch batch = handle.createBatch();
+        try (Handle handle = h2Extension.getJdbi().open();
+            Batch batch = handle.createBatch()) {
             batch.add(INSERT);
             assertThrows(UnableToExecuteStatementException.class, batch::execute);
         }

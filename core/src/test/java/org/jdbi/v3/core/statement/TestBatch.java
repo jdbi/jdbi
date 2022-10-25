@@ -39,11 +39,12 @@ public class TestBatch {
     public void testBasics() {
         Handle h = h2Extension.openHandle();
 
-        Batch b = h.createBatch();
-        b.add("insert into something (id, name) values (0, 'Keith')");
-        b.add("insert into something (id, name) values (1, 'Eric')");
-        b.add("insert into something (id, name) values (2, 'Brian')");
-        b.execute();
+        try (Batch b = h.createBatch()) {
+            b.add("insert into something (id, name) values (0, 'Keith')");
+            b.add("insert into something (id, name) values (1, 'Eric')");
+            b.add("insert into something (id, name) values (2, 'Brian')");
+            b.execute();
+        }
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).hasSize(3);
@@ -51,8 +52,8 @@ public class TestBatch {
 
     @Test
     public void testEmptyBatchThrows() {
-        try (Handle h = h2Extension.openHandle()) {
-            final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
+        try (Handle h = h2Extension.openHandle();
+            PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)")) {
             assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet
         }
     }

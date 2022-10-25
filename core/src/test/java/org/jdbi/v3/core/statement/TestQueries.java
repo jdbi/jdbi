@@ -156,11 +156,13 @@ public class TestQueries {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        assertThatThrownBy(() ->
-            h.createQuery("select * from something where name = :name")
-                .bind(0, "eric")
-                .mapToBean(Something.class)
-                .list())
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where name = :name")) {
+                query.bind(0, "eric")
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        })
             .isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageContaining("Missing named parameter 'name'");
     }
@@ -172,13 +174,14 @@ public class TestQueries {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        assertThatThrownBy(() ->
-            h.createQuery("select * from something where name = :name and id = :id")
-                .bind(0, "eric")
-                .bind("id", 1)
-                .mapToBean(Something.class)
-                .list())
-            .isInstanceOf(UnableToCreateStatementException.class)
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where name = :name and id = :id")) {
+                query.bind(0, "eric")
+                    .bind("id", 1)
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageContaining("Missing named parameter 'name'");
     }
 
@@ -186,8 +189,11 @@ public class TestQueries {
     public void testHelpfulErrorOnNothingSet() {
         final Handle h = h2Extension.openHandle();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something where name = :name").mapToMap().list())
-            .isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where name = :name")) {
+                query.mapToMap().list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -336,21 +342,25 @@ public class TestQueries {
 
     @Test
     public void testFetchSize() {
-        final Handle h = h2Extension.openHandle();
+        try (Handle h = h2Extension.openHandle()) {
 
-        h.createScript(findSqlOnClasspath("default-data")).execute();
+            try (Script script = h.createScript(findSqlOnClasspath("default-data"))) {
+                script.execute();
+            }
 
-        final ResultIterable<Something> ri = h.createQuery("select id, name from something order by id")
-            .setFetchSize(1)
-            .mapToBean(Something.class);
+            try (Query query = h.createQuery("select id, name from something order by id")) {
+                final ResultIterable<Something> ri = query.setFetchSize(1)
+                    .mapToBean(Something.class);
 
-        final ResultIterator<Something> r = ri.iterator();
+                final ResultIterator<Something> r = ri.iterator();
 
-        assertThat(r.hasNext()).isTrue();
-        r.next();
-        assertThat(r.hasNext()).isTrue();
-        r.next();
-        assertThat(r.hasNext()).isFalse();
+                assertThat(r.hasNext()).isTrue();
+                r.next();
+                assertThat(r.hasNext()).isTrue();
+                r.next();
+                assertThat(r.hasNext()).isFalse();
+            }
+        }
     }
 
     @Test
@@ -455,8 +465,11 @@ public class TestQueries {
     public void testQueriesWithNullResultSets() {
         final Handle h = h2Extension.openHandle();
 
-        assertThatThrownBy(() -> h.select("insert into something (id, name) values (?, ?)", 1, "hello").mapToMap().list())
-            .isInstanceOf(NoResultsException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.select("insert into something (id, name) values (?, ?)", 1, "hello")) {
+                query.mapToMap().list();
+            }
+        }).isInstanceOf(NoResultsException.class);
     }
 
     @Test
