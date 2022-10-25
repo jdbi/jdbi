@@ -45,8 +45,8 @@ public class Call extends SqlStatement<Call> {
     }
 
     @Override
-    PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
-        return getHandle().getStatementBuilder().createCall(getHandle().getConnection(), parsedSql.getSql(), ctx);
+    PreparedStatement createStatement(String parsedSql) throws SQLException {
+        return getHandle().getStatementBuilder().createCall(getHandle().getConnection(), parsedSql, getContext());
     }
 
     /**
