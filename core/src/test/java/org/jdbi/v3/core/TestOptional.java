@@ -26,7 +26,9 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -50,6 +52,11 @@ public class TestOptional {
         handle = h2Extension.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test
@@ -165,10 +172,13 @@ public class TestOptional {
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-        assertThatThrownBy(() -> handle.createQuery(SELECT_BY_NAME)
-            .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery(SELECT_BY_NAME)) {
+                query.bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
@@ -204,10 +214,13 @@ public class TestOptional {
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        assertThatThrownBy(() -> handle.createQuery(SELECT_BY_NAME)
-            .bind("name", Optional.of(new Name("eric")))
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery(SELECT_BY_NAME)) {
+                query.bind("name", Optional.of(new Name("eric")))
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

@@ -29,7 +29,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testSetPositionalString() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -44,7 +44,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testSetPositionalInteger() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -58,28 +58,34 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testBehaviorOnBadBinding1() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something where id = ? and name = ?")
-            .bind(0, 1)
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where id = ? and name = ?")) {
+                query.bind(0, 1)
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testBehaviorOnBadBinding2() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
-            .bind(1, 1)
-            .bind(2, "Hi")
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where id = ?")) {
+                query.bind(1, 1)
+                    .bind(2, "Hi")
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testInsertParamBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int count = h.createUpdate("insert into something (id, name) values (?, 'eric')")
                 .bind(0, 1)
@@ -90,7 +96,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testPositionalConvenienceInsert() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 

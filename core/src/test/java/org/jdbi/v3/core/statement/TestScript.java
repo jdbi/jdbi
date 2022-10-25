@@ -46,52 +46,57 @@ public class TestScript {
 
     @Test
     public void testScriptStuff() {
-        Handle h = h2Extension.openHandle();
-        Script s = h.createScript(getClasspathSqlLocator().locate("default-data"));
-        s.execute();
+        Handle h = h2Extension.getSharedHandle();
+        try (Script s = h.createScript(getClasspathSqlLocator().locate("default-data"))) {
+            s.execute();
 
-        assertThat(h.select("select * from something").mapToMap()).hasSize(2);
+            assertThat(h.select("select * from something").mapToMap()).hasSize(2);
+        }
     }
 
     @Test
     public void testScriptWithComments() {
-        Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-script-with-comments.sql"));
-        script.execute();
+        Handle h = h2Extension.getSharedHandle();
+        try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-script-with-comments.sql"))) {
+            script.execute();
 
-        assertThat(h.select("select * from something").mapToMap()).hasSize(3);
+            assertThat(h.select("select * from something").mapToMap()).hasSize(3);
+        }
     }
 
     @Test
     public void testScriptWithStringSemicolon() {
-        Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-with-string-semicolons.sql"));
-        script.execute();
+        Handle h = h2Extension.getSharedHandle();
+        try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-with-string-semicolons.sql"))) {
+            script.execute();
 
-        assertThat(h.select("select * from something").mapToMap()).hasSize(3);
+            assertThat(h.select("select * from something").mapToMap()).hasSize(3);
+        }
     }
 
     @Test
     public void testFuzzyScript() {
-        Handle h = h2Extension.openHandle();
-        Script script = h.createScript(getClasspathSqlLocator().getResource("script/fuzzy-script.sql"));
-        script.executeAsSeparateStatements();
+        Handle h = h2Extension.getSharedHandle();
+        try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/fuzzy-script.sql"))) {
+            script.executeAsSeparateStatements();
 
-        List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
-        assertThat(rows).isEqualTo(ImmutableList.of(
-            ImmutableMap.of("id", 1L, "name", "eric"),
-            ImmutableMap.of("id", 2L, "name", "sally;ann"),
-            ImmutableMap.of("id", 3L, "name", "bob"),
-            ImmutableMap.of("id", 12L, "name", "sally;ann;junior")));
+            List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
+            assertThat(rows).isEqualTo(ImmutableList.of(
+                ImmutableMap.of("id", 1L, "name", "eric"),
+                ImmutableMap.of("id", 2L, "name", "sally;ann"),
+                ImmutableMap.of("id", 3L, "name", "bob"),
+                ImmutableMap.of("id", 12L, "name", "sally;ann;junior")));
+        }
     }
 
     @Test
     public void testScriptAsSetOfSeparateStatements() {
         assertThatExceptionOfType(StatementException.class)
             .isThrownBy(() -> {
-                Handle h = h2Extension.openHandle();
-                Script script = h.createScript(getClasspathSqlLocator().getResource("script/malformed-sql-script.sql"));
-                script.executeAsSeparateStatements();
+                Handle h = h2Extension.getSharedHandle();
+                try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/malformed-sql-script.sql"))) {
+                    script.executeAsSeparateStatements();
+                }
             })
             .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
                 .isEqualTo("insert into something(id, name) values (2, eric)"));
@@ -99,11 +104,12 @@ public class TestScript {
 
     @Test
     public void testPostgresJsonExtractTextOperator() {
-        Handle h = pgExtension.openHandle();
-        Script script = h.createScript(getClasspathSqlLocator().getResource("script/postgres-json-operator.sql"));
-        script.execute();
+        Handle h = pgExtension.getSharedHandle();
+        try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/postgres-json-operator.sql"))) {
+            script.execute();
 
-        assertThat(h.select("select * from something").mapToMap()).hasSize(1);
+            assertThat(h.select("select * from something").mapToMap()).hasSize(1);
+        }
     }
 
     /**

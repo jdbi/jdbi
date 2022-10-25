@@ -34,7 +34,7 @@ public class TestNamedParams {
 
     @Test
     public void testInsert() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
@@ -64,7 +64,7 @@ public class TestNamedParams {
 
     @Test
     public void testBeanPropertyBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         Something original = new Something(0, "Keith");
 
         assertThat(h
@@ -82,7 +82,7 @@ public class TestNamedParams {
 
     @Test
     public void testBeanPropertyPrefixBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         Something original = new Something(0, "Keith");
 
         assertThat(h
@@ -100,7 +100,7 @@ public class TestNamedParams {
 
     @Test
     public void testBeanPropertyNestedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         Something thing = new Something(0, "Keith");
 
@@ -131,7 +131,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:id, :name)")
@@ -148,7 +148,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsPrefixBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
@@ -165,7 +165,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsNestedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
@@ -185,7 +185,7 @@ public class TestNamedParams {
 
     @Test
     public void testFieldsNestedBindingToNull() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (0, :my.nested?.name)")
@@ -224,7 +224,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:id, :name)")
@@ -241,7 +241,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsPrefixBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.id, :my.name)")
@@ -258,7 +258,7 @@ public class TestNamedParams {
 
     @Test
     public void testFunctionsNestedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThat(h
             .createUpdate("insert into something (id, name) values (:my.nested.id, :my.nested.name)")
@@ -294,7 +294,7 @@ public class TestNamedParams {
 
     @Test
     public void testMapKeyBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
@@ -311,7 +311,7 @@ public class TestNamedParams {
 
     @Test
     public void testCascadedLazyArgs() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);

@@ -13,36 +13,39 @@
  */
 package org.jdbi.v3.core.array;
 
-import java.util.UUID;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVendorArrays {
 
-    private void init(Jdbi db) {
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
+    public void setUp() {
+        Jdbi db = h2Extension.getJdbi();
         db.registerArrayType(Integer.class, "int");
         db.registerArrayType(String.class, "varchar");
     }
 
     @Test
     public void testHsqlDb() {
-        Jdbi db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID());
-        init(db);
-
-        try (Handle handle = db.open()) {
+        try (Handle handle = h2Extension.openHandle()) {
             handle.execute("create table player_stats ("
                 + "name varchar(64) primary key, "
                 + "seasons varchar(36) array, "
                 + "points int array)");
             handle.createUpdate("insert into player_stats (name,seasons,points) values (?,?,?)")
-                    .bind(0, "Jack Johnson")
-                    .bind(1, new String[]{"2013-2014", "2014-2015", "2015-2016"})
-                    .bind(2, new Integer[]{42, 51, 50})
-                    .execute();
+                .bind(0, "Jack Johnson")
+                .bind(1, new String[]{"2013-2014", "2014-2015", "2015-2016"})
+                .bind(2, new Integer[]{42, 51, 50})
+                .execute();
 
             String[] seasons = handle.createQuery("select seasons from player_stats where name=:name")
                     .bind("name", "Jack Johnson")

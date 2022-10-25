@@ -22,6 +22,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,11 +118,12 @@ public class TestNVarchar {
 
             verify(stmt).setNString(1, value);
 
-            handle.createQuery("no execute")
-                .getContext()
-                .findArgumentFor(NVARCHAR_STRING, value)
-                .orElseThrow(IllegalStateException::new)
-                .apply(2, stmt, null);
+            try (Query query = handle.createQuery("no execute")) {
+                query.getContext()
+                    .findArgumentFor(NVARCHAR_STRING, value)
+                    .orElseThrow(IllegalStateException::new)
+                    .apply(2, stmt, null);
+            }
 
             verify(stmt).setNString(2, value);
         });

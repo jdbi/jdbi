@@ -29,7 +29,7 @@ public class TestUri {
 
     @Test
     public void testUri() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();
 

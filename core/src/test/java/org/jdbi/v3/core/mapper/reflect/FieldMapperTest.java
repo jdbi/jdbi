@@ -22,6 +22,7 @@ import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -90,10 +91,11 @@ public class FieldMapperTest {
             .extracting("nested.i", "nested.s")
             .containsExactly(1, "foo");
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id, name, 1 as other from something")
-            .mapTo(NestedThing.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
+                query.mapTo(NestedThing.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [other]");
     }
@@ -159,12 +161,13 @@ public class FieldMapperTest {
     @Test
     public void testNoRecognizedColumns() {
         Handle handle = h2Extension.getSharedHandle();
+        handle.registerRowMapper(FieldMapper.factory(NullableNestedThing.class));
 
-        assertThatThrownBy(() -> handle
-            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
-            .select("SELECT 'foo' bar")
-            .mapTo(NullableNestedThing.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.select("SELECT 'foo' bar")) {
+                query.mapTo(NullableNestedThing.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -218,17 +221,19 @@ public class FieldMapperTest {
             .extracting("nested.i", "nested.s", "integerValue")
             .containsExactly(1, "foo", 5);
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as other from something")
-            .mapTo(NestedPrefixThing.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
+                query.mapTo(NestedPrefixThing.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [other]");
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
-            .mapTo(NestedPrefixThing.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
+                query.mapTo(NestedPrefixThing.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match fields for columns: [nested_other]");
     }

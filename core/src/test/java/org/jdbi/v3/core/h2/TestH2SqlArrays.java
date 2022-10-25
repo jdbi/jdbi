@@ -53,13 +53,13 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidArray() {
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createUpdate(U_INSERT)
                 .bindArray("u", testUuids)
                 .execute())
             .isOne();
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createQuery(U_SELECT)
                 .mapTo(UUID[].class)
                 .one())
@@ -69,13 +69,13 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidList() {
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, Arrays.asList(testUuids))
                 .execute())
             .isOne();
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createQuery(U_SELECT)
                 .mapTo(UUID_LIST)
                 .one())
@@ -85,13 +85,13 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidArrayList() {
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createUpdate(U_INSERT)
                 .bindArray("u", UUID.class, new ArrayList<>(Arrays.asList(testUuids)))
                 .execute())
             .isOne();
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createQuery(U_SELECT)
                 .mapTo(UUID_ARRAYLIST)
                 .one())
@@ -101,13 +101,13 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidHashSet() {
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createUpdate(U_INSERT)
                 .bindByType("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isOne();
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createQuery(U_SELECT)
                 .mapTo(UUID_HASHSET)
                 .one())
@@ -117,13 +117,13 @@ public class TestH2SqlArrays {
     @Test
     public void testUuidLinkedHashSet() {
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createUpdate(U_INSERT)
                 .bindByType("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isOne();
         assertThat(
-            h2Extension.openHandle()
+            h2Extension.getSharedHandle()
                 .createQuery(U_SELECT)
                 .mapTo(UUID_LINKEDHASHSET)
                 .one())
@@ -135,7 +135,7 @@ public class TestH2SqlArrays {
     public void testEnumArrays() {
         GenericType<List<TestEnum>> testEnumList = new GenericType<List<TestEnum>>() {};
 
-        assertThat(h2Extension.openHandle()
+        assertThat(h2Extension.getSharedHandle()
             .select("select ?")
             .bindByType(0, Arrays.asList(TestEnum.values()), testEnumList)
             .mapTo(testEnumList).one())

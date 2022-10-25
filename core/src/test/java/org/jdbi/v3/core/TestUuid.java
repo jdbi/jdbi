@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import java.util.UUID;
 
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -28,24 +27,15 @@ public class TestUuid {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    public Jdbi db;
-    public Handle h;
-
     @BeforeEach
     public void setupDbi() {
-        db = h2Extension.getJdbi();
-
-        h = db.open();
-        h.execute("CREATE TABLE foo (bar UUID)");
-    }
-
-    @AfterEach
-    public void tearDown() {
-        h.close();
+        h2Extension.getSharedHandle().execute("CREATE TABLE foo (bar UUID)");
     }
 
     @Test
     public void testUuid() {
+        Handle h = h2Extension.getSharedHandle();
+
         UUID u = UUID.randomUUID();
         h.createUpdate("INSERT INTO foo VALUES (:uuid)")
             .bind("uuid", u)

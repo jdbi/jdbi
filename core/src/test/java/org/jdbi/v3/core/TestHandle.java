@@ -21,6 +21,8 @@ import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -33,10 +35,20 @@ public class TestHandle {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
 
+    private Handle h;
+
+    @BeforeEach
+    public void startUp() {
+        this.h = h2Extension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
+    }
+
     @Test
     public void testInTransaction() {
-        Handle h = h2Extension.openHandle();
-
         String value = h.inTransaction(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
@@ -46,9 +58,7 @@ public class TestHandle {
 
     @Test
     public void testSillyNumberOfCallbacks() throws Exception {
-        try (Handle h = h2Extension.openHandle()) {
-            h.execute("insert into something (id, name) values (1, 'Keith')");
-        }
+        h.execute("insert into something (id, name) values (1, 'Keith')");
 
         // strangely enough, the compiler can't infer this and thinks the throws is redundant
         String value = h2Extension.getJdbi().<String, Exception>withHandle(handle ->
@@ -61,7 +71,6 @@ public class TestHandle {
     @SuppressWarnings("resource")
     @Test
     public void testIsClosed() {
-        Handle h = h2Extension.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();
         assertThat(h.isClosed()).isTrue();
@@ -69,14 +78,11 @@ public class TestHandle {
 
     @Test
     public void testMrWinter() {
-        final Handle h = h2Extension.getSharedHandle();
         assertThat(h.execute("CREATE TABLE \"\u2603\" (pk int primary key)")).isZero();
     }
 
     @Test
     public void unknownTransactionLevelIsOk() {
-        Handle h = h2Extension.openHandle();
-
         assertThatThrownBy(() -> h.setTransactionIsolation(Integer.MIN_VALUE))
             .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class);
 
@@ -88,98 +94,94 @@ public class TestHandle {
     public void testAutocommitFailDoesntLeak() {
         final BoomHandler handler = new BoomHandler();
         h2Extension.getJdbi().setTransactionHandler(handler);
-        final Handle h = h2Extension.openHandle();
 
-        assertThat(h.isClosed()).isFalse();
+        try (Handle transactionHandle = h2Extension.openHandle()) {
+            assertThat(transactionHandle.isClosed()).isFalse();
 
-        handler.failTest = true;
-        assertThatThrownBy(h::close)
-            .isInstanceOf(CloseException.class);
+            handler.failTest = true;
+            assertThatThrownBy(transactionHandle::close)
+                .isInstanceOf(CloseException.class);
 
-        assertThat(h.isClosed()).isTrue();
+            assertThat(transactionHandle.isClosed()).isTrue();
+        }
     }
 
     @Test
     public void testRollbackFailDoesntLeak() throws Exception {
         final BoomHandler handler = new BoomHandler();
         h2Extension.getJdbi().setTransactionHandler(handler);
-        final Handle h = h2Extension.openHandle();
+        try (Handle transactionHandle = h2Extension.openHandle()) {
 
-        assertThat(h.isClosed()).isFalse();
+            assertThat(transactionHandle.isClosed()).isFalse();
 
-        handler.failRollback = true;
-        assertThatThrownBy(() -> h.useTransaction(h2 -> h2.execute("insert into true")))
-            .isInstanceOf(UnableToCreateStatementException.class);
-        assertThat(h.isInTransaction())
-            .describedAs("rollback failed but handle should still be in transaction").isTrue();
+            handler.failRollback = true;
+            assertThatThrownBy(() -> transactionHandle.useTransaction(h2 -> h2.execute("insert into true")))
+                .isInstanceOf(UnableToCreateStatementException.class);
+            assertThat(transactionHandle.isInTransaction())
+                .describedAs("rollback failed but handle should still be in transaction").isTrue();
 
-        assertThatThrownBy(h::close)
-            .isInstanceOf(CloseException.class);
-        assertThat(h.isClosed()).isTrue();
-        assertThat(h.getConnection().isClosed()).isTrue();
+            assertThatThrownBy(transactionHandle::close)
+                .isInstanceOf(CloseException.class);
+            assertThat(transactionHandle.isClosed()).isTrue();
+            assertThat(transactionHandle.getConnection().isClosed()).isTrue();
+        }
     }
 
     @Test
     public void testCommitCallback() throws Exception {
         final AtomicBoolean onCommit = new AtomicBoolean();
         final AtomicBoolean onRollback = new AtomicBoolean();
-        try (Handle h = h2Extension.openHandle()) {
-            h.useTransaction(inner -> {
-                inner.afterCommit(() -> onCommit.set(true));
-                inner.afterRollback(() -> onRollback.set(true));
-            });
-            assertThat(onCommit).isTrue();
-            assertThat(onRollback).isFalse();
 
-            onCommit.set(false);
-            h.useTransaction(inner -> {});
-            assertThat(onCommit).isFalse();
-        }
+        h.useTransaction(inner -> {
+            inner.afterCommit(() -> onCommit.set(true));
+            inner.afterRollback(() -> onRollback.set(true));
+        });
+        assertThat(onCommit).isTrue();
+        assertThat(onRollback).isFalse();
+
+        onCommit.set(false);
+        h.useTransaction(inner -> {});
+        assertThat(onCommit).isFalse();
     }
 
     @Test
     public void testNestedTxnCommitCallback() throws Exception {
         final AtomicBoolean onCommit = new AtomicBoolean();
         final AtomicBoolean onRollback = new AtomicBoolean();
-        try (Handle h = h2Extension.openHandle()) {
-            h.useTransaction(outer ->
-                    outer.useTransaction(inner -> {
-                        inner.afterCommit(() -> onCommit.set(true));
-                        inner.afterRollback(() -> onRollback.set(true));
-                    }));
-            assertThat(onCommit).isTrue();
-            assertThat(onCommit).isTrue();
-            assertThat(onRollback).isFalse();
 
-            onCommit.set(false);
-            h.useTransaction(inner -> {});
-            assertThat(onCommit).isFalse();
-        }
+        h.useTransaction(outer ->
+            outer.useTransaction(inner -> {
+                inner.afterCommit(() -> onCommit.set(true));
+                inner.afterRollback(() -> onRollback.set(true));
+            }));
+        assertThat(onCommit).isTrue();
+        assertThat(onCommit).isTrue();
+        assertThat(onRollback).isFalse();
+
+        onCommit.set(false);
+        h.useTransaction(inner -> {});
+        assertThat(onCommit).isFalse();
     }
 
     @Test
     public void testCommitRollback() throws Exception {
         final AtomicBoolean onCommit = new AtomicBoolean();
         final AtomicBoolean onRollback = new AtomicBoolean();
-        try (Handle h = h2Extension.openHandle()) {
-            h.useTransaction(inner -> {
-                inner.afterCommit(() -> onCommit.set(true));
-                inner.afterRollback(() -> onRollback.set(true));
-                inner.rollback();
-            });
-            assertThat(onCommit).isFalse();
-            assertThat(onRollback).isTrue();
+        h.useTransaction(inner -> {
+            inner.afterCommit(() -> onCommit.set(true));
+            inner.afterRollback(() -> onRollback.set(true));
+            inner.rollback();
+        });
+        assertThat(onCommit).isFalse();
+        assertThat(onRollback).isTrue();
 
-            onRollback.set(false);
-            h.useTransaction(Handle::rollback);
-            assertThat(onRollback).isFalse();
-        }
+        onRollback.set(false);
+        h.useTransaction(Handle::rollback);
+        assertThat(onRollback).isFalse();
     }
 
     @Test
     public void testIssue2065() throws Exception {
-        Handle h = h2Extension.openHandle();
-
         h.begin();
         h.execute("insert into something (id, name) values (1, 'Brian')");
         String value = h.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
