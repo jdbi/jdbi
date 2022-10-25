@@ -60,21 +60,27 @@ public class TestPositionalParameterBinding {
     public void testBehaviorOnBadBinding1() {
         Handle h = h2Extension.openHandle();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something where id = ? and name = ?")
-            .bind(0, 1)
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where id = ? and name = ?")) {
+                query.bind(0, 1)
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test
     public void testBehaviorOnBadBinding2() {
         Handle h = h2Extension.openHandle();
 
-        assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
-            .bind(1, 1)
-            .bind(2, "Hi")
-            .mapToBean(Something.class)
-            .list()).isInstanceOf(UnableToCreateStatementException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("select * from something where id = ?")) {
+                query.bind(1, 1)
+                    .bind(2, "Hi")
+                    .mapToBean(Something.class)
+                    .list();
+            }
+        }).isInstanceOf(UnableToCreateStatementException.class);
     }
 
     @Test

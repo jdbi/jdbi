@@ -85,7 +85,9 @@ public class TestSqlLoggerCallPoints {
     public void testBatch() {
         h.execute(CREATE);
 
-        h.createBatch().add(INSERT).execute();
+        try (Batch batch = h.createBatch()) {
+            batch.add(INSERT).execute();
+        }
 
         // unfortunately...
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);
@@ -97,7 +99,11 @@ public class TestSqlLoggerCallPoints {
     public void testBatchException() {
         h.execute(CREATE);
 
-        Throwable e = catchThrowable(h.createBatch().add(INSERT_NULL)::execute);
+        Throwable e = catchThrowable(() -> {
+            try (Batch batch = h.createBatch()) {
+                batch.add(INSERT_NULL).execute();
+            }
+        });
 
         // unfortunately...
         assertThat(logger.getRawSql()).containsExactly(CREATE, CREATE, null, null);

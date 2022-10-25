@@ -73,7 +73,11 @@ public class TestStatements {
     public void testStatementWithRequiredResults() {
         Handle h = h2Extension.openHandle();
 
-        assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst()).isInstanceOf(NoResultsException.class);
+        assertThatThrownBy(() -> {
+            try (Query query = h.createQuery("commit")) {
+                query.mapTo(Integer.class).findFirst();
+            }
+        }).isInstanceOf(NoResultsException.class);
     }
 
     @Test

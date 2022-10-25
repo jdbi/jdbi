@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,7 +46,11 @@ public class PrimitivesArgumentFactoryTest {
 
         handle.getConfig(Arguments.class).setBindingNullToPrimitivesPermitted(false);
 
-        assertThatThrownBy(() -> handle.createQuery("select :foo").bindByType("foo", null, int.class).mapTo(int.class).one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select :foo")) {
+                query.bindByType("foo", null, int.class).mapTo(int.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("binding null to a primitive int is forbidden by configuration, declare a boxed type instead");
 

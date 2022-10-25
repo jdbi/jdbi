@@ -21,7 +21,6 @@ import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -36,17 +35,21 @@ public class TestBatchExceptionRewrite {
 
     @BeforeEach
     public void createTable() {
-        pgExtension.getJdbi().useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
+        pgExtension.getJdbi()
+            .useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
+        // silence chatty exception log
+        pgExtension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
     }
 
     @Test
     public void testSimpleBatch() {
-        Batch b = pgExtension.openHandle().createBatch();
-        b.add("insert into something (id, name) values (0, 'Keith')");
-        b.add("insert into something (id, name) values (0, 'Keith')");
-        assertThatExceptionOfType(UnableToExecuteStatementException.class)
+        try (Batch b = pgExtension.openHandle().createBatch()) {
+            b.add("insert into something (id, name) values (0, 'Keith')");
+            b.add("insert into something (id, name) values (0, 'Keith')");
+            assertThatExceptionOfType(UnableToExecuteStatementException.class)
                 .isThrownBy(b::execute)
                 .satisfies(e -> assertSuppressions(e.getCause()));
+        }
     }
 
     @Test
@@ -60,7 +63,6 @@ public class TestBatchExceptionRewrite {
     }
 
     private void assertSuppressions(Throwable cause) {
-        LoggerFactory.getLogger(TestBatchExceptionRewrite.class).info("exception", cause);
         SQLException e = (SQLException) cause;
         SQLException nextException = e.getNextException();
         assertThat((Exception) nextException).isEqualTo(e.getSuppressed()[0]);
