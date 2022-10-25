@@ -61,7 +61,6 @@ public class Batch extends BaseStatement<Batch> {
 
         @SuppressWarnings("PMD.CloseResource")
         Statement stmt;
-        try {
             try {
                 stmt = createStatement();
                 getContext().addCleanable(() -> cleanupStatement(stmt));
@@ -73,8 +72,10 @@ public class Batch extends BaseStatement<Batch> {
             LOG.trace("Execute batch [");
 
             try {
+                final TemplateEngine templateEngine = getConfig(SqlStatements.class).getTemplateEngine();
+
                 for (String part : parts) {
-                    final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
+                    final String sql = templateEngine.render(part, getContext());
                     LOG.trace(" {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -82,13 +83,10 @@ public class Batch extends BaseStatement<Batch> {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
-            try {
-                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
-            }
-        } finally {
-            close();
+        try {
+            return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
+        } catch (SQLException e) {
+            throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
         }
     }
 
