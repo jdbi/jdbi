@@ -1786,12 +1786,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         try {
             SqlLoggerUtil.wrap(stmt::execute, ctx, getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
-            try {
-                stmt.close();
-            } catch (SQLException e1) {
-                e.addSuppressed(e1);
-            }
-
             throw new UnableToExecuteStatementException(e, ctx);
         }
 
