@@ -16,9 +16,12 @@ package org.jdbi.v3.core.statement;
 import java.sql.DatabaseMetaData;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -43,7 +46,19 @@ public class TestSqlMetaData {
         String dbConnectionString = h2Extension.getUri().toLowerCase(Locale.ROOT);
 
         assertThat(dbConnectionString).endsWith(catalog);
+    }
 
+    @Test
+    public void testQuerySchemas() throws Exception {
+        Handle h = h2Extension.openHandle();
+
+        ResultIterable<String> iterable = h.queryMetadata(DatabaseMetaData::getSchemas)
+            .mapTo(String.class);
+
+        try (Stream<String> stream = iterable.stream()) {
+            Optional<String> schemaName = stream.findFirst();
+            assertThat(schemaName).isPresent();
+        }
     }
 
     @Test
