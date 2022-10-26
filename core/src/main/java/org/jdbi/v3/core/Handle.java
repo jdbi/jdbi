@@ -435,7 +435,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return The response object.
      */
     public <T> T queryMetadata(MetaData.MetaDataValueProvider<T> metadataFunction) {
-        return new MetaData(this, metadataFunction).execute();
+        try (MetaData metadata = new MetaData(this, metadataFunction)) {
+            return metadata.execute();
+        }
     }
 
     /**
