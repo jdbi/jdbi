@@ -125,7 +125,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private This cleanupHandle(Consumer<Handle> action) {
-        addCleanable(() -> {
+        getContext().addCleanable(() -> {
             Handle handle = getHandle();
             if (handle != null) {
                 if (handle.isInTransaction()) {
@@ -1769,7 +1769,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             stmt = createStatement(ctx, parsedSql);
             // The statement builder might (or might not) clean up the statement when called. E.g. the
             // caching statement builder relies on the statement *not* being closed.
-            addCleanable(() -> getHandle().getStatementBuilder().close(getHandle().getConnection(), this.sql, stmt));
+            getContext().addCleanable(() -> getHandle().getStatementBuilder().close(getHandle().getConnection(), this.sql, stmt));
             getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, ctx);

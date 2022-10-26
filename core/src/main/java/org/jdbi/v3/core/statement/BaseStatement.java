@@ -62,17 +62,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         }
     }
 
-    /**
-     * Registers the given {@link Cleanable} to be executed when this statement is closed.
-     *
-     * @param cleanable the cleanable to register
-     * @return this
-     */
-    This addCleanable(Cleanable cleanable) {
-        getContext().addCleanable(cleanable);
-        return typedThis;
-    }
-
     void addCustomizers(final Collection<StatementCustomizer> customizers) {
         customizers.forEach(this::addCustomizer);
     }
