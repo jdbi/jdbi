@@ -574,26 +574,24 @@ public class StatementContext implements Closeable {
 
     @Override
     public void close() {
-        SQLException exception = null;
+        List<Cleanable> elementsToClean = drainCleanables();
 
-        List<Cleanable> cleanablesCopy;
+        elementsToClean = elementsToClean.stream()
+            .map(this::notifyCleanableRemoved)
+            .collect(Collectors.toCollection(ArrayList::new));
 
-        synchronized (cleanables) {
-            cleanablesCopy = new ArrayList<>(cleanables);
-            cleanables.clear();
-        }
+        // clean elements in reverse order as they were added
+        Collections.reverse(elementsToClean);
 
-        cleanablesCopy = cleanablesCopy.stream().map(this::cleanableRemoved).collect(Collectors.toCollection(ArrayList::new));
-        Collections.reverse(cleanablesCopy);
-
-        for (Cleanable cleanable : cleanablesCopy) {
+        SQLException firstException = null;
+        for (Cleanable cleanable : elementsToClean) {
             try {
                 cleanable.close();
             } catch (SQLException e) {
-                if (exception == null) {
-                    exception = e;
+                if (firstException == null) {
+                    firstException = e;
                 } else {
-                    exception.addSuppressed(e);
+                    firstException.addSuppressed(e);
                 }
             }
         }
@@ -602,6 +600,14 @@ public class StatementContext implements Closeable {
 
         if (firstException != null) {
             throw new CloseException("Exception thrown while cleaning StatementContext", firstException);
+        }
+    }
+
+    private List<Cleanable> drainCleanables() {
+        synchronized (cleanables) {
+            final List<Cleanable> elementsToClean = new ArrayList<>(cleanables);
+            cleanables.clear();
+            return elementsToClean;
         }
     }
 
