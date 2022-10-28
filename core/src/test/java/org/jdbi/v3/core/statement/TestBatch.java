@@ -37,7 +37,7 @@ public class TestBatch {
 
     @Test
     public void testBasics() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         try (Batch b = h.createBatch()) {
             b.add("insert into something (id, name) values (0, 'Keith')");
@@ -52,7 +52,7 @@ public class TestBatch {
 
     @Test
     public void testEmptyBatchThrows() {
-        try (Handle h = h2Extension.openHandle();
+        try (Handle h = h2Extension.getSharedHandle();
             PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)")) {
             assertThatThrownBy(b::add).isInstanceOf(IllegalStateException.class); // No parameters written yet
         }
@@ -61,7 +61,7 @@ public class TestBatch {
     @Test
     public void testPreparedBatch() throws Exception {
         int batchCount = 50;
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = h2Extension.getSharedHandle()) {
             PreparedBatch batch = h.prepareBatch("INSERT INTO something (id, name) VALUES(:id, :name)");
             for (int i = 1; i <= batchCount; i++) {
                 batch.bind("id", i)
@@ -80,7 +80,7 @@ public class TestBatch {
     @Test
     public void testPreparedBatchWithNull() throws Exception {
         int batchCount = 5;
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = h2Extension.getSharedHandle()) {
             PreparedBatch batch = h.prepareBatch("INSERT INTO something (id, name) VALUES(:id, :name)");
             for (int i = 1; i <= batchCount; i++) {
                 batch.bind("id", i)

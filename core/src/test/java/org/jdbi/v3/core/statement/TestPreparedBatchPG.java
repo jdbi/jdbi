@@ -31,14 +31,14 @@ public class TestPreparedBatchPG {
 
     @Test
     public void emptyBatch() {
-        assertThat(pgExtension.openHandle().prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
+        assertThat(pgExtension.getSharedHandle().prepareBatch("insert into something (id, name) values (:id, :name)").execute()).isEmpty();
     }
 
     // This would be a test in `TestPreparedBatch` but H2 has a bug (?) that returns a generated key even when there wasn't one.
     @Test
     public void emptyBatchGeneratedKeys() {
         assertThat(
-            pgExtension.openHandle()
+            pgExtension.getSharedHandle()
                 .prepareBatch("insert into something (id, name) values (:id, :name)")
                 .executeAndReturnGeneratedKeys("id")
                 .mapTo(int.class)

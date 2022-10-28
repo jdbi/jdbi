@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -35,11 +36,14 @@ public class TestPlugins {
         h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
+                handle.close(); // otherwise the handle leaks out
                 return h;
             }
         });
 
-        assertThat(h).isSameAs(h2Extension.getJdbi().open());
+        try (Handle testHandle = h2Extension.openHandle()) {
+            assertThat(h).isSameAs(testHandle);
+        }
     }
 
     @Test
@@ -48,11 +52,14 @@ public class TestPlugins {
 
         h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
-            public Connection customizeConnection(Connection conn) {
+            public Connection customizeConnection(Connection conn) throws SQLException {
+                conn.close(); // otherwise the connection leaks out
                 return c;
             }
         });
 
-        assertThat(c).isSameAs(h2Extension.getJdbi().open().getConnection());
+        try (Handle testHandle = h2Extension.openHandle()) {
+            assertThat(c).isSameAs(testHandle.getConnection());
+        }
     }
 }

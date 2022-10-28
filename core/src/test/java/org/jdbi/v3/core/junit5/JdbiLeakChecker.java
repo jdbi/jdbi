@@ -118,7 +118,6 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
             fail(format("Found %d leaked handles.", leakedHandles.size()));
         }
 
-
         int leakedCleanablesCount = 0;
 
         for (RecordingContext<Cleanable> context : contextElements.values()) {

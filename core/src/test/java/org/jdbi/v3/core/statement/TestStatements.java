@@ -35,7 +35,7 @@ public class TestStatements {
 
     @Test
     public void testStatement() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isOne();
@@ -43,7 +43,7 @@ public class TestStatements {
 
     @Test
     public void testSimpleInsert() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int c = h.execute("insert into something (id, name) values (1, 'eric')");
         assertThat(c).isOne();
@@ -51,7 +51,7 @@ public class TestStatements {
 
     @Test
     public void testUpdate() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.createUpdate("update something set name = 'ERIC' where id = 1").execute();
@@ -61,7 +61,7 @@ public class TestStatements {
 
     @Test
     public void testSimpleUpdate() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("update something set name = 'cire' where id = 1");
@@ -71,7 +71,7 @@ public class TestStatements {
 
     @Test
     public void testStatementWithRequiredResults() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> {
             try (Query query = h.createQuery("commit")) {
@@ -82,7 +82,7 @@ public class TestStatements {
 
     @Test
     public void testStatementWithOptionalResults() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
@@ -90,7 +90,7 @@ public class TestStatements {
 
     @Test
     public void testStatementWithOptionalBeanResults() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
@@ -98,7 +98,7 @@ public class TestStatements {
 
     @Test
     public void testStatementWithOptionalMapResults() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.getConfig(ResultProducers.class).allowNoResults(true);
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
@@ -106,7 +106,7 @@ public class TestStatements {
 
     @Test
     public void testUnusedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> h.createQuery("select * from something")
             .bind("id", 1)
@@ -116,7 +116,7 @@ public class TestStatements {
 
     @Test
     public void testPermittedUnusedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
             .createQuery("select * from something")
@@ -126,7 +126,7 @@ public class TestStatements {
 
     @Test
     public void testPermittedUsedAndUnusedBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
             .createQuery("select * from something where id = :id")
@@ -138,7 +138,7 @@ public class TestStatements {
     @Test
     // TODO it would be nice if this failed in the future
     public void testUsedAndUnusedNamed() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatCode(() -> h.createQuery("select * from something where id = :id")
             .bind("id", 1)
@@ -149,7 +149,7 @@ public class TestStatements {
 
     @Test
     public void testFarAwayPositional() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> h.createQuery("select * from something where id = ?")
             .bind(0, 1)
@@ -160,7 +160,7 @@ public class TestStatements {
 
     @Test
     public void testUnusedBindingWithOutParameter() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
 
@@ -174,7 +174,7 @@ public class TestStatements {
 
     @Test
     public void testPermittedUnusedBindingWithOutParameter() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
 

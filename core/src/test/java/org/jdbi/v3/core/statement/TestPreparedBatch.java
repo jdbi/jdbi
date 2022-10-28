@@ -45,7 +45,7 @@ public class TestPreparedBatch {
 
     @Test
     public void emptyBatch() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         final PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         assertThat(batch.execute()).isEmpty();
@@ -54,7 +54,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindBatch() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -70,7 +70,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testBigishBatch() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -88,7 +88,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindProperties() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
@@ -105,7 +105,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testBindMaps() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -123,7 +123,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testMixedModeBatch() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -137,7 +137,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testPositionalBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
@@ -149,7 +149,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testForgotFinalAdd() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -169,7 +169,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testContextGetsBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         try {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
@@ -189,7 +189,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBindBean() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -209,7 +209,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBind() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
@@ -229,7 +229,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testMultipleExecuteBindFields() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
@@ -249,7 +249,7 @@ public class TestPreparedBatch {
 
     @Test
     public void testNestedNotPrepareable() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.registerArgument(new WrappedIntArgumentFactory());
         h.registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class));

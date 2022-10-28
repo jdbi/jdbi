@@ -27,7 +27,7 @@ public class TestStatementContext {
 
     @Test
     public void testFoo() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")

@@ -41,7 +41,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Test
     public void testBatchInsertWithKeyGenerationAndExplicitColumnNames() {
-        Handle h = pgExtension.openHandle();
+        Handle h = pgExtension.getSharedHandle();
 
         PreparedBatch batch = h.prepareBatch("insert into something (name) values (?) ");
         batch.add("Brian");
@@ -58,7 +58,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Test
     public void testBatchInsertWithKeyGenerationAndExplicitSeveralColumnNames() {
-        Handle h = pgExtension.openHandle();
+        Handle h = pgExtension.getSharedHandle();
 
         PreparedBatch batch = h.prepareBatch("insert into something (name) values (?) ");
         batch.add("Brian");
@@ -75,7 +75,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Test
     public void testBatchResultBearing() {
-        try (Handle h = pgExtension.openHandle()) {
+        try (Handle h = pgExtension.getSharedHandle()) {
 
             PreparedBatch batch1 = h.prepareBatch("insert into something (name) values (?) ");
             batch1.add("Brian1");
@@ -115,7 +115,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Test
     public void testListModCount() {
-        try (Handle h = pgExtension.openHandle()) {
+        try (Handle h = pgExtension.getSharedHandle()) {
             for (int i = 0; i < 5; i++) {
                 h.execute("INSERT INTO something (name) VALUES('Brian" + i + "')");
                 h.execute("INSERT INTO something (name) VALUES('Tom" + i + "')");

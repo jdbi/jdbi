@@ -61,7 +61,7 @@ public class TestQueries {
 
     @Test
     public void testCreateQueryObject() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -73,7 +73,7 @@ public class TestQueries {
 
     @Test
     public void testMappedQueryObject() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -86,7 +86,7 @@ public class TestQueries {
 
     @Test
     public void testMappedQueryObjectWithNulls() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
@@ -100,7 +100,7 @@ public class TestQueries {
 
     @Test
     public void testMappedQueryObjectWithNullForPrimitiveIntField() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name, intValue) values (1, 'eric', null)");
 
@@ -114,7 +114,7 @@ public class TestQueries {
 
     @Test
     public void testMapper() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -127,7 +127,7 @@ public class TestQueries {
 
     @Test
     public void testConvenienceMethod() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -139,7 +139,7 @@ public class TestQueries {
 
     @Test
     public void testConvenienceMethodWithParam() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -151,7 +151,7 @@ public class TestQueries {
 
     @Test
     public void testPositionalArgWithNamedParam() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -169,7 +169,7 @@ public class TestQueries {
 
     @Test
     public void testMixedSetting() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -187,7 +187,7 @@ public class TestQueries {
 
     @Test
     public void testHelpfulErrorOnNothingSet() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> {
             try (Query query = h.createQuery("select * from something where name = :name")) {
@@ -198,7 +198,7 @@ public class TestQueries {
 
     @Test
     public void testFirstResult() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         final Query query = h.createQuery("select name from something order by id");
 
@@ -214,7 +214,7 @@ public class TestQueries {
 
     @Test
     public void testFirstResultNull() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         final Query query = h.createQuery("select name from something order by id");
 
@@ -230,7 +230,7 @@ public class TestQueries {
 
     @Test
     public void testOneResult() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         final Query query = h.createQuery("select name from something order by id");
 
@@ -250,7 +250,7 @@ public class TestQueries {
 
     @Test
     public void testOneResultNull() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         final Query query = h.createQuery("select name from something order by id");
 
@@ -270,7 +270,7 @@ public class TestQueries {
 
     @Test
     public void testIteratedResult() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -290,7 +290,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -310,7 +310,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior2() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -329,7 +329,7 @@ public class TestQueries {
 
     @Test
     public void testIteratorBehavior3() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'eric')");
@@ -342,7 +342,7 @@ public class TestQueries {
 
     @Test
     public void testFetchSize() {
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = h2Extension.getSharedHandle()) {
 
             try (Script script = h.createScript(findSqlOnClasspath("default-data"))) {
                 script.execute();
@@ -365,7 +365,7 @@ public class TestQueries {
 
     @Test
     public void testFirstWithNoResult() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         final Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
         assertThat(s).isNotPresent();
@@ -373,7 +373,7 @@ public class TestQueries {
 
     @Test
     public void testNullValueInColumn() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, null);
         final String s = h.createQuery("select name from something where id=1").mapTo(String.class).first();
@@ -382,7 +382,7 @@ public class TestQueries {
 
     @Test
     public void testListWithMaxRows() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
@@ -403,7 +403,7 @@ public class TestQueries {
 
     @Test
     public void testFold() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
@@ -419,7 +419,7 @@ public class TestQueries {
 
     @Test
     public void testCollectList() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.prepareBatch("insert into something (id, name) values (?, ?)")
             .add(1, "Brian")
@@ -434,7 +434,7 @@ public class TestQueries {
 
     @Test
     public void testUsefulArgumentOutputForDebug() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> h.createUpdate("insert into something (id, name) values (:id, :name)")
             .bind("name", "brian")
@@ -448,7 +448,7 @@ public class TestQueries {
 
     @Test
     public void testStatementCustomizersPersistAfterMap() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
@@ -463,7 +463,7 @@ public class TestQueries {
 
     @Test
     public void testQueriesWithNullResultSets() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> {
             try (Query query = h.select("insert into something (id, name) values (?, ?)", 1, "hello")) {
@@ -474,7 +474,7 @@ public class TestQueries {
 
     @Test
     public void testMapMapperOrdering() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
         h.execute("insert into something (id, name) values (?, ?)", 2, "world");
@@ -489,7 +489,7 @@ public class TestQueries {
 
     @Test
     public void testBindPrimitiveWithExplicitNull() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
         assertThat(h.createQuery("select :bool")
                 .bindByType("bool", new NullArgument(Types.BOOLEAN), boolean.class)
                 .mapTo(Boolean.class)
@@ -502,7 +502,7 @@ public class TestQueries {
      */
     @Test
     public void testCharSequenceParms() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         // create list of CharSequence types
         final List<CharSequence> names = Arrays.asList(
@@ -587,7 +587,7 @@ public class TestQueries {
 
     @Test
     public void testForEach() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
         final int nbRecs = 42;
         for (int id = 1; id <= nbRecs; id++) {
             h.execute("insert into something (id, name) values (?, ?)", id, null);
@@ -606,7 +606,7 @@ public class TestQueries {
 
     @Test
     public void testFilter() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
 
         int id = 0;
         for (final String name : new String[] {null, "john", "lennon", "would have liked", "java"}) {

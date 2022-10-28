@@ -29,7 +29,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testSetPositionalString() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -44,7 +44,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testSetPositionalInteger() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
@@ -58,7 +58,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testBehaviorOnBadBinding1() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> {
             try (Query query = h.createQuery("select * from something where id = ? and name = ?")) {
@@ -71,7 +71,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testBehaviorOnBadBinding2() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> {
             try (Query query = h.createQuery("select * from something where id = ?")) {
@@ -85,7 +85,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testInsertParamBinding() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int count = h.createUpdate("insert into something (id, name) values (?, 'eric')")
                 .bind(0, 1)
@@ -96,7 +96,7 @@ public class TestPositionalParameterBinding {
 
     @Test
     public void testPositionalConvenienceInsert() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 

@@ -35,70 +35,73 @@ public class TestTimingCollector {
         tc = new TTC();
 
         h2Extension.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
-        return h2Extension.getJdbi().open();
+        return h2Extension.openHandle();
     }
 
     @Test
     public void testInsert() {
-        Handle h = openHandle();
+        try (Handle h = openHandle()) {
 
-        String statement = "insert into something (id, name) values (1, 'eric')";
-        int c = h.execute(statement);
-        assertThat(c).isOne();
+            String statement = "insert into something (id, name) values (1, 'eric')";
+            int c = h.execute(statement);
+            assertThat(c).isOne();
 
-        assertThat(tc.getRawStatements()).containsExactly(statement);
-        assertThat(tc.getRenderedStatements()).containsExactly(statement);
-        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(statement);
+            assertThat(tc.getRawStatements()).containsExactly(statement);
+            assertThat(tc.getRenderedStatements()).containsExactly(statement);
+            assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(statement);
+        }
     }
 
     @Test
     public void testUpdate() {
-        Handle h = openHandle();
+        try (Handle h = openHandle()) {
 
-        String stmt1 = "insert into something (id, name) values (1, 'eric')";
-        String stmt2 = "update something set name = :name where id = :id";
-        String stmt3 = "select * from something where id = :id";
+            String stmt1 = "insert into something (id, name) values (1, 'eric')";
+            String stmt2 = "update something set name = :name where id = :id";
+            String stmt3 = "select * from something where id = :id";
 
-        h.execute(stmt1);
+            h.execute(stmt1);
 
-        h.createUpdate(stmt2)
-            .bind("id", 1)
-            .bind("name", "ERIC")
-            .execute();
+            h.createUpdate(stmt2)
+                .bind("id", 1)
+                .bind("name", "ERIC")
+                .execute();
 
-        Something eric = h.createQuery(stmt3)
-            .bind("id", 1)
-            .mapToBean(Something.class)
-            .list().get(0);
-        assertThat(eric.getName()).isEqualTo("ERIC");
+            Something eric = h.createQuery(stmt3)
+                .bind("id", 1)
+                .mapToBean(Something.class)
+                .list().get(0);
+            assertThat(eric.getName()).isEqualTo("ERIC");
 
-        assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
-        assertThat(tc.getRenderedStatements()).containsExactly(stmt1, stmt2, stmt3);
-        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
-            stmt1,
-            "update something set name = ? where id = ?",
-            "select * from something where id = ?");
+            assertThat(tc.getRawStatements()).containsExactly(stmt1, stmt2, stmt3);
+            assertThat(tc.getRenderedStatements()).containsExactly(stmt1, stmt2, stmt3);
+            assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
+                stmt1,
+                "update something set name = ? where id = ?",
+                "select * from something where id = ?");
+        }
     }
 
     @Test
     public void testBatch() {
-        Handle h = openHandle();
+        try (Handle h = openHandle()) {
 
-        String insert = "insert into something (id, name) values (:id, :name)";
-        h.prepareBatch(insert)
-            .bind("id", 1).bind("name", "Eric").add()
-            .bind("id", 2).bind("name", "Brian").add()
-            .execute();
+            String insert = "insert into something (id, name) values (:id, :name)";
+            h.prepareBatch(insert)
+                .bind("id", 1).bind("name", "Eric").add()
+                .bind("id", 2).bind("name", "Brian").add()
+                .execute();
 
-        String select = "select * from something order by id";
-        List<Something> r = h.createQuery(select).mapToBean(Something.class).list();
-        assertThat(r.stream().map(Something::getName)).containsExactly("Eric", "Brian");
+            String select = "select * from something order by id";
+            List<Something> r = h.createQuery(select).mapToBean(Something.class).list();
+            assertThat(r.stream().map(Something::getName)).containsExactly("Eric", "Brian");
 
-        assertThat(tc.getRawStatements()).containsExactly(insert, select);
-        assertThat(tc.getRenderedStatements()).containsExactly(insert, select);
-        assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
-            "insert into something (id, name) values (?, ?)",
-            select);
+            assertThat(tc.getRawStatements()).containsExactly(insert, select);
+            assertThat(tc.getRenderedStatements()).containsExactly(insert, select);
+            assertThat(tc.getParsedStatements()).extracting("sql").containsExactly(
+                "insert into something (id, name) values (?, ?)",
+                select);
+        }
     }
 
     private static class TTC implements TimingCollector {

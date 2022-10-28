@@ -46,7 +46,7 @@ public class TestScript {
 
     @Test
     public void testScriptStuff() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         try (Script s = h.createScript(getClasspathSqlLocator().locate("default-data"))) {
             s.execute();
 
@@ -56,7 +56,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithComments() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-script-with-comments.sql"))) {
             script.execute();
 
@@ -66,7 +66,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithStringSemicolon() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/insert-with-string-semicolons.sql"))) {
             script.execute();
 
@@ -76,7 +76,7 @@ public class TestScript {
 
     @Test
     public void testFuzzyScript() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/fuzzy-script.sql"))) {
             script.executeAsSeparateStatements();
 
@@ -93,7 +93,7 @@ public class TestScript {
     public void testScriptAsSetOfSeparateStatements() {
         assertThatExceptionOfType(StatementException.class)
             .isThrownBy(() -> {
-                Handle h = h2Extension.openHandle();
+                Handle h = h2Extension.getSharedHandle();
                 try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/malformed-sql-script.sql"))) {
                     script.executeAsSeparateStatements();
                 }
@@ -104,7 +104,7 @@ public class TestScript {
 
     @Test
     public void testPostgresJsonExtractTextOperator() {
-        Handle h = pgExtension.openHandle();
+        Handle h = pgExtension.getSharedHandle();
         try (Script script = h.createScript(getClasspathSqlLocator().getResource("script/postgres-json-operator.sql"))) {
             script.execute();
 

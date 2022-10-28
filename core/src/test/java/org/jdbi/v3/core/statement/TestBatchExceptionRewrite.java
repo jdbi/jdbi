@@ -43,7 +43,7 @@ public class TestBatchExceptionRewrite {
 
     @Test
     public void testSimpleBatch() {
-        try (Batch b = pgExtension.openHandle().createBatch()) {
+        try (Batch b = pgExtension.getSharedHandle().createBatch()) {
             b.add("insert into something (id, name) values (0, 'Keith')");
             b.add("insert into something (id, name) values (0, 'Keith')");
             assertThatExceptionOfType(UnableToExecuteStatementException.class)
@@ -54,7 +54,7 @@ public class TestBatchExceptionRewrite {
 
     @Test
     public void testPreparedBatch() {
-        PreparedBatch b = pgExtension.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
+        PreparedBatch b = pgExtension.getSharedHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
