@@ -1766,10 +1766,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ParsedSql parsedSql = parseSql();
 
         try {
-            stmt = createStatement(ctx, parsedSql);
+            stmt = createStatement(parsedSql.getSql());
             // The statement builder might (or might not) clean up the statement when called. E.g. the
             // caching statement builder relies on the statement *not* being closed.
-            getContext().addCleanable(() -> getHandle().getStatementBuilder().close(getHandle().getConnection(), this.sql, stmt));
+            getContext().addCleanable(() -> cleanupStatement(stmt));
             getConfig(SqlStatements.class).customize(stmt);
         } catch (SQLException e) {
             throw new UnableToCreateStatementException(e, ctx);
@@ -1794,8 +1794,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return stmt;
     }
 
-    PreparedStatement createStatement(final StatementContext ctx, ParsedSql parsedSql) throws SQLException {
-        return getHandle().getStatementBuilder().create(getHandle().getConnection(), parsedSql.getSql(), ctx);
+    PreparedStatement createStatement(final String parsedSql) throws SQLException {
+        return getHandle().getStatementBuilder().create(getHandle().getConnection(), parsedSql, getContext());
+    }
+
+    void cleanupStatement(final PreparedStatement statement) throws SQLException {
+        getHandle().getStatementBuilder().close(getHandle().getConnection(), this.sql, statement);
     }
 
     ParsedSql parseSql() {

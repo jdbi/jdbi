@@ -75,12 +75,6 @@ public class DefaultStatementBuilder implements StatementBuilder {
     }
 
     /**
-     * No need to do anything on connection close.
-     */
-    @Override
-    public void close(Connection conn) {}
-
-    /**
      * Called each time a Callable statement needs to be created
      *
      * @param conn the JDBC Connection the statement is being created for

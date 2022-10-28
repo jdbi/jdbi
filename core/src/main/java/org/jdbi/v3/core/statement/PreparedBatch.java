@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.statement;
 
 import java.lang.reflect.Type;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -226,12 +225,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
         try {
             try {
-                StatementBuilder statementBuilder = getHandle().getStatementBuilder();
-                @SuppressWarnings("PMD.CloseResource")
-                Connection connection = getHandle().getConnection();
-                stmt = statementBuilder.create(connection, sql, ctx);
+                stmt = createStatement(sql);
 
-                getContext().addCleanable(() -> statementBuilder.close(connection, sql, stmt));
+                getContext().addCleanable(() -> cleanupStatement(stmt));
                 getConfig(SqlStatements.class).customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, ctx);
