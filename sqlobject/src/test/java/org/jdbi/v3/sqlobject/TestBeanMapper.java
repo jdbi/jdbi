@@ -33,6 +33,7 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -76,6 +77,11 @@ public class TestBeanMapper {
         h = h2Extension.openHandle();
         h.createUpdate("create table testBean (valueType varchar(50))").execute();
         testDao = h.attach(TestDao.class);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
     }
 
     @Test

@@ -37,7 +37,7 @@ public class TestVavrOptionMapperWithDB {
 
     @BeforeEach
     public void addData() {
-        Handle handle = h2Extension.openHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id) values (2)").execute();
     }

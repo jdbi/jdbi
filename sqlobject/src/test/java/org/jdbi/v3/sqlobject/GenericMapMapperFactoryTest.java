@@ -134,10 +134,12 @@ public class GenericMapMapperFactoryTest {
     public void duplicateColumnsWithoutCaseChangeCauseException() {
         jdbi.useHandle(h -> {
             h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.NOP);
-            ResultIterable<Map<String, BigDecimal>> query = h.createQuery(QUERY.replace("two", "one")).mapToMap(BigDecimal.class);
+            try (Query query = h.createQuery(QUERY.replace("two", "one"))) {
+                ResultIterable<Map<String, BigDecimal>> iterable = query.mapToMap(BigDecimal.class);
 
-            assertThatThrownBy(query::findOnly)
-                .hasMessageContaining("map key \"one\" (from column \"one\") appears twice");
+                assertThatThrownBy(iterable::findOnly)
+                    .hasMessageContaining("map key \"one\" (from column \"one\") appears twice");
+            }
         });
     }
 
@@ -145,11 +147,14 @@ public class GenericMapMapperFactoryTest {
     public void duplicateKeysAfterCaseChangeCauseException() {
         jdbi.useHandle(h -> {
             h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOWER);
-            // one and ONE
-            ResultIterable<Map<String, BigDecimal>> query = h.createQuery(QUERY.replace("two", "ONE")).mapToMap(BigDecimal.class);
 
-            assertThatThrownBy(query::findOnly)
-                .hasMessageContaining("map key \"one\" (from column \"ONE\") appears twice");
+            try (Query query = h.createQuery(QUERY.replace("two", "ONE"))) {
+                // one and ONE
+                ResultIterable<Map<String, BigDecimal>> iterable = query.mapToMap(BigDecimal.class);
+
+                assertThatThrownBy(iterable::findOnly)
+                    .hasMessageContaining("map key \"one\" (from column \"ONE\") appears twice");
+            }
         });
     }
 

@@ -148,6 +148,7 @@ public class TestColumnMappers {
     @AfterEach
     public void dropTable() {
         h.createUpdate("drop table someBean").execute();
+        h.close();
     }
 
     @Test

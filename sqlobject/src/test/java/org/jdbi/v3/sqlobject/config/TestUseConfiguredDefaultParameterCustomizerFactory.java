@@ -26,6 +26,7 @@ import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -52,6 +53,11 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
 
         db.configure(SqlObjects.class, c -> c.setDefaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
         handle = db.open();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test

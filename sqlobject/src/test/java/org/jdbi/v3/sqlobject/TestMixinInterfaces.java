@@ -25,6 +25,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,6 +44,11 @@ public class TestMixinInterfaces {
     public void setUp() {
         jdbi = h2Extension.getJdbi();
         handle = h2Extension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test

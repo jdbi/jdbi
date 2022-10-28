@@ -18,11 +18,13 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.MapMapper;
+import org.jdbi.v3.core.statement.Script;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -49,6 +51,11 @@ public class TestMaxRows {
         handle = h2Extension.openHandle();
     }
 
+    @AfterEach
+    public void tearDown() {
+        handle.close();
+    }
+
     @Test
     public void testMethodWrong() {
         assertThatThrownBy(() -> handle.attach(FooMethodWrong.class))
@@ -67,7 +74,9 @@ public class TestMaxRows {
     public void testMethodRight() {
         FooMethodRight sqlObject = handle.attach(FooMethodRight.class);
 
-        handle.createScript(CREATE_INSERT).execute();
+        try (Script script = handle.createScript(CREATE_INSERT)) {
+            script.execute();
+        }
 
         assertThat(sqlObject.bar()).hasSize(ROWS);
     }
@@ -76,7 +85,9 @@ public class TestMaxRows {
     public void testParamRight() {
         FooParamRight sqlObject = handle.attach(FooParamRight.class);
 
-        handle.createScript(CREATE_INSERT).execute();
+        try (Script script = handle.createScript(CREATE_INSERT)) {
+            script.execute();
+        }
 
         assertThat(sqlObject.bar(ROWS)).hasSize(ROWS);
     }
@@ -85,7 +96,9 @@ public class TestMaxRows {
     public void testParamNonsense() {
         FooParamRight sqlObject = handle.attach(FooParamRight.class);
 
-        handle.createScript(CREATE_INSERT).execute();
+        try (Script script = handle.createScript(CREATE_INSERT)) {
+            script.execute();
+        }
 
         assertThatThrownBy(() -> sqlObject.bar(0))
             .isInstanceOf(IllegalArgumentException.class)
@@ -103,7 +116,9 @@ public class TestMaxRows {
     public void testControlGroup() {
         NoMaxRows sqlObject = handle.attach(NoMaxRows.class);
 
-        handle.createScript(CREATE_INSERT).execute();
+        try (Script script = handle.createScript(CREATE_INSERT)) {
+            script.execute();
+        }
 
         assertThat(sqlObject.bar()).hasSize(3);
     }

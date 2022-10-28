@@ -33,7 +33,7 @@ public class TestEnumMapping {
 
     @Test
     public void testEnums() {
-        Spiffy spiffy = h2Extension.openHandle().attach(Spiffy.class);
+        Spiffy spiffy = h2Extension.getSharedHandle().attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);

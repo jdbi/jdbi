@@ -21,6 +21,7 @@ import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,6 +44,11 @@ public class TestStatementsTimeout {
     @BeforeEach
     public void setUp() {
         h = pgExtension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
     }
 
     @Test

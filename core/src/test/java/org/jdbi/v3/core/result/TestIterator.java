@@ -86,20 +86,20 @@ public class TestIterator {
             .iterator();
 
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).isExhausted()
-                      .isExhausted()
-                      .isExhausted();
+            .isExhausted()
+            .isExhausted();
     }
 
     @Test
@@ -150,10 +150,10 @@ public class TestIterator {
         it.next();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext();
+            .hasNext();
         it.next();
         assertThat(it).isExhausted()
-                      .isExhausted();
+            .isExhausted();
     }
 
     @Test
@@ -220,8 +220,8 @@ public class TestIterator {
             .iterator()
             .next();
 
-        assertThat(result.get("id")).isEqualTo(1L);
-        assertThat(result.get("name")).isEqualTo("eric");
+        assertThat(result).containsEntry("id", 1L)
+            .containsEntry("name", "eric");
     }
 
     @Test
@@ -237,8 +237,8 @@ public class TestIterator {
                 .iterator()
                 .next();
 
-            assertThat(result.get("id")).isEqualTo(1L);
-            assertThat(result.get("name")).isEqualTo("eric");
+            assertThat(result).containsEntry("id", 1L)
+                .containsEntry("name", "eric");
 
             assertThat(h.isClosed()).isFalse();
         }
@@ -257,8 +257,8 @@ public class TestIterator {
         try (ResultIterator<Map<String, Object>> it = iterable.iterator()) {
             final Map<String, Object> result = it.next();
 
-            assertThat(result.get("id")).isEqualTo(1L);
-            assertThat(result.get("name")).isEqualTo("eric");
+            assertThat(result).containsEntry("id", 1L)
+                .containsEntry("name", "eric");
 
             assertThat(h.isClosed()).isFalse();
         }

@@ -155,7 +155,6 @@ public class TestHandle {
                 inner.afterRollback(() -> onRollback.set(true));
             }));
         assertThat(onCommit).isTrue();
-        assertThat(onCommit).isTrue();
         assertThat(onRollback).isFalse();
 
         onCommit.set(false);

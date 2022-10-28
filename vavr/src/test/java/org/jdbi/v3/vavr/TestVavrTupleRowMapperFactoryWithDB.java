@@ -38,7 +38,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
 
     @BeforeEach
     public void addData() {
-        Handle handle = h2Extension.openHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.createUpdate("insert into something (id, name, integerValue, intValue) values (1, 'eric', 99, 100)").execute();
         handle.createUpdate("insert into something (id, name, integerValue, intValue) values (2, 'brian', 101, 102)").execute();
     }

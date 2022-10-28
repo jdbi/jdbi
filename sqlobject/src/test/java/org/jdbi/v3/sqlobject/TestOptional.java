@@ -38,7 +38,7 @@ public class TestOptional {
 
     @BeforeEach
     public void setUp() {
-        dao = h2Extension.openHandle().attach(DAO.class);
+        dao = h2Extension.getSharedHandle().attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

@@ -39,7 +39,7 @@ public class SqlObjectArgumentTest {
 
     @Test
     public void testInsertClass() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
         final StatusDao dao = h.attach(StatusDao.class);
 
         // test Argument
@@ -65,7 +65,7 @@ public class SqlObjectArgumentTest {
 
     @Test
     public void testInsertEnum() {
-        final Handle h = h2Extension.openHandle();
+        final Handle h = h2Extension.getSharedHandle();
         final StatusDao dao = h.attach(StatusDao.class);
 
         // test Argument

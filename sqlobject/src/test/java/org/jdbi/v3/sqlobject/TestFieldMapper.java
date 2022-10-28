@@ -23,6 +23,7 @@ import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -62,6 +63,11 @@ public class TestFieldMapper {
         h = h2Extension.openHandle();
         h.createUpdate("create table testBean (valueType varchar(50))").execute();
         dao = h.attach(TestDao.class);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
     }
 
     @Test

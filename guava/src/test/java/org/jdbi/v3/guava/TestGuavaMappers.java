@@ -21,6 +21,7 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -47,6 +48,11 @@ public class TestGuavaMappers {
             th.execute("DROP TABLE IF EXISTS arrays");
             th.execute("CREATE TABLE arrays (u UUID[], i INT[])");
         });
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
     }
 
     @Test

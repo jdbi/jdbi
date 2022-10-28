@@ -27,6 +27,7 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -51,6 +52,11 @@ public class TestJavaTime {
             th.execute("drop table if exists stuff");
             th.execute("create table stuff (ts timestamp, d date, z text)");
         });
+    }
+
+    @AfterEach
+    public void tearDown() {
+        h.close();
     }
 
     private TemporalUnitOffset getAllowableOffset() {

@@ -25,9 +25,11 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -53,21 +55,26 @@ public class TestGuavaOptional {
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }
 
+    @AfterEach
+    public void tearDown() {
+        handle.close();
+    }
+
     @Test
     public void testDynamicBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
-                .mapToBean(Something.class)
-                .one();
+            .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
+            .mapToBean(Something.class)
+            .one();
         assertThat(result).isEqualTo(new Something(1, "eric"));
     }
 
     @Test
     public void testDynamicBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.absent(), new GenericType<Optional<String>>() {})
-                .mapToBean(Something.class)
-                .list();
+            .bindByType("name", Optional.absent(), new GenericType<Optional<String>>() {})
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
@@ -76,25 +83,27 @@ public class TestGuavaOptional {
     public void testDynamicBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
-                .mapToBean(Something.class)
-                .list();
+            .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+            .mapToBean(Something.class)
+            .list();
     }
 
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() {
-        ResultIterable<Something> ri = handle.createQuery(SELECT_BY_NAME)
+        try (Query query = handle.createQuery(SELECT_BY_NAME)) {
+            ResultIterable<Something> ri = query
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class);
-        assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
+            assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
+        }
     }
 
     @Test
     public void testBindOptionalPresent() {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.of("brian"))
-                .mapToBean(Something.class)
-                .one();
+            .bind("name", Optional.of("brian"))
+            .mapToBean(Something.class)
+            .one();
 
         assertThat(result).isEqualTo(new Something(2, "brian"));
     }
@@ -102,9 +111,9 @@ public class TestGuavaOptional {
     @Test
     public void testBindOptionalEmpty() {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.absent())
-                .mapToBean(Something.class)
-                .list();
+            .bind("name", Optional.absent())
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
@@ -113,19 +122,21 @@ public class TestGuavaOptional {
     public void testBindOptionalOfCustomType() {
         handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bind("name", Optional.of(new Name("eric")))
-                .mapToBean(Something.class)
-                .list();
+            .bind("name", Optional.of(new Name("eric")))
+            .mapToBean(Something.class)
+            .list();
 
         assertThat(result).containsExactly(new Something(1, "eric"));
     }
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() {
-        ResultIterable<Something> ri = handle.createQuery(SELECT_BY_NAME)
+        try (Query query = handle.createQuery(SELECT_BY_NAME)) {
+            ResultIterable<Something> ri = query
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class);
-        assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
+            assertThatThrownBy(ri::list).isInstanceOf(UnableToCreateStatementException.class);
+        }
     }
 
     class Name {

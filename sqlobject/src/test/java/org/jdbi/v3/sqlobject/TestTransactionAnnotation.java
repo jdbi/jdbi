@@ -74,16 +74,17 @@ public class TestTransactionAnnotation {
 
     @Test
     public void testTxActuallyCommits() {
-        Handle h2 = this.h2Extension.openHandle();
-        Dao one = handle.attach(Dao.class);
-        Dao two = h2.attach(Dao.class);
+        try (Handle h2 = this.h2Extension.openHandle()) {
+            Dao one = handle.attach(Dao.class);
+            Dao two = h2.attach(Dao.class);
 
-        // insert in @Transaction method
-        Something inserted = one.insertAndFetch(1, "Brian");
+            // insert in @Transaction method
+            Something inserted = one.insertAndFetch(1, "Brian");
 
-        // fetch from another connection
-        Something fetched = two.findById(1);
-        assertThat(fetched).isEqualTo(inserted);
+            // fetch from another connection
+            Something fetched = two.findById(1);
+            assertThat(fetched).isEqualTo(inserted);
+        }
     }
 
     @Test

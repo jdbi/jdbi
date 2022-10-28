@@ -24,6 +24,7 @@ import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,12 +46,18 @@ public class TestPostgresRefcursorProc {
         handle = pgExtension.openHandle();
     }
 
+    @AfterEach
+    public void tearDown() {
+        handle.close();
+    }
+
     @Test
     public void multipleResultSetReturn() {
         handle.execute("create function gather_data (head out refcursor, tail out refcursor) "
             + "language plpgsql as $$ begin "
                 + "open head for select 1 union select 2; "
                 + "open tail for select 3 union select 4; end; $$");
+
         assertThat(handle.attach(Dao.class).gatherData(op -> {
             assertThat(op.getRowSet("head")
                      .mapTo(int.class)
