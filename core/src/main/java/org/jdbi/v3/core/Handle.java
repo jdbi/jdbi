@@ -29,6 +29,7 @@ import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.Batch;
 import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.Cleanable;
 import org.jdbi.v3.core.statement.MetaData;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.Query;
@@ -56,7 +57,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
     private final Jdbi jdbi;
-    private final ConnectionCloser closer;
+    private final Cleanable closer;
     private final TransactionHandler transactions;
     private final Connection connection;
     private final boolean forceEndTransactions;
@@ -72,7 +73,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     Handle(Jdbi jdbi,
            ConfigRegistry localConfig,
-           ConnectionCloser closer,
+           Cleanable closer,
            TransactionHandler transactions,
            StatementBuilder statementBuilder,
            Connection connection) throws SQLException {
@@ -189,7 +190,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
         try {
             if (connectionIsLive) {
-                closer.close(connection);
+                closer.close();
             }
 
             if (!suppressed.isEmpty()) {
@@ -761,10 +762,6 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
         this.localExtensionMethod = requireNonNull(extensionMethodThreadLocal);
-    }
-
-    interface ConnectionCloser {
-        void close(Connection conn) throws SQLException;
     }
 
     private class TransactionResetter implements Closeable {

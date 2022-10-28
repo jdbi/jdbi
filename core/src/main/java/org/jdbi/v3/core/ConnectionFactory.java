@@ -16,25 +16,40 @@ package org.jdbi.v3.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.statement.Cleanable;
+
 /**
  * Supplies {@link Connection} instances to a created {@link Handle} and allows
  * custom close handling.
  */
 @FunctionalInterface
 public interface ConnectionFactory {
+
     /**
-     * Open a connection.
-     * @return a Connection
+     * Opens a connection.
+     *
+     * @return A {@link Connection} object.
      * @throws SQLException if anything goes wrong
      */
     Connection openConnection() throws SQLException;
 
     /**
-     * Close a connection.
-     * @param conn the connection to close
+     * Closes a connection.
+     *
+     * @param conn A {@link Connection} object.
      * @throws SQLException if anything goes wrong
      */
     default void closeConnection(Connection conn) throws SQLException {
         conn.close();
+    }
+
+    /**
+     * Returns a {@link Cleanable} that will close the connection and release all necessary resources.
+     *
+     * @param conn A {@link Connection} object.
+     * @return A {@link Cleanable} instance. Calling the {@link Cleanable#close()} method will close the connection and release all resources.
+     */
+    default Cleanable getCleanableFor(Connection conn) {
+        return () -> this.closeConnection(conn);
     }
 }

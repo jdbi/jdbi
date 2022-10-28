@@ -34,7 +34,9 @@ public class HandleAccess {
     public static Handle createHandle() throws SQLException {
         Connection fakeConnection = Mockito.mock(Connection.class);
 
-        return new Handle(null, new ConfigRegistry(), Connection::close, new LocalTransactionHandler(),
+        Jdbi fakeJdbi = Mockito.mock(Jdbi.class);
+
+        return new Handle(fakeJdbi, new ConfigRegistry(), fakeConnection::close, new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), fakeConnection);
     }
 }

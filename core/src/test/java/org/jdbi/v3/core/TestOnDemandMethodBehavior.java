@@ -113,6 +113,9 @@ public class TestOnDemandMethodBehavior {
             .thenReturn(connection)
             .thenThrow(IllegalStateException.class);
 
+        when(connectionFactory.getCleanableFor(connection))
+            .thenReturn(() -> connection.close());
+
         onDemand.run(() -> assertThat(onDemand.getHandle().getConnection()).isSameAs(connection));
 
         verify(connectionFactory, times(1)).openConnection();
@@ -123,6 +126,9 @@ public class TestOnDemandMethodBehavior {
         when(connectionFactory.openConnection())
             .thenReturn(connection)
             .thenThrow(IllegalStateException.class);
+
+        when(connectionFactory.getCleanableFor(connection))
+            .thenReturn(() -> connection.close());
 
         onDemand.run(() -> assertThat(anotherOnDemand.getHandle().getConnection()).isSameAs(connection));
 
