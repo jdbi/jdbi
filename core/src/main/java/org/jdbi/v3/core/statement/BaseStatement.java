@@ -31,7 +31,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     BaseStatement(Handle handle) {
         this.handle = handle;
-        this.ctx = new StatementContext(handle.getConfig().createCopy(), handle.getExtensionMethod());
+        this.ctx = StatementContext.create(handle.getConfig().createCopy(), handle.getExtensionMethod());
     }
 
     public final Handle getHandle() {

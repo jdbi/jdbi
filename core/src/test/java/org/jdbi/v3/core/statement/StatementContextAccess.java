@@ -15,16 +15,20 @@ package org.jdbi.v3.core.statement;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.UtilityClassException;
 
-public class StatementContextAccess {
-    private StatementContextAccess() {}
+public final class StatementContextAccess {
+
+    private StatementContextAccess() {
+        throw new UtilityClassException();
+    }
 
     public static StatementContext createContext() {
-        return new StatementContext();
+        return StatementContext.create(new ConfigRegistry(), null);
     }
 
     public static StatementContext createContext(ConfigRegistry config) {
-        return new StatementContext(config);
+        return StatementContext.create(config, null);
     }
 
     /**
@@ -32,6 +36,6 @@ public class StatementContextAccess {
      * with the given handle.
      */
     public static StatementContext createContext(Handle handle) {
-        return new StatementContext(handle.getConfig());
+        return StatementContext.create(handle.getConfig(), null);
     }
 }

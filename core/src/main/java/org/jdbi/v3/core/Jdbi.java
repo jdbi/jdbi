@@ -324,12 +324,14 @@ public class Jdbi implements Configurable<Jdbi> {
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(this,
+
+            Handle h = Handle.createHandle(this,
                 config.createCopy(),
                 connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                 transactionhandler.get(),
                 cache,
                 conn);
+
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

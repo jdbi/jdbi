@@ -13,18 +13,26 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * Configuration class for handles.
  */
 public class Handles implements JdbiConfig<Handles> {
+
     private boolean forceEndTransactions = true;
+
+    private final Set<HandleListener> handleListeners = new CopyOnWriteArraySet<>();
 
     public Handles() {}
 
     private Handles(Handles that) {
         this.forceEndTransactions = that.forceEndTransactions;
+        this.handleListeners.addAll(that.handleListeners);
     }
 
     /**
@@ -52,6 +60,40 @@ public class Handles implements JdbiConfig<Handles> {
      */
     public void setForceEndTransactions(boolean forceEndTransactions) {
         this.forceEndTransactions = forceEndTransactions;
+    }
+
+    /**
+     * Add a {@link HandleListener} which is called for specific events. Adding a listener will add
+     * it to all Handles that are subsequently created (this call does not affect existing handles).
+     *
+     * @param handleListener A {@link HandleListener} object.
+     *
+     * @return The Handles object itself.
+     */
+    public Handles addListener(final HandleListener handleListener) {
+        this.handleListeners.add(handleListener);
+        return this;
+    }
+
+    /**
+     * Remove a {@link HandleListener}. Removing a listener will only affect Handles that are subsequently created, not existing handles.
+     *
+     * @param handleListener A {@link HandleListener} object.
+     *
+     * @return The Handles object itself.
+     */
+    public Handles removeListener(final HandleListener handleListener) {
+        this.handleListeners.remove(handleListener);
+        return this;
+    }
+
+    /**
+     * Returns the collection of {@link HandleListener} objects. This set is immutable.
+     *
+     * @return A set of {@link HandleListener} objects. The set is never null, can be empty and is immutable.
+     */
+    public Set<HandleListener> getListeners() {
+        return Collections.unmodifiableSet(handleListeners);
     }
 
     @Override

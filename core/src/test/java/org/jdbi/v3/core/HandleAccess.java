@@ -24,19 +24,19 @@ import org.mockito.Mockito;
 /**
  * Utilities for testing jdbi internal classes.
  */
-public class HandleAccess {
+public final class HandleAccess {
+
     private HandleAccess() {}
+
     /**
-     * Create a handle with a fake connection,
-     * useful for tests that do not actually hit
-     * a database.
+     * Create a handle with a fake connection, useful for tests that do not actually hit a database.
      */
     public static Handle createHandle() throws SQLException {
         Connection fakeConnection = Mockito.mock(Connection.class);
 
         Jdbi fakeJdbi = Mockito.mock(Jdbi.class);
 
-        return new Handle(fakeJdbi, new ConfigRegistry(), fakeConnection::close, new LocalTransactionHandler(),
+        return Handle.createHandle(fakeJdbi, new ConfigRegistry(), fakeConnection::close, new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), fakeConnection);
     }
 }

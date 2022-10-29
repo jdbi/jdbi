@@ -18,6 +18,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -69,9 +71,23 @@ public class Handle implements Closeable, Configurable<Handle> {
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
 
+    private final Set<HandleListener> handleListeners;
+
     private boolean closed = false;
 
-    Handle(Jdbi jdbi,
+    static Handle createHandle(Jdbi jdbi,
+        ConfigRegistry localConfig,
+        Cleanable closer,
+        TransactionHandler transactions,
+        StatementBuilder statementBuilder,
+        Connection connection) throws SQLException {
+        Handle handle = new Handle(jdbi, localConfig, closer, transactions, statementBuilder, connection);
+
+        handle.notifyHandleCreated();
+        return handle;
+    }
+
+    private Handle(Jdbi jdbi,
            ConfigRegistry localConfig,
            Cleanable closer,
            TransactionHandler transactions,
@@ -86,6 +102,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.statementBuilder = statementBuilder;
         this.transactions = transactions.specialize(this);
         this.forceEndTransactions = !transactions.isInTransaction(this);
+
+        this.handleListeners = new CopyOnWriteArraySet<>(localConfig.get(Handles.class).getListeners());
     }
 
     public Jdbi getJdbi() {
@@ -127,11 +145,44 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Specify the statement builder to use for this handle.
+     *
      * @param builder StatementBuilder to be used
      * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
+        return this;
+    }
+
+    /**
+     * Add a specific {@link HandleListener} which is called for specific events for this Handle. Note that
+     * it is not possible to add a listener that wants to implement {@link HandleListener#handleCreated} this way
+     * as the handle has already been created. Use {@link Handles#addListener} in this case.
+     * <br>
+     * A listener added through this call is specific to the handle and not shared with other handles.
+     *
+     * @param handleListener A {@link HandleListener} object.
+     *
+     * @return The handle itself.
+     */
+    public Handle addHandleListener(HandleListener handleListener) {
+        handleListeners.add(handleListener);
+
+        return this;
+    }
+
+    /**
+     * Remove a {@link HandleListener} from this handle.
+     * <br>
+     * Removing the listener only affects the current handle. To remove a listener for all future handles, use {@link Handles#removeListener}.
+     *
+     * @param handleListener A {@link HandleListener} object.
+     *
+     * @return The handle itself.
+     */
+    public Handle removeHandleListener(HandleListener handleListener) {
+        handleListeners.remove(handleListener);
+
         return this;
     }
 
@@ -212,6 +263,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         } finally {
             LOG.trace("Handle [{}] released", this);
             closed = true;
+
+            notifyHandleClosed();
         }
     }
 
@@ -762,6 +815,14 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
         this.localExtensionMethod = requireNonNull(extensionMethodThreadLocal);
+    }
+
+    private void notifyHandleCreated() {
+        handleListeners.forEach(listener -> listener.handleCreated(this));
+    }
+
+    private void notifyHandleClosed() {
+        handleListeners.forEach(listener -> listener.handleClosed(this));
     }
 
     private class TransactionResetter implements Closeable {
