@@ -60,7 +60,7 @@ help:
 	@echo " * clean            - clean local build tree"
 	@echo " * install          - builds and installs the current version in the local repository"
 	@echo " * install-nodocker - same as 'install', but skip all tests that require a local docker installation"
-	@echo " * install-fast     - same as 'install', but skip test execution and code analysis (Checkstyle/PMD/Spotbugs)
+	@echo " * install-fast     - same as 'install', but skip test execution and code analysis (Checkstyle/PMD/Spotbugs)"
 	@echo " * docs             - build up-to-date documentation in docs/target/generated-docs/"
 	@echo " * tests            - run all unit and integration tests"
 	@echo " * tests-nodocker   - same as 'tests', but skip all tests that require a local docker installation"
