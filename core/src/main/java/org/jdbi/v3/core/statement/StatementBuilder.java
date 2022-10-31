@@ -76,9 +76,10 @@ public interface StatementBuilder {
     void close(Connection conn, String sql, Statement stmt) throws SQLException;
 
     /**
-     * Called when the handle this StatementBuilder is attached to is closed.
+     * Is called when the Handle, to which this StatementBuilder is attached to, is closed.
      *
-     * @param conn the connection to close.
+     * @param conn The connection which can be used to release resources. The Connection is managed by the
+     *             Handle and <b>must not</b> be closed by the StatementBuilder.
      */
     default void close(Connection conn) {}
 }

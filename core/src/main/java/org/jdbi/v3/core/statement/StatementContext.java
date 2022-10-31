@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -47,6 +46,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.exceptions.ThrowableSuppressor;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
@@ -575,8 +575,6 @@ public class StatementContext implements Closeable {
 
     @Override
     public void close() {
-        SQLException exception = null;
-
         List<Cleanable> cleanablesCopy;
 
         synchronized (cleanables) {
@@ -587,30 +585,22 @@ public class StatementContext implements Closeable {
         Collections.reverse(cleanablesCopy);
         cleanablesCopy.forEach(this::notifyCleanableRemoved);
 
+        ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+
         for (Cleanable cleanable : cleanablesCopy) {
-            try {
-                cleanable.close();
-            } catch (SQLException e) {
-                if (exception == null) {
-                    exception = e;
-                } else {
-                    exception.addSuppressed(e);
-                }
-            }
+            throwableSuppressor.suppressAppend(cleanable::close);
         }
 
         notifyContextCleaned();
 
-        if (exception != null) {
-            throw new CloseException("Exception thrown while cleaning StatementContext", exception);
-        }
+        throwableSuppressor.throwIfNecessary(t -> new CloseException("Exception thrown while cleaning StatementContext", t));
     }
 
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod;
     }
 
-    boolean isClosed() {
+    boolean isClean() {
         synchronized (cleanables) {
             return cleanables.isEmpty();
         }
@@ -638,5 +628,15 @@ public class StatementContext implements Closeable {
     private void notifyCleanableAdded(Cleanable cleanable) {
         Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableAdded(this, cleanable));
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode() * 11;
     }
 }

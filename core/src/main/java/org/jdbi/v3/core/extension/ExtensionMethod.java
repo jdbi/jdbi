@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.extension;
 
 import java.lang.reflect.Method;
+import java.util.StringJoiner;
 
 import static java.util.Objects.requireNonNull;
 
@@ -51,5 +52,13 @@ public final class ExtensionMethod {
      */
     public Method getMethod() {
         return method;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ExtensionMethod.class.getSimpleName() + "[", "]")
+            .add("type=" + type)
+            .add("method=" + method)
+            .toString();
     }
 }
