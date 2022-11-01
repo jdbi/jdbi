@@ -4387,7 +4387,7 @@ include::{coreexampledir}/ImmutablesTest.java[tags=example]
 ----
 
 === Freebuilder
-link:https://https://freebuilder.inferred.org/[Freebuilder^] is an annotation
+link:https://freebuilder.inferred.org/[Freebuilder^] is an annotation
 processor that generates value types based on simple interface or abstract
 class descriptions. Jdbi supports Freebuilder in much the same way that it
 supports Immutables.
