@@ -128,7 +128,7 @@ public class TestDocumentation {
 
             assertThat(rs.next()).isEqualTo("Brian");
             assertThat(rs.next()).isEqualTo("Keith");
-            assertThat(rs.hasNext()).isFalse();
+            assertThat(rs).isExhausted();
         }
     }
 

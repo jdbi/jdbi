@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -272,13 +271,13 @@ public class TestQueries {
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
             .mapToBean(Something.class)
             .iterator()) {
-            assertThat(i.hasNext()).isTrue();
+            assertThat(i).hasNext();
             final Something first = i.next();
             assertThat(first.getName()).isEqualTo("eric");
-            assertThat(i.hasNext()).isTrue();
+            assertThat(i).hasNext();
             final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
-            assertThat(i.hasNext()).isFalse();
+            assertThat(i).isExhausted();
         }
     }
 
@@ -292,13 +291,13 @@ public class TestQueries {
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
             .mapToBean(Something.class)
             .iterator()) {
-            assertThat(i.hasNext()).isTrue();
+            assertThat(i).hasNext();
             final Something first = i.next();
             assertThat(first.getName()).isEqualTo("eric");
-            assertThat(i.hasNext()).isTrue();
+            assertThat(i).hasNext();
             final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
-            assertThat(i.hasNext()).isFalse();
+            assertThat(i).isExhausted();
         }
     }
 
@@ -317,7 +316,7 @@ public class TestQueries {
             assertThat(first.getName()).isEqualTo("eric");
             final Something second = i.next();
             assertThat(second.getId()).isEqualTo(2);
-            assertThat(i.hasNext()).isFalse();
+            assertThat(i).isExhausted();
         }
     }
 
@@ -346,11 +345,11 @@ public class TestQueries {
 
         final ResultIterator<Something> r = ri.iterator();
 
-        assertThat(r.hasNext()).isTrue();
+        assertThat(r).hasNext();
         r.next();
-        assertThat(r.hasNext()).isTrue();
+        assertThat(r).hasNext();
         r.next();
-        assertThat(r.hasNext()).isFalse();
+        assertThat(r).isExhausted();
     }
 
     @Test
@@ -630,7 +629,7 @@ public class TestQueries {
 
         final ResultIterator<String> iter = ri2.iterator();
         // mess with the resultset by calling hasNext repeatedly
-        IntStream.range(0, 5).forEach(i -> assertTrue(iter.hasNext()));
+        IntStream.range(0, 5).forEach(i -> assertThat(iter).hasNext());
 
         final List<String> results = new ArrayList<>();
         while (iter.hasNext()) {

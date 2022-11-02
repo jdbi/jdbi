@@ -22,34 +22,33 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlTest {
 
     @Test
     void testEmptyInput() {
-        assertEquals("", Sql.of((CharSequence[]) null).toString());
-        assertEquals("", Sql.of((CharSequence) null).toString());
-        assertEquals("", Sql.of((Collection<CharSequence>) null).toString());
-        assertEquals("", Sql.of(new CharSequence[0]).toString());
-        assertEquals("", Sql.of(new ArrayList<>()).toString());
-        assertEquals("", Sql.of().toString());
+        assertThat(Sql.of((CharSequence[]) null).toString()).isBlank();
+        assertThat(Sql.of((CharSequence) null).toString()).isBlank();
+        assertThat(Sql.of((Collection<CharSequence>) null).toString()).isBlank();
+        assertThat(Sql.of(new CharSequence[0]).toString()).isBlank();
+        assertThat(Sql.of(new ArrayList<>()).toString()).isBlank();
+        assertThat(Sql.of().toString()).isBlank();
     }
 
     @Test
     void testMultipleStrings() {
-        assertEquals("A B C", Sql.of(ImmutableList.of("A", "B", "C")).toString());
-
-        assertEquals("A B C", Sql.of("A", "B", "C").toString());
+        assertThat(Sql.of(ImmutableList.of("A", "B", "C")))
+                .hasToString("A B C");
+        assertThat(Sql.of("A", "B", "C"))
+                .hasToString("A B C");
     }
 
     @Test
     void testMultipleTokens() {
-        assertEquals("SELECT COUNT(*) FROM table WHERE cond1 = :cond1",
-                Sql.of("SELECT COUNT(*) FROM table ",
-                       " WHERE cond1 = :cond1; ").toString());
+        assertThat(Sql.of("SELECT COUNT(*) FROM table",
+                          "WHERE cond1 = :cond1; "))
+                        .hasToString("SELECT COUNT(*) FROM table WHERE cond1 = :cond1");
     }
 
     @ParameterizedTest
@@ -57,26 +56,26 @@ public class SqlTest {
     @NullAndEmptySource
     void testStrip(String str) {
         Sql sql = Sql.of(str);
-        assertEquals("", sql.toString());
+        assertThat(sql).hasToString("");
     }
 
     @Test
     void testCharSequenceMethods() {
-        Sql sql1 = Sql.of("SELECT * FROM table");
-        assertEquals(19, sql1.length());
-        assertEquals('S', sql1.charAt(0));
-        assertEquals("SEL", sql1.subSequence(0, 3));
+        Sql sql = Sql.of("SELECT * FROM table");
+        assertThat(sql).hasSize(19);
+        assertThat(sql.charAt(0)).isEqualTo('S');
+        assertThat(sql.subSequence(0, 3)).isEqualTo("SEL");
     }
 
     @Test
     void testEqualsAndHashCode() {
         Sql sql1 = Sql.of("DROP TABLE table;");
         Sql sql2 = Sql.of(sql1);
-        assertEquals(sql1.hashCode(), sql2.hashCode());
-        assertEquals(sql1, sql2);
-        assertNotNull(sql1);
-        assertNotEquals("", sql1.toString());
-        assertNotEquals(sql1, Sql.of());
+        assertThat(sql1).isNotNull()
+                        .isEqualTo(sql2)
+                        .hasSameHashCodeAs(sql2)
+                        .isNotEqualTo(Sql.of());
+        assertThat(sql1.toString()).isNotBlank();
     }
 
 }

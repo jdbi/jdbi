@@ -31,9 +31,8 @@ import org.jdbi.v3.guice.util.GuiceTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class TestImportBindingBuilder {
 
@@ -329,21 +328,21 @@ public class TestImportBindingBuilder {
 
             public void test(String objectString, String interfaceString) {
                 if (objectString == null) {
-                    assertNull(testObject);
+                    assertThat(testObject).isNull();
                 } else {
                     if (testObject == null) {
                         fail("test object is null");
                     }
-                    assertEquals(objectString, testObject.getValue());
+                    assertThat(objectString).isEqualTo(testObject.getValue());
                 }
 
                 if (interfaceString == null) {
-                    assertNull(testInterface);
+                    assertThat(testInterface).isNull();
                 } else {
                     if (testInterface == null) {
                         fail("test interface is null");
                     }
-                    assertEquals(interfaceString, testInterface.getValue());
+                    assertThat(interfaceString).isEqualTo(testInterface.getValue());
                 }
             }
         }

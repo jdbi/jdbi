@@ -52,8 +52,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestJdbiBinder {
 
@@ -92,7 +91,7 @@ public class TestJdbiBinder {
 
         inj.injectMembers(this);
 
-        assertNotNull(jdbi);
+        assertThat(jdbi).isNotNull();
 
         populateDb(jdbi);
     }
@@ -104,19 +103,19 @@ public class TestJdbiBinder {
             final UUID u = UUID.randomUUID();
 
             int result = db.withExtension(Dao.class, dao -> dao.createRow(i, u, s));
-            assertEquals(1, result);
+            assertThat(result).isOne();
         }
     }
 
     @Test
     public void testSimple() {
-        assertEquals(100, jdbi.withExtension(Dao.class, Dao::countRows).intValue());
+        assertThat(jdbi.withExtension(Dao.class, Dao::countRows).intValue()).isEqualTo(100);
     }
 
     @Test
     public void testColumnMapper() {
         List<MyString> uuids = jdbi.withExtension(Dao.class, Dao::getMyStrings);
-        assertEquals(100, uuids.size());
+        assertThat(uuids).hasSize(100);
     }
 
     @Test
@@ -124,7 +123,7 @@ public class TestJdbiBinder {
         List<BinderTestRow> rows = jdbi.withExtension(Dao.class, Dao::getRows);
 
         for (int i = 0; i < 100; i++) {
-            assertEquals(i, rows.get(i).getI());
+            assertThat(i).isEqualTo(rows.get(i).getI());
         }
     }
 

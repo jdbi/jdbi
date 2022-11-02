@@ -37,9 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRobotLegsModule {
 
@@ -87,25 +85,25 @@ public class TestRobotLegsModule {
 
         inj.injectMembers(this);
 
-        assertNotSame(leftJdbi, rightJdbi);
-        assertNotSame(leftDao, rightDao);
+        assertThat(leftJdbi).isNotSameAs(rightJdbi);
+        assertThat(leftDao).isNotSameAs(rightDao);
     }
 
     @Test
     public void testRobotLegs() {
         Table leftTable = Table.randomTable();
-        assertEquals(1, leftDao.insert(leftTable));
+        assertThat(leftDao.insert(leftTable)).isOne();
         List<Table> left = leftDao.select();
-        assertEquals(1, left.size());
-        assertEquals(leftTable, left.get(0));
+        assertThat(left).hasSize(1);
+        assertThat(leftTable).isEqualTo(left.get(0));
 
         Table rightTable = Table.randomTable();
-        assertEquals(1, rightDao.insert(rightTable));
+        assertThat(rightDao.insert(rightTable)).isOne();
         List<Table> right = rightDao.select();
-        assertEquals(1, right.size());
-        assertEquals(rightTable, right.get(0));
+        assertThat(right).hasSize(1);
+        assertThat(rightTable).isEqualTo(right.get(0));
 
-        assertNotEquals(leftTable, rightTable);
+        assertThat(leftTable).isNotEqualTo(rightTable);
     }
 
     static class JdbiPluginModule extends AbstractJdbiConfigurationModule {
@@ -126,4 +124,3 @@ public class TestRobotLegsModule {
         }
     }
 }
-

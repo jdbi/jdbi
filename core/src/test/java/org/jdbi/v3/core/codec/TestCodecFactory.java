@@ -24,8 +24,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestCodecFactory {
 
@@ -37,11 +36,11 @@ public class TestCodecFactory {
         CodecFactory factory = CodecFactory.forSingleCodec(SET_CODEC_TYPE, new GenericSetCodec());
 
         Optional<Function<Object, Argument>> result = factory.prepare(SET_CODEC_TYPE, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
 
         // The TypeResolvingCodecFactory in jdbi3-guava returns true here.
         result = factory.prepare(CONCRETE_TYPE_CODEC_TYPE, new ConfigRegistry());
-        assertFalse(result.isPresent());
+        assertThat(result).isNotPresent();
     }
 
     public static class GenericSetCodec implements Codec<Set<String>> {

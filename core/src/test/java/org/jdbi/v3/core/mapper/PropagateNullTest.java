@@ -19,8 +19,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PropagateNullTest extends AbstractPropagateNullTest {
 
@@ -402,10 +401,10 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     @Test
     void testBadPropagateNullAnnotationOnBean() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-            () -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(BeanMapper.of(Test6Bean.class))));
-        assertThat(e.getMessage()).containsIgnoringCase("@PropagateNull does not support a value (id)");
-        assertThat(e.getMessage()).containsIgnoringCase("(nestedBean)");
+        assertThatThrownBy(() -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(BeanMapper.of(Test6Bean.class))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("@PropagateNull does not support a value (id)")
+                .hasMessageContaining("(nestedBean)");
     }
 
     public static class Test6Bean implements TestBean {
@@ -796,10 +795,10 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     @Test
     void testBadPropagateNullAnnotationOnCtor() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-            () -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(ConstructorMapper.of(Test16Bean.class))));
-        assertThat(e.getMessage()).containsIgnoringCase("@PropagateNull does not support a value (id)");
-        assertThat(e.getMessage()).containsIgnoringCase("(nestedBean)");
+        assertThatThrownBy(() -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(ConstructorMapper.of(Test16Bean.class))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("@PropagateNull does not support a value (id)")
+                .hasMessageContaining("(nestedBean)");
     }
 
     public static class Test16Bean implements TestBean {
@@ -1138,10 +1137,10 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     @Test
     void testBadPropagateNullAnnotationOnField() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-            () -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(FieldMapper.of(Test26Bean.class))));
-        assertThat(e.getMessage()).containsIgnoringCase("@PropagateNull does not support a value (id)");
-        assertThat(e.getMessage()).containsIgnoringCase("(nestedBean)");
+        assertThatThrownBy(() -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(FieldMapper.of(Test26Bean.class))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("@PropagateNull does not support a value (id)")
+                .hasMessageContaining("(nestedBean)");
     }
 
     public static class Test26Bean implements TestBean {

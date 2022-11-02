@@ -53,8 +53,8 @@ public class TestUpdateGeneratedKeys {
         insert2.bind("name", "Tom");
         Long id2 = insert2.executeAndReturnGeneratedKeys().mapTo(long.class).one();
 
-        assertThat(id2).isNotNull();
-        assertThat(id2).isGreaterThan(id1);
+        assertThat(id2).isNotNull()
+                .isGreaterThan(id1);
     }
 
     @Test

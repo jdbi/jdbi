@@ -34,10 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.google.inject.name.Names.named;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOverrides {
 
@@ -63,7 +60,7 @@ public class TestOverrides {
     @Test
     public void testRowMapperOverrides() throws Exception {
         RowMapper<String> mapper = jdbi.getConfig().get(RowMappers.class).findFor(String.class).orElseThrow(IllegalStateException::new);
-        assertEquals(LOCAL, mapper.map(null, null));
+        assertThat(mapper.map(null, null)).isEqualTo(LOCAL);
     }
 
     @Test
@@ -72,7 +69,7 @@ public class TestOverrides {
 
         // unqualified local mapper overrides unqualified global mapper
         ColumnMapper<String> unqualifiedMapper = columnMappers.findFor(String.class).orElseThrow(IllegalStateException::new);
-        assertEquals(LOCAL, unqualifiedMapper.map(null, 1, null));
+        assertThat(unqualifiedMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
@@ -82,7 +79,7 @@ public class TestOverrides {
         // explicit global mapper
         ColumnMapper<String> globalMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("global")))
             .orElseThrow(IllegalStateException::new);
-        assertEquals(GLOBAL, globalMapper.map(null, 1, null));
+        assertThat(globalMapper.map(null, 1, null)).isEqualTo(GLOBAL);
     }
 
     @Test
@@ -92,7 +89,7 @@ public class TestOverrides {
         // explicit local mapper
         ColumnMapper<String> localMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("local")))
             .orElseThrow(IllegalStateException::new);
-        assertEquals(LOCAL, localMapper.map(null, 1, null));
+        assertThat(localMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
@@ -102,7 +99,7 @@ public class TestOverrides {
         // qualified local mapper overrides qualified global mapper
         ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("qualified")))
             .orElseThrow(IllegalStateException::new);
-        assertEquals(LOCAL, qualifiedMapper.map(null, 1, null));
+        assertThat(qualifiedMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
@@ -117,19 +114,21 @@ public class TestOverrides {
         ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("qualified")))
             .orElseThrow(IllegalStateException::new);
 
-        assertNotSame(unqualifiedMapper, globalMapper);
-        assertNotSame(unqualifiedMapper, localMapper);
-        assertNotSame(unqualifiedMapper, qualifiedMapper);
-        assertNotSame(globalMapper, localMapper);
-        assertNotSame(globalMapper, qualifiedMapper);
-        assertNotSame(localMapper, qualifiedMapper);
+        assertThat(unqualifiedMapper)
+                .isNotSameAs(globalMapper)
+                .isNotSameAs(localMapper)
+                .isNotSameAs(qualifiedMapper);
+        assertThat(globalMapper)
+                .isNotSameAs(localMapper)
+                .isNotSameAs(qualifiedMapper);
+        assertThat(localMapper).isNotSameAs(qualifiedMapper);
     }
 
     @Test
     public void testMissingMapperLookup() {
         final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
 
-        assertFalse(columnMappers.findFor(QualifiedType.of(String.class).with(named("absent"))).isPresent());
+        assertThat(columnMappers.findFor(QualifiedType.of(String.class).with(named("absent")))).isNotPresent();
     }
 
     @Test
@@ -143,7 +142,7 @@ public class TestOverrides {
         ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class)).orElseThrow(IllegalStateException::new);
 
         // lands on the same instance
-        assertSame(typeMapper, qualifiedMapper);
+        assertThat(typeMapper).isSameAs(qualifiedMapper);
     }
 
     static class GlobalModule extends AbstractJdbiConfigurationModule {

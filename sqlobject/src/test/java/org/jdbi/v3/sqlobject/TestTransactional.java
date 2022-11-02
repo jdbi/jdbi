@@ -44,7 +44,6 @@ import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.JdbiH2Extension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -106,17 +105,17 @@ public class TestTransactional {
     public void testCrashWithHandler() {
         final TheBasics dao = jdbi.onDemand(TheBasics.class);
 
-        UnableToManipulateTransactionIsolationLevelException e = Assertions.assertThrows(UnableToManipulateTransactionIsolationLevelException.class,
-            () -> dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
+        assertThatThrownBy(() -> dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
             inTransaction.set(true);
             transactional.getHandle().setTransactionIsolation(TransactionIsolationLevel.READ_COMMITTED);
             transactional.insert(new Something(2, "3"));
             inTransaction.set(false);
             return null;
-        }));
-
-        assertThat(e.getCause()).isInstanceOf(SQLException.class);
-        assertThat(e.getCause().getMessage()).isEqualTo("PostgreSQL would not let you set the transaction isolation here");
+        }))
+                .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class)
+                .hasCauseInstanceOf(SQLException.class)
+                .extracting(ex -> ex.getCause().getMessage())
+                .isEqualTo("PostgreSQL would not let you set the transaction isolation here");
     }
 
     @Test
@@ -149,7 +148,7 @@ public class TestTransactional {
         AtomicBoolean result = new AtomicBoolean();
         CommitCallbackDao dao = jdbi.onDemand(CommitCallbackDao.class);
         jdbi.useTransaction(txn -> dao.txnCommitSet(() -> result.set(true)));
-        assertThat(result.get()).isTrue();
+        assertThat(result).isTrue();
     }
 
     @RegisterRowMapper(SomethingMapper.class)

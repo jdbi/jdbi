@@ -25,8 +25,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanMapperNestedTest {
 
@@ -183,12 +181,12 @@ public class BeanMapperNestedTest {
             .mapTo(StrangePrefixBean.class)
             .one();
 
-        assertNotNull(bean);
-        assertNotNull(bean.getFirstBean());
-        assertNotNull(bean.getSecondBean());
+        assertThat(bean).isNotNull();
+        assertThat(bean.getFirstBean()).isNotNull();
+        assertThat(bean.getSecondBean()).isNotNull();
 
-        assertEquals("hello", bean.getFirstBean().getValue());
-        assertEquals("world", bean.getSecondBean().getValue());
+        assertThat(bean.getFirstBean().getValue()).isEqualTo("hello");
+        assertThat(bean.getSecondBean().getValue()).isEqualTo("world");
     }
 
     public static class StrangePrefixBean {

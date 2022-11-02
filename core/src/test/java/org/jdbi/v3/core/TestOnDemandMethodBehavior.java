@@ -89,15 +89,15 @@ public class TestOnDemandMethodBehavior {
 
     @Test
     public void testEqualsDoesntAttach() throws SQLException {
-        assertThat(onDemand).isEqualTo(onDemand);
-        assertThat(onDemand).isNotEqualTo(anotherOnDemand);
+        assertThat(onDemand).isEqualTo(onDemand)
+                .isNotEqualTo(anotherOnDemand);
         verify(connectionFactory, never()).openConnection();
     }
 
     @Test
     public void testHashCodeDoesntAttach() throws SQLException {
-        assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
-        assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
+        assertThat(onDemand).hasSameHashCodeAs(onDemand)
+                .doesNotHaveSameHashCodeAs(anotherOnDemand);
         verify(connectionFactory, never()).openConnection();
     }
 

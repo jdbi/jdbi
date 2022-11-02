@@ -78,8 +78,8 @@ public abstract class AbstractPropagateNullTest {
         testBean = mapFunction.apply(handle.select("select NULL as beanID"))
             .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+        assertThat(testBean).isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
     }
 
     /**
@@ -95,11 +95,10 @@ public abstract class AbstractPropagateNullTest {
         assertThat(testBean.getNestedBean()).isNotNull();
         assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as bean_id"))
-            .one();
+        testBean = mapFunction.apply(handle.select("select NULL as bean_id")).one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+        assertThat(testBean).isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
     }
 
     /**
@@ -114,8 +113,7 @@ public abstract class AbstractPropagateNullTest {
         assertThat(testBean.getNestedBean()).isNotNull();
         assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select NULL as nid"))
-            .one();
+        testBean = mapFunction.apply(handle.select("select NULL as nid")).one();
 
         assertThat(testBean).isNull();
     }
@@ -135,8 +133,8 @@ public abstract class AbstractPropagateNullTest {
         testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, NULL as nestedfk"))
             .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+        assertThat(testBean).isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
     }
 
     /**
@@ -156,8 +154,8 @@ public abstract class AbstractPropagateNullTest {
         testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, NULL as beanFK"))
             .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+        assertThat(testBean).isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
     }
 
     /**
@@ -176,8 +174,8 @@ public abstract class AbstractPropagateNullTest {
         testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id, NULL as bean_fk"))
             .one();
 
-        assertThat(testBean).isNotNull();
-        assertThat(testBean.getNestedBean()).isNull();
+        assertThat(testBean).isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
     }
 
     /**
@@ -192,8 +190,7 @@ public abstract class AbstractPropagateNullTest {
         assertThat(testBean.getNestedBean()).isNotNull();
         assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
 
-        testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, NULL as nfk"))
-            .one();
+        testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, NULL as nfk")).one();
 
         assertThat(testBean).isNull();
     }
@@ -203,7 +200,6 @@ public abstract class AbstractPropagateNullTest {
         NestedBean getNestedBean();
 
         interface NestedBean {
-
             String getId();
         }
     }

@@ -126,12 +126,14 @@ public class TestScript {
 
             assertThat(statements).hasSize(3);
 
-            String lastStmt = statements.get(2);
-            assertThat(lastStmt).startsWith("CREATE OR REPLACE TRIGGER EXAMPLE_TRIGGER");
-            assertThat(lastStmt).endsWith("END;");
-            assertThat(lastStmt).hasLineCount(15);
-            assertThat(lastStmt).has(new Condition<>(s -> 7 == s.chars().filter(ch -> ch == ';').count(), "count semicolons"));
-
+            // local variable of CharSequence not String because
+            // CharSequence.chars() since Java 1.8 <=> String.chars() since Java 9
+            CharSequence lastStmt = statements.get(2);
+            assertThat(lastStmt)
+                    .startsWith("CREATE OR REPLACE TRIGGER EXAMPLE_TRIGGER")
+                    .endsWith("END;")
+                    .hasLineCount(15)
+                    .has(new Condition<>(s -> 7 == s.chars().filter(ch -> ch == ';').count(), "count semicolons"));
         }
     }
 

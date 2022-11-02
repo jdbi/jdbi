@@ -42,7 +42,6 @@ public class StatementsTest {
         handle.execute("INSERT INTO \"user\" VALUES (2, 'Bob')");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testQuery() {
         // tag::query[]

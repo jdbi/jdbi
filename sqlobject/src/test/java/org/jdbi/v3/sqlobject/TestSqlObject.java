@@ -47,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -75,18 +74,16 @@ public class TestSqlObject {
 
     @Test
     public void testUnimplementedMethod() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(UnimplementedDao.class));
-
-        assertThat(e.getMessage())
-            .contains("Method UnimplementedDao.totallyBroken must have an implementation or be annotated with a SQL method annotation.");
+        assertThatThrownBy(() -> handle.attach(UnimplementedDao.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Method UnimplementedDao.totallyBroken must have an implementation or be annotated with a SQL method annotation.");
     }
 
     @Test
     public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantDao.class));
-
-        assertThat(e.getMessage()).contains(
-            "Default method RedundantDao.list has @SqlQuery annotation. SQL object methods may be default, or have a SQL method annotation, but not both.");
+        assertThatThrownBy(() -> handle.attach(RedundantDao.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Default method RedundantDao.list has @SqlQuery annotation. SQL object methods may be default, or have a SQL method annotation, but not both.");
     }
 
     @Test
@@ -164,23 +161,23 @@ public class TestSqlObject {
 
     @Test
     public void testRedundantMethodCustomizingAnnotation() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantMethodStatementCustomizingAnnotation.class));
-
-        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
+        assertThatThrownBy(() -> handle.attach(RedundantMethodStatementCustomizingAnnotation.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
     }
 
     @Test
     public void testRedundantParameterCustomizingAnnotation() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantParameterStatementCustomizingAnnotation.class));
-
-        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
+        assertThatThrownBy(() -> handle.attach(RedundantParameterStatementCustomizingAnnotation.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
     }
 
     @Test
     public void testRedundantParameterBindingAnnotation() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> handle.attach(RedundantParameterBindingAnnotation.class));
-
-        assertThat(e.getMessage()).contains("Statement customizing annotations don't work on default methods.");
+        assertThatThrownBy(() -> handle.attach(RedundantParameterBindingAnnotation.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
     }
 
     @Test

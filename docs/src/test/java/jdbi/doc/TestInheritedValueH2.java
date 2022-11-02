@@ -40,8 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 // this test is in doc because it needs guava and sqlobject and sqlobject already imports guava.
 // the only other place it could go to is in sqlobject and it tests a guava class, not a sqlobject class.
@@ -109,15 +108,15 @@ public class TestInheritedValueH2 {
         // store object
         int result = jdbi.withExtension(DataDao.class, dao -> dao.storeData(dataId, data));
 
-        assertEquals(1, result);
+        assertThat(result).isOne();
 
         // load object
         Value<String> restoredData = jdbi.withHandle(h -> h.createQuery("SELECT \"value\" from data where id = :id")
             .bind("id", dataId)
             .mapTo(DATA_TYPE).first());
 
-        assertNotSame(data, restoredData);
-        assertEquals(data, restoredData);
+        assertThat(data).isNotSameAs(restoredData)
+                        .isEqualTo(restoredData);
     }
 
     @Test
@@ -132,13 +131,14 @@ public class TestInheritedValueH2 {
         // store object
         int result = jdbi.withExtension(DataDao.class, dao -> dao.storeData(stringBean));
 
-        assertEquals(1, result);
+        assertThat(result).isOne();
 
         // load object
         Value<String> restoredData = jdbi.withExtension(DataDao.class, dao -> dao.loadData(stringBean.getId()));
 
-        assertNotSame(stringBean.getValue(), restoredData);
-        assertEquals(stringBean.getValue(), restoredData);
+        assertThat(stringBean.getValue())
+                .isNotSameAs(restoredData)
+                .isEqualTo(restoredData);
     }
 
     @Test
@@ -157,13 +157,14 @@ public class TestInheritedValueH2 {
         // store object
         int result = jdbi.withExtension(SetDao.class, dao -> dao.storeData(id, data));
 
-        assertEquals(1, result);
+        assertThat(result).isOne();
 
         // load object
         Set<AutoValue> restoredData = jdbi.withExtension(SetDao.class, dao -> dao.loadData(id));
 
-        assertNotSame(data, restoredData);
-        assertEquals(data, restoredData);
+        assertThat(data)
+                .isNotSameAs(restoredData)
+                .isEqualTo(restoredData);
     }
 
     @Test
@@ -183,13 +184,14 @@ public class TestInheritedValueH2 {
         // store object
         int result = jdbi.withExtension(SetDao.class, dao -> dao.storeData(bean));
 
-        assertEquals(1, result);
+        assertThat(result).isOne();
 
         // load object
         Set<AutoValue> restoredData = jdbi.withExtension(SetDao.class, dao -> dao.loadData(bean.getId()));
 
-        assertNotSame(bean.getValue(), restoredData);
-        assertEquals(bean.getValue(), restoredData);
+        assertThat(bean.getValue())
+                .isNotSameAs(restoredData)
+                .isEqualTo(restoredData);
     }
 
     // tag::codec[]

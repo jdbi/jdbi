@@ -33,7 +33,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestReturningMap {
 
@@ -143,12 +142,13 @@ public class TestReturningMap {
         dao.insertPhone(2, new Phone(20, "555-0002"), new Phone(21, "555-0022"));
         dao.insertPhone(3, new Phone(30, "555-0003"), new Phone(31, "555-0023"));
 
-        assertThat(dao.getMultimap()).hasSameEntriesAs(
-                ImmutableMultimap.<User, Phone>builder()
-                        .putAll(new User(1, "alice"), new Phone(10, "555-0001"), new Phone(11, "555-0021"))
-                        .putAll(new User(2, "bob"), new Phone(20, "555-0002"), new Phone(21, "555-0022"))
-                        .putAll(new User(3, "cathy"), new Phone(30, "555-0003"), new Phone(31, "555-0023"))
-                        .build());
+        ImmutableMultimap<User, Phone> expected = ImmutableMultimap.<User, Phone>builder()
+                .putAll(new User(1, "alice"), new Phone(10, "555-0001"), new Phone(11, "555-0021"))
+                .putAll(new User(2, "bob"), new Phone(20, "555-0002"), new Phone(21, "555-0022"))
+                .putAll(new User(3, "cathy"), new Phone(30, "555-0003"), new Phone(31, "555-0023"))
+                .build();
+
+        assertThat(dao.getMultimap().asMap()).containsAllEntriesOf(expected.asMap());
     }
 
     public interface JoinRowDao {

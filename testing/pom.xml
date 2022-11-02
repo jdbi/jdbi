@@ -90,6 +90,7 @@
             <artifactId>flyway-core</artifactId>
             <optional>true</optional>
         </dependency>
+
     </dependencies>
     <profiles>
         <profile>

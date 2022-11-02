@@ -26,8 +26,7 @@ import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeResolvingCodecFactoryTest {
 
@@ -41,10 +40,10 @@ public class TypeResolvingCodecFactoryTest {
         CodecFactory factory = TypeResolvingCodecFactory.forSingleCodec(SET_CODEC_TYPE, new GenericSetCodec());
 
         Optional<Function<Object, Argument>> result = factory.prepare(SET_CODEC_TYPE, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
 
         result = factory.prepare(CONCRETE_TYPE_CODEC_TYPE, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
     }
 
     @Test
@@ -53,15 +52,15 @@ public class TypeResolvingCodecFactoryTest {
 
         QualifiedType<?> xClassType = QualifiedType.of(XClass.class);
         Optional<Function<Object, Argument>> result = factory.prepare(xClassType, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
 
         QualifiedType<?> yClassType = QualifiedType.of(YClass.class);
         result = factory.prepare(yClassType, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
 
         QualifiedType<?> zClassType = QualifiedType.of(ZClass.class);
         result = factory.prepare(zClassType, new ConfigRegistry());
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
     }
 
     @Test
@@ -70,15 +69,15 @@ public class TypeResolvingCodecFactoryTest {
 
         QualifiedType<Set<Integer>> integerSetType = QualifiedType.of(new GenericType<Set<Integer>>() {});
         Optional<Function<Object, Argument>> result = factory.prepare(integerSetType, new ConfigRegistry());
-        assertFalse(result.isPresent());
+        assertThat(result).isNotPresent();
 
         QualifiedType<HashSet<Integer>> concreteIntegerType = QualifiedType.of(new GenericType<HashSet<Integer>>() {});
         result = factory.prepare(concreteIntegerType, new ConfigRegistry());
-        assertFalse(result.isPresent());
+        assertThat(result).isNotPresent();
 
         QualifiedType<String> stringType = QualifiedType.of(String.class);
         result = factory.prepare(stringType, new ConfigRegistry());
-        assertFalse(result.isPresent());
+        assertThat(result).isNotPresent();
     }
 
     public static class GenericSetCodec implements Codec<Set<String>> {

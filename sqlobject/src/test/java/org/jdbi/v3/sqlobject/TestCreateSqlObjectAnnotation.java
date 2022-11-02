@@ -31,8 +31,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestCreateSqlObjectAnnotation {
 
@@ -110,10 +109,11 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() {
-        UnableToCreateSqlObjectException e = assertThrows(UnableToCreateSqlObjectException.class,
-            () -> h2Extension.getJdbi().open().attach(BogusSqlUpdateDao.class));
-        assertEquals("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
-            + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>", e.getMessage());
+        Handle h = h2Extension.getJdbi().open();
+        assertThatThrownBy(() -> h.attach(BogusSqlUpdateDao.class))
+                .isInstanceOf(UnableToCreateSqlObjectException.class)
+                .hasMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
+                          + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
     }
 
     public interface BogusSqlUpdateDao {
@@ -123,11 +123,11 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() {
-        UnableToCreateSqlObjectException e = assertThrows(UnableToCreateSqlObjectException.class,
-            () -> h2Extension.getJdbi().open().attach(BogusSqlBatchDao.class));
-        assertThat(e.getMessage()).contains("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
-            + "so should return void, int[], or boolean[] but is returning: int");
-
+        Handle h = h2Extension.getJdbi().open();
+        assertThatThrownBy(() -> h.attach(BogusSqlBatchDao.class))
+                .isInstanceOf(UnableToCreateSqlObjectException.class)
+                .hasMessageContaining("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
+                                    + "so should return void, int[], or boolean[] but is returning: int");
     }
 
     public interface BogusSqlBatchDao {

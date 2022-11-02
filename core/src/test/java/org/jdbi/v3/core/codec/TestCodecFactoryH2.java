@@ -24,7 +24,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestCodecFactoryH2 {
 
@@ -48,12 +48,12 @@ public class TestCodecFactoryH2 {
             .bindByType("test", value, testType)
             .execute());
 
-        assertEquals(1, result);
+        assertThat(result).isOne();
 
         TestValue response = jdbi.withHandle(h -> h.createQuery("SELECT * from test")
             .mapTo(testType).first());
 
-        assertEquals(value, response);
+        assertThat(value).isEqualTo(response);
     }
 
     public static class TestValueCodec implements Codec<TestValue> {
