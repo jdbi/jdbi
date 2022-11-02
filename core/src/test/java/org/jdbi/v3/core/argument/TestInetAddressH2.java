@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Sql;
 import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
@@ -53,7 +56,44 @@ public class TestInetAddressH2 {
         });
     }
 
+    @Test
+    public void testInetAddress2() throws Exception {
+        try (Handle h = dbExtension.getJdbi().open()) {
+            h.execute("CREATE TABLE inet_test (ipaddress " + getInetType() + ")");
+
+            InetAddress inetAddrIn = InetAddress.getByName("8.8.8.8");
+            assertThat(inetAddrIn).isInstanceOf(Inet4Address.class);
+
+            // insert IP address into column of type INET
+            int update1Count = h.createUpdate(Sql.of("INSERT INTO inet_test (ipaddress) VALUES (:address)"))
+                .bind("address", inetAddrIn)
+                .execute();
+            assertThat(update1Count).isOne();
+
+            // read back the inserted IP address
+            InetAddress inetAddr1Out = h.createQuery(Sql.of("SELECT ipaddress FROM inet_test"))
+                .mapTo(InetAddress.class)
+                .one();
+
+            // test for equality
+            assertThat(inetAddrIn).isEqualTo(inetAddr1Out);
+
+            // update the record to a null IP address
+            int update2Count = h.createUpdate(Sql.of("UPDATE inet_test SET ipaddress = :address"))
+                .bind("address", (InetAddress) null)
+                .execute();
+            assertThat(update2Count).isOne();
+
+            // read back the record ensuring proper null handling
+            InetAddress inetAddr2Out = h.createQuery(Sql.of("SELECT ipaddress FROM inet_test"))
+                .mapTo(InetAddress.class)
+                .one();
+            assertThat(inetAddr2Out).isNull();
+        }
+    }
+
     protected String getInetType() {
         return "VARCHAR";
     }
+
 }
