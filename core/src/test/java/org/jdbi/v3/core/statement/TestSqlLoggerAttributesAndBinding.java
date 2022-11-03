@@ -44,7 +44,7 @@ public class TestSqlLoggerAttributesAndBinding {
     public void before() {
         logger = new TalkativeSqlLogger();
         h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(logger);
-        h = h2Extension.getJdbi().open();
+        h = h2Extension.openHandle();
     }
 
     @AfterEach
@@ -64,7 +64,9 @@ public class TestSqlLoggerAttributesAndBinding {
 
     @Test
     public void testBatch() {
-        h.createBatch().add(CREATE).define("x", "foo").execute();
+        try (Batch batch = h.createBatch()) {
+            batch.add(CREATE).define("x", "foo").execute();
+        }
 
         assertThat(logger.getAttributes())
             .hasSize(2)

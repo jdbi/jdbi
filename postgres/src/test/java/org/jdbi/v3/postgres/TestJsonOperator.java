@@ -38,100 +38,100 @@ public class TestJsonOperator {
      */
     @Test
     public void testJsonQuery() {
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json->2")
             .mapTo(String.class)
             .one())
             .isEqualTo("{\"c\":\"baz\"}");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\": {\"b\":\"foo\"}}'::json->'a'")
             .mapTo(String.class)
             .one())
             .isEqualTo("{\"b\":\"foo\"}");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[1,2,3]'::json->>2")
             .mapTo(Integer.class)
             .one())
             .isEqualTo(3);
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":1,\"b\":2}'::json->>'b'")
             .mapTo(Integer.class)
             .one())
             .isEqualTo(2);
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\": {\"b\":{\"c\": \"foo\"}}}'::json#>'{a,b}'")
             .mapTo(String.class)
             .one())
             .isEqualTo("{\"c\": \"foo\"}");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":[1,2,3],\"b\":[4,5,6]}'::json#>>'{a,2}'")
             .mapTo(Integer.class)
             .one())
             .isEqualTo(3);
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb @> '{\"b\":2}'::jsonb")
             .mapTo(boolean.class)
             .one())
             .isTrue();
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"b\":2}'::jsonb <@ '{\"a\":1, \"b\":2}'::jsonb")
             .mapTo(boolean.class)
             .one())
             .isTrue();
 
         // ? escaped to ??
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? 'b'")
             .mapTo(boolean.class)
             .one())
             .isTrue();
 
         // ?| escaped to ??|
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2, \"c\":3}'::jsonb ??| array['b', 'c']")
             .mapTo(boolean.class)
             .one())
             .isTrue();
 
         // ?& escaped to ??&
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb ??& array['a', 'b']")
             .mapTo(boolean.class)
             .one())
             .isTrue();
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb || '[\"c\", \"d\"]'::jsonb")
             .mapTo(String.class)
             .one())
             .isEqualTo("[\"a\", \"b\", \"c\", \"d\"]");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\": \"b\"}'::jsonb - 'a'")
             .mapTo(String.class)
             .one())
             .isEqualTo("{}");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\": \"b\", \"c\": \"d\"}'::jsonb - '{a,c}'::text[]")
             .mapTo(String.class)
             .one())
             .isEqualTo("{}");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[\"a\", \"b\"]'::jsonb - 1")
             .mapTo(String.class)
             .one())
             .isEqualTo("[\"a\"]");
 
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '[\"a\", {\"b\":1}]'::jsonb #- '{1,b}'")
             .mapTo(String.class)
             .one())
@@ -140,7 +140,7 @@ public class TestJsonOperator {
 
     @Test
     public void testJsonQueryWithBindedInput() {
-        assertThat(pgExtension.openHandle()
+        assertThat(pgExtension.getSharedHandle()
             .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
             .bind("key", "a")
             .mapTo(boolean.class)

@@ -18,6 +18,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -64,10 +65,11 @@ public class BeanMapperNestedTest {
             .extracting("nested.id", "nested.name")
             .containsExactly(1, "foo");
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id, name, 1 as other from something")
-            .mapTo(NestedBean.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
+                query.mapTo(NestedBean.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
     }
@@ -103,17 +105,20 @@ public class BeanMapperNestedTest {
             .extracting("nested.id", "nested.name", "integerValue")
             .containsExactly(1, "foo", 5);
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as other from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
+                query.mapTo(NestedPrefixBean.class)
+                    .one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [other]");
 
-        assertThatThrownBy(() -> handle
-            .createQuery("select id nested_id, name nested_name, 1 as nested_other from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
+                query.mapTo(NestedPrefixBean.class).one();
+            }
+        })
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("could not match properties for columns: [nested_other]");
     }

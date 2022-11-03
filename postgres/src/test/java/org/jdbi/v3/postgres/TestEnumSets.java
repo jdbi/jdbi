@@ -157,7 +157,7 @@ public class TestEnumSets {
 
     @Test
     public void throwsOnNonBitChars() {
-        Handle handle = pgExtension.openHandle();
+        Handle handle = pgExtension.getSharedHandle();
         // redefine column to varchar type
         handle.execute("drop table if exists videos");
         handle.execute("create table videos (id int primary key, supported_platforms varchar)");
@@ -177,7 +177,7 @@ public class TestEnumSets {
     }
 
     private EnumSet<Platform> getSupportedPlatforms(int id) {
-        return pgExtension.openHandle()
+        return pgExtension.getSharedHandle()
             .createQuery("select supported_platforms from videos where id=:id")
             .bind("id", id)
             .mapTo(PLATFORM_SET)

@@ -29,7 +29,7 @@ public class TestStatementExceptionContext {
     public void testFoo() {
 
         assertThatExceptionOfType(StatementException.class)
-            .isThrownBy(() -> h2Extension.openHandle().execute("WOOF", 7, "Tom"))
+            .isThrownBy(() -> h2Extension.getSharedHandle().execute("WOOF", 7, "Tom"))
             .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
     }
 }

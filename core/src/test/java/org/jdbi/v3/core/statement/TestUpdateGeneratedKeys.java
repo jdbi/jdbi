@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
@@ -33,15 +30,12 @@ public class TestUpdateGeneratedKeys {
 
     @BeforeEach
     public void setUp() throws Exception {
-        try (Connection conn = DriverManager.getConnection(h2Extension.getUri());
-            Statement create = conn.createStatement()) {
-            create.execute("create table something_else (id integer not null generated always as identity, name varchar(50))");
-        }
+        h2Extension.getSharedHandle().execute("create table something_else (id integer not null generated always as identity, name varchar(50))");
     }
 
     @Test
     public void testInsert() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
@@ -59,7 +53,7 @@ public class TestUpdateGeneratedKeys {
 
     @Test
     public void testUpdate() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
@@ -77,7 +71,7 @@ public class TestUpdateGeneratedKeys {
 
     @Test
     public void testDelete() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");

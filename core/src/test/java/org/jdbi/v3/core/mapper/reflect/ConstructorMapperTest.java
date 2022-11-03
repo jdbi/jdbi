@@ -21,6 +21,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -50,8 +51,10 @@ public class ConstructorMapperTest {
         handle.execute("INSERT INTO bean VALUES('3', 2)");
     }
 
-    private <T> T selectOne(String query, Class<T> type) {
-        return handle.createQuery(query).mapTo(type).one();
+    private <T> T selectOne(String sql, Class<T> type) {
+        try (Query query = handle.createQuery(sql)) {
+            return query.mapTo(type).one();
+        }
     }
 
     @Test

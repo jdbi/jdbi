@@ -18,6 +18,7 @@ import java.util.NoSuchElementException;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,20 +86,20 @@ public class TestIterator {
             .iterator();
 
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext()
-                      .hasNext();
+            .hasNext()
+            .hasNext();
         it.next();
         assertThat(it).isExhausted()
-                      .isExhausted()
-                      .isExhausted();
+            .isExhausted()
+            .isExhausted();
     }
 
     @Test
@@ -149,10 +150,10 @@ public class TestIterator {
         it.next();
         it.next();
         assertThat(it).hasNext()
-                      .hasNext();
+            .hasNext();
         it.next();
         assertThat(it).isExhausted()
-                      .isExhausted();
+            .isExhausted();
     }
 
     @Test
@@ -211,56 +212,53 @@ public class TestIterator {
     public void testNonPathologicalJustNext() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
 
-        // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
-        // used in this way (Hello Jackson!).
+        // this only works (and does not leak resources) because the iterator contains only a single
+        // element and is closed (and resources released once that element is processed).
         final Map<String, Object> result = h.createQuery("select * from something order by id")
             .cleanupHandleRollback()
             .mapToMap()
             .iterator()
             .next();
 
-        assertThat(result.get("id")).isEqualTo(1L);
-        assertThat(result.get("name")).isEqualTo("eric");
+        assertThat(result).containsEntry("id", 1L)
+            .containsEntry("name", "eric");
     }
 
     @Test
-    public void testStillLeakingJustNext() {
+    public void testManageResourcesOnQuery() {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
-        // used in this way (Hello Jackson!).
-        final Map<String, Object> result = h.createQuery("select * from something order by id")
-            .cleanupHandleRollback()
-            .mapToMap()
-            .iterator()
-            .next();
-
-        assertThat(result.get("id")).isEqualTo(1L);
-        assertThat(result.get("name")).isEqualTo("eric");
-
-        assertThat(h.isClosed()).isFalse();
-
-        // The Query created by createQuery() above just leaked a Statement and a ResultSet. It is necessary
-        // to explicitly close the iterator in that case. However, as this test case is using the CachingStatementBuilder,
-        // closing the handle will close the statements (which also closes the result sets).
-        //
-        // Don't try this at home folks. It is still very possible to leak stuff with the iterators.
-
-        h.close();
-    }
-
-    @Test
-    public void testLessLeakingJustNext() {
-        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
-        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
-
-        try (ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-                .cleanupHandleRollback()
+        // this requires t-w-r to ensure that the resources of the query are released properly.
+        // this could be done through the iterator as well (see next test).
+        try (Query query = h.createQuery("select * from something order by id")) {
+            final Map<String, Object> result = query.cleanupHandleRollback()
                 .mapToMap()
-                .iterator()) {
+                .iterator()
+                .next();
+
+            assertThat(result).containsEntry("id", 1L)
+                .containsEntry("name", "eric");
+
+            assertThat(h.isClosed()).isFalse();
+        }
+    }
+
+    @Test
+    public void testManageResourcesOnIterator() {
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+
+        ResultIterable<Map<String, Object>> iterable = h.createQuery("select * from something order by id")
+            .cleanupHandleRollback()
+            .mapToMap();
+
+        // use t-w-r to ensure that the resources of the query are released properly.
+        try (ResultIterator<Map<String, Object>> it = iterable.iterator()) {
             final Map<String, Object> result = it.next();
-            assertThat(result).containsEntry("id", 1L).containsEntry("name", "eric");
+
+            assertThat(result).containsEntry("id", 1L)
+                .containsEntry("name", "eric");
 
             assertThat(h.isClosed()).isFalse();
         }

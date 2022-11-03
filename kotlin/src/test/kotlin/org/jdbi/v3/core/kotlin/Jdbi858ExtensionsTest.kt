@@ -40,7 +40,7 @@ class Jdbi858ExtensionsTest {
     fun setUp() {
         jdbi = h2Extension.jdbi
 
-        h2Extension.openHandle().apply {
+        h2Extension.sharedHandle.apply {
             execute("CREATE TABLE $TABLE_NAME ($ID_COLUMN INTEGER PRIMARY KEY AUTO_INCREMENT, $NAME_COLUMN VARCHAR)")
             execute("INSERT INTO $TABLE_NAME ($NAME_COLUMN) VALUES (?)", EXPECTED_NAME)
         }

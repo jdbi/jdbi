@@ -116,8 +116,8 @@ public class TestModifiers {
 
     @Test
     public void testIsolationLevel() {
-        try (Handle h1 = h2Extension.getJdbi().open();
-            Handle h2 = h2Extension.getJdbi().open()) {
+        try (Handle h1 = h2Extension.openHandle();
+            Handle h2 = h2Extension.openHandle()) {
             Spiffy spiffy = h1.attach(Spiffy.class);
             IsoLevels iso = h2.attach(IsoLevels.class);
 

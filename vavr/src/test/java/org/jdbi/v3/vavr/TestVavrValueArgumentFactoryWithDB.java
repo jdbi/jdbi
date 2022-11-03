@@ -44,7 +44,7 @@ public class TestVavrValueArgumentFactoryWithDB {
 
     @BeforeEach
     public void createTestData() {
-        Handle handle = h2Extension.openHandle();
+        Handle handle = h2Extension.getSharedHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }

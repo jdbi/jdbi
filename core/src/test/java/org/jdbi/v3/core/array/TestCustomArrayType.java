@@ -16,38 +16,41 @@ package org.jdbi.v3.core.array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestCustomArrayType {
 
-    private void init(Jdbi db) {
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+
+    @BeforeEach
+    public void setUp() {
+        Jdbi db = h2Extension.getJdbi();
         db.registerArrayType(UserId.class, "int", UserId::getId);
         db.registerColumnMapper(new UserIdColumnMapper());
     }
 
     /**
-     * Test binding and mapping a custom array type; binding requires registration
-     * of a {@link SqlArrayType} implementation, and mapping requires registration
-     * of a regular {@link ColumnMapper} for the element
-     * type
+     * Test binding and mapping a custom array type; binding requires registration of a {@link SqlArrayType} implementation, and mapping requires registration
+     * of a regular {@link ColumnMapper} for the element type
      */
     @Test
     public void testCustomArrayType() {
-        Jdbi db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID());
-        init(db);
 
         UserId user1 = new UserId(10);
         UserId user2 = new UserId(12);
-        try (Handle handle = db.open()) {
+        try (Handle handle = h2Extension.openHandle()) {
             handle.execute("create table groups ("
                 + "id int primary key, "
                 + "user_ids int array)");

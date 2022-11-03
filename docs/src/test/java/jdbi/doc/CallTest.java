@@ -36,7 +36,7 @@ public class CallTest {
 
     @Test
     public void testCall() {
-        Handle handle = pgExtension.openHandle();
+        Handle handle = pgExtension.getSharedHandle();
 
         handle.execute(findSqlOnClasspath("create_stored_proc_add"));
 

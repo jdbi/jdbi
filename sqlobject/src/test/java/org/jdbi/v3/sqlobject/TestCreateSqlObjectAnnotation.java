@@ -64,7 +64,7 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testTransactionPropagates() {
-        Foo foo = h2Extension.getJdbi().open().attach(Foo.class);
+        Foo foo = h2Extension.getSharedHandle().attach(Foo.class);
 
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
 
@@ -109,8 +109,8 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() {
-        Handle h = h2Extension.getJdbi().open();
-        assertThatThrownBy(() -> h.attach(BogusSqlUpdateDao.class))
+
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(BogusSqlUpdateDao.class))
                 .isInstanceOf(UnableToCreateSqlObjectException.class)
                 .hasMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
                           + "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
@@ -123,8 +123,7 @@ public class TestCreateSqlObjectAnnotation {
 
     @Test
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() {
-        Handle h = h2Extension.getJdbi().open();
-        assertThatThrownBy(() -> h.attach(BogusSqlBatchDao.class))
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(BogusSqlBatchDao.class))
                 .isInstanceOf(UnableToCreateSqlObjectException.class)
                 .hasMessageContaining("BogusSqlBatchDao.getNames method is annotated with @SqlBatch "
                                     + "so should return void, int[], or boolean[] but is returning: int");

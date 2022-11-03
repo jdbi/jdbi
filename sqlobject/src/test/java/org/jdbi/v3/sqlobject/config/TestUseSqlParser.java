@@ -26,6 +26,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -46,6 +47,11 @@ public class TestUseSqlParser {
         // this is the default, but be explicit for sake of clarity in test
         db.setSqlParser(new ColonPrefixSqlParser());
         handle = db.open();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test

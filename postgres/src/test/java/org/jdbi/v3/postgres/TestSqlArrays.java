@@ -38,6 +38,7 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -74,6 +75,11 @@ public class TestSqlArrays {
 
         // attach the array object to the handle as well.
         ao = handle.attach(ArrayObject.class);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     private final UUID[] testUuids = new UUID[] {

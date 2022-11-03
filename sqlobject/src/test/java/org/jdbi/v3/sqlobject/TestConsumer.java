@@ -41,7 +41,7 @@ public class TestConsumer {
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
 
-        Spiffy dao = h2Extension.getJdbi().open().attach(Spiffy.class);
+        Spiffy dao = h2Extension.getSharedHandle().attach(Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);

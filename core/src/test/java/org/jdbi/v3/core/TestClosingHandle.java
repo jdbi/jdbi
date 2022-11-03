@@ -33,7 +33,7 @@ public class TestClosingHandle {
 
     @Test
     public void testNotClosing() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -46,7 +46,7 @@ public class TestClosingHandle {
 
     @Test
     public void testClosing() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -63,7 +63,7 @@ public class TestClosingHandle {
 
     @Test
     public void testIterateKeepHandle() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -78,7 +78,7 @@ public class TestClosingHandle {
 
     @Test
     public void testIterateAllTheWay() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -94,7 +94,7 @@ public class TestClosingHandle {
 
     @Test
     public void testIteratorBehaviour() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -120,7 +120,7 @@ public class TestClosingHandle {
 
     @Test
     public void testIteratorClose() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
@@ -144,7 +144,7 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenTransaction() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.begin();
 
@@ -154,7 +154,7 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenTransactionCheckDisabled() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         h.getConfig(Handles.class).setForceEndTransactions(false);
 

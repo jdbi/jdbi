@@ -27,6 +27,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -122,6 +123,11 @@ public class TestPostgresTypes {
     @BeforeEach
     public void before() {
         this.handle = pgExtension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test

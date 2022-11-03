@@ -61,35 +61,36 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testEventuallyFails() {
         final AtomicInteger attempts = new AtomicInteger(0);
-        Handle handle = h2Extension.getJdbi().open();
+        try (Handle handle = h2Extension.openHandle()) {
 
-        assertThatExceptionOfType(SQLException.class)
-            .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
-                conn -> {
-                    attempts.incrementAndGet();
-                    throw new SQLException("serialization", "40001", attempts.get());
-                }))
-            .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"))
-            .satisfies(e -> assertThat(e.getSuppressed())
-                .hasSize(MAX_RETRIES)
-                .describedAs("suppressed are ordered reverse chronologically, like a stack")
-                .isSortedAccordingTo(Comparator.comparing(ex -> ((SQLException) ex).getErrorCode()).reversed()))
-            .describedAs("thrown exception is chronologically last")
-            .satisfies(e -> assertThat(e.getErrorCode()).isEqualTo(((SQLException) e.getSuppressed()[0]).getErrorCode() + 1));
-        assertThat(attempts.get()).isEqualTo(1 + MAX_RETRIES);
+            assertThatExceptionOfType(SQLException.class)
+                .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
+                    conn -> {
+                        attempts.incrementAndGet();
+                        throw new SQLException("serialization", "40001", attempts.get());
+                    }))
+                .satisfies(e -> assertThat(e.getSQLState()).isEqualTo("40001"))
+                .satisfies(e -> assertThat(e.getSuppressed())
+                    .hasSize(MAX_RETRIES)
+                    .describedAs("suppressed are ordered reverse chronologically, like a stack")
+                    .isSortedAccordingTo(Comparator.comparing(ex -> ((SQLException) ex).getErrorCode()).reversed()))
+                .describedAs("thrown exception is chronologically last")
+                .satisfies(e -> assertThat(e.getErrorCode()).isEqualTo(((SQLException) e.getSuppressed()[0]).getErrorCode() + 1));
+            assertThat(attempts.get()).isEqualTo(1 + MAX_RETRIES);
+        }
     }
 
     @Test
     public void testEventuallySucceeds() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
-        Handle handle = h2Extension.getJdbi().open();
-
-        handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
-            if (remaining.decrementAndGet() == 0) {
-                return null;
-            }
-            throw new SQLException("serialization", "40001");
-        });
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
+                if (remaining.decrementAndGet() == 0) {
+                    return null;
+                }
+                throw new SQLException("serialization", "40001");
+            });
+        }
 
         assertThat(remaining.get()).isZero();
     }
@@ -122,13 +123,15 @@ public class TestSerializableTransactionRunner {
             return null;
         }).when(onSuccess).accept(anyList());
 
-        h2Extension.getJdbi().open().inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
-            if (remainingAttempts.decrementAndGet() == 0) {
-                return null;
-            }
-            // use vendor error code as order number
-            throw new SQLException("serialization", "40001", expectedExceptions.get());
-        });
+        try (Handle h = h2Extension.openHandle()) {
+            h.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
+                if (remainingAttempts.decrementAndGet() == 0) {
+                    return null;
+                }
+                // use vendor error code as order number
+                throw new SQLException("serialization", "40001", expectedExceptions.get());
+            });
+        }
 
         assertThat(remainingAttempts.get()).isZero();
         verify(onFailure, times(MAX_RETRIES - 1)).accept(anyList());

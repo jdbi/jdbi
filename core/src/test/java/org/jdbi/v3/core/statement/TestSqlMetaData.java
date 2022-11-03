@@ -31,7 +31,7 @@ public class TestSqlMetaData {
 
     @Test
     public void testQueryCatalogs() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
             .mapTo(String.class)
@@ -48,7 +48,7 @@ public class TestSqlMetaData {
 
     @Test
     public void testSimple() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         String url = h.queryMetadata(DatabaseMetaData::getURL);
         String dbConnectionString = h2Extension.getUri().toLowerCase(Locale.ROOT);
@@ -58,7 +58,7 @@ public class TestSqlMetaData {
 
     @Test
     public void testTransactions() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
 

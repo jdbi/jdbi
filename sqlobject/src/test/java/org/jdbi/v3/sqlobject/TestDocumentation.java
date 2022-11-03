@@ -83,7 +83,7 @@ public class TestDocumentation {
     @Test
     public void testObtainHandleViaOpen() {
         assertThatCode(() -> {
-            try (Handle h = h2Extension.getJdbi().open()) {
+            try (Handle h = h2Extension.openHandle()) {
                 // nop
             }
         }).doesNotThrowAnyException();
@@ -184,6 +184,24 @@ public class TestDocumentation {
 
             Iterator<String> names = sq.findAllNames();
             assertThat(names).toIterable().containsExactly("Brian", "Robert", "Patrick", "Maniax");
+        }
+    }
+
+    @Test
+    public void testLeaking() {
+        try (Handle h = h2Extension.openHandle()) {
+            h.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .bind("id", 1).bind("name", "Brian").add()
+                .bind("id", 2).bind("name", "Robert").add()
+                .bind("id", 3).bind("name", "Patrick").add()
+                .bind("id", 4).bind("name", "Maniax").add()
+                .execute();
+
+            SomeQueries sq = h.attach(SomeQueries.class);
+
+            Iterator<String> iterator = sq.findAllNames();
+            String name = iterator.next();
+            assertThat(name).isEqualTo("Brian");
         }
     }
 

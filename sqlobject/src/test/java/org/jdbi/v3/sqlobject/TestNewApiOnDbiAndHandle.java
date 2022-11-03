@@ -25,6 +25,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,6 +44,11 @@ public class TestNewApiOnDbiAndHandle {
     public void setUp() {
         jdbi = h2Extension.getJdbi();
         handle = h2Extension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test
@@ -90,18 +96,26 @@ public class TestNewApiOnDbiAndHandle {
 
     @Test
     public void testCorrectExceptionIfUnableToConnectOnOpen() {
-        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-            .installPlugin(new SqlObjectPlugin())
-            .open()
-            .attach(Spiffy.class)).isInstanceOf(ConnectionException.class);
+        assertThatThrownBy(() -> {
+            try (Handle handle =
+                Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                    .installPlugin(new SqlObjectPlugin())
+                    .open()) {
+                handle.attach(Spiffy.class);
+            }
+        }).isInstanceOf(ConnectionException.class);
     }
 
     @Test
     public void testCorrectExceptionIfUnableToConnectOnAttach() {
-        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-            .installPlugin(new SqlObjectPlugin())
-            .open()
-            .attach(Spiffy.class)).isInstanceOf(ConnectionException.class);
+        assertThatThrownBy(() -> {
+            try (Handle handle =
+                Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                    .installPlugin(new SqlObjectPlugin())
+                    .open()) {
+                handle.attach(Spiffy.class);
+            }
+        }).isInstanceOf(ConnectionException.class);
     }
 
     public interface Spiffy extends SqlObject {

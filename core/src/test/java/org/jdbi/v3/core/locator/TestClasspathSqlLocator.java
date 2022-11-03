@@ -34,28 +34,28 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testLocateNamed() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testPositionalParamsInPrepared() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedParamsInExternal() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
@@ -65,7 +65,7 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testUsefulExceptionForBackTracing() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
 
         assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
@@ -77,7 +77,7 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testDetailExceptionForBackTracing() {
-        Handle h = h2Extension.openHandle();
+        Handle h = h2Extension.getSharedHandle();
         h.getConfig(StatementExceptions.class).setMessageRendering(MessageRendering.DETAIL);
 
         assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))

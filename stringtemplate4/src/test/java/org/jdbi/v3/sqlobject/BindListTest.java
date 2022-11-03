@@ -30,6 +30,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -63,7 +64,10 @@ public class BindListTest {
         expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
     }
 
-    //
+    @AfterEach
+    public void tearDown() {
+        handle.close();
+    }
 
     @Test
     public void testSomethingWithExplicitAttributeName() {

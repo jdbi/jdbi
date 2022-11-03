@@ -51,19 +51,20 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogAfterExecutionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open()) {
+        try (Handle handle = h2Extension.openHandle()) {
             handle.execute(CREATE);
 
-            Batch batch = handle.createBatch();
-            batch.add(INSERT);
-            assertThatCode(batch::execute).doesNotThrowAnyException();
+            try (Batch batch = handle.createBatch()) {
+                batch.add(INSERT);
+                assertThatCode(batch::execute).doesNotThrowAnyException();
+            }
         }
     }
 
     @Test
     void testLogExceptionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open()) {
-            Batch batch = handle.createBatch();
+        try (Handle handle = h2Extension.openHandle();
+            Batch batch = handle.createBatch()) {
             batch.add(INSERT);
 
             assertThatThrownBy(batch::execute)

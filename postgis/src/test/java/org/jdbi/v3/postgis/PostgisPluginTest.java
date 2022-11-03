@@ -18,6 +18,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -49,6 +50,11 @@ final class PostgisPluginTest {
     @BeforeEach
     public void before() {
         this.handle = pgExtension.openHandle();
+    }
+
+    @AfterEach
+    public void after() {
+        this.handle.close();
     }
 
     @Test

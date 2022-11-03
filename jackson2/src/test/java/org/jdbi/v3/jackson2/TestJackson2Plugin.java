@@ -41,6 +41,7 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -66,6 +67,11 @@ public class TestJackson2Plugin extends AbstractJsonMapperTest {
     public void before() {
         this.jdbi = pgExtension.getJdbi();
         this.h = pgExtension.openHandle();
+    }
+
+    @AfterEach
+    public void after() {
+        this.h.close();
     }
 
     @Test

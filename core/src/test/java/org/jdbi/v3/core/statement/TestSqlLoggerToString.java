@@ -24,6 +24,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.junit5.SqliteDatabaseExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,7 +46,7 @@ public class TestSqlLoggerToString {
 
     @BeforeEach
     public void before() {
-        handle = sqliteExtension.getJdbi().open();
+        handle = sqliteExtension.openHandle();
 
         handle.execute("create table foo(bar binary)");
 
@@ -56,6 +57,11 @@ public class TestSqlLoggerToString {
                 context.getBinding().findForName(NAME, context).ifPresent(value -> named = Objects.toString(value));
             }
         });
+    }
+
+    @AfterEach
+    public void after() {
+        handle.close();
     }
 
     // basic types

@@ -53,12 +53,14 @@ public class TestDefineNamedBindings {
 
     @Test
     public void testIncompatibleWithUnwrap() {
-        Throwable thrown = catchThrowable(() ->
-            h2Extension.getSharedHandle().createQuery("select <a> from values (:a)")
-                .defineNamedBindings()
-                .bind("a", (p, s, c) -> s.unwrap(JdbcPreparedStatement.class).setString(p, "x"))
-                .mapTo(boolean.class)
-                .findFirst());
+        Throwable thrown = catchThrowable(() -> {
+            try (Query query = h2Extension.getSharedHandle().createQuery("select <a> from values (:a)")) {
+                query.defineNamedBindings()
+                    .bind("a", (p, s, c) -> s.unwrap(JdbcPreparedStatement.class).setString(p, "x"))
+                    .mapTo(boolean.class)
+                    .findFirst();
+            }
+        });
         assertThat(thrown)
             .isNotNull()
             .hasCauseInstanceOf(SQLException.class);

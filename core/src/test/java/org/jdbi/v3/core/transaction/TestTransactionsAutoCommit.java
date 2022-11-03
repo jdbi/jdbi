@@ -43,22 +43,23 @@ public class TestTransactionsAutoCommit {
         final PreparedStatement statement = mock(PreparedStatement.class);
         InOrder inOrder = inOrder(connection, statement);
 
-        Handle h = Jdbi.create(() -> connection).open();
+        try (Handle h = Jdbi.create(() -> connection).open()) {
 
-        when(connection.getAutoCommit()).thenReturn(true);
-        when(connection.prepareStatement(anyString(), anyInt(), anyInt())).thenReturn(statement);
-        when(statement.execute()).thenReturn(true);
-        when(statement.getUpdateCount()).thenReturn(1);
-        // throw e.g some underlying database error
-        doThrow(new SQLException("infrastructure error")).when(connection).commit();
+            when(connection.getAutoCommit()).thenReturn(true);
+            when(connection.prepareStatement(anyString(), anyInt(), anyInt())).thenReturn(statement);
+            when(statement.execute()).thenReturn(true);
+            when(statement.getUpdateCount()).thenReturn(1);
+            // throw e.g some underlying database error
+            doThrow(new SQLException("infrastructure error")).when(connection).commit();
 
-        h.begin();
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
-            h.execute(SAMPLE_SQL, 1L, "Tom");
+            h.begin();
+            assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
+                h.execute(SAMPLE_SQL, 1L, "Tom");
 
-            // throws exception on commit
-            h.commit();
-        });
+                // throws exception on commit
+                h.commit();
+            });
+        }
 
         // expected behaviour chain:
         // 1. store initial auto-commit state

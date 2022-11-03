@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -31,6 +32,11 @@ public class TestConcurrentUpdatingQuery {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.openHandle();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        handle.close();
     }
 
     @Test

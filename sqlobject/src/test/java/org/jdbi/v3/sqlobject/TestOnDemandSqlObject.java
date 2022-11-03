@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -73,9 +73,11 @@ public class TestOnDemandSqlObject {
 
         s.insert(7, "Bill");
 
-        String bill = jdbi.open().createQuery("select name from something where id = 7").mapTo(String.class).one();
+        try (Handle handle = jdbi.open()) {
+            String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).one();
 
-        assertThat(bill).isEqualTo("Bill");
+            assertThat(bill).isEqualTo("Bill");
+        }
     }
 
     @Test
@@ -85,7 +87,7 @@ public class TestOnDemandSqlObject {
             public Handle customizeHandle(Handle handle) {
                 Handle spyHandle = spy(handle);
                 when(spyHandle.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doThrow(new CloseException("already closed", null)).when(spyHandle).close();
+                doCallRealMethod().doThrow(new CloseException("already closed", null)).when(spyHandle).close();
                 return spyHandle;
             }
         };
