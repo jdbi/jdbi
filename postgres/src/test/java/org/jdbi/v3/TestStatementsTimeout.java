@@ -16,6 +16,8 @@ package org.jdbi.v3;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.postgres.PostgresPlugin;
@@ -55,12 +57,16 @@ public class TestStatementsTimeout {
     public void testTimeout() {
         h.getConfig(SqlStatements.class).setQueryTimeout(2);
 
-        assertThatCode(h.createQuery("select pg_sleep(1)").mapTo(String.class)::findOnly)
+        assertThatCode(h.createQuery("select pg_sleep(1)").mapTo(String.class)::one)
             .doesNotThrowAnyException();
 
-        assertThatThrownBy(h.createQuery("select pg_sleep(3)").mapTo(String.class)::findOnly)
+        try (Query query = h.createQuery("select pg_sleep(3)")) {
+            ResultIterable<String> iterable = query.mapTo(String.class);
+
+            assertThatThrownBy(iterable::one)
             .isInstanceOf(UnableToExecuteStatementException.class)
-            .hasCauseInstanceOf(PSQLException.class)
-            .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException) ex.getCause()).getSQLState()));
+                .hasCauseInstanceOf(PSQLException.class)
+                .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException) ex.getCause()).getSQLState()));
+        }
     }
 }
