@@ -309,8 +309,11 @@ class KotlinMapperTest {
     @Test
     fun testDisallowUnmappedLateInitVariables() {
         oneTwoThreeFourSetup()
-        assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
-            handle.createQuery("SELECT id, first, third, fourth FROM the_things ").mapTo<ClassWithUnusedWriteableVariable>().first()
+        val query = handle.createQuery("SELECT id, first, third, fourth FROM the_things ")
+        query.use {
+            assertThatExceptionOfType(IllegalArgumentException::class.java).isThrownBy {
+                query.mapTo<ClassWithUnusedWriteableVariable>().first()
+            }
         }
     }
 

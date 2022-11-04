@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.Script;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,12 +76,12 @@ public class StatementsTest {
     @Test
     public void testScript() {
         // tag::script[]
-        int[] results = handle.createScript(
-                "INSERT INTO \"user\" VALUES(3, 'Charlie');"
-                + "UPDATE \"user\" SET \"name\"='Bobby Tables' WHERE id=2;")
-            .execute();
+        try (Script script = handle.createScript("INSERT INTO \"user\" VALUES(3, 'Charlie');"
+                + "UPDATE \"user\" SET \"name\"='Bobby Tables' WHERE id=2;")) {
+            int[] results = script.execute();
 
-        assertThat(results).containsExactly(1, 1);
+            assertThat(results).containsExactly(1, 1);
+        }
         // end::script[]
     }
 
