@@ -21,6 +21,7 @@ import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.meta.Alpha;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     @SuppressWarnings("unchecked")
@@ -50,6 +51,28 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
      */
     public final StatementContext getContext() {
         return ctx;
+    }
+
+    /**
+     * Registers with the handle for cleaning when the handle is closed.
+     * <br>
+     * There are some situations where Statements need to be cleaned up to avoid resource leaks. This method registers the current Statement it with the
+     * Handle. If the statement or the context are cleaned by themselves, it will automatically unregister, so in normal operations, resources should not pool for cleanup with the Handle.
+     * <br>
+     */
+    @Alpha
+    public final This attachToHandleForCleanup() {
+        attachToHandleForCleanup(this.handle, this.ctx);
+
+        return typedThis;
+    }
+
+    private static void attachToHandleForCleanup(Handle handle, StatementContext context) {
+        final Cleanable statementCleanable = context::close;
+        // make handle clean up this context if necessary
+        handle.addCleanable(statementCleanable);
+        // if context gets cleaned, remove the cleanable from the handle again.
+        context.addCleanable(() -> handle.removeCleanable(statementCleanable));
     }
 
     protected final void cleanUpForException(SQLException e) {

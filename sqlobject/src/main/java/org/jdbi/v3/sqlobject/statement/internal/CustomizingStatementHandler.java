@@ -185,6 +185,10 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final Handle h = hs.getHandle();
         final String locatedSql = locateSql(h);
         final StatementType stmt = createStatement(h, locatedSql);
+
+        // clean the statement when the handle closes
+        stmt.attachToHandleForCleanup();
+
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
         cfg.setArgs(args);
         configureReturner(stmt, cfg);
