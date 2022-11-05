@@ -31,6 +31,8 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
 
     T withInitializer(DatabaseInitializer initializer);
 
+    T withoutLeakChecker();
+
     Handle getSharedHandle();
 
     default Handle openHandle() {

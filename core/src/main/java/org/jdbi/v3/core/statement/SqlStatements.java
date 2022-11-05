@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -47,7 +48,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private boolean allowUnusedBindings;
     private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
-    private final Collection<StatementContextListener> contextListeners = new CopyOnWriteArrayList<>();
+    private final Collection<StatementContextListener> contextListeners = new CopyOnWriteArraySet<>();
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
