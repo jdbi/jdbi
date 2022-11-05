@@ -127,10 +127,20 @@ public class Handle implements Closeable, Configurable<Handle> {
         });
     }
 
+    /**
+     * Returns the {@link Jdbi} object used to create this handle.
+     *
+     * @return The {@link Jdbi} object used to create this handle.
+     */
     public Jdbi getJdbi() {
         return jdbi;
     }
 
+    /**
+     * The current configuration object associated with this handle.
+     *
+     * @return A {@link ConfigRegistry} object that is associated with the handle.
+     */
     @Override
     public ConfigRegistry getConfig() {
         return localConfig.get();
@@ -147,27 +157,27 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Get the JDBC Connection this Handle uses.
+     * Get the JDBC {@link Connection} this Handle uses.
      *
-     * @return the JDBC Connection this Handle uses
+     * @return the JDBC {@link Connection} this Handle uses.
      */
     public Connection getConnection() {
         return this.connection;
     }
 
     /**
-     * Returns the current {@link StatementBuilder}.
+     * Returns the current {@link StatementBuilder} which is used to create new JDBC {@link java.sql.Statement} objects.
      *
-     * @return the current {@link StatementBuilder}
+     * @return the current {@link StatementBuilder}.
      */
     public StatementBuilder getStatementBuilder() {
         return statementBuilder;
     }
 
     /**
-     * Specify the statement builder to use for this handle.
+     * Set the statement builder for this handle.
      *
-     * @param builder StatementBuilder to be used
+     * @param builder StatementBuilder to be used. Must not be null.
      * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
@@ -222,7 +232,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Unegister a {@code Cleanable} from the Handle.
+     * Unregister a {@code Cleanable} from the Handle.
      *
      * @param cleanable the Cleanable to be unregistered.
      */
@@ -549,7 +559,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Start a transaction.
      *
-     * @return the same handle
+     * @return the same handle.
      */
     public Handle begin() {
         transactions.begin(this);
@@ -560,7 +570,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Commit a transaction.
      *
-     * @return the same handle
+     * @return the same handle.
      */
     public Handle commit() {
         final long start = System.nanoTime();
@@ -574,7 +584,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Rollback a transaction.
      *
-     * @return the same handle
+     * @return the same handle.
      */
     public Handle rollback() {
         final long start = System.nanoTime();
@@ -587,8 +597,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle commits, unless it is rolled back first.
-     * @param afterCommit the action to execute after commit
-     * @return this Handle
+     * @param afterCommit the action to execute after commit.
+     * @return this Handle.
      */
     @Beta
     public Handle afterCommit(Runnable afterCommit) {
@@ -602,8 +612,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle rolls back, unless it is committed first.
-     * @param afterRollback the action to execute after rollback
-     * @return this Handle
+     * @param afterRollback the action to execute after rollback.
+     * @return this Handle.
      */
     @Beta
     public Handle afterRollback(Runnable afterRollback) {
@@ -636,9 +646,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Rollback a transaction to a named savepoint.
      *
-     * @param savepointName the name of the savepoint, previously declared with {@link Handle#savepoint}
+     * @param savepointName the name of the savepoint, previously declared with {@link Handle#savepoint}.
      *
-     * @return the same handle
+     * @return the same handle.
      */
     public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
@@ -654,8 +664,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Create a transaction savepoint with the name provided.
      *
-     * @param name The name of the savepoint
-     * @return The same handle
+     * @param name The name of the savepoint.
+     * @return The same handle.
      */
     public Handle savepoint(String name) {
         transactions.savepoint(this, name);
@@ -666,8 +676,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Release a previously created savepoint.
      *
-     * @param savepointName the name of the savepoint to release
-     * @return the same handle
+     * @param savepointName the name of the savepoint to release.
+     * @return the same handle.
      */
     public Handle release(String savepointName) {
         transactions.releaseSavepoint(this, savepointName);
@@ -685,19 +695,18 @@ public class Handle implements Closeable, Configurable<Handle> {
         try {
             return connection.isReadOnly();
         } catch (SQLException e) {
-            throw new UnableToManipulateTransactionIsolationLevelException("Could not getReadOnly", e);
+            throw new UnableToManipulateTransactionIsolationLevelException("Could not get read-only status for a connection", e);
         }
     }
 
     /**
-     * Set the Handle readOnly.
-     * This acts as a hint to the database to improve performance or concurrency.
-     *
+     * Set the Handle read-only. This acts as a hint to the database to improve performance or concurrency.
+     * <br/>
      * May not be called in an active transaction!
      *
+     * @param readOnly whether the Handle is readOnly.
+     * @return this Handle.
      * @see Connection#setReadOnly(boolean)
-     * @param readOnly whether the Handle is readOnly
-     * @return this Handle
      */
     public Handle setReadOnly(boolean readOnly) {
         try {
@@ -739,19 +748,17 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
-     *
      * <p>
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
+     *
      * @param level the transaction isolation level which will be applied to the connection for the scope of this
      *              transaction, after which the original isolation level will be restored.
      * @param callback a callback which will receive an open handle, in a transaction.
      * @param <R> type returned by callback
      * @param <X> exception type thrown by the callback, if any
-     *
      * @return value returned from the callback
-     *
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
@@ -765,19 +772,22 @@ public class Handle implements Closeable, Configurable<Handle> {
             return callback.withHandle(this);
         }
 
-        try (TransactionResetter tr = new TransactionResetter(getTransactionIsolationLevel())) {
+        TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
+        try {
             setTransactionIsolation(level);
             return transactions.inTransaction(this, level, callback);
+        } finally {
+            setTransactionIsolation(currentLevel);
         }
     }
 
     /**
      * Executes <code>callback</code> in a transaction.
-     *
      * <p>
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
+     *
      * @param level the transaction isolation level which will be applied to the connection for the scope of this
      *              transaction, after which the original isolation level will be restored.
      * @param consumer a callback which will receive an open handle, in a transaction.
@@ -791,9 +801,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Set the transaction isolation level on the underlying connection.
      *
-     * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver
+     * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
      *
-     * @param level the isolation level to use
+     * @param level the isolation level to use.
      */
     public void setTransactionIsolation(TransactionIsolationLevel level) {
         if (level != TransactionIsolationLevel.UNKNOWN) {
@@ -804,7 +814,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Set the transaction isolation level on the underlying connection.
      *
-     * @param level the isolation level to use
+     * @param level the isolation level to use.
      */
     public void setTransactionIsolation(int level) {
         try {
@@ -819,7 +829,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Obtain the current transaction isolation level.
      *
-     * @return the current isolation level on the underlying connection
+     * @return the current isolation level on the underlying connection.
      */
     public TransactionIsolationLevel getTransactionIsolationLevel() {
         try {
@@ -934,19 +944,5 @@ public class Handle implements Closeable, Configurable<Handle> {
     @Override
     public int hashCode() {
         return Objects.hash(jdbi, connection);
-    }
-
-    private class TransactionResetter implements Closeable {
-
-        private final TransactionIsolationLevel initial;
-
-        TransactionResetter(TransactionIsolationLevel initial) {
-            this.initial = initial;
-        }
-
-        @Override
-        public void close() {
-            setTransactionIsolation(initial);
-        }
     }
 }
