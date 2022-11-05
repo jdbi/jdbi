@@ -44,11 +44,10 @@ public class Script extends SqlStatement<Script> {
      */
     public int[] execute() {
         final List<String> statements = getStatements();
-        Batch b = getHandle().createBatch();
-        getContext().addCleanable(b::close);
-
-        statements.forEach(b::add);
-        return b.execute();
+        try (Batch b = getHandle().createBatch()) {
+            statements.forEach(b::add);
+            return b.execute();
+        }
     }
 
     /**

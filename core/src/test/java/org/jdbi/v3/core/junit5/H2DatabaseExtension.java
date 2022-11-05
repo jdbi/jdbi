@@ -34,6 +34,12 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
     public static final DatabaseInitializer SOMETHING_INITIALIZER =
         h -> h.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
 
+    public static final DatabaseInitializer USERS_INITIALIZER = h -> {
+            h.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR)");
+            h.execute("INSERT INTO users VALUES (1, 'Alice')");
+            h.execute("INSERT INTO users VALUES (2, 'Bob')");
+        };
+
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
 

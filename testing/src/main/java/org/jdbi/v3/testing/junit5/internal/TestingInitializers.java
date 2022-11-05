@@ -27,4 +27,16 @@ public final class TestingInitializers {
     public static JdbiExtensionInitializer something() {
         return (ds, h) -> h.execute("create table something (id identity primary key, name varchar(50), integerValue integer, intValue integer)");
     }
+
+    public static JdbiExtensionInitializer users() {
+        return (ds, h) -> h.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR)");
+    }
+
+    public static JdbiExtensionInitializer usersWithData() {
+        return (ds, h) -> {
+            users().initialize(ds, h);
+            h.execute("INSERT INTO users VALUES (1, 'Alice')");
+            h.execute("INSERT INTO users VALUES (2, 'Bob')");
+        };
+    }
 }
