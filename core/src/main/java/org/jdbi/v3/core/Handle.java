@@ -17,9 +17,13 @@ import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -28,6 +32,7 @@ import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.jdbi.v3.core.internal.exceptions.ThrowableSuppressor;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.Batch;
 import org.jdbi.v3.core.statement.Call;
@@ -59,7 +64,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
     private final Jdbi jdbi;
-    private final Cleanable closer;
+    private final Cleanable connectionCleaner;
     private final TransactionHandler transactions;
     private final Connection connection;
     private final boolean forceEndTransactions;
@@ -71,39 +76,55 @@ public class Handle implements Closeable, Configurable<Handle> {
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
 
-    private final Set<HandleListener> handleListeners;
+    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
-    private boolean closed = false;
+    private final Set<HandleListener> handleListeners = new CopyOnWriteArraySet<>();
+
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     static Handle createHandle(Jdbi jdbi,
-        ConfigRegistry localConfig,
-        Cleanable closer,
+        ConfigRegistry config,
+        Cleanable connectionCleaner,
         TransactionHandler transactions,
         StatementBuilder statementBuilder,
         Connection connection) throws SQLException {
-        Handle handle = new Handle(jdbi, localConfig, closer, transactions, statementBuilder, connection);
+        Handle handle = new Handle(jdbi, config, connectionCleaner, transactions, statementBuilder, connection);
 
         handle.notifyHandleCreated();
         return handle;
     }
 
     private Handle(Jdbi jdbi,
-           ConfigRegistry localConfig,
-           Cleanable closer,
-           TransactionHandler transactions,
-           StatementBuilder statementBuilder,
-           Connection connection) throws SQLException {
+        ConfigRegistry config,
+        Cleanable connectionCleaner,
+        TransactionHandler transactions,
+        StatementBuilder statementBuilder,
+        Connection connection) throws SQLException {
         this.jdbi = jdbi;
-        this.closer = closer;
+        this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        this.localConfig = ThreadLocal.withInitial(() -> localConfig);
+        // this piece is probably related to the comments in LazyHandleSupplier
+        // about tomcat leak checker false positives. This needs revisiting.
+        this.localConfig = ThreadLocal.withInitial(() -> config);
         this.localExtensionMethod = new ThreadLocal<>();
+
         this.statementBuilder = statementBuilder;
+        this.handleListeners.addAll(config.get(Handles.class).getListeners());
+
+        // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
         this.transactions = transactions.specialize(this);
         this.forceEndTransactions = !transactions.isInTransaction(this);
 
-        this.handleListeners = new CopyOnWriteArraySet<>(localConfig.get(Handles.class).getListeners());
+        addCleanable(() -> {
+            // shut down statement builder
+            if (checkConnectionIsLive()) {
+                statementBuilder.close(connection);
+            }
+            // clean up the local state when the handle is closed.
+            localExtensionMethod.remove();
+            localConfig.remove();
+        });
     }
 
     public Jdbi getJdbi() {
@@ -187,6 +208,32 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
+     * Registers a {@code Cleanable} to be invoked when the handle is closed. Any cleanable registered here will only be cleaned once.
+     * <p>
+     * Resources cleaned up by Jdbi include {@link java.sql.ResultSet}, {@link java.sql.Statement}, {@link java.sql.Array}, and {@link StatementBuilder}.
+     *
+     * @param cleanable the Cleanable to clean on close
+     */
+    public final void addCleanable(Cleanable cleanable) {
+
+        synchronized (cleanables) {
+            cleanables.add(cleanable);
+        }
+    }
+
+    /**
+     * Unegister a {@code Cleanable} from the Handle.
+     *
+     * @param cleanable the Cleanable to be unregistered.
+     */
+    public final void removeCleanable(Cleanable cleanable) {
+
+        synchronized (cleanables) {
+            cleanables.remove(cleanable);
+        }
+    }
+
+    /**
      * Closes the handle, its connection, and any other database resources it is holding.
      *
      * @throws CloseException if any resources throw exception while closing
@@ -195,76 +242,72 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     @Override
     public void close() {
-        final List<Throwable> suppressed = new ArrayList<>();
-        if (closed) {
+
+        if (closed.getAndSet(true)) {
             return;
         }
 
-        boolean connectionIsLive;
+        // do this at call time, otherwise running the cleanables may affect the state of the other handle objects (e.g. the config)
+        final boolean doForceEndTransactions = this.forceEndTransactions && localConfig.get().get(Handles.class).isForceEndTransactions();
 
         try {
-            connectionIsLive = !connection.isClosed();
-        } catch (SQLException e) {
-            // if the connection state can not be determined, assume that the
-            // connection is closed and ignore the exception
-            connectionIsLive = false;
-        }
+            ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
-        boolean wasInTransaction = false;
+            doClean(throwableSuppressor);
 
-        if (connectionIsLive && forceEndTransactions && localConfig.get().get(Handles.class).isForceEndTransactions()) {
             try {
-                wasInTransaction = isInTransaction();
-            } catch (Exception e) {
-                suppressed.add(e);
-            }
-        }
-
-        localExtensionMethod.remove();
-        localConfig.remove();
-
-        if (wasInTransaction) {
-            try {
-                rollback();
-            } catch (Exception e) {
-                suppressed.add(e);
-            }
-        }
-
-        if (connectionIsLive) {
-            try {
-                statementBuilder.close(getConnection());
-            } catch (Exception e) {
-                suppressed.add(e);
-            }
-        }
-
-        try {
-            if (connectionIsLive) {
-                closer.close();
+                cleanConnection(doForceEndTransactions);
+            } catch (Throwable t) {
+                throwableSuppressor.attachToThrowable(t);
+                throw t;
             }
 
-            if (!suppressed.isEmpty()) {
-                final Throwable original = suppressed.remove(0);
-                suppressed.forEach(original::addSuppressed);
-                throw new CloseException("Failed to clear transaction status on close", original);
-            }
-            if (wasInTransaction) {
-                throw new TransactionException("Improper transaction handling detected: A Handle with an open "
-                    + "transaction was closed. Transactions must be explicitly committed or rolled back "
-                    + "before closing the Handle. "
-                    + "Jdbi has rolled back this transaction automatically. "
-                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
-            }
-        } catch (SQLException e) {
-            CloseException ce = new CloseException("Unable to close Connection", e);
-            suppressed.forEach(ce::addSuppressed);
-            throw ce;
+            throwableSuppressor.throwIfNecessary(t -> new CloseException("While closing handle", t));
         } finally {
             LOG.trace("Handle [{}] released", this);
-            closed = true;
 
             notifyHandleClosed();
+        }
+    }
+
+    /**
+     * Release any database resource that may be held by the handle. This affects
+     * any statement that was created from the Handle.
+     */
+    public void clean() {
+        ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+
+        doClean(throwableSuppressor);
+
+        throwableSuppressor.throwIfNecessary();
+    }
+
+    /**
+     * Returns true if the Handle currently holds no database resources.
+     * <br>
+     * Note that this method will return <code>false</code> right after statement creation
+     * as every statement registers its statement context with the handle. Once
+     *
+     * @return True if the handle holds no database resources.
+     */
+    public boolean isClean() {
+        synchronized (cleanables) {
+            return cleanables.isEmpty();
+        }
+    }
+
+    private void doClean(ThrowableSuppressor throwableSuppressor) {
+        List<Cleanable> cleanablesCopy;
+
+        synchronized (cleanables) {
+            cleanablesCopy = new ArrayList<>(cleanables);
+            cleanables.clear();
+        }
+
+        Collections.reverse(cleanablesCopy);
+
+        for (Cleanable cleanable : cleanablesCopy) {
+            throwableSuppressor.suppressAppend(cleanable::close);
         }
     }
 
@@ -274,7 +317,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return True if the Handle is closed.
      */
     public boolean isClosed() {
-        return closed;
+        return closed.get();
     }
 
     /**
@@ -823,6 +866,74 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private void notifyHandleClosed() {
         handleListeners.forEach(listener -> listener.handleClosed(this));
+    }
+
+    private void cleanConnection(boolean doForceEndTransactions) {
+
+        final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+        final boolean connectionIsLive = checkConnectionIsLive();
+
+        boolean wasInTransaction = false;
+
+        if (connectionIsLive && doForceEndTransactions) {
+            wasInTransaction = throwableSuppressor.suppressAppend(this::isInTransaction, false);
+        }
+
+        if (wasInTransaction) {
+            throwableSuppressor.suppressAppend(this::rollback);
+        }
+
+        if (connectionIsLive) {
+            try {
+                connectionCleaner.close();
+            } catch (SQLException e) {
+                CloseException ce = new CloseException("Unable to close Connection", e);
+                throwableSuppressor.attachToThrowable(ce);
+                throw ce;
+            }
+
+            throwableSuppressor.throwIfNecessary(t -> new CloseException("Failed to clear transaction status on close", t));
+
+            if (wasInTransaction) {
+                TransactionException te = new TransactionException("Improper transaction handling detected: A Handle with an open "
+                    + "transaction was closed. Transactions must be explicitly committed or rolled back "
+                    + "before closing the Handle. "
+                    + "Jdbi has rolled back this transaction automatically. "
+                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
+
+                throwableSuppressor.attachToThrowable(te); // any exception present is not the cause but just collateral.
+                throw te;
+            }
+        } else {
+            throwableSuppressor.throwIfNecessary(t -> new CloseException("Failed to clear transaction status on close", t));
+        }
+    }
+
+    private boolean checkConnectionIsLive() {
+        try {
+            return !connection.isClosed();
+        } catch (SQLException e) {
+            // if the connection state can not be determined, assume that the
+            // connection is closed and ignore the exception
+            return false;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Handle handle = (Handle) o;
+        return jdbi.equals(handle.jdbi) && connection.equals(handle.connection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jdbi, connection);
     }
 
     private class TransactionResetter implements Closeable {

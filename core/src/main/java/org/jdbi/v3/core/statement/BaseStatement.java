@@ -85,6 +85,16 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
         getContext().close();
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode() * 11;
+    }
+
     @FunctionalInterface
     interface StatementCustomizerInvocation {
         void call(StatementCustomizer t) throws SQLException;

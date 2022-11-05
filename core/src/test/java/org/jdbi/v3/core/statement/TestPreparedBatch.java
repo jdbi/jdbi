@@ -49,7 +49,7 @@ public class TestPreparedBatch {
 
         final PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         assertThat(batch.execute()).isEmpty();
-        assertThat(batch.getContext().isClosed()).isTrue();
+        assertThat(batch.getContext().isClean()).isTrue();
     }
 
     @Test
