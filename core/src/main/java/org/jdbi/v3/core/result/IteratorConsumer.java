@@ -24,5 +24,5 @@ public interface IteratorConsumer<T, X extends Exception> {
      * @param iterator iterator to be used only within scope of this callback
      * @throws X optional exception thrown by the callback
      */
-    void useIterator(ResultIterator<T> stream) throws X;
+    void useIterator(ResultIterator<T> iterator) throws X;
 }
