@@ -26,9 +26,12 @@ import javax.sql.DataSource;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.testing.junit5.internal.JdbiLeakChecker;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -54,9 +57,12 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
+    private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
+
     private Optional<JdbiExtensionInitializer> initializerMaybe = Optional.empty();
 
     private boolean installPlugins = false;
+    private boolean enableLeakchecker = true;
 
     private volatile Jdbi jdbi;
     private volatile Handle sharedHandle;
@@ -212,6 +218,18 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
     }
 
     /**
+     * Enable tracking of cleanable resources and handles when running tests. This is useful to find code paths where JDBI managed resources
+     * are not correctly handled and "leak" out.
+     *
+     * @param enable If true, enables the leak checker, otherwise disables it.
+     */
+    public final JdbiExtension enableLeakChecker(boolean enable) {
+        this.enableLeakchecker = enable;
+
+        return this;
+    }
+
+    /**
      * Install a {@link JdbiPlugin} when creating the {@link Jdbi} instance.
      *
      * @param plugin A plugin to install.
@@ -314,6 +332,11 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
 
         final DataSource ds = getDataSource();
 
+        if (enableLeakchecker) {
+            withConfig(Handles.class, h -> h.addListener(leakChecker));
+            withConfig(SqlStatements.class, s -> s.addContextListener(leakChecker));
+        }
+
         final Jdbi jdbiInstance = Jdbi.create(ds);
 
         if (installPlugins) {
@@ -348,6 +371,13 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
             this.dataSource = null;
             this.sharedHandle = null;
             this.jdbi = null;
+
+            this.initializerMaybe = Optional.empty();
+            this.plugins.clear();
+        }
+
+        if (enableLeakchecker) {
+            leakChecker.checkForLeaks();
         }
     }
 

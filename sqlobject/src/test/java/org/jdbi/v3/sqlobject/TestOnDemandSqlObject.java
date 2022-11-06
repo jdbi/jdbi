@@ -82,6 +82,10 @@ public class TestOnDemandSqlObject {
 
     @Test
     public void testExceptionOnClose() {
+        // mockito is a terrible piece of software and should not be used.
+        // this is needed because of https://github.com/mockito/mockito/issues/2331
+        h2Extension.enableLeakChecker(false);
+
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
