@@ -83,19 +83,17 @@ public class Handle implements Closeable, Configurable<Handle> {
     private final AtomicBoolean closed = new AtomicBoolean();
 
     static Handle createHandle(Jdbi jdbi,
-        ConfigRegistry config,
         Cleanable connectionCleaner,
         TransactionHandler transactions,
         StatementBuilder statementBuilder,
         Connection connection) throws SQLException {
-        Handle handle = new Handle(jdbi, config, connectionCleaner, transactions, statementBuilder, connection);
+        Handle handle = new Handle(jdbi, connectionCleaner, transactions, statementBuilder, connection);
 
         handle.notifyHandleCreated();
         return handle;
     }
 
     private Handle(Jdbi jdbi,
-        ConfigRegistry config,
         Cleanable connectionCleaner,
         TransactionHandler transactions,
         StatementBuilder statementBuilder,
@@ -103,6 +101,10 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.jdbi = jdbi;
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
+
+        // this needs to create a copy to allow local changes
+        // without affecting the Jdbi itself.
+        ConfigRegistry config = jdbi.getConfig().createCopy();
 
         // this piece is probably related to the comments in LazyHandleSupplier
         // about tomcat leak checker false positives. This needs revisiting.
