@@ -24,7 +24,6 @@ import java.util.function.UnaryOperator;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.Invocations;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
@@ -101,14 +100,17 @@ public final class SqlObjectInitData {
         if (!extensionType.equals(passExtensionType)) {
             throw new IllegalArgumentException("mismatch extension type");
         }
+
         try {
-            return Invocations.invokeWith(SqlObjectInitData.INIT_DATA, this, () ->
-                passExtensionType.cast(
-                    Class.forName(extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl")
-                        .getConstructor(HandleSupplier.class, ConfigRegistry.class)
-                        .newInstance(handle, instanceConfig)));
+            SqlObjectInitData.INIT_DATA.set(this);
+            return passExtensionType.cast(
+                Class.forName(extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl")
+                    .getConstructor(HandleSupplier.class, ConfigRegistry.class)
+                    .newInstance(handle, instanceConfig));
         } catch (Exception | ExceptionInInitializerError e) {
             throw new UnableToCreateSqlObjectException(e);
+        } finally {
+            SqlObjectInitData.INIT_DATA.remove();
         }
     }
 
