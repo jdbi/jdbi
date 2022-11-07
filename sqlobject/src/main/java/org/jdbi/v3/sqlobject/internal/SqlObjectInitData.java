@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
@@ -124,8 +125,8 @@ public final class SqlObjectInitData {
 
     public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handle, ConfigRegistry instanceConfig) {
         return MemoizingSupplier.of(() -> {
-            ExtensionMethod extensionMethod = new ExtensionMethod(extensionType, method);
             ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
+            ExtensionContext extensionContext = new ExtensionContext(methodConfig, new ExtensionMethod(extensionType, method));
             Handler methodHandler = methodHandlers.get(method);
             methodHandler.warm(methodConfig);
             return new InContextInvoker() {
@@ -137,10 +138,7 @@ public final class SqlObjectInitData {
                 @Override
                 public Object call(Callable<?> task) {
                     try {
-                        return handle.invokeInContext(
-                                extensionMethod,
-                                methodConfig,
-                                task);
+                        return handle.invokeInContext(extensionContext, task);
                     } catch (Exception x) {
                         throw Sneaky.throwAnyway(x);
                     }

@@ -52,6 +52,22 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
      * @param task the code to execute in an extension context
      * @return the callable's result
      * @throws Exception if any exception is thrown
+     * @deprecated New code should implement the {@link #invokeInContext(ExtensionContext, Callable)} method and use this as a retrofit.
+     * @see HandleSupplier#invokeInContext(ExtensionContext, Callable)
      */
+    @Deprecated
     <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception;
+
+    /**
+     * Bind a new {@link ExtensionContext} to the Handle, invoke the given task, then restore the Handle's extension state.
+     *
+     * @param <V> the result type of the task
+     * @param extensionContext An {@link ExtensionContext} object that manages the extension state.
+     * @param task the code to execute in an extension context
+     * @return the callable's result
+     * @throws Exception if any exception is thrown
+     */
+    default <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
+        return invokeInContext(extensionContext.getExtensionMethod(), extensionContext.getConfig(), task);
+    }
 }

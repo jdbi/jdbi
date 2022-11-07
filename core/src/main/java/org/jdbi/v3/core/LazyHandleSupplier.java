@@ -13,36 +13,37 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
-
-import static org.jdbi.v3.core.internal.Invocations.invokeWith;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandleSupplier {
 
-    private final Object[] lock = new Object[0];
-
     private final Jdbi db;
-    private final ThreadLocal<ConfigRegistry> localConfig;
+    private final AtomicBoolean closed = new AtomicBoolean();
+    private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
+    private final MemoizingSupplier<Handle> handleHolder = MemoizingSupplier.of(this::createHandle);
 
-    @SuppressWarnings("ThreadLocalUsage")
-    private final ThreadLocal<ExtensionMethod> localExtensionMethod = new ThreadLocal<>();
-
-    private volatile Handle handle;
-    private volatile boolean closed = false;
-
-    LazyHandleSupplier(Jdbi db, ConfigRegistry config) {
+    LazyHandleSupplier(Jdbi db) {
         this.db = db;
-        localConfig = ThreadLocal.withInitial(() -> config);
     }
 
     @Override
     public ConfigRegistry getConfig() {
-        return localConfig.get();
+        ExtensionContext extensionContext = extensionContexts.peek();
+        if (extensionContext != null) {
+            return extensionContext.getConfig();
+        }
+
+        return db.getConfig();
     }
 
     @Override
@@ -52,45 +53,48 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandl
 
     @Override
     public Handle getHandle() {
-        if (handle == null) {
-            initHandle();
-        }
-        return handle;
+        return handleHolder.get();
     }
 
-    private void initHandle() {
-        synchronized (lock) {
-            if (handle == null) {
-                if (closed) {
-                    throw new IllegalStateException("Handle is closed");
-                }
-
-                handle = db.open();
-                // share extension method thread local with handle,
-                // so extension methods set in other threads are preserved
-                handle.setExtensionMethodThreadLocal(localExtensionMethod);
-                handle.setLocalConfig(localConfig);
-            }
+    private Handle createHandle() {
+        if (closed.get()) {
+            throw new IllegalStateException("Handle is closed");
         }
+        return db.open().acceptExtensionContext(extensionContexts.peek());
     }
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return invokeWith(localExtensionMethod, extensionMethod,
-                () -> invokeWith(localConfig, config, task));
+        return invokeInContext(new ExtensionContext(config, extensionMethod), task);
+    }
+
+    @Override
+    public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
+        try {
+            pushExtensionContext(extensionContext);
+            return task.call();
+        } finally {
+            popExtensionContext();
+        }
+    }
+
+    private void pushExtensionContext(ExtensionContext extensionContext) {
+        extensionContexts.addFirst(extensionContext);
+        handleHolder.ifInitialized(h -> h.acceptExtensionContext(extensionContext));
+    }
+
+    private void popExtensionContext() {
+        // pop from the stack, then set the new top-of-stack in the handle
+        extensionContexts.pollFirst();
+        handleHolder.ifInitialized(h -> h.acceptExtensionContext(extensionContexts.peek()));
     }
 
     @Override
     public void close() {
-        synchronized (lock) {
-            closed = true;
-            // once created, the handle owns cleanup of the threadlocals
-            if (handle == null) {
-                localConfig.remove();
-                localExtensionMethod.remove();
-            } else {
-                handle.close();
-            }
+        if (closed.getAndSet(true)) {
+            throw new IllegalStateException("Handle is closed");
         }
+        handleHolder.ifInitialized(Handle::close);
+        extensionContexts.clear();
     }
 }

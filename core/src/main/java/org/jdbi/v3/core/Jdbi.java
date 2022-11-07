@@ -354,12 +354,16 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
-        if (threadHandleSupplier.get() != null) {
-            return callback.withHandle(threadHandleSupplier.get().getHandle());
+
+        HandleSupplier handleSupplier = threadHandleSupplier.get();
+
+        if (handleSupplier != null) {
+            return callback.withHandle(handleSupplier.getHandle());
         }
 
         try (Handle h = this.open()) {
-            threadHandleSupplier.set(new ConstantHandleSupplier(h));
+            handleSupplier = ConstantHandleSupplier.of(h);
+            threadHandleSupplier.set(handleSupplier);
             return callback.withHandle(h);
         } finally {
             threadHandleSupplier.remove();
@@ -475,13 +479,14 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws X {
-        if (threadHandleSupplier.get() != null) {
-            return callWithExtension(extensionType, callback, threadHandleSupplier.get());
+        HandleSupplier handleSupplier = threadHandleSupplier.get();
+        if (handleSupplier != null) {
+            return callWithExtension(extensionType, callback, handleSupplier);
         }
 
-        try (LazyHandleSupplier handleSupplier = new LazyHandleSupplier(this, config)) {
-            threadHandleSupplier.set(handleSupplier);
-            return callWithExtension(extensionType, callback, handleSupplier);
+        try (LazyHandleSupplier lazyHandleSupplier = new LazyHandleSupplier(this)) {
+            threadHandleSupplier.set(lazyHandleSupplier);
+            return callWithExtension(extensionType, callback, lazyHandleSupplier);
         } finally {
             threadHandleSupplier.remove();
         }
