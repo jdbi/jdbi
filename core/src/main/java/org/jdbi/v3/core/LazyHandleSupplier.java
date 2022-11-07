@@ -24,8 +24,6 @@ import static org.jdbi.v3.core.internal.Invocations.invokeWith;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandleSupplier {
 
-    // see https://github.com/pmd/pmd/issues/4090
-    @SuppressWarnings("PMD.FinalFieldCouldBeStatic")
     private final Object[] lock = new Object[0];
 
     private final Jdbi db;
