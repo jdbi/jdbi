@@ -31,13 +31,13 @@ public class CreateSqlObjectHandler implements Handler {
     }
 
     @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
-        if (handle instanceof OnDemandHandleSupplier) {
-            return handle.getConfig(OnDemandExtensions.class).create(handle.getJdbi(), method.getReturnType(), SqlObject.class);
+    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception {
+        if (handleSupplier instanceof OnDemandHandleSupplier) {
+            return handleSupplier.getConfig(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
         }
-        return handle.getConfig(Extensions.class)
+        return handleSupplier.getConfig(Extensions.class)
                 .findFactory(SqlObjectFactory.class)
                 .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
-                .attach(method.getReturnType(), handle);
+                .attach(method.getReturnType(), handleSupplier);
     }
 }

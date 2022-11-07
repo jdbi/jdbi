@@ -181,8 +181,8 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier hs) {
-        final Handle h = hs.getHandle();
+    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
+        final Handle h = handleSupplier.getHandle();
         final String locatedSql = locateSql(h);
         final StatementType stmt = createStatement(h, locatedSql);
 
