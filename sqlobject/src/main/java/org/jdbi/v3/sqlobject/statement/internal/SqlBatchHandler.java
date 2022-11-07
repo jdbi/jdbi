@@ -176,8 +176,8 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
     @Override
     @SuppressWarnings("PMD.ExcessiveMethodLength")
-    public Object invoke(Object target, Object[] args, HandleSupplier h) {
-        final Handle handle = h.getHandle();
+    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
+        final Handle handle = handleSupplier.getHandle();
         final String sql = locateSql(handle);
         final int chunkSize = batchChunkSize.call(args);
         final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);

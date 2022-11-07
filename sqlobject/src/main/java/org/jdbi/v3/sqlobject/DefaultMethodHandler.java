@@ -46,7 +46,7 @@ class DefaultMethodHandler implements Handler {
     }
 
     @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier handle) {
+    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
         return Unchecked.<Object[], Object>function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
     }
 

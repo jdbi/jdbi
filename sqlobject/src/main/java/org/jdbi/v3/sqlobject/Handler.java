@@ -27,11 +27,11 @@ public interface Handler {
      *
      * @param target the SQL Object instance being invoked
      * @param args   the arguments that were passed to the method.
-     * @param handle a (possibly lazy) Handle supplier.
+     * @param handleSupplier a (possibly lazy) Handle supplier.
      * @return the method return value, or null if the method has a void return type.
      * @throws Exception any exception thrown by the method.
      */
-    Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception;
+    Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception;
 
     /**
      * Called after the method handler is constructed to pre-initialize any important

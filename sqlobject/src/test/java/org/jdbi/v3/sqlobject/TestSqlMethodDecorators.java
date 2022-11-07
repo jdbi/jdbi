@@ -223,7 +223,7 @@ public class TestSqlMethodDecorators {
     public @interface CustomSqlOperation {
         class Impl implements Handler {
             @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier handle) {
+            public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
                 invoked("method");
                 return null;
             }
