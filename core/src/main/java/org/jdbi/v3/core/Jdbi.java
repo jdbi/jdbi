@@ -326,7 +326,6 @@ public class Jdbi implements Configurable<Jdbi> {
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
 
             Handle h = Handle.createHandle(this,
-                config.createCopy(),
                 connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                 transactionhandler.get(),
                 cache,

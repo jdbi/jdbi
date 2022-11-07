@@ -19,7 +19,9 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Utilities for testing jdbi internal classes.
@@ -32,11 +34,13 @@ public final class HandleAccess {
      * Create a handle with a fake connection, useful for tests that do not actually hit a database.
      */
     public static Handle createHandle() throws SQLException {
-        Connection fakeConnection = Mockito.mock(Connection.class);
+        Connection fakeConnection = mock(Connection.class);
 
-        Jdbi fakeJdbi = Mockito.mock(Jdbi.class);
+        ConfigRegistry configRegistry = new ConfigRegistry();
+        Jdbi fakeJdbi = mock(Jdbi.class);
+        when(fakeJdbi.getConfig()).thenReturn(configRegistry);
 
-        return Handle.createHandle(fakeJdbi, new ConfigRegistry(), fakeConnection::close, new LocalTransactionHandler(),
-                new DefaultStatementBuilder(), fakeConnection);
+        return Handle.createHandle(fakeJdbi, fakeConnection::close, new LocalTransactionHandler(),
+            new DefaultStatementBuilder(), fakeConnection);
     }
 }
