@@ -127,6 +127,7 @@ public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
             .dataSource(ds)
             .locations(paths.toArray(new String[0]))
             .schemas(schemas.toArray(new String[0]))
+            .cleanDisabled(!this.cleanAfter)
             .load();
 
         this.flyway.migrate();
