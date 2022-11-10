@@ -1,6 +1,12 @@
 # Unreleased
 
   - ResultIterable.useIterator and ResultIterable.withIterator new helper methods to close iterator resources
+  - add handle and resource leak checking to all unit tests, fix unit tests to not leak any resources
+  - add resource leak checking support to the `JdbiExtension` JUnit5 testing framework
+  - support lifecycle listeners for `Handle` and `StatementContext`
+  - fixes and updates to the build system, additional docs for contributing, IDE code style support for IntelliJ and Eclipse
+  - doc updates for Kotlin code
+  - add Kotlin `mapTo(KClass<*>)` extension function to `ResultBearing`
 
 # 3.34.0
 
