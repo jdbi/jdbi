@@ -16,13 +16,13 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
@@ -41,7 +41,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
-    private Cache<Entry<TemplateEngine, String>, Function<StatementContext, String>> templateCache;
+    private Cache<StatementCacheKey, Function<StatementContext, String>> templateCache;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
@@ -159,6 +159,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * Sets the Caffeine cache used to avoid repeatedly parsing SQL statements.
+     *
      * @param caffeineSpec the cache builder to use to cache parsed SQL
      * @return this
      */
@@ -187,7 +188,6 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * @return the timing collector
-     *
      * @deprecated use {@link #getSqlLogger} instead
      */
     @Deprecated
@@ -199,9 +199,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Sets the {@link TimingCollector} used to collect timing about the {@link SqlStatement SQL statements} executed
      * by Jdbi. The default collector does nothing.
      *
-     * @deprecated use {@link #setSqlLogger} instead
      * @param timingCollector the new timing collector
      * @return this
+     * @deprecated use {@link #setSqlLogger} instead
      */
     @Deprecated
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
@@ -229,9 +229,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Jdbi does not implement its own timeout mechanism: it simply calls {@link java.sql.Statement#setQueryTimeout}, leaving timeout handling to your jdbc driver.
+     * Jdbi does not implement its own timeout mechanism: it simply calls {@link java.sql.Statement#setQueryTimeout}, leaving timeout handling to your jdbc
+     * driver.
      *
-     * @param seconds the time in seconds to wait for a query to complete; 0 to disable the timeout; null to leave it at defaults (i.e. Jdbi will not call {@code setQueryTimeout(int)})
+     * @param seconds the time in seconds to wait for a query to complete; 0 to disable the timeout; null to leave it at defaults (i.e. Jdbi will not call
+     *                {@code setQueryTimeout(int)})
      * @return this
      */
     @Beta
@@ -252,9 +254,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * Unused bindings tend to be bugs or oversights, but are not always.
      * Defaults to false: unused bindings are not allowed.
      *
-     * @see org.jdbi.v3.core.argument.Argument
      * @param unusedBindingAllowed the new setting
      * @return this
+     * @see org.jdbi.v3.core.argument.Argument
      */
     public SqlStatements setUnusedBindingAllowed(boolean unusedBindingAllowed) {
         this.allowUnusedBindings = unusedBindingAllowed;
@@ -283,14 +285,60 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     String preparedRender(String template, StatementContext ctx) {
         try {
             return Optional.ofNullable(
-                    templateCache.get(
-                            new AbstractMap.SimpleEntry<>(templateEngine, template),
-                            e -> e.getKey().parse(e.getValue(), ctx.getConfig())
-                                               .orElse(null))) // no parse -> no cache
-                .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
-                .apply(ctx);
+                            templateCache.get(
+                                    new StatementCacheKey(templateEngine, template),
+                                    key -> key.getTemplateEngine().parse(key.getTemplate(), ctx.getConfig())
+                                            .orElse(null))) // no parse -> no cache
+                    .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
+                    .apply(ctx);
         } catch (final IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception rendering SQL template", e, ctx);
         }
     }
+
+    private static final class StatementCacheKey {
+
+        private final TemplateEngine templateEngine;
+        private final String template;
+
+        StatementCacheKey(TemplateEngine templateEngine, String template) {
+            this.templateEngine = templateEngine;
+            this.template = template;
+        }
+
+        @SuppressWarnings("PMD.UnusedPrivateMethod") // PMD gets that one wrong...
+        private TemplateEngine getTemplateEngine() {
+            return templateEngine;
+        }
+
+        private String getTemplate() {
+            return template;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            StatementCacheKey that = (StatementCacheKey) o;
+            return templateEngine.equals(that.templateEngine) && template.equals(that.template);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(templateEngine, template);
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", StatementCacheKey.class.getSimpleName() + "[", "]")
+                    .add("templateEngine=" + templateEngine)
+                    .add("template='" + template + "'")
+                    .toString();
+        }
+    }
+
 }
