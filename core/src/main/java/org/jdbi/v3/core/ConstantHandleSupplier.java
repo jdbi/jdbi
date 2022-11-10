@@ -13,16 +13,19 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 
-import static org.jdbi.v3.core.internal.Invocations.invokeWith;
-
 class ConstantHandleSupplier implements HandleSupplier {
+
     private final Handle handle;
+    private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
 
     static HandleSupplier of(Handle handle) {
         return new ConstantHandleSupplier(handle);
@@ -49,16 +52,26 @@ class ConstantHandleSupplier implements HandleSupplier {
 
     @Override
     public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return invokeWith(
-            handle::getExtensionMethod,
-            handle::setExtensionMethod,
-            extensionMethod,
-            () -> invokeWith(
-                handle::getConfig,
-                handle::setConfig,
-                config,
-                task
-            )
-        );
+        return invokeInContext(new ExtensionContext(config, extensionMethod), task);
+    }
+
+    @Override
+    public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
+        try {
+            pushExtensionContext(extensionContext);
+            return task.call();
+        } finally {
+            popExtensionContext();
+        }
+    }
+
+    private void pushExtensionContext(ExtensionContext extensionContext) {
+        extensionContexts.addFirst(extensionContext);
+        handle.acceptExtensionContext(extensionContext);
+    }
+
+    private void popExtensionContext() {
+        extensionContexts.pollFirst();
+        handle.acceptExtensionContext(extensionContexts.peek());
     }
 }

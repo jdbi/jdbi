@@ -13,10 +13,19 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 // Thanks Holger!
 // https://stackoverflow.com/questions/35331327/does-java-8-have-cached-support-for-suppliers
+
+/**
+ * Wraps a supplier and memoizes the object returned.
+ *
+ * @param <T> The type of the object returned by this supplier.
+ * @see Supplier
+ *
+ */
 public class MemoizingSupplier<T> implements Supplier<T> {
     private final Supplier<T> create;
 
@@ -34,6 +43,18 @@ public class MemoizingSupplier<T> implements Supplier<T> {
     @Override
     public T get() {
         return delegate.get();
+    }
+
+    /**
+     * Execute a method on the object returned from the supplier if the object was already created.
+     * Skips execution if the underlying object was never created.
+     *
+     * @param consumer A consumer for the object returned by this supplier.
+     */
+    public void ifInitialized(Consumer<T> consumer) {
+        if (initialized) {
+            consumer.accept(get());
+        }
     }
 
     private T init() { // NOPMD

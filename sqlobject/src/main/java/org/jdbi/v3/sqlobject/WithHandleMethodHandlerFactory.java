@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 
 class WithHandleMethodHandlerFactory implements HandlerFactory {
@@ -29,10 +30,10 @@ class WithHandleMethodHandlerFactory implements HandlerFactory {
             return Optional.empty();
         }
         ExtensionMethod extensionMethod = new ExtensionMethod(sqlObjectType, method);
-        return Optional.of((t, a, h) ->
-            h.invokeInContext(
-                    extensionMethod,
-                    h.getConfig(),
-                    () -> ((HandleCallback<?, RuntimeException>) a[0]).withHandle(h.getHandle())));
+        return Optional.of((target, arguments, handleSupplier) -> {
+            ExtensionContext extensionContext = new ExtensionContext(handleSupplier.getConfig(), extensionMethod);
+            return handleSupplier.invokeInContext(extensionContext,
+                () -> ((HandleCallback<?, RuntimeException>) arguments[0]).withHandle(handleSupplier.getHandle()));
+        });
     }
 }

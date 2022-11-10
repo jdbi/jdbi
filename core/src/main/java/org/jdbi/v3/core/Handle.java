@@ -29,6 +29,7 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
@@ -51,7 +52,6 @@ import org.jdbi.v3.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
@@ -69,9 +69,12 @@ public class Handle implements Closeable, Configurable<Handle> {
     private final Connection connection;
     private final boolean forceEndTransactions;
 
-    private ThreadLocal<ConfigRegistry> localConfig;
-    private ThreadLocal<ExtensionMethod> localExtensionMethod;
     private StatementBuilder statementBuilder;
+
+    // the fallback context. It is used when resetting the Handle state.
+    private final ExtensionContext defaultExtensionContext;
+
+    private ExtensionContext currentExtensionContext;
 
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
@@ -102,17 +105,12 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        // this needs to create a copy to allow local changes
-        // without affecting the Jdbi itself.
-        ConfigRegistry config = jdbi.getConfig().createCopy();
-
-        // this piece is probably related to the comments in LazyHandleSupplier
-        // about tomcat leak checker false positives. This needs revisiting.
-        this.localConfig = ThreadLocal.withInitial(() -> config);
-        this.localExtensionMethod = new ThreadLocal<>();
+        // create a copy to detach config from the jdbi to allow local changes.
+        this.defaultExtensionContext = ExtensionContext.forConfig(jdbi.getConfig().createCopy());
+        this.currentExtensionContext = defaultExtensionContext;
 
         this.statementBuilder = statementBuilder;
-        this.handleListeners.addAll(config.get(Handles.class).getListeners());
+        this.handleListeners.addAll(getConfig().get(Handles.class).getListeners());
 
         // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
         this.transactions = transactions.specialize(this);
@@ -123,9 +121,6 @@ public class Handle implements Closeable, Configurable<Handle> {
             if (checkConnectionIsLive()) {
                 statementBuilder.close(connection);
             }
-            // clean up the local state when the handle is closed.
-            localExtensionMethod.remove();
-            localConfig.remove();
         });
     }
 
@@ -145,17 +140,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     @Override
     public ConfigRegistry getConfig() {
-        return localConfig.get();
-    }
-
-    void setConfig(ConfigRegistry config) {
-        this.localConfig.set(config);
-    }
-
-    void setLocalConfig(ThreadLocal<ConfigRegistry> configThreadLocal) {
-        // Without explicit remove the Tomcats thread-local leak detector gives superfluous warnings
-        this.localConfig.remove();
-        this.localConfig = configThreadLocal;
+        return currentExtensionContext.getConfig();
     }
 
     /**
@@ -260,7 +245,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
 
         // do this at call time, otherwise running the cleanables may affect the state of the other handle objects (e.g. the config)
-        final boolean doForceEndTransactions = this.forceEndTransactions && localConfig.get().get(Handles.class).isForceEndTransactions();
+        final boolean doForceEndTransactions = this.forceEndTransactions && getConfig().get(Handles.class).isForceEndTransactions();
 
         try {
             ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
@@ -861,15 +846,13 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the extension method currently bound to the handle's context
      */
     public ExtensionMethod getExtensionMethod() {
-        return localExtensionMethod.get();
+        return currentExtensionContext.getExtensionMethod();
     }
 
-    void setExtensionMethod(ExtensionMethod extensionMethod) {
-        this.localExtensionMethod.set(extensionMethod);
-    }
+    Handle acceptExtensionContext(ExtensionContext extensionContext) {
+        this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
 
-    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethodThreadLocal) {
-        this.localExtensionMethod = requireNonNull(extensionMethodThreadLocal);
+        return this;
     }
 
     private void notifyHandleCreated() {
