@@ -1,5 +1,6 @@
 # Unreleased
 
+  - Fix `JdbiFlywayMigration` to work with Flyway 9 (#2179, thanks @broccolai)
   - ResultIterable.useIterator and ResultIterable.withIterator new helper methods to close iterator resources
   - add handle and resource leak checking to all unit tests, fix unit tests to not leak any resources
   - add resource leak checking support to the `JdbiExtension` JUnit5 testing framework
