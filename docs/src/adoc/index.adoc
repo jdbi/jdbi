@@ -39,7 +39,7 @@ Style guidelines:
   complement the example.
 * External links should use a caret at the end of the link title e.g.
   link:path/to/doc[the title^] so they open in separate tabs. See
-  http://asciidoctor.org/docs/asciidoc-writers-guide/#target-window-and-role-attributes-for-links
+  https://asciidoctor.org/docs/asciidoc-writers-guide/#target-window-and-role-attributes-for-links
 * Be funny. Nobody like reading dry documentation.
 * Be inclusive: keep usage of male and female names equal in code examples.
 * Best edited while drunk
@@ -124,7 +124,7 @@ Already using Jdbi v2? See <<Upgrading from v2 to v3>>.
 Jdbi is easy to include in your Java project - with an
 link:https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license, few
 external dependencies, and JARs distributed through
-link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22%20AND%20v%3A%22{project_version}%22[Maven Central^],
+link:https://search.maven.org/search?q=g:org.jdbi%20AND%20v:{project_version}[Maven Central^],
 you can just include the relevant artifacts in your POM:
 
 [source,xml,subs="attributes,specialchars"]
@@ -2866,7 +2866,7 @@ second.
 `@SqlUpdate` can also be used for DDL (Data Definition Language) operations like
 creating or altering tables. We recommend using a schema migration tool such
 as link:https://flywaydb.org/[Flyway^] or
-link:http://www.liquibase.org/[Liquibase^] to maintain your database schemas.
+link:https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
 
 By default, a `@SqlUpdate` method may return a handful of types:
 
