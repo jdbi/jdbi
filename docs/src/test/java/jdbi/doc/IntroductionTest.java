@@ -72,7 +72,7 @@ public class IntroductionTest {
     }
 
     // tag::sqlobject-declaration[]
-    // Define your own declarative interface
+    // Declare the API using annotations on a Java interface
     public interface UserDao {
         @SqlUpdate("CREATE TABLE \"user\" (id INTEGER PRIMARY KEY, \"name\" VARCHAR)")
         void createTable();
