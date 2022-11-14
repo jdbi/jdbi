@@ -273,7 +273,7 @@ Jdbi components are declared without versions:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-core"))
+    implementation("org.jdbi:jdbi3-core")
 }
 ----
 
