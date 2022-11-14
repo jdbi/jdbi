@@ -54,7 +54,7 @@ Style guidelines:
 
 *Jdbi is not an ORM.* It is a convenience library to make Java database operations simpler and more pleasant to program than raw JDBC. While there is some ORM-like functionality, Jdbi goes to great length to ensure that there is no hidden magic that makes it hard to understand what is going on.
 
-*Jdbi does not hide SQL away.* One of the design principles of Jdbi is that SQL is the native language of the database, and it is unnecessary to wrap it into code, deconstruct it or hide it away. Being able to express a query in raw SQL makes it possible for programmers and data engineers to speak the same language and not fight translation layers.
+*Jdbi does not hide SQL away.* One of the design principles of Jdbi is that SQL is the native language of the database, and it is unnecessary to wrap it into code, deconstruct it, or hide it away. Being able to express a query in raw SQL makes it possible for programmers and data engineers to speak the same language and not fight translation layers.
 
 *Jdbi does not aim to provide a complete database management framework.* It provides the building blocks that allow constructing the mapping between data and objects as appropriate for your application and the necessary primitives to execute SQL code against your database.
 
@@ -160,13 +160,13 @@ While Jdbi supports _any_ datasource that has a `JDBC` driver "out of the box", 
 
 [glossary]
 jdbi3-postgres::
-    Support for link:https://www.postgresql.org/[Postgres] data types.
+    Support for link:https://www.postgresql.org/[Postgres^] data types.
 jdbi3-sqlite::
-    Support for link:https://www.sqlite.org/index.html[sqlite] data types.
+    Support for link:https://www.sqlite.org/index.html[sqlite^] data types.
 jdbi3-oracle12::
     Support Oracle returning DML statements.
 jdbi3-postgis::
-    Support for link:https://postgis.net/[PostGIS] types.
+    Support for link:https://postgis.net/[PostGIS^] types.
 
 [NOTE]
 While Oracle support is considered part of Jdbi, the actual library is developed and shipped as a separate component for historic reasons.
@@ -177,11 +177,11 @@ SQL statements can be rendered before they are sent to the database driver. Unle
 
 [glossary]
 jdbi3-stringtemplate4::
-    Use the StringTemplate4 template engine to render SQL statements.
+    Use the link:https://www.stringtemplate.org/[StringTemplate 4^] template engine to render SQL statements.
 jdbi3-commons-text::
-    Use Apache Commons Text to render SQL statements.
+    Use link:https://commons.apache.org/proper/commons-text/[Apache Commons Text^] to render SQL statements.
 jdbi3-freemarker::
-    Use Apache Freemarker to render SQL statements.
+    Use link:https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
 
 ===== Additional Language support
 
@@ -369,15 +369,15 @@ Production code rarely provides a connection object directly to a `Jdbi` instanc
 
 Applications create a single, shared `Jdbi` instance per data source, and set up any common configuration there.  See <<Configuration>> for more details.
 
-`Jdbi` does not provide connection pooling or other <<High Availability>> features, but it can be combined with other software that does.
+Jdbi does not provide connection pooling or other <<High Availability>> features, but it can be combined with other software that does.
 
 === Handle
 
-A Handle wraps an active link:{jdkdocs}/java/sql/Connection.html[database connection^].
+A link:{jdbidocs}/core/Handle.html[Handle^] wraps an active link:{jdkdocs}/java/sql/Connection.html[database connection^].
 
-A `Handle` is created by a `Jdbi` instance to provide a database connection e.g. for a single HTTP request or event callback). Handles are intended to be short-lived and must be closed to release the database connection and possible other resources.
+Handle instances are created by a `Jdbi` instance to provide a database connection e.g. for a single HTTP request or event callback). Handles are intended to be short-lived and must be closed to release the database connection and possible other resources.
 
-link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL statements against the database, and manage database transactions. It provides  access to fluent statement APIs that can bind arguments, execute the statement,
+A link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL statements against the database, and manage database transactions. It provides  access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
 A `Handle` inherits configuration from the `Jdbi` at the time it is created. See <<Configuration>> for more details.
