@@ -40,7 +40,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.9.1, 2.9.0, 2.8.9-ea-1 ]
+        test-version: [ 2.9.2, 2.9.1, 2.8.9-ea-1 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -65,7 +65,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.13.3, 2.12.7, 2.11.4 ]
+        test-version: [ 2.14.0, 2.13.4, 2.12.7, 2.11.4 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -90,7 +90,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.11.1, 2.10.14 ]
+        test-version: [ 2.12.1, 2.11.2, 2.10.14 ]
 
     steps:
     - uses: actions/checkout@v3
