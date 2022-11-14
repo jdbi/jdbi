@@ -15,6 +15,7 @@ package jdbi.doc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
@@ -75,6 +76,18 @@ public class FiveMinuteTourTest {
         }
         // end::openHandle[]
         assertThat(result).isOne();
+
+        // tag::streamData[]
+        try (Handle handle = jdbi.open()) {
+            Iterator<String> names = handle.createQuery("select name from contacts where id = 1")
+                    .mapTo(String.class)
+                    .iterator();
+            assertThat(names).hasNext();
+            String name = names.next();
+            assertThat(name).isEqualTo("Alice");
+            assertThat(names).isExhausted();
+        }
+        // end::streamData[]
     }
 
     // tag::defineCustomMapper[]

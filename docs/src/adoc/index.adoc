@@ -39,7 +39,7 @@ Style guidelines:
   complement the example.
 * External links should use a caret at the end of the link title e.g.
   link:path/to/doc[the title^] so they open in separate tabs. See
-  http://asciidoctor.org/docs/asciidoc-writers-guide/#target-window-and-role-attributes-for-links
+  https://asciidoctor.org/docs/asciidoc-writers-guide/#target-window-and-role-attributes-for-links
 * Be funny. Nobody like reading dry documentation.
 * Be inclusive: keep usage of male and female names equal in code examples.
 * Best edited while drunk
@@ -48,84 +48,184 @@ Style guidelines:
 
 == Introduction to Jdbi 3
 
-Jdbi provides convenient, idiomatic access to relational data in Java. Jdbi 3
-is the third major release which introduces enhanced support for Java 8,
-countless refinements to the design and implementation, and enhanced support
-for modular plugins.
+*Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release which introduces enhanced support for Java 8, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
 
-Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
-Jdbi with it.  Jdbi improves JDBC's rough interface, providing a more natural
-Java database interface that is easy to bind to your domain data types.  Unlike
-an ORM, we do not aim to provide a complete object relational mapping framework -
-instead of that hidden complexity, we provide building blocks that allow you to
-construct the mapping between relations and objects as appropriate for your application.
+*Jdbi is built on top of JDBC.* If your data source has a JDBC driver, you can use it with Jdbi. It improves JDBC's low-level interface, providing a more natural API that is easy to bind to your domain data types.
+
+*Jdbi is not an ORM.* It is a convenience library to make Java database operations simpler and more pleasant to program than raw JDBC. While there is some ORM-like functionality, Jdbi goes to great length to ensure that there is no hidden magic that makes it hard to understand what is going on.
+
+*Jdbi does not hide SQL away.* One of the design principles of Jdbi is that SQL is the native language of the database, and it is unnecessary to wrap it into code, deconstruct it or hide it away. Being able to express a query in raw SQL makes it possible for programmers and data engineers to speak the same language and not fight translation layers.
+
+*Jdbi does not aim to provide a complete database management framework.* It provides the building blocks that allow constructing the mapping between data and objects as appropriate for your application and the necessary primitives to execute SQL code against your database.
 
 === Quick Links
 
+* https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)^]
+* https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code^]
+* https://github.com/jdbi/jdbi[GitHub JDBI repository^]
 
-* https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)]
-* https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code]
-* https://github.com/jdbi/jdbi[GitHub JDBI repository]
+=== JDBI v2 (legacy version)
 
-==== JDBI v2 (legacy version)
+[WARNING]
+*JDBI v2 is no longer under active development!*
 
-JDBI v2 is no longer under active development.
-
-* link:/jdbi2/[JDBI v2 documentation].
-
-== JDBI API
-
-Jdbi's API comes in two flavors:
-
-=== Fluent API
-
-The Core API provides a fluent, imperative interface.  Use Builder style objects
-to wire up your SQL to rich Java data types.
-
-[source,java,indent=0]
-----
-include::{exampledir}/IntroductionTest.java[tags=core]
-----
-
-=== Declarative API
-
-The SQL Object extension sits atop Core, and provides a declarative interface.
-Tell Jdbi what SQL to execute and the shape of the results you like by declaring
-an annotated Java `interface`, and it will provide the implementation.
-
-[source,java,indent=0]
-----
-include::{exampledir}/IntroductionTest.java[tags=sqlobject-declaration]
-----
-
-[source,java,indent=0]
-----
-include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
-----
-
-Jdbi has a flexible plugin architecture which makes it easy to fold in support
-for your favorite libraries (Guava, JodaTime, Spring, Vavr) or database vendor
-(H2, Oracle, Postgres).
-
-Jdbi is not an ORM. There is no session cache, change tracking, "open session
-in view", or cajoling the library to understand your schema.
-
-Instead, Jdbi provides straightforward mapping between SQL and simple tabular
-data structures.
-
-You bring your own SQL, and Jdbi only runs the commands you tell it to--the way
-God intended.
+* link:/jdbi2/[JDBI v2 documentation^]
 
 [TIP]
-Already using Jdbi v2? See <<Upgrading from v2 to v3>>.
+Already using Jdbi v2? See <<Upgrading from v2 to v3>>
 
-== Getting Started
+== Using Jdbi in your projects
 
-Jdbi is easy to include in your Java project - with an
-link:https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license, few
-external dependencies, and JARs distributed through
-link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22%20AND%20v%3A%22{project_version}%22[Maven Central^],
-you can just include the relevant artifacts in your POM:
+=== License, Dependencies and availability
+
+Jdbi is licensed under the commercial friendly link:https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license.
+
+The core Jdbi module which offers programatic access uses only link:https://slf4j.org/[slf4j^], link:https://github.com/ben-manes/caffeine[caffeine^] and link:https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
+
+All Jdbi modules are available through link:https://search.maven.org[Maven Central^]. Jdbi also offers a BOM (Bill of materials) module for easy dependency management.
+
+=== Java compatibility
+
+`Jdbi` runs on all Java versions 8 or later. 11 or later is required to build. All releases are built with the latest LTS version of Java using Java 8 byte code compatibility.
+
+[CAUTION]
+Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
+it will go away. We are already require JDK 11+ to build and run all the tests.
+
+In order to run on JDK 8, some dependencies, such as link:https://github.com/ben-manes/caffeine[the caffeine caching library^] need to be explicitly version managed to a version that is supported on JDK 8.
+
+=== Getting started
+
+Jdbi has a flexible plugin architecture which makes it easy to fold in support for your favorite libraries (Guava, JodaTime, Spring, Vavr) or database vendor (H2, Oracle, Postgres).
+
+Jdbi is not an ORM. There is no session cache, change tracking, "open session in view", or cajoling the library to understand your schema.
+
+Jdbi provides straightforward mapping between SQL and data accessible through a JDBC driver. You bring your own SQL, and Jdbi executes it.
+
+Jdbi provides several other modules, which enhance the core API with additional
+features.
+
+==== Jdbi modules overview
+
+Jdbi consists of a large number of modules. Not all are needed when writing database code. This is a quick overview of the existing modules and their function:
+
+===== Common modules
+
+[glossary]
+jdbi3-core::
+    The core Jdbi library. Required by all other components.
+jdbi3-sqlobject::
+    SQL Object extension for declarative database access.
+jdbi3-testing::
+    Testing framework support. Currently, only supports JUnit4 and JUnit5.
+
+===== External data types and libraries
+
+The core module contains support for the link:https://immutables.github.io/[Immutables^] and link:https://github.com/inferred/FreeBuilder[Freebuilder^] libraries.
+
+[glossary]
+jdbi3-guava::
+    Support for link:https://guava.dev/[Google Guava^] collection and Optional types.
+jdbi3-jodatime2::
+    Support for link:https://www.joda.org/joda-time/[JodaTime v2^] data types.
+jdbi3-vavr::
+    Support for link:https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
+
+
+===== JSON mapping
+
+Support for various JSON libraries to map data from the database onto JSON types and vice versa.
+
+[glossary]
+jdbi3-jackson2::
+  Support for link:https://github.com/FasterXML/jackson[Jackson v2^].
+jdbi3-gson::
+  Support for link:https://github.com/google/gson[Google Gson^].
+jdbi3-moshi::
+  Support for link:https://github.com/square/moshi[Square Moshi^].
+
+===== Frameworks
+
+[glossary]
+jdbi3-guice::
+    Support dependency injection and modules with link:https://github.com/google/guice[Google Guice^].
+jdbi3-spring5::
+    Provides a link:https://spring.io/[Spring Framework^] factory bean to set up Jdbi singleton.
+jdbi3-jpa::
+    Some support for link:https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
+
+===== Database specific types and functions
+
+While Jdbi supports _any_ datasource that has a `JDBC` driver "out of the box", its support is limited to the standard JDBC types and mappings. Some databases have additional data types and mappings and support is added using the following modules:
+
+[glossary]
+jdbi3-postgres::
+    Support for link:https://www.postgresql.org/[Postgres] data types.
+jdbi3-sqlite::
+    Support for link:https://www.sqlite.org/index.html[sqlite] data types.
+jdbi3-oracle12::
+    Support Oracle returning DML statements.
+jdbi3-postgis::
+    Support for link:https://postgis.net/[PostGIS] types.
+
+[NOTE]
+While Oracle support is considered part of Jdbi, the actual library is developed and shipped as a separate component for historic reasons.
+
+===== SQL rendering
+
+SQL statements can be rendered before they are sent to the database driver. Unless explicitly configured, Jdbi uses a simple render engine that replaces `<...>` placeholders. It is possible to replace this engine with other template engines.
+
+[glossary]
+jdbi3-stringtemplate4::
+    Use the StringTemplate4 template engine to render SQL statements.
+jdbi3-commons-text::
+    Use Apache Commons Text to render SQL statements.
+jdbi3-freemarker::
+    Use Apache Freemarker to render SQL statements.
+
+===== Additional Language support
+
+Jdbi can be used from any language and technology running on the JVM that can use Java code (Kotlin, Scala, Clojure, JRuby etc).
+
+While Java is a first class citizen and will be for the forseeable future, we provide modules for some languages that allow more idiomatic access to Jdbi functionality.
+
+[glossary]
+jdbi3-kotlin::
+Automatically map kotlin data classes.
+jdbi3-kotlin-sqlobject::
+Kotlin support for the SQL Object extension.
+
+==== Build tools
+
+All Jdbi modules are available through link:https://search.maven.org[Maven Central^], so any project that uses a dependency management tool (Apache Maven, Gradle, sbt, leiningen, Apache Ivy etc.) can access these.
+
+For Apache Maven:
+
+[source,xml,subs="attributes,specialchars"]
+----
+<dependencies>
+  <dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-core</artifactId>
+    <version>{project_version}</version>
+  </dependency>
+</dependencies>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-core:{project_version}")
+}
+----
+
+When using multiple Jdbi modules, it is important that all modules use the same version. There is no guarantee that mixing versions will work.
+
+Jdbi offers a BOM (Bill of materials) that can be used to provide a consistent version for all Jdbi components.
+
+For Apache Maven:
 
 [source,xml,subs="attributes,specialchars"]
 ----
@@ -142,8 +242,9 @@ you can just include the relevant artifacts in your POM:
 </dependencyManagement>
 ----
 
-Then, in your `<dependencies>` section, declare a dependency for each Jdbi
-module you want to use:
+adds the Jdbi BOM module into the `dependencyManagement` section.
+
+Jdbi components in use are declared in the `<dependencies>` section *without a version*:
 
 [source,xml,subs="specialchars"]
 ----
@@ -155,75 +256,99 @@ module you want to use:
 </dependencies>
 ----
 
-Jdbi provides several other modules, which enhance the core API with additional
-features.
+For Gradle:
 
-=== Java Compatibility
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    // Load bill of materials (BOM) for Jdbi.
+    implementation(platform("org.jdbi:jdbi3-bom:{project_version}"))
+}
+----
 
-`Jdbi` runs on all Java versions 8 or later. 11 or later is required to build.
+adds the BOM as dependency constraints to gradle.
 
-[CAUTION]
-Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
-it will go away. We are already no longer support all tests on JDK 8 (only 11+) and require JDK 11 or
-better to build the code base (but still maintain JDK 8 byte code compatibility).
+Jdbi components are declared without versions:
 
-In order to run on JDK 8, some default dependencies, such as `caffeine` need to be explicitly version
-managed to a version that is supported on JDK 8.
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-core"))
+}
+----
 
-=== Modules
+==== @Alpha and @Beta annotations
 
-[glossary]
-jdbi3-sqlobject::
-    The SQL Object extension. Most Jdbi users use this.
-jdbi3-guava::
-    Support for Guava's collection and Optional types.
-jdbi3-jodatime2::
-    Support for JodaTime v2's DateTime type.
-jdbi3-jpa::
-    Minimal support for JPA annotations.
-jdbi3-kotlin::
-    Automatically map kotlin data classes.
-jdbi3-kotlin-sqlobject::
-    Enhance the SQL Object extension to support Kotlin default methods and
-    method default parameters.
-jdbi3-oracle12::
-    Support Oracle returning DML statements.
-jdbi3-postgres::
-    Support for most data types supported by Postgres driver.
-jdbi3-spring5::
-    Provides a factory bean to set up Jdbi singleton.
-jdbi3-stringtemplate4::
-    Use the StringTemplate4 template engine, instead of JDBI's built in engine.
-jdbi3-vavr::
-    Support for Vavr Tuples, Collections and Value arguments
+The link:{jdbidocs}/meta/Alpha.html[@Alpha^] and link:{jdbidocs}/meta/Beta.html[@Beta^] annotations mark APIs as unstable. Each of these annotations signifies that a public API (public class, method or field) is subject to incompatible changes, or even removal, in a future release. Any API bearing these annotations is exempt from any compatibility guarantees.
 
-=== Forethoughts
+* `Alpha` -- Alpha APIs are intended as early preview of features that might eventually get promoted.
+
+* `Beta` -- It is generally safe for applications to depend on beta APIs, at the cost of some extra work during upgrades. However, libraries (which get included on an application classpath) should not depend on Beta APIs as the classpath is outside the control of the library.
+
+Note that the presence of this annotation implies nothing about the quality or performance of the API in question, only the fact that it is not "API-frozen."
 
 [TIP]
-You'll probably want to add our annotations `org.jdbi.v3.meta.Beta` and `org.jdbi.v3.meta.Alpha` to your IDE's "unstable API usage" blacklist.
+Add `Alpha` and `Beta` to your IDE's "unstable API usage" blacklist.
 
-[CAUTION]
-Our `org.jdbi.*.internal` packages are not considered public API and they are not maintained or changed in a backwards compatible way.
+==== Internal packages
 
-== Core API
+Any class in a package that is marked as `internal` (contains the word "internal") is not a part of the public API and may change in a backwards incompatible way. These classes and interfaces may be used across the Jdbi code base and can change (or be removed) without deprecation or announcement.
 
-=== Jdbi
+==== Mixing Jdbi component versions
 
-The link:{jdbidocs}/core/Jdbi.html[Jdbi^] class is the main entry point into
-the library.
+There is no guarantee that Jdbi components of different versions (e.g. `jdbi3-core` version 1.2.3 and `jdbi-sqlobject` version 1.3.1) work together. Jdbi versioning is the *public API* exposed to consumers. All Jdbi components used in a project or service should use the same version. See the section on <<Build tools>> on how to use the BOM module to provide consistent versions for all components.
 
-Each `Jdbi` instance wraps a JDBC
-link:{jdkdocs}/javax/sql/DataSource.html[DataSource^].
-It is also a repository of configuration for your database session.
+== API Overview
 
-There are a few ways to create a `Jdbi` instance. You can use a JDBC URL:
+Jdbi's API comes in two flavors:
+
+=== Fluent API
+
+The Core API provides a fluent, imperative interface. Use Builder style objects to wire up your SQL to rich Java data types.
+
+[source,java,indent=0]
+----
+include::{exampledir}/IntroductionTest.java[tags=core]
+----
+
+=== Declarative API
+
+The SQL Object extension is an additional module which provides a declarative API.
+
+Define the SQL to execute and the shape of the results by creating  an annotated Java interface.
+
+[source,java,indent=0]
+----
+include::{exampledir}/IntroductionTest.java[tags=sqlobject-declaration]
+----
+
+Then attach the interface to a Jdbi instance and execute the methods on the resuling class to execute the SQL queries.
+
+[source,java,indent=0]
+----
+include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
+----
+
+== Core API concepts
+
+=== The Jdbi class
+
+The link:{jdbidocs}/core/Jdbi.html[Jdbi^] class is the main entry point into the library.
+
+Each `Jdbi` maintains a set of configuration settings and wraps a JDBC link:{jdkdocs}/javax/sql/DataSource.html[DataSource^].
+
+`Jdbi` instances are thread-safe and do not own any database resources.
+
+There are a few ways to create a `Jdbi` instance:
+
+- use a JDBC URL:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=createJdbi]
 ----
 
-If you have a `DataSource` object, you can use that directly:
+- directly use a `DataSource` object which was created outside Jdbi.
 
 [source,java]
 ----
@@ -231,75 +356,74 @@ DataSource ds = ...
 Jdbi jdbi = Jdbi.create(ds);
 ----
 
-`Jdbi` instances are thread-safe and do not own any database resources.
+- from a custom class that implements link:{jdbidocs}/core/ConnectionFactory.html[ConnectionFactory^].
 
-Typically, applications create a single, shared `Jdbi` instance, and set up
-any common configuration there.  See <<Configuration>> for more details.
+This allows for custom implementations of connection providers such as HA failover, proxy solutions etc.
 
-`Jdbi` itself does not provide connection pooling or other <<High Availability>>
-features, but it can be combined with other software that does.
+- from a single link:{jdkdocs}/java/sql/Connection.html[JDBC Connection^].
 
-In a more limited scope (such as an HTTP request, or event callback),
-you would then request a `Handle` object from your `Jdbi` instance.
+Please note that there is no magic. Any Handle or operation will use this one connection provided. If the connection is thread-safe, then multiple threads accessing the database will work properly, if the connection object is not thread-safe, then Jdbi will not be able to do anything about it.
+
+[TIP]
+Production code rarely provides a connection object directly to a `Jdbi` instance. It is useful for testing and debugging.
+
+Applications create a single, shared `Jdbi` instance per data source, and set up any common configuration there.  See <<Configuration>> for more details.
+
+`Jdbi` does not provide connection pooling or other <<High Availability>> features, but it can be combined with other software that does.
 
 === Handle
 
-Handles represent an active
-link:{jdkdocs}/java/sql/Connection.html[database connection^].
+A Handle wraps an active link:{jdkdocs}/java/sql/Connection.html[database connection^].
 
-link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL
-statements against the database, and manage database transactions. It provides
-access to fluent statement APIs that can bind arguments, execute the statement,
+A `Handle` is created by a `Jdbi` instance to provide a database connection e.g. for a single HTTP request or event callback). Handles are intended to be short-lived and must be closed to release the database connection and possible other resources.
+
+link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL statements against the database, and manage database transactions. It provides  access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
-A `Handle` inherits configuration from the `Jdbi` at the time it is created.
-See <<Configuration>> for more details.
+A `Handle` inherits configuration from the `Jdbi` at the time it is created. See <<Configuration>> for more details.
 
-[CAUTION]
-Because `Handle` holds an open connection, care must be taken to ensure
-that each handle is closed when you are done with it. Failure to close
-Handles will eventually overwhelm your database with open connections, or
-drain your connection pool.
+Handles and all attached query objects such as link:{jdbidocs}/core/statement/Batch.html[Batch^], link:{jdbidocs}/core/statement/Call.html[Call^], link:{jdbidocs}/core/statement/Query.html[Query^], link:{jdbidocs}/core/statement/Script.html[Script^] and link:{jdbidocs}/core/statement/Update.html[Update^] should be used by a single thread and are *not thread-safe*.
 
-There are a few ways to obtain a `Handle` instance at runtime.
+They may be used by multiple threads as long as there is coordination that only one thread at a time is accessing them. Managing Handles and query objects across threads is error-prone and should not be avoided.
 
-If your operation returns some result, use
-link:{jdbidocs}/core/Jdbi.html#withHandle-org.jdbi.v3.core.HandleCallback-[jdbi.withHandle()^]:
+==== Obtaining a managed handle
 
+The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods on the `Jdbi` class. These methods use callbacks and provide a fully managed handle that is correctly closed and all related resources are released. `withHandle` allows the callback to return a result while `useHandle` is just executing operations that do not need to return any value.
+
+Providing a return value from a query using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^] method:
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=withHandle]
 ----
 
-If your operation does not need to return a result,
-use `Jdbi.useHandle(HandleConsumer)`:
-
+Executing an operation using the link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^] method:
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=useHandle]
 ----
 
-Both `withHandle` and `useHandle` open a temporary handle, call your callback,
-and immediately release the handle when your callback returns.
-
 [TIP]
-You may notice the "consumer" vs "callback" naming pattern in a few
-places in Jdbi. Callbacks return a value, and are coupled to `with-` methods.
-Consumers do not return a value, and are coupled to `use-` methods.
+You may notice the "consumer" vs "callback" naming pattern in a few  places in Jdbi. Callbacks return a value, and are coupled to `with-` methods. Consumers do not return a value, and are coupled to `use-` methods.
 
-Alternatively, if you want to manage the lifecycle of the handle yourself,
-use `jdbi.open()`:
+==== Managing the Handle lifecycle manually
 
+The link:{jdbidocs}/core/Jdbi.html#open()[Jdbi#open()^] method returns an unmanaged handle.
+
+The Java `try-with-resources` construct can be used to manage the lifecycle of the handle:
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=openHandle]
 ----
 
+An unmanaged handle must be used when a stateful object should be passed to the calling code. Stateful objects are iterators and streams that do not collect data ahead of time in memory but provide a data stream from the database through the JDBC connection to the calling code. Using a callback does not work here because the connection would be closed before the calling code can comsume the data.
+
+[source,java,indent=0]
+----
+include::{exampledir}/FiveMinuteTourTest.java[tags=streamData]
+----
+
 [CAUTION]
-When using `jdbi.open()`, you should always use try-with-resources or a
-try-finally block to ensure the database connection is released. Failing to
-release the handle will leak connections. We recommend using `withHandle`
-or `useHandle` over `open` whenever possible.
+When using `jdbi.open()`, you should consider using try-with-resources or a  try-finally block to ensure the handle is closed and the database connection is released. Failing to release the handle will leak connections. It is recommended to use a managed handle whenever possible.
 
 === Arguments
 
@@ -1710,8 +1834,8 @@ happen behind the scenes:
 NOTE: If the lookup for the collector factory, element type, or element mapper
 fails, an exception is thrown.
 
-Jdbi can be enhanced to support arbitrary container types. See
-<<JdbiCollectors>> for more information.
+Jdbi can be enhanced to support arbitrary container types.
+// See <<JdbiCollectors>> for more information.
 
 === Codecs
 
@@ -2782,7 +2906,7 @@ These features currently make use of qualified types:
 
 - `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
 respectively, instead of the usual `varchar`.
-- `jdbi3-postgres` offers <<PostgreSQL-hstore,HStore>>.
+- `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
 - <<jdbi3-json,JSON>>
 - `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
 and setter parameters.
@@ -2866,7 +2990,7 @@ second.
 `@SqlUpdate` can also be used for DDL (Data Definition Language) operations like
 creating or altering tables. We recommend using a schema migration tool such
 as link:https://flywaydb.org/[Flyway^] or
-link:http://www.liquibase.org/[Liquibase^] to maintain your database schemas.
+link:https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
 
 By default, a `@SqlUpdate` method may return a handful of types:
 
@@ -2876,7 +3000,7 @@ By default, a `@SqlUpdate` method may return a handful of types:
   matched by the query (regardless of whether any data was changed).
 * `boolean`: returns true if the update count is greater than zero.
 
-[reftext="SqlUpdate-GetGeneratedKeys"]
+[#sqlupdate-getgeneratedkeys]
 ===== @GetGeneratedKeys
 
 Some SQL statements will cause data to be generated on your behalf at the
@@ -2915,8 +3039,7 @@ public interface UserDao {
 ----
 
 [TIP]
-The One True Database supports additional functionality when returning generated
-keys. See <<PostgreSQL-GetGeneratedKeys,PostgreSQL>> for more details.
+Postgres supports additional functionality when returning generated keys. See <<postgres-getgeneratedkeys,PostgreSQL>> for more details.
 
 ==== Binding Arguments
 
@@ -2942,7 +3065,7 @@ You can use named arguments with the `@Bind` annotation:
 void insert(@Bind("id") long id, @Bind("name") String name);
 ----
 
-<<Compiling with Parameter Names,Compiling with parameter names>> removes the
+<<compiling_with_parameter_names,Compiling with parameter names>> removes the
 need for the `@Bind` annotation. Jdbi will then bind each un-annotated parameter
 to the parameter's name.
 
@@ -3050,8 +3173,7 @@ public interface UserDao {
 
 [TIP]
 Jdbi can be "taught" to recognize new collection types by registering a
-link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] with the
-<<JdbiCollectors>> config registry.
+link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] with the `JdbiCollectors` config registry.
 
 See
 link:{jdbidocs}/core/collector/BuiltInCollectorFactory.html[BuiltInCollectorFactory^]
@@ -3468,7 +3590,7 @@ Map<String, BigDecimal> getNumericLevels();
 [TIP]
 Do you use PostgreSQL's `hstore` columns? The <<PostgreSQL>> plugin provides an
 `hstore` to `Map<String, String>` column mapper. See
-<<PostgreSQL-hstore,hstore>> for more information.
+<<postgres-hstore,hstore>> for more information.
 
 ===== @UseRowReducer
 
@@ -3599,13 +3721,13 @@ By default, a `@SqlBatch` method may return a handful of types:
 * `boolean[]`: returns true if the update count is greater than zero, one value
   for each execution in the batch.
 
-[reftext="SqlBatch-GetGeneratedKeys"]
+[#sqlbatch-getgeneratedkeys]
 ===== @GetGeneratedKeys
 
 Similar to `@SqlUpdate`, the `@GetGeneratedKeys` annotations tells SQL Object
 that the return value should be the generated keys from each SQL statement,
 instead of the update count. See
-<<SqlUpdate-GetGeneratedKeys,@GetGeneratedKeys>> for a more thorough discussion.
+<<sqlupdate-getgeneratedkeys,@GetGeneratedKeys>> for a more thorough discussion.
 
 [source,java]
 ----
@@ -4103,7 +4225,7 @@ The official test support from JDBI is in the `jdbi-testing` package. There are 
 === JUnit 4
 
 The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
-class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule] and can be used with the link:https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule] and link:https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule] annotations.
+class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule^] and can be used with the link:https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule^] and link:https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule^] annotations.
 
 It provides helpers for writing JUnit 4 tests integrated with a managed database
 instance. This makes writing unit tests quick and easy!  You must remember to include
@@ -4134,9 +4256,9 @@ using Postgres:
 
 === JUnit 5
 
-The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension] for JUnit 5 based tests.
+The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] for JUnit 5 based tests.
 
-It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension] and link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith] annotations.
+It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
 
 When using `@RegisterExtension`, the extensions can be customized further:
 
@@ -5348,7 +5470,7 @@ TIP: Some Postgres operators, for example the `?` query operator, collide
 with `jdbi` or `JDBC` special characters.  In such cases, you may need to
 escape operators to e.g. `??` or `\:`.
 
-[reftext="PostgreSQL-hstore"]
+[#postgres-hstore]
 ==== hstore
 
 The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper
@@ -5399,7 +5521,7 @@ Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
 ----
 
 
-[reftext="PostgreSQL-GetGeneratedKeys"]
+[#postgres-getgeneratedkeys]
 ==== @GetGeneratedKeys
 
 In Postgres, `@GetGeneratedKeys` can return the entire modified row if you
@@ -5959,6 +6081,7 @@ If you want to have two separate pools, for example a read-only set that connect
 and a smaller pool of writers that go only to a single host, you currently should have separate
 `Jdbi` instances each pointed at a separate `DataSource`.
 
+[#compiling_with_parameter_names]
 === Compiling with Parameter Names
 
 By default, the Java compiler does not write parameter names of constructors and
@@ -6172,7 +6295,7 @@ it must have a public no-argument constructor that provides useful defaults
 and a *createCopy* method that is invoked when a configuration registry is cloned.
 
 Generally, configuration should be set on a context before that context is used,
-and not changed later.  Some configuration classes may be thread safe but most are
+and not changed later.  Some configuration classes may be thread-safe but most are
 not.
 
 Many of Jdbi's core features, for example argument or mapper registries, are simply
