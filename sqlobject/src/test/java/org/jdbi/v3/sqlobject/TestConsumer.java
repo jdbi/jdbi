@@ -14,17 +14,22 @@
 package org.jdbi.v3.sqlobject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -35,26 +40,56 @@ public class TestConsumer {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
-    @Test
-    public void testReturnStream() {
-        Something one = new Something(3, "foo");
-        Something two = new Something(4, "bar");
-        Something thr = new Something(5, "baz");
+    Spiffy dao;
+    List<Something> expected;
 
-        Spiffy dao = h2Extension.getSharedHandle().attach(Spiffy.class);
+    @BeforeEach
+    public void setup() {
+        final Something one = new Something(3, "foo");
+        final Something two = new Something(4, "bar");
+        final Something thr = new Something(5, "baz");
+
+        dao = h2Extension.getSharedHandle().attach(Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);
 
-        List<Something> results = new ArrayList<>();
+        expected = Arrays.asList(thr, two, one);
+    }
+
+    @Test
+    public void consumeEach() {
+        final List<Something> results = new ArrayList<>();
         dao.forEach(results::add);
-        assertThat(results).containsExactly(thr, two, one);
+        assertThat(results).containsExactlyElementsOf(expected);
+    }
+
+    @Test
+    public void consumeIterator() {
+        final List<Something> results = new ArrayList<>();
+        dao.consumeIterator(iter -> iter.forEachRemaining(results::add));
+        assertThat(results).containsExactlyElementsOf(expected);
+    }
+
+    @Test
+    public void consumeStream() {
+        final List<Something> results = new ArrayList<>();
+        dao.consumeStream(stream -> stream.forEach(results::add));
+        assertThat(results).containsExactlyElementsOf(expected);
     }
 
     public interface Spiffy {
         @SqlQuery("select id, name from something order by id desc")
         @UseRowMapper(SomethingMapper.class)
         void forEach(Consumer<Something> consumer);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeIterator(Consumer<Iterator<Something>> consumer);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeStream(Consumer<Stream<Something>> consumer);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something something);

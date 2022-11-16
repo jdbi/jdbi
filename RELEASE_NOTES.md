@@ -8,6 +8,7 @@
   - fixes and updates to the build system, additional docs for contributing, IDE code style support for IntelliJ and Eclipse
   - doc updates for Kotlin code
   - add Kotlin `mapTo(KClass<*>)` extension function to `ResultBearing`
+  - SqlObject Consumer<T> now accepts Consumer<Stream<T>> and Consumer<Iterator<T>> forms
 
 # 3.34.0
 

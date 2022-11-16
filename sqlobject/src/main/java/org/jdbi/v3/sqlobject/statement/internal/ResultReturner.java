@@ -79,9 +79,9 @@ abstract class ResultReturner {
         } else if (Iterator.class.equals(returnClass)) {
             return new IteratorReturner(qualifiedReturnType);
         } else if (method.isAnnotationPresent(SingleValue.class)) {
-            return new SingleValueReturner(qualifiedReturnType);
+            return new SingleValueReturner<>(qualifiedReturnType);
         } else {
-            return new CollectedResultReturner(qualifiedReturnType);
+            return new CollectedResultReturner<>(qualifiedReturnType);
         }
     }
 
@@ -94,7 +94,7 @@ abstract class ResultReturner {
         final Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             if (paramTypes[i] == Consumer.class) {
-                return Optional.of(new ConsumerResultReturner(method, i));
+                return Optional.of(ConsumerResultReturner.of(method, i));
             }
         }
         return Optional.empty();
@@ -300,42 +300,93 @@ abstract class ResultReturner {
         }
     }
 
-    static class ConsumerResultReturner extends ResultReturner {
+    abstract static class ConsumerResultReturner extends ResultReturner {
         private final int consumerIndex;
         private final QualifiedType<?> elementType;
 
-        ConsumerResultReturner(Method method, int consumerIndex) {
+        ConsumerResultReturner(int consumerIndex, QualifiedType<?> elementType) {
             this.consumerIndex = consumerIndex;
+            this.elementType = elementType;
+        }
+
+        static ConsumerResultReturner of(Method method, int consumerIndex) {
             Type parameterType = method.getGenericParameterTypes()[consumerIndex];
-            this.elementType = QualifiedType.of(
+            QualifiedType<?> elementType = QualifiedType.of(
                 GenericTypes.findGenericParameter(parameterType, Consumer.class)
                     .orElseThrow(() -> new IllegalStateException(
                         "Cannot reflect Consumer<T> element type T in method consumer parameter "
                             + parameterType)))
                 .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
+            if (GenericTypes.isSuperType(Iterator.class, elementType.getType())) {
+                return new ConsumeIteratorResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterator type on " + elementType))));
+            } else if (GenericTypes.isSuperType(Stream.class, elementType.getType())) {
+                return new ConsumeStreamResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Stream type on " + elementType))));
+            } else {
+                return new ConsumeEachResultReturner(consumerIndex, elementType);
+            }
         }
 
         @Override
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            @SuppressWarnings("unchecked")
-            Consumer<Object> consumer = (Consumer<Object>)
-                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
-            iterable.forEach(consumer);
+            accept(iterable.stream(), findConsumer(ctx));
             return null;
         }
 
         @Override
         protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
-            @SuppressWarnings("unchecked")
-            Consumer<Object> consumer = (Consumer<Object>)
-                ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()[consumerIndex];
-            stream.forEach(consumer);
+            accept(stream, findConsumer(ctx));
             return null;
         }
+
+        @SuppressWarnings("unchecked")
+        private Consumer<Object> findConsumer(StatementContext ctx) {
+            return (Consumer<Object>) ctx.getConfig(SqlObjectStatementConfiguration.class)
+                    .getArgs()[consumerIndex];
+        }
+
+        protected abstract void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer);
 
         @Override
         protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
+        }
+    }
+
+    static class ConsumeEachResultReturner extends ConsumerResultReturner {
+        ConsumeEachResultReturner(int consumerIndex, QualifiedType<?> elementType) {
+            super(consumerIndex, elementType);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
+            stream.forEach(consumer);
+        }
+    }
+
+    static class ConsumeIteratorResultReturner extends ConsumerResultReturner {
+        ConsumeIteratorResultReturner(int consumerIndex, QualifiedType<?> elementType) {
+            super(consumerIndex, elementType);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
+            consumer.accept(stream.iterator());
+        }
+    }
+
+    static class ConsumeStreamResultReturner extends ConsumerResultReturner {
+        ConsumeStreamResultReturner(int consumerIndex, QualifiedType<?> elementType) {
+            super(consumerIndex, elementType);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
+            consumer.accept(stream);
         }
     }
 }
