@@ -60,9 +60,19 @@ Style guidelines:
 
 === Quick Links
 
-* https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)^]
-* https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code^]
-* https://github.com/jdbi/jdbi[GitHub JDBI repository^]
+* link:https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)^]
+* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code^]
+* link:https://github.com/jdbi/jdbi[GitHub JDBI repository^]
+
+* link:https://github.com/jdbi/jdbi/discussions[Discussion groups for Jdbi^]
+* link:https://groups.google.com/group/jdbi[Mailing list^]
+* link:https://stackoverflow.com/questions/tagged/jdbi[Stack Overflow^]
+
+=== Getting involved
+
+Jdbi uses link:https://github.com/jdbi/jdbi[GitHub^] as the central development hub. link:https://github.com/jdbi/jdbi/issues[Issues^], link:https://github.com/jdbi/jdbi/pulls[Pull Requests^] and link:https://github.com/jdbi/jdbi/discussions[Discussions^] all happen here.
+
+Please see our link:https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribution guide^] for more information on how to contribute to Jdbi.
 
 === JDBI v2 (legacy version)
 
@@ -6998,17 +7008,6 @@ instruments using DropWizard-Metrics to emit statement timing statistics.
 
 Do you know of a project related to Jdbi? Send us an issue, and we'll add a link
 here!
-
-=== Contributing
-
-Jdbi uses GitHub for collaboration. Please check out the
-link:{projecthome}[project page^] for more information.
-
-If you have a question, we have a
-link:https://groups.google.com/group/jdbi[Google Group mailing list^]
-
-Users sometimes hang out on
-link:irc://irc.freenode.net/#jdbi[IRC in #jdbi on Freenode^].
 
 === Upgrading from v2 to v3
 
