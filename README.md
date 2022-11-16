@@ -11,7 +11,9 @@ Jdbi with it.
 
 * [Developer Guide](https://jdbi.github.io/)
 * [Javadoc](https://jdbi.org/apidocs/)
+* [User forums](https://github.com/jdbi/jdbi/discussions)
 * [Mailing List](http://groups.google.com/group/jdbi)
+* [Stack Overflow](https://stackoverflow.com/questions/tagged/jdbi)
 
 Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/tree/master/examples) module.
 
@@ -90,7 +92,7 @@ for instructions to set up your development environment to build Jdbi.
 
 ## Versioning
 
-Jdbi uses [SemVer](http://semver.org/) for versioning.
+Jdbi uses [SemVer](http://semver.org/) to version its public API.
 
 ## License
 
