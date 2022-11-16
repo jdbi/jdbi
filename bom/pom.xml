@@ -55,6 +55,11 @@
         <dependencies>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-commons-text</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-core</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
@@ -63,12 +68,6 @@
                 <artifactId>jdbi3-core</artifactId>
                 <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-commons-text</artifactId>
-                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
@@ -83,11 +82,6 @@
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-gson2</artifactId>
-                <version>${dep.jdbi3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-moshi</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
@@ -138,6 +132,16 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-moshi</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgis</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgres</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
@@ -149,8 +153,15 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgis</artifactId>
+                <artifactId>jdbi3-spring5</artifactId>
                 <version>${dep.jdbi3.version}</version>
+                <!--- it is always spring. always. -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jcl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
@@ -167,11 +178,6 @@
                 <artifactId>jdbi3-sqlobject</artifactId>
                 <version>${dep.jdbi3.version}</version>
                 <classifier>tests</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring5</artifactId>
-                <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>

@@ -38,33 +38,38 @@
         <!-- integration tests will not find the bom dependency and fail -->
         <module>internal</module>
         <module>bom</module>
-        <module>examples</module>
-        <module>core</module>
-        <module>sqlobject</module>
-        <module>stringtemplate4</module>
+
+        <!-- alphabetical list of the documented (public) modules that we ship -->
         <module>commons-text</module>
-        <module>lombok</module>
+        <module>core</module>
         <module>freemarker</module>
+        <module>generator</module>
         <module>gson2</module>
-        <module>moshi</module>
-        <module>guice</module>
         <module>guava</module>
+        <module>guice</module>
         <module>jackson2</module>
         <module>jodatime2</module>
         <module>jpa</module>
         <module>json</module>
-        <module>postgres</module>
-        <module>postgis</module>
-        <module>spring5</module>
-        <module>docs</module>
-        <module>kotlin</module>
         <module>kotlin-sqlobject</module>
-        <module>noparameters</module>
-        <module>vavr</module>
+        <module>kotlin</module>
+        <module>moshi</module>
+        <module>postgis</module>
+        <module>postgres</module>
+        <module>spring5</module>
         <module>sqlite</module>
-        <module>generator</module>
-        <module>benchmark</module>
+        <module>sqlobject</module>
+        <module>stringtemplate4</module>
         <module>testing</module>
+        <module>vavr</module>
+
+        <!-- support pieces, examples, benchmark, tests etc. -->
+        <!-- none of those ship actual end-user code -->
+        <module>benchmark</module>
+        <module>docs</module>
+        <module>examples</module>
+        <module>lombok</module>
+        <module>noparameters</module>
     </modules>
 
     <scm>
