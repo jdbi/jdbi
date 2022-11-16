@@ -179,7 +179,17 @@ public final class FieldMapper<T> implements RowMapper<T> {
 
         fields.sort(Comparator.comparing(f -> f.propagateNull ? 1 : 0));
 
-        RowMapper<T> boundMapper = new BoundFieldMapper(fields);
+        final ReflectionMappers reflectionConfig = ctx.getConfig(ReflectionMappers.class);
+        fields.forEach(fieldData ->
+                reflectionConfig.makeAccessible(fieldData.field));
+
+        final Constructor<T> constructor;
+        try {
+            constructor = reflectionConfig.makeAccessible(type.getDeclaredConstructor());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
+        }
+        RowMapper<T> boundMapper = new BoundFieldMapper(constructor, fields);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -239,10 +249,11 @@ public final class FieldMapper<T> implements RowMapper<T> {
     }
 
     class BoundFieldMapper implements RowMapper<T> {
-
+        private final Constructor<T> constructor;
         private final List<FieldData> fields;
 
-        BoundFieldMapper(List<FieldData> fields) {
+        BoundFieldMapper(Constructor<T> constructor, List<FieldData> fields) {
+            this.constructor = constructor;
             this.fields = fields;
         }
 
@@ -263,16 +274,14 @@ public final class FieldMapper<T> implements RowMapper<T> {
 
         private T construct() {
             try {
-                return type.getDeclaredConstructor().newInstance();
+                return constructor.newInstance();
             } catch (ReflectiveOperationException e) {
                 throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
             }
         }
 
-        @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
         private void writeField(T obj, Field field, Object value) {
             try {
-                field.setAccessible(true);
                 field.set(obj, value);
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException(format("Unable to access property, %s", field.getName()), e);

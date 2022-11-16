@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -30,6 +32,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
     private UnaryOperator<String> caseChange;
+    private Consumer<AccessibleObject> makeAccessible = accessibleObject -> accessibleObject.setAccessible(true);
 
     /**
      * Create a default configuration that attempts case insensitive and
@@ -113,6 +116,35 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     public ReflectionMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
         return this;
+    }
+
+    /**
+     * Set the strategy Jdbi uses for Java accessibility rules.
+     * The legacy default is to call {@code setAccessible(true)} in certain cases when we try to use a Constructor, Method, or Field.
+     * In the future, this default will be changed to a no-op, to better interact with the Java module system.
+     */
+    @Beta
+    public ReflectionMappers setAccessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
+        this.makeAccessible = makeAccessible;
+        return this;
+    }
+
+    /**
+     * Set the strategy Jdbi uses for Java accessibility rules to a no-op.
+     */
+    @Beta
+    public ReflectionMappers disableAccessibleObjectStrategy() {
+        this.makeAccessible = accessibleObject -> {};
+        return this;
+    }
+
+    /**
+     * Use the accessibility strategy to potentially make a reflective operation accessible.
+     */
+    @Beta
+    public <T extends AccessibleObject> T makeAccessible(T accessibleObject) {
+        makeAccessible.accept(accessibleObject);
+        return accessibleObject;
     }
 
     @Override
