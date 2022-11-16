@@ -67,12 +67,12 @@ public class Extensions implements JdbiConfig<Extensions> {
      * the extension type which has access to a {@code Handle} through a {@link HandleSupplier}.
      * @param <E> the extension type to create
      * @param extensionType the extension type to create
-     * @param handle the handle supplier
+     * @param handleSupplier the handle supplier
      * @return an attached extension instance if a factory is found
      */
-    public <E> Optional<E> findFor(Class<E> extensionType, HandleSupplier handle) {
+    public <E> Optional<E> findFor(Class<E> extensionType, HandleSupplier handleSupplier) {
         return findFactoryFor(extensionType)
-                .map(factory -> factory.attach(extensionType, handle));
+                .map(factory -> factory.attach(extensionType, handleSupplier));
     }
 
     private Optional<ExtensionFactory> findFactoryFor(Class<?> extensionType) {

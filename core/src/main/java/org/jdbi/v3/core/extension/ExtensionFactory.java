@@ -17,11 +17,11 @@ package org.jdbi.v3.core.extension;
  * Factory interface used to produce Jdbi extension objects.
  */
 public interface ExtensionFactory {
+
     /**
      * Returns true if the factory can attach the given extension type.
      *
      * @param extensionType the extension type.
-     *
      * @return whether the factory can produce an extension of the given type.
      */
     boolean accepts(Class<?> extensionType);
@@ -29,15 +29,14 @@ public interface ExtensionFactory {
     /**
      * Attaches an extension type.
      *
-     * @param extensionType the extension type.
-     * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
-     *                      invocation. Extension implementors should take care not to fetch the handle before it is
-     *                      needed, to avoid opening handles unnecessarily.
-     * @param <E> the extension type
-     *
+     * @param extensionType  the extension type.
+     * @param handleSupplier Supplies the database handle. This supplier may lazily open a Handle on the first
+     *                       invocation. Extension implementors should take care not to fetch the handle before it is
+     *                       needed, to avoid opening handles unnecessarily.
+     * @param <E>            the extension type
      * @return an extension of the given type, attached to the given handle.
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
      * @see org.jdbi.v3.core.Jdbi#onDemand(Class)
      */
-    <E> E attach(Class<E> extensionType, HandleSupplier handle);
+    <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier);
 }

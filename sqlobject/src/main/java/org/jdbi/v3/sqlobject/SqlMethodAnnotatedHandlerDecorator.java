@@ -34,8 +34,8 @@ import static java.util.stream.Collectors.toList;
  */
 class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
     @Override
-    public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-        Handler handler = base;
+    public Handler decorateHandler(Handler delegate, Class<?> sqlObjectType, Method method) {
+        Handler handler = delegate;
 
         List<Class<? extends Annotation>> annotationTypes = Stream.of(method, sqlObjectType)
                 .map(AnnotatedElement::getAnnotations)

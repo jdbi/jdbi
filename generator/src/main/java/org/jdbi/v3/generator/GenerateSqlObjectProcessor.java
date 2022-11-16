@@ -139,7 +139,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
 
         implSpec.addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(HandleSupplier.class, "handle")
+                .addParameter(HandleSupplier.class, "handleSupplier")
                 .addParameter(ConfigRegistry.class, "config")
                 .addCode(constructor.build())
                 .build());
@@ -171,7 +171,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 el.getSimpleName(),
                 paramTypes);
 
-        init.add("$L = initData.lazyInvoker(this, $L, handle, config);\n",
+        init.add("$L = initData.lazyInvoker(this, $L, handleSupplier, config);\n",
                 invokerField,
                 methodField);
 

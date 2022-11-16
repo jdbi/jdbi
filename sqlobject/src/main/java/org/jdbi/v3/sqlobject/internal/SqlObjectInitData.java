@@ -97,7 +97,7 @@ public final class SqlObjectInitData {
         return extensionType;
     }
 
-    public <E> E instantiate(Class<E> passExtensionType, HandleSupplier handle, ConfigRegistry instanceConfig) {
+    public <E> E instantiate(Class<E> passExtensionType, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
         if (!extensionType.equals(passExtensionType)) {
             throw new IllegalArgumentException("mismatch extension type");
         }
@@ -107,7 +107,7 @@ public final class SqlObjectInitData {
             return passExtensionType.cast(
                 Class.forName(extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl")
                     .getConstructor(HandleSupplier.class, ConfigRegistry.class)
-                    .newInstance(handle, instanceConfig));
+                    .newInstance(handleSupplier, instanceConfig));
         } catch (Exception | ExceptionInInitializerError e) {
             throw new UnableToCreateSqlObjectException(e);
         } finally {
@@ -123,7 +123,7 @@ public final class SqlObjectInitData {
         methodHandlers.forEach(action);
     }
 
-    public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handle, ConfigRegistry instanceConfig) {
+    public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
         return MemoizingSupplier.of(() -> {
             ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
             ExtensionContext extensionContext = new ExtensionContext(methodConfig, new ExtensionMethod(extensionType, method));
@@ -132,13 +132,13 @@ public final class SqlObjectInitData {
             return new InContextInvoker() {
                 @Override
                 public Object invoke(Object[] args) {
-                    return call(() -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handle));
+                    return call(() -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handleSupplier));
                 }
 
                 @Override
                 public Object call(Callable<?> task) {
                     try {
-                        return handle.invokeInContext(extensionContext, task);
+                        return handleSupplier.invokeInContext(extensionContext, task);
                     } catch (Exception x) {
                         throw Sneaky.throwAnyway(x);
                     }

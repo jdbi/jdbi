@@ -88,16 +88,16 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
      * object, such as transaction status, closing it, etc, will apply to both the object and the handle.
      *
      * @param extensionType the type of sql object to create
-     * @param handle the Handle instance to attach ths sql object to
+     * @param handleSupplier the Handle instance to attach ths sql object to
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        final SqlObjectInitData data = sqlObjectCache.get(extensionType, handle.getConfig());
-        final ConfigRegistry instanceConfig = data.configureInstance(handle.getConfig().createCopy());
+    public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
+        final SqlObjectInitData data = sqlObjectCache.get(extensionType, handleSupplier.getConfig());
+        final ConfigRegistry instanceConfig = data.configureInstance(handleSupplier.getConfig().createCopy());
 
         if (data.isConcrete()) {
-            return data.instantiate(extensionType, handle, instanceConfig);
+            return data.instantiate(extensionType, handleSupplier, instanceConfig);
         }
         instanceConfig.get(Extensions.class).onCreateProxy();
 
@@ -108,7 +108,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                 (p, m, a) -> handlers.get(m).get().invoke(a));
 
         data.forEachMethodHandler((m, h) ->
-                handlers.put(m, data.lazyInvoker(proxy, m, handle, instanceConfig)));
+                handlers.put(m, data.lazyInvoker(proxy, m, handleSupplier, instanceConfig)));
         return extensionType.cast(proxy);
     }
 
