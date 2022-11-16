@@ -494,9 +494,9 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private <R, E, X extends Exception> R callWithExtension(Class<E> extensionType,
                                                             ExtensionCallback<R, E, X> callback,
-                                                            HandleSupplier handle) throws X {
+                                                            HandleSupplier handleSupplier) throws X {
         E extension = getConfig(Extensions.class)
-            .findFor(extensionType, handle)
+            .findFor(extensionType, handleSupplier)
             .orElseThrow(() -> new NoSuchExtensionException(extensionType));
 
         return callback.withExtension(extension);

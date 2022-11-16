@@ -66,11 +66,11 @@ public class TestOnDemandMethodBehavior {
         }
 
         @Override
-        public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
+        public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
             return extensionType.cast(new UselessDao() {
                 @Override
                 public Handle getHandle() {
-                    return handle.getHandle();
+                    return handleSupplier.getHandle();
                 }
 
                 @Override

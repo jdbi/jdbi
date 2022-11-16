@@ -48,8 +48,8 @@ public class TestJdbiNestedCallBehavior {
         }
 
         @Override
-        public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-            return extensionType.cast(new TestExtensionImpl(handle));
+        public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
+            return extensionType.cast(new TestExtensionImpl(handleSupplier));
         }
     }
 

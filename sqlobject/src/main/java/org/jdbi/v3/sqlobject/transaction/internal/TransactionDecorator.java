@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 
 public class TransactionDecorator implements HandlerDecorator {
     @Override
-    public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
+    public Handler decorateHandler(Handler delegate, Class<?> sqlObjectType, Method method) {
         final Transaction txnAnnotation = Stream.of(method, sqlObjectType)
                 .map(ae -> ae.getAnnotation(Transaction.class))
                 .filter(Objects::nonNull)
@@ -36,26 +36,26 @@ public class TransactionDecorator implements HandlerDecorator {
         final TransactionIsolationLevel isolation = txnAnnotation.value();
         final boolean readOnly = txnAnnotation.readOnly();
 
-        return (target, args, handle) -> {
-            Handle h = handle.getHandle();
+        return (target, args, handleSupplier) -> {
+            Handle handle = handleSupplier.getHandle();
 
-            if (h.isInTransaction() && h.isReadOnly() && !readOnly) {
+            if (handle.isInTransaction() && handle.isReadOnly() && !readOnly) {
                 throw new TransactionException("Tried to execute a nested @Transaction(readOnly=false) "
                         + "inside a readOnly transaction");
             }
 
-            HandleCallback<Object, Exception> callback = th -> base.invoke(target, args, handle);
+            HandleCallback<Object, Exception> callback = transactionHandle -> delegate.invoke(target, args, handleSupplier);
 
-            final boolean flipReadOnly = readOnly != h.isReadOnly();
+            final boolean flipReadOnly = readOnly != handle.isReadOnly();
             if (flipReadOnly) {
-                h.setReadOnly(readOnly);
+                handle.setReadOnly(readOnly);
             }
 
             try {
-                return h.inTransaction(isolation, callback);
+                return handle.inTransaction(isolation, callback);
             } finally {
                 if (flipReadOnly) {
-                    h.setReadOnly(!readOnly);
+                    handle.setReadOnly(!readOnly);
                 }
             }
         };
