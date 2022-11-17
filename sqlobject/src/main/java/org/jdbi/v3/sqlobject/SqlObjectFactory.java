@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -105,7 +104,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
         final Object proxy = Proxy.newProxyInstance(
                 extensionType.getClassLoader(),
                 new Class[] {extensionType},
-                (p, m, a) -> handlers.get(m).get().invoke(a));
+                (proxyInstance, method, args) -> handlers.get(method).get().invoke(args));
 
         data.forEachMethodHandler((m, h) ->
                 handlers.put(m, data.lazyInvoker(proxy, m, handleSupplier, instanceConfig)));
@@ -132,31 +131,36 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
             Class<?> sqlObjectType,
             Handlers registry,
             HandlerDecorators decorators) {
-        final Map<Method, Handler> handlers = new HashMap<>();
+        final Map<Method, Handler> handlerMap = new HashMap<>();
 
-        handlers.putAll(handlerEntry((t, a, h) ->
-                sqlObjectType.getName() + '@' + Integer.toHexString(t.hashCode()),
-            Object.class, "toString"));
-        handlers.putAll(handlerEntry((t, a, h) -> t == a[0], Object.class, "equals", Object.class));
-        handlers.putAll(handlerEntry((t, a, h) -> System.identityHashCode(t), Object.class, "hashCode"));
-        handlers.putAll(handlerEntry((t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
+        addMethodHandler(handlerMap, (target, args, handleSupplier) ->
+                        "Jdbi sqlobject proxy for " + sqlObjectType.getName() + "@" + Integer.toHexString(target.hashCode()),
+                Object.class, "toString");
+        addMethodHandler(handlerMap, (target, args, handleSupplier) -> target == args[0],
+                Object.class, "equals", Object.class);
+        addMethodHandler(handlerMap, (target, args, handleSupplier) -> System.identityHashCode(target),
+                Object.class, "hashCode");
+
+        // this should probably have a check whether the sqlObjectType actually implements SqlObject
+        addMethodHandler(handlerMap, (target, args, handleSupplier) -> handleSupplier.getHandle(),
+                SqlObject.class, "getHandle");
+
         try {
-            handlers.putAll(handlerEntry((t, a, h) -> null, sqlObjectType, "finalize"));
+            addMethodHandler(handlerMap, (target, args, handleSupplier) -> null, sqlObjectType, "finalize");
         } catch (IllegalStateException expected) {
-            // optional implementation
+            // ignore - optional implementation
         }
 
         final Set<Method> methods = new LinkedHashSet<>();
         methods.addAll(Arrays.asList(sqlObjectType.getMethods()));
         methods.addAll(Arrays.asList(sqlObjectType.getDeclaredMethods()));
 
-        final Set<Method> seen = handlers.keySet().stream()
-                .collect(Collectors.toCollection(HashSet::new));
+        final Set<Method> seen = new HashSet<>(handlerMap.keySet());
         for (Method method : methods) {
             if (Modifier.isStatic(method.getModifiers()) || !seen.add(method)) {
                 continue;
             }
-            handlers.put(method, decorators.applyDecorators(
+            handlerMap.put(method, decorators.applyDecorators(
                         registry.findFor(sqlObjectType, method)
                             .orElseGet(() -> {
                                 Supplier<IllegalStateException> x = () -> new IllegalStateException(String.format(
@@ -185,11 +189,12 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                 throw new UnableToCreateSqlObjectException(sqlObjectType + " has ambiguous methods " + ms + ", please resolve with an explicit override");
             });
 
-        return handlers;
+        return handlerMap;
     }
 
-    private static Map<Method, Handler> handlerEntry(Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        return Collections.singletonMap(Handlers.methodLookup(klass, methodName, parameterTypes), handler);
+    private static void addMethodHandler(Map<Method, Handler> handlerMap, Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
+        Method method = Handlers.methodLookup(klass, methodName, parameterTypes);
+        handlerMap.put(method, handler);
     }
 
     private static UnaryOperator<ConfigRegistry> buildConfigurers(Stream<AnnotatedElement> elements, ConfigurerMethod consumer) {

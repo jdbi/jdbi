@@ -66,6 +66,7 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
 
     private Object createProxy(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
         db.getConfig(Extensions.class).onCreateProxy();
+
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
@@ -76,7 +77,7 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
             }
 
             if (TOSTRING_METHOD.equals(method)) {
-                return extensionType + "@" + Integer.toHexString(System.identityHashCode(proxy));
+                return "Jdbi on demand proxy for " + extensionType.getName() + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
             return db.withExtension(extensionType, extension -> invoke(extension, method, args));
