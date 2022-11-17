@@ -30,7 +30,8 @@ public class MemoizingSupplier<T> implements Supplier<T> {
     private final Supplier<T> create;
 
     private Supplier<T> delegate = this::init;
-    private boolean initialized;
+    private volatile boolean initialized;
+    private T value;
 
     private MemoizingSupplier(Supplier<T> create) {
         this.create = create;
@@ -45,6 +46,10 @@ public class MemoizingSupplier<T> implements Supplier<T> {
         return delegate.get();
     }
 
+    private T internalGet() {
+        return value;
+    }
+
     /**
      * Execute a method on the object returned from the supplier if the object was already created.
      * Skips execution if the underlying object was never created.
@@ -57,12 +62,12 @@ public class MemoizingSupplier<T> implements Supplier<T> {
         }
     }
 
-    private T init() { // NOPMD
+    private T init() {
         synchronized (this) {
             if (!initialized) {
-                T result = create.get();
+                value = create.get();
                 initialized = true;
-                delegate = () -> result;
+                delegate = this::internalGet;
             }
             return delegate.get();
         }
