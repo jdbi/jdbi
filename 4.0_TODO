@@ -7,3 +7,4 @@
   maps in Postgres plugin)
 * Throwables throwOnlyException only exists because of the above <X extends Exception> issue, so clean that up too
 * BeanMapper should throw if it can't find a nested type rather than default to `rs.getObject` (strictColumnMapping)
+* use the with/use pattern everywhere. Replace `inTransaction` with `withTransaction`
