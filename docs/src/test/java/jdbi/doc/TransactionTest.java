@@ -82,14 +82,14 @@ public class TransactionTest {
 
     @Test
     public void inHandleTransaction() {
-        User u = findUserById(handle,2).orElseThrow(() -> new AssertionError("No user found"));
+        User u = findUserById(handle, 2).orElseThrow(() -> new AssertionError("No user found"));
         assertThat(u.id).isEqualTo(2);
         assertThat(u.name).isEqualTo("Bob");
     }
 
     @Test
     public void inJdbiTransaction() {
-        User u = findUserById(jdbi,2).orElseThrow(() -> new AssertionError("No user found"));
+        User u = findUserById(jdbi, 2).orElseThrow(() -> new AssertionError("No user found"));
         assertThat(u.id).isEqualTo(2);
         assertThat(u.name).isEqualTo("Bob");
     }
@@ -120,6 +120,7 @@ public class TransactionTest {
     }
 
     public interface UserDao {
+
         // tag::sqlObjectTransaction[]
         @Transaction
         @SqlQuery("SELECT * FROM users WHERE id=:id")
@@ -201,21 +202,21 @@ public class TransactionTest {
         CountDownLatch latch = new CountDownLatch(2);
 
         Callable<Integer> sumAndInsert = () ->
-            jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactionHandle -> {
-                // Both threads read initial state of table
-                int sum = transactionHandle.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
+                jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactionHandle -> {
+                    // Both threads read initial state of table
+                    int sum = transactionHandle.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
 
-                // synchronize threads, make sure that they each has successfully read the data
-                latch.countDown();
-                latch.await();
+                    // synchronize threads, make sure that they each has successfully read the data
+                    latch.countDown();
+                    latch.await();
 
-                // Now do the write.
-                synchronized(this) {
-                    // handle can be used by multiple threads, but not at the same time
-                    transactionHandle.execute("INSERT INTO ints (value) VALUES(?)", sum);
-                }
-                return sum;
-            });
+                    // Now do the write.
+                    synchronized (this) {
+                        // handle can be used by multiple threads, but not at the same time
+                        transactionHandle.execute("INSERT INTO ints (value) VALUES(?)", sum);
+                    }
+                    return sum;
+                });
 
         // Both of these would calculate 10 + 20 = 30, but that violates serialization!
         Future<Integer> result1 = executor.submit(sumAndInsert);
