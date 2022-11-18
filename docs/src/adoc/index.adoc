@@ -3004,6 +3004,13 @@ and its parameters.
 The parameters to the method are used as arguments to the statement, and the
 SQL statement result mapped into the method return type.
 
+[source,java]
+----
+@SqlQuery("select id, name from users")
+void forEachUser(Consumer<User> consumer);
+----
+
+
 ==== @SqlUpdate
 
 Use the `@SqlUpdate` annotation for operations that modify data (i.e. inserts,
@@ -3176,6 +3183,14 @@ to bind nested properties, e.g. `:user.address.street`.
 [WARNING]
 `@BindMap` does not bind nested properties--map keys are expected to exactly
 match the bound parameter name.
+
+==== Consumer Arguments
+
+As a special case, it is possible to use a link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other bound parameters.
+
+Unless the type `T` is a link:{jdkdocs}/java/util/stream/Stream.html[Stream^] or an link:{jdkdocs}/java/util/Iterator.html[Iterator^], the consumer is executed once for each row in the result set. The static type of parameter `T` determines the row type.
+
+If the consumer implements link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Iterator<T>>^], or link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Stream<T>>^], then the consumer is executed once with the link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/util/stream/Stream.html[Stream^] holding the results. The static type of parameter T determines the mapped row type here as well.
 
 ==== @SqlQuery
 
@@ -3966,110 +3981,6 @@ You can customize the binding name:
 link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] gives you control over
 the timezone used for this.
 
-=== Consumer Methods
-
-As a special case, you may provide a `Consumer<T>`, `Consumer<Iterator<T>>`, or `Consumer<Stream<T>>` argument in addition to other bound parameters.
-When consuming `<T>`, the provided consumer is executed once for each row in the result set.
-Otherwise, the consumer is executed once with the `Iterator` or `Stream` holding the results.
-The static type of parameter T determines the mapped row type.
-
-[source,java]
-----
-@SqlQuery("select id, name from users")
-void forEachUser(Consumer<User> consumer);
-----
-
-=== Mixing SQL objects and the core API
-
-SQL Objects use the same core API as normal SQL statements. There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
-
-It is possible to get access to the Handle directly from a SQL object by extending the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
-
-[source,java]
-----
-public interface SomeDao extends SqlObject {
-    // ...
-}
-
-void mixedCode() {
-    SomeDao dao = jdbi.onDemand(SomeDao.class);
-
-    dao.withHandle(handle -> {
-        handle.createQuery("SELECT * from users").mapTo(User.class).list();
-    })
-}
-----
-
-This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
-
-[NOTE]
-This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach^] method will return the handle it was attached to. This is useful for interface default methods.
-
-==== Default Methods
-
-Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface `default` methods and the SqlObject mixin interface:
-
-[source,java]
-----
-public interface SplineDao extends SqlObject {
-  default void reticulateSplines(Spline spline) {
-    Handle handle = getHandle();
-    // do tricky stuff using the Core API.
-  }
-}
-----
-
-Default methods can also be used to group multiple SQL operations into a single method call:
-
-[source,java]
-----
-public interface ContactPhoneDao {
-  @SqlUpdate("insert into contacts (id, name) values (nextval('contact_id'), :name)")
-  long insertContact(@BindBean Contact contact);
-
-  @SqlBatch("insert into phones (contact_id, type, phone) values (:contactId, :type, :phone)")
-  void insertPhone(long contactId, @BindBean Iterable<Phone> phones);
-
-  default long insertFullContact(Contact contact) {
-    long id = insertContact(contact);
-    insertPhone(id, contact.getPhones());
-    return id;
-  }
-}
-----
-
-=== Transaction Management
-
-You may declare transactions with SqlObject annotations:
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectTransaction]
-----
-
-SQL methods with a `@Transaction` annotation may optionally specify a
-transaction isolation level:
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
-----
-
-If a `@Transaction` method calls another `@Transaction` method, they must
-specify the same isolation level, or the inner method must not specify
-anything, in which case the isolation level of the outer method is used.
-
-[source,java,indent=0]
-----
-include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
-----
-
-////
-TODO: Demonstrate Transactional mixin
-
-* Call methods on the mixin to begin, checkpoint, rollback, and commit
-  transactions.
-////
 
 === Using SQL Objects
 
@@ -4152,6 +4063,191 @@ The handle will be closed when the outermost on-demand invocation completes.
 Returning cursor-like types such as `Stream<T>` or `Iterable<T>` outside of
 the outermost on-demand call does not work.  Since the `Handle` is closed,
 the database cursor is released and reading will fail.
+
+
+=== Mixing SQL objects and the core API
+
+SQL Objects use the same core API as normal SQL statements. There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
+
+It is possible to get access to the Handle directly from a SQL object by extending the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
+
+[source,java]
+----
+public interface SomeDao extends SqlObject {
+    // ...
+}
+
+void mixedCode() {
+    SomeDao dao = jdbi.onDemand(SomeDao.class);
+
+    dao.withHandle(handle -> {
+        handle.createQuery("SELECT * from users").mapTo(User.class).list();
+    })
+}
+----
+
+This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
+
+[NOTE]
+This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach^] method will return the handle it was attached to. This is useful for interface default methods.
+
+==== Default Methods
+
+Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface `default` methods and the SqlObject mixin interface:
+
+[source,java]
+----
+public interface SplineDao extends SqlObject {
+  default void reticulateSplines(Spline spline) {
+    Handle handle = getHandle();
+    // do tricky stuff using the Core API.
+  }
+}
+----
+
+Default methods can also be used to group multiple SQL operations into a single method call:
+
+[source,java]
+----
+public interface ContactPhoneDao {
+  @SqlUpdate("insert into contacts (id, name) values (nextval('contact_id'), :name)")
+  long insertContact(@BindBean Contact contact);
+
+  @SqlBatch("insert into phones (contact_id, type, phone) values (:contactId, :type, :phone)")
+  void insertPhone(long contactId, @BindBean Iterable<Phone> phones);
+
+  default long insertFullContact(Contact contact) {
+    long id = insertContact(contact);
+    insertPhone(id, contact.getPhones());
+    return id;
+  }
+}
+----
+
+=== SQL Object Transactions
+
+Methods on a SQL object can have a link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transaction.html[@Transaction^] annotation:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransaction]
+----
+
+SQL methods with a link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transaction.html[@Transaction^] annotation may optionally specify a
+transaction isolation level:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
+----
+
+Similar to the `inTransaction` and `useTransaction` operations in the core API, transactions are not nested. If a method that has been annotated with link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transaction.html[@Transaction^], calls another method that is annotated as well (e.g. through an interface default method), then the same transaction will be reused, and it will be committed when the outer transaction ends.
+
+Nested method calls must either use the same transaction isolation level or inner methods must not specify any transaction level. In that case, the transaction level of the outer transaction maintained.
+
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
+----
+
+==== Executing multiple SQL operations in a single transaction
+
+A SQL object method uses its own transaction. Multiple method calls can be grouped together to use a shared transaction:
+
+For an existing handle, attach the SQL object inside the transaction:
+
+[source,java,indent=0]
+----
+public interface UserDao {
+    @Transaction
+    @SqlUpdate("INSERT INTO users VALUES (:id, :name)")
+    void createUser(int id, String name);
+}
+
+public void createUsers(Handle handle) {
+    handle.useTransaction(transactionHandle -> {
+        UserDao dao = transactionHandle.attach(UserDao.class);
+
+        // both inserts happen in the same transaction
+        dao.createUser(1, "Alice");
+        dao.createUser(2, "Bob");
+    }
+}
+----
+
+As an alternative, the link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transactional.html[Transactional^] mixin interface can be used to provide transaction support on a SQL object.
+
+Similar to the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface, it gives access to all transaction related methods on the Handle and offers the same callbacks as the Handle itself.
+
+With this mixin interface, the link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[useTransaction^] and link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[inTransaction^] methods group statements into a single transaction by using a callback:
+
+[source,java,indent=0]
+----
+public interface UserDao extends Transactional<UserDao> {
+    @Transaction
+    @SqlUpdate("INSERT INTO users VALUES (:id, :name)")
+    void createUser(int id, String name);
+}
+
+public void createUsers(Jdbi jdbi) {
+    UserDao dao = jdbi.onDemand(UserDao.class);
+
+    dao.useTransaction(transactionDao -> {
+        // both inserts happen in the same transaction
+        transactionDao.createUser(1, "Alice");
+        transactionDao.createUser(2, "Bob");
+    });
+}
+----
+
+Nested calls can be used as well:
+[source,java,indent=0]
+----
+public interface UserDao extends Transactional<UserDao> {
+    @Transaction
+    @SqlUpdate("INSERT INTO users VALUES (:id, :name)")
+    void createUser(int id, String name);
+}
+
+public void createUsers(Jdbi jdbi) {
+    UserDao dao = jdbi.onDemand(UserDao.class);
+
+    dao.useTransaction(transactionDao1 -> {
+        // both inserts happen in the same transaction
+        transactionDao1.createUser(1, "Alice");
+
+        transactionDao1.useTransaction(transactionDao2 -> {
+            transactionDao2.createUser(2, "Bob");
+        });
+    });
+}
+----
+
+SQL object calls and core API calls can be mixed:
+[source,java,indent=0]
+----
+public interface UserDao extends Transactional<UserDao> {
+    @Transaction
+    @SqlUpdate("INSERT INTO users VALUES (:id, :name)")
+    void createUser(int id, String name);
+}
+
+public void createUsers(Jdbi jdbi) {
+    UserDao dao = jdbi.onDemand(UserDao.class);
+
+    dao.useTransaction(transactionDao -> {
+        // both inserts happen in the same transaction
+        transactionDao.createUser(1, "Alice");
+
+        transactionDao.getHandle().useTransaction(transactionHandle ->
+            transactionHandle.createUpdate("USERT INTO users VALUES (:id, :name)")
+                .bind("id", 2)
+                .bind("name", "Bob")
+                .execute();
+        }
+    }
+}
+----
 
 === Additional Annotations
 

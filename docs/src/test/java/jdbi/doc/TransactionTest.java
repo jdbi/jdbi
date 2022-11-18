@@ -114,18 +114,18 @@ public class TransactionTest {
     }
     // end::simpleTransaction[]
 
-    // tag::sqlObjectTransaction[]
     @Test
     public void sqlObjectTransaction() {
         assertThat(handle.attach(UserDao.class).findUserById(3).map(u -> u.name)).contains("Charlie");
     }
 
     public interface UserDao {
-        @SqlQuery("SELECT * FROM users WHERE id=:id")
+        // tag::sqlObjectTransaction[]
         @Transaction
+        @SqlQuery("SELECT * FROM users WHERE id=:id")
         Optional<User> findUserById(int id);
+        // end::sqlObjectTransaction[]
     }
-    // end::sqlObjectTransaction[]
 
     @Test
     public void sqlObjectTransactionIsolation() {
@@ -137,8 +137,8 @@ public class TransactionTest {
     public interface UserDao2 extends UserDao {
 
         // tag::sqlObjectTransactionIsolation[]
-        @SqlUpdate("INSERT INTO USERS (name) VALUES (:name)")
         @Transaction(TransactionIsolationLevel.READ_COMMITTED)
+        @SqlUpdate("INSERT INTO USERS (name) VALUES (:name)")
         void insertUser(String name);
         // end::sqlObjectTransactionIsolation[]
     }
