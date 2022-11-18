@@ -65,7 +65,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private final Jdbi jdbi;
     private final Cleanable connectionCleaner;
-    private final TransactionHandler transactions;
+    private final TransactionHandler transactionHandler;
     private final Connection connection;
     private final boolean forceEndTransactions;
 
@@ -87,10 +87,10 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     static Handle createHandle(Jdbi jdbi,
         Cleanable connectionCleaner,
-        TransactionHandler transactions,
+        TransactionHandler transactionHandler,
         StatementBuilder statementBuilder,
         Connection connection) throws SQLException {
-        Handle handle = new Handle(jdbi, connectionCleaner, transactions, statementBuilder, connection);
+        Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection);
 
         handle.notifyHandleCreated();
         return handle;
@@ -98,7 +98,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private Handle(Jdbi jdbi,
         Cleanable connectionCleaner,
-        TransactionHandler transactions,
+        TransactionHandler transactionHandler,
         StatementBuilder statementBuilder,
         Connection connection) throws SQLException {
         this.jdbi = jdbi;
@@ -113,8 +113,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.handleListeners.addAll(getConfig().get(Handles.class).getListeners());
 
         // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
-        this.transactions = transactions.specialize(this);
-        this.forceEndTransactions = !transactions.isInTransaction(this);
+        this.transactionHandler = transactionHandler.specialize(this);
+        this.forceEndTransactions = !transactionHandler.isInTransaction(this);
 
         addCleanable(() -> {
             // shut down statement builder
@@ -540,7 +540,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return True if the handle is in a transaction.
      */
     public boolean isInTransaction() {
-        return transactions.isInTransaction(this);
+        return transactionHandler.isInTransaction(this);
     }
 
     /**
@@ -549,7 +549,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the same handle.
      */
     public Handle begin() {
-        transactions.begin(this);
+        transactionHandler.begin(this);
         LOG.trace("Handle [{}] begin transaction", this);
         return this;
     }
@@ -561,7 +561,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Handle commit() {
         final long start = System.nanoTime();
-        transactions.commit(this);
+        transactionHandler.commit(this);
         LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterCommit);
@@ -575,7 +575,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Handle rollback() {
         final long start = System.nanoTime();
-        transactions.rollback(this);
+        transactionHandler.rollback(this);
         LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterRollback);
@@ -639,7 +639,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
-        transactions.rollbackToSavepoint(this, savepointName);
+        transactionHandler.rollbackToSavepoint(this, savepointName);
         LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, msSince(start));
         return this;
     }
@@ -655,7 +655,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return The same handle.
      */
     public Handle savepoint(String name) {
-        transactions.savepoint(this, name);
+        transactionHandler.savepoint(this, name);
         LOG.trace("Handle [{}] savepoint \"{}\"", this, name);
         return this;
     }
@@ -667,7 +667,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the same handle.
      */
     public Handle release(String savepointName) {
-        transactions.releaseSavepoint(this, savepointName);
+        transactionHandler.releaseSavepoint(this, savepointName);
         LOG.trace("Handle [{}] release savepoint \"{}\"", this, savepointName);
         return this;
     }
@@ -718,7 +718,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
         return isInTransaction()
             ? callback.withHandle(this)
-            : transactions.inTransaction(this, callback);
+            : transactionHandler.inTransaction(this, callback);
     }
 
     /**
@@ -762,7 +762,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
         try {
             setTransactionIsolation(level);
-            return transactions.inTransaction(this, level, callback);
+            return transactionHandler.inTransaction(this, level, callback);
         } finally {
             setTransactionIsolation(currentLevel);
         }
@@ -786,11 +786,11 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Set the transaction isolation level on the underlying connection.
+     * Set the transaction isolation level on the underlying connection if it is different from the current isolation level.
      *
      * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
      *
-     * @param level the isolation level to use.
+     * @param level the {@link TransactionIsolationLevel} to use.
      */
     public void setTransactionIsolation(TransactionIsolationLevel level) {
         if (level != TransactionIsolationLevel.UNKNOWN) {
@@ -799,9 +799,15 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Set the transaction isolation level on the underlying connection.
+     * Set the transaction isolation level on the underlying connection if it is different from the current isolation level.
      *
      * @param level the isolation level to use.
+     * @see Handle#setTransactionIsolation(TransactionIsolationLevel)
+     * @see Connection#TRANSACTION_NONE
+     * @see Connection#TRANSACTION_READ_UNCOMMITTED
+     * @see Connection#TRANSACTION_READ_COMMITTED
+     * @see Connection#TRANSACTION_REPEATABLE_READ
+     * @see Connection#TRANSACTION_SERIALIZABLE
      */
     public void setTransactionIsolation(int level) {
         try {

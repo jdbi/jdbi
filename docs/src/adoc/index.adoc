@@ -435,6 +435,300 @@ include::{exampledir}/FiveMinuteTourTest.java[tags=streamData]
 [CAUTION]
 When using `jdbi.open()`, you should consider using try-with-resources or a  try-finally block to ensure the handle is closed and the database connection is released. Failing to release the handle will leak connections. It is recommended to use a managed handle whenever possible.
 
+=== Statement types
+
+Any database operation within Jdbi uses a statement. Multiple types of statements exist:
+
+* link:{jdbidocs}/core/statement/Query.html[Query^] - SQL statements that return results, e.g. a `SELECT` or any statement with a `RETURNING` clause. See link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#createQuery(java.lang.CharSequence)[createQuery^]
+* link:{jdbidocs}/core/statement/Update.html[Update^] - SQL statements that return no value such as `INSERT`, `UPDATE`, `DELETE` or a DDL operation. See link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#createUpdate(java.lang.CharSequence)[createUpdate^]
+* link:{jdbidocs}/core/statement/Batch.html[Batch^] - a set of operations that are executed as a batch. See https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#createBatch()[createBatch^]
+* link:{jdbidocs}/core/statement/Call.html[Call^] - execute a stored procedure. See https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#createCall(java.lang.CharSequence)[createCall^]
+* link:{jdbidocs}/core/statement/Script.html[Script^] - a SQL script containing multiple statements separated by `;` that is executed as a batch. See https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#createScript(java.lang.CharSequence)[createScript^]
+
+==== Queries
+
+A link:{jdbidocs}/core/statement/Query.html[Query^] is a
+link:{jdbidocs}/core/result/ResultBearing.html[result-bearing^] SQL statement
+that returns a result set from the database.
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=query]
+----
+
+To get a single row from a query, there are a few possible methods to use,
+depending on the number of rows that might be in the result set.
+
+Call `one()` when you expect the result to contain exactly one row. Returns
+`null` only if the returned row maps to `null`. Throws an exception if the
+result has zero or multiple rows.
+
+[source,java]
+----
+String name = handle.select("select name from users where id = ?", 3)
+    .mapTo(String.class)
+    .one();
+----
+
+Call `findOne()` when you expect the result to contain zero or one row. Returns
+`Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
+an exception if the result has multiple rows.
+
+[source,java]
+----
+Optional<String> name = handle.select(...)
+    .mapTo(String.class)
+    .findOne();
+----
+
+Call `first()` when you expect the result to contain at least one row. Returns
+`null` if the first row maps to `null`. Throws an exception if the result has
+zero rows.
+
+[source,java]
+----
+String name = handle.select("select name from users where id = ?", 3)
+    .mapTo(String.class)
+    .first();
+----
+
+Call `findFirst()` when the result may contain any number of rows. Returns
+`Optional.empty()` if there are no rows, or the first row maps to `null`.
+
+[source,java]
+----
+Optional<String> name = handle.select(...)
+    .mapTo(String.class)
+    .findFirst();
+----
+
+Multiple result rows can be returned in a list:
+
+[source,java]
+----
+List<String> name = handle.createQuery(
+        "select title from films where genre = :genre order by title")
+    .bind("genre", "Action")
+    .mapTo(String.class)
+    .list();
+----
+
+For other collections, use `collect()` with a
+link:{jdkdocs}/java/util/stream/Collector.html[collector^]:
+
+[source,java]
+----
+Set<String> name = handle.createQuery(
+        "select title from films where genre = :genre order by title")
+    .bind("genre", "Action")
+    .mapTo(String.class)
+    .collect(Collectors.toSet());
+----
+
+You can also stream results:
+
+[source,java]
+----
+handle.createQuery(
+        "select title from films where genre = :genre order by title")
+    .mapTo(String.class)
+    .useStream(stream -> {
+      // do stuff with stream
+    });
+----
+
+Thus far, all examples have shown a `String` result type. Of course, you can
+map to many other data types:
+
+[source,java]
+----
+LocalDate releaseDate = handle.createQuery(
+        "select release_date from films where name = :name")
+    .bind("name", "Star Wars: A New Hope")
+    .mapTo(LocalDate.class)
+    .one();
+----
+
+==== Updates
+
+Updates are operations that return an integer number of rows modified, such
+as a database *INSERT*, *UPDATE*, or *DELETE*.
+
+You can execute a simple update with ``Handle``'s `int execute(String sql, Object... args)`
+method which binds simple positional parameters.
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=execute]
+----
+
+To further customize, use `createUpdate`:
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=update]
+----
+
+Updates may return <<Generated Keys>> instead of a result count.
+
+==== Batches
+
+A *Batch* sends many commands to the server in bulk.
+
+After opening the batch, repeated add statements, and invoke *add*.
+
+[source,java,indent=0]
+----
+
+include::{exampledir}/BatchTest.java[tags=simpleBatch]
+----
+
+The statements are sent to the database in bulk, but each statement is executed separately.
+There are no parameters.  Each statement returns a modification count, as with an Update, and
+those counts are then returned in an `int[]` array.  In common cases all elements will be `1`.
+
+Some database drivers might return special values in conditions where modification counts are not available.
+See the
+link:{jdkdocs}/java/sql/Statement.html#executeBatch--[executeBatch^] documentation for details.
+
+==== Prepared Batches
+
+A *PreparedBatch* sends one statement to the server with many argument sets.
+The statement is executed repeatedly, once for each batch of arguments that is *add*-ed to it.
+
+The result is again a `int[]` of modified row count.
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=batch]
+----
+
+SqlObject also supports batch inserts:
+
+[source,java,indent=0]
+----
+include::{exampledir}/BatchTest.java[tags=sqlObjectBatch]
+----
+
+[TIP]
+Batching dramatically increases efficiency over repeated single statement execution, but
+many databases don't handle extremely large batches well either.  Test with your database
+configuration, but often extremely large data sets should be divided
+and committed in pieces - or risk bringing your database to its knees.
+
+
+===== Exception Rewriting
+
+The JDBC SQLException class is very old and predates more modern exception
+facilities like Throwable's suppressed exceptions. When a batch fails, there
+may be multiple failures to report, which could not be represented by the base
+Exception types of the day.
+
+So SQLException has a bespoke
+link:{jdkdocs}/java/sql/SQLException.html#getNextException--[getNextException^]
+chain to represent the causes of a batch failure. Unfortunately, by default
+most logging libraries do not print these exceptions out, pushing their
+handling into your code. It is very common to forget to handle this situation
+and end up with logs that say nothing other than
+
+----
+java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, '') was aborted. Call getNextException to see the cause.
+----
+
+Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
+(new in Java 8) so that your logs are more helpful:
+
+----
+java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, 'Keith') was aborted. Call getNextException to see the cause.
+Suppressed: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "something_pkey"
+  Detail: Key (id)=(0) already exists.
+----
+
+==== Stored Procedure Calls
+
+A *Call* invokes a database stored procedure.
+
+Let's assume an existing stored procedure as an example:
+
+[source,sql]
+----
+include::{exampleresourcedir}/create_stored_proc_add.sql[tags=createStoredProc]
+----
+
+Here's how to call a stored procedure:
+
+[source,java,indent=0]
+----
+include::{exampledir}/CallTest.java[tags=invokeProcedure]
+----
+<1> Call `Handle.createCall()` with the SQL statement. Note that JDBC has a
+    peculiar SQL format when calling stored procedures, which we must follow.
+<2> Bind input parameters to the procedure call.
+<3> Register out parameters, the values that will be returned from the stored
+    procedure call. This tells JDBC what data type to expect for each out
+    parameter.
+<4> Out parameters may be registered by name (as shown in the example) or by
+    zero-based index, if the SQL is using positional parameters. Multiple output
+    parameters may be registered, depending on the output of the stored
+    procedure itself.
+<5> Finally, call `invoke()` to execute the procedure.
+
+Invoking the stored procedure returns an
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object, which
+contains the value(s) returned from the stored procedure call.
+
+Now we can extract the result(s) from `OutParameters`:
+
+[source,java,indent=0]
+----
+include::{exampledir}/CallTest.java[tags=getOutParameters]
+----
+
+It is possible to return open cursors as a result-like object by declaring it
+as `Types.REF_CURSOR` and then inspecting it via `OutParameters.getRowSet()`.
+Usually this must be done in a transaction, and the results must be consumed
+before closing the statement by processing it using the `Call.invoke(Consumer)`
+or `Call.invoke(Function)` callback style.
+
+[WARNING]
+Due to design constraints within JDBC, the parameter data types available
+through `OutParameters` is limited to those types supported directly by JDBC.
+This cannot be expanded through e.g. mapper registration.
+
+==== Scripts
+
+A *Script* parses a String into semicolon terminated statements. The statements
+can be executed in a single *Batch* or individually.
+
+[source,java,indent=0]
+----
+include::{exampledir}/StatementsTest.java[tags=script]
+----
+
+==== Metadata
+
+Jdbi allows access to the Database Metadata through `queryMetadata` methods on the link:{jdbidocs}/core/Handle.html[Handle^].
+
+Simple values can be queried directly using a method reference:
+
+[source, java]
+----
+String url = h.queryMetadata(DatabaseMetaData::getURL);
+boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
+----
+
+Many methods on the link:{jdkdocs}/java/sql/DatabaseMetaData.html[DatabaseMetaData^] return a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^]. These can be used with the `queryMetadata` method that returns a <<ResultBearing>>.
+
+All JDBI <<Row Mappers>> and <<Column Mappers>> are available to map these results:
+
+[source, java]
+----
+List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
+            .mapTo(String.class)
+            .list();
+----
+
+
 === Arguments
 
 Arguments are Jdbi's representation of JDBC statement parameters (the `?` in `select * from Foo where bar = ?`).
@@ -717,110 +1011,6 @@ data type. When this happens, the last-registered factory wins. Preparable argum
 always take precedence over base argument factories. This means that
 you can override the way any data type is bound, including the data types
 supported out of the box.
-
-=== Queries
-
-A link:{jdbidocs}/core/statement/Query.html[Query^] is a
-link:{jdbidocs}/core/result/ResultBearing.html[result-bearing^] SQL statement
-that returns a result set from the database.
-
-[source,java,indent=0]
-----
-include::{exampledir}/StatementsTest.java[tags=query]
-----
-
-To get a single row from a query, there are a few possible methods to use,
-depending on the number of rows that might be in the result set.
-
-Call `one()` when you expect the result to contain exactly one row. Returns
-`null` only if the returned row maps to `null`. Throws an exception if the
-result has zero or multiple rows.
-
-[source,java]
-----
-String name = handle.select("select name from users where id = ?", 3)
-    .mapTo(String.class)
-    .one();
-----
-
-Call `findOne()` when you expect the result to contain zero or one row. Returns
-`Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
-an exception if the result has multiple rows.
-
-[source,java]
-----
-Optional<String> name = handle.select(...)
-    .mapTo(String.class)
-    .findOne();
-----
-
-Call `first()` when you expect the result to contain at least one row. Returns
-`null` if the first row maps to `null`. Throws an exception if the result has
-zero rows.
-
-[source,java]
-----
-String name = handle.select("select name from users where id = ?", 3)
-    .mapTo(String.class)
-    .first();
-----
-
-Call `findFirst()` when the result may contain any number of rows. Returns
-`Optional.empty()` if there are no rows, or the first row maps to `null`.
-
-[source,java]
-----
-Optional<String> name = handle.select(...)
-    .mapTo(String.class)
-    .findFirst();
-----
-
-Multiple result rows can be returned in a list:
-
-[source,java]
-----
-List<String> name = handle.createQuery(
-        "select title from films where genre = :genre order by title")
-    .bind("genre", "Action")
-    .mapTo(String.class)
-    .list();
-----
-
-For other collections, use `collect()` with a
-link:{jdkdocs}/java/util/stream/Collector.html[collector^]:
-
-[source,java]
-----
-Set<String> name = handle.createQuery(
-        "select title from films where genre = :genre order by title")
-    .bind("genre", "Action")
-    .mapTo(String.class)
-    .collect(Collectors.toSet());
-----
-
-You can also stream results:
-
-[source,java]
-----
-handle.createQuery(
-        "select title from films where genre = :genre order by title")
-    .mapTo(String.class)
-    .useStream(stream -> {
-      // do stuff with stream
-    });
-----
-
-Thus far, all examples have shown a `String` result type. Of course, you can
-map to many other data types:
-
-[source,java]
-----
-LocalDate releaseDate = handle.createQuery(
-        "select release_date from films where name = :name")
-    .bind("name", "Star Wars: A New Hope")
-    .mapTo(LocalDate.class)
-    .one();
-----
 
 === Mappers
 
@@ -1909,251 +2099,6 @@ In the following example, there is only a codec for `Value<String>` registered, 
 include::{exampledir}/TestInheritedValueH2.java[tags=dao;type;codec;value;bean]
 ----
 
-
-=== Templating
-
-Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
-
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
-
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
-
-[CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!^]  Always prefer binding parameters to static SQL over dynamic SQL when possible.
-
-[source,java]
-----
-handle.createQuery("select * from <TABLE> where name = :n")
-
-    // -> "select * from Person where name = :n"
-    .define("TABLE", "Person")
-
-    // -> "select * from Person where name = 'MyName'"
-    .bind("n", "MyName");
-----
-
-[TIP]
-Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
-
-[CAUTION]
-TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
-
-If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
-
-[source,java]
-----
-String paramName = "arg";
-
-handle.createQuery("select * from Foo where bar = :<attr>")
-    .define("attr", paramName)
-    ...
-    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
-----
-
-[source,java]
-----
-handle.createQuery("select * from emotion where emoticon = <sticker>")
-    .define("sticker", ":-)") // -> "... where emoticon = :-)"
-    .mapToMap()
-    // exception: no binding/argument named "-)" present
-    .list();
-----
-
-Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
-For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null`.  You can use this to
-craft conditional updates and query clauses.
-
-For example,
-[source,java]
-----
-class MyBean {
-    long id();
-    String getA();
-    String getB();
-    Instant getModified();
-}
-
-handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
-    .bindBean(mybean)
-    .defineNamedBindings()
-    .execute();
-----
-
-Also see the section about <<TemplateEngine>>.
-
-==== ClasspathSqlLocator
-
-You may find it helpful to store your SQL templates in individual files on the
-classpath, rather than in string inside Java code.
-
-The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
-and then reads, parses, and caches the loaded statements.
-
-[source,java]
-----
-// reads classpath resource com/foo/BarDao/query.sql
-ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
-
-// same resource as above
-ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
-----
-
-By default, any comments in the loaded file are left untouched. Comments can be stripped out by
-instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
-
-[source,java]
-----
-// reads classpath resource com/foo/BarDao/query.sql, stripping all comments
-ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
-
-// same resource as above
-ClasspathSqlLocator.removingComments().locate("com.foo.BarDao.query");
-----
-
-Multiple comment styles are supported:
-
-* C-style (`/* ... */` and `//` to the end of the line)
-* SQL style (`--` to the end of the line)
-* shell style (`\#` to the end of the line; except when followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
-
-
-=== SQL Arrays
-
-Jdbi can bind/map Java arrays to/from SQL arrays:
-
-[source,java]
-----
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
-      .bind("id", 1)
-      .bind("userIds", new int[] { 10, 5, 70 })
-      .execute();
-
-int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
-      .bind("id", 1)
-      .mapTo(int[].class)
-      .one();
-----
-
-You can also use Collections in place of arrays, but you'll need to provide
-the element type if you're using the fluent API, since it's erased:
-
-[source,java]
-----
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
-      .bind("id", 1)
-      .bindArray("userIds", int.class, Arrays.asList(10, 5, 70))
-      .execute();
-
-List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
-      .bind("id", 1)
-      .mapTo(new GenericType<List<Integer>>() {})
-      .one();
-----
-
-Use `@SingleValue` for mapping an array result with the SqlObject API:
-
-[source,java]
-----
-public interface GroupsDao {
-  @SqlQuery("select user_ids from groups where id = ?")
-  @SingleValue
-  List<Integer> getUserIds(int groupId);
-}
-----
-
-==== Registering array types
-
-Any Java array element type you want binding support for needs to be registered
-with Jdbi's `SqlArrayTypes` registry. An array type that is directly supported
-by your JDBC driver can be registered using:
-
-[source,java]
-----
-jdbi.registerArrayType(int.class, "integer");
-----
-
-Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
-
-[NOTE]
-Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically
-register the most common array element types for their respective databases.
-
-[TIP]
-Postgres supports enum array types, so you can register an array type for
-`enum Colors { red, blue }` using `jdbi.registerArrayType(Colors.class, "colors")`
-where `"colors"` is a user-defined enum type name in your database.
-
-==== Binding custom array types
-
-You can also provide your own implementation of `SqlArrayType` that converts
-a custom Java element type to a type supported by the JDBC driver:
-
-[source,java]
-----
-class UserArrayType implements SqlArrayType<User> {
-
-    @Override
-    public String getTypeName() {
-        return "integer";
-    }
-
-    @Override
-    public Object convertArrayElement(User user) {
-        return user.getId();
-    }
-}
-----
-
-You can now bind instances of `User[]` to arguments of data type `integer[]`:
-
-[source,java]
-----
-User user1 = new User(1, "bob")
-User user2 = new User(42, "alice")
-
-handle.registerArrayType(new UserArrayType());
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
-      .bind("id", 1)
-      .bind("users", new User[] { user1, user2 })
-      .execute();
-----
-
-[NOTE]
-Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
-registered for the same data type, the last registered wins.
-
-==== Mapping array types
-
-`SqlArrayType` only allows you to bind Java array/collection arguments to their
-SQL counterparts. To map SQL array columns back to Java types, you can register
-a regular `ColumnMapper`:
-
-[source,java]
-----
-public class UserIdColumnMapper implements ColumnMapper<UserId> {
-    @Override
-    public UserId map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
-        return new UserId(rs.getInt(col));
-    }
-}
-----
-
-[source,java]
-----
-handle.registerColumnMapper(new UserIdColumnMapper());
-List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
-      .bind("id", 1)
-      .mapTo(new GenericType<List<UserId>>() {})
-      .one();
-----
-
-[NOTE]
-Array columns can be mapped to any container type registered with the
-`JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
-`ImmutableList<String>` if the guava plugin is installed.
-
 === Results
 
 After executing a database query, you need to interpret the results. JDBC
@@ -2573,100 +2518,66 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowdao]
 include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 ----
 
-=== Updates
+=== Transactions
 
-Updates are operations that return an integer number of rows modified, such
-as a database *INSERT*, *UPDATE*, or *DELETE*.
+Jdbi provides full support for JDBC transactions.
 
-You can execute a simple update with ``Handle``'s `int execute(String sql, Object... args)`
-method which binds simple positional parameters.
+==== Managed transactions
+
+A managed transaction is controlled through Jdbi code and provides a handle with an open transaction to user code.
+
+* The link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object create a new link:{jdbidocs}/core/Handle.html[Handle^], open a transaction and pass it to the callback code.
+* The link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on link:{jdbidocs}/core/Handle.html[Handle^] objects open a transaction on the handle itself and then pass it to the callback code. By default, if these methods are called while the handle is already in an open transaction, the existing transaction is reused (no nested transaction is created).
+
+Each of these methods method also has a variant that allows setting the transaction isolation level. Changing the transaction isolation level within an open transaction is not supported (and will cause an exception).
+
+At the end of the callback, the transaction is committed, if
+
+* the code has not thrown an exception
+* it was not a nested call from another `useTransaction`/`inTransaction` callback. In that case, control is handed back to the original caller and the transaction finishes when that callback returns.
+* the code did not call the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollback()[rollback()^] method on the Handle object.
+
+Executing a SQL operation in a transaction:
+[source,java,indent=0]
+----
+include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
+----
+
+==== Unmanaged transactions
+
+Jdbi provides the necessary primitives to control transactions directly from a Handle:
+
+* the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#begin()[begin()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#commit()[commit()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollback()[rollback()^] methods provide standard transaction semantics
+* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#setTransactionIsolation(org.jdbi.v3.core.transaction.TransactionIsolationLevel)[setTransactionIsolation()^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#getTransactionIsolationLevel()[getTransactionIsolationLevel()^] to control the transaction isolation level
+* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#isInTransaction()[isInTransaction()^] returns `true` if the handle is currently in a transaction
+* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#savepoint(java.lang.String)[savepoint()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#release(java.lang.String)[release()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollbackToSavepoint(java.lang.String)[rollbackToSavepoint()^] for transaction savepoint support. This is not supported by all TransactionHandlers and requires support from the JDBC driver
+
+Transactions are managed by link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/TransactionHandler.html[TransactionHandler^] implementations. By default, transactions are delegated to the JDBC connection and managed through the connection by the database.
+
+The transaction handler can be set per `Jdbi` instance using the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#setTransactionHandler(org.jdbi.v3.core.transaction.TransactionHandler)[setTransactionHandler^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
+
+In addition to the link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/LocalTransactionHandler.html[standard transaction handler^], Jdbi includes a link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/CMTTransactionHandler.html[handler that works correctly in a container managed environment^] and a link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/SerializableTransactionRunner.html[serializable transaction handler^] that allows multiple concurrent operations on a single handle to retry transparently.
+
+==== Serializable Transactions
+
+For more advanced queries, sometimes serializable transactions are required.
+
+Jdbi includes a link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/SerializableTransactionRunner.html[transaction runner that is able to retry transactions^] that abort due to serialization failures.
+
+[WARNING]
+It is important that your transaction does not have side effects as it may be executed multiple times.
 
 [source,java,indent=0]
 ----
-include::{exampledir}/StatementsTest.java[tags=execute]
+include::{exampledir}/TransactionTest.java[tags=serializable]
 ----
 
-To further customize, use `createUpdate`:
+The above test is designed to run two transactions in lock step. Each attempts to read the sum of all rows in the table, and then insert a new row with that sum. We seed the table with the values 10 and 20.
 
-[source,java,indent=0]
-----
-include::{exampledir}/StatementsTest.java[tags=update]
-----
+Without serializable isolation, each transaction reads 10 and 20, and then returns 30. The end result is 30 + 30 = 60, which does not correspond to any serial execution of the transactions!
 
-Updates may return <<Generated Keys>> instead of a result count.
+With serializable isolation, one of the two transactions is forced to abort and retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30 from the other, we get 30 + 60 = 90 and the assertion succeeds.
 
-=== Batches
-
-A *Batch* sends many commands to the server in bulk.
-
-After opening the batch, repeated add statements, and invoke *add*.
-
-[source,java,indent=0]
-----
-
-include::{exampledir}/BatchTest.java[tags=simpleBatch]
-----
-
-The statements are sent to the database in bulk, but each statement is executed separately.
-There are no parameters.  Each statement returns a modification count, as with an Update, and
-those counts are then returned in an `int[]` array.  In common cases all elements will be `1`.
-
-Some database drivers might return special values in conditions where modification counts are not available.
-See the
-link:{jdkdocs}/java/sql/Statement.html#executeBatch--[executeBatch^] documentation for details.
-
-=== Prepared Batches
-
-A *PreparedBatch* sends one statement to the server with many argument sets.
-The statement is executed repeatedly, once for each batch of arguments that is *add*-ed to it.
-
-The result is again a `int[]` of modified row count.
-
-[source,java,indent=0]
-----
-include::{exampledir}/StatementsTest.java[tags=batch]
-----
-
-SqlObject also supports batch inserts:
-
-[source,java,indent=0]
-----
-include::{exampledir}/BatchTest.java[tags=sqlObjectBatch]
-----
-
-[TIP]
-Batching dramatically increases efficiency over repeated single statement execution, but
-many databases don't handle extremely large batches well either.  Test with your database
-configuration, but often extremely large data sets should be divided
-and committed in pieces - or risk bringing your database to its knees.
-
-
-==== Exception Rewriting
-
-The JDBC SQLException class is very old and predates more modern exception
-facilities like Throwable's suppressed exceptions. When a batch fails, there
-may be multiple failures to report, which could not be represented by the base
-Exception types of the day.
-
-So SQLException has a bespoke
-link:{jdkdocs}/java/sql/SQLException.html#getNextException--[getNextException^]
-chain to represent the causes of a batch failure. Unfortunately, by default
-most logging libraries do not print these exceptions out, pushing their
-handling into your code. It is very common to forget to handle this situation
-and end up with logs that say nothing other than
-
-----
-java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, '') was aborted. Call getNextException to see the cause.
-----
-
-Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
-(new in Java 8) so that your logs are more helpful:
-
-----
-java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, 'Keith') was aborted. Call getNextException to see the cause.
-Suppressed: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "something_pkey"
-  Detail: Key (id)=(0) already exists.
-----
 
 === Generated Keys
 
@@ -2697,134 +2608,248 @@ You can get generated keys in the fluent style:
 include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
 ----
 
-=== Stored Procedure Calls
+=== SQL Arrays
 
-A *Call* invokes a database stored procedure.
+Jdbi can bind/map Java arrays to/from SQL arrays:
 
-Let's assume an existing stored procedure as an example:
-
-[source,sql]
+[source,java]
 ----
-include::{exampleresourcedir}/create_stored_proc_add.sql[tags=createStoredProc]
-----
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+      .bind("id", 1)
+      .bind("userIds", new int[] { 10, 5, 70 })
+      .execute();
 
-Here's how to call a stored procedure:
-
-[source,java,indent=0]
-----
-include::{exampledir}/CallTest.java[tags=invokeProcedure]
-----
-<1> Call `Handle.createCall()` with the SQL statement. Note that JDBC has a
-    peculiar SQL format when calling stored procedures, which we must follow.
-<2> Bind input parameters to the procedure call.
-<3> Register out parameters, the values that will be returned from the stored
-    procedure call. This tells JDBC what data type to expect for each out
-    parameter.
-<4> Out parameters may be registered by name (as shown in the example) or by
-    zero-based index, if the SQL is using positional parameters. Multiple output
-    parameters may be registered, depending on the output of the stored
-    procedure itself.
-<5> Finally, call `invoke()` to execute the procedure.
-
-Invoking the stored procedure returns an
-link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object, which
-contains the value(s) returned from the stored procedure call.
-
-Now we can extract the result(s) from `OutParameters`:
-
-[source,java,indent=0]
-----
-include::{exampledir}/CallTest.java[tags=getOutParameters]
+int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .mapTo(int[].class)
+      .one();
 ----
 
-It is possible to return open cursors as a result-like object by declaring it
-as `Types.REF_CURSOR` and then inspecting it via `OutParameters.getRowSet()`.
-Usually this must be done in a transaction, and the results must be consumed
-before closing the statement by processing it using the `Call.invoke(Consumer)`
-or `Call.invoke(Function)` callback style.
+You can also use Collections in place of arrays, but you'll need to provide
+the element type if you're using the fluent API, since it's erased:
 
-[WARNING]
-Due to design constraints within JDBC, the parameter data types available
-through `OutParameters` is limited to those types supported directly by JDBC.
-This cannot be expanded through e.g. mapper registration.
-
-=== Scripts
-
-A *Script* parses a String into semicolon terminated statements. The statements
-can be executed in a single *Batch* or individually.
-
-[source,java,indent=0]
+[source,java]
 ----
-include::{exampledir}/StatementsTest.java[tags=script]
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+      .bind("id", 1)
+      .bindArray("userIds", int.class, Arrays.asList(10, 5, 70))
+      .execute();
+
+List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .mapTo(new GenericType<List<Integer>>() {})
+      .one();
 ----
 
-=== Transactions
+Use `@SingleValue` for mapping an array result with the SqlObject API:
 
-Jdbi provides full support for JDBC transactions.
-
-*Handle* objects provide two ways to open a transaction -- *inTransaction*
-allows you to return a result, and *useTransaction* has no return value.
-
-Both optionally allow you to specify the transaction isolation level.
-
-[source,java,indent=0]
+[source,java]
 ----
-include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
+public interface GroupsDao {
+  @SqlQuery("select user_ids from groups where id = ?")
+  @SingleValue
+  List<Integer> getUserIds(int groupId);
+}
 ----
 
-Here, we (probably unnecessarily) guard a simple _SELECT_ statement with a transaction.
+==== Registering array types
 
-Additionally, Handle has a number of methods for direct transaction management:
-begin(), savepoint(), rollback(), commit(), etc.  Normally, you will not need to use these.
-If you do not explicitly commit a manually opened transaction, it will be rolled back.
+Any Java array element type you want binding support for needs to be registered
+with Jdbi's `SqlArrayTypes` registry. An array type that is directly supported
+by your JDBC driver can be registered using:
 
-==== Serializable Transactions
-
-For more advanced queries, sometimes serializable transactions are required.
-Jdbi includes a transaction runner that is able to retry transactions that
-abort due to serialization failures. It is important that your transaction does
-not have side effects as it may be executed multiple times.
-
-[source,java,indent=0]
+[source,java]
 ----
-include::{exampledir}/TransactionTest.java[tags=serializable]
+jdbi.registerArrayType(int.class, "integer");
 ----
 
-The above test is designed to run two transactions in lock step. Each attempts
-to read the sum of all rows in the table, and then insert a new row with that
-sum. We seed the table with the values 10 and 20.
+Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
 
-Without serializable isolation, each transaction reads 10 and 20, and then
-returns 30. The end result is 30 + 30 = 60, which does not correspond to any
-serial execution of the transactions!
+[NOTE]
+Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically
+register the most common array element types for their respective databases.
 
-With serializable isolation, one of the two transactions is forced to abort and
-retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30
-from the other, we get 30 + 60 = 90 and the assertion succeeds.
+[TIP]
+Postgres supports enum array types, so you can register an array type for
+`enum Colors { red, blue }` using `jdbi.registerArrayType(Colors.class, "colors")`
+where `"colors"` is a user-defined enum type name in your database.
 
-=== Metadata
+==== Binding custom array types
 
-Jdbi allows access to the Database Metadata through `queryMetadata` methods on the link:{jdbidocs}/core/Handle.html[Handle^].
+You can also provide your own implementation of `SqlArrayType` that converts
+a custom Java element type to a type supported by the JDBC driver:
 
-Simple values can be queried directly using a method reference:
-
-[source, java]
+[source,java]
 ----
-String url = h.queryMetadata(DatabaseMetaData::getURL);
-boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
-----
+class UserArrayType implements SqlArrayType<User> {
 
-Many methods on the link:{jdkdocs}/java/sql/DatabaseMetaData.html[DatabaseMetaData^] return a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^]. These can be used with the `queryMetadata` method that returns a <<ResultBearing>>.
+    @Override
+    public String getTypeName() {
+        return "integer";
+    }
 
-All JDBI <<Row Mappers>> and <<Column Mappers>> are available to map these results:
-
-[source, java]
-----
-List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
-            .mapTo(String.class)
-            .list();
+    @Override
+    public Object convertArrayElement(User user) {
+        return user.getId();
+    }
+}
 ----
 
+You can now bind instances of `User[]` to arguments of data type `integer[]`:
+
+[source,java]
+----
+User user1 = new User(1, "bob")
+User user2 = new User(42, "alice")
+
+handle.registerArrayType(new UserArrayType());
+handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
+      .bind("id", 1)
+      .bind("users", new User[] { user1, user2 })
+      .execute();
+----
+
+[NOTE]
+Like the <<Arguments Registry>>, if there are multiple `SqlArrayType` s
+registered for the same data type, the last registered wins.
+
+==== Mapping array types
+
+`SqlArrayType` only allows you to bind Java array/collection arguments to their
+SQL counterparts. To map SQL array columns back to Java types, you can register
+a regular `ColumnMapper`:
+
+[source,java]
+----
+public class UserIdColumnMapper implements ColumnMapper<UserId> {
+    @Override
+    public UserId map(ResultSet rs, int col, StatementContext ctx) throws SQLException {
+        return new UserId(rs.getInt(col));
+    }
+}
+----
+
+[source,java]
+----
+handle.registerColumnMapper(new UserIdColumnMapper());
+List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
+      .bind("id", 1)
+      .mapTo(new GenericType<List<UserId>>() {})
+      .one();
+----
+
+[NOTE]
+Array columns can be mapped to any container type registered with the
+`JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
+`ImmutableList<String>` if the guava plugin is installed.
+
+=== Templating
+
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
+
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+link:https://www.xkcd.com/327/[Query templating is a common attack vector!^]  Always prefer binding parameters to static SQL over dynamic SQL when possible.
+
+[source,java]
+----
+handle.createQuery("select * from <TABLE> where name = :n")
+
+    // -> "select * from Person where name = :n"
+    .define("TABLE", "Person")
+
+    // -> "select * from Person where name = 'MyName'"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java]
+----
+String paramName = "arg";
+
+handle.createQuery("select * from Foo where bar = :<attr>")
+    .define("attr", paramName)
+    ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java]
+----
+handle.createQuery("select * from emotion where emoticon = <sticker>")
+    .define("sticker", ":-)") // -> "... where emoticon = :-)"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Bindings and definitions are usually separate.  You can link them in a limited manner
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null`.  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java]
+----
+class MyBean {
+    long id();
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
+
+Also see the section about <<TemplateEngine>>.
+
+==== ClasspathSqlLocator
+
+You may find it helpful to store your SQL templates in individual files on the
+classpath, rather than in string inside Java code.
+
+The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
+and then reads, parses, and caches the loaded statements.
+
+[source,java]
+----
+// reads classpath resource com/foo/BarDao/query.sql
+ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
+----
+
+By default, any comments in the loaded file are left untouched. Comments can be stripped out by
+instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
+
+[source,java]
+----
+// reads classpath resource com/foo/BarDao/query.sql, stripping all comments
+ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.removingComments().locate("com.foo.BarDao.query");
+----
+
+Multiple comment styles are supported:
+
+* C-style (`/* ... */` and `//` to the end of the line)
+* SQL style (`--` to the end of the line)
+* shell style (`\#` to the end of the line; except when followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
 
 == Configuration
 
