@@ -154,6 +154,7 @@ public abstract class JdbiRule extends ExternalResource {
                 .dataSource(getDataSource())
                 .locations(migration.paths.toArray(new String[0]))
                 .schemas(migration.schemas.toArray(new String[0]))
+                .cleanDisabled(!migration.cleanAfter)
                 .load();
             flyway.migrate();
         }
