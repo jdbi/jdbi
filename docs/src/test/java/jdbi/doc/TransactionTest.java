@@ -14,13 +14,13 @@
 package jdbi.doc;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.BiConsumer;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
@@ -46,6 +46,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SuppressWarnings("HiddenField")
 public class TransactionTest {
 
     @RegisterExtension
@@ -53,17 +54,17 @@ public class TransactionTest {
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
-        .withPlugin(new PostgresPlugin())
-        .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new PostgresPlugin())
+            .withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
-    private Jdbi db;
+    private Jdbi jdbi;
 
     @BeforeEach
     public void setUp() {
-        db = pgExtension.getJdbi();
+        jdbi = pgExtension.getJdbi();
+        jdbi.registerRowMapper(ConstructorMapper.factory(User.class));
         handle = pgExtension.openHandle();
-        handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
         handle.useTransaction(h -> {
             h.execute("DROP TABLE IF EXISTS users");
@@ -80,34 +81,52 @@ public class TransactionTest {
     }
 
     @Test
-    public void inTransaction() {
-        User u = findUserById(2).orElseThrow(() -> new AssertionError("No user found"));
+    public void inHandleTransaction() {
+        User u = findUserById(handle, 2).orElseThrow(() -> new AssertionError("No user found"));
+        assertThat(u.id).isEqualTo(2);
+        assertThat(u.name).isEqualTo("Bob");
+    }
+
+    @Test
+    public void inJdbiTransaction() {
+        User u = findUserById(jdbi, 2).orElseThrow(() -> new AssertionError("No user found"));
         assertThat(u.id).isEqualTo(2);
         assertThat(u.name).isEqualTo("Bob");
     }
 
     // tag::simpleTransaction[]
-    public Optional<User> findUserById(long id) {
-        return handle.inTransaction(h ->
-                h.createQuery("SELECT * FROM users WHERE id=:id")
+    // use a Jdbi object to create transaction
+    public Optional<User> findUserById(Jdbi jdbi, long id) {
+        return jdbi.inTransaction(transactionHandle ->
+                transactionHandle.createQuery("SELECT * FROM users WHERE id=:id")
+                        .bind("id", id)
+                        .mapTo(User.class)
+                        .findFirst());
+    }
+
+    // use a Handle object to create transaction
+    public Optional<User> findUserById(Handle handle, long id) {
+        return handle.inTransaction(transactionHandle ->
+                transactionHandle.createQuery("SELECT * FROM users WHERE id=:id")
                         .bind("id", id)
                         .mapTo(User.class)
                         .findFirst());
     }
     // end::simpleTransaction[]
 
-    // tag::sqlObjectTransaction[]
     @Test
     public void sqlObjectTransaction() {
         assertThat(handle.attach(UserDao.class).findUserById(3).map(u -> u.name)).contains("Charlie");
     }
 
     public interface UserDao {
-        @SqlQuery("SELECT * FROM users WHERE id=:id")
+
+        // tag::sqlObjectTransaction[]
         @Transaction
+        @SqlQuery("SELECT * FROM users WHERE id=:id")
         Optional<User> findUserById(int id);
+        // end::sqlObjectTransaction[]
     }
-    // end::sqlObjectTransaction[]
 
     @Test
     public void sqlObjectTransactionIsolation() {
@@ -117,9 +136,10 @@ public class TransactionTest {
     }
 
     public interface UserDao2 extends UserDao {
+
         // tag::sqlObjectTransactionIsolation[]
-        @SqlUpdate("INSERT INTO USERS (name) VALUES (:name)")
         @Transaction(TransactionIsolationLevel.READ_COMMITTED)
+        @SqlUpdate("INSERT INTO USERS (name) VALUES (:name)")
         void insertUser(String name);
         // end::sqlObjectTransactionIsolation[]
     }
@@ -131,10 +151,11 @@ public class TransactionTest {
         dao.outerMethodWithLevelCallsInnerMethodWithNoLevel();
 
         assertThatThrownBy(dao::outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel)
-            .isInstanceOf(TransactionException.class);
+                .isInstanceOf(TransactionException.class);
     }
 
     public interface NestedTransactionDao extends SqlObject {
+
         // tag::sqlObjectNestedTransaction[]
         @Transaction(TransactionIsolationLevel.READ_UNCOMMITTED)
         default void outerMethodCallsInnerWithSameLevel() {
@@ -169,31 +190,33 @@ public class TransactionTest {
     public void serializableTransaction() throws Exception {
         // tag::serializable[]
         // Automatically rerun transactions
-        db.setTransactionHandler(new SerializableTransactionRunner());
+        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+        handle.execute("CREATE TABLE ints (value INTEGER)");
 
         // Set up some values
-        BiConsumer<Handle, Integer> insert = (h, i) -> h.execute("INSERT INTO ints(value) VALUES(?)", i);
-        handle.execute("CREATE TABLE ints (value INTEGER)");
-        insert.accept(handle, 10);
-        insert.accept(handle, 20);
+        handle.execute("INSERT INTO ints (value) VALUES(?)", 10);
+        handle.execute("INSERT INTO ints (value) VALUES(?)", 20);
 
         // Run the following twice in parallel, and synchronize
         ExecutorService executor = Executors.newCachedThreadPool();
         CountDownLatch latch = new CountDownLatch(2);
 
         Callable<Integer> sumAndInsert = () ->
-            db.inTransaction(TransactionIsolationLevel.SERIALIZABLE, h -> {
-                // Both read initial state of table
-                int sum = h.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
+                jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactionHandle -> {
+                    // Both threads read initial state of table
+                    int sum = transactionHandle.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
 
-                // First time through, make sure neither transaction writes until both have read
-                latch.countDown();
-                latch.await();
+                    // synchronize threads, make sure that they each has successfully read the data
+                    latch.countDown();
+                    latch.await();
 
-                // Now do the write.
-                insert.accept(h, sum);
-                return sum;
-            });
+                    // Now do the write.
+                    synchronized (this) {
+                        // handle can be used by multiple threads, but not at the same time
+                        transactionHandle.execute("INSERT INTO ints (value) VALUES(?)", sum);
+                    }
+                    return sum;
+                });
 
         // Both of these would calculate 10 + 20 = 30, but that violates serialization!
         Future<Integer> result1 = executor.submit(sumAndInsert);
@@ -206,5 +229,10 @@ public class TransactionTest {
 
         executor.shutdown();
         // end::serializable[]
+
+        List<Integer> results = handle.createQuery("SELECT * from ints").mapTo(Integer.class).list();
+        // both threads have committed their result
+        assertThat(results.size()).isEqualTo(4);
+
     }
 }
