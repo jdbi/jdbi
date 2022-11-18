@@ -3979,15 +3979,35 @@ The static type of parameter T determines the mapped row type.
 void forEachUser(Consumer<User> consumer);
 ----
 
-=== Default Methods
+=== Mixing SQL objects and the core API
 
-Occasionally a use case comes up where SQL Method annotations don't fit. In
-these situations, you can "drop down" to the Core API using a Java 8 `default`
-method.
+SQL Objects use the same core API as normal SQL statements. There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
 
-Jdbi provides a `SqlObject` mixin interface with a `getHandle` method.
-Make your SQL Object interface extend the `SqlObject` mixin, then provide your
-own implementation in a default method:
+It is possible to get access to the Handle directly from a SQL object by extending the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
+
+[source,java]
+----
+public interface SomeDao extends SqlObject {
+    // ...
+}
+
+void mixedCode() {
+    SomeDao dao = jdbi.onDemand(SomeDao.class);
+
+    dao.withHandle(handle -> {
+        handle.createQuery("SELECT * from users").mapTo(User.class).list();
+    })
+}
+----
+
+This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
+
+[NOTE]
+This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach^] method will return the handle it was attached to. This is useful for interface default methods.
+
+==== Default Methods
+
+Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface `default` methods and the SqlObject mixin interface:
 
 [source,java]
 ----
@@ -3999,8 +4019,7 @@ public interface SplineDao extends SqlObject {
 }
 ----
 
-Default methods can also be used to group multiple SQL operations into a single
-method call:
+Default methods can also be used to group multiple SQL operations into a single method call:
 
 [source,java]
 ----
