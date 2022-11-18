@@ -3943,9 +3943,10 @@ the timezone used for this.
 
 === Consumer Methods
 
-As a special case, you may provide a `Consumer<T>` argument in addition to other bound parameters.
-The provided consumer is executed once for each row in the result set.
-The static type of parameter T determines the row type.
+As a special case, you may provide a `Consumer<T>`, `Consumer<Iterator<T>>`, or `Consumer<Stream<T>>` argument in addition to other bound parameters.
+When consuming `<T>`, the provided consumer is executed once for each row in the result set.
+Otherwise, the consumer is executed once with the `Iterator` or `Stream` holding the results.
+The static type of parameter T determines the mapped row type.
 
 [source,java]
 ----
