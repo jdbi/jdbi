@@ -96,7 +96,7 @@ All Jdbi modules are available through link:https://search.maven.org[Maven Centr
 
 === Java compatibility
 
-`Jdbi` runs on all Java versions 8 or later. 11 or later is required to build. All releases are built with the latest LTS version of Java using Java 8 byte code compatibility.
+Jdbi runs on all Java versions 8 or later. 11 or later is required to build. All releases are built with the latest LTS version of Java using Java 8 byte code compatibility.
 
 [CAUTION]
 Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
@@ -345,11 +345,11 @@ include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
 
 The link:{jdbidocs}/core/Jdbi.html[Jdbi^] class is the main entry point into the library.
 
-Each `Jdbi` maintains a set of configuration settings and wraps a JDBC link:{jdkdocs}/javax/sql/DataSource.html[DataSource^].
+Each link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance maintains a set of configuration settings and wraps a JDBC link:{jdkdocs}/javax/sql/DataSource.html[DataSource^].
 
-`Jdbi` instances are thread-safe and do not own any database resources.
+link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances are thread-safe and do not own any database resources.
 
-There are a few ways to create a `Jdbi` instance:
+There are a few ways to create a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 - use a JDBC URL:
 
@@ -375,9 +375,9 @@ This allows for custom implementations of connection providers such as HA failov
 Please note that there is no magic. Any Handle or operation will use this one connection provided. If the connection is thread-safe, then multiple threads accessing the database will work properly, if the connection object is not thread-safe, then Jdbi will not be able to do anything about it.
 
 [TIP]
-Production code rarely provides a connection object directly to a `Jdbi` instance. It is useful for testing and debugging.
+Production code rarely provides a connection object directly to a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance. It is useful for testing and debugging.
 
-Applications create a single, shared `Jdbi` instance per data source, and set up any common configuration there.  See <<Configuration>> for more details.
+Applications create a single, shared link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance per data source, and set up any common configuration there.  See <<Configuration>> for more details.
 
 Jdbi does not provide connection pooling or other <<High Availability>> features, but it can be combined with other software that does.
 
@@ -385,12 +385,12 @@ Jdbi does not provide connection pooling or other <<High Availability>> features
 
 A link:{jdbidocs}/core/Handle.html[Handle^] wraps an active link:{jdkdocs}/java/sql/Connection.html[database connection^].
 
-Handle instances are created by a `Jdbi` instance to provide a database connection e.g. for a single HTTP request or event callback). Handles are intended to be short-lived and must be closed to release the database connection and possible other resources.
+Handle instances are created by a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance to provide a database connection e.g. for a single HTTP request or event callback). Handles are intended to be short-lived and must be closed to release the database connection and possible other resources.
 
 A link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL statements against the database, and manage database transactions. It provides  access to fluent statement APIs that can bind arguments, execute the statement,
 and then map any results into Java objects.
 
-A `Handle` inherits configuration from the `Jdbi` at the time it is created. See <<Configuration>> for more details.
+A link:{jdbidocs}/core/Handle.html[Handle^] inherits configuration from the link:{jdbidocs}/core/Jdbi.html[Jdbi^] at the time it is created. See <<Configuration>> for more details.
 
 Handles and all attached query objects such as link:{jdbidocs}/core/statement/Batch.html[Batch^], link:{jdbidocs}/core/statement/Call.html[Call^], link:{jdbidocs}/core/statement/Query.html[Query^], link:{jdbidocs}/core/statement/Script.html[Script^] and link:{jdbidocs}/core/statement/Update.html[Update^] should be used by a single thread and are *not thread-safe*.
 
@@ -398,7 +398,7 @@ They may be used by multiple threads as long as there is coordination that only 
 
 ==== Obtaining a managed handle
 
-The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods on the `Jdbi` class. These methods use callbacks and provide a fully managed handle that is correctly closed and all related resources are released. `withHandle` allows the callback to return a result while `useHandle` is just executing operations that do not need to return any value.
+The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] class. These methods use callbacks and provide a fully managed handle that is correctly closed and all related resources are released. `withHandle` allows the callback to return a result while `useHandle` is just executing operations that do not need to return any value.
 
 Providing a return value from a query using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^] method:
 [source,java,indent=0]
@@ -554,7 +554,7 @@ LocalDate releaseDate = handle.createQuery(
 Updates are operations that return an integer number of rows modified, such
 as a database *INSERT*, *UPDATE*, or *DELETE*.
 
-You can execute a simple update with ``Handle``'s `int execute(String sql, Object... args)`
+You can execute a simple update with link:{jdbidocs}/core/Handle.html[Handle^]'s `int execute(String sql, Object... args)`
 method which binds simple positional parameters.
 
 [source,java,indent=0]
@@ -2529,7 +2529,7 @@ A managed transaction is controlled through Jdbi code and provides a handle with
 * The link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object create a new link:{jdbidocs}/core/Handle.html[Handle^], open a transaction and pass it to the callback code.
 * The link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on link:{jdbidocs}/core/Handle.html[Handle^] objects open a transaction on the handle itself and then pass it to the callback code. By default, if these methods are called while the handle is already in an open transaction, the existing transaction is reused (no nested transaction is created).
 
-Each of these methods method also has a variant that allows setting the transaction isolation level. Changing the transaction isolation level within an open transaction is not supported (and will cause an exception).
+Each of these methods also has a variant that allows setting the link:http://jdbi.org/apidocs/org/jdbi/v3/core/transaction/TransactionIsolationLevel.html[transaction isolation level^]. Changing the transaction isolation level within an open transaction is not supported (and will cause an exception).
 
 At the end of the callback, the transaction is committed, if
 
@@ -2548,13 +2548,13 @@ include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
 Jdbi provides the necessary primitives to control transactions directly from a Handle:
 
 * the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#begin()[begin()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#commit()[commit()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollback()[rollback()^] methods provide standard transaction semantics
-* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#setTransactionIsolation(org.jdbi.v3.core.transaction.TransactionIsolationLevel)[setTransactionIsolation()^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#getTransactionIsolationLevel()[getTransactionIsolationLevel()^] to control the transaction isolation level
+* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#setTransactionIsolationLevel(org.jdbi.v3.core.transaction.TransactionIsolationLevel)[setTransactionIsolationLevel()^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#getTransactionIsolationLevel()[getTransactionIsolationLevel()^] to control the transaction isolation level
 * link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#isInTransaction()[isInTransaction()^] returns `true` if the handle is currently in a transaction
-* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#savepoint(java.lang.String)[savepoint()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#release(java.lang.String)[release()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollbackToSavepoint(java.lang.String)[rollbackToSavepoint()^] for transaction savepoint support. This is not supported by all TransactionHandlers and requires support from the JDBC driver
+* link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#savepoint(java.lang.String)[savepoint()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#releaseSavepoint(java.lang.String)[releaseSavepoint()^]/link:https://jdbi.org/apidocs/org/jdbi/v3/core/Handle.html#rollbackToSavepoint(java.lang.String)[rollbackToSavepoint()^] for transaction savepoint support. This is not supported by all TransactionHandlers and requires support from the JDBC driver
 
 Transactions are managed by link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/TransactionHandler.html[TransactionHandler^] implementations. By default, transactions are delegated to the JDBC connection and managed through the connection by the database.
 
-The transaction handler can be set per `Jdbi` instance using the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#setTransactionHandler(org.jdbi.v3.core.transaction.TransactionHandler)[setTransactionHandler^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
+The transaction handler can be set per link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance using the link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#setTransactionHandler(org.jdbi.v3.core.transaction.TransactionHandler)[setTransactionHandler^] and link:https://jdbi.org/apidocs/org/jdbi/v3/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
 
 In addition to the link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/LocalTransactionHandler.html[standard transaction handler^], Jdbi includes a link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/CMTTransactionHandler.html[handler that works correctly in a container managed environment^] and a link:https://jdbi.org/apidocs/org/jdbi/v3/core/transaction/SerializableTransactionRunner.html[serializable transaction handler^] that allows multiple concurrent operations on a single handle to retry transparently.
 
@@ -2853,12 +2853,12 @@ Multiple comment styles are supported:
 
 == Configuration
 
-`Jdbi` aims to be useful out of the box with minimal configuration.  Sometimes
+Jdbi aims to be useful out of the box with minimal configuration.  Sometimes
 you need to change default behavior, or add in extensions to handle additional
 database types.  Each piece of core or extension that wishes to participate in
 configuration defines a configuration class, for example the `SqlStatements`
 class stores SqlStatement related configuration.  Then, on any `Configurable` context
-(like a `Jdbi` or `Handle`) you can change configuration in a type safe way:
+(like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
 
 [source,java]
 ----
@@ -2877,8 +2877,8 @@ Generally, you should finalize all configuration changes before interacting with
 the database.
 
 When a new context is created, it inherits a copy of the parent context
-configuration at the time of creation.  So a `Handle` initializes its
-configuration from the creating `Jdbi`, but changes never propagate back up.
+configuration at the time of creation, e.g. a link:{jdbidocs}/core/Handle.html[Handle^] inherits its
+configuration from the link:{jdbidocs}/core/Jdbi.html[Jdbi^] when it is created.
 
 See <<JdbiConfig>> for more advanced implementation details.
 
@@ -2969,7 +2969,7 @@ To start using the SQL Object plugin, add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java]
 ----
@@ -3186,11 +3186,13 @@ match the bound parameter name.
 
 ==== Consumer Arguments
 
-As a special case, it is possible to use a link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other bound parameters.
+As a special case, it is possible to use a link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other bound arguments.
 
 Unless the type `T` is a link:{jdkdocs}/java/util/stream/Stream.html[Stream^] or an link:{jdkdocs}/java/util/Iterator.html[Iterator^], the consumer is executed once for each row in the result set. The static type of parameter `T` determines the row type.
 
 If the consumer implements link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Iterator<T>>^], or link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Stream<T>>^], then the consumer is executed once with the link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/util/stream/Stream.html[Stream^] holding the results. The static type of parameter T determines the mapped row type here as well.
+
+When using a consumer argument with an iterator or a stream, Jdbi will manage these objects and close them when the consumer code exits.
 
 ==== @SqlQuery
 
@@ -4056,12 +4058,12 @@ link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^]
 and
 link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^],
 allow you to run your code with the on-demand handle held open.
-Re-entrant calls on the same thread will receive the same `Handle`.
+Re-entrant calls on the same thread will receive the same Handle.
 The handle will be closed when the outermost on-demand invocation completes.
 
 [WARNING]
 Returning cursor-like types such as `Stream<T>` or `Iterable<T>` outside of
-the outermost on-demand call does not work.  Since the `Handle` is closed,
+the outermost on-demand call does not work.  Since the`Handle is closed,
 the database cursor is released and reading will fail.
 
 
@@ -4141,7 +4143,7 @@ transaction isolation level:
 include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
 ----
 
-Similar to the `inTransaction` and `useTransaction` operations in the core API, transactions are not nested. If a method that has been annotated with link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transaction.html[@Transaction^], calls another method that is annotated as well (e.g. through an interface default method), then the same transaction will be reused, and it will be committed when the outer transaction ends.
+Similar to the `inTransaction` and `useTransaction` operations in the core API, transactions are not nested. If a method, that has been annotated with link:https://jdbi.org/apidocs/org/jdbi/v3/sqlobject/transaction/Transaction.html[@Transaction^], calls another method that is annotated as well (e.g. through an interface default method), then the same transaction will be reused, and it will be committed when the outer transaction ends.
 
 Nested method calls must either use the same transaction isolation level or inner methods must not specify any transaction level. In that case, the transaction level of the outer transaction maintained.
 
@@ -4254,8 +4256,8 @@ public void createUsers(Jdbi jdbi) {
 Jdbi provides dozens of annotations out of the box:
 
 * link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
-  provides annotations for things that can be configured at the `Jdbi` or
-  `Handle` level. This includes registration of mappers and arguments, and for
+  provides annotations for things that can be configured at the link:{jdbidocs}/core/Jdbi.html[Jdbi^] or
+  link:{jdbidocs}/core/Handle.html[Handle^] level. This includes registration of mappers and arguments, and for
   configuring SQL statement rendering and parsing.
 * link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
   provides annotations for binding parameters, defining attributes, and
@@ -4275,7 +4277,7 @@ Jdbi provides dozens of annotations out of the box:
   ST4 template engine.
 * link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
   provides annotations for transaction management in a SQL object. See
-  <<Transaction Management>> for details.
+  <<SQL Object Transactions>> for details.
 
 Jdbi is designed to support user-defined annotations. See
 <<User-Defined Annotations>> for a guide to creating your own.
@@ -4429,7 +4431,7 @@ public class Test {
 }
 ----
 
-When using the `@ExtendWith` declarative extension, test methods can access the `Jdbi` and `Handle` objects through method parameters:
+When using the `@ExtendWith` declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
 
 [source,java]
 ----
@@ -4469,7 +4471,7 @@ To use this plugin, add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java]
 ----
@@ -4490,7 +4492,7 @@ This plugin configures Jdbi to correctly handle `integer[]` and `uuid[]` data
 types in an H2 database.
 
 This plugin is included with the core jar (but may be extracted to separate
-artifact in the future). Use it by installing the plugin into your `Jdbi`
+artifact in the future). Use it by installing the plugin into your link:{jdbidocs}/core/Jdbi.html[Jdbi^]
 instance:
 
 [source,java]
@@ -4642,7 +4644,7 @@ MyJson result = h.createQuery("select json from myjsons")
 
 link:https://immutables.github.io/[Immutables^] is an annotation processor that generates
 value types based on simple interface descriptions.  The value types naturally map very well
-to `Jdbi` properties binding and row mapping.
+to property binding and row mapping.
 
 [WARNING]
 Immutables support is still experimental and does not yet support custom naming schemes.
@@ -4697,7 +4699,7 @@ To use this plugin, add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java]
 ----
@@ -4709,11 +4711,11 @@ jdbi.installPlugin(new JodaTimePlugin());
 [CAUTION]
 Guice support is experimental.
 
-The Guice module adds support for configuring and injecting `Jdbi` instances in applications and services that use the link:https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
+The Guice module adds support for configuring and injecting link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances in applications and services that use the link:https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
 
 Guice support for Jdbi is split into two module types:
 
-* *Jdbi definition modules* extend the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] class. Each of these modules creates a new `Jdbi` instance which is exposed into the Guice binding process using an annotation.
+* *Jdbi definition modules* extend the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] class. Each of these modules creates a new link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance which is exposed into the Guice binding process using an annotation.
 * *Jdbi element configuration modules* extend the link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^]. These modules contribute elements that are referenced in Jdbi definition modules.
 
 [NOTE]
@@ -4721,7 +4723,7 @@ Jdbi definition modules are by far more common. Element configuration modules ar
 
 ==== Definition modules
 
-Every `Jdbi` instance is defined in its own Guice module which extends the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] base class.
+Every link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance is defined in its own Guice module which extends the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] base class.
 
 The  annotation instance or class used on the constructor is used to bind the resulting Jdbi object:
 
@@ -4770,7 +4772,7 @@ class Application {
 }
 ----
 
-In this example, a new `Jdbi` is defined using specific mappers and other customizations. The `Jdbi` object is exposed to Guice using the annotation passed on the module constructor (`GuiceJdbi` in the example). The link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] supports both annotation instances and classes, similar to Guice itself.
+In this example, a new link:{jdbidocs}/core/Jdbi.html[Jdbi^] object is defined using specific mappers and other customizations. The link:{jdbidocs}/core/Jdbi.html[Jdbi^] object is exposed to Guice using the annotation passed on the module constructor (`GuiceJdbi` in the example). The link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] supports both annotation instances and classes, similar to Guice itself.
 
 [NOTE]
 A Jdbi definition module requires that a DataSource object is bound within Guice using the same annotation or annotation class as is passed into the module constructor. *Creating this data source is outside the scope of a Jdbi definition module!*
@@ -4812,7 +4814,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 | <<Jdbi customization using Guice>>
 |=====
 
-Each Jdbi definition module is completely independent and all definitions within the module only apply to the specific `Jdbi` instance.
+Each Jdbi definition module is completely independent and all definitions within the module only apply to the specific link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
 
 ==== Using Guice injection in Jdbi classes
 
@@ -4990,7 +4992,7 @@ In combination with Jdbi configuration modules, these customizers allow easy enf
 [NOTE]
 Element configuration modules are completely optional and should not be used when only a single Jdbi instance is required. They are intended to help with code organization in larger projects that have more complex needs.
 
-All bindings in a Jdbi module that defines a `Jdbi` object are local to that module. This is useful if all Jdbi related code can be grouped around the module. In larger projects, some parts of the code (and their Jdbi related elements such as row and column mappers) may be located in different part of the code base.
+All bindings in a Jdbi module that defines a link:{jdbidocs}/core/Jdbi.html[Jdbi^] object are local to that module. This is useful if all Jdbi related code can be grouped around the module. In larger projects, some parts of the code (and their Jdbi related elements such as row and column mappers) may be located in different part of the code base.
 
 In larger projects, generic mappers should be available for multiple Jdbi instances. This leads often to a proliferation of small modules that only contain such generic code and is in turn imported into every code module that wants to use them.
 
@@ -5031,7 +5033,7 @@ class DomainMapper implements RowMapper<DomainObject> {
 }
 ----
 
-If the `DomainModule` is bound within Guice, then all configured `Jdbi` instances will be able to map DomainObject instances without having to configure them explicitly as a row mapper.
+If the `DomainModule` is bound within Guice, then all configured link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances will be able to map DomainObject instances without having to configure them explicitly as a row mapper.
 
 Multiple modules extending link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] can be installed in a single injector; the resulting bindings will be aggregated.
 
@@ -5044,7 +5046,7 @@ Definition modules are Guice private modules and anything defined within them wi
 
 ===== Exposing additional bindings
 
-Each definition module that defines a `Jdbi` instance keeps all bindings private and exposes only the actual `Jdbi` object itself. This allows the installation of multiple modules where each definition is completely independent. Sometimes it is useful to attach additional objects and expose them using the same annotations. The most common use cases are data access objects.
+Each definition module that defines a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance keeps all bindings private and exposes only the actual link:{jdbidocs}/core/Jdbi.html[Jdbi^] object itself. This allows the installation of multiple modules where each definition is completely independent. Sometimes it is useful to attach additional objects and expose them using the same annotations. The most common use cases are data access objects.
 
 Consider a use case where two DataSource instances exist, one annotated as `Writer` and the other as `Reader`. Both are accessing databases with the same schema, and it makes sense to have two data access objects that are identical except that they are using the different data sources (this is often referred to as the "robot legs" problem of dependency injection).
 
@@ -5376,7 +5378,7 @@ To use this plugin, add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java]
 ----
@@ -5420,7 +5422,7 @@ Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.h
 <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,kotlin]
 ----
@@ -5486,7 +5488,7 @@ for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance:
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,kotlin]
 ----
@@ -5600,7 +5602,7 @@ To use this feature, add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance.
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
 
 [source,java,indent=0]
 ----
@@ -5618,7 +5620,7 @@ See the link:{jdbidocs}/postgres/package-summary.html[javadoc^] for an
 exhaustive list.
 
 TIP: Some Postgres operators, for example the `?` query operator, collide
-with `jdbi` or `JDBC` special characters.  In such cases, you may need to
+with Jdbi or JDBC specific special characters.  In such cases, you may need to
 escape operators to e.g. `??` or `\:`.
 
 [#postgres-hstore]
@@ -5740,7 +5742,7 @@ for upstream driver documentation.
 
 === Spring5
 
-This module provides `JdbiFactoryBean`, a factory bean which sets up a `Jdbi`
+This module provides `JdbiFactoryBean`, a factory bean which sets up a link:{jdbidocs}/core/Jdbi.html[Jdbi^]
 singleton in a Spring 5 (or Spring Boot) application context.
 
 To use this module, add a Maven dependency:
@@ -5796,9 +5798,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
     database, but it can be any JDBC-compatible database.
 <2> Enable configuration of transactions via annotations.
 <3> Configure `JdbiFactoryBean` using the data source configured earlier.
-<4> Inject `Jdbi` into a service class. Alternatively, use standard JSR-330
-    `@Inject` annotations on the target class instead of configuring it in
-    your `beans.xml`.
+<4> Inject a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance into a service class. Alternatively, use standard JSR-330 `@Inject` annotations on the target class instead of configuring it in your `beans.xml`.
 
 ==== Installing plugins
 
@@ -5878,7 +5878,7 @@ To use this plugin, first add a Maven dependency:
 </dependency>
 ----
 
-Then install the plugin into your `Jdbi` instance.
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
 
 [source,java,indent=0]
 ----
@@ -6036,8 +6036,7 @@ To use the plugin, add a Maven dependency:
 ----
 
 Currently Vavr >= 0.9.0 is supported and tested. The plugin pulls a supported version of
-Vavr and is ready to be used. As with other plugins: install via `Jdbi` instance or
-use auto install.
+Vavr and is ready to be used. As with other plugins: install through a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance or use auto install.
 
 [source,java]
 ----
@@ -6141,11 +6140,11 @@ Bear in mind:
 
 == Cookbook
 
-This section includes examples of various things you might like to do with `Jdbi`.
+This section includes examples of various things you might like to do with Jdbi.
 
 === Simple Dependency Injection
 
-`Jdbi` tries to be independent of using a dependency injection framework,
+Jdbi tries to be independent of using a dependency injection framework,
 but it's straightforward to integrate yours.  Just do field injection on a simple custom config type:
 
 [source,java]
@@ -6171,7 +6170,7 @@ getHandle().getConfig(InjectedDependencies.class).dep
 
 === LIKE clauses with Parameters
 
-Since JDBC (and therefore `Jdbi`) does not allow binding parameters into the middle of string literals,
+Since JDBC (and therefore Jdbi) does not allow binding parameters into the middle of string literals,
 you cannot interpolate bindings into `LIKE` clauses (`LIKE '%:param%'`).
 
 Incorrect usage:
@@ -6230,7 +6229,7 @@ Exactly which parameters must stay the same and which may vary depends on your d
 
 If you want to have two separate pools, for example a read-only set that connects to read replicas
 and a smaller pool of writers that go only to a single host, you currently should have separate
-`Jdbi` instances each pointed at a separate `DataSource`.
+link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances each pointed at a separate `DataSource`.
 
 [#compiling_with_parameter_names]
 === Compiling with Parameter Names
@@ -6677,8 +6676,8 @@ link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] associated with
 a SQL object or method.
 
 Typically, these annotations correlate to a method of
-link:{jdbidocs}/core/config/Configurable.html[Configurable^] (`Jdbi`,
-`Handle`, and `SqlStatement` all implement this interface). For example,
+link:{jdbidocs}/core/config/Configurable.html[Configurable^] (link:{jdbidocs}/core/Jdbi.html[Jdbi^],
+link:{jdbidocs}/core/Handle.html[Handle^], and `SqlStatement` all implement this interface). For example,
 `@RegisterColumnMapper` correlates to `Configurable.registerColumnMapper()`.
 
 You can create your own configuration annotations, and attach runtime behavior
@@ -6997,7 +6996,7 @@ splice of String values of the individual elements. In the above example,
 the `columns` attribute is defined as `"id, name"`.
 
 Any custom template engine can be used. Simply implement the `TemplateEngine`
-interface, then call `setTemplateEngine()` on the `Jdbi`, `Handle`, or on a SQL
+interface, then call `setTemplateEngine()` on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or on a SQL
 statement like `Update` or `Query`:
 
 [source,java]
@@ -7035,7 +7034,7 @@ handle.createUpdate("insert into characters (id, name) values (:id, :name)")
 
 Jdbi also provides `HashPrefixSqlParser`, which recognizes hash-prefixed
 parameters, e.g. `#hashtag`. Use this parser by calling `setSqlParser()` on the
-`Jdbi`, `Handle`, or any SQL statement such as `Query` or `Update`.
+link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement such as `Query` or `Update`.
 
 [source,java]
 ----
@@ -7165,7 +7164,7 @@ General:
 
 Core API:
 
-* `DBI`, `IDBI` -> `Jdbi`
+* `DBI`, `IDBI` -> link:{jdbidocs}/core/Jdbi.html[Jdbi^]
 ** Instantiate with `Jdbi.create()` factory methods instead of constructors.
 * `DBIException` -> `JdbiException`
 * `Handle.select(String, ...)` now returns a `Query` for further method
@@ -7191,7 +7190,7 @@ Core API:
   `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
 * `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
   and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
-* `TransactionConsumer` and `TransactionCallback` only take a `Handle` now--the
+* `TransactionConsumer` and `TransactionCallback` only take a link:{jdbidocs}/core/Handle.html[Handle^] now--the
   `TransactionStatus` argument is removed. Just rollback the handle now.
 * `TransactionStatus` class removed.
 * `CallbackFailedException` class removed. The functional interfaces like
@@ -7211,7 +7210,7 @@ Core API:
 SQL Object API:
 
 * SQL Object support is not installed by default. It must be added as a
-  separate dependency, and the plugin installed into the `Jdbi` object:
+  separate dependency, and the plugin installed into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object:
 
 [source,java]
 ----
@@ -7236,7 +7235,7 @@ jdbi.installPlugin(new SqlObjectPlugin());
   the interable as they did in v2. This forecloses a major source of connection
   leaks.
 * SQL Objects are no longer closeable -- they are either on-demand, or their
-  lifecycle is tied to the lifecycle of the `Handle` they are attached to.
+  lifecycle is tied to the lifecycle of the link:{jdbidocs}/core/Handle.html[Handle^] they are attached to.
 * `@BindAnnotation` meta-annotation removed. Use
   `@SqlStatementCustomizingAnnotation` instead.
 * `@SingleValueResult` -> `@SingleValue`. The annotation may be used for method
