@@ -107,7 +107,7 @@ public class TestTransactional {
 
         assertThatThrownBy(() -> dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
             inTransaction.set(true);
-            transactional.getHandle().setTransactionIsolation(TransactionIsolationLevel.READ_COMMITTED);
+            transactional.getHandle().setTransactionIsolationLevel(TransactionIsolationLevel.READ_COMMITTED);
             transactional.insert(new Something(2, "3"));
             inTransaction.set(false);
             return null;

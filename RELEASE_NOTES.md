@@ -9,6 +9,9 @@
   - doc updates for Kotlin code
   - add Kotlin `mapTo(KClass<*>)` extension function to `ResultBearing`
   - SqlObject Consumer<T> now accepts Consumer<Stream<T>> and Consumer<Iterator<T>> forms
+  - deprecate misnamed `setTransactionIsolation` method, add `setTransactionIsolationLevel` to the handle
+  - deprecate misnamed `release` method, add `releaseSavepoint` to the handle
+  - add missing `isInTransaction` method to `Transactional`, bringing it to par to the handle set of methods
 
 # 3.34.0
 
