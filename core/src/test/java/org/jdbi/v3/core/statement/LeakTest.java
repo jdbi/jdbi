@@ -13,13 +13,19 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Many tests that try to provoke leaks and see whether the various checkers find them and various cleanup strategies catch them.
@@ -60,6 +66,79 @@ public class LeakTest {
             + "UPDATE users SET name='Bobby Tables' WHERE id=2;")) {
             int[] results = script.execute();
             assertThat(results).containsExactly(1, 1);
+        }
+    }
+
+    @Test
+    void testManagedHandleExplodingStatementNeedsHandleCleanup() {
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() ->
+                h2Extension.getJdbi().useHandle(managedHandle -> {
+                    List<String> userNames = managedHandle.createQuery("SELECT name from users")
+                            .attachToHandleForCleanup()
+                            .setFetchSize(-1)
+                            .mapTo(String.class)
+                            .list();
+                }));
+    }
+
+    @Test
+    void testManagedTransactionExplodingStatementNeedsHandleCleanup() {
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() ->
+                h2Extension.getJdbi().useTransaction(managedHandle -> {
+                    List<String> userNames = managedHandle.createQuery("SELECT name from users")
+                            .attachToHandleForCleanup()
+                            .setFetchSize(-1)
+                            .mapTo(String.class)
+                            .list();
+                }));
+    }
+
+    @Test
+    void testUnmanagedHandleExplodingStatementNeedsHandleCleanup() {
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
+            try (Handle handle = h2Extension.openHandle()) {
+                List<String> userNames = handle.createQuery("SELECT name from users")
+                        .attachToHandleForCleanup() // otherwise leaks the query statement
+                        .setFetchSize(-1)
+                        .mapTo(String.class)
+                        .list();
+            }
+        });
+    }
+
+    @Test
+    void testStatementManagedStream() {
+        try (Handle handle = h2Extension.openHandle()) {
+            try (Query query = handle.createQuery("SELECT name from users")) {
+                Optional<String> userName = query
+                        .mapTo(String.class)
+                        .stream().findFirst();
+                assertThat(userName).isPresent();
+            }
+        }
+    }
+
+    @Test
+    void testDirectlyManagedStream() {
+        try (Handle handle = h2Extension.openHandle()) {
+            try (Stream<String> stream = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .stream()) {
+                Optional<String> userName = stream.findFirst();
+                assertThat(userName).isPresent();
+            }
+        }
+    }
+
+    @Test
+    void testDirectlyManagedIterator() {
+        try (Handle handle = h2Extension.openHandle()) {
+            try (ResultIterator<String> it = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .iterator()) {
+                assertThat(it).hasNext();
+                String userName = it.next();
+            }
         }
     }
 }

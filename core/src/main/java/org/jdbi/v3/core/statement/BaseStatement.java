@@ -59,6 +59,8 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
      * There are some situations where Statements need to be cleaned up to avoid resource leaks. This method registers the current Statement it with the
      * Handle. If the statement or the context are cleaned by themselves, it will automatically unregister, so in normal operations, resources should not pool for cleanup with the Handle.
      * <br>
+     *
+     * @since 3.35.0
      */
     @Alpha
     public final This attachToHandleForCleanup() {
