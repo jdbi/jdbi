@@ -29,7 +29,7 @@ import org.jdbi.v3.sqlobject.SqlObject;
  * Users of on-demand {@code Transactional} instances should use the {@code inTransaction} and {@code useTransaction}
  * methods to execute transactions. It is safe to call other {@code Transactional} methods from inside these callbacks.
  *
- * @param <This> must match the interface that is extending this one.
+ * @param <This> must match the interface that is extending the {@code Transactional} interface.
  */
 public interface Transactional<This extends Transactional<This>> extends SqlObject {
     /**
@@ -56,6 +56,15 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
     }
 
     /**
+     * Returns True if this object is currently in a transaction.
+     *
+     * @return True if the object is in a transaction.
+     */
+    default boolean isInTransaction() {
+        return getHandle().isInTransaction();
+    }
+
+    /**
      * Creates a savepoint with the given name on the transaction.
      *
      * @param savepointName the savepoint name.
@@ -79,7 +88,7 @@ public interface Transactional<This extends Transactional<This>> extends SqlObje
      * @param savepointName the savepoint name.
      */
     default void releaseSavepoint(String savepointName) {
-        getHandle().release(savepointName);
+        getHandle().releaseSavepoint(savepointName);
     }
 
     /**

@@ -229,10 +229,10 @@ public class LocalTransactionHandler implements TransactionHandler {
                                                         HandleCallback<R, X> callback) throws X {
             final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
             try {
-                handle.setTransactionIsolation(level);
+                handle.setTransactionIsolationLevel(level);
                 return inTransaction(handle, callback);
             } finally {
-                handle.setTransactionIsolation(initial);
+                handle.setTransactionIsolationLevel(initial);
             }
         }
 

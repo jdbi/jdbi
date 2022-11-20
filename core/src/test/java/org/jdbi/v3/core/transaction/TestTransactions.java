@@ -157,7 +157,7 @@ public class TestTransactions {
         h.savepoint("first");
         h.execute("insert into something (id, name) values (?, ?)", 1, "Martin");
 
-        h.release("first");
+        h.releaseSavepoint("first");
 
         assertThatExceptionOfType(TransactionException.class)
             .isThrownBy(() -> h.rollbackToSavepoint("first"));

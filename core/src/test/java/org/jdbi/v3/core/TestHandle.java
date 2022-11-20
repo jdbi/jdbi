@@ -83,10 +83,10 @@ public class TestHandle {
 
     @Test
     public void unknownTransactionLevelIsOk() {
-        assertThatThrownBy(() -> h.setTransactionIsolation(Integer.MIN_VALUE))
+        assertThatThrownBy(() -> h.setTransactionIsolationLevel(Integer.MIN_VALUE))
             .isInstanceOf(UnableToManipulateTransactionIsolationLevelException.class);
 
-        assertThatCode(() -> h.setTransactionIsolation(TransactionIsolationLevel.UNKNOWN))
+        assertThatCode(() -> h.setTransactionIsolationLevel(TransactionIsolationLevel.UNKNOWN))
             .doesNotThrowAnyException();
     }
 
