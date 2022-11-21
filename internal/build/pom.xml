@@ -546,7 +546,7 @@
                             <link>https://google.github.io/guice/api-docs/4.0/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                         </links>
-                        <nodeprecated>true</nodeprecated>
+                        <nodeprecated>false</nodeprecated>
                         <author>false</author>
                         <detectJavaApiLink>true</detectJavaApiLink>
                         <nohelp>true</nohelp>
