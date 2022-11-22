@@ -55,24 +55,24 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @see PreparedStatement#getResultSet()
      */
     public static ResultProducer<ResultBearing> returningResults() {
-        return (supplier, ctx) -> ResultBearing.of(getResultSet(supplier, ctx), ctx);
+        return (statementSupplier, ctx) -> ResultBearing.of(getResultSet(statementSupplier, ctx), ctx);
     }
 
-    private static Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
+    private static Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) {
         return () -> {
             try {
-                ResultSet rs = supplier.get().getResultSet();
+                ResultSet resultSet = statementSupplier.get().getResultSet();
 
-                if (rs == null) {
+                if (resultSet == null) {
                     if (ctx.getConfig(ResultProducers.class).allowNoResults) {
                         return new EmptyResultSet();
                     }
                     throw new NoResultsException("Statement returned no results", ctx);
                 }
 
-                ctx.addCleanable(rs::close);
+                ctx.addCleanable(resultSet::close);
 
-                return rs;
+                return resultSet;
             } catch (SQLException e) {
                 throw new ResultSetException("Could not get result set", e, ctx);
             }

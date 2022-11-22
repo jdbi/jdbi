@@ -53,9 +53,9 @@ public interface ResultBearing {
     static ResultBearing of(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) {
         return new ResultBearing() {
             @Override
-            public <R> R scanResultSet(ResultSetScanner<R> mapper) {
+            public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
                 try {
-                    return mapper.scanResultSet(resultSetSupplier, ctx);
+                    return resultSetScanner.scanResultSet(resultSetSupplier, ctx);
                 } catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
                 }
@@ -65,11 +65,11 @@ public interface ResultBearing {
 
     /**
      * Invokes the mapper with a result set supplier, and returns the value returned by the mapper.
-     * @param mapper result set scanner
+     * @param resultSetScanner result set scanner
      * @param <R> result type returned by the mapper.
      * @return the value returned by the mapper.
      */
-    <R> R scanResultSet(ResultSetScanner<R> mapper);
+    <R> R scanResultSet(ResultSetScanner<R> resultSetScanner);
 
     /**
      * Maps this result set to a {@link ResultIterable} of the given element type.
@@ -215,22 +215,22 @@ public interface ResultBearing {
     /**
      * Reduce the result rows using the given row reducer.
      *
-     * @param reducer the row reducer.
+     * @param rowReducer the row reducer.
      * @param <C> Mutable result container type
      * @param <R> Result element type
      * @return the stream of result elements
      * @see RowReducer
      */
-    default <C, R> Stream<R> reduceRows(RowReducer<C, R> reducer) {
-        return scanResultSet((supplier, ctx) -> {
-            try (ResultSet rs = supplier.get()) {
-                RowView rowView = new RowViewImpl(rs, ctx);
+    default <C, R> Stream<R> reduceRows(RowReducer<C, R> rowReducer) {
+        return scanResultSet((resultSetSupplier, ctx) -> {
+            try (ResultSet resultSet = resultSetSupplier.get()) {
+                RowView rowView = new RowViewImpl(resultSet, ctx);
 
-                C container = reducer.container();
-                while (rs.next()) {
-                    reducer.accumulate(container, rowView);
+                C container = rowReducer.container();
+                while (resultSet.next()) {
+                    rowReducer.accumulate(container, rowView);
                 }
-                return reducer.stream(container);
+                return rowReducer.stream(container);
             } catch (SQLException e) {
                 throw new UnableToProduceResultException(e, ctx);
             } finally {

@@ -36,9 +36,9 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
     }
 
     @Override
-    public <R> R scanResultSet(ResultSetScanner<R> mapper) {
+    public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
         return ResultBearing.of(getResultSetSupplier(), getContext())
-            .scanResultSet(mapper);
+            .scanResultSet(resultSetScanner);
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")

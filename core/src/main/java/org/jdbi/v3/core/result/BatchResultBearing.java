@@ -42,8 +42,8 @@ public final class BatchResultBearing implements ResultBearing {
     }
 
     @Override
-    public <R> R scanResultSet(ResultSetScanner<R> mapper) {
-        return delegate.scanResultSet(mapper);
+    public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
+        return delegate.scanResultSet(resultSetScanner);
     }
 
     @Override
@@ -102,8 +102,8 @@ public final class BatchResultBearing implements ResultBearing {
     }
 
     @Override
-    public <C, R> Stream<R> reduceRows(RowReducer<C, R> reducer) {
-        return delegate.reduceRows(reducer);
+    public <C, R> Stream<R> reduceRows(RowReducer<C, R> rowReducer) {
+        return delegate.reduceRows(rowReducer);
     }
 
     @Override
