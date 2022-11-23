@@ -37,8 +37,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
 
     @Override
     public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
-        return ResultBearing.of(getResultSetSupplier(), getContext())
-            .scanResultSet(resultSetScanner);
+        return ResultBearing.of(getResultSetSupplier(), getContext()).scanResultSet(resultSetScanner);
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")
@@ -54,9 +53,9 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
     @SuppressWarnings("UnnecessaryLambda") // factored out for readablity
     private Supplier<ResultSet> getResultSetSupplier() {
         return () -> {
-            ResultSet rs = execute();
-            getContext().addCleanable(rs::close);
-            return rs;
+            ResultSet resultSet = execute();
+            getContext().addCleanable(resultSet::close);
+            return resultSet;
         };
     }
 
