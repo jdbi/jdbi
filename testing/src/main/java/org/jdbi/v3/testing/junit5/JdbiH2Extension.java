@@ -51,15 +51,71 @@ import org.h2.jdbcx.JdbcDataSource;
  * }
  * }</pre>
  */
+@SuppressWarnings("HiddenField")
 public class JdbiH2Extension extends JdbiExtension {
 
-    private final String url = "jdbc:h2:mem:" + UUID.randomUUID();
+    private final String url;
+
+    private String user = null;
+    private String password = null;
 
     static JdbiExtension instance() {
         return new JdbiH2Extension();
     }
 
-    public JdbiH2Extension() {}
+    static JdbiExtension instance(String options) {
+        return new JdbiH2Extension(options);
+    }
+
+    public JdbiH2Extension() {
+        this("");
+    }
+
+    /**
+     * Allows setting the options string for the H2 database. The value here is
+     * appended to the database URL.
+     *
+     * @param options The options string. Must not be null. May start with a semicolon.
+     */
+    public JdbiH2Extension(String options) {
+        StringBuilder url = new StringBuilder("jdbc:h2:mem:")
+                .append(UUID.randomUUID());
+
+        if (!options.isEmpty()) {
+            if (!options.startsWith(";")) {
+                url.append(';');
+            }
+            url.append(options);
+        }
+
+        this.url = url.toString();
+    }
+
+    /**
+     * Sets the H2 username.
+     *
+     * @param user The username. Can be null.
+     * @return This object.
+     */
+    public JdbiH2Extension withUser(String user) {
+        this.user = user;
+
+        return this;
+    }
+
+    /**
+     * Sets the H2 username and password.
+     *
+     * @param user     The username. Can be null.
+     * @param password The password. Can be null.
+     * @return This object.
+     */
+    public JdbiH2Extension withCredentials(String user, String password) {
+        this.user = user;
+        this.password = password;
+
+        return this;
+    }
 
     @Override
     public String getUrl() {
@@ -70,6 +126,15 @@ public class JdbiH2Extension extends JdbiExtension {
     protected DataSource createDataSource() {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(getUrl());
+
+        if (user != null) {
+            ds.setUser(user);
+
+            if (password != null) {
+                ds.setPassword(password);
+            }
+        }
+
         return ds;
     }
 }
