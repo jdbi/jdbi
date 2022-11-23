@@ -29,26 +29,39 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 @FunctionalInterface
 public interface ResultSetScanner<T> {
+
     /**
-     * Scans the lazily-supplied result set into a result. The ResultSet is not produced
+     * Scans the lazily-supplied {@link ResultSet} into a result. The ResultSet is not produced
      * (and typically, the statement the result came from is not executed) until
      * {@code resultSetSupplier.get()} is called.
      * <p>
-     * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed, to
-     * ensure that database resources are freed:
+     * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed when the
+     * {@link ResultSetScanner#scanResultSet(Supplier, StatementContext)} method exits. Otherwise, database resource may not be freed.
+     *
      * <pre>
-     * try {
-     *     ResultSet resultSet = resultSetSupplier.get()
-     *     // generate and return result from the result set.
-     * }
-     * finally {
-     *     ctx.close();
+     * public T scanResultSet(Supplier&lt;ResultSet&gt; resultSetSupplier, StatementContext ctx) {
+     *     ...
+     *     try (StatementContext context = ctx) {
+     *         ResultSet resultSet = resultSetSupplier.get();
+     *         // generate and return result from the result set.
+     *     }
      * }
      * </pre>
      * <p>
      * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultIterable}) without
      * calling {@code resultSetSupplier.get()}, in which case the burden of closing resources falls to whichever object
-     * ultimately does {@code get()} the result set.
+     * ultimately calls {@code resultSetSupplier.get()}.
+     *
+     * <pre>
+     * public T scanResultSet(Supplier&lt;ResultSet&gt; resultSetSupplier, StatementContext ctx) {
+     *     ...
+     *     // the implementation of SomeOtherClass.createResponse which may call resultSetSupplier.get()
+     *     // is now responsible to register the result set for cleanup and to close the StatementContext.
+     *     return SomeOtherClass.createResponse(resultSetSupplier, ..., ctx);
+     * }
+     * </pre>
+     *
+     *
      *
      * @param resultSetSupplier supplies a ResultSet.
      * @param ctx               the statement context.
