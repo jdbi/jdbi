@@ -126,10 +126,10 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default <T> ResultIterable<T> mapTo(QualifiedType<T> type) {
-        return scanResultSet((supplier, ctx) -> {
-            RowMapper<T> mapper = ctx.findMapperFor(type)
+        return scanResultSet((resultSetSupplier, ctx) -> {
+            RowMapper<T> rowMapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
-            return ResultIterable.of(supplier, mapper, ctx);
+            return ResultIterable.of(resultSetSupplier, rowMapper, ctx);
         });
     }
 
@@ -163,7 +163,8 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+        return scanResultSet((resultSetSupplier, ctx) ->
+                ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
@@ -175,7 +176,8 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
+        return scanResultSet((resultSetSupplier, ctx) ->
+                ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
@@ -197,7 +199,7 @@ public interface ResultBearing {
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
     default <T> ResultIterable<T> map(RowMapper<T> mapper) {
-        return scanResultSet((supplier, ctx) -> ResultIterable.of(supplier, mapper, ctx));
+        return scanResultSet((resultSetSupplier, ctx) -> ResultIterable.of(resultSetSupplier, mapper, ctx));
     }
 
     /**
@@ -390,14 +392,15 @@ public interface ResultBearing {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     default Object collectInto(Type containerType) {
-        return scanResultSet((rs, ctx) -> {
+        return scanResultSet((resultSetSupplier, ctx) -> {
             Collector collector = ctx.findCollectorFor(containerType)
                     .orElseThrow(() -> new NoSuchCollectorException("No collector registered for container type " + containerType));
             Type elementType = ctx.findElementTypeFor(containerType)
                     .orElseThrow(() -> new ElementTypeNotFoundException("Unknown element type for container type " + containerType));
-            RowMapper<?> mapper = ctx.findMapperFor(elementType)
+            RowMapper<?> rowMapper = ctx.findMapperFor(elementType)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for element type " + elementType));
-            return ResultIterable.of(rs, mapper, ctx).collect(collector);
+
+            return ResultIterable.of(resultSetSupplier, rowMapper, ctx).collect(collector);
         });
     }
 }

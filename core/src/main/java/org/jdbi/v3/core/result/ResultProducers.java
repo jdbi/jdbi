@@ -87,29 +87,29 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @see PreparedStatement#getGeneratedKeys()
      */
     public static ResultProducer<ResultBearing> returningGeneratedKeys(String... generatedKeyColumnNames) {
-        return (supplier, ctx) -> {
+        return (preparedStatementSupplier, ctx) -> {
             ctx.setReturningGeneratedKeys(true);
 
             if (generatedKeyColumnNames.length > 0) {
                 ctx.setGeneratedKeysColumnNames(generatedKeyColumnNames);
             }
 
-            return ResultBearing.of(getGeneratedKeys(supplier, ctx), ctx);
+            return ResultBearing.of(getGeneratedKeys(preparedStatementSupplier, ctx), ctx);
         };
     }
 
-    private static Supplier<ResultSet> getGeneratedKeys(Supplier<PreparedStatement> supplier, StatementContext ctx) {
+    private static Supplier<ResultSet> getGeneratedKeys(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) {
         return () -> {
             try {
-                ResultSet rs = supplier.get().getGeneratedKeys();
+                ResultSet resultSet = statementSupplier.get().getGeneratedKeys();
 
-                if (rs == null) {
+                if (resultSet == null) {
                     throw new NoResultsException("Statement returned no generated keys", ctx);
                 }
 
-                ctx.addCleanable(rs::close);
+                ctx.addCleanable(resultSet::close);
 
-                return rs;
+                return resultSet;
             } catch (SQLException e) {
                 throw new ResultSetException("Could not get generated keys", e, ctx);
             }

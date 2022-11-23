@@ -23,22 +23,22 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.util.Objects.requireNonNull;
 
 class ResultSetResultIterator<T> implements ResultIterator<T> {
-    private final ResultSet results;
-    private final RowMapper<T> mapper;
+    private final ResultSet resultSet;
+    private final RowMapper<T> rowMapper;
     private final StatementContext context;
 
     private volatile boolean alreadyAdvanced = false;
     private volatile boolean hasNext = false;
     private volatile boolean closed = false;
 
-    ResultSetResultIterator(ResultSet results,
-                            RowMapper<T> mapper,
+    ResultSetResultIterator(ResultSet resultSet,
+                            RowMapper<T> rowMapper,
                             StatementContext context) throws SQLException {
-        this.results = requireNonNull(results);
-        this.mapper = mapper.specialize(results, context);
+        this.resultSet = requireNonNull(resultSet);
+        this.rowMapper = rowMapper.specialize(resultSet, context);
         this.context = context;
 
-        this.context.addCleanable(results::close);
+        this.context.addCleanable(resultSet::close);
     }
 
     @Override
@@ -80,7 +80,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         }
 
         try {
-            return mapper.map(results, context);
+            return rowMapper.map(resultSet, context);
         } catch (SQLException e) {
             throw new ResultSetException("Exception thrown mapping result set into return type", e, context);
         } finally {
@@ -103,7 +103,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
 
     private boolean safeNext() {
         try {
-            return results.next();
+            return resultSet.next();
         } catch (SQLException e) {
             throw new ResultSetException("Unable to advance result set", e, context);
         }

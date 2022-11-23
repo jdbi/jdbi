@@ -200,9 +200,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     private <R> R execute(ResultProducer<R> producer, Consumer<ExecutedBatch> batchConsumer) {
         try {
             return producer.produce(() -> {
-                ExecutedBatch batch = internalBatchExecute();
-                batchConsumer.accept(batch);
-                return batch.stmt;
+                ExecutedBatch executedBatch = internalBatchExecute();
+                batchConsumer.accept(executedBatch);
+                return executedBatch.stmt;
             }, getContext());
         } catch (SQLException e) {
             cleanUpForException(e);
