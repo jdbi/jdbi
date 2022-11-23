@@ -19,11 +19,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -88,19 +90,36 @@ public class TestReducing {
     }
 
     @Test
-    public void testReduceRows() {
-        List<SomethingWithLocations> result = h2Extension.getSharedHandle()
-            .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
-            .reduceRows((Map<Integer, SomethingWithLocations> map, RowView rv) ->
-                map.computeIfAbsent(rv.getColumn("id", Integer.class),
-                        id -> new SomethingWithLocations(rv.getRow(Something.class)))
-                    .locations
-                    .add(rv.getColumn("location", String.class)))
-            .collect(toList());
+    public void testReduceRowsStreamClean() {
+        try (Stream<SomethingWithLocations> stream = h2Extension.getSharedHandle()
+                .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
+                .reduceRows((Map<Integer, SomethingWithLocations> map, RowView rv) ->
+                        map.computeIfAbsent(rv.getColumn("id", Integer.class),
+                                        id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                                .locations
+                                .add(rv.getColumn("location", String.class)))) {
+            List<SomethingWithLocations> result = stream.collect(toList());
+            assertThat(result).containsExactly(
+                    new SomethingWithLocations(new Something(1, "tree")).at("outside"),
+                    new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+        }
+    }
 
-        assertThat(result).containsExactly(
-            new SomethingWithLocations(new Something(1, "tree")).at("outside"),
-            new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+    @Test
+    public void testReduceRowsStatementClean() {
+        try (Query query = h2Extension.getSharedHandle()
+                .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")) {
+            List<SomethingWithLocations> result = query.reduceRows((Map<Integer, SomethingWithLocations> map, RowView rv) ->
+                            map.computeIfAbsent(rv.getColumn("id", Integer.class),
+                                            id -> new SomethingWithLocations(rv.getRow(Something.class)))
+                                    .locations
+                                    .add(rv.getColumn("location", String.class)))
+                    .collect(toList());
+
+            assertThat(result).containsExactly(
+                    new SomethingWithLocations(new Something(1, "tree")).at("outside"),
+                    new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+        }
     }
 
     @Test
