@@ -61,11 +61,12 @@ import static java.util.Objects.requireNonNull;
  * Context is inherited from the parent {@link Handle} initially and changes will
  * not outlive the statement.
  * The context will be passed through most major jdbi APIs.
- *
+ * <p>
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
 public class StatementContext implements Closeable {
+
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
@@ -575,25 +576,32 @@ public class StatementContext implements Closeable {
 
     @Override
     public void close() {
-        List<Cleanable> cleanablesCopy;
 
-        synchronized (cleanables) {
-            cleanablesCopy = new ArrayList<>(cleanables);
-            cleanables.clear();
+        try {
+            List<Cleanable> cleanablesCopy;
+
+            synchronized (cleanables) {
+                if (cleanables.isEmpty()) {
+                    return; // only notify that the context was cleaned.
+                }
+
+                cleanablesCopy = new ArrayList<>(cleanables);
+                cleanables.clear();
+            }
+
+            Collections.reverse(cleanablesCopy);
+            cleanablesCopy.forEach(this::notifyCleanableRemoved);
+
+            ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+
+            for (Cleanable cleanable : cleanablesCopy) {
+                throwableSuppressor.suppressAppend(cleanable::close);
+            }
+
+            throwableSuppressor.throwIfNecessary(t -> new CloseException("Exception thrown while cleaning StatementContext", t));
+        } finally {
+            notifyContextCleaned();
         }
-
-        Collections.reverse(cleanablesCopy);
-        cleanablesCopy.forEach(this::notifyCleanableRemoved);
-
-        ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
-
-        for (Cleanable cleanable : cleanablesCopy) {
-            throwableSuppressor.suppressAppend(cleanable::close);
-        }
-
-        notifyContextCleaned();
-
-        throwableSuppressor.throwIfNecessary(t -> new CloseException("Exception thrown while cleaning StatementContext", t));
     }
 
     public ExtensionMethod getExtensionMethod() {
