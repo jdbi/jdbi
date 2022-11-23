@@ -32,19 +32,29 @@ public interface ResultProducer<R> {
      * <p>
      * Implementors that call {@code statementSupplier.get()} must ensure that the statement context is closed before
      * returning, to ensure that database resources are freed:
+     *
      * <pre>
-     * try {
-     *     PreparedStatement statement = statementSupplier.get()
-     *     // generate and return result from the statement
-     * }
-     * finally {
-     *     ctx.close();
+     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext context) {
+     *     ...
+     *     try (StatementContext context = ctx) {
+     *         PreparedStatement statement = statementSupplier.get()
+     *         // generate and return result from the statement
+     *     }
      * }
      * </pre>
      * <p>
      * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultBearing} or
      * {@link ResultIterable}) without calling {@code statementSupplier.get()}, in which case the burden of closing
-     * resources falls to whichever object ultimately does {@code get()} the statement.
+     * resources falls to whichever object ultimately calls {@code statementSupplier.get()}.
+     *
+     * <pre>
+     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext context) {
+     *     ...
+     *     // the implementation of SomeOtherClass.createResponse which may call statementSupplier.get()
+     *     // is now responsible to close the StatementContext.
+     *     return SomeOtherClass.createResponse(statementSupplier, ..., ctx);
+     * }
+     * </pre>
      *
      * @param statementSupplier supplies a PreparedStatement, post-execution.
      * @param ctx               the statement context
