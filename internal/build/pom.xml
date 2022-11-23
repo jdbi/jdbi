@@ -63,6 +63,7 @@
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
         <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
         <dep.dokka.version>1.7.10</dep.dokka.version>
+        <dep.flyway.version>7.15.0</dep.flyway.version>
         <dep.freebuilder.version>2.7.0</dep.freebuilder.version>
         <dep.guava.version>30.1.1-jre</dep.guava.version>
         <dep.h2.version>2.1.212</dep.h2.version>
@@ -236,7 +237,7 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>7.11.0</version>
+                <version>${dep.flyway.version}</version>
             </dependency>
 
             <dependency>
