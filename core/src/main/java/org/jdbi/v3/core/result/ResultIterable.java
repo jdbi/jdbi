@@ -42,26 +42,25 @@ import static java.util.Spliterators.spliteratorUnknownSize;
  */
 @FunctionalInterface
 public interface ResultIterable<T> extends Iterable<T> {
+
     /**
      * Returns a ResultIterable backed by the given result set supplier, mapper, and context.
      *
-     * @param supplier result set supplier
+     * @param resultSetSupplier result set supplier
      * @param mapper   row mapper
      * @param ctx      statement context
      * @param <T>      the mapped type
      * @return the result iterable
      */
-    static <T> ResultIterable<T> of(Supplier<ResultSet> supplier, RowMapper<T> mapper, StatementContext ctx) {
+    static <T> ResultIterable<T> of(Supplier<ResultSet> resultSetSupplier, RowMapper<T> mapper, StatementContext ctx) {
         return () -> {
             try {
-                return new ResultSetResultIterator<>(supplier.get(), mapper, ctx);
+                ResultSet resultSet = resultSetSupplier.get();
+                ctx.addCleanable(resultSet::close);
+
+                return new ResultSetResultIterator<>(resultSet, mapper, ctx);
             } catch (SQLException e) {
-                try {
-                    ctx.close();
-                } catch (Exception e1) {
-                    e.addSuppressed(e1);
-                }
-                throw new ResultSetException("Unable to iterator result set", e, ctx);
+                throw new ResultSetException("Unable to iterate result set", e, ctx);
             }
         };
     }
