@@ -4840,6 +4840,7 @@ Currently supported databases:
 * link:https://www.postgresql.org/[Postgres] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
 * link:https://www.h2database.com/[H2] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
 * link:https://www.sqlite.org/[Sqlite] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
+* Generic JDBC database support - link:{jdbidocs}/testing/junit5/JdbiGenericExtension.html[JdbiGenericExtension^]. This is a minimal extension that can support any database that support JDBC. The driver for the database must be on the classpath. All database management (schema creation, DDL object management etc.) must be done by the calling code.
 
 Support for other databases is wanted!
 
@@ -4880,6 +4881,7 @@ The H2 database is one of the most popular choices for embedded testing. The lin
     extension.withCredentials("h2-user", "h2-password");
 ----
 
+
 ==== Testing with Postgres
 
 Postgres is supported through multiple test classes:
@@ -4887,6 +4889,7 @@ Postgres is supported through multiple test classes:
 * link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^] manages a local database on the host. It uses the link:https://pg-embedded.softwareforge.de/[pg-embedded] library that can spin up postgres instances on various OS and architectures. This is the fastest way to get to a postgres instance. Most of the Jdbi test classes that use Postgres use this extension.
 * link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^] supports an external Postgres database and can run tests against any local or remote database.
 * link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the link:https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component].
+
 
 
 == Third-Party Integration

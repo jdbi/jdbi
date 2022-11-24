@@ -90,6 +90,20 @@
             <artifactId>flyway-core</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -120,6 +134,7 @@
                                 <exclude>**/JdbiExtensionTest.*</exclude>
                                 <exclude>**/JdbiPostgresExtensionTest.*</exclude>
                                 <exclude>**/JdbiPostgresExtendWithTest.*</exclude>
+                                <exclude>**/JdbiGenericExtensionTest.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
