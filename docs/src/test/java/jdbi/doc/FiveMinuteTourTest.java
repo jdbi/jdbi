@@ -34,7 +34,6 @@ public class FiveMinuteTourTest {
     private Handle handle;
 
     @BeforeEach
-    @SuppressWarnings("checkstyle:hiddenfield")
     public void setUp() {
         // tag::createJdbi[]
         // H2 in-memory database

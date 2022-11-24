@@ -29,7 +29,6 @@ import org.jdbi.v3.meta.Beta;
 /**
  * Configuration class for reflective mappers.
  */
-@SuppressWarnings("HiddenField")
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
 
     private static final Consumer<AccessibleObject> FORCE_MAKE_ACCESSIBLE = accessibleObject -> accessibleObject.setAccessible(true);

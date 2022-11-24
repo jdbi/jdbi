@@ -78,7 +78,6 @@ public class Migration {
     /**
      * Controls whether to drop all objects in the configured schemas after running the tests using Flyway.
      */
-    @SuppressWarnings("HiddenField")
     public Migration cleanAfter(boolean cleanAfter) {
         this.cleanAfter = cleanAfter;
         return this;

@@ -129,7 +129,6 @@ public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
      * @param cleanAfter Set to <tt>false</tt> to avoid cleaning of the schema.
      * @return The instance itself for chaining method calls.
      */
-    @SuppressWarnings("HiddenField")
     public JdbiFlywayMigration cleanAfter(boolean cleanAfter) {
         this.cleanAfter = cleanAfter;
         return this;
