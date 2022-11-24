@@ -259,12 +259,20 @@ public class OutParameters {
 
     @NonNull
     public ResultBearing getRowSet(String name) {
-        return ResultBearing.of(() -> getObject(name, ResultSet.class), ctx);
+        return ResultBearing.of(() -> {
+            ResultSet resultSet = getObject(name, ResultSet.class);
+            ctx.addCleanable(resultSet::close);
+            return resultSet;
+        }, ctx);
     }
 
     @NonNull
     public ResultBearing getRowSet(int pos) {
-        return ResultBearing.of(() -> getObject(pos, ResultSet.class), ctx);
+        return ResultBearing.of(() -> {
+            ResultSet resultSet = getObject(pos, ResultSet.class);
+            ctx.addCleanable(resultSet::close);
+            return resultSet;
+        }, ctx);
     }
 
     @CheckForNull

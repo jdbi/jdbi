@@ -37,8 +37,6 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         this.resultSet = requireNonNull(resultSet);
         this.rowMapper = rowMapper.specialize(resultSet, context);
         this.context = context;
-
-        this.context.addCleanable(resultSet::close);
     }
 
     @Override

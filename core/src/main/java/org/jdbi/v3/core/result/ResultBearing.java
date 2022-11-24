@@ -224,19 +224,18 @@ public interface ResultBearing {
      * @see RowReducer
      */
     default <C, R> Stream<R> reduceRows(RowReducer<C, R> rowReducer) {
-        return scanResultSet((resultSetSupplier, ctx) -> {
-            try (ResultSet resultSet = resultSetSupplier.get()) {
+        return scanResultSet((resultSetSupplier, context) -> {
+            try (StatementContext ctx = context) {
+                ResultSet resultSet = resultSetSupplier.get();
                 RowView rowView = new RowViewImpl(resultSet, ctx);
 
                 C container = rowReducer.container();
                 while (resultSet.next()) {
                     rowReducer.accumulate(container, rowView);
                 }
-                return rowReducer.stream(container);
+                return rowReducer.stream(container).onClose(ctx::close);
             } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, ctx);
-            } finally {
-                ctx.close();
+                throw new UnableToProduceResultException(e, context);
             }
         });
     }
@@ -266,18 +265,18 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return scanResultSet((supplier, ctx) -> {
-            try (ResultSet rs = supplier.get()) {
-                RowView rv = new RowViewImpl(rs, ctx);
+        return scanResultSet((resultSetSupplier, context) -> {
+            try (StatementContext ctx = context) {
+                ResultSet resultSet = resultSetSupplier.get();
+                RowView rowView = new RowViewImpl(resultSet, ctx);
+
                 U result = seed;
-                while (rs.next()) {
-                    result = accumulator.apply(result, rv);
+                while (resultSet.next()) {
+                    result = accumulator.apply(result, rowView);
                 }
                 return result;
             } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, ctx);
-            } finally {
-                ctx.close();
+                throw new UnableToProduceResultException(e, context);
             }
         });
     }
@@ -292,17 +291,17 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return scanResultSet((supplier, ctx) -> {
-            try (ResultSet rs = supplier.get()) {
+        return scanResultSet((resultSetSupplier, context) -> {
+            try (StatementContext ctx = context) {
+                ResultSet resultSet = resultSetSupplier.get();
+
                 U result = seed;
-                while (rs.next()) {
-                    result = accumulator.apply(result, rs, ctx);
+                while (resultSet.next()) {
+                    result = accumulator.apply(result, resultSet, ctx);
                 }
                 return result;
             } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, ctx);
-            } finally {
-                ctx.close();
+                throw new UnableToProduceResultException(e, context);
             }
         });
     }
@@ -319,21 +318,21 @@ public interface ResultBearing {
      * @return the result of the collection
      */
     default <A, R> R collectRows(Collector<RowView, A, R> collector) {
-        return scanResultSet((supplier, ctx) -> {
-            try (ResultSet rs = supplier.get()) {
-                RowView rv = new RowViewImpl(rs, ctx);
-                A acc = collector.supplier().get();
+        return scanResultSet((resultSetSupplier, context) -> {
+            try (StatementContext ctx = context) {
+                ResultSet resultSet = resultSetSupplier.get();
+                RowView rowView = new RowViewImpl(resultSet, ctx);
+
+                A accumulator = collector.supplier().get();
 
                 BiConsumer<A, RowView> consumer = collector.accumulator();
-                while (rs.next()) {
-                    consumer.accept(acc, rv);
+                while (resultSet.next()) {
+                    consumer.accept(accumulator, rowView);
                 }
 
-                return collector.finisher().apply(acc);
+                return collector.finisher().apply(accumulator);
             } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, ctx);
-            } finally {
-                ctx.close();
+                throw new UnableToProduceResultException(e, context);
             }
         });
     }
