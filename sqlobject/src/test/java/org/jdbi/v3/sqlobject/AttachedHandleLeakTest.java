@@ -25,7 +25,6 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -38,9 +37,9 @@ public class AttachedHandleLeakTest {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
-        .withPlugin(new SqlObjectPlugin())
-        .withInitializer(TestingInitializers.usersWithData())
-        .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
+            .withPlugin(new SqlObjectPlugin())
+            .withInitializer(TestingInitializers.usersWithData())
+            .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
 
     private UserDao dao;
 
@@ -102,7 +101,6 @@ public class AttachedHandleLeakTest {
     }
 
     @Test
-    @Disabled("no support for iterator yet - #2169")
     public void testLeakConsumer() {
         for (int i = 0; i < 1000; i++) {
             dao.getIterableUsers(it -> assertThat(it.next()).extracting("id").isEqualTo(1));
@@ -110,7 +108,6 @@ public class AttachedHandleLeakTest {
     }
 
     @Test
-    @Disabled("no support for iterator yet - #2169")
     public void testLeakStreamConsumer() {
         for (int i = 0; i < 1000; i++) {
             dao.getStreamableUsers(stream -> assertThat(stream.findFirst()).containsInstanceOf(User.class));
@@ -162,7 +159,7 @@ public class AttachedHandleLeakTest {
         Stream<User> getStreamingUsers();
 
         @SqlQuery("SELECT * from users order by id")
-        void getIterableUsers(Consumer<ResultIterator<User>> consumer);
+        void getIterableUsers(Consumer<Iterator<User>> consumer);
 
         @SqlQuery("SELECT * from users order by id")
         void getStreamableUsers(Consumer<Stream<User>> consumer);

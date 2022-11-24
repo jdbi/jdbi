@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestConsumer {
 
@@ -78,6 +80,35 @@ public class TestConsumer {
         assertThat(results).containsExactlyElementsOf(expected);
     }
 
+    @Test
+    public void testIteratorPartialConsumeOk() {
+        final List<Something> results = new ArrayList<>();
+        dao.consumeIterator(iter -> results.add(iter.next()));
+        assertThat(results).containsExactly(expected.get(0));
+    }
+
+    @Test
+    public void testStreamPartialConsumeOk() {
+        final List<Something> results = new ArrayList<>();
+        dao.consumeStream(stream -> results.add(stream.findFirst().orElse(null)));
+        assertThat(results).containsExactly(expected.get(0));
+    }
+
+    @Test
+    public void testSubclassIteratorFails() {
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(ResultIteratorDao.class)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testSubclassStreamFails() {
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(SpecialStreamDao.class)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testConcreteStreamFails() {
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(SomethingStreamDao.class)).isInstanceOf(IllegalArgumentException.class);
+    }
+
     public interface Spiffy {
         @SqlQuery("select id, name from something order by id desc")
         @UseRowMapper(SomethingMapper.class)
@@ -93,5 +124,28 @@ public class TestConsumer {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something something);
+    }
+
+    public interface ResultIteratorDao {
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeIterator(Consumer<ResultIterator<Something>> consumer);
+    }
+
+    public interface SomethingStream extends Stream<Something> {}
+
+    public interface SomethingStreamDao {
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeStream(Consumer<SomethingStream> consumer);
+
+    }
+    public interface SpecialStream<T> extends Stream<T> {}
+
+    public interface SpecialStreamDao {
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeStream(Consumer<SpecialStream<Something>> consumer);
+
     }
 }
