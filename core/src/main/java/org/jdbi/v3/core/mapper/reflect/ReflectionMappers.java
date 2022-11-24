@@ -13,23 +13,32 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.mapper.CaseStrategy;
+import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for reflective mappers.
  */
+@SuppressWarnings("HiddenField")
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
+
+    private static final Consumer<AccessibleObject> FORCE_MAKE_ACCESSIBLE = accessibleObject -> accessibleObject.setAccessible(true);
+    private static final Consumer<AccessibleObject> DO_NOT_MAKE_ACCESSIBLE = accessibleObject -> {};
+
     private List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
     private UnaryOperator<String> caseChange;
+    private Consumer<AccessibleObject> makeAccessible;
 
     /**
      * Create a default configuration that attempts case insensitive and
@@ -41,12 +50,14 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
                 new SnakeCaseColumnNameMatcher());
         strictMatching = false;
         caseChange = CaseStrategy.LOCALE_LOWER;
+        makeAccessible = FORCE_MAKE_ACCESSIBLE;
     }
 
     private ReflectionMappers(ReflectionMappers that) {
         columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
         strictMatching = that.strictMatching;
         caseChange = that.caseChange;
+        makeAccessible = that.makeAccessible;
     }
 
     /**
@@ -113,6 +124,35 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     public ReflectionMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
         return this;
+    }
+
+    /**
+     * Set the strategy Jdbi uses for Java accessibility rules.
+     * The legacy default is to call {@code setAccessible(true)} in certain cases when we try to use a Constructor, Method, or Field.
+     * In the future, this default will be changed to a no-op, to better interact with the Java module system.
+     */
+    @Alpha
+    public ReflectionMappers setAccessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
+        this.makeAccessible = makeAccessible;
+        return this;
+    }
+
+    /**
+     * Set the strategy Jdbi uses for Java accessibility rules to a no-op.
+     */
+    @Alpha
+    public ReflectionMappers disableAccessibleObjectStrategy() {
+        this.makeAccessible = DO_NOT_MAKE_ACCESSIBLE;
+        return this;
+    }
+
+    /**
+     * Use the accessibility strategy to potentially make a reflective operation accessible.
+     */
+    @Alpha
+    public <T extends AccessibleObject> T makeAccessible(T accessibleObject) {
+        makeAccessible.accept(accessibleObject);
+        return accessibleObject;
     }
 
     @Override
