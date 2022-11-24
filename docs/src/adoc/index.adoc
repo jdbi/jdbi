@@ -4765,29 +4765,26 @@ The official test support from JDBI is in the `jdbi-testing` package. There are 
 The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
 class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule^] and can be used with the link:https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule^] and link:https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule^] annotations.
 
-It provides helpers for writing JUnit 4 tests integrated with a managed database
-instance. This makes writing unit tests quick and easy!  You must remember to include
-the database dependency itself, for example to get a pure H2 Java database:
+It provides helpers for writing JUnit 4 tests integrated with a managed database instance. This makes writing unit tests quick and easy!  You must remember to include the database dependency itself, for example to get a pure H2 Java database:
 
 [source,xml]
 ----
 <dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
-    <version>1.4.200</version>
+    <version>2.1.212</version>
     <scope>test</scope>
 </dependency>
 ----
 
-JUnit 4 supports the OTJ embedded postgres component, which needs to be included when
-using Postgres:
+JUnit 4 supports the OTJ embedded postgres component, which needs to be included when using Postgres:
 
 [source,xml]
 ----
 <dependency>
     <groupId>com.opentable.components</groupId>
     <artifactId>otj-pg-embedded</artifactId>
-    <version>0.13.4</version>
+    <version>1.0.1</version>
     <scope>test</scope>
 </dependency>
 ----
@@ -4799,7 +4796,7 @@ The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit5/JdbiExtensi
 
 It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
 
-When using `@RegisterExtension`, the extensions can be customized further:
+When using link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^], the extensions can be customized further:
 
 [source,java]
 ----
@@ -4817,7 +4814,12 @@ public class Test {
 }
 ----
 
-When using the `@ExtendWith` declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
+[NOTE]
+link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] and all the database specific subclasses are intended to be registered as instance fields. Fields annotated with the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] that hold JdbiExtension instances should *not* be static! While this may work, the behavior is currently undefined and should be avoided.
+
+The javadoc page for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] contains additional information on how to customize a programmatically registered instance.
+
+When using the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
 
 [source,java]
 ----
@@ -4830,9 +4832,61 @@ public class Test {
 }
 ----
 
-The instances injected are the same instances as returned by `getJdbi()` and `getSharedHandle()`.
+The instances injected are the same instances as returned by link:{jdbidocs}/testing/junit5/JdbiExtension.html#getJdbi()[getJdbi()] and link:{jdbidocs}/testing/junit5/JdbiExtension.html#getSharedHandle()[getSharedHandle()].
 
-The javadoc for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension] contains further information on how to customize a programmatically registered instance.
+
+Currently supported databases:
+
+* link:https://www.postgresql.org/[Postgres] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
+* link:https://www.h2database.com/[H2] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
+* link:https://www.sqlite.org/[Sqlite] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
+
+Support for other databases is wanted!
+
+The link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] provides a number of convenience methods:
+
+[source,java, indent=0]
+----
+public class JdbiExtension {
+    public JdbiExtension postgres(...) // new JdbiPostgresExtension(...)
+
+    public JdbiExtension externalPostgres(...) // new JdbiExternalPostgresExtension(...)
+
+    public JdbiExtension otjEmbeddedPostgres() // new JdbiOtjPostgresExtension()
+
+    public JdbiExtension h2() // new JdbiH2Extension()
+
+    public JdbiExtension sqlite() // new JdbiSqliteExtension()
+}
+----
+
+Additional functionality may be available by using the database specific implementation classes directly. For most common use cases, the convenience methods should suffice.
+
+
+==== Testing with H2
+
+The H2 database is one of the most popular choices for embedded testing. The link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^] class allows for a few additional customizations:
+
+[source,java, indent=0]
+----
+    // JdbiH2Extension(String) constructor allows H2 options
+    // JDBC URL is jdbc:h2:mem:<UUID>;MODE=MySQL
+    JdbiH2Extension extension = new JdbiH2Extension("MODE=MySQL");
+
+    // set H2 user
+    extension.withUser("h2-user");
+
+    // set H2 user and password
+    extension.withCredentials("h2-user", "h2-password");
+----
+
+==== Testing with Postgres
+
+Postgres is supported through multiple test classes:
+
+* link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^] manages a local database on the host. It uses the link:https://pg-embedded.softwareforge.de/[pg-embedded] library that can spin up postgres instances on various OS and architectures. This is the fastest way to get to a postgres instance. Most of the Jdbi test classes that use Postgres use this extension.
+* link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^] supports an external Postgres database and can run tests against any local or remote database.
+* link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the link:https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component].
 
 
 == Third-Party Integration
