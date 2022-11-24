@@ -12,6 +12,7 @@
   - deprecate misnamed `setTransactionIsolation` method, add `setTransactionIsolationLevel` to the handle
   - deprecate misnamed `release` method, add `releaseSavepoint` to the handle
   - add missing `isInTransaction` method to `Transactional`, bringing it to par to the handle set of methods
+  - add H2 option string, user and password methods to `JdbiH2Extension`
 
 # 3.34.0
 

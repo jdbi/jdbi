@@ -38,7 +38,9 @@ public class JdbiFlywayH2Test {
             .cleanAfter(true);
 
     @RegisterExtension
-    private final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(FLYWAY_INITIALIZER);
+    private final JdbiExtension h2Extension = new JdbiH2Extension("MODE=MySQL;DATABASE_TO_LOWER=TRUE")
+            .withUser("user")
+            .withInitializer(FLYWAY_INITIALIZER);
 
     private Jdbi jdbi;
 
