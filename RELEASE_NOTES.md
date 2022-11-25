@@ -14,6 +14,7 @@
   - add missing `isInTransaction` method to `Transactional`, bringing it to par to the handle set of methods
   - add H2 option string, user and password methods to `JdbiH2Extension`
   - ReflectionMappers: add accessibleObjectStrategy to allow skipping setAccessible calls for FieldMapper in particular
+  - minimal support for testing with other databases in `JdbiGenericExtension`
 
 # 3.34.0
 

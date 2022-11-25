@@ -61,6 +61,7 @@
         <dep.assertj-guava.version>3.4.0</dep.assertj-guava.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
+        <dep.derby.version>10.15.2.0</dep.derby.version>
         <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
         <dep.dokka.version>1.7.10</dep.dokka.version>
         <dep.flyway.version>7.15.0</dep.flyway.version>
@@ -262,6 +263,12 @@
                         <artifactId>checker-qual</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+                <version>${dep.derby.version}</version>
             </dependency>
 
             <dependency>
