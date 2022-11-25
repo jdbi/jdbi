@@ -15,6 +15,7 @@
   - add H2 option string, user and password methods to `JdbiH2Extension`
   - ReflectionMappers: add accessibleObjectStrategy to allow skipping setAccessible calls for FieldMapper in particular
   - minimal support for testing with other databases in `JdbiGenericExtension`
+  - Dependabot warnings for Postgres and H2, upgrade to 42.5.1 and 2.1.214 respectively.
 
 # 3.34.0
 
