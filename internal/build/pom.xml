@@ -1109,8 +1109,8 @@
             <id>fast</id>
             <properties>
                 <basepom.check.skip-all>true</basepom.check.skip-all>
-                <skipTests>true</skipTests>
                 <skipITs>true</skipITs>
+                <skipTests>true</skipTests>
             </properties>
         </profile>
 
