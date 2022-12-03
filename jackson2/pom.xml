@@ -21,8 +21,11 @@
     </parent>
 
     <artifactId>jdbi3-jackson2</artifactId>
+
     <name>jdbi3 jackson2</name>
-    <description>Jdbi Jackson 2 integration</description>
+    <description>
+        Use Jackson 2.x for JSON column serialization/deserialization.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.jackson2</moduleName>

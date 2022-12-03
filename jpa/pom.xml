@@ -22,24 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-jpa</artifactId>
-    <name>jdbi3 JPA Integration</name>
 
-    <developers>
-        <developer>
-            <name>Matthew Hall</name>
-            <url>https://github.com/qualidafial</url>
-            <roles>
-                <role>Project maintainer</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Ali Shakiba</name>
-            <url>https://github.com/shakiba</url>
-            <roles>
-                <role>Original project creator</role>
-            </roles>
-        </developer>
-    </developers>
+    <name>jdbi3 jpa</name>
+    <description>
+        Minimal support for JPA annotations.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.jpa</moduleName>

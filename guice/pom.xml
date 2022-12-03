@@ -22,7 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-guice</artifactId>
-    <name>jdbi3 Guice Integration</name>
+
+    <name>jdbi3 guice</name>
+    <description>
+        Google Guice integration.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.guice</moduleName>

@@ -22,7 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-guava</artifactId>
-    <name>jdbi3 Guava Integration</name>
+
+    <name>jdbi3 guava</name>
+    <description>
+        Support for Google Guava data types.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.guava</moduleName>

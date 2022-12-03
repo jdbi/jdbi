@@ -21,16 +21,11 @@
     </parent>
 
     <artifactId>jdbi3-sqlite</artifactId>
-    <name>jdbi3 sqlite</name>
-    <description>Jdbi sqlite support</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 sqlite</name>
+    <description>
+        Support for additional SQLite data types.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.sqlite</moduleName>

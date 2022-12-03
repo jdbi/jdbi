@@ -22,16 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-postgis</artifactId>
-    <name>jdbi3 PostGIS</name>
-    <description>jdbi PostgreSQL PostGIS support</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 postgis</name>
+    <description>
+        Support for PostgreSQL PostGIS data types.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.postgis</moduleName>

@@ -26,6 +26,25 @@
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-policy</artifactId>
     <version>3.35.1-SNAPSHOT</version>
+
     <name>jdbi3 - internal - policy</name>
-    <description>Policy files for Jdbi build configuration</description>
+    <description>
+        Jdbi3 policy files. This is a Jdbi internal module and not part of the public API.
+    </description>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>jdbi</id>
+            <name>The Jdbi Team</name>
+            <url>https://github.com/jdbi/jdbi/blob/master/CONTRIBUTORS.md</url>
+        </developer>
+    </developers>
 </project>

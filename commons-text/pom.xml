@@ -19,18 +19,13 @@
         <artifactId>jdbi3-parent</artifactId>
         <version>3.35.1-SNAPSHOT</version>
     </parent>
+
     <artifactId>jdbi3-commons-text</artifactId>
 
-    <name>jdbi3 Apache Commons Text integration</name>
-    <description>Provides features implemented with Apache Commons Text.</description>
-
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 commons-text</name>
+    <description>
+        Use Apache Commons Text for query templating.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.commonstext</moduleName>

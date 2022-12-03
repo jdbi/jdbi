@@ -22,16 +22,13 @@
     </parent>
 
     <artifactId>jdbi3-testing</artifactId>
-    <name>jdbi3 Test Helpers</name>
-    <description>Utilities for testing Jdbi</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 testing</name>
+    <description>
+        Support for testing frameworks. Provides integration to spin up and access databases using Jdbi in unit tests.
+
+        Currently supports JUnit 4 and JUnit 5.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.testing</moduleName>
