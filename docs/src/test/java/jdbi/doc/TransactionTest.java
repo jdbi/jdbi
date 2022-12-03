@@ -46,7 +46,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SuppressWarnings("HiddenField")
 public class TransactionTest {
 
     @RegisterExtension

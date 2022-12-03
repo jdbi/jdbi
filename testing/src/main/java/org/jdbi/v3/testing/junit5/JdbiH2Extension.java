@@ -51,7 +51,6 @@ import org.h2.jdbcx.JdbcDataSource;
  * }
  * }</pre>
  */
-@SuppressWarnings("HiddenField")
 public class JdbiH2Extension extends JdbiExtension {
 
     private final String url;

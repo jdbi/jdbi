@@ -27,8 +27,8 @@
         <property name="message" value="Line has CRLF or CR line ending."/>
     </module>
     <module name="RegexpMultiline">
-        <property name="format" value="\n{3,}"/>
-        <property name="message" value="Don't leave more than 1 open line."/>
+        <property name="format" value="\n{4,}"/>
+        <property name="message" value="Don't leave more than 2 open lines."/>
     </module>
     <module name="RegexpMultiline">
         <property name="format" value="\{\s+\}"/>
@@ -51,12 +51,6 @@
         <module name="EqualsAvoidNull"/>
         <module name="EqualsHashCode"/>
         <module name="GenericWhitespace"/>
-        <module name="HiddenField">
-            <property name="ignoreConstructorParameter" value="true"/>
-            <property name="ignoreSetter" value="true"/>
-            <property name="setterCanReturnItsClass" value="true"/>
-            <property name="ignoreAbstractMethods" value="true"/>
-        </module>
         <module name="HideUtilityClassConstructor"/>
         <module name="IllegalImport"/>
         <module name="IllegalInstantiation"/>
