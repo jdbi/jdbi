@@ -22,16 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-generator</artifactId>
-    <name>jdbi3 Generator</name>
-    <description>jdbi Generator creates SqlObject implementations and simple value classes</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 generator</name>
+    <description>
+        The Jdbi generator provides an annotation processor that can create SqlObject implementation classes from SqlObject annotated interfaces.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.generator</moduleName>

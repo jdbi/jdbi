@@ -22,20 +22,17 @@
     </parent>
 
     <artifactId>jdbi3-core</artifactId>
-    <name>jdbi3 Core</name>
-    <description>jdbi is designed to provide convenient tabular data access in
-        Java(tm). It uses the Java collections framework for query
-        results, provides a convenient means of externalizing sql
-        statements, and provides named parameter support for any database
-        being used.</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 core</name>
+    <description>
+        The Jdbi core API.
+
+        Jdbi 3 is designed to provide convenient tabular data access in
+        Java(tm) and other JVM based languages.
+        It uses the Java collections framework for query results,
+        provides a convenient means of externalizing SQL statements, and
+        named parameter support for any database that supports JDBC.
+    </description>
 
     <properties>
         <basepom.check.phase-license>validate</basepom.check.phase-license>

@@ -25,13 +25,15 @@
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
     <packaging>pom</packaging>
-    <name>jdbi3 Parent</name>
-    <description>Jdbi is designed to provide convenient tabular data access in
-    Java(tm). It uses the Java collections framework for query
-    results, provides a convenient means of externalizing sql
-    statements, and provides named parameter support for any database
-    being used.</description>
-    <url>https://jdbi.org/</url>
+
+    <name>jdbi3 build parent</name>
+    <description>
+        Jdbi 3 is designed to provide convenient tabular data access in
+        Java(tm) and other JVM based languages.
+        It uses the Java collections framework for query results,
+        provides a convenient means of externalizing SQL statements, and
+        named parameter support for any database that supports JDBC.
+    </description>
 
     <modules>
         <!-- keep internal and bom on top of everything else, otherwise some of the -->

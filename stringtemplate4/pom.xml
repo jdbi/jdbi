@@ -22,16 +22,11 @@
     </parent>
 
     <artifactId>jdbi3-stringtemplate4</artifactId>
-    <name>jdbi3 String Template 4 integration</name>
-    <description>jdbi-stringtemplate4 locates SQL statements in StringTemplate 4 files on the classpath</description>
 
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>jdbi3 stringtemplate4</name>
+    <description>
+        Use Stringtemplate 4 for query templating.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.stringtemplate4</moduleName>

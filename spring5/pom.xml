@@ -21,8 +21,11 @@
     </parent>
 
     <artifactId>jdbi3-spring5</artifactId>
-    <name>jdbi3 Spring 5</name>
-    <description>jdbi Spring 4/5 forward compatibility testing</description>
+
+    <name>jdbi3 spring5</name>
+    <description>
+        SpringFramework and SpringBoot support.
+    </description>
 
     <properties>
         <moduleName>org.jdbi.v3.spring5</moduleName>
