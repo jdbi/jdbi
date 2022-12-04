@@ -16,6 +16,7 @@ package org.jdbi.v3.core.result;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -25,6 +26,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Commonly used ResultProducer implementations.
  */
 public class ResultProducers implements JdbiConfig<ResultProducers> {
+
     private boolean allowNoResults = false;
 
     public ResultProducers() {}
@@ -55,28 +57,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @see PreparedStatement#getResultSet()
      */
     public static ResultProducer<ResultBearing> returningResults() {
-        return (statementSupplier, ctx) -> ResultBearing.of(getResultSet(statementSupplier, ctx), ctx);
-    }
-
-    private static Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) {
-        return () -> {
-            try {
-                ResultSet resultSet = statementSupplier.get().getResultSet();
-
-                if (resultSet == null) {
-                    if (ctx.getConfig(ResultProducers.class).allowNoResults) {
-                        return new EmptyResultSet();
-                    }
-                    throw new NoResultsException("Statement returned no results", ctx);
-                }
-
-                ctx.addCleanable(resultSet::close);
-
-                return resultSet;
-            } catch (SQLException e) {
-                throw new ResultSetException("Could not get result set", e, ctx);
-            }
-        };
+        return (statementSupplier, ctx) -> createResultBearing(statementSupplier, Statement::getResultSet, ctx);
     }
 
     /**
@@ -94,26 +75,38 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
                 ctx.setGeneratedKeysColumnNames(generatedKeyColumnNames);
             }
 
-            return ResultBearing.of(getGeneratedKeys(preparedStatementSupplier, ctx), ctx);
+            return createResultBearing(preparedStatementSupplier, Statement::getGeneratedKeys, ctx);
         };
     }
 
-    private static Supplier<ResultSet> getGeneratedKeys(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) {
-        return () -> {
+    /**
+     * Create a {@link ResultBearing} instance backed by a {@link ResultSet}. This method can be used to create other {@link ResultProducer} instances
+     * that manage a {@link ResultBearing} instance.
+     *
+     * @param preparedStatementSupplier Provides the {@link PreparedStatement} to obtain the {@link ResultSet}.
+     * @param resultSetCreator Creates a {@link ResultSet} from a {@link Statement}.
+     * @param ctx The statement context.
+     * @return An instance of {@link ResultBearing} that is backed by the {@link ResultSet}.
+     */
+    public static ResultBearing createResultBearing(Supplier<PreparedStatement> preparedStatementSupplier, ResultSetCreator resultSetCreator, StatementContext ctx) {
+        return ResultBearing.of(() -> {
             try {
-                ResultSet resultSet = statementSupplier.get().getGeneratedKeys();
+                ResultSet resultSet = resultSetCreator.createResultSet(preparedStatementSupplier.get());
 
                 if (resultSet == null) {
-                    throw new NoResultsException("Statement returned no generated keys", ctx);
+                    if (ctx.getConfig(ResultProducers.class).allowNoResults) {
+                        return new EmptyResultSet();
+                    }
+                    throw new NoResultsException("Statement returned no results", ctx);
                 }
 
                 ctx.addCleanable(resultSet::close);
 
                 return resultSet;
             } catch (SQLException e) {
-                throw new ResultSetException("Could not get generated keys", e, ctx);
+                throw new ResultSetException("Could not process result set", e, ctx);
             }
-        };
+        }, ctx);
     }
 
     @Override
@@ -124,11 +117,27 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
     /**
      * Normally a query that doesn't return a result set throws an exception.
      * With this option, we will replace it with an empty result set instead.
-     * @param allowed the new allowNoResults setting
+     *
+     * @param allowNoResults True if an empty {@link ResultSet} object should be returned, false if a {@link NoResultsException} should be thrown.
      * @return this
      */
-    public ResultProducers allowNoResults(boolean allowed) {
-        this.allowNoResults = allowed;
+    public ResultProducers allowNoResults(boolean allowNoResults) {
+        this.allowNoResults = allowNoResults;
         return this;
+    }
+
+    @FunctionalInterface
+    /**
+     * Returns a ResultSet from a Statement.
+     */
+    public interface ResultSetCreator {
+
+        /**
+         * Use the supplied statement to create a ResultSet.
+         * @param statement An implementation of {@link Statement}.
+         * @return A {@link ResultSet}. May be null.
+         * @throws SQLException If the result set could not be created.
+         */
+        ResultSet createResultSet(Statement statement) throws SQLException;
     }
 }
