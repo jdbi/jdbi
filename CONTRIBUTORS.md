@@ -9,6 +9,8 @@
 - Marnick L'Eau
 - Henning Schmiedehausen
 
+## Contributors
+
 - Martin Traverso
 - Jax Law
 - Thomas Dudziak
